@@ -1,0 +1,2 @@
+GENE_ID	COMMON	TCGA-13-0717	TCGA-13-0720	TCGA-13-0724	TCGA-13-0725
+5728	PTEN	positive~https://devtracker.mskcc.org/devtracker/TCGALookup.do?studyId=11&key=TCGA-13-0717	negative~https://devtracker.mskcc.org/devtracker/TCGALookup.do?studyId=11&key=TCGA-13-0720	heterogeneous~https://devtracker.mskcc.org/devtracker/TCGALookup.do?studyId=11&key=TCGA-13-0724	negative~https://devtracker.mskcc.org/devtracker/TCGALookup.do?studyId=11&key=TCGA-13-0725

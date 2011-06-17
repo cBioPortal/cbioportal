@@ -1,0 +1,52 @@
+<div class="toc">
+<ul>
+<li><a href="#about">About</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#example-usage">Example usage</a></li>
+</ul>
+</div>
+<h1 id="about">About</h1>
+<p>The CGDS-R package provides a basic set of functions for querying the Cancer Genomic
+Data Server (CGDS) via the <a href="http://www.r-project.org/">R platform for statistical computing</a>.</p>
+<h1 id="documentation">Documentation</h1>
+<ul>
+<li><a href="http://cran.r-project.org/web/packages/cgdsr/index.html">CGDS-R Package on CRAN</a>.</li>
+<li>The <a href="http://cran.r-project.org/web/packages/cgdsr/cgdsr.pdf">CGDS-R reference manual</a>.</li>
+<li>The <a href="http://cran.r-project.org/web/packages/cgdsr/vignettes/cgdsr.pdf">CGDS-R documentation vignette</a>.</li>
+</ul>
+<h1 id="installation">Installation</h1>
+<ol>
+<li>
+<p>The CDGS-R package currently <strong>only works with R Version 2.12 or higher</strong>.</p>
+</li>
+<li>
+<p>Then install the cgds-R package from within R:</p>
+<p>install.packages('cgdsr')</p>
+</li>
+</ol>
+<h1 id="example-usage">Example usage</h1>
+<pre><code>library('cgdsr')
+
+mycgds = CGDS("http://cbio.mskcc.org/cgds-public/")
+
+# basic server API tests
+test(mycgds)
+
+# get list of cancer types at server
+getCancerTypes(mycgds)
+
+# get available case lists (collection of samples) for a given cancer type  
+mycancertype = getCancerTypes(mycgds)[1,1]
+mycaselist = getCaseLists(mycgds,mycancertype)[1,1]
+
+# get available genetic profiles
+mygeneticprofile = getGeneticProfiles(mycgds,mycancertype)[4,1]
+
+# get data for a specified list of genes, datatypes and case list
+getProfileData(mycgds,c('BRCA1','BRCA2'),mygeneticprofile,mycaselist)
+
+# documentation
+help('cgdsr')
+help('CGDS')
+</code></pre>

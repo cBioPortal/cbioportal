@@ -1,0 +1,13 @@
+# Application Name and Version
+app.name=tcga-ovarian
+app.version=0.1
+
+cgds.url=http://buri.cbio.mskcc.org:38080/cgds-public-ovarian/webservice.do
+
+skin.title=TCGA Ovarian Pathway Portal
+skin.blurb=<b>[Data Last Updated:  August 31, 2010]</b>  This portal provides access to TCGA ovarian data.<P>
+authentication=T
+
+# Manager webapp username and password
+manager.username=tomcat
+manager.password=tomcat

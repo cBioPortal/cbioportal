@@ -1,0 +1,12 @@
+# Application Name and Version
+app.name=portal
+app.version=0.1
+
+cgds.url=http://toro.cbio.mskcc.org:8080/cgds/webservice.do
+
+skin.title=Prostate Cancer Genomics Data Portal
+skin.blurb=It currently provides direct access to data derived from the MSKCC Prostate Cancer Genomics Project (PCGP).
+
+# Manager webapp username and password
+manager.username=tomcat
+manager.password=tomcat

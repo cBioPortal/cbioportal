@@ -1,0 +1,23 @@
+<table>
+<tr>
+    <td><b>Cancer Type</b></td>
+    <td><b>Cases</b></td>
+</tr>
+<tr>
+    <td>GBM</td>
+    <td>206</td>
+</tr>
+<tr>
+    <td>Ovarian</td>
+    <td>489</td>
+</tr>
+<tr>
+    <td>Prostate Cancer</td>
+    <td>230</td>
+</tr>
+<tr>
+    <td>Sarcoma</td>
+    <td>207</td>
+</tr>
+</table>
+<P>Last update: December 22, 2010.  <a href="data_sets.jsp">More...</a></p>

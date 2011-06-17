@@ -1,0 +1,23 @@
+Today, we are releasing several new features to our cBio Pathway Portal:
+http://cbio.mskcc.org/cancergenomics-dataportal/
+
+New features include:
+
+* Enhanced Oncoprints, enabling users to quickly visualize genomic alterations across many cases. Oncoprints now also work in all major browsers, including Firefox, Chrome, Safari, and Internet Explorer.
+* Official release of our Web Interface, enabling programmatic access to all data.
+* Official release of our R Package, enabling programmatic access to all data from the R platform for statistical computing.
+
+The portal now includes data from:
+
+* TCGA GBM
+* The MSKCC Prostate Cancer Genome Project; and
+* The MSKCC Sarcoma Project.
+
+We are planning several new features in the upcoming months, and we would certainly appreciate your feedback and suggestions.
+
+Ethan, on behalf of the Portal Team
+
+Nikolaus Schultz
+Arthur Goldberg
+Anders Jacobsen
+Chris Sander

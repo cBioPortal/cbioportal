@@ -1,0 +1,15 @@
+brca : Breast carcinoma
+coad : Colon adenocarcinoma
+coadread : Merged Colon and Rectal adenocarcinoma
+gbm : Glioblastoma multiforme
+hnsc : Head and neck squamous cell carcinoma
+kirc : Clear cell carcinoma
+kirp : Kidney papillary carcinoma
+laml : Acute myeloid leukemia
+luad : Lung adenocarcinoma
+lusc : Lung squamous cell carcinoma
+ov : Ovarian serous cystadenocarcinoma
+read : Rectal adenocarcinoma
+stad : Stomach adenocarcinoma
+thca : Thyroid Carcinoma
+ucec : Uterine corpus endometrial carcinoma

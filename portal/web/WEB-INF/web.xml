@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+                         "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>Cancer Genomics Portal</display-name>
+
+    <servlet>
+        <servlet-name>query_builder</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>
+        <init-param>
+            <param-name>cgds_url</param-name>
+            <param-value>cgds_url_value</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>plot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.PlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>generatePlots</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
+        <init-param>
+            <param-name>r_installed</param-name>
+            <param-value>r_installed_value</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>plot-test</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.PlotTestServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>show_data</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ShowData</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>authenticate_user</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.AuthenticateUser</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>query_builder</servlet-name>
+        <url-pattern>/index.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>query_builder</servlet-name>
+        <url-pattern>/survival_plot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>authenticate_user</servlet-name>
+        <url-pattern>/authenticate.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>show_data</servlet-name>
+        <url-pattern>/show_data.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot</servlet-name>
+        <url-pattern>/plot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot</servlet-name>
+        <url-pattern>/plot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>generatePlots</servlet-name>
+        <url-pattern>/generatePlots.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot-test</servlet-name>
+        <url-pattern>/plot-test.do</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.do</welcome-file>
+    </welcome-file-list>
+</web-app>

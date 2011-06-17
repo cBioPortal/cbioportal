@@ -1,0 +1,528 @@
+package org.mskcc.portal.tool.bundle;
+
+import org.mskcc.portal.model.ProfileData;
+import org.mskcc.portal.model.GeneticAlterationType;
+import org.mskcc.portal.util.ValueParser;
+import org.mskcc.portal.tool.AlterationToPlainEnglish;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.io.FileWriter;
+import java.io.IOException;
+
+class BrcaBundle extends Bundle {
+    private ArrayList<String> geneList;
+    private HashSet <String> emsyAmplifiedSet = new HashSet<String>();
+    private HashSet <String> brca1MethylatedSet = new HashSet<String>();
+    private HashSet <String> brca1IntragenicDeletion = new HashSet<String>();
+    private HashSet <String> rad51CMethylatedSet = new HashSet<String>();
+    private HashSet <String> brca1SomaticSet = new HashSet<String>();
+    private HashSet <String> brca1GermlineSet = new HashSet<String>();
+    private HashSet <String> brca2SomaticSet = new HashSet<String>();
+    private HashSet <String> brca2GermlineSet = new HashSet<String>();
+    private FileWriter writer;
+    
+    private int numCases;
+    private int numEmsyAltered = 0;
+    private int numBrca1Hypermethylated = 0;
+    private int numBrcaSomaticAltered = 0;
+    private int numBrcaGermlineAltered = 0;
+    private int numPtenAltered = 0;
+    private int numRad51CAltered = 0;
+
+    public static int NO_MUTATION = 0;
+    public static int SOMATIC_MUTATION = 1;
+    public static int GERMLINE_MUTATION =2;
+
+    public BrcaBundle () {
+
+        try {
+            writer = new FileWriter("hr_altered.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //  Hard-coded calls for EMSY Amplification; GISTIC
+        emsyAmplifiedSet.add("TCGA-04-1341");
+        emsyAmplifiedSet.add("TCGA-09-0366");
+        emsyAmplifiedSet.add("TCGA-13-0723");
+        emsyAmplifiedSet.add("TCGA-13-0762");
+        emsyAmplifiedSet.add("TCGA-25-1322");
+
+//        emsyAmplifiedSet.add("TCGA-04-1341");
+//        emsyAmplifiedSet.add("TCGA-04-1362");
+//        emsyAmplifiedSet.add("TCGA-04-1514");
+//        emsyAmplifiedSet.add("TCGA-09-0366");
+//        emsyAmplifiedSet.add("TCGA-13-0723");
+//        emsyAmplifiedSet.add("TCGA-13-0760");
+//        emsyAmplifiedSet.add("TCGA-13-0762");
+//        emsyAmplifiedSet.add("TCGA-13-0794");
+//        emsyAmplifiedSet.add("TCGA-13-0802");
+//        emsyAmplifiedSet.add("TCGA-13-0899");
+//        emsyAmplifiedSet.add("TCGA-13-1501");
+//        emsyAmplifiedSet.add("TCGA-23-1022");
+//        emsyAmplifiedSet.add("TCGA-23-1124");
+//        emsyAmplifiedSet.add("TCGA-25-1319");
+//        emsyAmplifiedSet.add("TCGA-25-1325");
+
+        //  Hard-coded BRCA1 calls from Hui
+        brca1MethylatedSet.add("TCGA-09-1665");
+        brca1MethylatedSet.add("TCGA-04-1361");
+        brca1MethylatedSet.add("TCGA-13-0725");
+        brca1MethylatedSet.add("TCGA-13-0897");
+        brca1MethylatedSet.add("TCGA-13-0905");
+        brca1MethylatedSet.add("TCGA-13-0908");
+        brca1MethylatedSet.add("TCGA-13-1501");
+        brca1MethylatedSet.add("TCGA-24-1428");
+        brca1MethylatedSet.add("TCGA-24-1557");
+        brca1MethylatedSet.add("TCGA-24-1614");
+        brca1MethylatedSet.add("TCGA-25-1313");
+        brca1MethylatedSet.add("TCGA-36-1568");
+        brca1MethylatedSet.add("TCGA-04-1362");
+        brca1MethylatedSet.add("TCGA-04-1651");
+        brca1MethylatedSet.add("TCGA-09-0367");
+        brca1MethylatedSet.add("TCGA-10-0928");
+        brca1MethylatedSet.add("TCGA-10-0937");
+        brca1MethylatedSet.add("TCGA-13-0792");
+        brca1MethylatedSet.add("TCGA-13-0916");
+        brca1MethylatedSet.add("TCGA-13-0920");
+        brca1MethylatedSet.add("TCGA-13-1482");
+        brca1MethylatedSet.add("TCGA-13-1483");
+        brca1MethylatedSet.add("TCGA-13-1497");
+        brca1MethylatedSet.add("TCGA-13-1510");
+        brca1MethylatedSet.add("TCGA-23-1022");
+        brca1MethylatedSet.add("TCGA-23-1117");
+        brca1MethylatedSet.add("TCGA-24-1423");
+        brca1MethylatedSet.add("TCGA-24-1425");
+        brca1MethylatedSet.add("TCGA-24-1430");
+        brca1MethylatedSet.add("TCGA-24-1435");
+        brca1MethylatedSet.add("TCGA-24-1567");
+        brca1MethylatedSet.add("TCGA-24-1845");
+        brca1MethylatedSet.add("TCGA-25-1326");
+        brca1MethylatedSet.add("TCGA-29-1694");
+        brca1MethylatedSet.add("TCGA-29-1705");
+        brca1MethylatedSet.add("TCGA-29-1711");
+        brca1MethylatedSet.add("TCGA-57-1585");
+        brca1MethylatedSet.add("TCGA-61-1895");
+        brca1MethylatedSet.add("TCGA-61-1901");
+        brca1MethylatedSet.add("TCGA-61-1910");
+        brca1MethylatedSet.add("TCGA-61-1913");
+        brca1MethylatedSet.add("TCGA-29-1707");
+        brca1MethylatedSet.add("TCGA-13-0760");
+        brca1MethylatedSet.add("TCGA-29-1777");
+        brca1MethylatedSet.add("TCGA-13-0758");
+        brca1MethylatedSet.add("TCGA-29-1769");
+
+        //  We only have one clear cut case of BRCA1 Intragenic Deletion accompanied by
+        //  corresponding drop in exon expression
+        brca1IntragenicDeletion.add("TCGA-24-1104");
+
+        //  Hard-Coded RAD51 Hypermethylation Calls
+        rad51CMethylatedSet.add("TCGA-13-0924");
+        rad51CMethylatedSet.add("TCGA-23-1031");
+        rad51CMethylatedSet.add("TCGA-23-1110");
+        rad51CMethylatedSet.add("TCGA-24-1104");
+        rad51CMethylatedSet.add("TCGA-25-1325");
+        rad51CMethylatedSet.add("TCGA-24-1422");
+        rad51CMethylatedSet.add("TCGA-04-1536");
+        rad51CMethylatedSet.add("TCGA-09-1662");
+        rad51CMethylatedSet.add("TCGA-30-1855");
+        rad51CMethylatedSet.add("TCGA-61-1915");
+
+        brca1SomaticSet.add("TCGA-04-1357");
+        brca1SomaticSet.add("TCGA-13-0730");
+        brca1SomaticSet.add("TCGA-13-0797");
+        brca1SomaticSet.add("TCGA-13-0804");
+        brca1SomaticSet.add("TCGA-13-0912");
+        brca1SomaticSet.add("TCGA-13-0912");
+        brca1SomaticSet.add("TCGA-13-0912");
+        brca1SomaticSet.add("TCGA-13-1489");
+
+        brca1GermlineSet.add("TCGA-10-0931");
+        brca1GermlineSet.add("TCGA-13-0766");
+        brca1GermlineSet.add("TCGA-13-0887");
+        brca1GermlineSet.add("TCGA-13-0887");
+        brca1GermlineSet.add("TCGA-23-1027");
+        brca1GermlineSet.add("TCGA-13-1512");
+        brca1GermlineSet.add("TCGA-04-1356");
+        brca1GermlineSet.add("TCGA-13-0883");
+        brca1GermlineSet.add("TCGA-23-1122");
+        brca1GermlineSet.add("TCGA-13-0903");
+        brca1GermlineSet.add("TCGA-24-1470");
+
+        brca2SomaticSet.add("TCGA-04-1331");
+        brca2SomaticSet.add("TCGA-13-0792");
+        brca2SomaticSet.add("TCGA-13-0885");
+        brca2SomaticSet.add("TCGA-13-0885");
+        brca2SomaticSet.add("TCGA-13-0890");
+        brca2SomaticSet.add("TCGA-13-0890");
+        brca2SomaticSet.add("TCGA-13-1481");
+        brca2SomaticSet.add("TCGA-23-1030");
+        brca2SomaticSet.add("TCGA-24-1103");
+        brca2SomaticSet.add("TCGA-25-1320");
+
+        brca2GermlineSet.add("TCGA-13-0726");
+        brca2GermlineSet.add("TCGA-13-0799");
+        brca2GermlineSet.add("TCGA-13-0886");
+        brca2GermlineSet.add("TCGA-13-0913");
+        brca2GermlineSet.add("TCGA-13-0919");
+        brca2GermlineSet.add("TCGA-23-1121");
+        brca2GermlineSet.add("TCGA-24-1562");
+        brca2GermlineSet.add("TCGA-25-1314");
+        brca2GermlineSet.add("TCGA-25-1323");
+    }
+
+    public ArrayList<String> getGeneList() {
+        geneList = new ArrayList<String>();
+        geneList.add("BRCA1");
+        geneList.add("BRCA2");
+        geneList.add("C11ORF30");   //  AKA EMSY
+        geneList.add("PTEN");
+        geneList.add("FLNA");
+//        geneList.add("RAD51C");
+//        geneList.add("TP53");
+//        geneList.add("ATM");
+//        geneList.add("ATR");
+//        geneList.add("FANCD2");
+//        geneList.add("GEN1");
+//        geneList.add("PALB2");
+//        geneList.add("DDB1");
+//        geneList.add("FANCA");
+//        geneList.add("FANCF");
+//        geneList.add("FANCG");
+//        geneList.add("FANCM");
+//        geneList.add("LIG1");
+//        geneList.add("RBBP8");
+//        geneList.add("RPA1");
+//        geneList.add("XRCC2");
+        return geneList;
+    }
+
+    public ArrayList<String> getGeneticProfileList() {
+        ArrayList <Integer> geneticProfileList = new ArrayList<Integer>();
+        return null;
+//        // Mutations
+//        geneticProfileList.add(1);
+//        //  CNA - GISTIC
+//        geneticProfileList.add(2);
+//        //  mRNA - ZScores Relative to All Tumors
+//        geneticProfileList.add(6);
+//        //  Methylation - Binary Values
+//        geneticProfileList.add(9);
+//        return geneticProfileList;
+    }
+
+    public String getCaseSetId() {
+        return "ova_4way_complete";  // Ovarian Four-Way Complete
+    }
+
+    public int binAccept (String caseId, ProfileData mergedProfile) {
+        numCases += 1;
+
+        int accept = 0;
+
+        //  BRCA1 Mutation
+        if (getMutationStatus(caseId, "BRCA1", mergedProfile) == GERMLINE_MUTATION) {
+            numBrcaGermlineAltered++;
+            writeCase (caseId, "BRCA1_GERMLINE");
+            writeCase (caseId, "BRCA_GERMLINE");
+            writeCase (caseId, "BRCA_ALTERED");
+            if (accept == 0) {
+                accept = 1;
+            }
+        }
+
+        if (getMutationStatus(caseId, "BRCA1", mergedProfile) == SOMATIC_MUTATION) {
+            writeCase (caseId, "BRCA1_SOMATIC");
+            writeCase (caseId, "BRCA_SOMATIC");
+            writeCase (caseId, "BRCA_ALTERED");
+            numBrcaSomaticAltered++;
+            if (accept == 0) {
+                accept = 2;
+            }
+        }
+
+
+        //  BRCA1 Homozygous Deletions
+        if (getCnaCall(caseId, "BRCA1", mergedProfile).equals
+                (GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+            writeCase (caseId, "BRCA_ALTERED");
+            if (accept ==0) {
+                accept = 3;
+            }
+        }
+
+        //  BRCA1 Epigenetic Loss Calls
+        if (isEpigeniticallySilenced(caseId, "BRCA1", mergedProfile)) {
+            writeCase (caseId, "BRCA1_SILENCED");
+            numBrca1Hypermethylated++;
+            if (accept ==0) {
+                accept = 4;
+            }
+        }
+
+        if (getMutationStatus(caseId, "BRCA2", mergedProfile) == GERMLINE_MUTATION) {
+            numBrcaGermlineAltered++;
+            writeCase (caseId, "BRCA2_GERMLINE");
+            writeCase (caseId, "BRCA_GERMLINE");
+            writeCase (caseId, "BRCA_ALTERED");
+            if (accept ==0) {
+                accept = 5;
+            }
+        }
+
+        if (getMutationStatus(caseId, "BRCA2", mergedProfile) == SOMATIC_MUTATION) {
+            writeCase (caseId, "BRCA2_SOMATIC");
+            writeCase (caseId, "BRCA_SOMATIC");
+            writeCase (caseId, "BRCA_ALTERED");
+            numBrcaSomaticAltered++;
+            if (accept ==0) {
+                accept = 6;
+            }
+        }
+
+        //  EMSY Calls
+        if (getMutationStatus(caseId, "C11ORF30", mergedProfile) > 0) {
+            //writeCase (caseId, "EMSY_ALTERED");
+            numEmsyAltered++;
+            if (accept ==0) {
+                accept = 8;
+            }
+        }
+
+        if (getCnaCall (caseId, "C11ORF30",
+                mergedProfile).equals(GeneticAlterationType.AMPLIFICATION)) {
+            numEmsyAltered++;
+            writeCase (caseId, "EMSY_ALTERED");
+            if (accept ==0) {
+                accept = 8;
+            }
+        }
+
+        if (getMutationStatus(caseId, "PTEN", mergedProfile) > 0) {
+            writeCase (caseId, "PTEN_ALTERED");
+            numPtenAltered++;
+            if (accept ==0) {
+                accept = 9;
+            }
+        }
+
+        if (getCnaCall (caseId, "PTEN",
+                mergedProfile).equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+            writeCase (caseId, "PTEN_ALTERED");
+            numPtenAltered++;
+            if (accept ==0) {
+                accept = 10;
+            }
+        }
+
+        //  RAD51C Epigenetic Loss Calls
+//        if (isEpigeniticallySilenced(caseId, "RAD51C", mergedProfile)) {
+//            writeCase (caseId, "RAD51_ALTERED");
+//            numRad51CAltered++;
+//            if (accept == 0) {
+//                accept = 11;
+//            }
+//        }
+
+        if (getMutationStatus(caseId, "FLNA", mergedProfile) > 0) {
+            if (accept ==0) {
+                accept = 13;
+            }
+        }
+//
+//        //  All other mutations
+//        for (int i=5; i<geneList.size(); i++) {
+//            String gene = geneList.get(i);
+//            ValueParser geneValue = mergedProfile.getValueParsed(gene, caseId, zScoreThreshold);
+//            if (geneValue.isMutated()) {
+//                if (accept ==0) {
+//                    accept = 100 + (i);
+//                }
+//            }
+//        }
+
+        // All else, return false.
+        return accept;
+    }
+
+    private void writeCase (String caseId, String value) {
+        try {
+            writer.write(caseId + "\t" + value + "\n");
+        } catch (IOException e) {
+        }
+    }
+
+    public String getCnaCall (String caseId, String gene, ProfileData mergedProfile) {
+        //  So far, we only have one explicit rule for C11ORF30
+        if (gene.equals("C11ORF30")) {
+            if (emsyAmplifiedSet.contains(caseId)) {
+                return GeneticAlterationType.AMPLIFICATION;
+            } else {
+                return GeneticAlterationType.ZERO;
+            }
+        } else if (gene.equals("BRCA1")) {
+            if (brca1IntragenicDeletion.contains(caseId)) {
+                return GeneticAlterationType.HOMOZYGOUS_DELETION;
+            } else {
+                return GeneticAlterationType.ZERO;    
+            }
+        } else {
+            //  All others get passed through.
+            ValueParser value = mergedProfile.getValueParsed(gene, caseId, 0.0);
+            if (value != null) {
+                return value.getCnaValue();
+            } else {
+                return GeneticAlterationType.ZERO;
+            }
+        }
+    }
+
+    public boolean isEpigeniticallySilenced (String caseId, String gene, ProfileData mergedProfile) {
+        //  So far, rule only applies to BRCA1
+        if (gene.equals("BRCA1")) {
+            if (brca1MethylatedSet.contains(caseId)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (gene.equals("RAD51C")) {
+            if (rad51CMethylatedSet.contains(caseId)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public int getMutationStatus (String caseId, String gene, ProfileData mergedProfile) {
+        if (gene.equals("BRCA1")) {
+            if (brca1GermlineSet.contains(caseId)) {
+                return GERMLINE_MUTATION;
+            } else if (brca1SomaticSet.contains(caseId)) {
+                return 1;
+            }
+        } else if (gene.equals("BRCA2")) {
+            if (brca2GermlineSet.contains(caseId)) {
+                return GERMLINE_MUTATION;
+            } else if (brca2SomaticSet.contains(caseId)) {
+                return 1;
+            }
+        } else {
+            ValueParser gene0 = mergedProfile.getValueParsed(gene, caseId, 0.0);
+            if (gene0 != null && gene0.isMutated()) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    public ArrayList <String> getColumnHeadings() {
+        ArrayList<String> columnHeadings = new ArrayList<String>();
+        columnHeadings.add("BRCA1 Mutation");
+        columnHeadings.add("BRCA1 Copy Number Alteration - GISTIC");
+        columnHeadings.add("BRCA1 Methylation");
+        columnHeadings.add("BRCA1 mRNA - ZScore Relative to all Tumors");
+        columnHeadings.add("BRCA2 Mutation");
+        columnHeadings.add("BRCA2 Copy Number Alteration - GISTIC");
+        columnHeadings.add("EMSY Copy Number Alteration - GISTIC");
+        columnHeadings.add("EMSY Mutation");
+        return columnHeadings;
+    }
+
+    public String getTableField (int column, String caseId, ProfileData mergedProfile) {
+//        DecimalFormat decFormat = new DecimalFormat("###,###.####");
+//        double zScoreThreshold = 0.0;   //  Z-Score Threshold is not Used
+//        ValueParser brca1 = mergedProfile.getValueParsed("BRCA1", caseId, zScoreThreshold);
+//        ValueParser brca2 = mergedProfile.getValueParsed("BRCA2", caseId, zScoreThreshold);
+//        ValueParser c11orf30 = mergedProfile.getValueParsed("C11ORF30", caseId, zScoreThreshold);
+//
+//        if (column == 0) {
+//            return AlterationToPlainEnglish.getMutationCall(brca1);
+//        }
+//
+//        if (column == 1) {
+//            return AlterationToPlainEnglish.getCnaCall(brca1);
+//        }
+//
+//        if (column == 2) {
+//            String brca1Methylation = brca1.getUnparsedMethylationValue();
+//            if (brca1Methylation != null && !brca1Methylation.equals("NaN")) {
+//                Double d = Double.parseDouble(brca1Methylation);
+//                return decFormat.format(d);
+//            }
+//        }
+//
+//        if (column == 3) {
+//            String brca1MRNA = brca1.getUnparsedMRNAValue();
+//            if (brca1MRNA != null && !brca1MRNA.equals("NaN")) {
+//                Double d = Double.parseDouble(brca1MRNA);
+//                return decFormat.format(d);
+//            }
+//        }
+//
+//        if (column == 4) {
+//            return AlterationToPlainEnglish.getMutationCall(brca2);
+//        }
+//
+//        if (column == 5) {
+//            return AlterationToPlainEnglish.getCnaCall(brca2);
+//        }
+//
+//        if (column == 6) {
+//            if (c11orf30 != null) {
+//                String emsyMRNA = c11orf30.getUnparsedMRNAValue();
+//                if (emsyMRNA != null) {
+//                    double d = Double.parseDouble(emsyMRNA);
+//                    if (getCnaCall (caseId, "C11ORF30",
+//                            mergedProfile).equals(GeneticAlterationType.AMPLIFICATION)) {
+//                        return "Likely amplified, mRNA:  " + decFormat.format(d);
+//                    } else {
+//                        return "---";
+//                    }
+//                } else {
+//                    return "---";
+//                }
+//            } else {
+//                return "---";
+//            }
+//        }
+//
+//        if (column == 7) {
+//            if (c11orf30 != null) {
+//                return AlterationToPlainEnglish.getMutationCall(c11orf30);
+//            } else {
+//                return "---";
+//            }
+//        }
+        return "";
+    }
+
+    public String getSummary() {
+        StringBuffer buf = new StringBuffer();
+        buf.append ("Total number of cases is:  " + numCases + "\n");
+        buf.append (summarize ("BRCA1 / BRCA2 Germline Mutation", numBrcaGermlineAltered, numCases));
+        buf.append (summarize ("BRCA1 / BRCA2 Somatic Mutation", numBrcaSomaticAltered, numCases));
+        buf.append (summarize ("EMSY Altered", numEmsyAltered, numCases));
+        buf.append (summarize ("BRCA1 Hypermethylated", numBrca1Hypermethylated, numCases));
+        buf.append (summarize ("PTEN Altered", numPtenAltered, numCases));
+        buf.append (summarize ("RAD51C Altered", numRad51CAltered, numCases));
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return buf.toString();
+    }
+
+    private String summarize (String start, int numCasesAffected, int totalN) {
+        double percent = 100.0 * (numCasesAffected / (float) numCases);
+        NumberFormat formatter = new DecimalFormat("#0.0");
+        return (start + ":  " + numCasesAffected
+                + " [" + formatter.format(percent) + "%]\n");
+    }
+
+}

@@ -448,7 +448,7 @@ public class QueryBuilder extends HttpServlet {
             } else {
                 //  (Optionally) Get Network of Interest
                 if (INCLUDE_NETWORKS) {
-                    String networkSif = GetNetwork.getNetwork(geneList, xdebug);
+                    String networkSif = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
                     request.setAttribute(NETWORK_SIF, networkSif);
                 }
 

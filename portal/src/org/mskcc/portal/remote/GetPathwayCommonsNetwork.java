@@ -42,13 +42,11 @@ public class GetPathwayCommonsNetwork {
                 sbUrl.append(gene);
             }
             
-            xdebug.logMsg(this, "URL: "+sbUrl.toString());
+            //xdebug.logMsg(this, "URL: "+sbUrl.toString());
 
             Network network = readNetworkFromExtendedSif(new URL(sbUrl.toString()).openStream(), xdebug);
             
-            String sif = network2Sif(network);
-            
-            return sif;
+            return network2GraphML(network);
         } catch (IOException e) {
             throw new RemoteException("Remote Access Error", e);
         }
@@ -73,7 +71,13 @@ public class GetPathwayCommonsNetwork {
                 String interaction = strs[1];
                 Edge edge = new Edge(source, target, interaction);
                 for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-                    edge.addAttribute(edgeHeaders[i], strs[i]);
+                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")) {
+                        for (String pubmed : strs[i].split(";")) {
+                            edge.addAttribute(edgeHeaders[i], pubmed);
+                        }
+                    } else {
+                        edge.addAttribute(edgeHeaders[i], strs[i]);
+                    }
                 }
                 network.addEdge(edge);
             }
@@ -96,11 +100,6 @@ public class GetPathwayCommonsNetwork {
                 }
             }
             
-            for (Node node : network.getNodes()) {
-                System.out.print(node.getId()+"\t");
-                System.out.println(node.getXrefs().toString());
-            }
-            
             return network;
     }
     
@@ -117,7 +116,109 @@ public class GetPathwayCommonsNetwork {
             sb.append("\n");
         }
         
+        return sb.toString();   
+    }
+    
+    private String network2GraphML(Network network) {
+        Map<String,String> mapNodeAttrNameType = new HashMap<String,String>();
+        Map<String,String> mapEdgeAttrNameType = new HashMap<String,String>();
+        StringBuilder sb = new StringBuilder();
+        sb.append("<graphml>\n");
+        sb.append(" <graph edgedefault=\"undirected\">\n");
+        for (Node node : network.getNodes()) {
+            sb.append("  <node id=\"");
+            sb.append(node.getId());
+            sb.append("\">\n");
+            sb.append("   <data key=\"label\">");
+            sb.append(getNodeNGNCIdIfAvailable(node));
+            sb.append("</data>\n");
+            for (AttributeValuePair av : node.getAvPairs()) {
+                String attr = av.getAttr();
+                Object value = av.getValue();
+                
+                sb.append("   <data key=\"");
+                sb.append(attr);
+                sb.append("\">");
+                sb.append(value);
+                sb.append("</data>\n");
+                
+                String type = getAttrType(value);
+                
+                String pre = mapNodeAttrNameType.get(attr);
+                if (pre!=null) {
+                    if (!pre.equals(type))
+                        mapNodeAttrNameType.put(attr, "string");
+                } else {
+                    mapNodeAttrNameType.put(attr, type);
+                }
+            }
+            sb.append("  </node>\n");
+        }
+        for (Edge edge : network.getEdges()) {
+            sb.append("  <edge source=\"");
+            sb.append(edge.getSourceNode().getId());
+            sb.append("\" target=\"");
+            sb.append(edge.getTargetNode().getId());
+            sb.append("\">\n");
+            for (AttributeValuePair av : edge.getAvPairs()) {
+                String attr = av.getAttr();
+                Object value = av.getValue();
+                
+                sb.append("   <data key=\"");
+                sb.append(attr);
+                sb.append("\">");
+                sb.append(value);
+                sb.append("</data>\n");
+                
+                String type = getAttrType(value);
+                
+                String pre = mapEdgeAttrNameType.get(attr);
+                if (pre!=null) {
+                    if (!pre.equals(type))
+                        mapEdgeAttrNameType.put(attr, "string");
+                } else {
+                    mapEdgeAttrNameType.put(attr, type);
+                }
+            }
+            sb.append("  </edge>\n");
+        }
+        sb.append(" </graph>\n");
+        sb.append(" <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
+        
+        for (Map.Entry<String,String> entry : mapNodeAttrNameType.entrySet()) {
+            sb.append(" <key id=\"")
+              .append(entry.getKey())
+              .append("\" for=\"node\" attr.name=\"")
+              .append(entry.getKey())
+              .append("\" attr.type=\"")
+              .append(entry.getValue())
+              .append("\"/>\n");
+        }
+        
+        for (Map.Entry<String,String> entry : mapEdgeAttrNameType.entrySet()) {
+            sb.append(" <key id=\"")
+              .append(entry.getKey())
+              .append("\" for=\"edge\" attr.name=\"")
+              .append(entry.getKey())
+              .append("\" attr.type=\"")
+              .append(entry.getValue())
+              .append("\"/>\n");
+        }
+        
+        sb.append("</graphml>\n");
+        
         return sb.toString();
+    }
+    
+    private String getAttrType(Object obj) {
+        if (obj instanceof Integer)
+            return "integer";
+        if (obj instanceof Float || obj instanceof Double)
+            return "double";
+        if (obj instanceof Boolean)
+            return "boolean";
+        
+        return "string";
     }
     
     private static final String NGNC = "NGNC";
@@ -132,8 +233,8 @@ public class GetPathwayCommonsNetwork {
 
 class AttributeValuePair {
     private String attr;
-    private String value;
-    AttributeValuePair(String attr, String value) {
+    private Object value;
+    AttributeValuePair(String attr, Object value) {
         this.attr = attr;
         this.value = value;
     }
@@ -142,7 +243,7 @@ class AttributeValuePair {
         return attr;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
     
@@ -184,7 +285,7 @@ class Node {
         return ids;
     }
     
-    public void addAttribute(String attr, String value) {
+    public void addAttribute(String attr, Object value) {
         avPairs.add(new AttributeValuePair(attr, value));
     }
     
@@ -194,6 +295,10 @@ class Node {
             ids = new HashSet<String>();
             xrefs.put(type, ids);
         }
+        
+        // also add attribute
+        addAttribute("xref", type+":"+id);
+        
         ids.add(id);
     }
     
@@ -252,7 +357,7 @@ class Edge {
         return avPairs;
     }
     
-    public void addAttribute(String attr, String value) {
+    public void addAttribute(String attr, Object value) {
         avPairs.add(new AttributeValuePair(attr, value));
     }    
     

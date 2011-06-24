@@ -21,7 +21,9 @@ public class TestGetPathwayCommonsNetwork extends TestCase {
     public void testGetPathwayCommonsNetwork() throws RemoteException {
         GetPathwayCommonsNetwork gpcn = new GetPathwayCommonsNetwork();
         String net = gpcn.getNetwork(Arrays.asList("BRCA1"), new XDebug());
-        System.out.println(net);
+        boolean print = false;
+        if (print)
+            System.out.println(net);
         
     }
 }

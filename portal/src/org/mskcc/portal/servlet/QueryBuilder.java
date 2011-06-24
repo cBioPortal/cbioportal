@@ -375,7 +375,7 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         }
-
+        
         //  Store Extended Mutations
         ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList);
         request.setAttribute(MUTATION_MAP, mutationMap);

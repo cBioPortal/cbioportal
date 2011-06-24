@@ -15,7 +15,7 @@
 <script type="text/javascript">
             window.onload = function() {
                 var div_id = "cytoscapeweb";
-                var sif = "<%=networkSif%>";
+                var sif = '<%=networkSif%>';
                 sif = sif.replace(new RegExp("~n~", 'g'), "\n");
 
                 var visual_style = {

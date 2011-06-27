@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.portal.network.Network;
 
 /**
  * JUnit test for get cancer types.
@@ -20,7 +21,7 @@ public class TestGetPathwayCommonsNetwork extends TestCase {
      */
     public void testGetPathwayCommonsNetwork() throws RemoteException {
         GetPathwayCommonsNetwork gpcn = new GetPathwayCommonsNetwork();
-        String net = gpcn.getNetwork(Arrays.asList("BRCA1"), new XDebug());
+        Network net = gpcn.getNetwork(Arrays.asList("BRCA1"), new XDebug());
         boolean print = false;
         if (print)
             System.out.println(net);

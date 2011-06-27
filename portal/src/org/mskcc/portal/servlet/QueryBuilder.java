@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mskcc.portal.model.*;
+import org.mskcc.portal.network.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
@@ -448,8 +449,17 @@ public class QueryBuilder extends HttpServlet {
             } else {
                 //  (Optionally) Get Network of Interest
                 if (INCLUDE_NETWORKS) {
-                    String networkSif = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
-                    request.setAttribute(NETWORK_SIF, networkSif);
+                    Network network = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
+                    String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
+                        // using NGNC gene symbol as label if available
+                        public String getLabel(Node node) {
+                            Set<String> ngnc = node.getXref("NGNC");
+                            if (ngnc.isEmpty())
+                                return node.getId();
+                            return ngnc.iterator().next();
+                        }
+                    });
+                    request.setAttribute(NETWORK_SIF, graphML);
                 }
 
                 // Store download links in session (for possible future retrieval).
@@ -464,6 +474,16 @@ public class QueryBuilder extends HttpServlet {
         }
     }
     
+    
+    
+    private static final String NGNC = "NGNC";
+    
+    private String getNodeNGNCIdIfAvailable(Node node) {
+        Set<String> ngnc = node.getXref(NGNC);
+        if (ngnc.isEmpty())
+            return node.getId();
+        return ngnc.iterator().next();
+    }
     /**
      * validate the portal web input form.
      * @param action

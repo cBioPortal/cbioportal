@@ -452,8 +452,9 @@ public class QueryBuilder extends HttpServlet {
                     Network network = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
                     String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                         // using NGNC gene symbol as label if available
+                        private static final String NGNC = "NGNC";
                         public String getLabel(Node node) {
-                            Set<String> ngnc = node.getXref("NGNC");
+                            Set<String> ngnc = node.getXref(NGNC);
                             if (ngnc.isEmpty())
                                 return node.getId();
                             return ngnc.iterator().next();
@@ -474,16 +475,6 @@ public class QueryBuilder extends HttpServlet {
         }
     }
     
-    
-    
-    private static final String NGNC = "NGNC";
-    
-    private String getNodeNGNCIdIfAvailable(Node node) {
-        Set<String> ngnc = node.getXref(NGNC);
-        if (ngnc.isEmpty())
-            return node.getId();
-        return ngnc.iterator().next();
-    }
     /**
      * validate the portal web input form.
      * @param action

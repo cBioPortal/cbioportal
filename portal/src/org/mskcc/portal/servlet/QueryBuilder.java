@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,6 +75,11 @@ public class QueryBuilder extends HttpServlet {
     public static final int MUTATION_DETAIL_LIMIT = 10;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final int MAX_NUM_GENES = 100;
+    
+    private static final String NGNC = "NGNC";
+    private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
+    private static final String NODE_ATTR_PERCENTAGE_ALTERED = "PERCENTAGE_ALTERED";
+    
     private ServletXssUtil servletXssUtil;
 
     /**
@@ -450,9 +456,73 @@ public class QueryBuilder extends HttpServlet {
                 //  (Optionally) Get Network of Interest
                 if (INCLUDE_NETWORKS) {
                     Network network = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
+                    
+                    // add attribute is_query to indicate if a node is in query genes
+                    HashSet<String> queryGenes = new HashSet<String>(mergedProfile.getGeneList());
+                    // and get the list of newly imported genes
+                    ArrayList<String> newGenes = new ArrayList();
+                    for (Node node : network.getNodes()) {
+                        Set<String> ngnc = node.getXref(NGNC);
+                    
+                        Boolean in_query = Boolean.FALSE;
+                        if (!ngnc.isEmpty()) { 
+                            if(Collections.disjoint(ngnc, queryGenes)) {
+                                newGenes.add(ngnc.iterator().next());
+                            } else {
+                                in_query = Boolean.TRUE;
+                            }
+                        } 
+                        node.addAttribute(NODE_ATTR_IN_QUERY, in_query);
+                    }
+                    newGenes.removeAll(mergedProfile.getGeneList());
+                    
+                    // retrieve profiles from CGDS for new genes
+                    ArrayList<ProfileData> newProfileDataList = new ArrayList<ProfileData>();
+                    newProfileDataList.addAll(profileDataList);
+                    for (String profileId : geneticProfileIdSet) {                        
+                        GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+                        if( null == profile ){
+                           continue;
+                        }
+                        xdebug.logMsg(this, "Getting data for:  " + profile.getName());
+                        Date startTime = new Date();
+                        GetProfileData remoteCall = new GetProfileData();
+                        ProfileData pData = remoteCall.getProfileData(profile, newGenes, caseIds, xdebug);
+                        Date stopTime = new Date();
+                        long timeElapsed = stopTime.getTime() - startTime.getTime();
+                        xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
+                        if( pData == null ){
+                           System.err.println( "pData == null" );
+                        }else{
+                           if( pData.getGeneList() == null ){
+                              System.err.println( "pData.getGeneList() == null" );
+                           }
+                        }
+                        xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
+                        if (pData != null) {
+                            xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
+                            xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
+                        }
+                        xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
+                        newProfileDataList.add(pData);
+
+                    }
+                    
+                    merger = new ProfileMerger(newProfileDataList);
+                    ProfileData newMergedProfile = merger.getMergedProfile();
+                    ProfileDataSummary dataSummary = new ProfileDataSummary(newMergedProfile,
+                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                    
+                    // add attributes
+                    for (String gene : newMergedProfile.getGeneList()) {
+                        for (Node node : network.getNodesByXref(NGNC, gene)) {
+                            node.addAttribute(NODE_ATTR_PERCENTAGE_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                        }
+                    }
+                    
+                    
                     String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                         // using NGNC gene symbol as label if available
-                        private static final String NGNC = "NGNC";
                         public String getLabel(Node node) {
                             Set<String> ngnc = node.getXref(NGNC);
                             if (ngnc.isEmpty())

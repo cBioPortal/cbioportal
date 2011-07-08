@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 public class QueryBuilder extends HttpServlet {
     public static final boolean INCLUDE_NETWORKS = true;
     public static final String CGDS_URL_PARAM = "cgds_url";
+    public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
@@ -76,7 +77,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final int MAX_NUM_GENES = 100;
     
-    private static final String NGNC = "NGNC";
+    private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
     private static final String NODE_ATTR_PERCENTAGE_ALTERED = "PERCENTAGE_ALTERED";
     
@@ -91,6 +92,8 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         String cgdsUrl = getInitParameter(CGDS_URL_PARAM);
         GlobalProperties.setCgdsUrl(cgdsUrl);
+		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
+        GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
@@ -305,7 +308,7 @@ public class QueryBuilder extends HttpServlet {
                                 HttpServletResponse response,
                                 XDebug xdebug)
             throws IOException, ServletException {
-       
+
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr, 
                 geneticProfileIdSet, profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
@@ -462,7 +465,7 @@ public class QueryBuilder extends HttpServlet {
                     // and get the list of newly imported genes
                     ArrayList<String> newGenes = new ArrayList();
                     for (Node node : network.getNodes()) {
-                        Set<String> ngnc = node.getXref(NGNC);
+                        Set<String> ngnc = node.getXref(HGNC);
                     
                         Boolean in_query = Boolean.FALSE;
                         if (!ngnc.isEmpty()) { 
@@ -515,16 +518,16 @@ public class QueryBuilder extends HttpServlet {
                     
                     // add attributes
                     for (String gene : newMergedProfile.getGeneList()) {
-                        for (Node node : network.getNodesByXref(NGNC, gene)) {
+                        for (Node node : network.getNodesByXref(HGNC, gene)) {
                             node.addAttribute(NODE_ATTR_PERCENTAGE_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
                         }
                     }
                     
                     
                     String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
-                        // using NGNC gene symbol as label if available
+                        // using HGNC gene symbol as label if available
                         public String getLabel(Node node) {
-                            Set<String> ngnc = node.getXref(NGNC);
+                            Set<String> ngnc = node.getXref(HGNC);
                             if (ngnc.isEmpty())
                                 return node.getId();
                             return ngnc.iterator().next();

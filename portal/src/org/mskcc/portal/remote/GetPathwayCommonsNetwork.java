@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.mskcc.portal.network.Network;
 import org.mskcc.portal.network.NetworkIO;
+import org.mskcc.portal.util.GlobalProperties;
 
 /**
  * Gets network from Pathway Commons.
@@ -29,10 +30,10 @@ public class GetPathwayCommonsNetwork {
     public Network getNetwork (List<String> geneList,
           XDebug xdebug) throws RemoteException {
         try {
-            StringBuilder sbUrl = new StringBuilder("http://www.pathwaycommons.org/pc2/graph?"
-                    + "format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
+            StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
+			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
             for (String gene : geneList) {
-                sbUrl.append("&source=urn:pathwaycommons:RelationshipXref:NGNC_");
+                sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
                 sbUrl.append(gene);
             }
             

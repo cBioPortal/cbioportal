@@ -4,8 +4,11 @@ import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.util.ValueParser;
@@ -15,7 +18,9 @@ import org.mskcc.portal.util.ValueParser;
  */
 public class ProfileDataSummary {
     private HashMap<String, Double> geneAlteredMap = new HashMap<String, Double>();
-    private HashMap<String, Double> geneMutatedMap = new HashMap<String, Double>();
+    private HashMap<String, EnumMap<GeneticTypeLevel,Double>> geneCNALevelMap
+                = new HashMap<String, EnumMap<GeneticTypeLevel,Double>>();
+    private HashMap<String, double[]> geneMRNAUpDownMap = new HashMap<String, double[]>();
     private HashMap<String, Integer> numCasesAlteredMap = new HashMap<String, Integer>();
     private ArrayList<GeneWithScore> geneAlteredList = new ArrayList<GeneWithScore>();
     private HashMap<String, Boolean> caseAlteredMap = new HashMap<String, Boolean>();
@@ -126,6 +131,23 @@ public class ProfileDataSummary {
         }
         return false;
     }
+    
+    /**
+     * Get the CNA level of gene X in case Y.
+     *
+     * @param gene   gene symbol.
+     * @param caseId case Id.
+     * @return CNV level.
+     */
+    public GeneticTypeLevel getCNALevel(String gene, String caseId) {
+        String value = profileData.getValue(gene, caseId);
+        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        if( null != parser ){
+           return parser.getCNAlevel();
+        }
+        return null;
+    }
+    
     /**
      * Determines if the gene X is mutated in case Y.
      *
@@ -133,33 +155,107 @@ public class ProfileDataSummary {
      * @param caseId case Id.
      * @return true or false.
      */
-    public boolean isGeneMutated(String gene, String caseId) {
+    public boolean isMRNAWayUp(String gene, String caseId) {
         String value = profileData.getValue(gene, caseId);
         ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
         if( null != parser ){
-           return parser.isMutated();
+           return parser.isMRNAWayUp();
         }
         return false;
     }
     
     /**
-     * Gene percentage of cases where gene X is mutated.
+     * Determines if the gene X is mutated in case Y.
+     *
+     * @param gene   gene symbol.
+     * @param caseId case Id.
+     * @return true or false.
+     */
+    public boolean isMRNAWayDown(String gene, String caseId) {
+        String value = profileData.getValue(gene, caseId);
+        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        if( null != parser ){
+           return parser.isMRNAWayDown();
+        }
+        return false;
+    }
+    
+    /**
+     * Gene percentage of cases where gene X is at a certain CNA level.
+     *
+     * @param gene gene symbol.
+     * @return percentage value.
+     */    
+    public double getPercentCasesWhereGeneIsAtCNALevel(String gene, GeneticTypeLevel cnaLevel) {
+        EnumMap<GeneticTypeLevel,Double> map = geneCNALevelMap.get(gene);
+        if (map == null) {
+            map = new EnumMap<GeneticTypeLevel,Double>(GeneticTypeLevel.class);
+            for (GeneticTypeLevel level : GeneticTypeLevel.values()) {
+                map.put(level, 0.0);
+            }
+            
+            ArrayList<String> caseList = profileData.getCaseIdList();
+            double delta = 1.0 / caseList.size();
+            for (String caseId : caseList) {
+                 GeneticTypeLevel level = getCNALevel(gene, caseId);
+                 if (level!=null)
+                    map.put(level, map.get(level)+delta);
+            }
+        }
+        
+        return map.get(cnaLevel);
+    }
+    
+    /**
+     * Gene percentage of cases where gene X is up regulated.
      *
      * @param gene gene symbol.
      * @return percentage value.
      */
-    public double getPercentCasesWhereGeneIsMutated(String gene) {
-        if (geneMutatedMap.get(gene)==null) {
-            int numSamplesWhereGeneIsMutated = 0;
+    public double getPercentCasesWhereMRNAIsUpRegulated(String gene) {
+        return getPercentCasesWhereMRNAIsUpOrDownRegulated(gene, true);
+    }
+    
+    /**
+     * Gene percentage of cases where gene X is down regulated.
+     *
+     * @param gene gene symbol.
+     * @return percentage value.
+     */
+    public double getPercentCasesWhereMRNAIsDownRegulated(String gene) {
+        return getPercentCasesWhereMRNAIsUpOrDownRegulated(gene, false);
+    }    
+    
+    
+    /**
+     * Gene percentage of cases where gene X is up/down regulated.
+     *
+     * @param gene gene symbol.
+     * @param upOrDown true if up regulated; false if down regulated.
+     * @return percentage value.
+     */
+    private double getPercentCasesWhereMRNAIsUpOrDownRegulated(String gene, boolean up) {
+        if (geneMRNAUpDownMap.get(gene)==null) {
+            int numSamplesWhereGeneIsUpRegulated = 0;
+            int numSamplesWhereGeneIsDownRegulated = 0;
             ArrayList<String> caseList = profileData.getCaseIdList();
             for (String caseId : caseList) {
-                if (isGeneMutated(gene, caseId))
-                    numSamplesWhereGeneIsMutated++;
+                if (isMRNAWayUp(gene, caseId))
+                    numSamplesWhereGeneIsUpRegulated++;
+                else if (isMRNAWayDown(gene, caseId))
+                    numSamplesWhereGeneIsDownRegulated++;
             }
-            geneMutatedMap.put(gene, 1.0*numSamplesWhereGeneIsMutated/caseList.size());
+            geneMRNAUpDownMap.put(gene, new double[]{
+                1.0*numSamplesWhereGeneIsUpRegulated/caseList.size(),
+                1.0*numSamplesWhereGeneIsDownRegulated/caseList.size()
+                }
+            );
         }
-        return geneMutatedMap.get(gene);
-    }
+        
+        double[] percs = geneMRNAUpDownMap.get(gene);
+        return up ? percs[0] : percs[1];
+    }    
+    
 
     /**
      * Determines frequency with which each gene is altered.

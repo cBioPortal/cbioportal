@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.network.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
+import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
@@ -80,8 +81,14 @@ public class QueryBuilder extends HttpServlet {
     private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
     private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
-    private static final String NODE_ATTR_PERCENTAGE_ALTERED = "PERCENTAGE_ALTERED";
-    private static final String NODE_ATTR_PERCENTAGE_MUTATED = "PERCENTAGE_MUTATED";
+    private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
+    private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
+    private static final String NODE_ATTR_PERCENT_CNA_AMPLIFIED = "PERCENT_CNA_AMPLIFIED";
+    private static final String NODE_ATTR_PERCENT_CNA_GAINED = "PERCENT_CNA_GAINED";
+    private static final String NODE_ATTR_PERCENT_CNA_HOM_DEL = "PERCENT_CNA_HOMOZYGOUSLY_DELETED";
+    private static final String NODE_ATTR_PERCENT_CNA_HET_LOSS = "PERCENT_CNA_HEMIZYGOUSLY_DELETED";
+    private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
+    private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
     
     private ServletXssUtil servletXssUtil;
 
@@ -527,8 +534,14 @@ public class QueryBuilder extends HttpServlet {
                     // add attributes
                     for (String gene : newMergedProfile.getGeneList()) {
                         for (Node node : network.getNodesByXref(HGNC, gene)) {
-                            node.addAttribute(NODE_ATTR_PERCENTAGE_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
-                            node.addAttribute(NODE_ATTR_PERCENTAGE_MUTATED, dataSummary.getPercentCasesWhereGeneIsMutated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Mutated));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, dataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, dataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }
                     }
                     

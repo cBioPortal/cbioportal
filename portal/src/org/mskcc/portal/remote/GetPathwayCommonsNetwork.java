@@ -34,7 +34,7 @@ public class GetPathwayCommonsNetwork {
 			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
             for (String gene : geneList) {
                 sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
-                sbUrl.append(gene);
+                sbUrl.append(gene.toUpperCase());
             }
             
             //xdebug.logMsg(this, "URL: "+sbUrl.toString());

@@ -20,11 +20,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.network.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
+import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
 import org.mskcc.portal.util.*;
@@ -319,8 +322,9 @@ public class QueryBuilder extends HttpServlet {
             throws IOException, ServletException {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
+       double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
        ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr, 
-                geneticProfileIdSet, profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
+                geneticProfileIdSet, profileList, zScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
@@ -527,21 +531,28 @@ public class QueryBuilder extends HttpServlet {
                     }
                     
                     merger = new ProfileMerger(newProfileDataList);
-                    ProfileData newMergedProfile = merger.getMergedProfile();
-                    ProfileDataSummary dataSummary = new ProfileDataSummary(newMergedProfile,
-                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                    ProfileData netMergedProfile = merger.getMergedProfile();
+                    ArrayList<String> netGeneList = netMergedProfile.getGeneList();
+                    
+                    ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
+                            StringUtils.join(netGeneList, " "), geneticProfileIdSet,
+                            profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
+                    
+                    OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
+                    ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
+                            netOncoPrintSpec, zScoreThreshold );
                     
                     // add attributes
-                    for (String gene : newMergedProfile.getGeneList()) {
+                    for (String gene : netGeneList) {
                         for (Node node : network.getNodesByXref(HGNC, gene)) {
-                            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Mutated));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, dataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, dataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, dataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Mutated));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }
                     }
                     

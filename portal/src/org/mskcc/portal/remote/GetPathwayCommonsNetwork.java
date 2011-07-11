@@ -27,7 +27,7 @@ public class GetPathwayCommonsNetwork {
      * @param geneList Gene List.
      * @return Tab-delimited content.
      */
-    public Network getNetwork (List<String> geneList,
+    public static Network getNetwork (List<String> geneList,
           XDebug xdebug) throws RemoteException {
         try {
             StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());

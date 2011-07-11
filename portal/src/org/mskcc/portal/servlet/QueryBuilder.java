@@ -79,7 +79,9 @@ public class QueryBuilder extends HttpServlet {
     
     private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
+    private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
     private static final String NODE_ATTR_PERCENTAGE_ALTERED = "PERCENTAGE_ALTERED";
+    private static final String NODE_ATTR_PERCENTAGE_MUTATED = "PERCENTAGE_MUTATED";
     
     private ServletXssUtil servletXssUtil;
 
@@ -458,7 +460,13 @@ public class QueryBuilder extends HttpServlet {
             } else {
                 //  (Optionally) Get Network of Interest
                 if (INCLUDE_NETWORKS) {
-                    Network network = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
+                    Network network;
+                    try {
+                        network = GetPathwayCommonsNetwork.getNetwork(geneList, xdebug);
+                    } catch (Exception e) {
+                        xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
+                        network = new Network(); // send an empty network instead
+                    }
                     
                     // add attribute is_query to indicate if a node is in query genes
                     HashSet<String> queryGenes = new HashSet<String>(mergedProfile.getGeneList());
@@ -520,6 +528,7 @@ public class QueryBuilder extends HttpServlet {
                     for (String gene : newMergedProfile.getGeneList()) {
                         for (Node node : network.getNodesByXref(HGNC, gene)) {
                             node.addAttribute(NODE_ATTR_PERCENTAGE_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                            node.addAttribute(NODE_ATTR_PERCENTAGE_MUTATED, dataSummary.getPercentCasesWhereGeneIsMutated(gene));
                         }
                     }
                     

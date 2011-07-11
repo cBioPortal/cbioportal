@@ -15,6 +15,7 @@ import org.mskcc.portal.util.ValueParser;
  */
 public class ProfileDataSummary {
     private HashMap<String, Double> geneAlteredMap = new HashMap<String, Double>();
+    private HashMap<String, Double> geneMutatedMap = new HashMap<String, Double>();
     private HashMap<String, Integer> numCasesAlteredMap = new HashMap<String, Integer>();
     private ArrayList<GeneWithScore> geneAlteredList = new ArrayList<GeneWithScore>();
     private HashMap<String, Boolean> caseAlteredMap = new HashMap<String, Boolean>();
@@ -124,6 +125,40 @@ public class ProfileDataSummary {
            return parser.isGeneAltered();
         }
         return false;
+    }
+    /**
+     * Determines if the gene X is mutated in case Y.
+     *
+     * @param gene   gene symbol.
+     * @param caseId case Id.
+     * @return true or false.
+     */
+    public boolean isGeneMutated(String gene, String caseId) {
+        String value = profileData.getValue(gene, caseId);
+        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        if( null != parser ){
+           return parser.isMutated();
+        }
+        return false;
+    }
+    
+    /**
+     * Gene percentage of cases where gene X is mutated.
+     *
+     * @param gene gene symbol.
+     * @return percentage value.
+     */
+    public double getPercentCasesWhereGeneIsMutated(String gene) {
+        if (geneMutatedMap.get(gene)==null) {
+            int numSamplesWhereGeneIsMutated = 0;
+            ArrayList<String> caseList = profileData.getCaseIdList();
+            for (String caseId : caseList) {
+                if (isGeneMutated(gene, caseId))
+                    numSamplesWhereGeneIsMutated++;
+            }
+            geneMutatedMap.put(gene, 1.0*numSamplesWhereGeneIsMutated/caseList.size());
+        }
+        return geneMutatedMap.get(gene);
     }
 
     /**

@@ -18,7 +18,7 @@
                 for (CancerType cancerType : cancerTypeList) {
                     String selected = "";
                     if (cancerTypeId.equals(cancerType.getCancerTypeId())) {
-                        selected = " selected ";
+                        selected = " selected=\"selected\" ";
                     }
                     out.print("<option " + selected + " value='" + cancerType.getCancerTypeId() + "'>");
                     out.println(cancerType.getCancerName() + "</option>");

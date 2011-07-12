@@ -18,6 +18,19 @@
     </servlet>
 
     <servlet>
+        <servlet-name>cross_cancer_query</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
+        <init-param>
+            <param-name>cgds_url</param-name>
+            <param-value>cgds_url_value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>pathway_commons_url</param-name>
+            <param-value>pathway_commons_url_value</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
         <servlet-name>plot</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PlotServlet</servlet-class>
     </servlet>
@@ -49,6 +62,11 @@
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
         <url-pattern>/index.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cross_cancer_query</servlet-name>
+        <url-pattern>/cross_cancer.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

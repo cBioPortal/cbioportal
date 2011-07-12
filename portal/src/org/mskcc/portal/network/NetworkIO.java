@@ -2,14 +2,17 @@
 package org.mskcc.portal.network;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -116,25 +119,24 @@ public class NetworkIO {
     public static String writeNetwork2GraphML(Network network, NodeLabelHandler nlh) {
         Map<String,String> mapNodeAttrNameType = new HashMap<String,String>();
         Map<String,String> mapEdgeAttrNameType = new HashMap<String,String>();
-        StringBuilder sb = new StringBuilder();
-        sb.append("<graphml>\n");
-        sb.append(" <graph edgedefault=\"undirected\">\n");
+        
+        StringBuilder sbNodeEdge = new StringBuilder();
         for (Node node : network.getNodes()) {
-            sb.append("  <node id=\"");
-            sb.append(node.getId());
-            sb.append("\">\n");
-            sb.append("   <data key=\"label\">");
-            sb.append(nlh.getLabel(node));
-            sb.append("</data>\n");
+            sbNodeEdge.append("  <node id=\"");
+            sbNodeEdge.append(node.getId());
+            sbNodeEdge.append("\">\n");
+            sbNodeEdge.append("   <data key=\"label\">");
+            sbNodeEdge.append(nlh.getLabel(node));
+            sbNodeEdge.append("</data>\n");
             for (Attribute av : node.getAttributes()) {
                 String attr = av.getName();
                 Object value = av.getValue();
                 
-                sb.append("   <data key=\"");
-                sb.append(attr);
-                sb.append("\">");
-                sb.append(value);
-                sb.append("</data>\n");
+                sbNodeEdge.append("   <data key=\"");
+                sbNodeEdge.append(attr);
+                sbNodeEdge.append("\">");
+                sbNodeEdge.append(value);
+                sbNodeEdge.append("</data>\n");
                 
                 String type = getAttrType(value);
                 
@@ -146,30 +148,32 @@ public class NetworkIO {
                     mapNodeAttrNameType.put(attr, type);
                 }
             }
-            sb.append("  </node>\n");
+            sbNodeEdge.append("  </node>\n");
         }
         
+        Set<String> edgeTypes = new HashSet<String>();
         for (Edge edge : network.getEdges()) {
-            sb.append("  <edge source=\"");
-            sb.append(edge.getSourceNode().getId());
-            sb.append("\" target=\"");
-            sb.append(edge.getTargetNode().getId());
-            sb.append("\">\n");
+            sbNodeEdge.append("  <edge source=\"");
+            sbNodeEdge.append(edge.getSourceNode().getId());
+            sbNodeEdge.append("\" target=\"");
+            sbNodeEdge.append(edge.getTargetNode().getId());
+            sbNodeEdge.append("\">\n");
             
-            sb.append("   <data key=\"type\">");
-            sb.append(edge.getInteractionType());
-            sb.append("</data>\n");
+            edgeTypes.add(edge.getInteractionType());
+            sbNodeEdge.append("   <data key=\"type\">");
+            sbNodeEdge.append(edge.getInteractionType());
+            sbNodeEdge.append("</data>\n");
             mapEdgeAttrNameType.put("type", "string");
             
             for (Attribute av : edge.getAttributes()) {
                 String attr = av.getName();
                 Object value = av.getValue();
                 
-                sb.append("   <data key=\"");
-                sb.append(attr);
-                sb.append("\">");
-                sb.append(value);
-                sb.append("</data>\n");
+                sbNodeEdge.append("   <data key=\"");
+                sbNodeEdge.append(attr);
+                sbNodeEdge.append("\">");
+                sbNodeEdge.append(value);
+                sbNodeEdge.append("</data>\n");
                 
                 String type = getAttrType(value);
                 
@@ -181,9 +185,11 @@ public class NetworkIO {
                     mapEdgeAttrNameType.put(attr, type);
                 }
             }
-            sb.append("  </edge>\n");
+            sbNodeEdge.append("  </edge>\n");
         }
-        sb.append(" </graph>\n");
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("<graphml>\n");
         sb.append(" <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
         
         for (Map.Entry<String,String> entry : mapNodeAttrNameType.entrySet()) {
@@ -205,6 +211,12 @@ public class NetworkIO {
               .append(entry.getValue())
               .append("\"/>\n");
         }
+        
+        sb.append(" <graph edgedefault=\"undirected\"\n   parse.edgetypes=\"");
+        sb.append(StringUtils.join(edgeTypes,";"));
+        sb.append("\">\n");        
+        sb.append(sbNodeEdge);
+        sb.append(" </graph>\n");
         
         sb.append("</graphml>\n");
         

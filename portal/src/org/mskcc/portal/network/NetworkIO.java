@@ -148,12 +148,19 @@ public class NetworkIO {
             }
             sb.append("  </node>\n");
         }
+        
         for (Edge edge : network.getEdges()) {
             sb.append("  <edge source=\"");
             sb.append(edge.getSourceNode().getId());
             sb.append("\" target=\"");
             sb.append(edge.getTargetNode().getId());
             sb.append("\">\n");
+            
+            sb.append("   <data key=\"type\">");
+            sb.append(edge.getInteractionType());
+            sb.append("</data>\n");
+            mapEdgeAttrNameType.put("type", "string");
+            
             for (Attribute av : edge.getAttributes()) {
                 String attr = av.getName();
                 Object value = av.getValue();

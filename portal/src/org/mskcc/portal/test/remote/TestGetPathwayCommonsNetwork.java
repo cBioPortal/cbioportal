@@ -20,8 +20,7 @@ public class TestGetPathwayCommonsNetwork extends TestCase {
      * @throws RemoteException Remote IO Error.
      */
     public void testGetPathwayCommonsNetwork() throws RemoteException {
-        GetPathwayCommonsNetwork gpcn = new GetPathwayCommonsNetwork();
-        Network net = gpcn.getNetwork(Arrays.asList("BRCA1"), new XDebug());
+        Network net = GetPathwayCommonsNetwork.getNetwork(Arrays.asList("BRCA1"), new XDebug());
         boolean print = false;
         if (print)
             System.out.println(net);

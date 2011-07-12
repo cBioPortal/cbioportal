@@ -23,7 +23,7 @@
 <TABLE>
 <tr>
     <tr>
-    <td><img class="step_image" src="images/step_2<%=stepImageSuffix%>.png" alt="Step 2:"></td>
+    <td><img class="step_image" src="images/step_2<%=stepImageSuffix%>.png" alt="Step 2:"/></td>
     <td><span class="step">Select Genomic Profiles:</span></td>
 </tr>
 </TABLE>
@@ -169,7 +169,7 @@
             } else {
                 out.println(profile.getDescription() + ".");
             }
-            out.println("\"></input>");
+            out.println("\"/></input>");
             out.println("</td>");
             out.println("</tr>");
         }

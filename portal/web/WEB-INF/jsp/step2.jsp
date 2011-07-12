@@ -20,13 +20,12 @@
         step2Header = "Select Genetic Profile:";
     }
 %>
-<TABLE>
+<table>
 <tr>
-    <tr>
-    <td><img class="step_image" src="images/step_2<%=stepImageSuffix%>.png" alt="Step 2:"></td>
+    <td><img class="step_image" src="images/step_2<%=stepImageSuffix%>.png" alt="Step 2:"/></td>
     <td><span class="step">Select Genomic Profiles:</span></td>
 </tr>
-</TABLE>
+</table>
 <%
     if (profileList.size() == 0) {
         out.println ("<p><div class='error'>No profiles available for selected cancer type.</div></p>");    
@@ -69,7 +68,7 @@
             if (mRNAProfileList.size() > 1) {
                 out.println ("<table><tr><td>");
                 out.println("<input type='checkbox' onclick='toggleMRNAProfile()' name='"
-                        + QueryBuilder.MRNA_PROFILES_SELECTED + "'" + mRNAProfileSelected + ">");
+                        + QueryBuilder.MRNA_PROFILES_SELECTED + "'" + mRNAProfileSelected + "/>");
                 out.println ("<b>Gene Expression data</b>.  Select one of the profiles below:");
 
                 out.println ("</td></tr></table>");
@@ -156,11 +155,11 @@
                 type = "radio";
                 out.println("<input type='" + type + "' " + checked + " name='"
                         + QueryBuilder.GENETIC_PROFILE_IDS + "' value='" +
-                        profile.getId() + "' onclick='toggleMRNA()'>");
+                        profile.getId() + "' onclick='toggleMRNA()'/>");
             } else {
                 out.println("<input type='" + type + "' " + checked + " name='"
                         + QueryBuilder.GENETIC_PROFILE_IDS + "' value='" +
-                        profile.getId() + "'>");
+                        profile.getId() + "'/>");
             }
             out.println("<b>" + profile.getName().trim() + "</b>  ");
             out.println("<img src='images/help.png' class=\"Tips1\" title=\"");
@@ -169,7 +168,7 @@
             } else {
                 out.println(profile.getDescription() + ".");
             }
-            out.println("\"></input>");
+            out.println("\"/></input>");
             out.println("</td>");
             out.println("</tr>");
         }

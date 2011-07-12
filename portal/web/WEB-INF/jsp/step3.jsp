@@ -25,7 +25,7 @@
 
 <table>
     <tr>
-        <td><img class="step_image" src="images/step_3<%=stepImageSuffix%>.png" alt="Step 3"></td>
+        <td><img class="step_image" src="images/step_3<%=stepImageSuffix%>.png" alt="Step 3"/></td>
         <td><span class="step">Select Patient/Case Set:</span></td>
         <td>
 <%

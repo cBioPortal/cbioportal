@@ -20,4 +20,4 @@
     <td>207</td>
 </tr>
 </table>
-<P>Last update: December 22, 2010.  <a href="data_sets.jsp">More...</a></p>
+<p>Last update: December 22, 2010.  <a href="data_sets.jsp">More...</a></p>

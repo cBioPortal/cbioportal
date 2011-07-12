@@ -15,8 +15,8 @@
 <script type="text/javascript">
             window.onload = function() {
                 var div_id = "cytoscapeweb";
-                var sif = '<%=network%>';
-                sif = sif.replace(new RegExp("~n~", 'g'), "\n");
+                var graphml = '<%=network%>';
+                graphml = graphml.replace(new RegExp("~n~", 'g'), "\n");
 
                 var visual_style = {
                     global: {
@@ -65,7 +65,7 @@
 
                 var draw_options = {
                     // your data goes here
-                    network: sif,
+                    network: graphml,
                     edgeLabelsVisible: false,
                     layout: "ForceDirected",
                     visualStyle: visual_style,

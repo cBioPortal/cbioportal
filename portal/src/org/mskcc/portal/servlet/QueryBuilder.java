@@ -66,7 +66,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String MERGED_PROFILE_DATA_INTERNAL = "merged_profile_data";
     public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
-    public static final String NETWORK_SIF = "network_sif";
+    public static final String NETWORK = "network";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -566,7 +566,7 @@ public class QueryBuilder extends HttpServlet {
                             return ngnc.iterator().next();
                         }
                     });
-                    request.setAttribute(NETWORK_SIF, graphML);
+                    request.setAttribute(NETWORK, graphML);
                 }
 
                 // Store download links in session (for possible future retrieval).

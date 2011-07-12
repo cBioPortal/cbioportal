@@ -550,7 +550,7 @@ public class QueryBuilder extends HttpServlet {
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
                             node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
                             node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }

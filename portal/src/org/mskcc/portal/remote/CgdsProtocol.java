@@ -35,7 +35,8 @@ public class CgdsProtocol {
     /**
      * cancer_study_id argument.
      */
-    public static final String CANCER_STUDY_ID = "cancer_study_id";
+    //public static final String CANCER_STUDY_ID = "cancer_study_id";
+    public static final String CANCER_STUDY_ID = "cancer_type_id";
 
     /**
      * case_list argument.
@@ -121,7 +122,6 @@ public class CgdsProtocol {
                 //  If all is OK, extract the response text
                 if (statusCode == HttpStatus.SC_OK) {
                     String content = ResponseUtil.getResponseString(method);
-System.out.println(content);                    
                     Element newElement = new Element(key, content);
                     xdebug.logMsg(this, "Placing text in cache.");
                     memoryCache.put(newElement);

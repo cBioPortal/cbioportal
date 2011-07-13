@@ -67,7 +67,7 @@ public class CgdsProtocol {
        /*
         * Debugging
         * CAUTION: THESE MESSAGES CONTAIN THE SECRET KEY
-        */
+
        System.err.println("\nIssuing CGDS request");
        for( StackTraceElement ste : Thread.currentThread().getStackTrace() ){
           System.err.println( ste.toString() );
@@ -75,7 +75,8 @@ public class CgdsProtocol {
        System.err.println( PortalAccessControl.urlRequest(data) );
 
        PortalAccessControl.createDebugMessages( this, xdebug, data );
-
+        */
+        
        //  Create a key, based on the NameValuePair[] data
         String key = createKey(data);
         xdebug.logMsg(this, "Using Cache Key:  " + key);

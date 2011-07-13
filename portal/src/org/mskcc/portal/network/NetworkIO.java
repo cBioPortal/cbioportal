@@ -44,9 +44,16 @@ public class NetworkIO {
             
             // read edges
             String line = bufReader.readLine();
+            if (!line.startsWith("PARTICIPANT_A\tINTERACTION_TYPE\tPARTICIPANT_B")) // if empty
+                return network;
+            
             String[] edgeHeaders = line.split("\t");            
             while (!(line = bufReader.readLine()).isEmpty()) {
                 String[] strs = line.split("\t");
+                
+                if (strs.length<3) // sth. is wrong
+                    continue;
+                
                 Node source = network.getNodeById(strs[0]);
                 if (source==null)
                     source = new Node(strs[0]);

@@ -199,6 +199,7 @@ public class QueryBuilder extends HttpServlet {
 
                 //  Get Case Sets for Selected Cancer Type
                 ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, xdebug);
+                xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
                 CaseSet caseSet = new CaseSet();
                 caseSet.setName("User-defined Case List");
                 caseSet.setDescription("User defined case list.");

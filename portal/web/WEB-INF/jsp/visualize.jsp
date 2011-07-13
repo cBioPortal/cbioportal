@@ -32,7 +32,7 @@
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
     ArrayList<CancerType> cancerTypes = (ArrayList<CancerType>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_TYPE_ID);
+    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);

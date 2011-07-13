@@ -11,7 +11,7 @@
 $(document).ready(function() {
 
      $('#plot_it').click(function(){
-        var cancer_type_id = $('#plots input:hidden:eq(0)').val();
+        var cancer_study_id = $('#plots input:hidden:eq(0)').val();
         var case_set_id =  $('#plots input:hidden:eq(1)').val();
         var case_ids =  $('#plots input:hidden:eq(2)').val();
         var normal_case_set_id =  $('#plots input:hidden:eq(3)').val();
@@ -23,7 +23,7 @@ $(document).ready(function() {
         var plot_type = $('select[name="plot_type"] option:selected').val();
         var includeNormals = $('input:checkbox[name=include_normals]:checked').val();
 
-        var toLoad = "generatePlots.do?cancer_type_id="+cancer_type_id+
+        var toLoad = "generatePlots.do?cancer_study_id="+cancer_study_id+
                 "&case_set_id="+case_set_id+
                 "&case_ids="+encodeURIComponent(case_ids)+
                 "&gene="+gene+
@@ -95,7 +95,7 @@ $(document).ready(function() {
     out.println("</b><br><br>");
 
     //  Output Cancer Type ID and Case Set ID
-    out.println ("<input type='hidden' name='" + QueryBuilder.CANCER_TYPE_ID
+    out.println ("<input type='hidden' name='" + QueryBuilder.CANCER_STUDY_ID
             + "' value='" + cancerTypeId + "'>");
 
     out.println ("<input type='hidden' name='" + QueryBuilder.CASE_SET_ID

@@ -149,9 +149,12 @@
 					<li class="internal">
 					   	<a href="cgds_r.jsp">R Package</a>
 					</li>
-					<li class="internal">
-					   	<a href="networks.jsp">Networks</a>
-					</li>
+                    <li class="internal">
+                        <a href="networks.jsp">Networks</a>
+                    </li>
+                    <li class="internal">
+                        <a href="login.jsp">Login/logout</a>
+                    </li>
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px" src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"></a>
                     </li>

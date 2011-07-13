@@ -6,13 +6,14 @@ app.version=0.1
 
 #TITLE 
 skin.title=cBio TCGA Cancer Genomics Internal MSKCC Portal
-skin.blurb=The cBio TCGA Cancer Genomics Internal MSKCC Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.<p> 27 March 2011 TCGA data.
+skin.blurb=The cBio TCGA Cancer Genomics Internal MSKCC Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.<p> 7 July 2011 TCGA data.
 
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
 
 cgds.url=http://buri.cbio.mskcc.org:38080/cgds_tcga_internal_portal/webservice.do
+pathway_commons.url=http://www.pathwaycommons.org/pc2
 
 r_installed=true
 about=about_us.html

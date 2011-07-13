@@ -11,6 +11,10 @@
             <param-name>cgds_url</param-name>
             <param-value>cgds_url_value</param-value>
         </init-param>
+        <init-param>
+            <param-name>pathway_commons_url</param-name>
+            <param-value>pathway_commons_url_value</param-value>
+        </init-param>
     </servlet>
 
     <servlet>

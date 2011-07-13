@@ -20,10 +20,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.network.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
+import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
+import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
 import org.mskcc.portal.util.*;
@@ -35,9 +39,9 @@ import org.apache.log4j.Logger;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
-    public static final boolean INCLUDE_NETWORKS = false;
+    public static final boolean INCLUDE_NETWORKS = true;
     public static final String CGDS_URL_PARAM = "cgds_url";
-    // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+    public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
@@ -62,7 +66,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String MERGED_PROFILE_DATA_INTERNAL = "merged_profile_data";
     public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
-    public static final String NETWORK_SIF = "network_sif";
+    public static final String NETWORK = "network";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -77,9 +81,17 @@ public class QueryBuilder extends HttpServlet {
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final int MAX_NUM_GENES = 100;
     
-    private static final String NGNC = "NGNC";
+    private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
-    private static final String NODE_ATTR_PERCENTAGE_ALTERED = "PERCENTAGE_ALTERED";
+    private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
+    private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
+    private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
+    private static final String NODE_ATTR_PERCENT_CNA_AMPLIFIED = "PERCENT_CNA_AMPLIFIED";
+    private static final String NODE_ATTR_PERCENT_CNA_GAINED = "PERCENT_CNA_GAINED";
+    private static final String NODE_ATTR_PERCENT_CNA_HOM_DEL = "PERCENT_CNA_HOMOZYGOUSLY_DELETED";
+    private static final String NODE_ATTR_PERCENT_CNA_HET_LOSS = "PERCENT_CNA_HEMIZYGOUSLY_DELETED";
+    private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
+    private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
     
     private ServletXssUtil servletXssUtil;
 
@@ -92,6 +104,8 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         String cgdsUrl = getInitParameter(CGDS_URL_PARAM);
         GlobalProperties.setCgdsUrl(cgdsUrl);
+		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
+        GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
@@ -309,10 +323,11 @@ public class QueryBuilder extends HttpServlet {
                                 HttpServletResponse response,
                                 XDebug xdebug)
             throws IOException, ServletException {
-       
+
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
+       double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
        ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr, 
-                geneticProfileIdSet, profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
+                geneticProfileIdSet, profileList, zScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
@@ -459,14 +474,20 @@ public class QueryBuilder extends HttpServlet {
             } else {
                 //  (Optionally) Get Network of Interest
                 if (INCLUDE_NETWORKS) {
-                    Network network = new GetPathwayCommonsNetwork().getNetwork(geneList, xdebug);
+                    Network network;
+                    try {
+                        network = GetPathwayCommonsNetwork.getNetwork(geneList, xdebug);
+                    } catch (Exception e) {
+                        xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
+                        network = new Network(); // send an empty network instead
+                    }
                     
                     // add attribute is_query to indicate if a node is in query genes
                     HashSet<String> queryGenes = new HashSet<String>(mergedProfile.getGeneList());
                     // and get the list of newly imported genes
                     ArrayList<String> newGenes = new ArrayList();
                     for (Node node : network.getNodes()) {
-                        Set<String> ngnc = node.getXref(NGNC);
+                        Set<String> ngnc = node.getXref(HGNC);
                     
                         Boolean in_query = Boolean.FALSE;
                         if (!ngnc.isEmpty()) { 
@@ -513,28 +534,42 @@ public class QueryBuilder extends HttpServlet {
                     }
                     
                     merger = new ProfileMerger(newProfileDataList);
-                    ProfileData newMergedProfile = merger.getMergedProfile();
-                    ProfileDataSummary dataSummary = new ProfileDataSummary(newMergedProfile,
-                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                    ProfileData netMergedProfile = merger.getMergedProfile();
+                    ArrayList<String> netGeneList = netMergedProfile.getGeneList();
+                    
+                    ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
+                            StringUtils.join(netGeneList, " "), geneticProfileIdSet,
+                            profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
+                    
+                    OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
+                    ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
+                            netOncoPrintSpec, zScoreThreshold );
                     
                     // add attributes
-                    for (String gene : newMergedProfile.getGeneList()) {
-                        for (Node node : network.getNodesByXref(NGNC, gene)) {
-                            node.addAttribute(NODE_ATTR_PERCENTAGE_ALTERED, dataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                    for (String gene : netGeneList) {
+                        for (Node node : network.getNodesByXref(HGNC, gene)) {
+                            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Mutated));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }
                     }
                     
                     
                     String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
-                        // using NGNC gene symbol as label if available
+                        // using HGNC gene symbol as label if available
                         public String getLabel(Node node) {
-                            Set<String> ngnc = node.getXref(NGNC);
+                            Set<String> ngnc = node.getXref(HGNC);
                             if (ngnc.isEmpty())
                                 return node.getId();
                             return ngnc.iterator().next();
                         }
                     });
-                    request.setAttribute(NETWORK_SIF, graphML);
+                    request.setAttribute(NETWORK, graphML);
                 }
 
                 // Store download links in session (for possible future retrieval).

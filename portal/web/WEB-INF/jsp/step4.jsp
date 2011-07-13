@@ -29,7 +29,7 @@ function updateGeneSet() {
 </script>
 <table>
 <tr>
-    <td><img class="step_image" src="images/step_4<%=stepImageSuffix%>.png" alt="Step 4"></td>
+    <td><img class="step_image" src="images/step_4<%=stepImageSuffix%>.png" alt="Step 4"/></td>
     <td><span class="step">Enter Gene Set:</span></td>
 </tr>
 </table>

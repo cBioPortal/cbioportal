@@ -28,7 +28,7 @@ public class PlotTestServlet extends HttpServlet
 	    out.println("test conn");
 	    out.println(c.eval("test(conn)"));
 	    out.println("types");
-	    out.println(c.eval("getCancerTypes(conn)"));
+	    out.println(c.eval("getCancerStudies(conn)"));
 	} catch (RserveException rse) {
 	    out.println(rse);
 	} catch (REXPMismatchException mme) {

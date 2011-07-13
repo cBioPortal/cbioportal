@@ -35,12 +35,13 @@ import org.apache.log4j.Logger;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
-    public static final boolean INCLUDE_NETWORKS = true;
+    public static final boolean INCLUDE_NETWORKS = false;
     public static final String CGDS_URL_PARAM = "cgds_url";
+    // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
-    public static final String CANCER_TYPE_ID = "cancer_type_id";
+    public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CLINICAL_DATA_LIST = "clinical_data_list";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
     public static final String GENE_SET_CHOICE = "gene_set_choice";
@@ -123,7 +124,7 @@ public class QueryBuilder extends HttpServlet {
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
-        XDebug xdebug = new XDebug();
+        XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();
         boolean userIsAuthorized = false;
         if (SkinUtil.usersMustAuthenticate()) {
@@ -145,8 +146,9 @@ public class QueryBuilder extends HttpServlet {
             //  Get User Selected Action
             String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
 
+            // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
             //  Get User Selected Cancer Type
-            String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_TYPE_ID);
+            String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
 
             //  Get User Selected Genetic Profiles
             String geneticProfileIds[] = httpServletRequest.getParameterValues(GENETIC_PROFILE_IDS);
@@ -170,10 +172,12 @@ public class QueryBuilder extends HttpServlet {
                 if (cancerTypeId == null) {
                     cancerTypeId = cancerTypeList.get(0).getCancerTypeId();
                 }
-                httpServletRequest.setAttribute(CANCER_TYPE_ID, cancerTypeId);
+                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+                httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
 
                 httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerTypeList);
 
+                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
                 //  Get Genetic Profiles for Selected Cancer Type
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
                         (cancerTypeId, xdebug);

@@ -8,6 +8,7 @@ import org.mskcc.portal.util.XDebug;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+// TODO: Later: ACCESS CONTROL: change to cancer study, etc.
 /**
  * JUnit test for get cancer types.
  */

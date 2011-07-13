@@ -9,6 +9,7 @@ import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.network.Network;
 
+// TODO: Later: ACCESS CONTROL: change to cancer study, etc.
 /**
  * JUnit test for get cancer types.
  */

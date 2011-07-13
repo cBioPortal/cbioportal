@@ -62,7 +62,7 @@ public class GeneratePlots extends HttpServlet {
         //  Get HTTP Parameters Safely
         //  All of these parameters are required.
         String gene = servletXssUtil.getCleanInput (req, GENE);
-        String cancerTypeId = servletXssUtil.getCleanInput(req, QueryBuilder.CANCER_TYPE_ID);
+        String cancerTypeId = servletXssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
         String mutationProfileId = servletXssUtil.getCleanInput (req, MUTATION_PROFILE_ID);
         String mRNAProfileId = servletXssUtil.getCleanInput (req, MRNA_PROFILE_ID);
         String cnaProfileId = servletXssUtil.getCleanInput (req, CNA_PROFILE_ID);
@@ -80,7 +80,7 @@ public class GeneratePlots extends HttpServlet {
         //  Validate that required parameters are specified
         ArrayList<String> errorList = new ArrayList<String>();
         validateParameterExists(gene, GENE, errorList);
-        validateParameterExists(cancerTypeId, QueryBuilder.CANCER_TYPE_ID, errorList);
+        validateParameterExists(cancerTypeId, QueryBuilder.CANCER_STUDY_ID, errorList);
         validateParameterExists(mRNAProfileId, MRNA_PROFILE_ID, errorList);
         validateParameterExists(cnaProfileId, CNA_PROFILE_ID, errorList);
         validateParameterExists(caseSetId, QueryBuilder.CASE_SET_ID, errorList);
@@ -94,10 +94,11 @@ public class GeneratePlots extends HttpServlet {
             }
             writer.println ("</ul>");
         } else {
+           // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
             //  Plot Image URLs look like this:
             //  plot.do?cancer_type_id=ova&gene_list=MDM2&genetic_profile_ids=ova_rae,
             //  ova_mrna_unified&data_types=disc,cont&case_set_id=ova_4way_complete
-            ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, new XDebug());
+            ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, new XDebug( req ));
             String caseSetName = "User-defined Case List";
             if (caseSetId != null) {
                 for (CaseSet caseSet:  caseSets) {
@@ -113,7 +114,7 @@ public class GeneratePlots extends HttpServlet {
                 if (!rInstalled) {
                     url1.append("http://172.21.218.47:8080/cgx/");
                 }
-                url1.append("plot.do?" + QueryBuilder.CANCER_TYPE_ID + "="
+                url1.append("plot.do?" + QueryBuilder.CANCER_STUDY_ID + "="
                     + cancerTypeId);
                 writer.append("<table cellspacing=15><tr><td>");
                 url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
@@ -149,7 +150,7 @@ public class GeneratePlots extends HttpServlet {
                 if (!rInstalled) {
                     url1.append("http://172.21.218.47:8080/cgx/");
                 }
-                url1.append ("plot.do?" + QueryBuilder.CANCER_TYPE_ID + "=" + cancerTypeId);
+                url1.append ("plot.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerTypeId);
                 writer.append("<table cellspacing=15><tr><td>");
                 url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
                 url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");

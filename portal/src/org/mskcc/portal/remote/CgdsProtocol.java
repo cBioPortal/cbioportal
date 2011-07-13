@@ -8,11 +8,14 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.mskcc.portal.openIDlogin.PortalAccessControl;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.util.XDebug;
 
 import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
@@ -30,9 +33,9 @@ public class CgdsProtocol {
     public static final String CMD = "cmd";
 
     /**
-     * cancer_type_id argument.
+     * cancer_study_id argument.
      */
-    public static final String CANCER_TYPE_ID = "cancer_type_id";
+    public static final String CANCER_STUDY_ID = "cancer_study_id";
 
     /**
      * case_list argument.
@@ -57,9 +60,23 @@ public class CgdsProtocol {
      * @return Text Response.
      * @throws IOException IO / Network Error.
      */
-    public String connect(NameValuePair[] data, XDebug xdebug) throws IOException {
+    public String connect( NameValuePair[] data, XDebug xdebug ) throws IOException {
 
-        //  Create a key, based on the NameValuePair[] data
+       // ACCESS CONTROL: IF EMAIL SET, ADD IT AND KEY TO data
+       data = PortalAccessControl.addAccessParams( xdebug.getRequest(), data );
+       /*
+        * Debugging
+        * CAUTION: THESE MESSAGES CONTAIN THE SECRET KEY
+        */
+       System.err.println("\nIssuing CGDS request");
+       for( StackTraceElement ste : Thread.currentThread().getStackTrace() ){
+          System.err.println( ste.toString() );
+       }
+       System.err.println( PortalAccessControl.urlRequest(data) );
+
+       PortalAccessControl.createDebugMessages( this, xdebug, data );
+
+       //  Create a key, based on the NameValuePair[] data
         String key = createKey(data);
         xdebug.logMsg(this, "Using Cache Key:  " + key);
 
@@ -67,6 +84,8 @@ public class CgdsProtocol {
         CacheManager singletonManager = CacheManager.getInstance();
         Cache memoryCache = singletonManager.getCache("memory_cache");
         xdebug.logMsg(this, "Cache Status:  " + memoryCache.getStatus().toString());
+
+        // TODO: Later: ACCESS CONTROL: DECIDE WHETHER WE WANT TO PUT PRIVATE DATA IN THE cache
 
         //  If Content is found in cache, return it
         Element element = memoryCache.get(key);
@@ -101,6 +120,7 @@ public class CgdsProtocol {
                 //  If all is OK, extract the response text
                 if (statusCode == HttpStatus.SC_OK) {
                     String content = ResponseUtil.getResponseString(method);
+System.out.println(content);                    
                     Element newElement = new Element(key, content);
                     xdebug.logMsg(this, "Placing text in cache.");
                     memoryCache.put(newElement);

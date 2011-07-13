@@ -38,7 +38,8 @@ public class GetProfileData {
 
         //  Connect to remote server
         try {
-            //  Prepare query parameters
+
+           //  Prepare query parameters
             NameValuePair[] data = {
                     new NameValuePair(CgdsProtocol.CMD, "getProfileData"),
                     new NameValuePair("genetic_profile_id", profile.getId()),

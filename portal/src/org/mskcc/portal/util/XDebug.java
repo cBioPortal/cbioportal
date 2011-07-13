@@ -3,6 +3,10 @@ package org.mskcc.portal.util;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.mskcc.portal.openIDlogin.PortalAccessControl;
+
 /**
  * Encapsulates Real-time debugging information.
  * XDebug provides a simple facility for logging debug messages,
@@ -15,19 +19,39 @@ public class XDebug {
     private Date startTime;
     private Date stopTime;
     private long timeElapsed;
+    private HttpServletRequest request;
 
     /**
      * Constructor.
      */
     public XDebug() {
-        messages = new ArrayList();
-        parameters = new ArrayList();
-        startTime = null;
-        stopTime = null;
-        timeElapsed = -1;
-    }
+       messages = new ArrayList();
+       parameters = new ArrayList();
+       startTime = null;
+       stopTime = null;
+       timeElapsed = -1;
 
-    /**
+   }
+    
+    // FOR ACCESS CONTROL, so CgdsProtocol can get the session; bit of a hack
+    public XDebug(HttpServletRequest request) {
+       this();
+       this.request = request;
+
+       // FOR ACCESS CONTROL, DEBUGGING
+       if( null != request.getSession().getAttribute( PortalAccessControl.EMAIL ) ){
+          this.logMsg( this, "Logged in with: " + request.getSession().getAttribute( PortalAccessControl.EMAIL ) );
+       }else{
+          this.logMsg( this, "Not logged in." );
+       }
+       
+   }
+
+    public HttpServletRequest getRequest() {
+      return request;
+   }
+
+   /**
      * Logs a new message with the specified color code.
      *
      * @param caller object that is making the log request

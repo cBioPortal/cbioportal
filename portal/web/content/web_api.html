@@ -5,30 +5,37 @@
 <li><a href="#basic-query-syntax">Basic Query Syntax</a></li>
 <li><a href="#response-header-and-error-messages">Response Header and Error Messages</a></li>
 <li><a href="#commands">Commands</a><ul>
-<li><a href="#get-all-cancer-types">Get All Cancer Types</a><ul>
+<li><a href="#get-all-types-of-cancer">Get All Types of Cancer</a><ul>
 <li><a href="#description">Description</a></li>
 <li><a href="#query-format">Query Format</a></li>
 <li><a href="#response-format">Response Format</a></li>
 <li><a href="#example">Example</a></li>
 </ul>
 </li>
-<li><a href="#get-all-genetic-profiles-for-a-specific-cancer-type">Get All Genetic Profiles for a Specific Cancer Type</a><ul>
+<li><a href="#get-all-cancer-studies">Get All Cancer Studies</a><ul>
 <li><a href="#description_1">Description</a></li>
 <li><a href="#query-format_1">Query Format</a></li>
 <li><a href="#response-format_1">Response Format</a></li>
 <li><a href="#example_1">Example</a></li>
 </ul>
 </li>
-<li><a href="#get-all-case-lists-for-a-specific-cancer-type">Get All Case Lists for a Specific Cancer Type</a><ul>
+<li><a href="#get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</a><ul>
 <li><a href="#description_2">Description</a></li>
 <li><a href="#query-format_2">Query Format</a></li>
 <li><a href="#response-format_2">Response Format</a></li>
 <li><a href="#example_2">Example</a></li>
 </ul>
 </li>
-<li><a href="#get-profile-data">Get Profile Data</a><ul>
+<li><a href="#get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</a><ul>
 <li><a href="#description_3">Description</a></li>
-<li><a href="#query-format_3">Query Format</a><ul>
+<li><a href="#query-format_3">Query Format</a></li>
+<li><a href="#response-format_3">Response Format</a></li>
+<li><a href="#example_3">Example</a></li>
+</ul>
+</li>
+<li><a href="#get-profile-data">Get Profile Data</a><ul>
+<li><a href="#description_4">Description</a></li>
+<li><a href="#query-format_4">Query Format</a><ul>
 <li><a href="#response-format-1">Response Format 1</a></li>
 <li><a href="#response-format-2">Response Format 2</a></li>
 </ul>
@@ -37,17 +44,27 @@
 </ul>
 </li>
 <li><a href="#get-extended-mutation-data">Get Extended Mutation Data</a><ul>
-<li><a href="#description_4">Description</a></li>
-<li><a href="#query-format_4">Query Format</a></li>
-<li><a href="#response-format_3">Response Format</a></li>
-<li><a href="#example_3">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-clinical-data">Get Clinical Data</a><ul>
 <li><a href="#description_5">Description</a></li>
 <li><a href="#query-format_5">Query Format</a></li>
 <li><a href="#response-format_4">Response Format</a></li>
 <li><a href="#example_4">Example</a></li>
+</ul>
+</li>
+<li><a href="#get-clinical-data">Get Clinical Data</a><ul>
+<li><a href="#description_6">Description</a></li>
+<li><a href="#query-format_6">Query Format</a></li>
+<li><a href="#response-format_5">Response Format</a></li>
+<li><a href="#example_5">Example</a></li>
+</ul>
+</li>
+<li><a href="#accessing-private-studies">Accessing Private Studies</a><ul>
+<li><a href="#details">Details</a></li>
+<li><a href="#example_6">Example</a><ul>
+<li><a href="#query-format_7">Query Format</a></li>
+<li><a href="#response-format_6">Response Format</a></li>
+<li><a href="#example_7">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -55,30 +72,32 @@
 </ul>
 </div>
 <h1 id="introduction">Introduction</h1>
-<p>The Cancer Genomic Data Server (CGDS) web service interface provides direct programmatic access to all genomic data stored within the server.  This enables you to easily access data from your favorite programming language, such as Python, Java, Perl or R.  The CGDS web service is REST-based, meaning that client applications create a query consisting of parameters appended to a URL, and receive back either either text or an XML response.  For CGDS, all responses are currently tab-delimited text.  Clients of the CGDS web service can issue the following types of queries:</p>
+<p>The Cancer Genomic Data Server (CGDS) web service interface provides direct programmatic access to all genomic data stored within the server.  This enables you to easily access data from your favorite programming language, such as Python, Java, Perl, R or MatLab.  The CGDS web service is REST-based, meaning that client applications create a query consisting of parameters appended to a URL, and receive back either either text or an XML response.  For CGDS, all responses are currently tab-delimited text.  Clients of the CGDS web service can issue the following types of queries:</p>
 <ul>
-<li>what cancer types are hosted on the server?</li>
-<li>what genetic profile types are available for cancer type X?  For example, does the server store mutation and copy number data for TCGA Glioblastoma?</li>
-<li>what case sets are available for cancer type X?  For example, what case sets are available for TCGA Glioblastoma?</li>
+<li>What cancer studies are stored on the server?</li>
+<li>What genetic profile types are available for cancer study X?  For example, does the server store mutation and copy number data for the TCGA Glioblastoma data?</li>
+<li>What case sets are available for cancer study X?  For example, what case sets are available for TCGA Glioblastoma?</li>
 </ul>
-<p>Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in TCGA Glioblastoma.</p>
+<p>Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.</p>
+<p>The CGDS web service provides access to both public and private cancer studies.  Public studies are accessible to everyone.  Private studies are only accessible to users who have the right to access them. </p>
+<p>If a study is private, then it can be accessed by adding the fields email_address and secret_key to a data access command. All commands are data access commands <em>except</em> getTypesOfCancer and getNetwork. See the section Accessing Private Studies below for details.</p>
 <h1 id="the-cgds-r-package">The CGDS R Package</h1>
 <p>If you are interested in accessing CGDS via R, please check out our <a href="cgds_r.jsp">CGDS-R library</a>.</p>
 <h1 id="basic-query-syntax">Basic Query Syntax</h1>
-<p>All web queries are available at: <a href="http://cbio.mskcc.org/cgds-public/webservice.do">http://cbio.mskcc.org/cgds-public/webservice.do</a>. All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:</p>
+<p>All web queries are available at: <a href="http://cbio.mskcc.org//cgds-public/webservice.do">http://cbio.mskcc.org//cgds-public/webservice.do</a>. All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:</p>
 <ul>
-<li><strong>cmd</strong> = the command that you wish to execute.  The command must be equal to one of the following:  getCancerTypes, getGeneticProfiles, getCaseLists,  getProfileData or getMutationData.</li>
+<li><strong>cmd</strong> = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.</li>
 <li>optional additional parameters, depending of the command (see below).</li>
 </ul>
-<p>For example, the following query will request all case lists for TCGA GBM:</p>
-<p><a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getCaseLists&amp;cancer_type_id=gbm">webservice.do?cmd=getCaseLists&amp;cancer_type_id=gbm</a></p>
+<p>For example, the following query will request all case lists for the TCGA GBM data:</p>
+<p><a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCaseLists&amp;cancer_study_id=2">webservice.do?cmd=getCaseLists&amp;cancer_study_id=2</a></p>
 <h1 id="response-header-and-error-messages">Response Header and Error Messages</h1>
 <p>The first line of each response begins with a hash mark (#), and will contain data regarding the server status.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
 </code></pre>
 <p>If any errors have occurred in processing your query, this will appear directly after the status message.  Error messages begin with the "Error:" tag.  Warning messages begin with the "# Warning:" tag.  Unrecoverable errors are reported as errors.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
- Error:  No case lists available for cancer_type_id:  gbs.
+ Error:  No case lists available for cancer_study_id:  gbs.
 </code></pre>
 <p>Recoverable errors, such as invalid gene symbols are reported as warnings.  Multiple warnings may also be returned.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:06:34 EDT 2010
@@ -86,73 +105,90 @@
  # Warning:  Unknown gene:  EGFR12
 </code></pre>
 <h1 id="commands">Commands</h1>
-<h2 id="get-all-cancer-types">Get All Cancer Types</h2>
+<h2 id="get-all-types-of-cancer">Get All Types of Cancer</h2>
 <h3 id="description">Description</h3>
-<p>Retrieves meta-data regarding all cancer types stored on the server.</p>
+<p>Retrieves a list of all the clinical types of cancer stored on the server.</p>
 <h3 id="query-format">Query Format</h3>
 <ul>
-<li><strong>cmd=getCancerTypes</strong> (required)</li>
+<li><strong>cmd=getTypesOfCancer</strong> (required)</li>
 </ul>
 <h3 id="response-format">Response Format</h3>
-<p>A tab-delimited file with three columns:</p>
+<p>A tab-delimited file with two columns:</p>
 <ul>
-<li><strong>cancer_type_id:</strong>  unique ID used to identify the cancer type in subsequent interface calls.  This is a human readable ID.  For example, "gbm" identifies the TCGA GBM data set.</li>
-<li><strong>name:</strong>  short name of the cancer type.</li>
-<li><strong>description:</strong>  short description of the cancer type, describing the source of study.</li>
+<li><strong>type_of_cancer_id:</strong>  a unique text identifier used to identify the type of cancer.  For example, "gbm" identifies Glioblastoma multiforme.</li>
+<li><strong>name:</strong>  short name of the type of cancer.</li>
 </ul>
 <h3 id="example">Example</h3>
-<p>Get all Cancer Types: <a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getCancerTypes">webservice.do?cmd=getCancerTypes</a></p>
-<h2 id="get-all-genetic-profiles-for-a-specific-cancer-type">Get All Genetic Profiles for a Specific Cancer Type</h2>
+<p>Get all Types of Cancer: <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getTypesOfCancer">webservice.do?cmd=getTypesOfCancer</a></p>
+<h2 id="get-all-cancer-studies">Get All Cancer Studies</h2>
 <h3 id="description_1">Description</h3>
-<p>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer type.</p>
+<p>Retrieves meta-data regarding cancer studies stored on the server. Returns information about cancer studies accessible to the currently logged-in user: all public studies, and private studies which the user has the right to access.</p>
 <h3 id="query-format_1">Query Format</h3>
 <ul>
-<li><strong>cmd</strong>=getGeneticProfiles (required)</li>
-<li><strong>cancer_type_id</strong>=[cancer type ID] (required)</li>
+<li><strong>cmd=getCancerStudies</strong> (required)</li>
 </ul>
 <h3 id="response-format_1">Response Format</h3>
+<p>A tab-delimited file with three columns:</p>
+<ul>
+<li><strong>cancer_study_id:</strong>  a unique integer ID that should be used to identify the cancer study in subsequent interface calls.<br />
+</li>
+<li><strong>name:</strong>  short name of the cancer study.</li>
+<li><strong>description:</strong>  short description of the cancer study.</li>
+</ul>
+<h3 id="example_1">Example</h3>
+<p>Get all Cancer Studies: <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCancerStudies">webservice.do?cmd=getCancerStudies</a></p>
+<h2 id="get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</h2>
+<h3 id="description_2">Description</h3>
+<p>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</p>
+<h3 id="query-format_2">Query Format</h3>
+<ul>
+<li><strong>cmd</strong>=getGeneticProfiles (required)</li>
+<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
+</ul>
+<h3 id="response-format_2">Response Format</h3>
 <p>A tab-delimited file with six columns:</p>
 <ul>
 <li><strong>genetic_profile_id</strong>:  a unique ID used to identify the genetic profile ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_mutations" identifies the TCGA GBM mutation genetic profile.</li>
 <li><strong>genetic_profile_name</strong>:  short profile name.</li>
 <li><strong>genetic_profile_description</strong>:  short profile description.</li>
-<li><strong>cancer_type_id</strong>:  cancer type ID tied to this genetic profile.  Will match the input cancer_type_id.<br />
+<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.<br />
 </li>
 <li><strong>genetic_alteration_type</strong>:  indicates the profile type.  Will be one of:<ul>
 <li>MUTATION</li>
 <li>MUTATION_EXTENDED</li>
 <li>COPY_NUMBER_ALTERATION</li>
 <li>MRNA_EXPRESSION</li>
+<li>METHYLATION</li>
 </ul>
 </li>
 <li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
 </ul>
-<h3 id="example_1">Example</h3>
-<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getGeneticProfiles&amp;cancer_type_id=gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_type_id=gbm</a></p>
-<h2 id="get-all-case-lists-for-a-specific-cancer-type">Get All Case Lists for a Specific Cancer Type</h2>
-<h3 id="description_2">Description</h3>
-<p>Retrieves meta-data regarding all case lists stored about a specific cancer type.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer type, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
-<h3 id="query-format_2">Query Format</h3>
+<h3 id="example_2">Example</h3>
+<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=2">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=2</a></p>
+<h2 id="get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</h2>
+<h3 id="description_3">Description</h3>
+<p>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
+<h3 id="query-format_3">Query Format</h3>
 <ul>
 <li><strong>cmd</strong>=getCaseLists (required)</li>
-<li><strong>cancer_type_id</strong>=[cancer type ID] (required)</li>
+<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
 </ul>
-<h3 id="response-format_2">Response Format</h3>
+<h3 id="response-format_3">Response Format</h3>
 <p>A tab-delimited file with five columns:</p>
 <ul>
 <li><strong>case_list_id</strong>:  a unique ID used to identify the case list ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_all" identifies all cases profiles in the TCGA GBM study.</li>
 <li><strong>case_list_name</strong>:  short name for the case list.</li>
 <li><strong>case_list_description</strong>:  short description of the case list.</li>
-<li><strong>cancer_type_id</strong>:  cancer type ID tied to this genetic profile.  Will match the input cancer_type_id.<br />
+<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.<br />
 </li>
 <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
 </ul>
-<h3 id="example_2">Example</h3>
-<p>Get all Case Lists for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getCaseLists&amp;cancer_type_id=gbm">webservice.do?cmd=getCaseLists&amp;cancer_type_id=gbm</a></p>
+<h3 id="example_3">Example</h3>
+<p>Get all Case Lists for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCaseLists&amp;cancer_study_id=2">webservice.do?cmd=getCaseLists&amp;cancer_study_id=2</a></p>
 <h2 id="get-profile-data">Get Profile Data</h2>
-<h3 id="description_3">Description</h3>
+<h3 id="description_4">Description</h3>
 <p>Retrieves genomic profile data for one or more genes.</p>
-<h3 id="query-format_3">Query Format</h3>
+<h3 id="query-format_4">Query Format</h3>
 <ul>
 <li><strong>cmd</strong>=getProfileData (required)</li>
 <li><strong>case_set_id</strong>= [case set ID] (required)</li>
@@ -161,8 +197,8 @@
 </ul>
 <p>You can either:</p>
 <ul>
-<li>Specify multiple genes and a single genetic profile ID. Example: <a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
-<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,%20gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus, gbm_cna_rae&amp;gene_list=EGFR</a></li>
+<li>Specify multiple genes and a single genetic profile ID. Example: <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
+<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,%20gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus, gbm_cna_rae&amp;gene_list=EGFR</a></li>
 </ul>
 <h4 id="response-format-1">Response Format 1</h4>
 <p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:</p>
@@ -186,16 +222,16 @@
 <h3 id="examples">Examples</h3>
 <p>See Query Format above.</p>
 <h2 id="get-extended-mutation-data">Get Extended Mutation Data</h2>
-<h3 id="description_4">Description</h3>
+<h3 id="description_5">Description</h3>
 <p>For data of type EXTENDED_MUTATION, you can request the full set of annotated extended mutation data.  This enables you to, for example, determine which sequencing center sequenced the mutation, the amino acid change that results from the mutation, or gather links to predicted functional consequences of the mutation.</p>
-<h3 id="query-format_4">Query Format</h3>
+<h3 id="query-format_5">Query Format</h3>
 <ul>
 <li><strong>cmd</strong>=getMutationData (required)</li>
 <li><strong>case_set_id</strong>= [case set ID] (required)</li>
 <li><strong>genetic_profile_id</strong>= [a single genetic profile IDs] (required).</li>
 <li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
 </ul>
-<h3 id="response-format_3">Response Format</h3>
+<h3 id="response-format_4">Response Format</h3>
 <p>A tab-delimited file with the following columns:</p>
 <ul>
 <li><strong>entrez_gene_id</strong>:  Entrez Gene ID.</li>
@@ -214,18 +250,18 @@
 <li><strong>start_position</strong>:  start position of mutation.</li>
 <li><strong>end_position</strong>:  end position of mutation.</li>
 </ul>
-<h3 id="example_3">Example</h3>
+<h3 id="example_4">Example</h3>
 <p>Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:</p>
-<p><a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
+<p><a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
 <h2 id="get-clinical-data">Get Clinical Data</h2>
-<h3 id="description_5">Description</h3>
+<h3 id="description_6">Description</h3>
 <p>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</p>
-<h3 id="query-format_5">Query Format</h3>
+<h3 id="query-format_6">Query Format</h3>
 <ul>
 <li><strong>cmd</strong>=getClinicalData (required)</li>
 <li><strong>case_set_id</strong>= [case set ID] (required)</li>
 </ul>
-<h3 id="response-format_4">Response Format</h3>
+<h3 id="response-format_5">Response Format</h3>
 <p>A tab-delimited file with the following columns:</p>
 <ul>
 <li><strong>case_id</strong>:  Unique Case Identifier.</li>
@@ -235,6 +271,22 @@
 <li><strong>disease_free_survival_status</strong>:  Disease free survival status, usually indicated as "DiseaseFree" or "Recurred/Progressed".</li>
 <li><strong>age_at_diagnosis</strong>:  Age at diagnosis.</li>
 </ul>
-<h3 id="example_4">Example</h3>
+<h3 id="example_5">Example</h3>
 <p>Get Clinical Data for All TCGA Ovarian Cases:</p>
-<p><a href="http://cbio.mskcc.org/cgds-public/webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<p><a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<h1 id="accessing-private-studies">Accessing Private Studies</h1>
+<h2 id="details">Details</h2>
+<p>Authorized users can access private cancer studies on the CGDS web service. Currently (July 2011) only system administrators can create user accounts and load private studies into the CGDS web service.<br />
+</p>
+<p>If a study is private, then it can be accessed by adding the fields email_address and secret_key to a data access command. All commands above are data access commands <em>except</em> getTypesOfCancer and getNetwork. The secret key must be obtained from the system administrator.</p>
+<h2 id="example_6">Example</h2>
+<h3 id="query-format_7">Query Format</h3>
+<p>These fields must be added to a request's query string to access a private study:</p>
+<ul>
+<li><strong>email_address</strong>= [email address] (required to access a private study)</li>
+<li><strong>secret_key</strong>= [secret key] (required to access a private study)</li>
+</ul>
+<h3 id="response-format_6">Response Format</h3>
+<p>Either "No cancer studies accessible..." or the data normally returned by the command.</p>
+<h3 id="example_7">Example</h3>
+<p>Get all Cancer Studies accessible to arthur@gmail.com: <a href="http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCancerStudies&amp;email_address=arthur@gmail.com&amp;secret_key=Secret">webservice.do?cmd=getCancerStudies&amp;email_address=arthur@gmail.com&amp;secret_key=Secret</a></p>

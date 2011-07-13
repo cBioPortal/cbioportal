@@ -24,7 +24,8 @@ public class GetCancerTypes {
         try {
             //  Set Query Parameters
             NameValuePair[] data = {
-                    new NameValuePair(CgdsProtocol.CMD, "getCancerStudies"),
+                    //new  new NameValuePair(CgdsProtocol.CMD, "getCancerStudies"),
+                    new NameValuePair(CgdsProtocol.CMD, "getCancerTypes"),
             };
 
             //  Parse Text Response

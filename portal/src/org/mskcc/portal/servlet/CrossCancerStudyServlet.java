@@ -3,6 +3,8 @@ package org.mskcc.portal.servlet;
 
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.portal.model.CancerType;
+import org.mskcc.portal.remote.GetCancerTypes;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.
@@ -67,8 +70,19 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
 
-        RequestDispatcher dispatcher =
-                getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_query.jsp");
-        dispatcher.forward(httpServletRequest, httpServletResponse);
+        String geneList = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
+        ArrayList<CancerType> cancerTypeList = GetCancerTypes.getCancerTypes(xdebug);
+        httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerTypeList);
+
+        if (geneList == null) {
+            RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_query.jsp");
+            dispatcher.forward(httpServletRequest, httpServletResponse);
+
+        } else {
+            RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
+            dispatcher.forward(httpServletRequest, httpServletResponse);
+        }
     }
 }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 public class GetCaseSets {
 
+   // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
     /**
      * Gets all Case Sets Associated with a specific Cancer type.
      *
@@ -20,6 +21,7 @@ public class GetCaseSets {
      * @return ArrayList of CaseSet Objects.
      * @throws RemoteException Remote / Network IO Error.
      */
+   // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
     public static ArrayList<CaseSet> getCaseSets(String cancerTypeId, XDebug xdebug)
             throws RemoteException {
         ArrayList<CaseSet> caseList = new ArrayList<CaseSet>();
@@ -29,7 +31,7 @@ public class GetCaseSets {
             //  Create Query Parameters
             NameValuePair[] data = {
                     new NameValuePair(CgdsProtocol.CMD, "getCaseLists"),
-                    new NameValuePair(CgdsProtocol.CANCER_TYPE_ID, cancerTypeId)
+                    new NameValuePair(CgdsProtocol.CANCER_STUDY_ID, cancerTypeId)
             };
 
             // Parse Text Response

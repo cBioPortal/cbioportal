@@ -41,7 +41,7 @@ public class ShowData extends HttpServlet {
         }
 
         if (userIsAuthorized) {
-            XDebug xdebug = new XDebug();
+            XDebug xdebug = new XDebug( request );
             showData(getServletContext(), request, response, xdebug);
         } else {
             RequestDispatcher dispatcher =

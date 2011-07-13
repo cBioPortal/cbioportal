@@ -45,6 +45,16 @@
     </servlet>
 
     <servlet>
+        <servlet-name>openIDServlet</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.OpenIDServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>handleOpenIDproviderResp</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.HandleOpenIDproviderResp</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>plot-test</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PlotTestServlet</servlet-class>
     </servlet>
@@ -97,6 +107,16 @@
     <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>openIDServlet</servlet-name>
+        <url-pattern>/openIDServlet.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>handleOpenIDproviderResp</servlet-name>
+        <url-pattern>/handleOpenIDproviderResp.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

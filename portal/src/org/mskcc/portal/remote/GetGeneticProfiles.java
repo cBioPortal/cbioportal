@@ -28,7 +28,7 @@ public class GetGeneticProfiles {
             // Prepare Query Parameters
             NameValuePair[] data = {
                     new NameValuePair(CgdsProtocol.CMD, "getGeneticProfiles"),
-                    new NameValuePair(CgdsProtocol.CANCER_TYPE_ID, cancerTypeId)
+                    new NameValuePair(CgdsProtocol.CANCER_STUDY_ID, cancerTypeId)
             };
 
             //  Parse Text Response

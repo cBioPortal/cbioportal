@@ -28,7 +28,7 @@
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute
             (QueryBuilder.PROFILE_LIST_INTERNAL);
-    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_TYPE_ID);
+    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
 

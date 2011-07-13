@@ -59,7 +59,8 @@ public class PlotServlet extends HttpServlet {
 
             // Get All Parameters Safely
             Pattern p = Pattern.compile(",");
-            String cancerTypeId = servletXssUtil.getCleanInput(req, QueryBuilder.CANCER_TYPE_ID);
+            // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+            String cancerTypeId = servletXssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
             String[] genesList = p.split(servletXssUtil.getCleanInput(req, QueryBuilder.GENE_LIST));
             String[] geneticProfilesList = p.split
                     (servletXssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS));

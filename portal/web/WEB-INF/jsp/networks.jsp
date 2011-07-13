@@ -1,10 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 
 <%
-    String networkSif = (String) request.getAttribute(QueryBuilder.NETWORK_SIF);
-    networkSif = networkSif.replaceAll("\n","~n~");
+    String network = (String) request.getAttribute(QueryBuilder.NETWORK);
+    network = network.replaceAll("\n","~n~");
     /*out.println ("<PRE>");
-    out.println (networkSif);
+    out.println (network);
     out.println ("</PRE>"); */
 %>
 
@@ -15,8 +15,8 @@
 <script type="text/javascript">
             window.onload = function() {
                 var div_id = "cytoscapeweb";
-                var sif = '<%=networkSif%>';
-                sif = sif.replace(new RegExp("~n~", 'g'), "\n");
+                var graphml = '<%=network%>';
+                graphml = graphml.replace(new RegExp("~n~", 'g'), "\n");
 
                 var visual_style = {
                     global: {
@@ -65,7 +65,7 @@
 
                 var draw_options = {
                     // your data goes here
-                    network: sif,
+                    network: graphml,
                     edgeLabelsVisible: false,
                     layout: "ForceDirected",
                     visualStyle: visual_style,

@@ -45,7 +45,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
-    public static final String CANCER_TYPE_ID = "cancer_type_id";
+    public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CLINICAL_DATA_LIST = "clinical_data_list";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
     public static final String GENE_SET_CHOICE = "gene_set_choice";
@@ -66,7 +66,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String MERGED_PROFILE_DATA_INTERNAL = "merged_profile_data";
     public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
-    public static final String NETWORK_SIF = "network_sif";
+    public static final String NETWORK = "network";
     public static final String HTML_TITLE = "html_title";
     public static final String TAB_INDEX = "tab_index";
     public static final String TAB_DOWNLOAD = "tab_download";
@@ -138,7 +138,7 @@ public class QueryBuilder extends HttpServlet {
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
-        XDebug xdebug = new XDebug();
+        XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();
         boolean userIsAuthorized = false;
         if (SkinUtil.usersMustAuthenticate()) {
@@ -160,8 +160,9 @@ public class QueryBuilder extends HttpServlet {
             //  Get User Selected Action
             String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
 
+            // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
             //  Get User Selected Cancer Type
-            String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_TYPE_ID);
+            String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
 
             //  Get User Selected Genetic Profiles
             String geneticProfileIds[] = httpServletRequest.getParameterValues(GENETIC_PROFILE_IDS);
@@ -185,10 +186,12 @@ public class QueryBuilder extends HttpServlet {
                 if (cancerTypeId == null) {
                     cancerTypeId = cancerTypeList.get(0).getCancerTypeId();
                 }
-                httpServletRequest.setAttribute(CANCER_TYPE_ID, cancerTypeId);
+                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+                httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
 
                 httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerTypeList);
 
+                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
                 //  Get Genetic Profiles for Selected Cancer Type
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
                         (cancerTypeId, xdebug);
@@ -550,7 +553,7 @@ public class QueryBuilder extends HttpServlet {
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
                             node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
                             node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
                             node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }
@@ -566,7 +569,7 @@ public class QueryBuilder extends HttpServlet {
                             return ngnc.iterator().next();
                         }
                     });
-                    request.setAttribute(NETWORK_SIF, graphML);
+                    request.setAttribute(NETWORK, graphML);
                 }
 
                 // Store download links in session (for possible future retrieval).

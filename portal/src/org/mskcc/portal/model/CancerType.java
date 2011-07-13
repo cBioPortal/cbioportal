@@ -3,6 +3,7 @@ package org.mskcc.portal.model;
 /**
  * Encapsulates Cancer Type Information.
  */
+// TODO: Later: ACCESS CONTROL: change to CancerStudy, etc.
 public class CancerType {
     private String cancerTypeId;
     private String cancerName;

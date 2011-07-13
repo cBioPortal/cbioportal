@@ -50,7 +50,7 @@
                 <h4>Enter HUGO Gene Symbols Below:</h4>
                 <form id="main_form" action="cross_cancer.do" method="post">
                 <br/>
-                <textarea rows="5" cols="50"></textarea>
+                <textarea name="<%= QueryBuilder.GENE_LIST%>" rows="5" cols="50"></textarea>
                 <br/><br/>
                 <input type="submit" value="Submit"/>
                 </form>

@@ -19,14 +19,14 @@ If a study is private, then it can be accessed by adding the fields email\_addre
 If you are interested in accessing CGDS via R, please check out our [CGDS-R library](cgds_r.jsp).
 
 # Basic Query Syntax
-All web queries are available at: [http://cbio.mskcc.org//cgds-public/webservice.do](http://cbio.mskcc.org//cgds-public/webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
+All web queries are available at: [http://172.21.218.60:8080//cgds-public/webservice.do](http://172.21.218.60:8080//cgds-public/webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
 
 * **cmd** = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.
 * optional additional parameters, depending of the command (see below).
 
 For example, the following query will request all case lists for the TCGA GBM data:
 
-[webservice.do?cmd=getCaseLists&cancer_study_id=2](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=2)
+[webservice.do?cmd=getCaseLists&cancer_study_id=2](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=2)
 
 # Response Header and Error Messages
 
@@ -66,7 +66,7 @@ A tab-delimited file with two columns:
 
 ### Example
 
-Get all Types of Cancer: [webservice.do?cmd=getTypesOfCancer](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getTypesOfCancer)
+Get all Types of Cancer: [webservice.do?cmd=getTypesOfCancer](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getTypesOfCancer)
 
 ## Get All Cancer Studies
 
@@ -88,7 +88,7 @@ A tab-delimited file with three columns:
 
 ### Example
 
-Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCancerStudies)
+Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCancerStudies)
 
 ## Get All Genetic Profiles for a Specific Cancer Study
 
@@ -119,7 +119,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=2](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=2)
+Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=2](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=2)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -144,7 +144,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=2](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=2)
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=2](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=2)
 
 ## Get Profile Data
 
@@ -161,8 +161,8 @@ Retrieves genomic profile data for one or more genes.
 
 You can either:
 
-* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
-* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus, gbm_cna_rae&gene_list=EGFR](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,%20gbm_cna_rae&gene_list=EGFR)
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus, gbm_cna_rae&gene_list=EGFR](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,%20gbm_cna_rae&gene_list=EGFR)
 
 #### Response Format 1
 
@@ -222,7 +222,7 @@ A tab-delimited file with the following columns:
 
 Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
 
-[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
+[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
 
 ## Get Clinical Data
 
@@ -250,7 +250,7 @@ A tab-delimited file with the following columns:
 
 Get Clinical Data for All TCGA Ovarian Cases:
 
-[webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
+[webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
 
 # Accessing Private Studies
 
@@ -275,5 +275,53 @@ Either "No cancer studies accessible..." or the data normally returned by the co
 
 ### Example
 
-Get all Cancer Studies accessible to arthur@gmail.com: [webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret)
+Get all Cancer Studies accessible to arthur@gmail.com: [webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret)
+
+
+### More examples
+Get all Cancer Studies accessible to schultz@cbio.mskcc.org: [webservice.do?cmd=getCancerStudies&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCancerStudies&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
+
+Get all Cancer Studies accessible to schultz@cbio.mskcc.org, but with wrong key: [webservice.do?cmd=getCancerStudies&email_address=schultz@cbio.mskcc.org&secret_key=NotKey](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCancerStudies&email_address=schultz@cbio.mskcc.org&secret_key=NotKey)
+
+Get all Cancer Studies accessible to jerk@badsite.com: [webservice.do?cmd=getCancerStudies&email_address=jerk@badsite.com&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCancerStudies&email_address=jerk@badsite.com&secret_key=ExampleSecretKey675524)
+
+Get all Genetic Profiles for Glioblastoma (TCGA), no credentials: [webservice.do?cmd=getGeneticProfiles&cancer_study_id=2](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=2)
+
+Get all Genetic Profiles for Breast Cancer, no credentials: [webservice.do?cmd=getGeneticProfiles&cancer_study_id=1](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=1)
+
+Get all Genetic Profiles for Breast Cancer accessible to schultz@cbio.mskcc.org: [webservice.do?cmd=getGeneticProfiles&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
+
+Get all Genetic Profiles for Breast Cancer accessible to schultz@cbio.mskcc.org, but with wrong key: [webservice.do?cmd=getGeneticProfiles&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=woops](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getGeneticProfiles&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=woops)
+
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=2](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=2)
+
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus, gbm_cna_rae&gene_list=EGFR](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,%20gbm_cna_rae&gene_list=EGFR)
+
+Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
+
+[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
+
+Get all Case Lists for Breast, no cred: [webservice.do?cmd=getCaseLists&cancer_study_id=1](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=1)
+
+getProfileData for Breast, no cred: 
+
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG&gene_list=BRCA1+BRCA2+TP53](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG,BC_mRNA_FW_MDG&gene_list=EGFR](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG,BC_mRNA_FW_MDG&gene_list=EGFR)
+
+Get Extended Mutation Data for EGFR and PTEN for Breast, no cred: 
+
+[webservice.do?cmd=getMutationData&case_set_id=BC_all&genetic_profile_id=BC_mutation&gene_list=EGFR+PTEN](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getMutationData&case_set_id=BC_all&genetic_profile_id=BC_mutation&gene_list=EGFR+PTEN)
+
+
+Get all Case Lists for Breast, accessible to schultz@cbio.mskcc.org: [webservice.do?cmd=getCaseLists&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getCaseLists&cancer_study_id=1&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
+
+getProfileData for Breast, accessible to schultz@cbio.mskcc.org: 
+
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG&gene_list=BRCA1+BRCA2+TP53&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG&gene_list=BRCA1+BRCA2+TP53&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG,BC_mRNA_FW_MDG&gene_list=EGFR&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getProfileData&case_set_id=BC_all&genetic_profile_id=BC_mRNA_DBCG,BC_mRNA_FW_MDG&gene_list=EGFR&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
+
+Get Extended Mutation Data for EGFR and PTEN for Breast, accessible to schultz@cbio.mskcc.org: 
+
+[webservice.do?cmd=getMutationData&case_set_id=BC_all&genetic_profile_id=BC_mutation&gene_list=EGFR+PTEN&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524](http://172.21.218.60:8080//cgds-public/webservice.do?cmd=getMutationData&case_set_id=BC_all&genetic_profile_id=BC_mutation&gene_list=EGFR+PTEN&email_address=schultz@cbio.mskcc.org&secret_key=ExampleSecretKey675524)
 

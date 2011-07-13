@@ -51,6 +51,7 @@ public class GetCaseSets {
                     caseSet.setDescription(desc);
                     caseSet.setCaseList(cases);
                     caseList.add(caseSet);
+                    xdebug.logMsg(GetCaseSets.class, "Case Set Retrieved:  " + id);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {

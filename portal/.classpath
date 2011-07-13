@@ -1,29 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-math-1.2.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/servlet.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/batik-css.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/batik-util.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/junit-4.8.2.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/nekohtml.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/xml-apis-ext.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/xml-apis.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/antlr-3.2.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/antisamy-bin.1.4.1.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/ant/checkstyle-all-5.0-beta01.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/ant/catalina-ant.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/RserveEngine.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/REngine.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/ehcache-terracotta-2.3.0.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/ehcache-core-2.3.0.jar"/>
-	<classpathentry kind="lib" path="/Users/goldbera/Documents/workspace/portal/lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src" />
+	<classpathentry kind="con"
+		path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-logging-1.1.1.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-httpclient-3.1.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-lang-2.4.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-math-1.2.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/servlet.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/xercesImpl.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/batik-css.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/batik-util.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-codec-1.3.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/commons-logging-1.0.4.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/junit-4.8.2.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/nekohtml.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/xml-apis-ext.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/xml-apis.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/antlr-3.2.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/antisamy-bin.1.4.1.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/ant/checkstyle-all-5.0-beta01.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/ant/catalina-ant.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/RserveEngine.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/REngine.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/ehcache-terracotta-2.3.0.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/ehcache-core-2.3.0.jar" />
+	<classpathentry kind="lib"
+		path="/Users/goldbera/Documents/workspace/portal/lib/log4j-1.2.15.jar" />
+	<classpathentry kind="output" path="bin" />
 </classpath>

@@ -29,7 +29,7 @@ $(document).ready(function(){
 });
 </script>
 
-<h1>Cross-Cancer Study Results</h1>
+<h1>X-Cancer Study Results</h1>
 
     <%
         for (CancerType cancerType:  cancerTypes) {

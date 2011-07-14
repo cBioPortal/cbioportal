@@ -70,12 +70,7 @@
   </tr>
   <tr>
     <td colspan="3">
-        <script type="text/javascript">
-            $(document).ready(function() {
-               window.sessionStorage.clear(); 
-            });
-        </script>
-	<jsp:include page="global/footer.jsp" flush="true" />    
+	<jsp:include page="global/footer.jsp" flush="true" />
     </td>
   </tr>
 </table>

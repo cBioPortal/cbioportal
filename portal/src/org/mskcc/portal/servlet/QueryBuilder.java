@@ -80,7 +80,8 @@ public class QueryBuilder extends HttpServlet {
     public static final int MUTATION_DETAIL_LIMIT = 10;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final int MAX_NUM_GENES = 100;
-    
+    public static final String XDEBUG_OBJECT = "xdebug_object";
+
     private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
     private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
@@ -92,7 +93,7 @@ public class QueryBuilder extends HttpServlet {
     private static final String NODE_ATTR_PERCENT_CNA_HET_LOSS = "PERCENT_CNA_HEMIZYGOUSLY_DELETED";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
-    
+
     private ServletXssUtil servletXssUtil;
 
     /**
@@ -218,7 +219,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
                 String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
-                httpServletRequest.setAttribute("xdebug_object", xdebug);
+                httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
                 boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
                         caseSetId, caseIds, httpServletRequest);

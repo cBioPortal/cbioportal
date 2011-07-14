@@ -1,3 +1,6 @@
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml
+portal/.idea
+portal/.DS_Store
+.DS_Store

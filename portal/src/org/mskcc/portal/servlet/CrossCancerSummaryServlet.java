@@ -1,10 +1,12 @@
 package org.mskcc.portal.servlet;
 
 
-import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.model.CancerType;
+import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.remote.GetCancerTypes;
+import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -16,11 +18,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Central Servlet for performing Cross-Cancer Study Queries.
+ * Central Servlet for Summarizing One Cancer in a Cross-Cancer Summary.
  *
  * @author Ethan Cerami.
  */
-public class CrossCancerStudyServlet extends HttpServlet {
+public class CrossCancerSummaryServlet extends HttpServlet {
 
     private ServletXssUtil servletXssUtil;
 
@@ -70,19 +72,20 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
 
-        String geneList = servletXssUtil.getCleanInput(QueryBuilder.GENE_LIST);
-        ArrayList<CancerType> cancerTypeList = GetCancerTypes.getCancerTypes(xdebug);
-        httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerTypeList);
-
-        if (geneList == null) {
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_query.jsp");
-            dispatcher.forward(httpServletRequest, httpServletResponse);
-
-        } else {
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
-            dispatcher.forward(httpServletRequest, httpServletResponse);
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
+        // In order to process request, we must have a gene list, and a cancer type
+        String geneList = servletXssUtil.getCleanInput(QueryBuilder.GENE_LIST);
+        String cancerStudyId = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_ID);
+
+        ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId, xdebug);
+        httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
+        RequestDispatcher dispatcher =
+                getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
+        dispatcher.forward(httpServletRequest, httpServletResponse);
     }
 }

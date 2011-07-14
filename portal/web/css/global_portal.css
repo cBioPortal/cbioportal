@@ -1022,8 +1022,13 @@ table {
     padding:10px;
     margin-left:0px;
     margin-top:10px;
-    background-color: #E0E0E0;
+    background-color: #FFFFFF;
     border:1px solid #0F3974;
+}
+
+.cross_cancer_ajax {
+    padding-top:10px;
+    padding-left:15px;
 }
 
 /* The Cytoscape Web container must have its dimensions set. */

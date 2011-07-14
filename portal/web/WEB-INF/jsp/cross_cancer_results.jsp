@@ -15,25 +15,29 @@
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
 %>
 
+<jsp:include page="global/header.jsp" flush="true" />
+
 <script type="text/javascript">
 $(document).ready(function(){
-    $.ajax(
-        {
-        url:"test1.txt",
-        success:function(result){
-            $("div").html(result);
-            }});
-        }
-    );
+    <%
+    //  Iterate through each Cancer Study
+    //  For each cancer study, init AJAX
+    for (CancerType cancerType:  cancerTypes) {
+    %>
+    $("#study_<%= cancerType.getCancerTypeId() %>").load('cross_cancer_summary.do?gene_list=BRCA1&cancer_study_id=<%= cancerType.getCancerTypeId() %>');
+    <% } %>
+});
 </script>
 
-<jsp:include page="global/header.jsp" flush="true" />
-    <h1>Cross-Cancer Study Results</h1>
+<h1>Cross-Cancer Study Results</h1>
 
     <%
         for (CancerType cancerType:  cancerTypes) {
             out.println ("<div class=\"cross_cancer_panel\">");
             out.println ("<B>" + cancerType.getCancerName() + "</B>");
+            out.println ("<div class='cross_cancer_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
+            out.println ("<img src='images/ajax-loader2.gif'>");
+            out.println ("</div>");
             out.println ("</div>");
         }
     %>

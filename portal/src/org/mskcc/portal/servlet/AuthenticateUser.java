@@ -21,6 +21,7 @@ public class AuthenticateUser extends HttpServlet {
     private ServletXssUtil servletXssUtil;
 
     /**
+     *
      * Initializes the servlet.
      *
      * @throws ServletException Serlvet Init Error.

@@ -32,51 +32,44 @@ import org.openid4java.discovery.DiscoveryException;
  */
 public class OpenIDServlet extends HttpServlet {
 
-   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-      response.setContentType("text/html");
-      PrintWriter out = response.getWriter();
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-      String OpenID = request.getParameter("openid_identifier");
-      if (OpenID == null || OpenID.length() == 0 ) {
-         out.println("No OpenID entered.");
-         // TODO later ACCESS: change this URL 
-         out.println("<P><A HREF=../test/tryOpenID.html>Try another OpenID</A>");
-         out.close();
-      } else {
-         out.println("<p>OpenID is: " + OpenID );
-         try {
-            SampleConsumer mySampleConsumer = SampleConsumer.INSTANCE;
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
 
-            try {
-               InetAddress addr = InetAddress.getLocalHost();
+		String OpenID = request.getParameter("openid_identifier");
+		if (OpenID == null || OpenID.length() == 0 ) {
+			out.println("No OpenID entered.");
+			// TODO later ACCESS: change this URL 
+			out.println("<P><A HREF=../test/tryOpenID.html>Try another OpenID</A>");
+			out.close();
+		} else {
+			out.println("<p>OpenID is: " + OpenID );
+			try {
+				SampleConsumer mySampleConsumer = SampleConsumer.INSTANCE;
 
-               // TODO ACCESS: AUTOMATE FINDING THE PORT and the APP NAME
-               String URL = "http://" + addr.getHostAddress() + ":8080/test_portal/handleOpenIDproviderResp.do";
-               mySampleConsumer.setHandlerURL( URL );
-               // out.println("<br>setting setHandlerURL: " + URL );
+				// grabs host, port, and path to servlet via request object
+				String requestURL = request.getRequestURL().toString();
+				String handlerURL = (requestURL.substring(0, requestURL.indexOf(request.getServletPath())) +
+									 "/handleOpenIDproviderResp.do");
+				mySampleConsumer.setHandlerURL(handlerURL);
+				request.getSession().removeAttribute(PortalAccessControl.EMAIL);
+			 
+				mySampleConsumer.authRequest(OpenID, request, response, out);
+				// out.println("<br>request.getRequestURI(): " + request.getRequestURI() );
+				// out.println("<br>request.getQueryString(): " + request.getQueryString() );
 
-           } catch (UnknownHostException e) {
-              out.println("<P>UnknownHostException: " + e.getMessage());
-              e.printStackTrace(out);
-           }            
-           request.getSession().removeAttribute(PortalAccessControl.EMAIL);
+			} catch (ConsumerException e) {
+				out.println("<P>ConsumerException: " + e.getMessage());
+				e.printStackTrace(out);
+			} catch (DiscoveryException e) {
+				out.println("<P>Debugging: DiscoveryException: " + e.getMessage());
+				out.println("<P>Invalid OpenID: " + OpenID);
+			}
 
-            mySampleConsumer.authRequest(OpenID, request, response, out);
-            // out.println("<br>request.getRequestURI(): " + request.getRequestURI() );
-            // out.println("<br>request.getQueryString(): " + request.getQueryString() );
-
-         } catch (ConsumerException e) {
-            out.println("<P>ConsumerException: " + e.getMessage());
-            e.printStackTrace(out);
-         }catch (DiscoveryException e) {
-            out.println("<P>Debugging: DiscoveryException: " + e.getMessage());
-            out.println("<P>Invalid OpenID: " + OpenID);
-         }
-
-         // TODO ACCESS: change this URL 
-         out.println("<P><A HREF=../test/tryOpenID.html>Try another OpenID</A>");
-         out.close();
-      }
-   }
-
+			// TODO ACCESS: change this URL 
+			out.println("<P><A HREF=../test/tryOpenID.html>Try another OpenID</A>");
+			out.close();
+		}
+	}
 }

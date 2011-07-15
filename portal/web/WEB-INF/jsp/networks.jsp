@@ -8,9 +8,15 @@
     out.println ("</PRE>"); */
 %>
 
+<link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
+<link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+
 <script type="text/javascript" src="js/cytoscape_web/json2.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
+
+<script type="text/javascript" src="js/network/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/network/network-ui.js"></script>
 
 <script type="text/javascript">
             window.onload = function() {
@@ -20,10 +26,20 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#eeeeee"
+                        backgroundColor: "#fefefe"
                     },
                     nodes: {
                         shape: "ELLIPSE",
+					// TODO two different shapes for two different node types
+//                        shape: {
+//                           discreteMapper: {
+//                                attrName: "type",
+//                                entries: [
+//                                    { attrValue: "type1", value: "ELLIPSE" },
+//                                    { attrValue: "type2", value: "DIAMOND" }
+//                                ]
+//                            }
+//                        }, 
                         borderWidth: 1,
                         borderColor: "#000000",
                         size: {
@@ -40,11 +56,27 @@
                                 ]
                             }
                         },
-                        labelHorizontalAnchor: "center"
+                        labelHorizontalAnchor: "center",
+                        labelVerticalAnchor: "middle",
+						labelXOffset: 0,
+						labelYOffset: -10,
+                        labelFontSize: 10
                     },
                     edges: {
                         width: 1,
                         color: "#0B94B1"
+					// TODO 3(or 4?) different colors for different each types
+//                        color: {
+//                        discreteMapper: {
+//                            attrName: "targetArrowShape",
+//                            entries: [
+//                                { attrValue: "T", value: "#C3844C" },
+//                                { attrValue: "none", value: "#6261FC" },
+//                               { attrValue: "delta", value: "#6261FC" },
+//								{ attrValue: "circle", value: "#68BBC1" }
+//                            ]
+//                        }
+//                    },
                     }
                 };
 
@@ -73,15 +105,26 @@
                 };
 
                 vis.draw(draw_options);
+
+                initNetworkUI(vis);
             };
         </script>
 
         
-
-
-
 <div class="section" id="network">
-        <div id="cytoscapeweb">
-            Cytoscape Web will replace the contents of this div with your graph.
-        </div>
+	<table>
+		<tr>
+			<td>
+				<div id="vis_content">
+					<jsp:include page="network_menu.jsp"/>
+		        	<div id="cytoscapeweb">
+		            	Cytoscape Web will replace the contents of this div with your graph.
+		        	</div>
+		        </div>
+			</td>
+			<td>
+				<jsp:include page="network_tabs.jsp"/>
+			</td>
+		</tr>
+	</table>
 </div>

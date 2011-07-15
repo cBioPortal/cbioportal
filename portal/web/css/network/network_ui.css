@@ -1,0 +1,146 @@
+#network_menu_div
+{
+	/* margin-left: 18px; */
+}
+
+#network_menu_div ul
+{
+	margin:0;
+	padding:0;
+	list-style-type:none;
+	list-style-position:outside;
+	position:relative;
+	line-height:1.5em; 
+}
+
+#network_menu a
+{
+	cursor:pointer;
+	display:block;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	border-left: 1px solid #333;
+	border-right: 1px solid #333;
+	font-weight: bold;
+	color: #2e6e9e;
+	text-decoration: none;
+	background-color: #fff;
+	background-repeat: no-repeat;
+}
+
+#network_menu a:hover
+{
+	background-color: #d0e5f5;
+	color: #2e6e9e;
+}
+
+#network_menu li
+{
+	float:left;
+	position:relative;
+}
+
+#network_menu ul
+{
+	position:absolute;
+	display:none;
+	width:18em;
+	top:1.5em;
+}
+
+#network_menu li ul a
+{
+	width:15em;
+	height:auto;
+	float:left;
+}
+
+#network_menu ul ul
+{
+	top:auto;
+}	
+
+#network_menu li ul ul 
+{
+	left:12em;
+	margin:0px 0 0 10px;
+}
+
+#network_menu li:hover ul ul, #network_menu li:hover ul ul ul, #network_menu li:hover ul ul ul ul
+{
+	display:none;
+}
+
+#network_menu li:hover ul, #network_menu li li:hover ul, #network_menu li li li:hover ul, #network_menu li li li li:hover ul
+{
+	display:block;
+}
+
+/* 
+ * Settings Panel and Inspectors
+ */
+ 
+.checked-menu-item
+{
+	background-image: url("images/menu_check.gif");
+	background-position: left;
+}
+
+.separator-menu-item
+{
+	border-top:1px solid #333;
+}
+
+.last-menu-item
+{
+	border-bottom:1px solid #333;
+}
+
+.main-menu-item
+{
+	border:1px solid #333;
+}
+
+.sub-menu-item
+{
+	background-image: url("images/menu_right.png");
+	background-position: right;
+}
+
+.ui-dialog .ui-widget-header .ui-icon
+{
+	background-image: url(images/ui-icons_ffffff_256x240.png);
+}
+
+.ui-dialog .ui-icon-closethick
+{
+	background-position: -96px -128px;
+}
+
+.ui-dialog .ui-dialog-titlebar
+{
+	font-size: 10pt;
+} 
+
+#settings_dialog .footer
+{
+	padding-top: 0.5em;
+	text-align: center;
+	font-size: 10pt;
+}
+
+/*
+ * CytoscapeWeb dimensions
+ */
+#vis_content
+{
+	width: 600px;
+	height: 666px;
+}
+
+#node_inspector_content .data_row
+{
+	font-size: 12pt;
+}

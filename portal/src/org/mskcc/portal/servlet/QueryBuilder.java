@@ -449,10 +449,12 @@ public class QueryBuilder extends HttpServlet {
                 if (output.equalsIgnoreCase("svg")) {
                     response.setContentType("image/svg+xml");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-                    MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                             geneticProfileIdSet, profileList );
-                    
+                    writer.write(out);
+                    writer.flush();
+                    writer.close();
                 } else if (output.equalsIgnoreCase("html")) {
                     response.setContentType("text/html");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;

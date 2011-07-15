@@ -2,6 +2,9 @@
 <%@ page import="org.mskcc.portal.util.Config" %>
 <%@ page import="org.mskcc.portal.model.CancerType" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 
 <%
     Config globalConfig = Config.getInstance();
@@ -13,6 +16,16 @@
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
     ArrayList<CancerType> cancerTypes = (ArrayList<CancerType>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
+
+    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
+    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+
+    //  Prepare gene list for URL.
+    //  Extra spaces must be removed.  Otherwise OMA Links will not work.
+    geneList = Utilities.appendSemis(geneList);
+    geneList = geneList.replaceAll("\\s+", " ");
+    geneList = URLEncoder.encode(geneList);
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true" />
@@ -24,12 +37,12 @@ $(document).ready(function(){
     //  For each cancer study, init AJAX
     for (CancerType cancerType:  cancerTypes) {
     %>
-    $("#study_<%= cancerType.getCancerTypeId() %>").load('cross_cancer_summary.do?gene_list=BRCA1&cancer_study_id=<%= cancerType.getCancerTypeId() %>');
+    $("#study_<%= cancerType.getCancerTypeId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerType.getCancerTypeId() %>');
     <% } %>
 });
 </script>
 
-<h1>X-Cancer Study Results</h1>
+<h1>Cross-Cancer Study Results</h1>
 
     <%
         for (CancerType cancerType:  cancerTypes) {

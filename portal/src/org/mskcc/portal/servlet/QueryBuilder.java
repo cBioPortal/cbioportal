@@ -64,6 +64,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
     public static final String MERGED_PROFILE_DATA_INTERNAL = "merged_profile_data";
+    public static final String PROFILE_DATA_SUMMARY = "profile_data_summary";
     public static final String WARNING_UNION = "warning_union";
     public static final String DOWNLOAD_LINKS = "download_links";
     public static final String NETWORK = "network";

@@ -106,7 +106,7 @@ package org.cytoscapeweb.view.render
 						+ Number(d.data.PERCENT_MRNA_WAY_DOWN) * 100;
 					
 					g.beginFill(getNodeColorRW(total), 50);					
-					DrawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
+					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
 					
 					// Top side of the Node is colored according tı the IN_QUERY property
 					if(d.data.IN_QUERY != null)
@@ -117,7 +117,7 @@ package org.cytoscapeweb.view.render
 					{
 						g.beginFill(0xDCDCDC, 50);
 					}
-					DrawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
+					drawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
 			}
 		}
 		
@@ -228,25 +228,25 @@ package org.cytoscapeweb.view.render
 				// The gray back part is drawn
 				g.lineStyle(1,0x000000,1);
 				g.beginFill(0xDCDCDC, 50);
-				DrawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
 				
 				g.lineStyle(0,0xFFFFFF,0);
 				
 				var hemizygousDeletionArc:int = hemizygousDeletion;
 				g.beginFill(0x9EDFE0, 50);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360, (hemizygousDeletionArc/360), smoothness, g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360, (hemizygousDeletionArc/360), smoothness, g);
 				
 				var gainArc:int = gain;
 				g.beginFill(0xFFC5CC, 50);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
+				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
 				
 				var amplificationArc:int = amplification;
 				g.beginFill(0xFF2500, 50);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin,  221/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin,  221/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
 				
 				var homozygousDeletionArc:int = homozygousDeletion;
 				g.beginFill(0x0332FF, 50);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
 				
 				g.lineStyle(1,0x000000,1);
 			}	
@@ -254,7 +254,7 @@ package org.cytoscapeweb.view.render
 			{
 				g.lineStyle(1,0xDCDCDC,0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				DrawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
 				g.endFill();
 			}
 			
@@ -262,13 +262,13 @@ package org.cytoscapeweb.view.render
 			{
 				g.lineStyle(1,0x000000,1);
 				g.beginFill(0xDCDCDC, 50);
-				DrawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
 				
 				g.lineStyle(0,0xFFFFFF,0);
 				
 				var mutationArc:int = mutation;
 				g.beginFill(0x008F00, 50);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, -19/360, (mutationArc/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, -19/360, (mutationArc/360), smoothness,g);
 				
 				g.lineStyle(1,0x000000,1);
 			}
@@ -276,24 +276,24 @@ package org.cytoscapeweb.view.render
 			{
 				g.lineStyle(1,0xDCDCDC,0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				DrawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
 				g.endFill();
 			}
-			leftFlag = true;
+
 			if( leftFlag == true)
 			{	
 				g.beginFill(0xDCDCDC, 50);
 				g.lineStyle(1,0x000000,1);
-				DrawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
 				g.endFill();
 				
 				var upRegulationArc:int = upRegulation;
 				g.lineStyle(1.5,0xFFACA9,1);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360-4/360, -(upRegulationArc/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360-4/360, -(upRegulationArc/360), smoothness,g);
 				
 				var downRegulationArc:int = downRegulation;
 				g.lineStyle(1.5,0x78AAD6,1);
-				DrawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360 - (upRegulationArc/360)-8/360, -(downRegulationArc/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360 - (upRegulationArc/360)-8/360, -(downRegulationArc/360), smoothness,g);
 				
 				g.lineStyle(1,0x000000,1);
 			}
@@ -301,9 +301,10 @@ package org.cytoscapeweb.view.render
 			{
 				g.lineStyle(1,0xDCDCDC,0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				DrawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
 				g.endFill();
 			}
+			g.lineStyle(1,0x000000,1);
 		}
 		
 		/**
@@ -319,13 +320,13 @@ package org.cytoscapeweb.view.render
 		 * @param g			graphics object to draw on it
 		 * Reference: http://www.pixelwit.com/blog/2008/12/drawing-closed-arc-shape/ 
 		 * */
-		private function DrawSolidArc (centerX, centerY, innerRadius, outerRadius, startAngle, arcAngle, steps, g:Graphics){
-			var twoPI = 2 * Math.PI;
-			var angleStep = arcAngle/steps;
-			var angle, i, endAngle;
+		private function drawSolidArc (centerX:Number, centerY:Number, innerRadius:Number, outerRadius:Number, startAngle:Number, arcAngle:Number, steps:Number, g:Graphics):void{
+			var twoPI:Number = 2 * Math.PI;
+			var angleStep:Number = arcAngle/steps;
+			var angle:Number, i:Number, endAngle:Number;
 
-			var xx = centerX + Math.cos(startAngle * twoPI) * innerRadius;
-			var yy = centerY + Math.sin(startAngle * twoPI) * innerRadius;
+			var xx:Number = centerX + Math.cos(startAngle * twoPI) * innerRadius;
+			var yy:Number = centerY + Math.sin(startAngle * twoPI) * innerRadius;
 
 			var startPoint = {x:xx, y:yy};
 			g.moveTo(xx, yy);
@@ -349,86 +350,29 @@ package org.cytoscapeweb.view.render
 			g.lineTo(startPoint.x, startPoint.y);
 		}
 		
-		private function getNodeColor(value:int)
+		// Returns the color betwwen Red and White using the given value as a ratio
+		private function getNodeColorRW(value:int):Number
 		{
-			var red:int;
-			var green:int;
-			var blue:int;
-			
 			var high:int = 100;
-			var mid:int = 50;
 			var low:int = 0;
 			
-			var highCRed = 230;
-			var highCGreen = 0;
-			var highCBlue = 0;
+			var highCRed:int = 230;
+			var highCGreen:int = 0;
+			var highCBlue:int = 0;
 			
-			var lowCRed = 0;
-			var lowCGreen = 230;
-			var lowCBlue = 0;
-			
-			var midCRed = 0;
-			var midCGreen = 0;
-			var midCBlue = 230;
-			
-			if (value >= high)
-			{
-				return rgb2hex(highCRed, highCGreen, highCBlue);
-			}
-			else if (value > mid)
-			{
-				return rgb2hex( getValueByRatio(value, mid, high, midCRed, highCRed),
-					getValueByRatio(value, mid, high, midCGreen, highCGreen),
-					getValueByRatio(value, mid, high, midCBlue, highCBlue)
-				);
-			}
-			else if (value == mid)
-			{
-				return rgb2hex(midCRed, midCGreen, midCBlue);
-			}
-			if(value > low)
-			{
-				return rgb2hex( getValueByRatio(value, mid, high, midCRed, highCRed),
-					getValueByRatio(value, mid, high, midCGreen, highCGreen),
-					getValueByRatio(value, mid, high, midCBlue, highCBlue));
-			}
-			else
-			{
-				return rgb2hex(lowCRed, lowCGreen, lowCBlue);
-			}
-		}
-		
-		private function getNodeColorRW(value:int)
-		{
-			var red:int;
-			var green:int;
-			var blue:int;
-			
-			var high:int = 100;
-			var mid:int = 50;
-			var low:int = 0;
-			
-			var highCRed = 230;
-			var highCGreen = 0;
-			var highCBlue = 0;
-			
-			var lowCRed = 230;
-			var lowCGreen = 230;
-			var lowCBlue = 230;
-			
-			var midCRed = 0;
-			var midCGreen = 0;
-			var midCBlue = 230;
-			
+			var lowCRed:int = 230;
+			var lowCGreen:int = 230;
+			var lowCBlue:int = 230;
+						
 			if (value >= high)
 			{
 				return rgb2hex(highCRed, highCGreen, highCBlue);
 			}
 			else if (value > low)
 			{
-				return rgb2hex( getValueByRatio(value, mid, high, lowCRed, highCRed),
-					getValueByRatio(value, mid, high, lowCGreen, highCGreen),
-					getValueByRatio(value, mid, high, lowCBlue, highCBlue)
+				return rgb2hex( getValueByRatio(value, low, high, lowCRed, highCRed),
+					getValueByRatio(value, low, high, lowCGreen, highCGreen),
+					getValueByRatio(value, low, high, lowCBlue, highCBlue)
 				);
 			}
 			else
@@ -437,14 +381,15 @@ package org.cytoscapeweb.view.render
 			}
 		}
 		
+		// used in getNodeColorRW to calculate a color number according to the ratio given
 		private function getValueByRatio(num:Number,
 				numLow:Number, numHigh:Number, colorNum1:int, colorNum2:int):int
 		{
 			return ((((num - numLow) / (numHigh - numLow)) * (colorNum2 - colorNum1)) + colorNum1)
 		}
 		
-		//bitwise conversion of rgb color to a hex value
-		function rgb2hex(r, g, b):Number {
+		// bitwise conversion of rgb color to a hex value
+		private function rgb2hex(r:int, g:int, b:int):Number {
 			return(r<<16 | g<<8 | b);
 		}
 		

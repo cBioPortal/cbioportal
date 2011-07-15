@@ -31,7 +31,7 @@ package org.cytoscapeweb.controller
 			
 			switch (action) {
 				case ApplicationFacade.ROLLOVER_EVENT:
-					
+					// For the hovered node added prop.detailFlag true to show the details.			
 					if (ds is NodeSprite) {
 						ds.props.detailFlag = true;
 						NodeSprite(ds).visitEdges(function(e:EdgeSprite):Boolean {

@@ -53,7 +53,7 @@ package org.cytoscapeweb.controller {
                 var nodes:Array = [], edges:Array = [];
                 for each (var ds:DataSprite in list) {
 					if(ds is NodeSprite){
-						ds.props.detailFlag = true; // MODIFY to show details of nodes
+						ds.props.detailFlag = true; // MODIFY to show details of nodes added prop.detailFlag
 						NodeSprite(ds).visitEdges(function(e:EdgeSprite):Boolean {
 							graphMediator.resetDataSprite(e);
 							return false;

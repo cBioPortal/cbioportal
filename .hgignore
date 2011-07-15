@@ -5,4 +5,5 @@ portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
+portal/build
 .DS_Store

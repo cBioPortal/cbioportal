@@ -4,6 +4,7 @@ import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.model.CancerType;
 import org.mskcc.portal.remote.GetCancerTypes;
+import org.mskcc.portal.oncoPrintSpecLanguage.Utilities;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.net.URLEncoder;
 
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.

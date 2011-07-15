@@ -103,7 +103,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
         httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
-        getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, httpServletRequest,
+        getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
+                httpServletRequest,
                 httpServletResponse, xdebug);
         RequestDispatcher dispatcher =
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
@@ -114,7 +115,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      * Gets all Genomic Data.
      */
     private void getGenomicData(HashMap<String, GeneticProfile> defaultGeneticProfileSet,
-            CaseSet defaultCaseSet, String geneListStr, HttpServletRequest request,
+            CaseSet defaultCaseSet, String geneListStr, ArrayList<CaseSet> caseList,
+            HttpServletRequest request,
             HttpServletResponse response, XDebug xdebug) throws IOException, ServletException {
 
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);        
@@ -163,7 +165,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         response.setContentType("text/html");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-        MakeOncoPrint.makeOncoPrint(request, response, theOncoPrintType, showAlteredColumnsBool,
+        MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseList, defaultCaseSet.getId(),
+                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 new HashSet<String>(defaultGeneticProfileSet.keySet()),
                 new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()));
 

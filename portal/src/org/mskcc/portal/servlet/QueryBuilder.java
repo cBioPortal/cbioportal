@@ -437,6 +437,8 @@ public class QueryBuilder extends HttpServlet {
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
 
+            PrintWriter writer = response.getWriter();
+
             if (output != null) {
 
                 String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
@@ -447,19 +449,24 @@ public class QueryBuilder extends HttpServlet {
                 if (output.equalsIgnoreCase("svg")) {
                     response.setContentType("image/svg+xml");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-                    MakeOncoPrint.makeOncoPrint(request, response, theOncoPrintType, showAlteredColumnsBool, geneticProfileIdSet, profileList );
+                    MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+                            zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+                            geneticProfileIdSet, profileList );
                     
                 } else if (output.equalsIgnoreCase("html")) {
                     response.setContentType("text/html");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-                    MakeOncoPrint.makeOncoPrint(request, response, theOncoPrintType, showAlteredColumnsBool, geneticProfileIdSet, profileList );
-
+                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+                            zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+                            geneticProfileIdSet, profileList );
+                    writer.write(out);
+                    writer.flush();
+                    writer.close();
                 } else if (output.equals("text")) {
                     response.setContentType("text/plain");
 
                     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                             theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
-                    PrintWriter writer = response.getWriter();
                     writer.write("" + dataSummary.getPercentCasesAffected());
                     writer.flush();
                     writer.close();

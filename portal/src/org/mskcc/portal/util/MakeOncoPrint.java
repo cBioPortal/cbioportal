@@ -4,14 +4,7 @@ import org.mskcc.portal.model.*;
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
-import org.mskcc.portal.servlet.QueryBuilder;
-import org.mskcc.portal.servlet.ServletXssUtil;
-import org.owasp.validator.html.PolicyException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -30,31 +23,26 @@ public class MakeOncoPrint {
     }
 
     /**
-     * Generates SVG for the Genomic Fingerprint.
-     *
-     * @param request  HTTP Request.
-     * @param response HTTP Response.
+     * Generate the OncoPrint in HTML or SVG.
+     * @param geneList              List of Genes.
+     * @param mergedProfile         Merged Data Profile.
+     * @param caseSets              All Case Sets for this Cancer Study.
+     * @param caseSetId             Selected Case Set ID.
+     * @param zScoreThreshold       Z-Score Threshhold
+     * @param theOncoPrintType      OncoPrint Type.
+     * @param showAlteredColumns    Show only the altered columns.
+     * @param geneticProfileIdSet   IDs for all Genomic Profiles.
+     * @param profileList           List of all Genomic Profiles.
      * @throws IOException IO Error.
      */
-    public static void makeOncoPrint(HttpServletRequest request,
-            HttpServletResponse response,
+    public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
+            ArrayList<CaseSet> caseSets, String caseSetId, double zScoreThreshold,
             OncoPrintType theOncoPrintType,
             boolean showAlteredColumns,
             HashSet<String> geneticProfileIdSet,
             ArrayList<GeneticProfile> profileList
     ) throws IOException {
-        PrintWriter writer = response.getWriter();
-        ProfileData mergedProfile = (ProfileData)
-                request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
-        double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-
-        String geneList = null;
-        try {
-            ServletXssUtil xssUtil = ServletXssUtil.getInstance();
-            geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-        } catch (PolicyException e) {
-
-        }
+        StringBuffer out = new StringBuffer();
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneList,
@@ -88,7 +76,8 @@ public class MakeOncoPrint {
         ArrayList<EnumSet<MRNA>> MRNAsortOrder = new ArrayList<EnumSet<MRNA>>();
         MRNAsortOrder.add(EnumSet.of(MRNA.upRegulated));
         MRNAsortOrder.add(EnumSet.of(MRNA.downRegulated));
-        // combined because these are represented by the same color in the OncoPring
+
+        // combined because these are represented by the same color in the OncoPrint
         MRNAsortOrder.add(EnumSet.of(MRNA.Normal, MRNA.notShown));
 
         GeneticEventComparator comparator = new GeneticEventComparator(
@@ -139,10 +128,7 @@ public class MakeOncoPrint {
 
             case SVG:
                 writeSVGOncoPrint(matrix, numColumnsToShow,
-                        theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(),
-                        writer, mergedCaseList, geneWithScoreList);
-                writer.flush();
-                writer.close();
+                        out, mergedCaseList, geneWithScoreList);
                 break;          // exit the switch
 
             case HTML:
@@ -155,26 +141,22 @@ public class MakeOncoPrint {
                 int width = 6;
                 int height = 17;
 
-                writeHTMLOncoPrint(request, matrix, numColumnsToShow, showAlteredColumns,
+                writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
                         theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-                        writer, spacing, padding, width, height);
-                writer.flush();
-                writer.close();
-
+                        out, spacing, padding, width, height);
                 break;          // exit the switch
         }
+        return out.toString();
     }
 
     static void writeSVGOncoPrint(GeneticEvent matrix[][], int numColumnsToShow,
-            OncoPrintSpecification theOncoPrintSpecification,
-            PrintWriter writer,
-            ArrayList<String> mergedCaseList,
+            StringBuffer out, ArrayList<String> mergedCaseList,
             ArrayList<GeneWithScore> geneWithScoreList) {
 
         int windowWidth = 300 + (CELL_WIDTH * mergedCaseList.size());
         int windowHeight = 50 + (CELL_HEIGHT * geneWithScoreList.size());
 
-        writer.write("<?xml version=\"1.0\"?>\n" +
+        out.append("<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
                 "    \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
                 "<svg onload=\"init(evt)\" xmlns=\"http://www.w3.org/2000/svg\" " +
@@ -185,12 +167,12 @@ public class MakeOncoPrint {
         int x = 0;
         int y = 25;
 
-        writer.write("<g font-family=\"Verdana\">");
+        out.append("<g font-family=\"Verdana\">");
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
             x = 120;
-            writer.write("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
+            out.append("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
                     "font-size = \"16\">\n"
                     + rowEvent.getGene().toUpperCase() + "</text>");
             for (int j = 0; j < numColumnsToShow; j++) {
@@ -200,12 +182,12 @@ public class MakeOncoPrint {
 
                 boolean isMutated = event.isMutated();
                 int block_height = CELL_HEIGHT - 2;
-                writer.write("\n<rect x=\"" + x + "\" y=\"" + y
+                out.append("\n<rect x=\"" + x + "\" y=\"" + y
                         + "\" width=\"5\" stroke='" + mRNAStyle + "' height=\""
                         + block_height + "\" fill=\"" + style + "\"\n" +
                         " fill-opacity=\"1.0\"/>");
                 if (isMutated) {
-                    writer.write("\n<rect x='" + x + "' y='" + (y + 5)
+                    out.append("\n<rect x='" + x + "' y='" + (y + 5)
                             + "' fill='green' width='5' height='6'/>");
                 }
 
@@ -213,57 +195,56 @@ public class MakeOncoPrint {
             }
             y += CELL_HEIGHT;
         }
-        writer.write("</g>");
-        writer.write("</svg>\n");
+        out.append("</g>");
+        out.append("</svg>\n");
     }
 
     /**
-     * Generate an OncoPrint in HTML
-     *
-     * @param matrix
-     * @param numColumnsToShow
-     * @param out
-     * @param geneCounterPrefs
-     * @param cellspacing
-     * @param cellpadding
-     * @param width            width of ticks
-     * @param height           height of ticks
+     * Generates an OncoPrint in HTML.
+     * @param caseSets                  List of all Case Sets.
+     * @param caseSetId                 Selected Case Set ID.
+     * @param matrix                    Matrix of Genomic Events.
+     * @param numColumnsToShow          Number of Columns to Show.
+     * @param showAlteredColumns        Flag to show only altered columns.
+     * @param theOncoPrintSpecification The OncoPrint Spec. Object.
+     * @param dataSummary               Data Summary Object.
+     * @param out                       HTML Out.
+     * @param cellspacing               Cellspacing.
+     * @param cellpadding               Cellpadding.
+     * @param width                     Width.
+     * @param height                    Height.
      */
-    static void writeHTMLOncoPrint(HttpServletRequest request, GeneticEvent matrix[][],
+    static void writeHTMLOncoPrint(ArrayList<CaseSet> caseSets, String caseSetId,
+            GeneticEvent matrix[][],
             int numColumnsToShow, boolean showAlteredColumns,
             OncoPrintSpecification theOncoPrintSpecification,
             ProfileDataSummary dataSummary,
-            PrintWriter out,
+            StringBuffer out,
             int cellspacing, int cellpadding, int width, int height) {
 
         /* provenance; comment in generated HTML "cbio MSKCC cancer genomics data portal, <date>" */
         Date now = new Date();
-        out.print("<title>cBio Cancer Genomics Pathway Portal::Results</title>\n");
-        out.print("<! -- MSKCC cBio Cancer Genomics Pathway Portal; " + now + "-->\n");
+        out.append("<title>cBio Cancer Genomics Pathway Portal::Results</title>\n");
+        out.append("<! -- MSKCC cBio Cancer Genomics Pathway Portal; " + now + "-->\n");
 
-        out.print("<link href=\"css/style.css\" type=\"text/css\" rel=\"stylesheet\" >\n");
-        out.print("<div CLASS=\"oncoprint\">\n");
-
-        // CASE SET AND ID
-        ArrayList<CaseSet> caseSets = (ArrayList<CaseSet>)
-                request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-        String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+        out.append("<link href=\"css/style.css\" type=\"text/css\" rel=\"stylesheet\" >\n");
+        out.append("<div CLASS=\"oncoprint\">\n");
 
         for (CaseSet caseSet : caseSets) {
             if (caseSetId.equals(caseSet.getId())) {
-                out.print(
+                out.append(
                         "<P>Case Set: " + caseSet.getName()
                                 + ":  " + caseSet.getDescription() + "</P>");
             }
         }
 
         // stats on pct alteration
-        out.print("<P>Altered in " + dataSummary.getNumCasesAffected() + " (" +
+        out.append("<P>Altered in " + dataSummary.getNumCasesAffected() + " (" +
                 alterationValueToString(dataSummary.getPercentCasesAffected())
                 + ") of cases." + "</P>");
 
         // output table header
-        out.print(
+        out.append(
                 "\n<TABLE FRAME=\"void\" border=\"1\" rules=\"none\" cellspacing=" + cellspacing +
                         " cellpadding=" + cellpadding +
                         ">\n" +
@@ -282,24 +263,23 @@ public class MakeOncoPrint {
             caseHeading = "All " + pluralize(numCases, " case") + " -->";
         }
 
-        out.print("<TR><TH><TH width=\"50\">Total altered<TH colspan="
+        out.append("<TR><TH><TH width=\"50\">Total altered<TH colspan="
                 + columnWidthOfLegend + " align=left >" + caseHeading + "<TBODY>");
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
 
             // new row
-            out.println();
-            out.print("<TR>");
+            out.append("<TR>");
 
             // output cell with gene name, CSS does left justified
-            out.print("<TD>" + rowEvent.getGene().toUpperCase() + "</TD>");
+            out.append("<TD>" + rowEvent.getGene().toUpperCase() + "</TD>");
 
             // output total % altered, right justified
-            out.print("<TD style=\" text-align: right\">");
-            out.print(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered
+            out.append("<TD style=\" text-align: right\">");
+            out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered
                     (rowEvent.getGene())));
-            out.print("</TD>");
+            out.append("</TD>");
 
             // for each case
             for (int j = 0; j < numColumnsToShow; j++) {
@@ -331,7 +311,7 @@ public class MakeOncoPrint {
                 }
                 iconFileName.append(".png");
 
-                out.println("<TD class=op_data_cell>"
+                out.append("<TD class=op_data_cell>"
                         + IMG(iconFileName.toString(), width, height, event.caseCaseId())
                         + "</TD>");
 
@@ -340,19 +320,19 @@ public class MakeOncoPrint {
             // TODO: learn how to fix: maybe Caitlin knows
             // ugly hack to make table wide enough to fit legend
             for (int c = numColumnsToShow; c < columnWidthOfLegend; c++) {
-                out.print("<TD></TD>");
+                out.append("<TD></TD>");
             }
 
         }
-        out.println();
+        out.append ("\n");
 
         // write table with legend
-        out.println("<TR>");
+        out.append("<TR>");
         writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
                 columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
 
-        out.println("</TABLE>");
-        out.println("</DIV>");
+        out.append("</TABLE>");
+        out.append("</DIV>");
     }
 
     // pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
@@ -379,11 +359,6 @@ public class MakeOncoPrint {
     static String alterationValueToString(double value) {
 
         // in oncoPrint show 0 percent as 0%, not --
-        /*
-        if( value == 0.0 ) {
-            return "--";
-        }
-        */
         if (0.0 < value && value <= 0.01) {
             return "<1%";
         }
@@ -400,16 +375,6 @@ public class MakeOncoPrint {
     static String IMG(String theImage, int width, int height) {
         return IMG(theImage, width, height, null);
     }
-
-    /**
-     * write an IMG tag of the given dimensions, with an optional tooltip
-     *
-     * @param theImage
-     * @param width
-     * @param height
-     * @param toolTip
-     * @return
-     */
 
     static String IMG(String theImage, int width, int height, String toolTip) {
         StringBuffer sb = new StringBuffer();
@@ -433,7 +398,7 @@ public class MakeOncoPrint {
      * @param horizontalSpaceAfterDescription
      *                    blank space, in pixels, after each description
      */
-    public static void writeLegend(PrintWriter out, OncoPrintGeneDisplaySpec allPossibleAlterations,
+    public static void writeLegend(StringBuffer out, OncoPrintGeneDisplaySpec allPossibleAlterations,
             int colsIndented, int colspan, int width, int height,
             int cellspacing, int cellpadding,
             int horizontalSpaceAfterDescription, float gap) {
@@ -443,20 +408,19 @@ public class MakeOncoPrint {
         // indent in enclosing table
         // for horiz alignment, skip colsIndented columns
         for (int i = 0; i < colsIndented; i++) {
-            out.print("<TD height=" + rowHeight + ">");
+            out.append("<TD height=" + rowHeight + ">");
         }
 
         // TODO: FIX; LOOKS BAD WHEN colspan ( == number of columns == cases) is small
-        out.print("<TD colspan=" + colspan + " height=" + rowHeight + ">");
+        out.append("<TD colspan=" + colspan + " height=" + rowHeight + ">");
 
         // output table header
-        out.print(
+        out.append(
                 "\n<TABLE FRAME=\"void\" border=\"1\" rules=\"none\" cellspacing=" + cellspacing +
                         " cellpadding=" + cellpadding + ">" +
                         "\n<TBODY>");
 
-        out.print("\n<TR height=" + rowHeight + ">");
-        //System.err.println( "allPossibleAlterations: " + allPossibleAlterations);         
+        out.append("\n<TR height=" + rowHeight + ">");
 
         /*
         * TODO: make this data driven; use enumerations
@@ -517,27 +481,27 @@ public class MakeOncoPrint {
                     horizontalSpaceAfterDescription);
         }
 
-        out.println();
+        out.append("\n");
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) {
-            out.println("<TR height=" + rowHeight / 2 + ">");
-            out.println("<TD height=" + rowHeight / 2 + " colspan=" + colspan / 4
+            out.append("<TR height=" + rowHeight / 2 + ">");
+            out.append("<TD height=" + rowHeight / 2 + " colspan=" + colspan / 4
                     + " style=\"vertical-align:bottom\" >"
                     + "<DIV class=\"tiny\"> Copy number alterations are putative.<br></DIV></TD>");
-            out.println("</TR>");
+            out.append("</TR>");
         }
-        out.println("</TBODY></TABLE>");
+        out.append("</TBODY></TABLE>");
     }
 
-    private static void outputLegendEntry(PrintWriter out, String imageName,
+    private static void outputLegendEntry(StringBuffer out, String imageName,
             String imageDescription, int rowHeight, int width, int height,
             int horizontalSpaceAfterDescription) {
-        out.println("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
+        out.append("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
                 + IMG(imageName + ".png", width, height));
-        out.println("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
+        out.append("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
                 + imageDescription);
 
         // add some room after description
-        out.print("<TD WIDTH=" + horizontalSpaceAfterDescription + ">");
+        out.append("<TD WIDTH=" + horizontalSpaceAfterDescription + ">");
 
     }
 
@@ -563,12 +527,6 @@ public class MakeOncoPrint {
         return "shouldNotBeReached"; // never reached
     }
 
-    /*
-    enum ExpressionDisplayLevels {
-        upRegulated, notShown, downRegulated
-    };
-    */
-
     /**
      * Gets the Correct mRNA color.
      * Displayed in the rectangle boundary.
@@ -590,31 +548,5 @@ public class MakeOncoPrint {
         }
         // TODO: throw exception
         return "shouldNotBeReached"; // never reached
-    }
-
-    private static String formatHTMLtag(boolean endTag, String tag, Object... attributeValuePairs) {
-        StringBuffer sb = new StringBuffer();
-        // error if tag contains whitespace
-        if (tag.matches("\\s")) {
-            throw new IllegalArgumentException("tag contains whitespace");
-        }
-        sb.append("<" + tag);
-
-        // error if args aren't even length
-        if (0 != attributeValuePairs.length % 2) {
-            throw new IllegalArgumentException("Need pairs of attributes and values");
-        }
-        for (int i = 0; i < attributeValuePairs.length; i += 2) {
-
-            // error if attribute name contains whitespace
-            String name = (String) attributeValuePairs[i];
-            if (name.matches("\\s")) {
-                throw new IllegalArgumentException("attribute name contains whitespace");
-            }
-            sb.append(attributeValuePairs[i] + "=");
-            sb.append("\"" + attributeValuePairs[i + 1] + "\"");
-        }
-        sb.append("<" + endTag + ">\n");
-        return sb.append("\n").toString();
     }
 }

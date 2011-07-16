@@ -256,8 +256,8 @@ public class MakeOncoPrint {
             caseHeading = "All " + pluralize(numCases, " case") + " -->";
         }
 
-        out.append("\n<tr><th></th><th width=\"50\">Total altered</th>\n<th colspan="
-                + columnWidthOfLegend + " align='left'>" + caseHeading + "</th>\n</tr>");
+        out.append("\n<tr><th></th><th width=\"50\">Total altered</th>\n<th colspan='"
+                + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
@@ -320,6 +320,7 @@ public class MakeOncoPrint {
         out.append ("\n");
 
         // write table with legend
+        out.append("</tr>");
         out.append("<tr>");
         writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
                 columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
@@ -401,11 +402,11 @@ public class MakeOncoPrint {
         // indent in enclosing table
         // for horiz alignment, skip colsIndented columns
         for (int i = 0; i < colsIndented; i++) {
-            out.append("<td height='" + rowHeight + "'>");
+            out.append("<td></td>");
         }
 
         // TODO: FIX; LOOKS BAD WHEN colspan ( == number of columns == cases) is small
-        out.append("<td colspan='" + colspan + "' height='" + rowHeight + "'>");
+        out.append("<td colspan='" + colspan + "'>");
 
         // output table header
         out.append(
@@ -479,7 +480,7 @@ public class MakeOncoPrint {
             out.append("<tr height='" + rowHeight / 2 + "'>\n");
             out.append("<td height='" + rowHeight / 2 + "' colspan=" + colspan / 4
                     + " style=\"vertical-align:bottom\" >"
-                    + "<div class=\"tiny\"> Copy number alterations are putative.<br></div></td>\n");
+                    + "<div class=\"tiny\"> Copy number alterations are putative.<br/></div></td>\n");
             out.append("</tr>");
         }
         out.append("</tbody></table>");
@@ -496,7 +497,7 @@ public class MakeOncoPrint {
 
         // add some room after description
         out.append("</td>\n");
-        out.append("<td width='" + horizontalSpaceAfterDescription + "'>\n");
+        out.append("<td width='" + horizontalSpaceAfterDescription + "'></td>\n");
 
     }
 

@@ -457,11 +457,22 @@ public class QueryBuilder extends HttpServlet {
                     writer.close();
                 } else if (output.equalsIgnoreCase("html")) {
                     response.setContentType("text/html");
+                    writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
+                            "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+                            "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
+                    writer.write ("<head>\n");
+                    writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
+                    writer.write ("<title>OncoPrint::Results</title>\n");
+                    writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+                    writer.write ("</head>\n");
+                    writer.write ("<body style=\"background-color:#FFFFFF\">\n");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
                     String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                             geneticProfileIdSet, profileList );
                     writer.write(out);
+                    writer.write ("</body>\n");
+                    writer.write ("</html>\n");
                     writer.flush();
                     writer.close();
                 } else if (output.equals("text")) {

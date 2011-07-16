@@ -222,33 +222,26 @@ public class MakeOncoPrint {
             StringBuffer out,
             int cellspacing, int cellpadding, int width, int height) {
 
-        /* provenance; comment in generated HTML "cbio MSKCC cancer genomics data portal, <date>" */
-        Date now = new Date();
-        out.append("<title>cBio Cancer Genomics Pathway Portal::Results</title>\n");
-        out.append("<! -- MSKCC cBio Cancer Genomics Pathway Portal; " + now + "-->\n");
-
-        out.append("<link href=\"css/style.css\" type=\"text/css\" rel=\"stylesheet\" >\n");
-        out.append("<div CLASS=\"oncoprint\">\n");
-
+        out.append("<div class=\"oncoprint\">\n");
         for (CaseSet caseSet : caseSets) {
             if (caseSetId.equals(caseSet.getId())) {
                 out.append(
-                        "<P>Case Set: " + caseSet.getName()
-                                + ":  " + caseSet.getDescription() + "</P>");
+                        "<p>Case Set: " + caseSet.getName()
+                                + ":  " + caseSet.getDescription() + "</p>");
             }
         }
 
         // stats on pct alteration
-        out.append("<P>Altered in " + dataSummary.getNumCasesAffected() + " (" +
+        out.append("<p>Altered in " + dataSummary.getNumCasesAffected() + " (" +
                 alterationValueToString(dataSummary.getPercentCasesAffected())
-                + ") of cases." + "</P>");
+                + ") of cases." + "</p>");
 
         // output table header
         out.append(
-                "\n<TABLE FRAME=\"void\" border=\"1\" rules=\"none\" cellspacing=" + cellspacing +
-                        " cellpadding=" + cellpadding +
-                        ">\n" +
-                        "<THEAD>\n"
+                "\n<table cellspacing='" + cellspacing +
+                        "' cellpadding='" + cellpadding +
+                        "'>\n" +
+                        "<thead>\n"
         );
 
         int columnWidthOfLegend = 80;
@@ -263,23 +256,23 @@ public class MakeOncoPrint {
             caseHeading = "All " + pluralize(numCases, " case") + " -->";
         }
 
-        out.append("<TR><TH><TH width=\"50\">Total altered<TH colspan="
-                + columnWidthOfLegend + " align=left >" + caseHeading + "<TBODY>");
+        out.append("\n<tr><th></th><th width=\"50\">Total altered</th>\n<th colspan="
+                + columnWidthOfLegend + " align='left'>" + caseHeading + "</th>\n</tr>");
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
 
             // new row
-            out.append("<TR>");
+            out.append("<tr>");
 
             // output cell with gene name, CSS does left justified
-            out.append("<TD>" + rowEvent.getGene().toUpperCase() + "</TD>");
+            out.append("<td>" + rowEvent.getGene().toUpperCase() + "</td>\n");
 
             // output total % altered, right justified
-            out.append("<TD style=\" text-align: right\">");
+            out.append("<td style=\" text-align: right\">");
             out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered
                     (rowEvent.getGene())));
-            out.append("</TD>");
+            out.append("</td>\n");
 
             // for each case
             for (int j = 0; j < numColumnsToShow; j++) {
@@ -311,28 +304,28 @@ public class MakeOncoPrint {
                 }
                 iconFileName.append(".png");
 
-                out.append("<TD class=op_data_cell>"
+                out.append("<td class='op_data_cell'>"
                         + IMG(iconFileName.toString(), width, height, event.caseCaseId())
-                        + "</TD>");
+                        + "</td>\n");
 
             }
 
             // TODO: learn how to fix: maybe Caitlin knows
             // ugly hack to make table wide enough to fit legend
             for (int c = numColumnsToShow; c < columnWidthOfLegend; c++) {
-                out.append("<TD></TD>");
+                out.append("<td></td>\n");
             }
 
         }
         out.append ("\n");
 
         // write table with legend
-        out.append("<TR>");
+        out.append("<tr>");
         writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
                 columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
 
-        out.append("</TABLE>");
-        out.append("</DIV>");
+        out.append("</table>");
+        out.append("</div>");
     }
 
     // pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
@@ -378,13 +371,13 @@ public class MakeOncoPrint {
 
     static String IMG(String theImage, int width, int height, String toolTip) {
         StringBuffer sb = new StringBuffer();
-        sb.append("<IMG SRC='" + imageDirectory + theImage +
-                "' ALT='" + theImage + // TODO: FOR PRODUCTION; real ALT, should be description of genetic alteration
-                "' WIDTH=" + width + " HEIGHT=" + height);
+        sb.append("<img src='" + imageDirectory + theImage +
+                "' alt='" + theImage + // TODO: FOR PRODUCTION; real ALT, should be description of genetic alteration
+                "' width='" + width + "' height='" + height+"'");
         if (null != toolTip) {
-            sb.append("class=\"Tips1\" title=\"" + toolTip + "\"");
+            sb.append(" class=\"Tips1\" title=\"" + toolTip + "\"");
         }
-        return sb.append(">").toString();
+        return sb.append("/>").toString();
     }
 
     /**
@@ -408,19 +401,19 @@ public class MakeOncoPrint {
         // indent in enclosing table
         // for horiz alignment, skip colsIndented columns
         for (int i = 0; i < colsIndented; i++) {
-            out.append("<TD height=" + rowHeight + ">");
+            out.append("<td height='" + rowHeight + "'>");
         }
 
         // TODO: FIX; LOOKS BAD WHEN colspan ( == number of columns == cases) is small
-        out.append("<TD colspan=" + colspan + " height=" + rowHeight + ">");
+        out.append("<td colspan='" + colspan + "' height='" + rowHeight + "'>");
 
         // output table header
         out.append(
-                "\n<TABLE FRAME=\"void\" border=\"1\" rules=\"none\" cellspacing=" + cellspacing +
-                        " cellpadding=" + cellpadding + ">" +
-                        "\n<TBODY>");
+                "\n<table cellspacing='" + cellspacing +
+                        "' cellpadding='" + cellpadding + "'>" +
+                        "\n<tbody>");
 
-        out.append("\n<TR height=" + rowHeight + ">");
+        out.append("\n<tr height='" + rowHeight + "'>");
 
         /*
         * TODO: make this data driven; use enumerations
@@ -483,25 +476,27 @@ public class MakeOncoPrint {
 
         out.append("\n");
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) {
-            out.append("<TR height=" + rowHeight / 2 + ">");
-            out.append("<TD height=" + rowHeight / 2 + " colspan=" + colspan / 4
+            out.append("<tr height='" + rowHeight / 2 + "'>\n");
+            out.append("<td height='" + rowHeight / 2 + "' colspan=" + colspan / 4
                     + " style=\"vertical-align:bottom\" >"
-                    + "<DIV class=\"tiny\"> Copy number alterations are putative.<br></DIV></TD>");
-            out.append("</TR>");
+                    + "<div class=\"tiny\"> Copy number alterations are putative.<br></div></td>\n");
+            out.append("</tr>");
         }
-        out.append("</TBODY></TABLE>");
+        out.append("</tbody></table>");
     }
 
     private static void outputLegendEntry(StringBuffer out, String imageName,
             String imageDescription, int rowHeight, int width, int height,
             int horizontalSpaceAfterDescription) {
-        out.append("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
+        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
                 + IMG(imageName + ".png", width, height));
-        out.append("<TD height=" + rowHeight + " style=\"vertical-align:bottom\" >"
+        out.append("</td>\n");
+        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
                 + imageDescription);
 
         // add some room after description
-        out.append("<TD WIDTH=" + horizontalSpaceAfterDescription + ">");
+        out.append("</td>\n");
+        out.append("<td width='" + horizontalSpaceAfterDescription + "'>\n");
 
     }
 

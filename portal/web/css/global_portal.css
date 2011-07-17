@@ -492,13 +492,12 @@ blockquote {
 }
 
 .oncoprint TH{
-    font: 12px verdana, arial, helvetica, sans-serif;
+    font: 11px verdana, arial, helvetica, sans-serif;
     border: none;
 }
 
 .oncoprint p{
-    font: 12px verdana, arial, helvetica, sans-serif;
-    border: none;
+    font-size: 90% !important;
 }
 
 td.op_data_cell{
@@ -1027,7 +1026,7 @@ table {
 }
 
 .cross_cancer_ajax {
-    padding-top:10px;
+    padding-top:0px;
     padding-left:15px;
 }
 
@@ -1038,7 +1037,7 @@ table {
 
 .scroll {
 background-color:#FFFFFF;
-width:600px;
+width:100%;
 height:215px;
 overflow:auto;
 }

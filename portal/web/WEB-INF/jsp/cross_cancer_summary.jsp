@@ -25,7 +25,7 @@
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
-<b><%= percentFormat.format(dataSummary.getPercentCasesAffected()) %> of all cases.</b>
+<b>Altered in <%= percentFormat.format(dataSummary.getPercentCasesAffected()) %> of all cases.</b>
 <br/><br/>
 
 <B>Gene List:</B>
@@ -33,13 +33,12 @@
 <%= geneList %>
 
 <br/><br/>
-<b>Genetic Profiles:</b>
+<b>Selected Genetic Profiles:</b>
 <ul>
 <%
     for (GeneticProfile geneticProfile:  geneticProfileList) {
-        out.println ("<li>" + geneticProfile.getName() );
         if (defaultGeneticProfileSet.containsKey(geneticProfile.getId())) {
-            out.println (" [Default Profile]*");
+            out.println ("<li>" + geneticProfile.getName() );
         }
         out.println ("</li>");
 
@@ -48,13 +47,12 @@
 </ul>
 
 
-<b>Case Sets:</b>
+<b>Selected Case Set:</b>
 <ul>
 <%
     for (CaseSet caseSet:  caseSetList) {
-        out.println ("<li>" + caseSet.getName());
         if (caseSet.getId().equals(defaultCaseSetId)) {
-            out.println (" [Defult Case Set]*");
+            out.println ("<li>" + caseSet.getName());
         }
         out.println ("</li>");
     }
@@ -63,6 +61,8 @@
 
 <b>OncoPrint:</b>
 <br>
+<div class="scroll">
 <%= oncoPrintHtml %>
+</div>
 
 <jsp:include page="global/xdebug.jsp" flush="true" />

@@ -1036,7 +1036,12 @@ table {
 #note { width: 100%; text-align: center; padding-top: 1em; }
 /*.link { text-decoration: underline; color: #0b94b1; cursor: pointer; } */
 
-
+.scroll {
+background-color:#FFFFFF;
+width:600px;
+height:215px;
+overflow:auto;
+}
 
 
 

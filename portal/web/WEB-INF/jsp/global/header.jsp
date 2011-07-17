@@ -130,7 +130,7 @@
                         <a href="networks.jsp">Networks</a>
                     </li>
                     <li class="internal">
-                        <a href="login.jsp">Login/logout</a>
+                        <a href="login.jsp">Login</a>
                     </li>
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"

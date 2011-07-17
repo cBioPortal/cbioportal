@@ -60,8 +60,6 @@
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
-<jsp:include page="global/header.jsp" flush="true" />
-
 <script type="text/javascript">
 
     function swapTabs(param) {
@@ -74,19 +72,21 @@
 </script>
 
 
+
+<jsp:include page="global/header.jsp" flush="true" />
     <%
     if (xdebug != null) {
     %>
-    <form id="main_form" action="index.do" method="post">
+    <form id="main_form" action="index.do" method="POST">
     <% } else { %>
-    <form id="main_form" action="index.do" method="post">
+    <form id="main_form" action="index.do" method="POST">
     <% } %>
     <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
-           value="<%= tabIndex %>"/>
+           value="<%= tabIndex %>">
     <%
         if (xdebug != null) {
         %>
-            <input type="hidden" name="xdebug" value="<%= xdebug %>"/>
+            <input type="hidden" name="xdebug" value="<%= xdebug %>">
         <%
         }
     %>
@@ -102,8 +102,8 @@
                 <table>
                 <tr>
                    <td style="width: 350px">
-                      <p><%= SkinUtil.getBlurb() %></p>
-                      <p>The portal is developed and maintained by the <a href="http://cbio.mskcc.org/">Computational Biology Center</a> at <br/><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
+                      <P><%= SkinUtil.getBlurb() %></p>
+                      <p>The portal is developed and maintained by the <a href="http://cbio.mskcc.org/">Computational Biology Center</a> at <br><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
                    </td>
                    <td style="width: 300px">
                        <jsp:include page="<%= popeye %>" flush="true" />
@@ -166,8 +166,8 @@
                         if (transposeStr != null) {
                             transposeChecked = " checked ";
                         }
-                        out.println("<p><input type=checkbox " + transposeChecked
-                                + " name=transpose>Transpose data matrix.</p>");
+                        out.println("<P><input type=checkbox " + transposeChecked
+                                + " name=transpose>Transpose data matrix.</P>");
                     } %>
                     <%  if (finalProfileList.size() > 0) { %>                        
                     <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>

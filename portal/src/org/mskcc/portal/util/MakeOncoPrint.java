@@ -258,6 +258,7 @@ public class MakeOncoPrint {
 
         out.append("\n<tr><th></th><th width=\"50\">Total altered</th>\n<th colspan='"
                 + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
+        out.append("</thead>");
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
@@ -414,7 +415,7 @@ public class MakeOncoPrint {
                         "' cellpadding='" + cellpadding + "'>" +
                         "\n<tbody>");
 
-        out.append("\n<tr height='" + rowHeight + "'>");
+        out.append("\n<tr>");
 
         /*
         * TODO: make this data driven; use enumerations
@@ -475,15 +476,15 @@ public class MakeOncoPrint {
                     horizontalSpaceAfterDescription);
         }
 
-        out.append("\n");
+        out.append("</tr>\n");
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) {
-            out.append("<tr height='" + rowHeight / 2 + "'>\n");
-            out.append("<td height='" + rowHeight / 2 + "' colspan=" + colspan / 4
-                    + " style=\"vertical-align:bottom\" >"
+            out.append("<tr>\n");
+            out.append("<td colspan='" + colspan / 4
+                    + "' style=\"vertical-align:bottom\" >"
                     + "<div class=\"tiny\"> Copy number alterations are putative.<br/></div></td>\n");
             out.append("</tr>");
         }
-        out.append("</tbody></table>");
+        out.append("</tbody></table></td></tr>");
     }
 
     private static void outputLegendEntry(StringBuffer out, String imageName,

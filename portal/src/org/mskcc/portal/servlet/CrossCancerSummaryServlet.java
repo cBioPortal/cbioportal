@@ -163,9 +163,9 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
         request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
 
-        response.setContentType("text/html");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-        MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseList, defaultCaseSet.getId(),
+        String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
+                caseList, defaultCaseSet.getId(),
                 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 new HashSet<String>(defaultGeneticProfileSet.keySet()),
                 new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()));
@@ -173,6 +173,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
         request.setAttribute(QueryBuilder.PROFILE_DATA_SUMMARY, dataSummary);
+        request.setAttribute(QueryBuilder.ONCO_PRINT_HTML, oncoPrintHtml);
     }
 
     /**

@@ -23,6 +23,7 @@
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
+    String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 <b><%= percentFormat.format(dataSummary.getPercentCasesAffected()) %> of all cases.</b>
 <br/><br/>
@@ -32,7 +33,7 @@
 <%= geneList %>
 
 <br/><br/>
-<B>Genetic Profiles:</B>
+<b>Genetic Profiles:</b>
 <ul>
 <%
     for (GeneticProfile geneticProfile:  geneticProfileList) {
@@ -47,7 +48,7 @@
 </ul>
 
 
-<B>Case Sets:</B>
+<b>Case Sets:</b>
 <ul>
 <%
     for (CaseSet caseSet:  caseSetList) {
@@ -59,5 +60,9 @@
     }
 %>
 </ul>
+
+<b>OncoPrint:</b>
+<br>
+<%= oncoPrintHtml %>
 
 <jsp:include page="global/xdebug.jsp" flush="true" />

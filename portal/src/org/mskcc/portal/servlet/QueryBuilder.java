@@ -82,6 +82,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final int MAX_NUM_GENES = 100;
     public static final String XDEBUG_OBJECT = "xdebug_object";
+    public static final String ONCO_PRINT_HTML = "oncoprint_html";
 
     private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";

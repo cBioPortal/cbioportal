@@ -7,6 +7,8 @@
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.portal.model.ProfileDataSummary" %>
 <%@ page import="java.text.DecimalFormat" %>
+<%@ page import="org.mskcc.portal.util.MakeOncoPrint" %>
+<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 
 <%
     ArrayList<GeneticProfile> geneticProfileList = (ArrayList<GeneticProfile>)
@@ -24,7 +26,12 @@
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
+    String xdebugParameter = request.getParameter("xdebug");
+    ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
+    int fingerPrintPanelHeight = 175 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
 %>
+
+<%  if (xdebugParameter != null) { %>
 <b>Altered in <%= percentFormat.format(dataSummary.getPercentCasesAffected()) %> of all cases.</b>
 <br/><br/>
 
@@ -61,8 +68,8 @@
 
 <b>OncoPrint:</b>
 <br>
-<div class="scroll">
+<% } %>
+<div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>
 </div>
-
 <jsp:include page="global/xdebug.jsp" flush="true" />

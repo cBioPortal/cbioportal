@@ -42,12 +42,18 @@ $(document).ready(function(){
 });
 </script>
 
+	<table>
+        <tr>
+            <td>
+
+            <div id="results_container">
+
 <h1>Cross-Cancer Study Results</h1>
 
     <%
         for (CancerType cancerType:  cancerTypes) {
             out.println ("<div class=\"cross_cancer_panel\">");
-            out.println ("<B>" + cancerType.getCancerName() + "</B>");
+            out.println ("<h2>" + cancerType.getCancerName() + "</h2>");
             out.println ("<div class='cross_cancer_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
             out.println ("<img src='images/ajax-loader2.gif'>");
             out.println ("</div>");
@@ -55,22 +61,25 @@ $(document).ready(function(){
         }
     %>
 
-    <!-- End DIV for id="content" -->
+            </div>  <!-- end results container -->
+            </td>
+        </tr>
+    </table>
     </div>
+    </td>
+   <!-- <td width="172">
 
-    </td>
-    <td width="172">
-	<jsp:include page="global/right_column.jsp" flush="true" />
-    </td>
+    </td>   -->
   </tr>
   <tr>
     <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />    
+	<jsp:include page="global/footer.jsp" flush="true" />
     </td>
   </tr>
 </table>
-</div>
 </center>
-<jsp:include page="global/xdebug.jsp" flush="true" />
+</div>
+<jsp:include page="global/xdebug.jsp" flush="true" />    
+
 </body>
 </html>

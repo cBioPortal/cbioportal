@@ -168,7 +168,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                 caseList, defaultCaseSet.getId(),
                 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()));
+                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), false, false);
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);

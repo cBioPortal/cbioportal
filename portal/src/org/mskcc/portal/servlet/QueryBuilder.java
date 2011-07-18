@@ -452,7 +452,7 @@ public class QueryBuilder extends HttpServlet {
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
                     String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                            geneticProfileIdSet, profileList );
+                            geneticProfileIdSet, profileList, true, true);
                     writer.write(out);
                     writer.flush();
                     writer.close();
@@ -470,7 +470,7 @@ public class QueryBuilder extends HttpServlet {
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
                     String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                            geneticProfileIdSet, profileList );
+                            geneticProfileIdSet, profileList, true, true);
                     writer.write(out);
                     writer.write ("</body>\n");
                     writer.write ("</html>\n");

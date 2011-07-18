@@ -40,7 +40,9 @@ public class MakeOncoPrint {
             OncoPrintType theOncoPrintType,
             boolean showAlteredColumns,
             HashSet<String> geneticProfileIdSet,
-            ArrayList<GeneticProfile> profileList
+            ArrayList<GeneticProfile> profileList,
+            boolean includeCaseSetDescription,
+            boolean includeLegend
     ) throws IOException {
         StringBuffer out = new StringBuffer();
 
@@ -143,7 +145,8 @@ public class MakeOncoPrint {
 
                 writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
                         theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-                        out, spacing, padding, width, height);
+                        out, spacing, padding, width, height, includeCaseSetDescription,
+                        includeLegend);
                 break;          // exit the switch
         }
         return out.toString();
@@ -220,14 +223,18 @@ public class MakeOncoPrint {
             OncoPrintSpecification theOncoPrintSpecification,
             ProfileDataSummary dataSummary,
             StringBuffer out,
-            int cellspacing, int cellpadding, int width, int height) {
+            int cellspacing, int cellpadding, int width, int height,
+            boolean includeCaseSetDescription,
+            boolean includeLegend) {
 
         out.append("<div class=\"oncoprint\">\n");
-        for (CaseSet caseSet : caseSets) {
-            if (caseSetId.equals(caseSet.getId())) {
-                out.append(
-                        "<p>Case Set: " + caseSet.getName()
-                                + ":  " + caseSet.getDescription() + "</p>");
+        if (includeCaseSetDescription) {
+            for (CaseSet caseSet : caseSets) {
+                if (caseSetId.equals(caseSet.getId())) {
+                    out.append(
+                            "<p>Case Set: " + caseSet.getName()
+                                    + ":  " + caseSet.getDescription() + "</p>");
+                }
             }
         }
 
@@ -249,14 +256,15 @@ public class MakeOncoPrint {
         // span multiple columns like legend
         String caseHeading;
         int numCases = matrix[0].length;
+        String rightArrow =  " &rarr;";
         if (showAlteredColumns) {
             caseHeading = pluralize(dataSummary.getNumCasesAffected(), " case")
-                    + " with altered genes, out of " + pluralize(numCases, " total case") + " -->";
+                    + " with altered genes, out of " + pluralize(numCases, " total case") + rightArrow;
         } else {
-            caseHeading = "All " + pluralize(numCases, " case") + " -->";
+            caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
         }
 
-        out.append("\n<tr><th></th><th width=\"50\">Total altered</th>\n<th colspan='"
+        out.append("\n<tr><th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
                 + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
         out.append("</thead>");
 
@@ -322,12 +330,14 @@ public class MakeOncoPrint {
 
         // write table with legend
         out.append("</tr>");
-        out.append("<tr>");
-        writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
-                columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
+        if (includeLegend) {
+            out.append("<tr>");
+            writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
+                    columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
 
-        out.append("</table>");
-        out.append("</div>");
+            out.append("</table>");
+            out.append("</div>");
+        }
     }
 
     // pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize

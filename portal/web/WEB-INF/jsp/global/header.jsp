@@ -41,6 +41,7 @@
 <link href="css/jquery-ui-1.8.6.custom.css" type="text/css" rel="stylesheet" />
 <link href="css/popeye/jquery.popeye.css" type="text/css" rel="stylesheet" />
 <link href="css/popeye/jquery.popeye.style.css" type="text/css" rel="stylesheet" />
+<link href="css/tipTip.css" type="text/css" rel="stylesheet" />
 <link href="<%= global_style %>" type="text/css" rel="stylesheet" />
 <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
 
@@ -50,6 +51,7 @@
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/dom/dom-min.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/event/event-min.js" ></script>
 <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
 
 <script type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script>
 <script type="text/javascript" src="js/cgx_jquery.js"></script>

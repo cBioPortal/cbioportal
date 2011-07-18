@@ -1027,7 +1027,7 @@ table {
 
 .cross_cancer_ajax {
     padding-top:0px;
-    padding-left:15px;
+    padding-left:0px;
 }
 
 /* The Cytoscape Web container must have its dimensions set. */
@@ -1042,10 +1042,9 @@ height:215px;
 overflow:auto;
 }
 
-
-
-
-
-
-
-
+.hide_details {
+background-color:#eeeeee;
+border: 1px solid #aaaaaa;
+padding:1px;
+color:white;
+}

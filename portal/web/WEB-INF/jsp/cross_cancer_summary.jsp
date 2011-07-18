@@ -28,47 +28,45 @@
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
     String xdebugParameter = request.getParameter("xdebug");
     ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
-    int fingerPrintPanelHeight = 175 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
+    int fingerPrintPanelHeight = 100 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
 %>
 
-<%  if (xdebugParameter != null) { %>
-<b>Altered in <%= percentFormat.format(dataSummary.getPercentCasesAffected()) %> of all cases.</b>
-<br/><br/>
+<script type="text/javascript">
+$(document).ready(function(){
 
-<B>Gene List:</B>
+    // Init Tool Tips
+    $(".hide_details").tipTip();
 
-<%= geneList %>
-
-<br/><br/>
-<b>Selected Genetic Profiles:</b>
-<ul>
+    //  Prevent Default Click Behavior for tool tips
+    $(".hide_details").click(function(event) {
+      event.preventDefault();
+    });
+});
+</script>
 <%
+    StringBuffer gp = new StringBuffer("Genomic data shown for the following profiles:");
+    gp.append ("<ul>");
     for (GeneticProfile geneticProfile:  geneticProfileList) {
         if (defaultGeneticProfileSet.containsKey(geneticProfile.getId())) {
-            out.println ("<li>" + geneticProfile.getName() );
+           gp.append ("<li>" + geneticProfile.getName() );
         }
-        out.println ("</li>");
-
+        gp.append ("</li>");
     }
+    gp.append ("</ul>");
+    out.println ("<a href='' class='hide_details' title=\"" + gp.toString() + "\">Genomic Profiles</a>");
 %>
-</ul>
 
 
-<b>Selected Case Set:</b>
-<ul>
 <%
+    StringBuffer cs = new StringBuffer ("Case set:  ");
     for (CaseSet caseSet:  caseSetList) {
         if (caseSet.getId().equals(defaultCaseSetId)) {
-            out.println ("<li>" + caseSet.getName());
+            cs.append (caseSet.getName());
         }
-        out.println ("</li>");
     }
+    out.println ("<a href='' class='hide_details' title=\"" + cs.toString() + "\">Case Sets</a>");
 %>
-</ul>
-
-<b>OncoPrint:</b>
-<br>
-<% } %>
+<br/>
 <div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>
 </div>

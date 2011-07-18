@@ -50,6 +50,16 @@ $(document).ready(function(){
 
 <h1>Cross-Cancer Study Results</h1>
 
+<img align='middle' src='images/oncoPrint/amplified-notShown-normal.png' alt='amplified-notShown-normal.png' width='6' height='17'/>
+Amplification
+<img align='middle' src='images/oncoPrint/homoDeleted-notShown-normal.png' alt='homoDeleted-notShown-normal.png' width='6' height='17'/>
+Homozygous Deletion
+<img align='middle' src='images/oncoPrint/diploid-notShown-mutated.png' alt='diploid-notShown-mutated.png' width='6' height='17'/>
+Mutation
+<br/><br/>
+<div> Copy number alterations are putative.<br/></div>
+
+
     <%
         for (CancerType cancerType:  cancerTypes) {
             out.println ("<div class=\"cross_cancer_panel\">");

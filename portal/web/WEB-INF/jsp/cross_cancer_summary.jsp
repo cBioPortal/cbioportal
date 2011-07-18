@@ -66,6 +66,7 @@ $(document).ready(function(){
     }
     out.println ("<a href='' class='hide_details' title=\"" + cs.toString() + "\">Case Sets</a>");
 %>
+
 <br/>
 <div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>

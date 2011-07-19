@@ -1,6 +1,3 @@
-# Delete all preprocessed files
-rm -v $CGDS_DATA_HOME/data/sarcoma/processed_*
-
 # Load up the Sarcoma Meta Data File
 ./ImportCancerStudy.pl $CGDS_DATA_HOME/sarcoma/sarcoma.txt
 

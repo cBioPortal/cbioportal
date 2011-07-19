@@ -19,7 +19,7 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 ./importClinicalData.pl $CGDS_DATA_HOME/ovarian/ova_clinical_20110211.txt
 
 # Imports Mutation Data
-./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/3-center_OV.Exome_DNASeq.1.Somatic_and_Germline_WU-Annotation.05jan2011a.filtered.maf --meta $CGDS_DATA_HOME/ovarian/meta_mutations_extended.txt --dbmsAction clobber  --somaticWhiteList $CGDS_HOME/data/universalSomaticGeneWhitelist.txt --germlineWhiteList $CGDS_HOME/data/ovarian/ovarianGermlineWhiteList.txt
+./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/3-center_OV.Exome_DNASeq.1.Somatic_and_Germline_WU-Annotation.05jan2011a.filtered.maf --meta $CGDS_DATA_HOME/ovarian/meta_mutations_extended.txt --dbmsAction clobber  --somaticWhiteList $CGDS_DATA_HOME/universalSomaticGeneWhitelist.txt --germlineWhiteList $CGDS_DATA_HOME/ovarian/ovarianGermlineWhiteList.txt
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_CNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_CNA.txt --dbmsAction clobber

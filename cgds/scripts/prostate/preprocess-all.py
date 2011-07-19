@@ -30,14 +30,15 @@ def convertCaseFile (caseInFile, caseOutFile):
 
 # ------------------------------------------------------------------------------
 # check for cgds environment var
-
 CGDS_HOME = "CGDS_HOME"
+CGDS_DATA_HOME = "CGDS_DATA_HOME";
 cgds_home_found = 0
 for key in os.environ.keys():
 	if key == CGDS_HOME:
 		cgds_home_found = 1
 		CGDS_HOME = os.environ[key]
-		break
+	if key == CGDS_DATA_HOME:
+		CGDS_DATA_HOME = os.environ[key]
 if not cgds_home_found:
 	sys.exit("error: " + CGDS_HOME + " environment variable needs to be set")
 
@@ -45,7 +46,7 @@ if not cgds_home_found:
 # some globals/constants
 
 BIN_DIR = CGDS_HOME + "/scripts/prostate/"
-DATA_DIR = CGDS_HOME + "/data/prostate/"
+DATA_DIR = CGDS_DATA_HOME + "/prostate/"
 GENE2ACCESSION  = DATA_DIR + "gene2accession-cooked.txt"
 
 # ------------------------------------------------------------------------------

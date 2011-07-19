@@ -1,0 +1,125 @@
+body {
+    font: 11px verdana, arial, helvetica, sans-serif;
+}
+
+table {
+  #border-collapse: collapse;
+  border: 1px solid #03476F;
+  font: normal 11px verdana, arial, helvetica, sans-serif;
+  color: #363636;
+  background: #CCCCFF;
+  }
+caption {
+  text-align: center;
+  font: bold 18px arial, helvetica, sans-serif;
+  background: transparent;
+  padding:6px 4px 8px 0px;
+  color: #03476F;
+  text-transform: uppercase;
+  }
+td, th {
+  #border: 1px solid #03476F;
+  padding: .4em;
+  color: #363636;
+  }
+
+th {
+  font-size:85%;
+}
+
+thead th, tfoot th {
+  font: bold 11px verdana, arial, helvetica, sans-serif;
+  border: 1px solid #03476F;;
+  text-align: left;
+  background: #CCCCFF;
+  color: #FFFFFF;
+  padding-top:3px;
+  }
+tbody th, tbody td {
+  vertical-align: top;
+  text-align: left;
+  }
+tfoot td {
+  border: 1px solid #03476F;
+  background: #4591AD;
+  padding-top:3px;
+  color: #FFFFFF;
+  }
+.odd {
+  background: #CCFFCC;
+}
+.score {
+  background: #FFCCFF;
+}
+.total_score{
+  background: #FF99FF;
+}
+
+#navigation{
+height:2.2em;
+line-height:2.2em;
+width:710px;
+margin:0 1px;
+background:#CCCCFF;
+}
+
+#navigation li{
+float:left;
+list-style-type:none;
+border-right:1px solid #ffffff;
+white-space:nowrap;
+}
+
+#navigation li a{
+display:block;
+padding:0 10px;
+font-weight:normal;
+text-transform:uppercase;
+text-decoration:none;
+background-color:inherit;
+}
+
+* html #navigation a {width:1%;}
+
+#navigation .selected,#navigation a:hover{
+background:#80b0da;
+text-decoration:none;
+}
+
+h1 {
+    background:#FFFFFF;
+    color:black;
+    font-weight:200%;
+    width:700px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    padding-left: 10px;
+}
+
+.highlight {
+    background-color: #FFFF00
+}
+
+.box {
+    width: 50%;
+    border: 1px solid #03476F;
+    background:  #FFCCCC;
+    padding-left: 10px;
+}
+
+#filter_box{
+    display:none;
+}
+
+#exon_notes{
+    display:none;
+}
+
+.source_filter {
+    margin-left: 25px;
+}
+
+.img_left {
+float: left;
+margin-right:100px;
+}

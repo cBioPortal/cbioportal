@@ -1,0 +1,5 @@
+goldberg@cbio.mskcc.org	1	Arthur
+joe@hotmail.com	2
+goldberg@cbio.mskcc.org	not_an_int
+joe@hotmail.com	-1
+

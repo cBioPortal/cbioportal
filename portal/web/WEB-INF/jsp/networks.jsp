@@ -1,7 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String genes = geneList.replaceAll("\n","\\\\n");
+    List<String> genes = (List)request.getAttribute(QueryBuilder.GENE_LIST);
+    String genesStr = StringUtils.join(genes," ");
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -106,7 +109,7 @@
             window.onload = function() {
                 //send2cytoscapeweb(graphml);
                 //(new XMLSerializer()).serializeToString(graphml)
-                $.post("network.do", {gene_list:'<%=genes%>'},
+                $.post("network.do", {gene_list:'<%=genesStr%>'},
                     function(graphml){
                         if (typeof data !== "string") { 
                             if (window.ActiveXObject) { // IE 

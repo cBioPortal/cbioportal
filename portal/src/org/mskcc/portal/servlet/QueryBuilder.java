@@ -335,6 +335,7 @@ public class QueryBuilder extends HttpServlet {
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
+        request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         if (!caseSetId.equals("-1")) {
@@ -500,7 +501,7 @@ public class QueryBuilder extends HttpServlet {
                 if (false) {
                     Network network;
                     try {
-                        network = GetPathwayCommonsNetwork.getNetwork(geneList, xdebug);
+                        network = GetPathwayCommonsNetwork.getNetwork(null, xdebug);
                     } catch (Exception e) {
                         xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
                         network = new Network(); // send an empty network instead

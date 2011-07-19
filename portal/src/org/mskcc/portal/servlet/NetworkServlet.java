@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,13 +51,13 @@ public class NetworkServlet extends HttpServlet {
         
         //  Get User Defined Gene List
         String geneListStr = xssUtil.getCleanInput (req, QueryBuilder.GENE_LIST);
-        //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
+        Set<String> genes = new HashSet<String>(Arrays.asList(geneListStr.split(" ")));
         
-        List<String> geneList = Arrays.asList(geneListStr.split("[\n ]"));
+        //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
         
         Network network;
         try {
-            network = GetPathwayCommonsNetwork.getNetwork(geneList, xdebug);
+            network = GetPathwayCommonsNetwork.getNetwork(genes, xdebug);
         } catch (Exception e) {
             xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
             network = new Network(); // send an empty network instead

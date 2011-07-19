@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
 import org.mskcc.portal.util.XDebug;
@@ -20,7 +21,7 @@ public class TestGetPathwayCommonsNetwork extends TestCase {
      * @throws RemoteException Remote IO Error.
      */
     public void testGetPathwayCommonsNetwork() throws RemoteException {
-        Network net = GetPathwayCommonsNetwork.getNetwork(Arrays.asList("BRCA1"), new XDebug());
+        Network net = GetPathwayCommonsNetwork.getNetwork(Collections.singleton("BRCA1"), new XDebug());
         boolean print = false;
         if (print)
             System.out.println(net);

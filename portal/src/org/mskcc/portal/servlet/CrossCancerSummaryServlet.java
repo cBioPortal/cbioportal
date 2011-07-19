@@ -120,7 +120,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             HttpServletResponse response, XDebug xdebug) throws IOException, ServletException {
 
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);        
-        boolean showAlteredColumnsBool = true;
+        boolean showAlteredColumnsBool = false;
 
         // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
         double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),

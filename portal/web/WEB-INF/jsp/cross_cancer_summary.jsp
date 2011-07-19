@@ -28,7 +28,7 @@
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
     String xdebugParameter = request.getParameter("xdebug");
     ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
-    int fingerPrintPanelHeight = 100 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
+    int fingerPrintPanelHeight = 120 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
 %>
 
 <script type="text/javascript">

@@ -59,17 +59,29 @@ Mutation
 <br/><br/>
 <div> Copy number alterations are putative.<br/></div>
 
+<script>
+jQuery(document).ready(function(){
+	$('#accordion .head').click(function() {
+		$(this).next().toggle('fast');
+		return false;
+	}).next().hide();
+    $(".cancer_type_header").tipTip();
+});
+</script>
 
+
+<div id="accordion">
     <%
         for (CancerType cancerType:  cancerTypes) {
-            out.println ("<div class=\"cross_cancer_panel\">");
-            out.println ("<h2>" + cancerType.getCancerName() + "</h2>");
+            out.println ("<div class='cross_cancer_panel'>");
+            out.println ("<h3 class='head'><a class='cancer_type_header' title='Click to show / hide details' href='#'>" + cancerType.getCancerName() + "</a></h3>");
             out.println ("<div class='cross_cancer_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
             out.println ("<img src='images/ajax-loader2.gif'>");
             out.println ("</div>");
             out.println ("</div>");
         }
     %>
+</div> <!-- end div accordion -->
 
             </div>  <!-- end results container -->
             </td>

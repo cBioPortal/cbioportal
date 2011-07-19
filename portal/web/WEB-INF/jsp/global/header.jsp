@@ -52,7 +52,7 @@
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
 
-<script type="text/javascript" src="js/jquery-ui-1.8.6.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/global-tabs.js"></script>
 <script type="text/javascript" src="js/mootools-core-1.3-full-compat-yc.js"></script>

@@ -1048,3 +1048,9 @@ border: 1px solid #aaaaaa;
 padding:1px;
 color:white;
 }
+
+.accordion h3 {
+    padding-top: 10px;
+    padding-bottom: 5px;
+    font-size:125%;
+}

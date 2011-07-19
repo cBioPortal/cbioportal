@@ -1,11 +1,7 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 
 <%
-    String network = (String) request.getAttribute(QueryBuilder.NETWORK);
-    network = network.replaceAll("\n","~n~");
-    /*out.println ("<PRE>");
-    out.println (network);
-    out.println ("</PRE>"); */
+    String genes = geneList.replaceAll("\n","\\\\n");
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -19,10 +15,8 @@
 <script type="text/javascript" src="js/network/network-ui.js"></script>
 
 <script type="text/javascript">
-            window.onload = function() {
+            function send2cytoscapeweb(graphml) {
                 var div_id = "cytoscapeweb";
-                var graphml = '<%=network%>';
-                graphml = graphml.replace(new RegExp("~n~", 'g'), "\n");
 
                 var visual_style = {
                     global: {
@@ -108,6 +102,24 @@
 
                 initNetworkUI(vis);
             };
+            
+            window.onload = function() {
+                //send2cytoscapeweb(graphml);
+                //(new XMLSerializer()).serializeToString(graphml)
+                $.post("network.do", {gene_list:'<%=genes%>'},
+                    function(graphml){
+                        if (typeof data !== "string") { 
+                            if (window.ActiveXObject) { // IE 
+                                    graphml = graphml.xml; 
+                            } else { // Other browsers 
+                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
+                            } 
+                        } 
+                        //alert(graphml);
+                        send2cytoscapeweb(graphml);
+                    }
+                );
+            }
         </script>
 
         

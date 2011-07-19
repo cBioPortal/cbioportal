@@ -497,7 +497,7 @@ public class QueryBuilder extends HttpServlet {
                 }
             } else {
                 //  (Optionally) Get Network of Interest
-                if (INCLUDE_NETWORKS) {
+                if (false) {
                     Network network;
                     try {
                         network = GetPathwayCommonsNetwork.getNetwork(geneList, xdebug);

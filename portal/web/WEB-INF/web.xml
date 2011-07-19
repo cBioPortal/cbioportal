@@ -82,6 +82,11 @@
         <servlet-class>org.mskcc.portal.servlet.AuthenticateUser</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>network</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
         <url-pattern>/index.do</url-pattern>
@@ -140,6 +145,11 @@
     <servlet-mapping>
         <servlet-name>plot-test</servlet-name>
         <url-pattern>/plot-test.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>network</servlet-name>
+        <url-pattern>/network.do</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

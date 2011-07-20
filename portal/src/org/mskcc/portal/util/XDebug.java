@@ -39,8 +39,8 @@ public class XDebug {
        this.request = request;
 
        // FOR ACCESS CONTROL, DEBUGGING
-       if( null != request.getSession().getAttribute( PortalAccessControl.EMAIL ) ){
-          this.logMsg( this, "Logged in with: " + request.getSession().getAttribute( PortalAccessControl.EMAIL ) );
+       if(UserInfo.isUserAuthenticated(request)) {
+          this.logMsg( this, "Logged in with: " + UserInfo.getEmailId(request));
        }else{
           this.logMsg( this, "Not logged in." );
        }

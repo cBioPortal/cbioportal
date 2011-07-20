@@ -77,11 +77,6 @@
         <servlet-class>org.mskcc.portal.servlet.ShowData</servlet-class>
     </servlet>
 
-    <servlet>
-        <servlet-name>authenticate_user</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.AuthenticateUser</servlet-class>
-    </servlet>
-
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
         <url-pattern>/index.do</url-pattern>
@@ -100,11 +95,6 @@
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
         <url-pattern>/survival_plot.pdf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>authenticate_user</servlet-name>
-        <url-pattern>/authenticate.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

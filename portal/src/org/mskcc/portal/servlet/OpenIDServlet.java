@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mskcc.portal.openIDlogin.PortalAccessControl;
 import org.mskcc.portal.openIDlogin.SampleConsumer;
+import org.mskcc.portal.util.UserInfo;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.discovery.DiscoveryException;
 
@@ -53,7 +54,7 @@ public class OpenIDServlet extends HttpServlet {
 				String handlerURL = (requestURL.substring(0, requestURL.indexOf(request.getServletPath())) +
 									 "/handleOpenIDproviderResp.do");
 				mySampleConsumer.setHandlerURL(handlerURL);
-				request.getSession().removeAttribute(PortalAccessControl.EMAIL);
+				UserInfo.logoutUser(request);
 			 
 				mySampleConsumer.authRequest(OpenID, request, response, out);
 				// out.println("<br>request.getRequestURI(): " + request.getRequestURI() );

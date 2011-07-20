@@ -3,6 +3,7 @@ package org.mskcc.portal.servlet;
 import org.mskcc.portal.model.DownloadLink;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.SkinUtil;
+import org.mskcc.portal.util.UserInfo;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -31,21 +32,19 @@ public class ShowData extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        boolean userIsAuthorized = false;
+        boolean userIsAuthenticated = false;
         if (SkinUtil.usersMustAuthenticate()) {
-            if (AuthenticateUser.userIsAuthenticated(request)) {
-                userIsAuthorized = true;
-            }
+            userIsAuthenticated = UserInfo.isUserAuthenticated(request);
         } else {
-           userIsAuthorized = true;
+           userIsAuthenticated = true;
         }
 
-        if (userIsAuthorized) {
+        if (userIsAuthenticated) {
             XDebug xdebug = new XDebug( request );
             showData(getServletContext(), request, response, xdebug);
         } else {
             RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/sign_in.jsp");
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/login.jsp");
             dispatcher.forward(request, response);
         }
     }

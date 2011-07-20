@@ -63,18 +63,32 @@ public class HandleOpenIDproviderResp extends HttpServlet {
                 */
             }
 
+			String requestURL = request.getRequestURL().toString();
+			String redirectURL = requestURL.substring(0, requestURL.indexOf(request.getServletPath()));
+
             if (verified != null) {
-                request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "You are logged in with id: " +
-                        UserInfo.getEmailId(request));
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.do");
-                dispatcher.forward(request, response);
+				// changed from forward to redirect - forward is performed internally by servlet - browser
+				// completely undaware so original URL remains intact.  redirect instructs browser to fetch
+				// second url.
+				// NOTE:
+				// not sure what to do with request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "You're logged in...");
+				// its not reference anywhere, is it just for debugging?
+				redirectURL += "/index.do";
+				System.out.println("redirecting to: " + redirectURL);
+				response.sendRedirect(redirectURL);
 
             } else {
-                // TODO: Later: ACCESS CONTROL: MAKE THIS GO TO login.jsp
-                request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Login failed, please try again.");
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.do");
-                dispatcher.forward(request, response);
+				// TODO: Later: ACCESS CONTROL: MAKE THIS GO TO login.jsp
 
+				// changed from forward to redirect - forward is performed internally by servlet - browser
+				// completely undaware so original URL remains intact.  redirect instructs browser to fetch
+				// second url.
+				// NOTE:
+				// not sure what to do with request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Login failed...");
+				// its not reference anywhere, is it just for debugging?
+				redirectURL += "/index.do";
+				System.out.println("redirecting to: " + redirectURL);
+				response.sendRedirect(redirectURL);
             }
 
         } catch (RuntimeException e) {

@@ -113,6 +113,7 @@
             window.onload = function() {
                 //send2cytoscapeweb(graphml);
                 //(new XMLSerializer()).serializeToString(graphml)
+                $("div.cytoscapeweb_menu").hide();
                 $.post("network.do", 
                     {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
@@ -129,6 +130,7 @@
                             } 
                         } 
                         //$("p#networktest").html(graphml);
+                        $("div.cytoscapeweb_menu").show();
                         send2cytoscapeweb(graphml);
                     }
                 );
@@ -141,14 +143,20 @@
 		<tr>
 			<td>
 				<div id="vis_content">
-					<jsp:include page="network_menu.jsp"/>
-		        	<div id="cytoscapeweb">
-		            	Cytoscape Web will replace the contents of this div with your graph.
-		        	</div>
-		        </div>
+                                        <div class="cytoscapeweb_menu">
+                                            <jsp:include page="network_menu.jsp"/>
+                                        </div>
+                                        <div id="cytoscapeweb">
+                                        <p>
+                                            <font size="5">Please wait while the network is being retrieved...</font>
+                                        </p>
+                                        </div>
+                                </div>
 			</td>
 			<td>
-				<jsp:include page="network_tabs.jsp"/>
+                                <div class="cytoscapeweb_menu">
+                                    <jsp:include page="network_tabs.jsp"/>
+                                </div>
 			</td>
 		</tr>
 	</table>

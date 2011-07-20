@@ -122,16 +122,14 @@ public class QueryBuilder extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();
-        boolean userIsAuthorized = false;
+        boolean userIsAuthenticated = false;
         if (SkinUtil.usersMustAuthenticate()) {
-            if (AuthenticateUser.userIsAuthenticated(httpServletRequest)) {
-                userIsAuthorized = true;
-            }
+            userIsAuthenticated = UserInfo.isUserAuthenticated(httpServletRequest);
         } else {
-           userIsAuthorized = true;
+           userIsAuthenticated = true;
         }
 
-        if (userIsAuthorized) {
+        if (userIsAuthenticated) {
             xdebug.logMsg(this, "Attempting to initiate new user query.");
 
             if (httpServletRequest.getRequestURL() != null) {
@@ -223,7 +221,7 @@ public class QueryBuilder extends HttpServlet {
             }
         } else {
             RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/sign_in.jsp");
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/login.jsp");
             dispatcher.forward(httpServletRequest, httpServletResponse);
         }
     }

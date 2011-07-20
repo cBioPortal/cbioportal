@@ -3,6 +3,7 @@ package org.mskcc.portal.openIDlogin;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.httpclient.NameValuePair;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.portal.util.UserInfo;
 
 /**
  * Service class for AccessControl.
@@ -10,7 +11,7 @@ import org.mskcc.portal.util.XDebug;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class PortalAccessControl {
-   public static final String EMAIL = "email_address"; // key for email param stored in session
+   private static final String EMAIL = "email_address"; // key for email param stored in session
    public static final String SECRET = "secret_key"; // key for secret key param stored in session
    
    public static NameValuePair[] addAccessParams( HttpServletRequest request, NameValuePair[] data ){
@@ -30,9 +31,9 @@ public class PortalAccessControl {
 
          int i = data.length;
          // email
-         newData[ i++ ] = new NameValuePair( EMAIL, (String) request.getSession().getAttribute( PortalAccessControl.EMAIL ) );
+         newData[ i++ ] = new NameValuePair( EMAIL, UserInfo.getEmailId(request));
          // key
-         newData[ i++ ] = new NameValuePair( SECRET, (String) request.getSession().getAttribute( PortalAccessControl.SECRET ) );
+         newData[ i++ ] = new NameValuePair( SECRET, UserInfo.getEmailId(request));
          return newData;
       }
       return data;

@@ -28,11 +28,10 @@
 %>
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.servlet.OpenIDServlet" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/logout"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
+<jsp:include page="global/header.jsp" flush="true" />
    <div id="main">
     <table cellspacing="2px">
         <tr>
@@ -42,7 +41,7 @@
 		    <form action="openIDServlet.do" method="post" id="openid_form">
 		        <input type="hidden" name="action" value="verify" />
 		        <fieldset>
-		            <legend>To access <i>private</i> data, login to the cBio Portal.<br>Public data is accessible without logging in.</br></legend>
+		            <legend>Access to this portal is only available to authorized users.</br></legend>
 		            <div id="openid_choice">
 		                <p>Please select your account provider:</p>
 		                <div id="openid_btns"></div>
@@ -63,17 +62,17 @@
        </div>
     </td>
     <td width="172">
-    <jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
+    <jsp:include page="global/right_column.jsp" flush="true" />
     </td>
   </tr>
   <tr>
     <td colspan="3">
-    <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
+    <jsp:include page="global/footer.jsp" flush="true" />
     </td>
   </tr>
 </table>
 </center>
 </div>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
+<jsp:include page="global/xdebug.jsp" flush="true" />
 </body>
 </html>

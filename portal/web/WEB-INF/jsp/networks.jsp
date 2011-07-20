@@ -1,10 +1,14 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    List<String> genes = (List)request.getAttribute(QueryBuilder.GENE_LIST);
-    String genesStr = StringUtils.join(genes," ");
+    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
+    String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
+    String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String caseIds4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS);
+    String zScoreThesholdStr4Network = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -109,7 +113,13 @@
             window.onload = function() {
                 //send2cytoscapeweb(graphml);
                 //(new XMLSerializer()).serializeToString(graphml)
-                $.post("network.do", {gene_list:'<%=genesStr%>'},
+                $.post("network.do", 
+                    {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
+                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
+                     <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
+                     <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
+                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>'
+                    },
                     function(graphml){
                         if (typeof data !== "string") { 
                             if (window.ActiveXObject) { // IE 
@@ -118,7 +128,7 @@
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         } 
-                        //alert(graphml);
+                        //$("p#networktest").html(graphml);
                         send2cytoscapeweb(graphml);
                     }
                 );
@@ -143,3 +153,5 @@
 		</tr>
 	</table>
 </div>
+                        
+                        <!--p id="networktest"></p-->

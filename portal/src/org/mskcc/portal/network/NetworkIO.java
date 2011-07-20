@@ -86,7 +86,10 @@ public class NetworkIO {
                 for (int i=1; i<strs.length && i<3; i++) {
                     for (String xref : strs[i].split(";")) {
                         String[] typeId = xref.split(":",2);
-                        node.addXref(typeId[0], typeId[1]);
+                        if (typeId[0].equals("HGNC"))
+                            node.addXref(typeId[0], typeId[1].toUpperCase());
+                        else
+                            node.addXref(typeId[0], typeId[1]);
                     }
                     
                 }

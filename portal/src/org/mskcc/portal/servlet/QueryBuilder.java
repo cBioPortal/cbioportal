@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -20,20 +18,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.mskcc.portal.model.*;
-import org.mskcc.portal.network.*;
-import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
 import org.mskcc.portal.util.*;
 import org.mskcc.portal.r_bridge.SurvivalPlot;
 import org.owasp.validator.html.PolicyException;
-import org.apache.log4j.Logger;
 
 /**
  * Central Servlet for building queries.
@@ -83,18 +74,6 @@ public class QueryBuilder extends HttpServlet {
     public static final int MAX_NUM_GENES = 100;
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
-
-    private static final String HGNC = "HGNC";
-    private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
-    private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
-    private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
-    private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
-    private static final String NODE_ATTR_PERCENT_CNA_AMPLIFIED = "PERCENT_CNA_AMPLIFIED";
-    private static final String NODE_ATTR_PERCENT_CNA_GAINED = "PERCENT_CNA_GAINED";
-    private static final String NODE_ATTR_PERCENT_CNA_HOM_DEL = "PERCENT_CNA_HOMOZYGOUSLY_DELETED";
-    private static final String NODE_ATTR_PERCENT_CNA_HET_LOSS = "PERCENT_CNA_HEMIZYGOUSLY_DELETED";
-    private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
-    private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
 
     private ServletXssUtil servletXssUtil;
 
@@ -345,6 +324,8 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         }
+        
+        request.setAttribute(CASE_IDS, caseIds);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
@@ -497,105 +478,6 @@ public class QueryBuilder extends HttpServlet {
                             clinicalDataList, dataSummary, format, response);
                 }
             } else {
-                //  (Optionally) Get Network of Interest
-                if (false) {
-                    Network network;
-                    try {
-                        network = GetPathwayCommonsNetwork.getNetwork(null, xdebug);
-                    } catch (Exception e) {
-                        xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
-                        network = new Network(); // send an empty network instead
-                    }
-                    
-                    // add attribute is_query to indicate if a node is in query genes
-                    HashSet<String> queryGenes = new HashSet<String>(mergedProfile.getGeneList());
-                    // and get the list of newly imported genes
-                    ArrayList<String> newGenes = new ArrayList();
-                    for (Node node : network.getNodes()) {
-                        Set<String> ngnc = node.getXref(HGNC);
-                    
-                        Boolean in_query = Boolean.FALSE;
-                        if (!ngnc.isEmpty()) { 
-                            if(Collections.disjoint(ngnc, queryGenes)) {
-                                newGenes.add(ngnc.iterator().next());
-                            } else {
-                                in_query = Boolean.TRUE;
-                            }
-                        } 
-                        node.addAttribute(NODE_ATTR_IN_QUERY, in_query);
-                    }
-                    newGenes.removeAll(mergedProfile.getGeneList());
-                    
-                    // retrieve profiles from CGDS for new genes
-                    ArrayList<ProfileData> newProfileDataList = new ArrayList<ProfileData>();
-                    newProfileDataList.addAll(profileDataList);
-                    for (String profileId : geneticProfileIdSet) {                        
-                        GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-                        if( null == profile ){
-                           continue;
-                        }
-                        xdebug.logMsg(this, "Getting data for:  " + profile.getName());
-                        Date startTime = new Date();
-                        GetProfileData remoteCall = new GetProfileData();
-                        ProfileData pData = remoteCall.getProfileData(profile, newGenes, caseIds, xdebug);
-                        Date stopTime = new Date();
-                        long timeElapsed = stopTime.getTime() - startTime.getTime();
-                        xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
-                        if( pData == null ){
-                           System.err.println( "pData == null" );
-                        }else{
-                           if( pData.getGeneList() == null ){
-                              System.err.println( "pData.getGeneList() == null" );
-                           }
-                        }
-                        xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
-                        if (pData != null) {
-                            xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
-                            xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
-                        }
-                        xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
-                        newProfileDataList.add(pData);
-
-                    }
-                    
-                    merger = new ProfileMerger(newProfileDataList);
-                    ProfileData netMergedProfile = merger.getMergedProfile();
-                    ArrayList<String> netGeneList = netMergedProfile.getGeneList();
-                    
-                    ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
-                            StringUtils.join(netGeneList, " "), geneticProfileIdSet,
-                            profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request) );
-                    
-                    OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-                    ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
-                            netOncoPrintSpec, zScoreThreshold );
-                    
-                    // add attributes
-                    for (String gene : netGeneList) {
-                        for (Node node : network.getNodesByXref(HGNC, gene)) {
-                            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsMutated(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
-                        }
-                    }
-                    
-                    
-                    String graphML = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
-                        // using HGNC gene symbol as label if available
-                        public String getLabel(Node node) {
-                            Set<String> ngnc = node.getXref(HGNC);
-                            if (ngnc.isEmpty())
-                                return node.getId();
-                            return ngnc.iterator().next();
-                        }
-                    });
-                    request.setAttribute(NETWORK, graphML);
-                }
 
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);

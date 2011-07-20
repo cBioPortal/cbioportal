@@ -319,6 +319,7 @@ public class QueryBuilder extends HttpServlet {
             for (CaseSet caseSet : caseSetList) {
                 if (caseSet.getId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
+                    //TODO: why not break?
                 }
             }
         }

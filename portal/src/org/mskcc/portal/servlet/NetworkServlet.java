@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.owasp.validator.html.PolicyException;
 
+import org.mskcc.portal.model.CaseSet;
 import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
@@ -27,6 +28,7 @@ import org.mskcc.portal.network.Node;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
 import org.mskcc.portal.remote.GetProfileData;
@@ -118,6 +120,18 @@ public class NetworkServlet extends HttpServlet {
         ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId, xdebug);
         
         String caseIds = xssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
+        
+        if (caseIds==null || caseIds.isEmpty()) {
+            String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
+                //  Get Case Sets for Selected Cancer Type
+                ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, xdebug);
+                for (CaseSet cs : caseSets) {
+                    if (cs.getId().equals(caseSetId)) {
+                        caseIds = cs.getCaseListAsString();
+                        break;
+                    }
+                }
+        }
         
         // retrieve profiles from CGDS for new genes
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();

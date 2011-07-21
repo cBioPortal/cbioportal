@@ -4,13 +4,13 @@ import org.mskcc.portal.openIDlogin.SampleConsumer;
 import org.mskcc.portal.util.UserInfo;
 import org.openid4java.discovery.Identifier;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 
 /**
  * Handle an OpenID authentication response.
@@ -71,23 +71,19 @@ public class HandleOpenIDproviderResp extends HttpServlet {
 				// completely undaware so original URL remains intact.  redirect instructs browser to fetch
 				// second url.
 				// NOTE:
-				// not sure what to do with request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "You're logged in...");
-				// its not reference anywhere, is it just for debugging?
-				redirectURL += "/index.do";
-				System.out.println("redirecting to: " + redirectURL);
+                String userMessage = URLEncoder.encode("You are now logged in as:  "
+                        + UserInfo.getEmailId(request));
+                redirectURL += QueryBuilder.INDEX_PAGE + "?" + QueryBuilder.USER_ERROR_MESSAGE
+                        + "=" + userMessage;
 				response.sendRedirect(redirectURL);
-
             } else {
-				// TODO: Later: ACCESS CONTROL: MAKE THIS GO TO login.jsp
-
 				// changed from forward to redirect - forward is performed internally by servlet - browser
 				// completely undaware so original URL remains intact.  redirect instructs browser to fetch
 				// second url.
 				// NOTE:
-				// not sure what to do with request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Login failed...");
-				// its not reference anywhere, is it just for debugging?
-				redirectURL += "/index.do";
-				System.out.println("redirecting to: " + redirectURL);
+                String userMessage = URLEncoder.encode("Login Failed.  Please try again.");
+                redirectURL += QueryBuilder.INDEX_PAGE + "?" + QueryBuilder.USER_ERROR_MESSAGE
+                        + "=" + userMessage;
 				response.sendRedirect(redirectURL);
             }
 

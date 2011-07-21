@@ -9,7 +9,7 @@ import java.net.URL;
 
 import java.rmi.RemoteException;
 
-import java.util.List;
+import java.util.Set;
 
 import org.mskcc.portal.network.Network;
 import org.mskcc.portal.network.NetworkIO;
@@ -27,7 +27,7 @@ public class GetPathwayCommonsNetwork {
      * @param geneList Gene List.
      * @return Tab-delimited content.
      */
-    public static Network getNetwork (List<String> geneList,
+    public static Network getNetwork (Set<String> geneList,
           XDebug xdebug) throws RemoteException {
         try {
             StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());

@@ -45,7 +45,7 @@ public class Node {
     public void setId(String id) {
         this.id = id;
     }
-
+    
     /**
      * 
      * @return node attributes

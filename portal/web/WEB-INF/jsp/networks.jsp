@@ -1,11 +1,14 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String network = (String) request.getAttribute(QueryBuilder.NETWORK);
-    network = network.replaceAll("\n","~n~");
-    /*out.println ("<PRE>");
-    out.println (network);
-    out.println ("</PRE>"); */
+    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
+    String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
+    String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String caseIds4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS);
+    String zScoreThesholdStr4Network = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -19,10 +22,8 @@
 <script type="text/javascript" src="js/network/network-ui.js"></script>
 
 <script type="text/javascript">
-            window.onload = function() {
+            function send2cytoscapeweb(graphml) {
                 var div_id = "cytoscapeweb";
-                var graphml = '<%=network%>';
-                graphml = graphml.replace(new RegExp("~n~", 'g'), "\n");
 
                 var visual_style = {
                     global: {
@@ -108,6 +109,32 @@
 
                 initNetworkUI(vis);
             };
+            
+            window.onload = function() {
+                //send2cytoscapeweb(graphml);
+                //(new XMLSerializer()).serializeToString(graphml)
+                $("div.cytoscapeweb_menu").hide();
+                $.post("network.do", 
+                    {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
+                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
+                     <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
+                     <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
+                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>'
+                    },
+                    function(graphml){
+                        if (typeof data !== "string") { 
+                            if (window.ActiveXObject) { // IE 
+                                    graphml = graphml.xml; 
+                            } else { // Other browsers 
+                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
+                            } 
+                        } 
+                        //$("p#networktest").html(graphml);
+                        $("div.cytoscapeweb_menu").show();
+                        send2cytoscapeweb(graphml);
+                    }
+                );
+            }
         </script>
 
         
@@ -116,15 +143,23 @@
 		<tr>
 			<td>
 				<div id="vis_content">
-					<jsp:include page="network_menu.jsp"/>
-		        	<div id="cytoscapeweb">
-		            	Cytoscape Web will replace the contents of this div with your graph.
-		        	</div>
-		        </div>
+                                        <div class="cytoscapeweb_menu">
+                                            <jsp:include page="network_menu.jsp"/>
+                                        </div>
+                                        <div id="cytoscapeweb">
+                                        <p>
+                                            <font size="5">Please wait while the network is being retrieved...</font>
+                                        </p>
+                                        </div>
+                                </div>
 			</td>
 			<td>
-				<jsp:include page="network_tabs.jsp"/>
+                                <div class="cytoscapeweb_menu">
+                                    <jsp:include page="network_tabs.jsp"/>
+                                </div>
 			</td>
 		</tr>
 	</table>
 </div>
+                        
+                        <!--p id="networktest"></p-->

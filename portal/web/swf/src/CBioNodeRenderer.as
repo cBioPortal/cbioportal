@@ -328,7 +328,7 @@ package org.cytoscapeweb.view.render
 			var xx:Number = centerX + Math.cos(startAngle * twoPI) * innerRadius;
 			var yy:Number = centerY + Math.sin(startAngle * twoPI) * innerRadius;
 
-			var startPoint = {x:xx, y:yy};
+			var startPoint:Object = {x:xx, y:yy};
 			g.moveTo(xx, yy);
 
 			for(i=1; i<=steps; i++){

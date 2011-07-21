@@ -1,4 +1,4 @@
-<div id="network_menu_div">
+<div id="network_menu_div" class="hidden-network-ui">
 	<ul id="network_menu">
 	    <li>
 	    	<a id="network_menu_file">File</a>
@@ -10,12 +10,7 @@
 	    		</li>
 	    		<li>
 	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
-	    				Save as PNG image
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="save_as_svg" onclick="handleMenuEvent('save_as_svg')">
-	    				Save as SVG image
+	    				Save as image (PNG)
 	    			</a>
 	    		</li>
 	    	</ul>
@@ -93,7 +88,7 @@
 	</ul>
 </div>
 
-<div id="settings_dialog" title="Layout Properties">
+<div id="settings_dialog" class="hidden-network-ui" title="Layout Properties">
 	<div id="fd_layout_settings" class="content ui-widget-content">
 		<table>
 			<tr title="The gravitational constant. Negative values produce a repulsive force.">

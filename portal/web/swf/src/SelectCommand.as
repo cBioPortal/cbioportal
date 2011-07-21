@@ -73,6 +73,8 @@ package org.cytoscapeweb.controller {
                 if (nodes.length > 0) graphMediator.selectNodes(nodes);
                 if (edges.length > 0) graphMediator.selectEdges(edges);
 
+				graphMediator.updateLabels();
+				
                 // Call external listeners:
                 var objs:Array, body:Object, type:String = "select";
                 

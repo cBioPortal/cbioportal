@@ -38,6 +38,8 @@ package org.cytoscapeweb.controller
 							graphMediator.resetDataSprite(e);
 							return false;
 						});
+						
+						graphMediator.updateLabels();
 					} else if (ds is EdgeSprite) {
 						
 					}
@@ -53,6 +55,8 @@ package org.cytoscapeweb.controller
 							graphMediator.resetDataSprite(e);
 							return false;
 						});
+						
+						graphMediator.updateLabels();
 					} else if (ds is EdgeSprite) {
 						
 					}

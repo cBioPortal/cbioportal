@@ -58,7 +58,7 @@ package org.cytoscapeweb.controller {
 							graphMediator.resetDataSprite(e);
 							return false;
 						}); // MODIFY to recalculate edges for the undetailed nodes
-					}					
+					}	
                     if (ds is NodeSprite) nodes.push(ds);
                     else edges.push(ds);
                 }
@@ -73,6 +73,8 @@ package org.cytoscapeweb.controller {
                 if (edges.length > 0)
                     graphMediator.deselectEdges(edges);
                 
+				graphMediator.updateLabels();
+				
                 // Finally ,call the external lsiteners:
                 var objs:Array, body:Object, type:String = "deselect";
                 

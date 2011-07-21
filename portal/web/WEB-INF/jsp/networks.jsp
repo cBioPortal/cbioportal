@@ -58,28 +58,26 @@
                             }
                         },
                         labelHorizontalAnchor: "center",
-                        labelVerticalAnchor: "middle",
-						labelXOffset: 0,
-						labelYOffset: -10,
+                        labelVerticalAnchor: "bottom",
+						//labelXOffset: 0,
+						//labelYOffset: -10,
                         labelFontSize: 10
                     },
                     edges: {
                         width: 1,
-                        color: "#0B94B1"
-					// TODO 3(or 4?) different colors for different each types
-//                        color: {
-//                        discreteMapper: {
-//                            attrName: "targetArrowShape",
-//                            entries: [
-//                                { attrValue: "T", value: "#C3844C" },
-//                                { attrValue: "none", value: "#6261FC" },
-//                               { attrValue: "delta", value: "#6261FC" },
-//								{ attrValue: "circle", value: "#68BBC1" }
-//                            ]
-//                        }
-//                    },
-                    }
-                };
+                        // color: "#0B94B1"
+       					// TODO 3(or 4?) different colors for different each types
+						color: {
+							discreteMapper: {
+								attrName: "type",
+								entries: [
+									{ attrValue: "IN_SAME_COMPONENT", value: "#C3844C" },
+									{ attrValue: "REACTS_WITH", value: "#6261FC" },
+									{ attrValue: "STATE_CHANGE", value: "#68BBC1" } ]
+        					}
+        				}
+					}
+				};
 
                 // initialization options
                 var options = {
@@ -90,6 +88,9 @@
                 var vis = new org.cytoscapeweb.Visualization(div_id, options);
 
                 vis.ready(function() {
+                	// init UI of the network tab
+                	initNetworkUI(vis);
+                	
                     // set the style programmatically
                     document.getElementById("color").onclick = function(){
                         vis.visualStyle(visual_style);
@@ -100,14 +101,13 @@
                     // your data goes here
                     network: graphml,
                     edgeLabelsVisible: false,
+                    edgesMerged: true,
                     layout: "ForceDirected",
                     visualStyle: visual_style,
                     panZoomControlVisible: true
                 };
 
                 vis.draw(draw_options);
-
-                initNetworkUI(vis);
             };
             
             window.onload = function() {

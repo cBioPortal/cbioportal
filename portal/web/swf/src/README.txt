@@ -1,3 +1,7 @@
+--------------------------------------------------------------------------------
+CytoscapeWeb revision: 24995 (May 10, 2011 - 9:05 pm)
+--------------------------------------------------------------------------------
+
 Modify
 
 ApplicationFacade.as
@@ -34,7 +38,7 @@ SelectCommand.as
 
 /src/org/cytoscapeweb/controller/SelectCommand.as
 
-Modification is done between lines 55~60, gives support to show detail discs of the selected nodes.
+Modification is done between lines 55~60 & 76 gives support to show detail discs of the selected nodes.
 
 
 
@@ -42,9 +46,9 @@ Modify
 
 DeselectCommand.as
 
-/src/org/cytoscapeweb/controller/DeselectCommand.a
-s
-Modification is done between lines 55~60, gives support to hide detail discs of the deselected nodes.
+/src/org/cytoscapeweb/controller/DeselectCommand.as
+
+Modification is done between lines 55~60 & 76 gives support to hide detail discs of the deselected nodes.
 
 
 

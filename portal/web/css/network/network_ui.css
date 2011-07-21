@@ -122,7 +122,13 @@
 .ui-dialog .ui-dialog-titlebar
 {
 	font-size: 10pt;
-} 
+}
+
+.hidden-network-ui
+{
+	display: none;
+	visibility: hidden;
+}
 
 #settings_dialog .footer
 {
@@ -130,6 +136,8 @@
 	text-align: center;
 	font-size: 10pt;
 }
+
+
 
 /*
  * CytoscapeWeb dimensions
@@ -144,3 +152,27 @@
 {
 	font-size: 12pt;
 }
+
+/*
+ * Tabs
+ */
+#genes_tab .header
+{
+	padding-bottom: 0.5em;
+	text-align: center;
+	font-size: 10pt;
+}
+
+#genes_tab .in_query
+{
+	font-weight: bold;
+}
+
+#relations_tab .footer
+{
+	padding-top: 0.5em;
+	text-align: center;
+	font-size: 10pt;
+}
+
+

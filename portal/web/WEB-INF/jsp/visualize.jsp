@@ -168,8 +168,8 @@
                 out.println ("</div>");
             } else { %>
 
-            <div class="ui-tabs ui-widget ui-widget-content ui-corner-all"  id="tabs">
-                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <div id="tabs">
+                <ul>
                 <% Boolean showMutTab = false; %>
                 <%
                 if (geneWithScoreList.size() > 0) {
@@ -200,34 +200,34 @@
                         }
                     }
 
-                    out.println ("<li class=\"ui-state-default ui-corner-top ui-tabs-selected ui-state-active\"><a href='#summary'>Summary</a></li>");
+                    out.println ("<li><a href='#summary'>Summary</a></li>");
 
                     if (QueryBuilder.INCLUDE_NETWORKS) {
-                        out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#network'>Network</a></li>");
+                        out.println ("<li><a href='#network'>Network</a></li>");
                     }
 
-                    out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#plots'>Plots</a></li>");
+                    out.println ("<li><a href='#plots'>Plots</a></li>");
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#survival'>Survival</a></li>");
+                        out.println ("<li><a href='#survival'>Survival</a></li>");
                     }
 
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                        out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#gene_correlation'>Mutual Exclusivity</a></li>");
+                        out.println ("<li><a href='#gene_correlation'>Mutual Exclusivity</a></li>");
                     }
 
                     if (showMutTab){
-                        out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#mutation_details'>Mutation Details</a></li>");
+                        out.println ("<li><a href='#mutation_details'>Mutation Details</a></li>");
                     }
 
-                    out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#event_map'>Event Map</a></li>");
+                    out.println ("<li><a href='#event_map'>Event Map</a></li>");
                     %>
 
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
-                    out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#data_download'>Data Download</a></li>");
-                    out.println ("<li class=\"ui-state-default ui-corner-top\"><a href='#bookmark_email'>Bookmark/Email</a></li>");
+                    out.println ("<li><a href='#data_download'>Data Download</a></li>");
+                    out.println ("<li><a href='#bookmark_email'>Bookmark/Email</a></li>");
                     out.println ("<!--<li><a href='index.do'>Create new query</a> -->");
 
                     out.println ("</ul>");

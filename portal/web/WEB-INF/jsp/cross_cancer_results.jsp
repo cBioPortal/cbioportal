@@ -65,10 +65,19 @@ jQuery(document).ready(function(){
 		$(this).next().toggle('fast');
 		return false;
 	}).next().hide();
+    // Open the first section
+    $("#accordion .head:first").next().toggle();
     $(".cancer_type_header").tipTip();
 });
 </script>
 
+<div class="ui-widget">
+    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+
+        <strong>Hey!</strong> Sample ui-state-highlight style.</p>
+    </div>
+</div>
 
 <div id="accordion">
     <%

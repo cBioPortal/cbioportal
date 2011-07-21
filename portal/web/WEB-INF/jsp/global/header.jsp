@@ -37,12 +37,12 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
 <link rel="icon" href="http://cbio.mskcc.org/favicon.ico"/>    
-<link href="css/jquery-ui-1.8.6.custom.css" type="text/css" rel="stylesheet" />
 <link href="css/popeye/jquery.popeye.css" type="text/css" rel="stylesheet" />
 <link href="css/popeye/jquery.popeye.style.css" type="text/css" rel="stylesheet" />
 <link href="css/tipTip.css" type="text/css" rel="stylesheet" />
 <link href="<%= global_style %>" type="text/css" rel="stylesheet" />
 <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
+<link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet" />
 
 <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 

@@ -537,7 +537,7 @@ td.op_data_cell{
 }
 
 #tabs li {
-    font-size:0.87em;
+    font-size:100%;
 }
 
 #tabs li a:link{
@@ -552,6 +552,8 @@ td.op_data_cell{
 #tabs li a:visited{
     text-decoration:none;
 }
+
+#tabs li a { outline: none }
 
 .markdown table {
   border: 1px solid #03476F;

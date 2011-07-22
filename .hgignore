@@ -2,7 +2,6 @@ portal/build
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml
-<<<<<<< local
 \.orig\..*$
 \.orig$
 \.chg\..*$
@@ -10,11 +9,13 @@ portal/Portal.iml
 \.conflict\~$
 ^portal/nbproject$
 ^portal/build$
-=======
 portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
 portal/build
 .DS_Store
->>>>>>> other
+cgds/CGDS.ipr
+cgds/CGDS.iws
+cgds/Cgds.iml
+cgds/build

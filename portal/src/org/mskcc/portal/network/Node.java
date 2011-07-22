@@ -16,6 +16,7 @@ import java.util.Set;
 public class Node {
     
     private String id;
+    private String type;
     private List<Attribute> attrs;
     private Map<String,Set<String>> xrefs; // map of id type to ids
     
@@ -44,6 +45,14 @@ public class Node {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
     /**

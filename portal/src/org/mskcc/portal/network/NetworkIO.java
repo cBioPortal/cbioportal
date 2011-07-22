@@ -38,7 +38,7 @@ public class NetworkIO {
      * @return a network
      * @throws IOException if connection failed
      */
-    public static Network readNetworkFromCPath2(InputStream isSif) throws IOException {
+    public static Network readNetworkFromCPath2(InputStream isSif, boolean removeSelfEdge) throws IOException {
             Network network = new Network();
             BufferedReader bufReader = new BufferedReader(new InputStreamReader(isSif));
             
@@ -60,12 +60,17 @@ public class NetworkIO {
                 Node target = network.getNodeById(strs[2]);
                 if (target==null)
                     target = new Node(strs[2]);
+                
+                if (removeSelfEdge && target==source)
+                    continue;
+                
                 String interaction = strs[1];
                 Edge edge = new Edge(source, target, interaction);
                 for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
                     if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")) {
                         for (String pubmed : strs[i].split(";")) {
-                            edge.addAttribute(edgeHeaders[i], pubmed);
+                            if (pubmed.startsWith("PubMed:")) // fix wrong pubmed problem
+                                edge.addAttribute(edgeHeaders[i], pubmed);
                         }
                     } else {
                         edge.addAttribute(edgeHeaders[i], strs[i]);
@@ -93,6 +98,20 @@ public class NetworkIO {
                     }
                     
                 }
+            }
+            
+            // set node types
+            // TODO: remove this after node types are exported
+            for (Node node : network.getNodes()) {
+                String id = node.getId();
+                String type;
+                if (id.startsWith("urn:miriam:uniprot:"))
+                    type = "Protein";
+                else if (id.startsWith("urn:miriam:chebi:"))
+                    type = "SmallMolecule";
+                else
+                    type = "Unknown";
+                node.setType(type);
             }
             
             return network;
@@ -131,6 +150,8 @@ public class NetworkIO {
         Map<String,String> mapEdgeAttrNameType = new HashMap<String,String>();
         
         StringBuilder sbNodeEdge = new StringBuilder();
+        
+        Set<String> nodeTypes = new HashSet<String>();
         for (Node node : network.getNodes()) {
             sbNodeEdge.append("  <node id=\"");
             sbNodeEdge.append(node.getId());
@@ -138,6 +159,12 @@ public class NetworkIO {
             sbNodeEdge.append("   <data key=\"label\">");
             sbNodeEdge.append(nlh.getLabel(node));
             sbNodeEdge.append("</data>\n");
+            
+            nodeTypes.add(node.getType());
+            sbNodeEdge.append("   <data key=\"type\">");
+            sbNodeEdge.append(node.getType());
+            sbNodeEdge.append("</data>\n");
+            
             for (Attribute av : node.getAttributes()) {
                 String attr = av.getName();
                 Object value = av.getValue();
@@ -173,7 +200,6 @@ public class NetworkIO {
             sbNodeEdge.append("   <data key=\"type\">");
             sbNodeEdge.append(edge.getInteractionType());
             sbNodeEdge.append("</data>\n");
-            mapEdgeAttrNameType.put("type", "string");
             
             for (Attribute av : edge.getAttributes()) {
                 String attr = av.getName();
@@ -201,6 +227,7 @@ public class NetworkIO {
         StringBuilder sb = new StringBuilder();
         sb.append("<graphml>\n");
         sb.append(" <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
+        sb.append(" <key id=\"type\" for=\"all\" attr.name=\"type\" attr.type=\"string\"/>\n");
         
         for (Map.Entry<String,String> entry : mapNodeAttrNameType.entrySet()) {
             sb.append(" <key id=\"")
@@ -224,6 +251,8 @@ public class NetworkIO {
         
         sb.append(" <graph edgedefault=\"undirected\"\n   parse.edgetypes=\"");
         sb.append(StringUtils.join(edgeTypes,";"));
+        sb.append("\"\n   parse.nodetypes=\"");
+        sb.append(StringUtils.join(nodeTypes,";"));
         sb.append("\">\n");        
         sb.append(sbNodeEdge);
         sb.append(" </graph>\n");

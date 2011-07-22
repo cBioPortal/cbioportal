@@ -101,13 +101,13 @@ public class NetworkServlet extends HttpServlet {
         for (Node node : network.getNodes()) {
             Set<String> ngnc = node.getXref(HGNC);
 
-            Boolean in_query = Boolean.FALSE;
+            boolean in_query = false;
             if (!ngnc.isEmpty()) { 
                 String sym = ngnc.iterator().next();
                 in_query = queryGenes.contains(sym);
                 netGenes.add(sym);
             } 
-            node.addAttribute(NODE_ATTR_IN_QUERY, in_query);
+            node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(in_query));
         }
         
         //  Get User Selected Genetic Profiles

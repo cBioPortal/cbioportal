@@ -38,7 +38,7 @@ public class GetPathwayCommonsNetwork {
             }
             
             //xdebug.logMsg(this, "URL: "+sbUrl.toString());
-            return NetworkIO.readNetworkFromCPath2(new URL(sbUrl.toString()).openStream());
+            return NetworkIO.readNetworkFromCPath2(new URL(sbUrl.toString()).openStream(), true);
         } catch (IOException e) {
             throw new RemoteException("Remote Access Error", e);
         }

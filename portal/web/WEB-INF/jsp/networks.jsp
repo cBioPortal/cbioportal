@@ -129,7 +129,6 @@
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         } 
-                        //$("p#networktest").html(graphml);
                         $("div.cytoscapeweb_menu").show();
                         send2cytoscapeweb(graphml);
                     }
@@ -147,9 +146,7 @@
 					    <jsp:include page="network_menu.jsp"/>
 					</div>
 					<div id="cytoscapeweb">
-						<p>
-						    <font size="5">Please wait while the network is being retrieved...</font>
-						</p>
+						<img src="images/ajax-loader.gif"/>
 					</div>
 				</div>
 			</td>
@@ -160,6 +157,4 @@
 			</td>
 		</tr>
 	</table>
-</div>
-                        
-                        <!--p id="networktest"></p-->
+</div> 

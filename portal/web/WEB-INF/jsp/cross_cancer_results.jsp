@@ -42,49 +42,55 @@ $(document).ready(function(){
 });
 </script>
 
-	<table>
+    <table>
         <tr>
             <td>
 
             <div id="results_container">
 
-<h1>Cross-Cancer Study Results</h1>
+<div class="ui-state-highlight ui-corner-all">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em; margin-left: .3em"></span>
+    Results are available for <strong><%= cancerTypes.size()%>
+    cancer studies</strong>.  Click each cancer study below to view a summary of results.
+    </p>
+</div>
 
-<img align='middle' src='images/oncoPrint/amplified-notShown-normal.png' alt='amplified-notShown-normal.png' width='6' height='17'/>
-Amplification
-<img align='middle' src='images/oncoPrint/homoDeleted-notShown-normal.png' alt='homoDeleted-notShown-normal.png' width='6' height='17'/>
-Homozygous Deletion
-<img align='middle' src='images/oncoPrint/diploid-notShown-mutated.png' alt='diploid-notShown-mutated.png' width='6' height='17'/>
-Mutation
-<br/><br/>
-<div> Copy number alterations are putative.<br/></div>
+<div class="accordion_panel">
+<img style="vertical-align:middle;" src='images/oncoPrint/amplified-notShown-normal.png' alt='amplified-notShown-normal.png' width='6' height='17'/>
+<span style="vertical-align:middle;">Amplification</span>
+<img style="vertical-align:middle;" src='images/oncoPrint/homoDeleted-notShown-normal.png' alt='homoDeleted-notShown-normal.png' width='6' height='17'/>
+<span style="vertical-align:middle;">Homozygous Deletion</span>
+<img style="vertical-align:middle;" src='images/oncoPrint/diploid-notShown-mutated.png' alt='diploid-notShown-mutated.png' width='6' height='17'/>
+<span style="vertical-align:middle;">Mutation</span>
+<div style="float:right;">Copy number alterations are putative.<br/></div>
+</div>
 
 <script>
 jQuery(document).ready(function(){
 	$('#accordion .head').click(function() {
-		$(this).next().toggle('fast');
-		return false;
+        //  This toggles the next element, right after head, which is the accordion ajax panel
+        $(this).next().toggle();
+        //  This toggles the ui-icons within head 
+        jQuery(".ui-icon", this).toggle();
+        return false;
 	}).next().hide();
     // Open the first section
     $("#accordion .head:first").next().toggle();
-    $(".cancer_type_header").tipTip();
 });
 </script>
-
-<div class="ui-widget">
-    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
-        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-
-        <strong>Hey!</strong> Sample ui-state-highlight style.</p>
-    </div>
-</div>
 
 <div id="accordion">
     <%
         for (CancerType cancerType:  cancerTypes) {
-            out.println ("<div class='cross_cancer_panel'>");
-            out.println ("<h3 class='head'><a class='cancer_type_header' title='Click to show / hide details' href='#'>" + cancerType.getCancerName() + "</a></h3>");
-            out.println ("<div class='cross_cancer_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
+            out.println ("<div class='accordion_panel'>");
+            out.println ("<h1 class='head'>");
+            //  output triangle icons
+            //  the float:left style is required;  otherwise icons appear on their own line.
+            out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
+            out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
+                + " style='float:left; display:none;'></span>");
+            out.println (cancerType.getCancerName() + "</h1>");
+            out.println ("<div class='accordion_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
             out.println ("<img src='images/ajax-loader2.gif'>");
             out.println ("</div>");
             out.println ("</div>");

@@ -10,7 +10,7 @@
 	list-style-type:none;
 	list-style-position:outside;
 	position:relative;
-	line-height:1.5em; 
+	line-height:1.7em;
 }
 
 #network_menu a
@@ -21,18 +21,18 @@
 	padding-right: 20px;
 	padding-top: 0px;
 	padding-bottom: 0px;
-	border-left: 1px solid #333;
-	border-right: 1px solid #333;
-	font-weight: bold;
+	border-left: 1px solid #1974b8;
+	border-right: 1px solid #1974b8;
+	/*font-weight: bold;*/
 	color: #2e6e9e;
 	text-decoration: none;
-	background-color: #fff;
+	background-color: #e6e6e6;
 	background-repeat: no-repeat;
 }
 
 #network_menu a:hover
 {
-	background-color: #d0e5f5;
+	background-color: #fff;
 	color: #2e6e9e;
 }
 
@@ -47,7 +47,7 @@
 	position:absolute;
 	display:none;
 	width:18em;
-	top:1.5em;
+	top:1.9em;
 }
 
 #network_menu li ul a
@@ -79,7 +79,7 @@
 }
 
 /* 
- * Settings Panel and Inspectors
+ * Menu & Settings Panel
  */
  
 .checked-menu-item
@@ -90,17 +90,36 @@
 
 .separator-menu-item
 {
-	border-top:1px solid #333;
+	border-top:1px solid #1974b8;
+}
+
+.first-menu-item
+{
+	-moz-border-radius-topleft: 5px;
+	-webkit-border-top-left-radius: 5px;
+	border-top-left-radius: 5px;
+	-moz-border-radius-topright: 5px;
+	-webkit-border-top-right-radius: 5px;
+	border-top-right-radius: 5px;
 }
 
 .last-menu-item
 {
-	border-bottom:1px solid #333;
+	border-bottom:1px solid #1974b8;
+	-moz-border-radius-bottomleft: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 
 .main-menu-item
 {
-	border:1px solid #333;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border:1px solid #1974b8;
 }
 
 .sub-menu-item
@@ -134,9 +153,8 @@
 {
 	padding-top: 0.5em;
 	text-align: center;
-	font-size: 10pt;
+	font-size: 9pt;
 }
-
 
 
 /*
@@ -144,10 +162,21 @@
  */
 #vis_content
 {
-	width: 600px;
+	width: 580px;
 	height: 666px;
 }
 
+#vis_content #cytoscapeweb
+{
+	border: 1px solid #aaaaaa;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+/*
+ * Inspectors
+ */
 #node_inspector_content .data_row
 {
 	font-size: 12pt;
@@ -160,7 +189,7 @@
 {
 	padding-bottom: 0.5em;
 	text-align: center;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 
 #genes_tab .in_query
@@ -172,7 +201,10 @@
 {
 	padding-top: 0.5em;
 	text-align: center;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 
-
+#genes_tab select
+{
+	width: 200px;
+}

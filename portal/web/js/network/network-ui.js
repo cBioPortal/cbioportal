@@ -1,6 +1,5 @@
 // flags
 var _autoLayout;
-var _visChanged;
 var _nodeLabelsVisible;
 var _edgeLabelsVisible;
 var _panZoomVisible;
@@ -12,7 +11,7 @@ var _selectFromTab;
 var _controlFunctions;
 
 // value constants
-const GENES_LIST_SIZE = 40;
+const GENES_LIST_SIZE = 35;
 
 // edge type constants
 const IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
@@ -22,6 +21,7 @@ const STATE_CHANGE = "STATE_CHANGE";
 // class constants for css visualization
 const CHECKED_CLASS = "checked-menu-item";
 const SEPARATOR_CLASS = "separator-menu-item";
+const FIRST_CLASS = "first-menu-item";
 const LAST_CLASS = "last-menu-item";
 const MENU_CLASS = "main-menu-item";
 const SUB_MENU_CLASS = "sub-menu-item";
@@ -66,6 +66,10 @@ function initNetworkUI(vis)
 	
 	_initMainMenu();
 	
+	// adjust canvas border
+	//$("#vis_content #cytoscapeweb").addClass(
+	//		"ui-widget ui-widget-content ui-corner-all");
+	
 	// init tabs
 	_refreshGenesTab();
 	
@@ -85,16 +89,6 @@ function handleMenuEvent(command)
 	
 	var func = _controlFunctions[command];
 	func();
-	
-	if (_autoLayout &&
-		_visChanged)
-	{
-		// re-apply layout
-		_performLayout();
-	}
-	
-	// reset flag
-	_visChanged = false;
 }
 
 /**
@@ -224,7 +218,7 @@ function _updateNodeInspectorContent(data)
 	// set title
 	$("#node_inspector").dialog("option",
 		"title",
-		data.id);
+		data.label);
 	
 	// clean xref & data rows
 	$("#node_inspector_content .data .data_row").remove();
@@ -340,6 +334,179 @@ function updateGenesTab(evt)
 			$("#" +  _shortId(selected[i].data.id)).attr(
 				"selected", "selected");
 		}
+	}
+}
+
+
+
+/**
+ * Filters out all selected genes.
+ */
+function filterSelectedGenes()
+{
+	// update selected elements
+	_selectedElements = _vis.selected("nodes");
+
+	// filter out selected elements
+    _vis.filter("nodes", visibility, true);
+    
+    // refresh genes tab
+    _refreshGenesTab();
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+}
+
+/**
+ * Filters out all non-selected genes.
+ */
+function filterNonSelectedGenes()
+{
+	// update selected elements
+	_selectedElements = _vis.selected("nodes");
+
+	// filter out non-selected elements
+    _vis.filter('nodes', geneVisibility, true);
+    
+    // refresh Genes tab
+    _refreshGenesTab();
+    updateGenesTab();
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+}
+
+/**
+ * Updates the visibility (by filtering mechanism) of edges.
+ */
+function updateEdges()
+{
+	// update filtered edge types
+	
+	_edgeTypeVisibility[IN_SAME_COMPONENT] = $("#in_same_component").is(":checked");
+	_edgeTypeVisibility[REACTS_WITH] = $("#reacts_with").is(":checked");
+	_edgeTypeVisibility[STATE_CHANGE] = $("#state_change").is(":checked");
+	
+	// remove current edge filters
+	_vis.removeFilter("edges");
+	
+	// filter selected types
+	_vis.filter("edges", edgeVisibility, true);
+}
+
+/**
+ * Determines the visibility of an edge for filtering purposes.
+ * 
+ * @param element	egde to be checked for visibility criteria
+ * @return			true if the edge should be visible, false otherwise
+ */
+function edgeVisibility(element)
+{
+	var visible;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	// unknown edge type, do not filter
+	else if (_edgeTypeVisibility[element.data.type] == null)
+	{
+		visible = true;
+	}
+	// check for the visibility of the edge type
+	else
+	{
+		visible = _edgeTypeVisibility[element.data.type];
+	}
+	
+	return visible;
+}
+
+/**
+ * Determines the visibility of a gene (node) for filtering purposes.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function geneVisibility(element)
+{
+	var visible = false;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	else
+	{
+		// TODO find a better way (?) to check if it is selected.
+		
+		// filter non-selected nodes
+		
+		for (var i=0; i < _selectedElements.length; i++)
+		{
+			if (element.data.id == _selectedElements[i].data.id)
+			{
+				visible = true;
+				break;
+			}
+		}
+		
+		if (!visible)
+		{
+			// if the element should be filtered, then add it to the map
+			_alreadyFiltered[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+/**
+ * This function returns false if the given graph element is selected,
+ * returns true otherwise. This function is used to hide (filter) selected
+ * nodes & edges.
+ * 
+ * @param element	element to be checked
+ * @return			false if selected, true otherwise
+ */
+function visibility(element)
+{
+	// if an element is already filtered then it should remain invisible
+	// until the filters are reset
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		return false;
+	}
+	// if an edge type is hidden all edges of that type should be invisible
+	else if (_edgeTypeVisibility[element.data.type] != null
+			&& !_edgeTypeVisibility[element.data.type])
+	{
+		return false;
+	}
+	
+	// TODO find a better way (?) to check if it is selected, do not traverse
+	// all selected elements
+	
+	for (var i=0; i < _selectedElements.length; i++)
+	{
+		if (element.data.id == _selectedElements[i].data.id)
+		{
+			_alreadyFiltered[element.data.id] = element;
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+function _visChanged()
+{
+	if (_autoLayout)
+	{
+		// re-apply layout
+		_performLayout();
 	}
 }
 
@@ -466,168 +633,6 @@ function _removeHighlights()
 }
 
 /**
- * Filters out all selected genes.
- */
-function filterSelectedGenes()
-{
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
-
-	// filter out selected elements
-    _vis.filter("nodes", visibility, true);
-    
-    // refresh genes tab
-    _refreshGenesTab();
-    
-	_visChanged = true;
-}
-
-/**
- * Filters out all non-selected genes.
- */
-function filterNonSelectedGenes()
-{
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
-
-	// filter out non-selected elements
-    _vis.filter('nodes', geneVisibility, true);
-    
-    // refresh Genes tab
-    _refreshGenesTab();
-    updateGenesTab();
-    
-	_visChanged = true;
-}
-
-/**
- * Updates the visibility (by filtering mechanism) of edges.
- */
-function updateEdges()
-{
-	// update filtered edge types
-	
-	_edgeTypeVisibility[IN_SAME_COMPONENT] = $("#in_same_component").is(":checked");
-	_edgeTypeVisibility[REACTS_WITH] = $("#reacts_with").is(":checked");
-	_edgeTypeVisibility[STATE_CHANGE] = $("#state_change").is(":checked");
-	
-	// remove current edge filters
-	_vis.removeFilter("edges");
-	
-	// filter selected types
-	_vis.filter("edges", edgeVisibility, true);
-}
-
-/**
- * Determines the visibility of an edge for filtering purposes.
- * 
- * @param element	egde to be checked for visibility criteria
- * @return			true if the edge should be visible, false otherwise
- */
-function edgeVisibility(element)
-{
-	var visible;
-	
-	// if an element is already filtered then it should remain invisible
-	if (_alreadyFiltered[element.data.id] != null)
-	{
-		visible = false;
-	}
-	// unknown edge type, do not filter
-	else if (_edgeTypeVisibility[element.data.type] == null)
-	{
-		visible = true;
-	}
-	// check for the visibility of the edge type
-	else
-	{
-		visible = _edgeTypeVisibility[element.data.type];
-	}
-	
-	return visible;
-}
-
-/**
- * Determines the visibility of a gene (node) for filtering purposes.
- * 
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
- */
-function geneVisibility(element)
-{
-	var visible = false;
-	
-	// if an element is already filtered then it should remain invisible
-	if (_alreadyFiltered[element.data.id] != null)
-	{
-		visible = false;
-	}
-	else
-	{
-		// TODO find a better way (?) to check if it is selected.
-		
-		// filter non-selected nodes
-		
-		for (var i=0; i < _selectedElements.length; i++)
-		{
-			if (element.data.id == _selectedElements[i].data.id)
-			{
-				visible = true;
-				break;
-			}
-		}
-		
-		if (!visible)
-		{
-			// if the element should be filtered, then add it to the map
-			_alreadyFiltered[element.data.id] = element;
-		}
-	}
-	
-	return visible;
-}
-
-
-
-/**
- * This function returns false if the given graph element is selected,
- * returns true otherwise. This function is used to hide (filter) selected
- * nodes & edges.
- * 
- * @param element	element to be checked
- * @return			false if selected, true otherwise
- */
-function visibility(element)
-{
-	// if an element is already filtered then it should remain invisible
-	// until the filters are reset
-	if (_alreadyFiltered[element.data.id] != null)
-	{
-		return false;
-	}
-	// if an edge type is hidden all edges of that type should be invisible
-	else if (_edgeTypeVisibility[element.data.type] != null
-			&& !_edgeTypeVisibility[element.data.type])
-	{
-		return false;
-	}
-	
-	// TODO find a better way (?) to check if it is selected, do not traverse
-	// all selected elements
-	
-	for (var i=0; i < _selectedElements.length; i++)
-	{
-		if (element.data.id == _selectedElements[i].data.id)
-		{
-			_alreadyFiltered[element.data.id] = element;
-			return false;
-		}
-	}
-	
-	return true;
-}
-
-/**
  * Adds a data row to the node or edge inspector.
  * 
  * @param type		type of the inspector (should be "node" or "edge")
@@ -688,7 +693,6 @@ function _resolveXref(xref)
 function _resetFlags()
 {
 	_autoLayout = false;
-	_visChanged = false;
 	_nodeLabelsVisible = true;
 	_edgeLabelsVisible = false;
 	_panZoomVisible = true;
@@ -812,15 +816,18 @@ function _initMainMenu()
 	$("#network_menu_topology").addClass(MENU_CLASS);
 	$("#network_menu_view").addClass(MENU_CLASS);
 	
+	$("#save_as_png").addClass(FIRST_CLASS);
 	$("#save_as_png").addClass(SEPARATOR_CLASS);
 	$("#save_as_png").addClass(LAST_CLASS);
 	
+	$("#hide_selected").addClass(FIRST_CLASS);
 	$("#hide_selected").addClass(SEPARATOR_CLASS);	
 	$("#auto_layout").addClass(SEPARATOR_CLASS);
 	$("#auto_layout").addClass(LAST_CLASS);
 	
+	$("#perform_layout").addClass(FIRST_CLASS);
 	$("#perform_layout").addClass(SEPARATOR_CLASS);
-	$("#layout_properties").addClass(SUB_MENU_CLASS);
+	//$("#layout_properties").addClass(SUB_MENU_CLASS);
 	$("#show_profile_data").addClass(SEPARATOR_CLASS);
 	$("#highlight_neighbors").addClass(SEPARATOR_CLASS);
 	$("#merge_links").addClass(SEPARATOR_CLASS);
@@ -974,10 +981,9 @@ function _refreshGenesTab()
 			'<option id="' + shortId + '" ' +
 			classContent + 
 			'value="' + geneList[i].data.id + '" ' + '>' + 
-			'<label>' + shortId + '</label>' +
+			'<label>' + geneList[i].data.label + '</label>' +
 			'</option>');
 		
-		// TODO fix "auto layout on changes" behavior for these function
 		$("#genes_tab #" + shortId).click(updateSelectedGenes);
 		$("#genes_tab #" + shortId).select(updateSelectedGenes);
 		$("#genes_tab #" + shortId).dblclick(showGeneDetails);
@@ -998,7 +1004,7 @@ function _initControlFunctions()
 	_controlFunctions["unhide_all"] = _unhideAll;
 	_controlFunctions["perform_layout"] = _performLayout;
 	_controlFunctions["show_node_labels"] = _toggleNodeLabels;
-	_controlFunctions["show_edge_labels"] = _toggleEdgeLabels;
+	//_controlFunctions["show_edge_labels"] = _toggleEdgeLabels;
 	_controlFunctions["merge_links"] = _toggleMerge;
 	_controlFunctions["show_pan_zoom_control"] = _togglePanZoom;
 	_controlFunctions["auto_layout"] = _toggleAutoLayout;
@@ -1014,7 +1020,6 @@ function _initControlFunctions()
 	
 	// add button listeners
 	
-	// TODO fix "auto layout on changes" behavior for these function
 	$("#save_layout_settings").click(saveSettings);
 	$("#default_layout_settings").click(defaultSettings);
 	$("#filter_genes").click(filterSelectedGenes);
@@ -1066,7 +1071,8 @@ function _hideSelected()
     // refresh genes tab
     _refreshGenesTab();
     
-	_visChanged = true;
+    // visualization changed, perform layout if necessary
+	_visChanged();
 }
 
 /**
@@ -1088,7 +1094,8 @@ function _unhideAll()
 	_refreshGenesTab();
 	updateGenesTab();
 	
-	_visChanged = true;
+	// visualization changed, perform layout if necessary
+	_visChanged();
 }
 
 /**

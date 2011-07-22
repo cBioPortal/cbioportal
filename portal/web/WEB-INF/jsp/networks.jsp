@@ -143,20 +143,20 @@
 		<tr>
 			<td>
 				<div id="vis_content">
-                                        <div class="cytoscapeweb_menu">
-                                            <jsp:include page="network_menu.jsp"/>
-                                        </div>
-                                        <div id="cytoscapeweb">
-                                        <p>
-                                            <font size="5">Please wait while the network is being retrieved...</font>
-                                        </p>
-                                        </div>
-                                </div>
+					<div class="cytoscapeweb_menu">
+					    <jsp:include page="network_menu.jsp"/>
+					</div>
+					<div id="cytoscapeweb">
+						<p>
+						    <font size="5">Please wait while the network is being retrieved...</font>
+						</p>
+					</div>
+				</div>
 			</td>
 			<td>
-                                <div class="cytoscapeweb_menu">
-                                    <jsp:include page="network_tabs.jsp"/>
-                                </div>
+				<div class="cytoscapeweb_menu">
+				    <jsp:include page="network_tabs.jsp"/>
+				</div>
 			</td>
 		</tr>
 	</table>

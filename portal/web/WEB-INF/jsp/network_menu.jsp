@@ -4,13 +4,13 @@
 	    	<a id="network_menu_file">File</a>
 	    	<ul>
 	    		<li>
-	    			<a id="joker_button" onclick="handleMenuEvent('joker_button')">
-	    				TEMP..
+	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
+	    				Save as image (PNG)
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
-	    				Save as image (PNG)
+	    			<a id="joker_button" onclick="handleMenuEvent('joker_button')">
+	    				TEMP..
 	    			</a>
 	    		</li>
 	    	</ul>
@@ -45,7 +45,7 @@
 	    		</li>
 	    		<li>
 	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
-	    				Layout Properties
+	    				Layout Properties ...
 	    			</a>
 	    		</li>
 	    		<li>
@@ -71,11 +71,6 @@
 	    		<li>
 	    			<a id="show_node_labels" onclick="handleMenuEvent('show_node_labels')">
 	    				Show Node Labels
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="show_edge_labels" onclick="handleMenuEvent('show_edge_labels')">
-	    				Show Edge Labels
 	    			</a>
 	    		</li>
 	    		<li>

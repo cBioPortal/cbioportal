@@ -27,8 +27,24 @@
     </div>
     <div id="genes_tab">
 	    <div class="header">
-			<input type="button" id="filter_genes" class="ui-state-default" value="Filter out"/>
-			<input type="button" id="crop_genes" class="ui-state-default" value="Crop"/>
+			<table>
+				<tr>
+					<td>
+						<input type="button" id="filter_genes" class="ui-state-default" value="Filter"/>
+						<input type="button" id="crop_genes" class="ui-state-default" value="Crop"/>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="text" id="search" value=""/>
+					</td>
+					<td>
+						<input type="button" id="search_genes" class="ui-state-default" value="Search"/>
+					</td>
+				</tr>
+			</table>
 		</div>
     </div>
     <div id="help_tab">

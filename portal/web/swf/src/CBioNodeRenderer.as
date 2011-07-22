@@ -115,7 +115,7 @@ package org.cytoscapeweb.view.render
 					}
 					else
 					{
-						g.beginFill(0xDCDCDC, 50);
+						g.beginFill(0x111111, 50);
 					}
 					drawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
 			}
@@ -172,7 +172,7 @@ package org.cytoscapeweb.view.render
 			var rightFlag:Boolean = false;
 			var leftFlag:Boolean = false;
 			
-			var thickness:int = 10; // Thickness of the detail disc
+			var thickness:int = 16; // Thickness of the detail disc
 			var smoothness:int = 90; // Determines how smooth the ars are drawn
 			var sectionMargin:int = 20; // Margins between disc parts
 			var circleMargin:int = 2; // Margin between the discs and the node
@@ -360,9 +360,9 @@ package org.cytoscapeweb.view.render
 			var highCGreen:int = 0;
 			var highCBlue:int = 0;
 			
-			var lowCRed:int = 230;
-			var lowCGreen:int = 230;
-			var lowCBlue:int = 230;
+			var lowCRed:int = 255;
+			var lowCGreen:int = 255;
+			var lowCBlue:int = 255;
 						
 			if (value >= high)
 			{

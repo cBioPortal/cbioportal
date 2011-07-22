@@ -98,7 +98,7 @@ public class TestAccessControl extends TestCase {
       DaoUser.addUser(user2);
 
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
       // make a couple of private studies (1 and 2)
       privateCancerStudy1 = new CancerStudy( "name", "description", "brca", false );

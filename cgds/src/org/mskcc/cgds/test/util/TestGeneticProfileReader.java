@@ -18,7 +18,7 @@ public class TestGeneticProfileReader extends TestCase {
     public void testGeneticProfileReader() throws Exception {
        ResetDatabase.resetDatabase();
        // load cancers
-       String[] args = { "data/cancers.txt" };
+       String[] args = { "testData/cancers.txt" };
        ImportTypesOfCancers.main( args );
        
        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();

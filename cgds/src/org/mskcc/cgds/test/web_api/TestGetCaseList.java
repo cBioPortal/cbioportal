@@ -16,7 +16,7 @@ public class TestGetCaseList extends TestCase {
 
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main(args);
 
       // corresponds to cancer_study_identifier: gbm in

@@ -16,7 +16,7 @@ public class TestCancerStudyReader extends TestCase {
    public void testCancerStudyReader() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
       
       File file = new File("testData/cancer_study.txt");

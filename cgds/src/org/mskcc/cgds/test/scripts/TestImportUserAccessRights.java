@@ -14,7 +14,7 @@ public class TestImportUserAccessRights extends TestCase {
    public void testImportUserAccessRights() throws Exception{
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
 
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "brca", false );

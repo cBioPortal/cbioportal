@@ -13,7 +13,7 @@ public class TestGetTypesOfCancer extends TestCase {
    public void testGetTypesOfCancer() throws DaoException, Exception, ProtocolException {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
       
       String output = GetTypesOfCancer.getTypesOfCancer();

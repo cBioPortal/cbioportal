@@ -15,7 +15,7 @@ public class TestDaoCancerStudy extends TestCase{
    public void testDaoCancerStudy() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
 
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "brca", false );
@@ -63,7 +63,7 @@ public class TestDaoCancerStudy extends TestCase{
    public void testDaoCancerStudy2() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "data/cancers.txt" };
+      String[] args = { "testData/cancers.txt" };
       ImportTypesOfCancers.main( args );
 
       CancerStudy cancerStudy1 = new CancerStudy( "GBM public study x", "GBM Description", "brca", true );

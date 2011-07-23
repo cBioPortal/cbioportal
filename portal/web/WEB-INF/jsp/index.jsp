@@ -185,7 +185,8 @@
                 //  Get Cancer Studies JSON Data
                 jQuery.getJSON("cancer_studies.json",function(json){
                     jQuery.each(json,function(key,cancer_study){
-                        $("#cancer_results").append('<h1>Cancer Study:  ' + key + '</h1>');
+                        $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
+                        $("#cancer_results").append('<p>' + cancer_study.description + '</p>');
                         $("#cancer_results").append('<h2>Genomic Profiles:' + '</h2>');
                         $("#cancer_results").append('<ul>');
                         jQuery.each(cancer_study.genomic_profiles,function(i, genomic_profile) {

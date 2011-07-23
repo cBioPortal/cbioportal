@@ -56,6 +56,7 @@ public class CancerStudiesJSON extends HttpServlet {
                 Map map = new LinkedHashMap();
                 map.put("id", geneticProfile.getId());
                 map.put("alteration_type", geneticProfile.getAlterationType().toString());
+                map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
                 map.put("name", geneticProfile.getName());
                 map.put("description", geneticProfile.getDescription());
                 jsonGenomicProfileList.add(map);

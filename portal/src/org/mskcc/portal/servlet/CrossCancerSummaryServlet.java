@@ -36,10 +36,6 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        String cgdsUrl = getInitParameter(QueryBuilder.CGDS_URL_PARAM);
-        GlobalProperties.setCgdsUrl(cgdsUrl);
-        String pathwayCommonsUrl = getInitParameter(QueryBuilder.PATHWAY_COMMONS_URL_PARAM);
-        GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {

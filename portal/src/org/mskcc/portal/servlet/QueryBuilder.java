@@ -86,6 +86,7 @@ public class QueryBuilder extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         String cgdsUrl = getInitParameter(CGDS_URL_PARAM);
+        System.out.println ("Init Query Builder with CGDS URL:  " + cgdsUrl);
         GlobalProperties.setCgdsUrl(cgdsUrl);
 		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
         GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);

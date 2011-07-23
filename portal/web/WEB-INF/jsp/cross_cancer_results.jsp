@@ -55,6 +55,7 @@ $(document).ready(function(){
     </p>
 </div>
 
+
 <div class="accordion_panel">
 <img style="vertical-align:middle;" src='images/oncoPrint/amplified-notShown-normal.png' alt='amplified-notShown-normal.png' width='6' height='17'/>
 <span style="vertical-align:middle;">Amplification</span>

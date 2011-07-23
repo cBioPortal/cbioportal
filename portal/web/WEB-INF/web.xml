@@ -15,32 +15,22 @@
             <param-name>pathway_commons_url</param-name>
             <param-value>pathway_commons_url_value</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
         <servlet-name>cross_cancer_query</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
-        <init-param>
-            <param-name>cgds_url</param-name>
-            <param-value>cgds_url_value</param-value>
-        </init-param>
-        <init-param>
-            <param-name>pathway_commons_url</param-name>
-            <param-value>pathway_commons_url_value</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>cross_cancer_summary</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CrossCancerSummaryServlet</servlet-class>
-        <init-param>
-            <param-name>cgds_url</param-name>
-            <param-value>cgds_url_value</param-value>
-        </init-param>
-        <init-param>
-            <param-name>pathway_commons_url</param-name>
-            <param-value>pathway_commons_url_value</param-value>
-        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>cancer_studies_json</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CancerStudiesJSON</servlet-class>
     </servlet>
 
     <servlet>
@@ -95,6 +85,11 @@
     <servlet-mapping>
         <servlet-name>cross_cancer_summary</servlet-name>
         <url-pattern>/cross_cancer_summary.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cancer_studies_json</servlet-name>
+        <url-pattern>/cancer_studies.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -71,6 +71,8 @@ public class CancerStudiesJSON extends HttpServlet {
                 jsonCaseList.add(map);
             }
             Map jsonCancerStudySubMap = new LinkedHashMap();
+            jsonCancerStudySubMap.put("name", cancerStudy.getCancerName());
+            jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
             jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
             jsonCancerStudySubMap.put("case_sets", jsonCaseList);
             rootMap.put(cancerStudy.getCancerTypeId(), jsonCancerStudySubMap);

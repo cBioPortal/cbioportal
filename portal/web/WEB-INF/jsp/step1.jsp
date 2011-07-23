@@ -10,7 +10,6 @@
 <br/>
 <table>
     <tr>
-        <td><img class="step_image" src="images/step_1<%=stepImageSuffix%>.png" alt="Step 1:"/></td>
         <td><span class="step">Select Cancer Type:</span></td>
         <td>
             <select onchange="JavaScript:submit()" name="<%= QueryBuilder.CANCER_STUDY_ID %>">

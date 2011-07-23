@@ -175,6 +175,41 @@
                     </td>
                 </tr>
             </table>
+
+            <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
+            <div class="markdown" style="display:none;" id="cancer_results">
+            </div>
+
+            <script type="text/javascript">
+            $(document).ready(function(){
+                //  Get Cancer Studies JSON Data
+                jQuery.getJSON("cancer_studies.json",function(json){
+                    jQuery.each(json,function(key,cancer_study){
+                        $("#cancer_results").append('<h1>Cancer Study:  ' + key + '</h1>');
+                        $("#cancer_results").append('<h2>Genomic Profiles:' + '</h2>');
+                        $("#cancer_results").append('<ul>');
+                        jQuery.each(cancer_study.genomic_profiles,function(i, genomic_profile) {
+                            $("#cancer_results").append('<li>' + genomic_profile.name + ': ' + genomic_profile.description + "</li>'");
+                        }); //  end for each genomic profile loop
+                        $("#cancer_results").append('</ul>');
+                        $("#cancer_results").append('<h2>Case Sets:' + '</h2>');
+                        $("#cancer_results").append('<ul>');
+                        jQuery.each(cancer_study.case_sets,function(i, case_set) {
+                            $("#cancer_results").append('<li>' + case_set.name + ': ' + case_set.description + "</li>'");
+                        }); //  end for each genomic profile loop
+                        $("#cancer_results").append('</ul>');
+                    });  //  end for each cancer study loop
+                });  //  end getJSON function
+
+                //  Provide toggle for JSON Results
+                $('#json_cancer_studies').click(function(event) {
+                  event.preventDefault();
+                  $('#cancer_results').toggle();
+                });
+
+            });  //  end document ready function
+            </script>
+                
             </div>
             </td>
         </tr>

@@ -22,7 +22,6 @@
 %>
 <table>
 <tr>
-    <td><img class="step_image" src="images/step_2<%=stepImageSuffix%>.png" alt="Step 2:"/></td>
     <td><span class="step">Select Genomic Profiles:</span></td>
 </tr>
 </table>

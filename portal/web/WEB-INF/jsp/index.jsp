@@ -39,8 +39,6 @@
     if (geneSetChoice == null) {
         geneSetChoice = "custom";
     }
-    GeneSetUtil geneSetUtil = new GeneSetUtil();
-    ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
 
     String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
     if (tabIndex == null) {

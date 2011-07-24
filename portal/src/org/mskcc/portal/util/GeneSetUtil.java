@@ -9,17 +9,29 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * Temporary class which stores arbitrary gene sets, to be displayed to the user.
+ * Stores arbitrary gene sets, to be displayed to the user.
  * <p/>
- * This will be eventually replaced with live gene sets from Broad MSigDB and Pathway Commons.
+ * This will (eventually) be replaced with live gene sets from Broad MSigDB and Pathway Commons.
  */
 public class GeneSetUtil {
     private ArrayList<GeneSet> geneSetList = new ArrayList<GeneSet>();
+    private static GeneSetUtil geneSetUtil;
 
     /**
-     * Constructor.
+     * Gets Global Singleton.
+     * @return GeneSetUtil.
      */
-    public GeneSetUtil() {
+    public static GeneSetUtil getInstance() {
+        if (geneSetUtil == null) {
+            geneSetUtil = new GeneSetUtil();
+        }
+        return geneSetUtil;
+    }
+
+    /**
+     * Private Constructor.
+     */
+    private GeneSetUtil() {
         GeneSet g0 = new GeneSet();
 
         //  Custom Gene Set Goes First
@@ -56,5 +68,4 @@ public class GeneSetUtil {
     public ArrayList<GeneSet> getGeneSetList() {
         return geneSetList;
     }
-
 }

@@ -19,17 +19,5 @@
 </textarea>
 
     <p>Or Select from Example Gene Sets:</p>
-    <p><select onchange="JavaScript:updateGeneSet()" id="<%= QueryBuilder.GENE_SET_CHOICE %>"
-              name="<%= QueryBuilder.GENE_SET_CHOICE %>">
-    <%
-        for (GeneSet geneSet : geneSetList) {
-            String selected = "";
-            if (geneSetChoice.equals(geneSet.getId())) {
-                selected = " selected ";
-            }
-            out.print("<option " + selected + " value='" + geneSet.getId() + "'>");
-            out.println(geneSet.getName() + "</option>");
-        }
-    %>
-</select>
+    <p><select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>
 </div>

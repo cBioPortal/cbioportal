@@ -12,10 +12,10 @@
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
-    //  Get Cancer Studies JSON Data via JQuery AJAX
-    jQuery.getJSON("cancer_studies.json",function(json){
+    //  Get Portal JSON Meta Data via JQuery AJAX
+    jQuery.getJSON("portal_meta_data.json",function(json){
         //  Store JSON Data in global variable for later use
-        window.cancerStudyJson = json;
+        window.metaDataJson = json;
 
         //  Add Cancer Studies to current page
         addCancerStudiesToPage();
@@ -42,7 +42,7 @@ $(document).ready(function(){
 //  or programatically.
 function cancerStudySelected() {
     var cancerStudyId = $("#select_cancer_type").val();
-    var cancer_study = cancerStudyJson[cancerStudyId];
+    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
@@ -100,8 +100,8 @@ function caseSetSelected() {
 //  Tiggered at the end of successful AJAX/JSON request.
 function addCancerStudiesToPage() {
     //  Iterate through all cancer studies
-    json = window.cancerStudyJson;
-    jQuery.each(json,function(key,cancer_study){
+    json = window.metaDataJson;
+    jQuery.each(json.cancer_studies,function(key,cancer_study){
         $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
 
         //  Append to Cancer Study Pull-Down Menu
@@ -125,7 +125,7 @@ function addCancerStudiesToPage() {
     });  //  end 1st for each cancer study loop
 
     //  Now set things...
-    jQuery.each(json,function(key,cancer_study){
+    jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter
         if (key == window.cancer_study_id_selected) {
             $("#select_cancer_type").val(key);

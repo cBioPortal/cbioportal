@@ -22,7 +22,8 @@ public class GeneSet {
      * @return alpha-numeric ID of gene set.
      */
     public String getId() {
-        String id = name.replaceAll(" ", "_");
+        String id = name.replaceAll(" ", "-");
+        id = id.replaceAll("_", "-");
         return id.toLowerCase();
     }
 

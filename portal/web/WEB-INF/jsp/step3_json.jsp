@@ -6,7 +6,7 @@
 
     <div id='custom_case_list_section' style="display:none;">
         <p>&nbsp;Enter case IDs below:</p>
-        <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80>
-        </textarea>
+<textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80>
+</textarea>
     </div>
 </div>

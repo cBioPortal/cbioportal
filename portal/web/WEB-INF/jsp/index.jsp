@@ -116,19 +116,7 @@
                 out.println ("<div class='user_message'>" + userMessage + "</div>");
             }
             %>                  
-            <%
-                if (tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
-                    out.println ("<span class=\"tab_inactive\"><a href=\"javascript:swapTabs('"
-                            + QueryBuilder.TAB_VISUALIZE +"');\">"
-                            + "Query</a></span>");
-                    out.println ("<span class=\"tab_active\">Download Data</span>");
-                } else {
-                    out.println ("<span class=\"tab_active\">Query</span>");
-                    out.println ("<span class=\"tab_inactive\"><a href=\"javascript:swapTabs('"
-                            + QueryBuilder.TAB_DOWNLOAD +"');\">Download Data</a></span>");
-                }
-            %>
-            <div class="main_panel">
+            <div class="main_query_panel">
                 <%@ include file="step1_json.jsp" %>
                 <%@ include file="step2_json.jsp" %>
                 <%@ include file="step3_json.jsp" %>

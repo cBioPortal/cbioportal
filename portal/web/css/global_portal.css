@@ -447,12 +447,6 @@ table td {
   color:black;
 }
 
-#cancer_type_desc p{
-    font-size: 12px !important;
-    margin-left: 45px;
-    margin-right: 20px;
-}
-
 blockquote {
     width: 600px;
 }
@@ -886,13 +880,6 @@ table {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#8CBADC',GradientType=0 ); /* ie */
 }
 
-.step {
-  font-size:14px;
-  font-weight:bold;
-  margin-right:5px;
-  color:#1974b8;
-}
-
 .welcome {
     background-color:#E8F1F8;
     background: -moz-linear-gradient(top, #D6E9F9 0%, #FFF 100%); /* firefox */
@@ -1066,4 +1053,34 @@ color:white;
 .accordion_ajax {
     padding-top:5px;
     padding-left:15px;
+}
+
+/*********************************************************************
+* Styles Required for Dynamic Query Sections
+*/
+
+/* Step Section */
+.query_step_section {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Step Header */
+.step_header {
+  font-size:14px;
+  font-weight:bold;
+  margin-right:5px;
+  color:#1974b8;
+}
+
+/* Cancer Study Description */
+#cancer_study_desc p{
+    font-size: 11px !important;
+    margin-left: 25px;
+    margin-right: 20px;
 }

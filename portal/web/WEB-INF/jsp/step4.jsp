@@ -1,16 +1,14 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.GeneSetUtil" %>
 <%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
-<%@ page import="java.util.ArrayList" %>
 
 
 <script type="text/javascript">
 
-//  Update the gene list to reflect user's selection
-function updateGeneSet() {
+    //  Update the gene list to reflect user's selection
+    function updateGeneSet() {
 
-    //  Set up the array to store all gene list
-    var geneSetArray = new Array();
+        //  Set up the array to store all gene list
+        var geneSetArray = new Array();
     <%
         int i = 0;
         for (GeneSet geneSet:  geneSetList) {

@@ -1,12 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashSet" %>
-<%@ page import="org.mskcc.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.portal.model.*" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.*" %>
 
 
 <%
@@ -56,7 +54,6 @@
     String cgdsUrl = GlobalProperties.getCgdsUrl();
     String cgdsUrlHome = cgdsUrl.replace("webservice.do", "");
     String xdebug = xssUtil.getCleanInput(request, QueryBuilder.XDEBUG);
-    ArrayList <GeneWithScore> topMutatedGenesList = (ArrayList <GeneWithScore>) request.getAttribute("top_mutations");
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
@@ -68,12 +65,16 @@
         hiddenTab.value = param;
         form.submit();
     }
+    // Store the current selected cancer study ID as a global variable.
+    window.cancer_study_id_selected = '<%= cancerTypeId%>';
 
 </script>
 
-
-
 <jsp:include page="global/header.jsp" flush="true" />
+
+<!-- Include Dynamic Query Javascript -->
+<script type="text/javascript" src="js/dynamicQuery.js"></script>
+
     <%
     if (xdebug != null) {
     %>
@@ -133,7 +134,7 @@
             <table width="100%">
                 <tr>
                     <td>
-                        <%@ include file="step1.jsp" %>
+                        <%@ include file="step1_json.jsp" %>
                     </td>
                 </tr>
                 <tr>
@@ -143,12 +144,12 @@
                 </tr>
                 <tr>
                     <td>
-                        <%@ include file="step3.jsp" %>
+                        <%@ include file="step3_json.jsp" %>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <%@ include file="step4.jsp" %>
+                        <%@ include file="step4_json.jsp" %>
                     </td>
                 </tr>
                 <tr>
@@ -179,38 +180,6 @@
             <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
             <div class="markdown" style="display:none;" id="cancer_results">
             </div>
-
-            <script type="text/javascript">
-            $(document).ready(function(){
-                //  Get Cancer Studies JSON Data
-                jQuery.getJSON("cancer_studies.json",function(json){
-                    jQuery.each(json,function(key,cancer_study){
-                        $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
-                        $("#cancer_results").append('<p>' + cancer_study.description + '</p>');
-                        $("#cancer_results").append('<h2>Genomic Profiles:' + '</h2>');
-                        $("#cancer_results").append('<ul>');
-                        jQuery.each(cancer_study.genomic_profiles,function(i, genomic_profile) {
-                            $("#cancer_results").append('<li>' + genomic_profile.name + ': ' + genomic_profile.description + "</li>'");
-                        }); //  end for each genomic profile loop
-                        $("#cancer_results").append('</ul>');
-                        $("#cancer_results").append('<h2>Case Sets:' + '</h2>');
-                        $("#cancer_results").append('<ul>');
-                        jQuery.each(cancer_study.case_sets,function(i, case_set) {
-                            $("#cancer_results").append('<li>' + case_set.name + ': ' + case_set.description + "</li>'");
-                        }); //  end for each genomic profile loop
-                        $("#cancer_results").append('</ul>');
-                    });  //  end for each cancer study loop
-                });  //  end getJSON function
-
-                //  Provide toggle for JSON Results
-                $('#json_cancer_studies').click(function(event) {
-                  event.preventDefault();
-                  $('#cancer_results').toggle();
-                });
-
-            });  //  end document ready function
-            </script>
-                
             </div>
             </td>
         </tr>

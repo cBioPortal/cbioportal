@@ -1,4 +1,3 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <% if (!tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) { %>
 
 

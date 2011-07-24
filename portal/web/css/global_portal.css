@@ -1084,3 +1084,14 @@ color:white;
     margin-left: 25px;
     margin-right: 20px;
 }
+
+/* Genomic Profiles Div */
+#genomic_profiles {
+  padding-top:10px;
+  padding-bottom:5px;
+}
+
+/*  Genomic Profiles Input Box */
+#genomic_profiles input{
+    margin-left: 25px;
+}

@@ -47,17 +47,32 @@ function cancerStudySelected() {
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
 
+    //  Iterate through all genomic profiles
+    //  Add all non-expression profiles where show_in_analysis_tab = true
+    //  First, clear all existing options
+    $("#genomic_profiles").html("");
+
+    //  Then iterate through all genomic profiles
+    jQuery.each(cancer_study.genomic_profiles,function(key, genomic_profile) {
+        if (genomic_profile.show_in_analysis_tab == true
+                && genomic_profile.alteration_type != "MRNA_EXPRESSION") {
+            $("#genomic_profiles").append("<input type='checkbox' name='genetic_profile_ids' "
+                + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>");
+        }
+    }); //  end for each genomic profile loop
+
     //  Update the Case Set Pull-Down Menu
-    //  First, clear all existing pull-deown menus
+    //  First, clear all existing pull-down menus
     $("#select_case_set").html("");
 
     //  Iterate through all case sets
     //  Add each case set as an option, and include description as title, so that it appears
     //  as a tool-tip.
-    jQuery.each(cancer_study.case_sets,function(key, case_set) {
-        $("#select_case_set").append("<option class='case_set_option' value='" + key + "' title='"
+    jQuery.each(cancer_study.case_sets,function(i, case_set) {
+        $("#select_case_set").append("<option class='case_set_option' value='"
+                + case_set.id + "' title='"
                 + case_set.description + "'>" + case_set.name + "</option>");
-    }); //  end for each genomic profile loop
+    }); //  end for each case study loop
 
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='user_defined' "

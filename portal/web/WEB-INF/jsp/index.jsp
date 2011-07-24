@@ -78,9 +78,9 @@
     <%
     if (xdebug != null) {
     %>
-    <form id="main_form" action="index.do" method="POST">
+    <form id="main_form" action="index.do" method="get">
     <% } else { %>
-    <form id="main_form" action="index.do" method="POST">
+    <form id="main_form" action="index.do" method="get">
     <% } %>
     <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= tabIndex %>">
@@ -92,10 +92,6 @@
         }
     %>
 
-
-
-
-
     <table cellspacing="2px">
         <tr>
             <td>
@@ -104,7 +100,9 @@
                 <tr>
                    <td style="width: 350px">
                       <P><%= SkinUtil.getBlurb() %></p>
-                      <p>The portal is developed and maintained by the <a href="http://cbio.mskcc.org/">Computational Biology Center</a> at <br><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
+                      <p>The portal is developed and maintained by
+                      the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
+                      at <br><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
                    </td>
                    <td style="width: 300px">
                        <jsp:include page="<%= popeye %>" flush="true" />
@@ -131,55 +129,17 @@
                 }
             %>
             <div class="main_panel">
-            <table width="100%">
-                <tr>
-                    <td>
-                        <%@ include file="step1_json.jsp" %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <%@ include file="step2.jsp" %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <%@ include file="step3_json.jsp" %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <%@ include file="step4_json.jsp" %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <%@ include file="step5.jsp" %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                    <% if (tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
-                        out.println ("<p>Clicking submit will generate a tab-delimited file containing"
-                            + " your requested data.</p>");
-                        String transposeStr = request.getParameter("transpose");
-                        String transposeChecked = "";
-                        if (transposeStr != null) {
-                            transposeChecked = " checked ";
-                        }
-                        out.println("<P><input type=checkbox " + transposeChecked
-                                + " name=transpose>Transpose data matrix.</P>");
-                    } %>
-                    <%  if (finalProfileList.size() > 0) { %>                        
-                    <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
-                    <% } %>
-                    </td>
-                </tr>
-            </table>
+                <%@ include file="step1_json.jsp" %>
+                <%@ include file="step2_json.jsp" %>
+                <%@ include file="step3_json.jsp" %>
+                <%@ include file="step4_json.jsp" %>
+                <%@ include file="step5_json.jsp" %>
+                <p/>
+                <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
 
-            <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
-            <div class="markdown" style="display:none;" id="cancer_results">
-            </div>
+                <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
+                <div class="markdown" style="display:none;" id="cancer_results">
+                </div>
             </div>
             </td>
         </tr>

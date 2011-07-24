@@ -15,8 +15,8 @@
         <a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a>
     </span>
     <P/>
-    <textarea rows='10' cols='80' id='gene_list' name='<%= QueryBuilder.GENE_LIST %>'>
-    </textarea>
+<textarea rows='5' cols='80' id='gene_list' name='<%= QueryBuilder.GENE_LIST %>'>
+</textarea>
 
     <p>Or Select from Example Gene Sets:</p>
     <p><select onchange="JavaScript:updateGeneSet()" id="<%= QueryBuilder.GENE_SET_CHOICE %>"

@@ -252,11 +252,6 @@
             <%@ include file="frequency_plot.jsp" %>
             </div>
 
-            <%
-            if (QueryBuilder.INCLUDE_NETWORKS) { %>
-                <%@ include file="networks.jsp" %>
-            <% } %>
-
 
             <%@ include file="plots_tab.jsp" %>
                     
@@ -288,6 +283,11 @@
             <%@ include file="heatmap.jsp" %>
             </div>   <!-- end heat map div -->
             <%@ include file="image_tabs_data.jsp" %>
+
+            <%
+            if (QueryBuilder.INCLUDE_NETWORKS) { %>
+                <%@ include file="networks.jsp" %>
+            <% } %>
             
             </div> <!-- end tabs div -->
             </div>  <!-- end results container -->

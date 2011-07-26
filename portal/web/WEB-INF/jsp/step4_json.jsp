@@ -15,7 +15,7 @@
         <a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a>
     </span>
     <P/>
-<textarea rows='5' cols='80' id='gene_list' name='<%= QueryBuilder.GENE_LIST %>'>
+<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'>
 </textarea>
 
     <p><span style="font-size:80%">Or Select from Example Gene Sets:</span></p>

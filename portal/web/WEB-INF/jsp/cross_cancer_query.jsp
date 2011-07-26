@@ -47,14 +47,6 @@
             %>                  
             <div class="main_panel">
 
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <%@ include file="step1.jsp" %>
-                        </td>
-                    </tr>
-                </table>                
-
                 <br/>
                 <h4>Gene Set:</h4>
                 <form id="main_form" action="cross_cancer.do" method="post">

@@ -80,7 +80,7 @@ function cancerStudySelected() {
     }); //  end for each case study loop
 
     //  Add the user-defined case list option
-    $("#select_case_set").append("<option class='case_set_option' value='user_defined' "
+    $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
 
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
@@ -94,7 +94,7 @@ function caseSetSelected() {
 
     //  If user has selected the user-defined option, show the case list div
     //  Otherwise, make sure to hide it.
-    if (caseSetId == "user_defined") {
+    if (caseSetId == "-1") {
         $("#custom_case_list_section").show();
     } else {
         $("#custom_case_list_section").hide();
@@ -142,7 +142,13 @@ function addMetaDataToPage() {
         $("#cancer_results").append('</ul>');
     });  //  end 1st for each cancer study loop
 
-    //  Now set things up, based on currently selected cancer type
+    //  Add Gene Sets to Pull-down Menu
+    jQuery.each(json.gene_sets,function(key,gene_set){
+        $("#select_gene_set").append("<option value='" + key + "'>"
+                + gene_set.name + "</option>");
+    });  //  end for each gene set loop
+
+    //  Set things up, based on currently selected cancer type
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter
         if (key == window.cancer_study_id_selected) {
@@ -151,11 +157,16 @@ function addMetaDataToPage() {
         }
     });  //  end 2nd for each cancer study loop
 
-    //  Add Gene Sets to Pull-down Menu
-    jQuery.each(json.gene_sets,function(key,gene_set){
-        $("#select_gene_set").append("<option value='" + key + "'>"
-                + gene_set.name + "</option>");
-    });  //  end for each gene set loop
+    //   Set things up, based on currently selected case set id
+    if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
+        $("#select_case_set").val(window.case_set_id_selected);
+    }
+    caseSetSelected();
+
+    //  Set things up, based on currently selected gene set id
+    if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
+        $("#select_gene_set").val(window.gene_set_id_selected);    
+    }
 }
 
 // Adds the specified genomic profiles to the page.

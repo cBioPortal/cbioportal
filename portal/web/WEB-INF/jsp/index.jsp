@@ -55,19 +55,6 @@
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
-<script type="text/javascript">
-
-    function swapTabs(param) {
-        var form = YAHOO.util.Dom.get("main_form");
-        var hiddenTab = YAHOO.util.Dom.get("<%= QueryBuilder.TAB_INDEX %>");
-        hiddenTab.value = param;
-        form.submit();
-    }
-    // Store the current selected cancer study ID as a global variable.
-    window.cancer_study_id_selected = '<%= cancerTypeId%>';
-
-</script>
-
 <jsp:include page="global/header.jsp" flush="true" />
 
 <!-- Include Dynamic Query Javascript -->
@@ -113,7 +100,16 @@
             if (userMessage != null) {
                 out.println ("<div class='user_message'>" + userMessage + "</div>");
             }
-            %>                  
+            %>
+            <script type="text/javascript">
+
+                // Store the current selected options as global variables;
+                window.cancer_study_id_selected = '<%= cancerTypeId%>';
+                window.case_set_id_selected = '<%= caseSetId %>';
+                window.gene_set_id_selected = '<%= geneSetChoice %>';
+
+            </script>
+
             <div class="main_query_panel">
                 <%@ include file="step1_json.jsp" %>
                 <%@ include file="step2_json.jsp" %>

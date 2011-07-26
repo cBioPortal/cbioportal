@@ -228,7 +228,7 @@
                     <%
                     out.println ("<li><a href='#data_download' class='result-tab'>Data Download</a></li>");
                     out.println ("<li><a href='#bookmark_email' class='result-tab'>Bookmark/Email</a></li>");
-                    out.println ("<!--<li><a href='index.do'>Create new query</a> -->");
+                    out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
 
                     out.println ("</ul>");
 

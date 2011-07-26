@@ -65,7 +65,10 @@ package org.cytoscapeweb {
         
         /** To export the network as an image or an XML. */
         public static const EXPORT_NETWORK:String = "export_network";
-        
+
+		/** CBio Modification: To decide whether profile data should always be shown. */
+		public static const SHOW_PROFILE_DATA:String = "show_profile_data";
+
         /** Ask to show or hide node/edge labels, according to the boolean value sent as the body of the notification. */
         public static const SHOW_LABELS:String = "show_labels";
         /** Ask to show or hide the pan-zoom control, according to the boolean value sent as the body of the notification. */
@@ -166,7 +169,8 @@ package org.cytoscapeweb {
             registerCommand(SET_VISUAL_STYLE, SetVisualStyleCommand);
             registerCommand(SET_VISUAL_STYLE_BYPASS, SetVisualStyleBypassCommand);
             registerCommand(APPLY_LAYOUT, ApplyLayoutCommand);
-            registerCommand(EXPORT_NETWORK, ExportNetworkCommand);
+			registerCommand(EXPORT_NETWORK, ExportNetworkCommand);
+			registerCommand(SHOW_PROFILE_DATA, ShowProfileDataCommand); // CBio Modification
         }
         
         // ========[ SINGLETON STUFF ]==============================================================

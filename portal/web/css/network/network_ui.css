@@ -1,6 +1,7 @@
 #network_menu_div
 {
 	/* margin-left: 18px; */
+	margin-top: -10px;
 }
 
 #network_menu_div ul
@@ -21,8 +22,8 @@
 	padding-right: 20px;
 	padding-top: 0px;
 	padding-bottom: 0px;
-	border-left: 1px solid #1974b8;
-	border-right: 1px solid #1974b8;
+	border-left: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
 	/*font-weight: bold;*/
 	color: #2e6e9e;
 	text-decoration: none;
@@ -90,7 +91,7 @@
 
 .separator-menu-item
 {
-	border-top:1px solid #1974b8;
+	border-top:1px solid #aaaaaa;
 }
 
 .first-menu-item
@@ -105,7 +106,7 @@
 
 .last-menu-item
 {
-	border-bottom:1px solid #1974b8;
+	border-bottom:1px solid #aaaaaa;
 	-moz-border-radius-bottomleft: 5px;
 	-webkit-border-bottom-left-radius: 5px;
 	border-bottom-left-radius: 5px;
@@ -119,7 +120,7 @@
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	border:1px solid #1974b8;
+	border:1px solid #aaaaaa;
 }
 
 .sub-menu-item
@@ -140,7 +141,7 @@
 
 .ui-dialog .ui-dialog-titlebar
 {
-	font-size: 10pt;
+	font-size: 9pt;
 }
 
 .hidden-network-ui
@@ -164,10 +165,6 @@
 {
 	width: 580px;
 	height: 666px;
-}
-
-#vis_content #cytoscapeweb
-{
 	border: 1px solid #aaaaaa;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -177,7 +174,7 @@
 /*
  * Inspectors
  */
-#node_inspector_content .data_row
+#node_inspector_content .data-row
 {
 	font-size: 12pt;
 }
@@ -192,7 +189,7 @@
 	font-size: 9pt;
 }
 
-#genes_tab .in_query
+#genes_tab .in-query
 {
 	font-weight: bold;
 }
@@ -206,5 +203,31 @@
 
 #genes_tab select
 {
+	width: 200px;
+	height: 500px;
+}
+
+#relations_tab .percent-bar
+{
+	margin: 0.2em 0.5em 0 2.5em;
+	height: 0.3em;
+	border-right: 0px solid #b0b0b0;
+	clear: both;
+}
+
+#relations_tab .percent-value
+{
+	font-size: 8pt;
+}
+
+#relations_tab .edge-type-checkbox
+{
+	width: 85%;
+	white-space: nowrap;
+}
+
+#relations_tab, #genes_tab, #help_tab
+{
+	height: 575px;
 	width: 200px;
 }

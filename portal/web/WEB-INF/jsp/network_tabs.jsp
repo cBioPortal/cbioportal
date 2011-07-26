@@ -1,36 +1,15 @@
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
-        <li><a href="#relations_tab"><span>Relations</span></a></li>
         <li><a href="#genes_tab"><span>Genes</span></a></li>
+        <li><a href="#relations_tab"><span>Relations</span></a></li>
         <li><a href="#help_tab"><span>Help</span></a></li>
     </ul>
-    <div id="relations_tab">
-		<div>
-	        <table>
-	        	<tr><td>
-	        		<input type="checkbox" id="in_same_component" checked="checked">
-	        		<label>In Same Component</label>
-	        	</td></tr>
-	        	<tr><td>
-	        		<input type="checkbox" id="reacts_with" checked="checked">
-	        		<label>Reacts With</label>
-	        	</td></tr>
-	        	<tr><td>
-	        		<input type="checkbox" id="state_change" checked="checked">
-	        		<label>State Change</label>
-	        	</td></tr>
-	        </table>
-	    </div>
-        <div class="footer">
-			<input type="button" id="update_edges" class="ui-state-default" value="Update"/>
-		</div>
-    </div>
     <div id="genes_tab">
 	    <div class="header">
 			<table>
 				<tr>
 					<td>
-						<input type="button" id="filter_genes" class="ui-state-default" value="Filter"/>
+						<input type="button" id="filter_genes" class="ui-state-default" value="Hide"/>
 						<input type="button" id="crop_genes" class="ui-state-default" value="Crop"/>
 					</td>
 					<td>
@@ -38,13 +17,64 @@
 				</tr>
 				<tr>
 					<td>
-						<input type="text" id="search" value=""/>
+						<input type="text" size="18" id="search" value=""/>
 					</td>
 					<td>
 						<input type="button" id="search_genes" class="ui-state-default" value="Search"/>
 					</td>
 				</tr>
 			</table>
+		</div>
+    </div>
+    <div id="relations_tab">
+		<div>
+	        <table>
+	        	<tr class="in-same-component">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>In Same Component</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="in-same-component">
+	        		<td>
+	        			<div class="percent-bar"></div>	        			
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
+	        	<tr class="reacts-with">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Reacts With</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="reacts-with">
+	        		<td>
+	        			<div class="percent-bar"></div>	        			
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
+	        	<tr class="state-change">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>State Change</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="state-change">
+	        		<td>
+	        			<div class="percent-bar"></div>	        			
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
+	        </table>
+	    </div>
+        <div class="footer">
+			<input type="button" id="update_edges" class="ui-state-default" value="Update"/>
 		</div>
     </div>
     <div id="help_tab">

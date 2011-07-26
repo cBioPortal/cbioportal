@@ -67,11 +67,11 @@ function initNetworkUI(vis)
 	_initMainMenu();
 	
 	// adjust canvas border
-	//$("#vis_content #cytoscapeweb").addClass(
-	//		"ui-widget ui-widget-content ui-corner-all");
+	//$("#vis_content").addClass("vis-ready");
 	
 	// init tabs
 	_refreshGenesTab();
+	_refreshRelationsTab();
 	
 	// make UI visible
 	_setVisibility(true);
@@ -221,8 +221,8 @@ function _updateNodeInspectorContent(data)
 		data.label);
 	
 	// clean xref & data rows
-	$("#node_inspector_content .data .data_row").remove();
-	$("#node_inspector_content .xref .xref_row").remove();
+	$("#node_inspector_content .data .data-row").remove();
+	$("#node_inspector_content .xref .xref-row").remove();
 	
 	// for each data field, add a new row to inspector
 	
@@ -249,7 +249,7 @@ function _updateNodeInspectorContent(data)
 		else if (!field.startsWith("PERCENT"))
 		{
 			$("#node_inspector_content .node_data").append(
-				'<tr class="data_row"><td>' +
+				'<tr class="data-row"><td>' +
 				field + ': ' + data[field] + 
 				'</td></tr>');
 		}
@@ -278,7 +278,7 @@ function showEdgeInspector(evt)
 		data.id);
 	
 	// clean xref & data rows
-	$("#edge_inspector_content .data .data_row").remove();
+	$("#edge_inspector_content .data .data-row").remove();
 	
 	for (var field in data)
 	{
@@ -337,6 +337,38 @@ function updateGenesTab(evt)
 	}
 }
 
+/**
+ * Searches for genes by using the input provided within the search text field.
+ * Also, selects matching genes both from the canvas and gene list.
+ */
+function searchGene()
+{
+	var query = $("#genes_tab #search").val();
+	
+	var genes = _visibleGenes();
+	var matched = new Array();
+	var i;
+	
+	for (i=0; i < genes.length; i++)
+	{
+		if (genes[i].data.label.toLowerCase().indexOf(
+			query.toLowerCase()) != -1)
+		{
+			matched.push(genes[i].data.id);
+		}
+		else if (genes[i].data.id.toLowerCase().indexOf(
+			query.toLowerCase()) != -1)
+		{
+			matched.push(genes[i].data.id);
+		}
+	}
+	
+	// deselect all nodes
+	_vis.deselect("nodes");
+	
+	// select all matched nodes
+	_vis.select("nodes", matched);
+}
 
 
 /**
@@ -383,15 +415,23 @@ function updateEdges()
 {
 	// update filtered edge types
 	
-	_edgeTypeVisibility[IN_SAME_COMPONENT] = $("#in_same_component").is(":checked");
-	_edgeTypeVisibility[REACTS_WITH] = $("#reacts_with").is(":checked");
-	_edgeTypeVisibility[STATE_CHANGE] = $("#state_change").is(":checked");
+	_edgeTypeVisibility[IN_SAME_COMPONENT] =
+		$(".in-same-component input").is(":checked");
+	
+	_edgeTypeVisibility[REACTS_WITH] =
+		$(".reacts-with input").is(":checked");
+	
+	_edgeTypeVisibility[STATE_CHANGE] =
+		$(".state-change input").is(":checked");
 	
 	// remove current edge filters
 	_vis.removeFilter("edges");
 	
 	// filter selected types
 	_vis.filter("edges", edgeVisibility, true);
+	
+	// visualization changed, perform layout if necessary
+	_visChanged();
 }
 
 /**
@@ -501,6 +541,9 @@ function visibility(element)
 	return true;
 }
 
+/**
+ * Performs layout if auto layout flag is set. 
+ */
 function _visChanged()
 {
 	if (_autoLayout)
@@ -642,7 +685,7 @@ function _removeHighlights()
 function _addDataRow(type, label, value)
 {
 	$("#" + type + "_inspector_content .data").append(
-		'<tr class="data_row"><td>' +
+		'<tr class="data-row"><td>' +
 		label + ': ' + value + 
 		'</td></tr>');
 }
@@ -657,7 +700,7 @@ function _addDataRow(type, label, value)
 function _addXrefRow(type, href, label)
 {
 	$("#" + type + "_inspector_content .xref").append(
-		'<tr class="xref_row"><td>' +
+		'<tr class="xref-row"><td>' +
 		'<a href="' + href + '" target="_blank">' +
 		label + '</a>' + 
 		'</td></tr>');
@@ -958,8 +1001,10 @@ function _refreshGenesTab()
 	$("#genes_tab select").remove();
 	
 	// set size of the list
-	$("#genes_tab").append('<select multiple size="' + 
-			GENES_LIST_SIZE + '"></select>');
+	//$("#genes_tab").append('<select multiple size="' + 
+	//		GENES_LIST_SIZE + '"></select>');
+	
+	$("#genes_tab").append('<select multiple></select>');
 	
 	// add new content
 	
@@ -968,9 +1013,9 @@ function _refreshGenesTab()
 		var shortId = _shortId(geneList[i].data.id);
 		var classContent;
 		
-		if (geneList[i].data["IN_QUERY"])
+		if (geneList[i].data["IN_QUERY"] == "true")
 		{
-			classContent = 'class="in_query" ';
+			classContent = 'class="in-query" ';
 		}
 		else
 		{
@@ -988,6 +1033,65 @@ function _refreshGenesTab()
 		$("#genes_tab #" + shortId).select(updateSelectedGenes);
 		$("#genes_tab #" + shortId).dblclick(showGeneDetails);
 	}
+}
+
+/**
+ * Refreshes the content of the relations tab, by calculating percentages for
+ * each edge type.
+ */
+function _refreshRelationsTab()
+{
+	var edges = _vis.edges();
+
+	// initialize percentages of each edge type
+	var percentages = new Array();
+	
+	percentages[IN_SAME_COMPONENT] = 0;
+	percentages[REACTS_WITH] = 0;
+	percentages[STATE_CHANGE] = 0;
+	
+	// for each edge increment count of the correct edge type 
+	for (var i=0; i < edges.length; i++)
+	{
+		percentages[edges[i].data.type] += 1;
+	}
+	
+	// calculate percentages and add content to the tab 
+	
+	var percent;
+	
+	percent = (percentages[IN_SAME_COMPONENT] * 100 / edges.length);
+	
+	$("#relations_tab .in-same-component .percent-bar").css(
+		"width", (parseInt(percent * 0.85) + 1) + "%");
+	
+	$("#relations_tab .in-same-component .percent-bar").css(
+		"background-color", "#C3844C");
+	
+	$("#relations_tab .in-same-component .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[REACTS_WITH] * 100 / edges.length);
+	
+	$("#relations_tab .reacts-with .percent-bar").css(
+		"width", (parseInt(percent * 0.85) + 1) + "%");
+	
+	$("#relations_tab .reacts-with .percent-bar").css(
+		"background-color", "#6261FC");
+	
+	$("#relations_tab .reacts-with .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[STATE_CHANGE] * 100 / edges.length);
+	
+	$("#relations_tab .state-change .percent-bar").css(
+		"width", (parseInt(percent * 0.85) + 1) + "%");
+		
+	$("#relations_tab .state-change .percent-bar").css(
+		"background-color", "#68BBC1");
+	
+	$("#relations_tab .state-change .percent-value").text(
+		percent.toFixed(1) + "%")
 }
 
 
@@ -1022,8 +1126,11 @@ function _initControlFunctions()
 	
 	$("#save_layout_settings").click(saveSettings);
 	$("#default_layout_settings").click(defaultSettings);
+	
+	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelectedGenes);
+	
 	$("#update_edges").click(updateEdges);
 	
 	// add listener for double click action
@@ -1118,7 +1225,22 @@ function _visibleGenes()
     	}
     }
     
+    // sort genes by label (alphabetically)
+    genes.sort(_geneSort);
+    
     return genes;
+}
+
+/**
+ * Comparison function to sort genes alphabetically.
+ * 
+ * @param node1	node to compare to node2
+ * @param node2 node to compare to node1
+ * @return 		true if node1 is alphabetically greater than node2
+ */
+function _geneSort(node1, node2)
+{
+	return (node1.data.label > node2.data.label);
 }
 
 /**

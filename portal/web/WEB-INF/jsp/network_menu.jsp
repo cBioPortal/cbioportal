@@ -50,7 +50,7 @@
 	    		</li>
 	    		<li>
 	    			<a id="show_profile_data" onclick="handleMenuEvent('show_profile_data')">
-	    				Show Profile Data
+	    				Always Show Profile Data
 	    			</a>
 	    		</li>
 	    		<li>

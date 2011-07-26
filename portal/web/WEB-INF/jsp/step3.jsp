@@ -1,5 +1,4 @@
 <%@ page import="org.mskcc.portal.model.CaseSet" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 
 
 <%

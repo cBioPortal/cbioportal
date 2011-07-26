@@ -73,13 +73,6 @@
 </script>
 </head>
 
-<%
-    Boolean isIndexPage = (Boolean) request.getAttribute("index.jsp");
-    if (isIndexPage != null) { %>
-        <body onload="updateCaseList()">                
-    <% } else { %>
-        <body>
-    <% } %>
 <center>
 <div id="page_wrapper">
 <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">

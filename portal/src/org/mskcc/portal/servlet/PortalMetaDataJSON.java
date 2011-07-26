@@ -23,9 +23,12 @@ import java.util.*;
 import java.rmi.RemoteException;
 
 /**
- * This Servlet Returns a JSON Representation of all Cancer Studies.
+ * This Servlet Returns a JSON Representation of all Cancer Studies and all
+ * Gene Sets within the Portal.
+ *
+ * @author Ethan Cerami.
  */
-public class CancerStudiesJSON extends HttpServlet {
+public class PortalMetaDataJSON extends HttpServlet {
 
     /**
      * Handles HTTP GET Request.
@@ -45,6 +48,8 @@ public class CancerStudiesJSON extends HttpServlet {
 
         //  Get all Genomic Profiles and Case Sets for each Cancer Study
         Map rootMap = new LinkedHashMap();
+        Map cancerStudyMap = new LinkedHashMap();
+        rootMap.put("cancer_studies", cancerStudyMap);
         for (CancerType cancerStudy:  cancerStudiesList) {
             ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets
                     (cancerStudy.getCancerTypeId(), xdebug);
@@ -75,8 +80,21 @@ public class CancerStudiesJSON extends HttpServlet {
             jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
             jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
             jsonCancerStudySubMap.put("case_sets", jsonCaseList);
-            rootMap.put(cancerStudy.getCancerTypeId(), jsonCancerStudySubMap);
+            cancerStudyMap.put(cancerStudy.getCancerTypeId(), jsonCancerStudySubMap);
         }
+
+        //  Get all Gene Sets
+        GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
+        Map jsonGeneSetMap = new LinkedHashMap();
+        rootMap.put("gene_sets", jsonGeneSetMap);
+        ArrayList <GeneSet> geneSetList = geneSetUtil.getGeneSetList();
+        for (GeneSet geneSet:  geneSetList) {
+            Map geneSetMap = new LinkedHashMap();
+            geneSetMap.put("name", geneSet.getName());
+            geneSetMap.put("gene_list", geneSet.getGeneList());
+            jsonGeneSetMap.put(geneSet.getId(), geneSetMap);
+        }
+
         httpServletResponse.setContentType("application/json");
         String jsonText = JSONValue.toJSONString(rootMap);
         PrintWriter writer = httpServletResponse.getWriter();

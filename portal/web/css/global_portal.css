@@ -447,12 +447,6 @@ table td {
   color:black;
 }
 
-#cancer_type_desc p{
-    font-size: 12px !important;
-    margin-left: 45px;
-    margin-right: 20px;
-}
-
 blockquote {
     width: 600px;
 }
@@ -821,16 +815,6 @@ table {
   height:120px;
 }
 
-.main_panel {
-    border-top: 5px solid #DDDDDD;
-    border-left: 1px solid #DDDDDD;
-    border-right: 1px solid #DDDDDD;
-    border-bottom: 1px solid #DDDDDD;
-    padding:10px;
-    margin-top:3px;
-    padding-top:0px;
-}
-
 #header td.navigation {
     position:relative;
     font: 14px verdana, arial, helvetica, sans-serif;
@@ -884,13 +868,6 @@ table {
     background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #8CBADC 100%); /* firefox */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#8CBADC)); /* webkit */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#8CBADC',GradientType=0 ); /* ie */
-}
-
-.step {
-  font-size:14px;
-  font-weight:bold;
-  margin-right:5px;
-  color:#1974b8;
 }
 
 .welcome {
@@ -1066,4 +1043,73 @@ color:white;
 .accordion_ajax {
     padding-top:5px;
     padding-left:15px;
+}
+
+/*********************************************************************
+* Styles Required for Dynamic Query Sections
+*/
+
+/* Main Query Panel */
+.main_query_panel {
+    border-top: 1px solid #DDDDDD;
+    border-left: 1px solid #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
+    padding:10px;
+    margin-top:3px;
+    padding-top:0px;
+}
+
+/* Step Section */
+.query_step_section {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Step Header */
+.step_header {
+  font-size:14px;
+  font-weight:bold;
+  margin-right:5px;
+  color:#1974b8;
+}
+
+/* Cancer Study Description */
+#cancer_study_desc p{
+    font-size: 11px !important;
+    margin-left: 25px;
+    margin-right: 20px;
+    color:black;
+}
+
+/* Genomic Profiles Div */
+#genomic_profiles {
+  padding-top:10px;
+  padding-bottom:5px;
+  font-size: 11px !important;
+  color:black;
+}
+
+/*  Genomic Profiles Input Box */
+#genomic_profiles input{
+    margin-left: 25px;
+}
+
+/* This is the gene_list input text area */
+#gene_list {
+  background-color:#eeeeee;
+}
+
+/* This refers to a subgroup of profiles that all share the same alteration type,
+   e.g. a group of expression profiles. */
+.genomic_profiles_subgroup{
+   margin-left:20px;
+   margin-top:2px;
+   margin-bottom:5px;
+   font-size:90%;
 }

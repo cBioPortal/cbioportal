@@ -51,7 +51,7 @@
     if (geneSetChoice == null) {
         geneSetChoice = "custom";
     }
-    GeneSetUtil geneSetUtil = new GeneSetUtil();
+    GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
     ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
     Set<String> warningUnion = (Set<String>) request.getAttribute(QueryBuilder.WARNING_UNION);
 

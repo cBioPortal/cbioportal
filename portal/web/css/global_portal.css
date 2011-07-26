@@ -1084,15 +1084,32 @@ color:white;
     font-size: 11px !important;
     margin-left: 25px;
     margin-right: 20px;
+    color:black;
 }
 
 /* Genomic Profiles Div */
 #genomic_profiles {
   padding-top:10px;
   padding-bottom:5px;
+  font-size: 11px !important;
+  color:black;
 }
 
 /*  Genomic Profiles Input Box */
 #genomic_profiles input{
     margin-left: 25px;
+}
+
+/* This is the gene_list input text area */
+#gene_list {
+  background-color:#eeeeee;
+}
+
+/* This refers to a subgroup of profiles that all share the same alteration type,
+   e.g. a group of expression profiles. */
+.genomic_profiles_subgroup{
+   margin-left:20px;
+   margin-top:2px;
+   margin-bottom:5px;
+   font-size:90%;
 }

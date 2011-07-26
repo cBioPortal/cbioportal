@@ -18,6 +18,6 @@
 <textarea rows='5' cols='80' id='gene_list' name='<%= QueryBuilder.GENE_LIST %>'>
 </textarea>
 
-    <p>Or Select from Example Gene Sets:</p>
+    <p><span style="font-size:80%">Or Select from Example Gene Sets:</span></p>
     <p><select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>
 </div>

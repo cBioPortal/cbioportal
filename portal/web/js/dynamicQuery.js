@@ -5,20 +5,23 @@
 * This code performs the following functions:
 *
 * 1.  Connects to the portal via AJAX and downloads a JSON document containing information
-*     regarding all cancer studies stored in the CGDS.
-* 2.  Creates event handlers for when user selects a cancer study.  This triggers updates
+*     regarding all cancer studies and gene sets stored in the CGDS.
+* 2.  Creates event handler for when user selects a cancer study.  This triggers updates
       in the genomic profiles and case lists displayed.
+* 3.  Creates event handler for when user selects a gene set.  This triggers updates to the
+      gene set text area.
 ******************************************************************************************/
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
+
     //  Get Portal JSON Meta Data via JQuery AJAX
     jQuery.getJSON("portal_meta_data.json",function(json){
         //  Store JSON Data in global variable for later use
         window.metaDataJson = json;
 
-        //  Add Cancer Studies to current page
-        addCancerStudiesToPage();
+        //  Add Meta Data to current page
+        addMetaDataToPage();
     });  //  end getJSON function
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
@@ -29,6 +32,11 @@ $(document).ready(function(){
     // Set up Event Handler for User Selecting a Case Set
     $("#select_case_set").change(function() {
         caseSetSelected();
+    });
+
+    // Set up Event Handler for User Selecting a Get Set
+    $("#select_gene_set").change(function() {
+        geneSetSelected();
     });
 
     //  Set up Event Handler for View/Hide JSON Debug Information
@@ -52,14 +60,11 @@ function cancerStudySelected() {
     //  First, clear all existing options
     $("#genomic_profiles").html("");
 
-    //  Then iterate through all genomic profiles
-    jQuery.each(cancer_study.genomic_profiles,function(key, genomic_profile) {
-        if (genomic_profile.show_in_analysis_tab == true
-                && genomic_profile.alteration_type != "MRNA_EXPRESSION") {
-            $("#genomic_profiles").append("<input type='checkbox' name='genetic_profile_ids' "
-                + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>");
-        }
-    }); //  end for each genomic profile loop
+    //  Add Genomic Profiles, in this order
+    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION", "Mutation");
+    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", "Mutation");
+    addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", "Copy Number");
+    addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", "mRNA Expression");
 
     //  Update the Case Set Pull-Down Menu
     //  First, clear all existing pull-down menus
@@ -96,9 +101,22 @@ function caseSetSelected() {
     }
 }
 
-//  Adds Cancer Studies to the Page.
+//  Triggered when a gene set has been selected, either by the user
+//  or programatically.
+function geneSetSelected() {
+    //  Get the selected ID from the pull-down menu
+    var geneSetId = $("#select_gene_set").val();
+
+    //  Get the gene set meta data from global JSON variable
+    var gene_set = window.metaDataJson.gene_sets[geneSetId];
+
+    //  Set the gene list text area
+    $("#gene_list").html(gene_set.gene_list);
+}
+
+//  Adds Meta Data to the Page.
 //  Tiggered at the end of successful AJAX/JSON request.
-function addCancerStudiesToPage() {
+function addMetaDataToPage() {
     //  Iterate through all cancer studies
     json = window.metaDataJson;
     jQuery.each(json.cancer_studies,function(key,cancer_study){
@@ -124,7 +142,7 @@ function addCancerStudiesToPage() {
         $("#cancer_results").append('</ul>');
     });  //  end 1st for each cancer study loop
 
-    //  Now set things...
+    //  Now set things up, based on currently selected cancer type
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter
         if (key == window.cancer_study_id_selected) {
@@ -132,4 +150,59 @@ function addCancerStudiesToPage() {
             cancerStudySelected();
         }
     });  //  end 2nd for each cancer study loop
+
+    //  Add Gene Sets to Pull-down Menu
+    jQuery.each(json.gene_sets,function(key,gene_set){
+        $("#select_gene_set").append("<option value='" + key + "'>"
+                + gene_set.name + "</option>");
+    });  //  end for each gene set loop
+}
+
+// Adds the specified genomic profiles to the page.
+// Code checks for three possibilities:
+// 1.  0 profiles of targetType --> show nothing
+// 2.  1 profile of targetType --> show as checkbox
+// 3.  >1 profiles of targetType --> show group checkbox plus radio buttons
+function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle) {
+    var numProfiles = 0;
+    var profileHtml = "";
+
+    //  First count how many profiles match the targetAltertion type
+    jQuery.each(genomic_profiles,function(key, genomic_profile) {
+        if (genomic_profile.show_in_analysis_tab == true
+                && genomic_profile.alteration_type == targetAlterationType) {
+            numProfiles++;
+        }
+    }); //  end for each genomic profile loop
+
+    if (numProfiles ==0) {
+        return;
+    } else if(numProfiles >1) {
+        //  If we have more than 1 profile, output group checkbox
+        profileHtml += "<input type='checkbox'>" + targetTitle + " data."
+            + " Select one of the profiles below:";
+        profileHtml += "<div class='genomic_profiles_subgroup'>";
+    }
+
+    //  First count how many profiles match the targetAltertion type
+    jQuery.each(genomic_profiles,function(key, genomic_profile) {
+        if (genomic_profile.show_in_analysis_tab == true
+                && genomic_profile.alteration_type == targetAlterationType) {
+            //  Branch depending on number of profiles
+            if (numProfiles == 1) {
+                profileHtml += "<input type='checkbox' name='genetic_profile_ids' "
+                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>";
+            } else if (numProfiles > 1) {
+                profileHtml += "<input type='radio' name='genetic_profile_ids' "
+                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>";
+            }
+        }
+    }); //  end for each genomic profile loop
+
+    if(numProfiles >1) {
+        //  If we have more than 1 profile, output the end div tag
+        profileHtml += "</div>";
+    }
+
+    $("#genomic_profiles").append(profileHtml);
 }

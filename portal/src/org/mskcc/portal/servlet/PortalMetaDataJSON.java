@@ -85,15 +85,14 @@ public class PortalMetaDataJSON extends HttpServlet {
 
         //  Get all Gene Sets
         GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
-        JSONArray jsonGeneSetList = new JSONArray();
-        rootMap.put("gene_sets", jsonGeneSetList);
+        Map jsonGeneSetMap = new LinkedHashMap();
+        rootMap.put("gene_sets", jsonGeneSetMap);
         ArrayList <GeneSet> geneSetList = geneSetUtil.getGeneSetList();
         for (GeneSet geneSet:  geneSetList) {
             Map geneSetMap = new LinkedHashMap();
-            geneSetMap.put("id", geneSet.getId());
             geneSetMap.put("name", geneSet.getName());
             geneSetMap.put("gene_list", geneSet.getGeneList());
-            jsonGeneSetList.add(geneSetMap);
+            jsonGeneSetMap.put(geneSet.getId(), geneSetMap);
         }
 
         httpServletResponse.setContentType("application/json");

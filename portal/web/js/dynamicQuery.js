@@ -15,6 +15,8 @@
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
+    setDefaultQuery();
+
     //  Get Portal JSON Meta Data via JQuery AJAX
     jQuery.getJSON("portal_meta_data.json",function(json){
         //  Store JSON Data in global variable for later use
@@ -23,6 +25,7 @@ $(document).ready(function(){
         //  Add Meta Data to current page
         addMetaDataToPage();
     });  //  end getJSON function
+
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_cancer_type").change(function() {
@@ -44,12 +47,41 @@ $(document).ready(function(){
       event.preventDefault();
       $('#cancer_results').toggle();
     });
+
+    //  Set up an Event Handler to intercept form submission
+    /*$("#main_form").submit(function(event){
+       if (window.cancer_study_id_selected = 'all'){
+           //event.preventDefault();
+           $("#main_form").attr("action","cross_cancer.do");
+           return true;
+       }
+    });*/
+
 });  //  end document ready function
+
+
+//  When the page is first loaded, the default query will be a cross-cancer type
+//  search in which the user will enter ONLY a gene list
+function setDefaultQuery() {
+
+    //  Append to Cancer Study Pull-Down Menu
+    $("#select_cancer_type").append("<option value='all'>All Cancer Studies</option>");
+    window.cancer_study_id_selected = 'all';
+
+    $('#step2').hide();
+    $('#step3').hide();
+    $('#step5').hide();
+}
 
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
 function cancerStudySelected() {
     var cancerStudyId = $("#select_cancer_type").val();
+    if (cancerStudyId=='all'){
+        setDefaultQuery();
+        return;
+    }
+
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     //  Update Cancer Study Description
@@ -85,6 +117,12 @@ function cancerStudySelected() {
 
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+
+    if(!$("#step2").is(":visible")){
+        $("#step2").show();
+        $("#step3").show();
+        $("#step5").show();
+    }
 }
 
 //  Triggered when a case set has been selected, either by the user
@@ -117,8 +155,11 @@ function geneSetSelected() {
 //  Adds Meta Data to the Page.
 //  Tiggered at the end of successful AJAX/JSON request.
 function addMetaDataToPage() {
-    //  Iterate through all cancer studies
+
     json = window.metaDataJson;
+
+
+    //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
 
@@ -154,8 +195,9 @@ function addMetaDataToPage() {
         if (key == window.cancer_study_id_selected) {
             $("#select_cancer_type").val(key);
             cancerStudySelected();
-        }
+        } 
     });  //  end 2nd for each cancer study loop
+
 
     //   Set things up, based on currently selected case set id
     if (window.case_set_id_selected != null && window.case_set_id_selected != "") {

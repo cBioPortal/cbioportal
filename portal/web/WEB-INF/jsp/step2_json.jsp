@@ -3,7 +3,7 @@
     String step2ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP2_ERROR_MSG);
 %>
 
-<div class="query_step_section">
+<div class="query_step_section" id="step2">
     <span class="step_header">Select Genomic Profiles:</span>
 
 <%

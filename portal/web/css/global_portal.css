@@ -1113,3 +1113,8 @@ color:white;
    margin-bottom:5px;
    font-size:90%;
 }
+
+/* Do not allow user to resize the text area */
+textarea {
+    resize: none;
+}

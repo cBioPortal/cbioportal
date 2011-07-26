@@ -200,34 +200,34 @@
                         }
                     }
 
-                    out.println ("<li><a href='#summary'>Summary</a></li>");
+                    out.println ("<li><a href='#summary' class='result-tab'>Summary</a></li>");
 
                     if (QueryBuilder.INCLUDE_NETWORKS) {
-                        out.println ("<li><a href='#network'>Network</a></li>");
+                        out.println ("<li><a href='#network' class='result-tab'>Network</a></li>");
                     }
 
-                    out.println ("<li><a href='#plots'>Plots</a></li>");
+                    out.println ("<li><a href='#plots' class='result-tab'>Plots</a></li>");
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival'>Survival</a></li>");
+                        out.println ("<li><a href='#survival' class='result-tab'>Survival</a></li>");
                     }
 
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                        out.println ("<li><a href='#gene_correlation'>Mutual Exclusivity</a></li>");
+                        out.println ("<li><a href='#gene_correlation' class='result-tab'>Mutual Exclusivity</a></li>");
                     }
 
                     if (showMutTab){
-                        out.println ("<li><a href='#mutation_details'>Mutation Details</a></li>");
+                        out.println ("<li><a href='#mutation_details' class='result-tab'>Mutation Details</a></li>");
                     }
 
-                    out.println ("<li><a href='#event_map'>Event Map</a></li>");
+                    out.println ("<li><a href='#event_map' class='result-tab'>Event Map</a></li>");
                     %>
 
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
-                    out.println ("<li><a href='#data_download'>Data Download</a></li>");
-                    out.println ("<li><a href='#bookmark_email'>Bookmark/Email</a></li>");
+                    out.println ("<li><a href='#data_download' class='result-tab'>Data Download</a></li>");
+                    out.println ("<li><a href='#bookmark_email' class='result-tab'>Bookmark/Email</a></li>");
                     out.println ("<!--<li><a href='index.do'>Create new query</a> -->");
 
                     out.println ("</ul>");
@@ -312,6 +312,16 @@
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 </form>
 
+<script type="text/javascript">
+    // to fix problem of flash repainting
+    $("a.result-tab").click(function(){
+        if($(this).attr("href")=="#network") {
+            $("div.section#network").removeAttr('style');
+        } else {
+            $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+        }
+    });
+</script>
 
 </body>
 </html>

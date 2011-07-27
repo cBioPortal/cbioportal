@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.net.URLEncoder;
 
 /**
  * Central Servlet for Summarizing One Cancer in a Cross-Cancer Summary.
@@ -26,6 +27,7 @@ import java.util.Set;
  */
 public class CrossCancerSummaryServlet extends HttpServlet {
     public static final String DEFAULT_GENETIC_PROFILES = "DEFAULT_GENETIC_PROFILES";
+    public static final String CANCER_STUDY_DETAILS_URL = "CANCER_STUDY_DETAILS_URL";
 
     private ServletXssUtil servletXssUtil;
 
@@ -99,12 +101,56 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
         httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
+        //  Create URL for Cancer Study Details
+        String cancerStudyDetailsUrl = createCancerStudyDetailsUrl(cancerStudyId,
+                defaultGeneticProfileSet, defaultCaseSet, geneList);
+        httpServletRequest.setAttribute(CANCER_STUDY_DETAILS_URL, cancerStudyDetailsUrl);
+
         getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
                 httpServletRequest,
                 httpServletResponse, xdebug);
         RequestDispatcher dispatcher =
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
         dispatcher.forward(httpServletRequest, httpServletResponse);
+    }
+
+    /**
+     * Creates URL for Cancer Study Details.
+     *
+     * @param cancerStudyId             Cancer Study ID.
+     * @param defaultGeneticProfileSet  Default Genetic Profile Set.
+     * @param defaultCaseSet            Default Case Set.
+     * @param geneList                  Gene List from User.
+     */
+    private String createCancerStudyDetailsUrl(String cancerStudyId,
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet, CaseSet defaultCaseSet,
+            String geneList) {
+        String AMP = "&";
+
+        //  Create the URL for Cancer Study Details
+        StringBuffer detailsUrl = new StringBuffer(QueryBuilder.INDEX_PAGE + "?");
+
+        //  Append Cancer Study ID
+        detailsUrl.append(QueryBuilder.CANCER_STUDY_ID + "=" + URLEncoder.encode(cancerStudyId));
+        
+        //  Append all Genomic Profiles
+        for (GeneticProfile geneticProfile:  defaultGeneticProfileSet.values()) {
+            detailsUrl.append(AMP + QueryBuilder.GENETIC_PROFILE_IDS + "="
+                    + URLEncoder.encode(geneticProfile.getId()));
+        }
+
+        //  Append Case Set ID
+        detailsUrl.append(AMP + QueryBuilder.CASE_SET_ID + "="
+                + URLEncoder.encode(defaultCaseSet.getId()));
+
+        //  Append Genes
+        detailsUrl.append(AMP + QueryBuilder.GENE_LIST + "="
+                + URLEncoder.encode(geneList));
+
+        //  Append action parameters
+        detailsUrl.append("&action=Submit&tab_index=tab_visualize");
+
+        return detailsUrl.toString();
     }
 
     /**

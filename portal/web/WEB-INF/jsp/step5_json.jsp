@@ -6,9 +6,9 @@
     <p/>
     <div id="optional_args">
 <%
-    String computeLogOddsRatio = request.getParameter(org.mskcc.portal.servlet.QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
+    String computeLogOddsRatioLocal = request.getParameter(org.mskcc.portal.servlet.QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
     String logOddsOptionChecked = "";
-    if (computeLogOddsRatio != null) {
+    if (computeLogOddsRatioLocal != null) {
         logOddsOptionChecked = " checked ";
     }
 %>

@@ -118,7 +118,7 @@
                  out.println ("<br></div></p>");
                  out.println ("<p><small><strong>");
 
-                for (CancerType cancerType: cancerTypes){
+                 for (CancerType cancerType: cancerTypes){
                     if (cancerTypeId.equals(cancerType.getCancerTypeId())){
                         smry = smry + cancerType.getCancerName();
                     }
@@ -167,6 +167,15 @@
                 out.println ("<b>Please go back and try again.</b>");
                 out.println ("</div>");
             } else { %>
+
+             <a href="" id="toggle_query_form">
+            <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>Modify Query</a>
+            <p/>
+
+            <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+            <%@ include file="query_form.jsp" %>
+            </div>
 
             <div id="tabs">
                 <ul>

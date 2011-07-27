@@ -43,9 +43,19 @@ $(document).ready(function(){
     });
 
     //  Set up Event Handler for View/Hide JSON Debug Information
-    $('#json_cancer_studies').click(function(event) {
+    $("#json_cancer_studies").click(function(event) {
       event.preventDefault();
       $('#cancer_results').toggle();
+    });
+
+    //  Set up Event Handler for View/Hide Query Form, when it is on the results page
+    $("#toggle_query_form").click(function(event) {
+      event.preventDefault();
+      $('#query_form_on_results_page').toggle();
+
+      //  Toggle the icons
+      $(".query-toggle").toggle();
+      console.log("Toggle Query Form");
     });
 
     //  Set up an Event Handler to intercept form submission

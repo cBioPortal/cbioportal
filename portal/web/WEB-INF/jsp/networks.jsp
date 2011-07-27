@@ -27,7 +27,8 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#fefefe" //#F3F7FE
+                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
+						hoverGlowOpacity: 1.0
                     },
                     nodes: {
 						shape: {

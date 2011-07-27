@@ -16,8 +16,7 @@ public class TestGetCaseList extends TestCase {
 
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "testData/cancers.txt" };
-      ImportTypesOfCancers.main(args);
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
 
       // corresponds to cancer_study_identifier: gbm in
       // testData/case_list_test.txt
@@ -29,7 +28,7 @@ public class TestGetCaseList extends TestCase {
       File file = new File("testData/case_list_test.txt");
 
       ImportCaseList.importCaseList(file, pMonitor);
-      String[] caseList = GetCaseLists.getCaseLists(1).split("\n");
+      String[] caseList = GetCaseLists.getCaseLists("GBM").split("\n");
       assertTrue(caseList[1]
                .startsWith("gbm_91\tGBM 91\tGBM 91 Case List Description\t1\tTCGA-02-0001 TCGA-02-0003 TCGA-02-0006"));
    }

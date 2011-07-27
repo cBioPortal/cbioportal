@@ -10,9 +10,6 @@ import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.scripts.ImportProfileData;
-
-import static java.lang.System.out;
 
 /**
  * Prepare a GeneticProfile for having its data loaded.
@@ -113,7 +110,7 @@ public class GeneticProfileReader {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
-      CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByIdentifier(cancerStudyIdentifier);
+      CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
       if (cancerStudy == null) {
          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier "
                   + cancerStudyIdentifier + " not found in dbms.");

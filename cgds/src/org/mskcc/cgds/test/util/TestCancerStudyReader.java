@@ -10,19 +10,19 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.util.CancerStudyReader;
+import org.mskcc.cgds.util.ProgressMonitor;
 
 public class TestCancerStudyReader extends TestCase {
 
    public void testCancerStudyReader() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "testData/cancers.txt" };
-      ImportTypesOfCancers.main( args );
-      
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
+
       File file = new File("testData/cancer_study.txt");
       CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
       
-      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByIdentifier( "test_brca" ); 
+      CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
       assertEquals(expectedCancerStudy, cancerStudy);
       
       file = new File("testData/cancer_study_bad.txt");

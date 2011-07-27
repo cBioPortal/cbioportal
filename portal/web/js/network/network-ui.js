@@ -740,7 +740,7 @@ function _resetFlags()
 	_edgeLabelsVisible = false;
 	_panZoomVisible = true;
 	_linksMerged = true;
-	_profileDataVisible = true;
+	_profileDataVisible = false;
 	_selectFromTab = false;
 }
 
@@ -1409,10 +1409,11 @@ function _toggleAutoLayout()
  */
 function _toggleProfileData()
 {
-	// TODO update visibility of profile data
-	
-	_profileDataVisible = !_profileDataVisible;
-	
+    // toggle value and pass to CW
+
+    _profileDataVisible = !_profileDataVisible;
+    _vis.profileDataAlwaysShown(_profileDataVisible);
+
 	// update check icon of the corresponding menu item
 	
 	var item = $("#show_profile_data");

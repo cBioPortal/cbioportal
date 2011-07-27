@@ -1,6 +1,6 @@
 /*
- * This clas is used as a special renderer for CBio Nodes where details about a node
- * can be displayed using 3 different disc parts around the node.
+ * This clas is used as a special renderer for CBio nodes where details about a node
+ * can be displayed using 3 different disc segments around the node.
  **/
 package org.cytoscapeweb.view.render
 {
@@ -28,11 +28,23 @@ package org.cytoscapeweb.view.render
 		
 		private var _imgCache:ImageCache = ImageCache.instance;
 		
+		private var _detailFlag:Boolean = false;
+		
 		public static function get instance() : CBioNodeRenderer
 		{
 			return _instance;
 		}
-		
+
+		public function get detailFlag() : Boolean
+		{
+			return this._detailFlag;
+		}
+
+		public function set detailFlag(value:Boolean) : void
+		{
+			this._detailFlag = value;
+		}
+
 		public function CBioNodeRenderer(defaultSize:Number=6)
 		{
 			super(defaultSize);
@@ -65,7 +77,7 @@ package org.cytoscapeweb.view.render
 			}
 		}
 		
-		// Drwas the corresponding sahpe on given sprite
+		// Draws the corresponding shape on given sprite
 		private function drawShape(d:DataSprite, shape:String, size:Number):void {
 			var g:Graphics = d.graphics;
 			
@@ -90,7 +102,7 @@ package org.cytoscapeweb.view.render
 					break;
 				case NodeShapes.ELLIPSE:
 				default:
-					if( Boolean(d.props.detailFlag))
+					if (this._detailFlag || Boolean(d.props.detailFlag))
 					{
 						// Draws the disc containing details
 						drawDetails(d, size/2);
@@ -108,10 +120,13 @@ package org.cytoscapeweb.view.render
 					g.beginFill(getNodeColorRW(total), 50);					
 					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
 					
-					// Top side of the Node is colored according tı the IN_QUERY property
-					if(d.data.IN_QUERY != null)
+					// Top side of the Node is colored according to the IN_QUERY property
+
+					var inQuery:String = d.data.IN_QUERY;
+					
+					if(inQuery == "false")
 					{
-						g.beginFill(0xFFFFFF, 50);
+						g.beginFill(0xDCDCDC, 50);
 					}
 					else
 					{
@@ -350,7 +365,7 @@ package org.cytoscapeweb.view.render
 			g.lineTo(startPoint.x, startPoint.y);
 		}
 		
-		// Returns the color betwwen Red and White using the given value as a ratio
+		// Returns the color between Red and White using the given value as a ratio
 		private function getNodeColorRW(value:int):Number
 		{
 			var high:int = 100;
@@ -392,6 +407,5 @@ package org.cytoscapeweb.view.render
 		private function rgb2hex(r:int, g:int, b:int):Number {
 			return(r<<16 | g<<8 | b);
 		}
-		
 	}
 }

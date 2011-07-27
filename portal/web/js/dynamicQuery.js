@@ -49,13 +49,9 @@ $(document).ready(function(){
     });
 
     //  Set up an Event Handler to intercept form submission
-    /*$("#main_form").submit(function(event){
-       if (window.cancer_study_id_selected = 'all'){
-           //event.preventDefault();
-           $("#main_form").attr("action","cross_cancer.do");
-           return true;
-       }
-    });*/
+    $("#main_form").submit(function() {
+       chooseAction();
+    });
 
 });  //  end document ready function
 
@@ -66,11 +62,23 @@ function setDefaultQuery() {
 
     //  Append to Cancer Study Pull-Down Menu
     $("#select_cancer_type").append("<option value='all'>All Cancer Studies</option>");
-    window.cancer_study_id_selected = 'all';
 
+    //  Set 'All Cancer Studies' as default choice
+    window.cancer_study_id_selected = 'all';
+    $("#select_cancer_type").val('all');
+
+    //  Hide form fields not used in cross-study queries
     $('#step2').hide();
     $('#step3').hide();
     $('#step5').hide();
+}
+
+function chooseAction() {
+    if ($("#select_cancer_type").val() == 'all'){
+       $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+    } else {
+       $("#main_form").get(0).setAttribute('action','index.do');
+    }
 }
 
 //  Triggered when a cancer study has been selected, either by the user
@@ -118,6 +126,10 @@ function cancerStudySelected() {
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
 
+    //  Set up Tip-Tip Event Handler for Genomic Profiles help
+    $(".profile_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+
+    //  Show any hidden form fields
     if(!$("#step2").is(":visible")){
         $("#step2").show();
         $("#step3").show();
@@ -244,10 +256,12 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
             //  Branch depending on number of profiles
             if (numProfiles == 1) {
                 profileHtml += "<input type='checkbox' name='genetic_profile_ids' "
-                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>";
+                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
+                    + "  <img class='profile_help' src='images/help.png' title='" + genomic_profile.description + "'><br/>";
             } else if (numProfiles > 1) {
                 profileHtml += "<input type='radio' name='genetic_profile_ids' "
-                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input><br/>";
+                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
+                    + "  <img class='profile_help' src='images/help.png' title='" + genomic_profile.description + "'><br/>";
             }
         }
     }); //  end for each genomic profile loop

@@ -15,8 +15,6 @@
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
-    setDefaultQuery();
-
     //  Get Portal JSON Meta Data via JQuery AJAX
     jQuery.getJSON("portal_meta_data.json",function(json){
         //  Store JSON Data in global variable for later use
@@ -70,17 +68,12 @@ $(document).ready(function(){
 //  search in which the user will enter ONLY a gene list
 function setDefaultQuery() {
 
-    //  Append to Cancer Study Pull-Down Menu
-    $("#select_cancer_type").append("<option value='all'>All Cancer Studies</option>");
-
-    //  Set 'All Cancer Studies' as default choice
-    window.cancer_study_id_selected = 'all';
-    $("#select_cancer_type").val('all');
-
     //  Hide form fields not used in cross-study queries
-    $('#step2').hide();
-    $('#step3').hide();
-    $('#step5').hide();
+    if ($("#select_cancer_type").val() == 'all'){
+        $('#step2').hide();
+        $('#step3').hide();
+        $('#step5').hide();
+    }
 }
 
 function chooseAction() {
@@ -180,7 +173,6 @@ function addMetaDataToPage() {
 
     json = window.metaDataJson;
 
-
     //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
@@ -220,7 +212,6 @@ function addMetaDataToPage() {
         } 
     });  //  end 2nd for each cancer study loop
 
-
     //   Set things up, based on currently selected case set id
     if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
         $("#select_case_set").val(window.case_set_id_selected);
@@ -231,6 +222,8 @@ function addMetaDataToPage() {
     if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
         $("#select_gene_set").val(window.gene_set_id_selected);    
     }
+
+    setDefaultQuery();
 }
 
 // Adds the specified genomic profiles to the page.

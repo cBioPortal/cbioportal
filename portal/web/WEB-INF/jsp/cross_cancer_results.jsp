@@ -50,7 +50,7 @@ $(document).ready(function(){
 
 <div class="ui-state-highlight ui-corner-all">
     <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em; margin-left: .3em"></span>
-    Results are available for <strong><%= cancerTypes.size()%>
+    Results are available for <strong><%= cancerTypes.size() - 1%>
     cancer studies</strong>.  Click each cancer study below to view a summary of results.
     </p>
 </div>
@@ -83,18 +83,20 @@ jQuery(document).ready(function(){
 <div id="accordion">
     <%
         for (CancerType cancerType:  cancerTypes) {
-            out.println ("<div class='accordion_panel'>");
-            out.println ("<h1 class='head'>");
-            //  output triangle icons
-            //  the float:left style is required;  otherwise icons appear on their own line.
-            out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
-            out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
-                + " style='float:left; display:none;'></span>");
-            out.println (cancerType.getCancerName() + "</h1>");
-            out.println ("<div class='accordion_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
-            out.println ("<img src='images/ajax-loader2.gif'>");
-            out.println ("</div>");
-            out.println ("</div>");
+            if (!cancerType.getCancerTypeId().equals("all")) {
+                out.println ("<div class='accordion_panel'>");
+                out.println ("<h1 class='head'>");
+                //  output triangle icons
+                //  the float:left style is required;  otherwise icons appear on their own line.
+                out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
+                out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
+                    + " style='float:left; display:none;'></span>");
+                out.println (cancerType.getCancerName() + "</h1>");
+                out.println ("<div class='accordion_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
+                out.println ("<img src='images/ajax-loader2.gif'>");
+                out.println ("</div>");
+                out.println ("</div>");
+            }
         }
     %>
 </div> <!-- end div accordion -->

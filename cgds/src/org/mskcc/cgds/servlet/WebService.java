@@ -44,6 +44,7 @@ import org.mskcc.cgds.web_api.WebApiUtil;
 public class WebService extends HttpServlet {
 
     public static final String CANCER_STUDY_ID = "cancer_study_id";
+    public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";
     public static final String GENE_LIST = "gene_list";
     public static final String CMD = "cmd";
@@ -149,7 +150,9 @@ public class WebService extends HttpServlet {
             getNetwork(httpServletRequest, writer);
             return;
          }
-         if (cmd.equals("getCancerStudies")) {
+
+         //  We support the new getCancerStudies plus the deprecated getCancerTypes command 
+         if (cmd.equals("getCancerStudies") || cmd.equals("getCancerTypes")) {
 
             // getCancerStudies requires special access control 
             // identify every study accessible to the user  
@@ -159,7 +162,7 @@ public class WebService extends HttpServlet {
 
          // TODO: CASES: REMOVE?
          // no cancer_study_id or no case_set_id or genetic_profile_id
-         if ( null == httpServletRequest.getParameter( WebService.CANCER_STUDY_ID ) && 
+         if ( null == getCancerStudyId(httpServletRequest) && 
                   null == httpServletRequest.getParameter( WebService.CASE_SET_ID ) && 
                   null == httpServletRequest.getParameter( WebService.GENETIC_PROFILE_ID ) &&
                   null == httpServletRequest.getParameter( WebService.CASE_LIST ) )  {
@@ -169,14 +172,14 @@ public class WebService extends HttpServlet {
             return;
          }            
 
-         HashSet<Integer> cancerStudyIDs = getCancerStudyIDs( httpServletRequest );
+         HashSet<String> cancerStudyIDs = getCancerStudyIDs( httpServletRequest );
          if( null == cancerStudyIDs ){
             outputError(writer, "Problem when identifying a cancer study for the request.");
             return;
          }
          // TODO: if cancerStudyID == CancerStudy.NO_SUCH_STUDY report an error with more info 
-         for( int cancerStudyID : cancerStudyIDs ){
-            if ( !DaoCancerStudy.doesCancerStudyExistByID(cancerStudyID) ) {
+         for(String cancerStudyID : cancerStudyIDs ){
+            if ( !DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyID) ) {
                outputError(writer, "The cancer study identified by the request (" + cancerStudyID +
                   ") is not in the dbms. Please reformulate request." );
                return;
@@ -184,8 +187,8 @@ public class WebService extends HttpServlet {
          }
          
          // check access control
-         for( int cancerStudyID : cancerStudyIDs ){
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyById(cancerStudyID);
+         for(String cancerStudyID : cancerStudyIDs ){
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);
             if ( !checkAccess( httpServletRequest, writer, cancerStudyID ) ) {
 
                // access denied
@@ -233,7 +236,6 @@ public class WebService extends HttpServlet {
          writer.close();
          Date stopTime = new Date();
          long timeElapsed = stopTime.getTime() - startTime.getTime();
-         System.out.println("Web API:  " + cmd + ":  " + timeElapsed + " ms.");
       }
     }
 
@@ -269,15 +271,16 @@ public class WebService extends HttpServlet {
       writer.print(out);
    }
    
-   private boolean checkAccess( HttpServletRequest httpServletRequest, PrintWriter writer, int studyId ) throws DaoException{
+   private boolean checkAccess( HttpServletRequest httpServletRequest, PrintWriter writer,
+           String stableStudyId ) throws DaoException{
       return AccessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
-               httpServletRequest.getParameter(SECRET_KEY), studyId);
+               httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
    }
    
     private void getMutationFrequency (HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException, ProtocolException {
 
-        String cancerStudyId = httpServletRequest.getParameter(CANCER_STUDY_ID);
+        String cancerStudyId = getCancerStudyId(httpServletRequest);
         if (cancerStudyId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
@@ -290,11 +293,11 @@ public class WebService extends HttpServlet {
     private void getGeneticProfiles(HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException {
 
-        String cancerStudyId = httpServletRequest.getParameter(CANCER_STUDY_ID);
-        if (cancerStudyId == null) {
+        String cancerStudyStableId = getCancerStudyId(httpServletRequest);
+        if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetGeneticProfiles.getGeneticProfiles( Integer.parseInt(cancerStudyId) );
+            String out = GetGeneticProfiles.getGeneticProfiles(cancerStudyStableId);
             writer.print(out);
         }
     }
@@ -302,11 +305,11 @@ public class WebService extends HttpServlet {
     private void getCaseLists(HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException {
 
-        String cancerStudyId = httpServletRequest.getParameter(CANCER_STUDY_ID);
-        if (cancerStudyId == null) {
+        String cancerStudyStableId = getCancerStudyId(httpServletRequest);
+        if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetCaseLists.getCaseLists( Integer.parseInt(cancerStudyId) );
+            String out = GetCaseLists.getCaseLists(cancerStudyStableId);
             writer.print(out);
         }
     }
@@ -441,8 +444,8 @@ public class WebService extends HttpServlet {
     
     private boolean goodCommand(PrintWriter writer, String cmd ){
        // check that command is correct
-       String[] commands = { "getTypesOfCancer", "getNetwork", "getCancerStudies", 
-                "getGeneticProfiles", "getProfileData", "getCaseLists", 
+       String[] commands = { "getTypesOfCancer", "getNetwork", "getCancerStudies",
+                "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists", 
                 "getClinicalData", "getMutationData", "getMutationFrequency" };
        for( String aCmd : commands ){
           if( aCmd.equals(cmd)){
@@ -466,25 +469,20 @@ public class WebService extends HttpServlet {
      * @throws DaoException
      * @throws ProtocolException 
      */
-    public static HashSet<Integer> getCancerStudyIDs( HttpServletRequest request ) 
+    public static HashSet<String> getCancerStudyIDs( HttpServletRequest request )
     throws DaoException, ProtocolException {
        
-       HashSet<Integer> cancerStudies = new HashSet<Integer>(); 
+       HashSet<String> cancerStudies = new HashSet<String>();
 
        // a CANCER_STUDY_ID is explicitly provided, as in getGeneticProfiles, getCaseLists, etc.
        // make sure the cancer_study_id provided in the request points to a real study
-       String studyIDstring = request.getParameter(WebService.CANCER_STUDY_ID);
+       String studyIDstring = getCancerStudyId(request);
        if ( studyIDstring != null) {
-          try {
-             int studyID = Integer.parseInt( studyIDstring );
-             if( DaoCancerStudy.doesCancerStudyExistByID(studyID) ){
-                cancerStudies.add( studyID );
+             if( DaoCancerStudy.doesCancerStudyExistByStableId(studyIDstring) ){
+                cancerStudies.add(studyIDstring);
              }else{
                 return null;
              }
-          } catch (NumberFormatException e) {
-             return null;
-          }
        }
 
        // a genetic_profile_id is explicitly provided, as in getProfileData
@@ -499,8 +497,9 @@ public class WebService extends HttpServlet {
              DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
              GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(genetic_profile_id);
              if ( aGeneticProfile != null &&
-                      DaoCancerStudy.doesCancerStudyExistByID( aGeneticProfile.getCancerStudyId() ) ){
-                cancerStudies.add( aGeneticProfile.getCancerStudyId() );
+                      DaoCancerStudy.doesCancerStudyExistByInternalId( aGeneticProfile.getCancerStudyId() ) ){
+                cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                        (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
              }
           }
        }
@@ -513,8 +512,9 @@ public class WebService extends HttpServlet {
           if (aCaseList == null) {
              return null;
           }
-          if( DaoCancerStudy.doesCancerStudyExistByID( aCaseList.getCancerStudyId() ) ){
-             cancerStudies.add( aCaseList.getCancerStudyId() );
+          if( DaoCancerStudy.doesCancerStudyExistByInternalId( aCaseList.getCancerStudyId() ) ){
+             cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                     (aCaseList.getCancerStudyId()).getCancerStudyIdentifier());
           }else{
              return null;
           }
@@ -538,8 +538,9 @@ public class WebService extends HttpServlet {
              if( aGeneticProfile == null ){
                 return null;
              }
-             if ( DaoCancerStudy.doesCancerStudyExistByID( aGeneticProfile.getCancerStudyId() ) ){
-                cancerStudies.add( aGeneticProfile.getCancerStudyId() );
+             if ( DaoCancerStudy.doesCancerStudyExistByInternalId( aGeneticProfile.getCancerStudyId() ) ){
+                cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                        (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
              }else{
                 return null;
              }
@@ -548,4 +549,14 @@ public class WebService extends HttpServlet {
        return cancerStudies;
     }
 
+    /**
+     * Get Cancer Study ID in a backward compatible fashion.
+     */
+    private static String getCancerStudyId (HttpServletRequest request) {
+        String cancerStudyId = request.getParameter(WebService.CANCER_STUDY_ID);
+        if (cancerStudyId == null || cancerStudyId.length() == 0) {
+            cancerStudyId = request.getParameter(WebService.CANCER_TYPE_ID);
+        }
+        return cancerStudyId;
+    }
 }

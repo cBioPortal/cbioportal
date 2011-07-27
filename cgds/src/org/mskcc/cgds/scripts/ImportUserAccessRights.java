@@ -77,7 +77,7 @@ public class ImportUserAccessRights {
       // check that study exists
       int intID = -1;
       intID = Integer.valueOf(cancerStudyId);
-      if (!DaoCancerStudy.doesCancerStudyExistByID(intID)) {
+      if (!DaoCancerStudy.doesCancerStudyExistByInternalId(intID)) {
          throw new Exception("no study identified by " + cancerStudyId);
       }
 

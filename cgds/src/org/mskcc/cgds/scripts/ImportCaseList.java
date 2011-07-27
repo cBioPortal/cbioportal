@@ -33,7 +33,7 @@ public class ImportCaseList {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
-      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByIdentifier(cancerStudyIdentifier);
+      CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
       if (theCancerStudy == null) {
          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"
                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");

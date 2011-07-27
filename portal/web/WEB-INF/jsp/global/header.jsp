@@ -46,17 +46,12 @@
 
 <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 
-<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo/yahoo-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/dom/dom-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/event/event-min.js" ></script>
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
-
+<script type="text/javascript" src="js/jquery.address-1.4.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/global-tabs.js"></script>
-<script type="text/javascript" src="js/mootools-core-1.3-full-compat-yc.js"></script>
-<script type="text/javascript" src="js/mootools-more.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
            
 <script type="text/javascript">
@@ -123,9 +118,11 @@
                     <li class="internal">
                         <a href="networks.jsp">Networks</a>
                     </li>
+                    <!--
                     <li class="internal">
                         <a href="login.jsp">Login</a>
                     </li>
+                    -->
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>

@@ -26,7 +26,7 @@ public class CancerStudyReader {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
       
-      if ( DaoCancerStudy.doesCancerStudyExistByIdentifier(cancerStudyIdentifier) ) {
+      if ( DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier) ) {
          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier "
                   + cancerStudyIdentifier + " already in dbms.");
       }

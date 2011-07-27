@@ -1,22 +1,22 @@
 package org.mskcc.cgds.test.dao;
 
 import java.util.ArrayList;
+import java.io.File;
 
 import junit.framework.TestCase;
 
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cgds.util.ProgressMonitor;
 
 public class TestDaoCancerStudy extends TestCase{
 
    public void testDaoCancerStudy() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "testData/cancers.txt" };
-      ImportTypesOfCancers.main( args );
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
 
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "brca", false );
       DaoCancerStudy.addCancerStudy(cancerStudy);
@@ -42,17 +42,17 @@ public class TestDaoCancerStudy extends TestCase{
       assertEquals("Breast Description", cancerStudy.getDescription() );
       assertEquals("Breast", cancerStudy.getName());
 
-      cancerStudy = DaoCancerStudy.getCancerStudyByIdentifier("gbm");
+      cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
       assertEquals("gbm", cancerStudy.getCancerStudyIdentifier());
       assertEquals("GBM", cancerStudy.getName());
       assertEquals("GBM Description", cancerStudy.getDescription() );
 
-      assertEquals( null, DaoCancerStudy.getCancerStudyByIdentifier("no such study") );
-      assertTrue( DaoCancerStudy.doesCancerStudyExistByIdentifier( cancerStudy.getCancerStudyIdentifier() ) );
-      assertFalse( DaoCancerStudy.doesCancerStudyExistByIdentifier( "no such study" ) );
+      assertEquals( null, DaoCancerStudy.getCancerStudyByStableId("no such study") );
+      assertTrue( DaoCancerStudy.doesCancerStudyExistByStableId( cancerStudy.getCancerStudyIdentifier() ) );
+      assertFalse( DaoCancerStudy.doesCancerStudyExistByStableId( "no such study" ) );
 
-      assertTrue( DaoCancerStudy.doesCancerStudyExistByID( cancerStudy.getStudyId() ) );
-      assertFalse( DaoCancerStudy.doesCancerStudyExistByID( -1 ) );
+      assertTrue( DaoCancerStudy.doesCancerStudyExistByInternalId( cancerStudy.getStudyId() ) );
+      assertFalse( DaoCancerStudy.doesCancerStudyExistByInternalId( -1 ) );
       
       DaoCancerStudy.deleteCancerStudy( cancerStudy.getStudyId() );
 
@@ -63,8 +63,7 @@ public class TestDaoCancerStudy extends TestCase{
    public void testDaoCancerStudy2() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "testData/cancers.txt" };
-      ImportTypesOfCancers.main( args );
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
 
       CancerStudy cancerStudy1 = new CancerStudy( "GBM public study x", "GBM Description", "brca", true );
       DaoCancerStudy.addCancerStudy(cancerStudy1);
@@ -96,7 +95,7 @@ public class TestDaoCancerStudy extends TestCase{
       assertEquals("Breast Description", cancerStudy1.getDescription());
       assertEquals(false, cancerStudy1.isPublicStudy());
 
-      cancerStudy1 = DaoCancerStudy.getCancerStudyById(1);
+      cancerStudy1 = DaoCancerStudy.getCancerStudyByInternalId(1);
       assertEquals(1, cancerStudy1.getStudyId());
       assertEquals("GBM Description", cancerStudy1.getDescription());
       assertEquals("GBM public study x", cancerStudy1.getName());
@@ -109,7 +108,7 @@ public class TestDaoCancerStudy extends TestCase{
       assertEquals(2, DaoCancerStudy.getCount());
       DaoCancerStudy.deleteAllRecords();
       assertEquals(0, DaoCancerStudy.getCount());
-      assertEquals( null, DaoCancerStudy.getCancerStudyById( CancerStudy.NO_SUCH_STUDY) );
+      assertEquals( null, DaoCancerStudy.getCancerStudyByInternalId( CancerStudy.NO_SUCH_STUDY) );
    }
 
    /*

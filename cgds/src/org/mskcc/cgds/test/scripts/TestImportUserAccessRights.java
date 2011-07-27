@@ -8,14 +8,16 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ImportUserAccessRights;
 import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cgds.util.ProgressMonitor;
+
+import java.io.File;
 
 public class TestImportUserAccessRights extends TestCase {
    
    public void testImportUserAccessRights() throws Exception{
       ResetDatabase.resetDatabase();
       // load cancers
-      String[] args = { "testData/cancers.txt" };
-      ImportTypesOfCancers.main( args );
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
 
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "brca", false );
       DaoCancerStudy.addCancerStudy(cancerStudy);

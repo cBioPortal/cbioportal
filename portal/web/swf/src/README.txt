@@ -29,11 +29,17 @@ Modification is done between lines 55~60 & 76 gives support to hide detail discs
 /src/org/cytoscapeweb/util/Nodes.as
 Line 39 - CBioNodeRenderer is imported. Line 90 - CBioNodeRenderer is set.
 
+/src/org/cytoscapeweb/util/Edges.as
+Line 41 - CBioEdgeRenderer is imported. Line 78 - CBioEdgeRenderer is set.
+
 New classes
 -----------
 
 /src/org/cytoscapeweb/view/render/CBioNodeRenderer.as
 Extends NodeRenderer, changes render method to be able to draw the detail discs.
+
+/src/org/cytoscapeweb/view/render/CBioEdgeRenderer.as
+Extends EdgeRenderer, changes render method to be able to color merged edges.
 
 /src/org/cytoscapeweb/controller/CBioHandleHoverCommand.as
 Extends HandleHoverCommand, gives support to show details when a node is highlighted.

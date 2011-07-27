@@ -191,7 +191,14 @@
 
 #genes_tab .in-query
 {
-	font-weight: bold;
+	/*font-weight: bold;*/
+	color: #000000;
+}
+
+#genes_tab .not-in-query
+{
+	/*font-weight: bold;*/
+	color: #808080;
 }
 
 #relations_tab .footer
@@ -205,6 +212,11 @@
 {
 	width: 200px;
 	height: 500px;
+}
+
+#genes_tab .selected-gene
+{
+	background: #aaaaaa;
 }
 
 #relations_tab .percent-bar

@@ -18,6 +18,11 @@ const IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 const REACTS_WITH = "REACTS_WITH";
 const STATE_CHANGE = "STATE_CHANGE";
 
+// node type constants
+const PROTEIN = "Protein";
+const SMALL_MOLECULE = "SmallMolecule";
+const UNKNOWN = "Unknown";
+
 // class constants for css visualization
 const CHECKED_CLASS = "checked-menu-item";
 const SEPARATOR_CLASS = "separator-menu-item";
@@ -740,7 +745,7 @@ function _resetFlags()
 	_edgeLabelsVisible = false;
 	_panZoomVisible = true;
 	_linksMerged = true;
-	_profileDataVisible = true;
+	_profileDataVisible = false;
 	_selectFromTab = false;
 }
 
@@ -809,9 +814,9 @@ function _xrefArray()
 {
 	var linkMap = new Array();
 	
+	// TODO find missing links
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=";
-	//linkMap["hgnc"] = "";
 	linkMap["nucleotide sequence database"] = "";	
 	linkMap["refseq"] =	"";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
@@ -946,12 +951,6 @@ function _initMainMenu()
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 300});
-
-	
-//	$("#node_inspector a").qtip(
-//		{
-//			content: 'Some basic content for the tooltip'
-//		});
 	
 	// create tabs
 	$("#network_tabs").tabs();
@@ -1005,7 +1004,7 @@ function _refreshGenesTab()
 	//		GENES_LIST_SIZE + '"></select>');
 	
 	$("#genes_tab").append('<select multiple></select>');
-	
+		
 	// add new content
 	
 	for (var i=0; i < geneList.length; i++)
@@ -1019,7 +1018,7 @@ function _refreshGenesTab()
 		}
 		else
 		{
-			classContent = ' ';
+			classContent = 'class="not-in-query" ';
 		}
 		
 		$("#genes_tab select").append(
@@ -1032,6 +1031,35 @@ function _refreshGenesTab()
 		$("#genes_tab #" + shortId).click(updateSelectedGenes);
 		$("#genes_tab #" + shortId).select(updateSelectedGenes);
 		$("#genes_tab #" + shortId).dblclick(showGeneDetails);
+		
+		// TODO qtip does not work with Chrome
+		var qtipOpts =
+		{
+			content: "id: " + shortId,
+			position:
+			{
+				corner:
+				{
+					tooltip: 'bottomRight', // the corner
+					target: 'topLeft' // opposite corner
+				}
+			},
+			style:
+			{
+				border:
+				{
+                     width: 3,
+                     radius: 10
+				},
+				padding: 10,
+				textAlign: 'center',
+				'font-size': '10pt',
+				tip: true // speech bubble tip with automatic corner detection
+				//name: 'cream' // preset 'cream' style
+			}
+		};
+		
+		//$("#genes_tab #" + shortId).qtip(qtipOpts);
 	}
 }
 
@@ -1217,9 +1245,10 @@ function _visibleGenes()
 
     for (var i=0; i < nodes.length; i++)
     {
-    	// TODO also check if a node is a gene or small molecule!
-    	// include only genes, not small molecules
-    	if (_alreadyFiltered[nodes[i].data.id] == null)
+    	// check if the node is already filtered.
+    	// also, include only genes, not small molecules or unknown types.
+    	if (_alreadyFiltered[nodes[i].data.id] == null &&
+    		nodes[i].data.type == PROTEIN)
     	{
     		genes.push(nodes[i]);
     	}
@@ -1236,11 +1265,24 @@ function _visibleGenes()
  * 
  * @param node1	node to compare to node2
  * @param node2 node to compare to node1
- * @return 		true if node1 is alphabetically greater than node2
+ * @return 		positive integer if node1 is alphabetically greater than node2
+ * 				negative integer if node2 is alphabetically greater than node1
+ * 				zero if node1 and node2 are alphabetically equal
  */
 function _geneSort(node1, node2)
 {
-	return (node1.data.label > node2.data.label);
+	if (node1.data.label > node2.data.label)
+	{
+		return 1;
+	}
+	else if (node1.data.label < node2.data.label)
+	{
+		return -1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 /**
@@ -1409,10 +1451,11 @@ function _toggleAutoLayout()
  */
 function _toggleProfileData()
 {
-	// TODO update visibility of profile data
-	
-	_profileDataVisible = !_profileDataVisible;
-	
+    // toggle value and pass to CW
+
+    _profileDataVisible = !_profileDataVisible;
+    _vis.profileDataAlwaysShown(_profileDataVisible);
+
 	// update check icon of the corresponding menu item
 	
 	var item = $("#show_profile_data");

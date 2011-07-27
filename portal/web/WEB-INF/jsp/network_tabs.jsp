@@ -9,8 +9,8 @@
 			<table>
 				<tr>
 					<td>
-						<input type="button" id="filter_genes" class="ui-state-default" value="Hide"/>
-						<input type="button" id="crop_genes" class="ui-state-default" value="Crop"/>
+						<input type="button" id="filter_genes" value="Hide"/>
+						<input type="button" id="crop_genes" value="Crop"/>
 					</td>
 					<td>
 					</td>
@@ -20,7 +20,7 @@
 						<input type="text" size="18" id="search" value=""/>
 					</td>
 					<td>
-						<input type="button" id="search_genes" class="ui-state-default" value="Search"/>
+						<input type="button" id="search_genes" value="Search"/>
 					</td>
 				</tr>
 			</table>
@@ -74,11 +74,11 @@
 	        </table>
 	    </div>
         <div class="footer">
-			<input type="button" id="update_edges" class="ui-state-default" value="Update"/>
+			<input type="button" id="update_edges" value="Update"/>
 		</div>
     </div>
     <div id="help_tab">
-        Some help can be useful :) Some help can be useful :) Some help can be useful :)
+        Help!
     </div>
 </div>
 

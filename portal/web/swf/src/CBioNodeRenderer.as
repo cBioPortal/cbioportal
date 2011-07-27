@@ -1,6 +1,6 @@
 /*
- * This clas is used as a special renderer for CBio Nodes where details about a node
- * can be displayed using 3 different disc parts around the node.
+ * This clas is used as a special renderer for CBio nodes where details about a node
+ * can be displayed using 3 different disc segments around the node.
  **/
 package org.cytoscapeweb.view.render
 {
@@ -28,11 +28,23 @@ package org.cytoscapeweb.view.render
 		
 		private var _imgCache:ImageCache = ImageCache.instance;
 		
+		private var _detailFlag:Boolean = false;
+		
 		public static function get instance() : CBioNodeRenderer
 		{
 			return _instance;
 		}
-		
+
+		public function get detailFlag() : Boolean
+		{
+			return this._detailFlag;
+		}
+
+		public function set detailFlag(value:Boolean) : void
+		{
+			this._detailFlag = value;
+		}
+
 		public function CBioNodeRenderer(defaultSize:Number=6)
 		{
 			super(defaultSize);
@@ -65,7 +77,7 @@ package org.cytoscapeweb.view.render
 			}
 		}
 		
-		// Drwas the corresponding sahpe on given sprite
+		// Draws the corresponding shape on given sprite
 		private function drawShape(d:DataSprite, shape:String, size:Number):void {
 			var g:Graphics = d.graphics;
 			
@@ -90,7 +102,7 @@ package org.cytoscapeweb.view.render
 					break;
 				case NodeShapes.ELLIPSE:
 				default:
-					if( Boolean(d.props.detailFlag))
+					if (this._detailFlag || Boolean(d.props.detailFlag))
 					{
 						// Draws the disc containing details
 						drawDetails(d, size/2);
@@ -108,10 +120,13 @@ package org.cytoscapeweb.view.render
 					g.beginFill(getNodeColorRW(total), 50);					
 					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
 					
-					// Top side of the Node is colored according tı the IN_QUERY property
-					if(d.data.IN_QUERY != null)
+					// Top half of the genes is colored according to the IN_QUERY property
+
+					var inQuery:String = d.data.IN_QUERY;
+					
+					if(inQuery == "false")
 					{
-						g.beginFill(0xFFFFFF, 50);
+						g.beginFill(0xDCDCDC, 50);
 					}
 					else
 					{
@@ -175,7 +190,7 @@ package org.cytoscapeweb.view.render
 			var thickness:int = 16; // Thickness of the detail disc
 			var smoothness:int = 90; // Determines how smooth the ars are drawn
 			var sectionMargin:int = 20; // Margins between disc parts
-			var circleMargin:int = 2; // Margin between the discs and the node
+			var circleMargin:int = 0; // Margin between the discs and the node
 			var insideMargin:Number = 0.5; // Inner margins for the percentage slices
 			
 			// These variables are used for the gradient color for unused disc parts
@@ -222,12 +237,16 @@ package org.cytoscapeweb.view.render
 			 * filled using the data about the node.
 			 */
 			
+			// Don't draw anything if none is available
+			if (!(topFlag || rightFlag || leftFlag))
+				return;
+			
 			// Draws the top arc if its flag is on
 			if( topFlag == true)
 			{	
 				// The gray back part is drawn
-				g.lineStyle(1,0x000000,1);
-				g.beginFill(0xDCDCDC, 50);
+				g.lineStyle(1,0xDCDCDC,1);
+				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
 				
 				g.lineStyle(0,0xFFFFFF,0);
@@ -260,11 +279,11 @@ package org.cytoscapeweb.view.render
 			
 			if( rightFlag == true)
 			{
-				g.lineStyle(1,0x000000,1);
-				g.beginFill(0xDCDCDC, 50);
+				g.lineStyle(1,0xDCDCDC,1);
+				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
 				
-				g.lineStyle(0,0xFFFFFF,0);
+				g.lineStyle(0,0xDCDCDC,0);
 				
 				var mutationArc:int = mutation;
 				g.beginFill(0x008F00, 50);
@@ -282,19 +301,30 @@ package org.cytoscapeweb.view.render
 
 			if( leftFlag == true)
 			{	
-				g.beginFill(0xDCDCDC, 50);
-				g.lineStyle(1,0x000000,1);
+				g.lineStyle(1,0xDCDCDC,1);
+				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
-				g.endFill();
 				
+				g.lineStyle(0,0xDCDCDC,0);
+
 				var upRegulationArc:int = upRegulation;
-				g.lineStyle(1.5,0xFFACA9,1);
-				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360-4/360, -(upRegulationArc/360), smoothness,g);
+				g.beginFill(0xFFACA9, 50);
+				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 201/360, -(upRegulationArc/360), smoothness,g);
 				
 				var downRegulationArc:int = downRegulation;
-				g.lineStyle(1.5,0x78AAD6,1);
-				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360 - (upRegulationArc/360)-8/360, -(downRegulationArc/360), smoothness,g);
-				
+				g.beginFill(0x78AAD6, 50);
+				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 201/360 - (upRegulationArc/360), -(downRegulationArc/360), smoothness,g);
+
+				// When only borders are to be drawn (like in the OncoPrint)
+//				g.endFill();
+//				var upRegulationArc:int = upRegulation;
+//				g.lineStyle(1.5,0xFFACA9,1);
+//				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360-4/360, -(upRegulationArc/360), smoothness,g);
+//				
+//				var downRegulationArc:int = downRegulation;
+//				g.lineStyle(1.5,0x78AAD6,1);
+//				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360 - (upRegulationArc/360)-8/360, -(downRegulationArc/360), smoothness,g);
+
 				g.lineStyle(1,0x000000,1);
 			}
 			else
@@ -350,7 +380,7 @@ package org.cytoscapeweb.view.render
 			g.lineTo(startPoint.x, startPoint.y);
 		}
 		
-		// Returns the color betwwen Red and White using the given value as a ratio
+		// Returns the color between Red and White using the given value as a ratio
 		private function getNodeColorRW(value:int):Number
 		{
 			var high:int = 100;
@@ -392,6 +422,5 @@ package org.cytoscapeweb.view.render
 		private function rgb2hex(r:int, g:int, b:int):Number {
 			return(r<<16 | g<<8 | b);
 		}
-		
 	}
 }

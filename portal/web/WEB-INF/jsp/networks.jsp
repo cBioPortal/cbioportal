@@ -27,46 +27,52 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#fefefe"
+                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
+						hoverGlowOpacity: 1.0
                     },
                     nodes: {
-                        shape: "ELLIPSE",
-					// TODO two different shapes for two different node types
-//                        shape: {
-//                           discreteMapper: {
-//                                attrName: "type",
-//                                entries: [
-//                                    { attrValue: "type1", value: "ELLIPSE" },
-//                                    { attrValue: "type2", value: "DIAMOND" }
-//                                ]
-//                            }
-//                        }, 
+						shape: {
+						   discreteMapper: {
+								attrName: "type",
+								entries: [
+									{ attrValue: "Protein", value: "ELLIPSE" },
+									{ attrValue: "SmallMolecule", value: "DIAMOND" },
+									{ attrValue: "Unknown", value: "TRIANGLE" }
+								]
+							}
+						},
                         borderWidth: 1,
-                        borderColor: "#000000",
+						borderColor: {
+							discreteMapper: {
+								attrName: "type",
+								entries: [
+									{ attrValue: "Protein", value: "#000000" },
+									{ attrValue: "SmallMolecule", value: "#000000" },
+									{ attrValue: "Unknown", value: "#000000" }
+								]
+							}
+						},
                         size: {
                             defaultValue: 25,
                             continuousMapper: { attrName: "weight", minValue: 25, maxValue: 75 }
                         },
                         color: {
                             discreteMapper: {
-                                attrName: "id",
+                                attrName: "type",
                                 entries: [
-                                    { attrValue: 1, value: "#0B94B1" },
-                                    { attrValue: 2, value: "#9A0B0B" },
-                                    { attrValue: 3, value: "#dddd00" }
+									{ attrValue: "Protein", value: "#FFFFFF" },
+									{ attrValue: "SmallMolecule", value: "#FFFFFF" }, //#D7AC85
+									{ attrValue: "Unknown", value: "#FFFFFF" } //#69A19E
                                 ]
                             }
                         },
                         labelHorizontalAnchor: "center",
                         labelVerticalAnchor: "bottom",
-						//labelXOffset: 0,
-						//labelYOffset: -10,
                         labelFontSize: 10
                     },
                     edges: {
-                        width: 1,
-                        // color: "#0B94B1"
-       					// TODO 3(or 4?) different colors for different each types
+                        width: 1.2,
+						mergeWidth: 1.4,
 						color: {
 							discreteMapper: {
 								attrName: "type",
@@ -136,25 +142,24 @@
             }
         </script>
 
-        
 <div class="section" id="network">
 	<table>
+		<tr><td>
+			<div class="cytoscapeweb_menu">
+				<jsp:include page="network_menu.jsp"/>
+			</div>
+		</td></tr>
 		<tr>
-			<td>
-				<div id="vis_content">
-					<div class="cytoscapeweb_menu">
-					    <jsp:include page="network_menu.jsp"/>
-					</div>
-					<div id="cytoscapeweb">
-						<img src="images/ajax-loader.gif"/>
-					</div>
+			<td id="vis_content">
+				<div id="cytoscapeweb">
+					<img src="images/ajax-loader.gif"/>
 				</div>
 			</td>
 			<td>
 				<div class="cytoscapeweb_menu">
-				    <jsp:include page="network_tabs.jsp"/>
+					<jsp:include page="network_tabs.jsp"/>
 				</div>
 			</td>
 		</tr>
 	</table>
-</div> 
+</div>

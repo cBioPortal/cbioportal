@@ -72,6 +72,7 @@ public class NetworkServlet extends HttpServlet {
     public void doPost(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
+        res.setContentType("text/xml");
         XDebug xdebug = new XDebug( req );
         
         ServletXssUtil xssUtil;

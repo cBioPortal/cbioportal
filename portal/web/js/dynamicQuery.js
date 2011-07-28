@@ -53,7 +53,6 @@ $(document).ready(function(){
 
       //  Toggle the icons
       $(".query-toggle").toggle();
-      console.log("Toggle Query Form");
     });
 
     //  Set up an Event Handler to intercept form submission
@@ -221,6 +220,8 @@ function addMetaDataToPage() {
     //  Set things up, based on currently selected gene set id
     if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
         $("#select_gene_set").val(window.gene_set_id_selected);    
+    } else {
+        $("#select_gene_set").val("user-defined-list");
     }
 
     setDefaultQuery();

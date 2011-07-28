@@ -121,9 +121,6 @@
             };
             
             window.onload = function() {
-                //send2cytoscapeweb(graphml);
-                //(new XMLSerializer()).serializeToString(graphml)
-                $("div.cytoscapeweb_menu").hide();
                 $.post("network.do", 
                     {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
@@ -139,7 +136,6 @@
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         } 
-                        $("div.cytoscapeweb_menu").show();
                         send2cytoscapeweb(graphml);
                     }
                 );
@@ -149,7 +145,7 @@
 <div class="section" id="network">
 	<table>
 		<tr><td>
-			<div class="cytoscapeweb_menu">
+			<div>
 				<jsp:include page="network_menu.jsp"/>
 			</div>
 		</td></tr>
@@ -160,7 +156,7 @@
 				</div>
 			</td>
 			<td>
-				<div class="cytoscapeweb_menu">
+				<div>
 					<jsp:include page="network_tabs.jsp"/>
 				</div>
 			</td>

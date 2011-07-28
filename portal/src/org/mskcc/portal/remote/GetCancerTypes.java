@@ -23,8 +23,7 @@ public class GetCancerTypes {
      */
     public static ArrayList<CancerType> getCancerTypes(XDebug xdebug) throws RemoteException {
         ArrayList<CancerType> cancerTypeList = new ArrayList<CancerType>();
-        CancerType cancerType = new CancerType("all", "All Cancer Types");
-        cancerTypeList.add(cancerType);
+        CancerType cancerType = null;
         try {
             //  Set Query Parameters
             NameValuePair[] data = {

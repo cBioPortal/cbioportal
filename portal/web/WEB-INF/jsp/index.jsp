@@ -99,6 +99,17 @@
             }
             %>
 
+            <small>
+            Developer Notes:
+            <ul>
+                <li>Data Download Tab will be added back soon...</li>
+                <li>Form validation is still a work in progress...</li>
+                <li>Losing state upon back button is an open, unresolved issue...</li>
+                <li>See other <a href="http://code.google.com/p/cbio-cancer-genomics-portal/issues/list">open issues</a>...</li>
+            </ul>
+            </small>
+            <p>
+
             <%@ include file="query_form.jsp" %>
 
             </td>

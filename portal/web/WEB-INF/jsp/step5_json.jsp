@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<div class="query_step_section">
-    <span class="step_header">Optional Arguments:  &nbsp;&nbsp;<small>[<a href="#" id="step5">Toggle</a>]</small></span>
+<div class="query_step_section" id="step5">
+    <span class="step_header">Optional Arguments:  &nbsp;&nbsp;<small>[<a href="#" id="step5_toggle">Toggle</a>]</small></span>
 <br/>
 <div class="toggler">
     <p/>

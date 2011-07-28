@@ -1,5 +1,5 @@
 /*
- * This clas is used as a special renderer for CBio nodes where details about a node
+ * This class is used as a special renderer for CBio nodes where details about a node
  * can be displayed using 3 different disc segments around the node.
  **/
 package org.cytoscapeweb.view.render
@@ -245,7 +245,7 @@ package org.cytoscapeweb.view.render
 			if( topFlag == true)
 			{	
 				// The gray back part is drawn
-				g.lineStyle(1,0xDCDCDC,1);
+				g.lineStyle(2,0xDCDCDC,1);
 				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
 				
@@ -279,7 +279,7 @@ package org.cytoscapeweb.view.render
 			
 			if( rightFlag == true)
 			{
-				g.lineStyle(1,0xDCDCDC,1);
+				g.lineStyle(2,0xDCDCDC,1);
 				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
 				
@@ -301,7 +301,7 @@ package org.cytoscapeweb.view.render
 
 			if( leftFlag == true)
 			{	
-				g.lineStyle(1,0xDCDCDC,1);
+				g.lineStyle(2,0xDCDCDC,1);
 				g.beginFill(0xFFFFFF, 50);
 				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
 				

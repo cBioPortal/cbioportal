@@ -1091,7 +1091,7 @@ function _refreshRelationsTab()
 		"width", (parseInt(percent * 0.85) + 1) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#C3844C");
+		"background-color", "#CD976B");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
 		percent.toFixed(1) + "%");
@@ -1102,7 +1102,7 @@ function _refreshRelationsTab()
 		"width", (parseInt(percent * 0.85) + 1) + "%");
 	
 	$("#relations_tab .reacts-with .percent-bar").css(
-		"background-color", "#6261FC");
+		"background-color", "#7B7EF7");
 	
 	$("#relations_tab .reacts-with .percent-value").text(
 		percent.toFixed(1) + "%");
@@ -1113,7 +1113,7 @@ function _refreshRelationsTab()
 		"width", (parseInt(percent * 0.85) + 1) + "%");
 		
 	$("#relations_tab .state-change .percent-bar").css(
-		"background-color", "#68BBC1");
+		"background-color", "#67C1A9");
 	
 	$("#relations_tab .state-change .percent-value").text(
 		percent.toFixed(1) + "%")

@@ -27,8 +27,7 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
-						hoverGlowOpacity: 1.0
+                        backgroundColor: "#fefefe" //#F7F6C9 //#F3F7FE
                     },
                     nodes: {
 						shape: {
@@ -68,18 +67,23 @@
                         },
                         labelHorizontalAnchor: "center",
                         labelVerticalAnchor: "bottom",
-                        labelFontSize: 10
+                        labelFontSize: 10,
+                        selectionGlowColor: "#f6f779",
+						selectionGlowOpacity: 0.8,
+						hoverGlowColor: "#cbcbcb", //#ffff33
+						hoverGlowOpacity: 1.0,
+						hoverGlowStrength: 8
                     },
                     edges: {
-                        width: 1.2,
-						mergeWidth: 1.4,
+                        width: 1,
+						mergeWidth: 2,
 						color: {
 							discreteMapper: {
 								attrName: "type",
 								entries: [
-									{ attrValue: "IN_SAME_COMPONENT", value: "#C3844C" },
-									{ attrValue: "REACTS_WITH", value: "#6261FC" },
-									{ attrValue: "STATE_CHANGE", value: "#68BBC1" } ]
+									{ attrValue: "IN_SAME_COMPONENT", value: "#CD976B" },
+									{ attrValue: "REACTS_WITH", value: "#7B7EF7" },
+									{ attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
         					}
         				}
 					}

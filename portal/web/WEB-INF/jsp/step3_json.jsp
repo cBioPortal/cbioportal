@@ -20,8 +20,8 @@ if (step3ErrorMsg != null) {
     <div id='custom_case_list_section' style="display:<%= customCaseListStyle %>;">
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80><%
-    if (caseIds != null) {
-            out.print (caseIds);
+    if (localCaseIds != null) {
+            out.print (localCaseIds);
         }
 %>
 </textarea>

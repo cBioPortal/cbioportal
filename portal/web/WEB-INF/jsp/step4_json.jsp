@@ -31,8 +31,8 @@ if (step4ErrorMsg != null) {
 
     <P/>
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
-    if (geneList != null && geneList.length() > 0) {
-        out.println(Utilities.appendSemis(geneList));
+    if (localGeneList != null && localGeneList.length() > 0) {
+        out.println(Utilities.appendSemis(localGeneList));
     }
 %>
 </textarea>

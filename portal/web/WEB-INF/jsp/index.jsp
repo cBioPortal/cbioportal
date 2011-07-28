@@ -40,13 +40,6 @@
         geneSetChoice = "user-defined-list";
     }
 
-    String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
-    if (tabIndex == null) {
-        tabIndex = QueryBuilder.TAB_VISUALIZE;
-    } else {
-        tabIndex = URLEncoder.encode(tabIndex);
-    }
-
     request.setAttribute("index.jsp", Boolean.TRUE);
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
     String cgdsUrl = GlobalProperties.getCgdsUrl();
@@ -56,23 +49,6 @@
 %>
 
 <jsp:include page="global/header.jsp" flush="true" />
-
-    <%
-    if (xdebug != null) {
-    %>
-    <form id="main_form" action="index.do" method="get">
-    <% } else { %>
-    <form id="main_form" action="index.do" method="get">
-    <% } %>
-    <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
-           value="<%= tabIndex %>">
-    <%
-        if (xdebug != null) {
-        %>
-            <input type="hidden" name="xdebug" value="<%= xdebug %>">
-        <%
-        }
-    %>
 
     <table cellspacing="2px">
         <tr>

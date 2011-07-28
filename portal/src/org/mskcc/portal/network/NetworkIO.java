@@ -55,9 +55,10 @@ public class NetworkIO {
                     continue;
                 
                 Node source = network.getNodeById(strs[0]);
-                if (source==null)
+                if (source==null) {
                     source = new Node(strs[0]);
-                network.addNode(source);
+                    network.addNode(source);
+                }
                 
                 Node target = network.getNodeById(strs[2]);
                 if (target==null)

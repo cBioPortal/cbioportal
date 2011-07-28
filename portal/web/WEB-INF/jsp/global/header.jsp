@@ -113,7 +113,7 @@
 					   	<a href="web_api.jsp">Web API</a>
 					</li>
 					<li class="internal">
-					   	<a href="cgds_r.jsp">R Package</a>
+					   	<a href="cgds_r.jsp">R/MATLAB</a>
 					</li>
                     <li class="internal">
                         <a href="networks.jsp">Networks</a>

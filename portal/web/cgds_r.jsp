@@ -17,7 +17,7 @@
     <table cellspacing="2px">
         <tr>
             <td>
-            <h1>R Package</h1>
+            <h1>R/MATLAB Packages</h1>
             <div class="markdown">
             <p><jsp:include page="content/cgds_r.html" flush="true" /></p>
             </div>

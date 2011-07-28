@@ -53,7 +53,14 @@ public class GetCancerTypes {
 
         //  Before returning the list, sort it alphabetically
         Collections.sort(cancerTypeList, new CancerTypeComparator());
-        return cancerTypeList;
+
+        //  Then, insert All Cancer Types at beginning
+        ArrayList<CancerType> finalCancerTypeList = new ArrayList<CancerType>();
+        cancerType = new CancerType("all", "All Cancer Types");
+        finalCancerTypeList.add(cancerType);
+        finalCancerTypeList.addAll(cancerTypeList);
+
+        return finalCancerTypeList;
     }
 }
 

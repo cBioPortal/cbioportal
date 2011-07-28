@@ -24,14 +24,6 @@ $(document).ready(function(){
     $('input[value*="mutation"]').attr('checked', true);
 
 
-	//toggle Step 5: Optional arguments
-    $( "#optional_args" ).hide();
-	$( "#step5" ).click(function() {
-        $( "#optional_args" ).toggle( "blind" );
-	    return false;
-    });
-
-
     //only show threshold options if gene expression profile is checked
     $('#threshold').hide();
     $('#mRNAcheckbox' ).click(function(){

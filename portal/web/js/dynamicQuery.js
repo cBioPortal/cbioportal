@@ -55,6 +55,13 @@ $(document).ready(function(){
       $(".query-toggle").toggle();
     });
 
+    //  set toggle Step 5: Optional arguments
+    $("#optional_args").hide();
+    $("#step5").click(function(event) {
+        event.preventDefault();
+        $("#optional_args").toggle( "blind" );
+    });
+
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
        chooseAction();
@@ -224,6 +231,18 @@ function addMetaDataToPage() {
         $("#select_gene_set").val("user-defined-list");
     }
 
+    //  Set things up, based on all currently selected genomic profiles
+    //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids'
+    $("input:[name=genetic_profile_ids]").each(function(index) {
+        //  val() is the value that or stable ID of the genetic profile ID
+        var currentValue = $(this).val();
+
+        //  if the user has this stable ID already selected, mark it as checked
+        if (window.genomic_profile_id_selected[currentValue] == 1) {
+            $(this).attr('checked','checked');
+        }
+    });  //  end for each genomic profile option
+
     setDefaultQuery();
 }
 
@@ -259,13 +278,17 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
                 && genomic_profile.alteration_type == targetAlterationType) {
             //  Branch depending on number of profiles
             if (numProfiles == 1) {
-                profileHtml += "<input type='checkbox' name='genetic_profile_ids' "
+                profileHtml += "<input type='checkbox' "
+                    + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
-                    + "  <img class='profile_help' src='images/help.png' title='" + genomic_profile.description + "'><br/>";
+                    + "  <img class='profile_help' src='images/help.png' title='"
+                    + genomic_profile.description + "'><br/>";
             } else if (numProfiles > 1) {
-                profileHtml += "<input type='radio' name='genetic_profile_ids' "
+                profileHtml += "<input type='radio'"
+                    + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
-                    + "  <img class='profile_help' src='images/help.png' title='" + genomic_profile.description + "'><br/>";
+                    + "  <img class='profile_help' src='images/help.png' title='"
+                    + genomic_profile.description + "'><br/>";
             }
         }
     }); //  end for each genomic profile loop

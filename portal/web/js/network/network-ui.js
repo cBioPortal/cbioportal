@@ -71,15 +71,14 @@ function initNetworkUI(vis)
 	
 	_initMainMenu();
 	
-	// adjust canvas border
-	//$("#vis_content").addClass("vis-ready");
-	
 	// init tabs
 	_refreshGenesTab();
 	_refreshRelationsTab();
 	
 	// make UI visible
 	_setVisibility(true);
+	
+	
 }
 
 /**
@@ -336,7 +335,7 @@ function updateGenesTab(evt)
 		// select options for selected nodes
 		for (var i=0; i < selected.length; i++)
 		{
-			$("#" +  _shortId(selected[i].data.id)).attr(
+			$("#" +  _safeId(selected[i].data.id)).attr(
 				"selected", "selected");
 		}
 	}
@@ -999,17 +998,15 @@ function _refreshGenesTab()
 	// clear old content
 	$("#genes_tab select").remove();
 	
-	// set size of the list
-	//$("#genes_tab").append('<select multiple size="' + 
-	//		GENES_LIST_SIZE + '"></select>');
-	
 	$("#genes_tab").append('<select multiple></select>');
 		
 	// add new content
 	
 	for (var i=0; i < geneList.length; i++)
 	{
-		var shortId = _shortId(geneList[i].data.id);
+		// use the safe version of the gene id as an id of an HTML object
+		var safeId = _safeId(geneList[i].data.id);
+		
 		var classContent;
 		
 		if (geneList[i].data["IN_QUERY"] == "true")
@@ -1022,20 +1019,20 @@ function _refreshGenesTab()
 		}
 		
 		$("#genes_tab select").append(
-			'<option id="' + shortId + '" ' +
+			'<option id="' + safeId + '" ' +
 			classContent + 
 			'value="' + geneList[i].data.id + '" ' + '>' + 
 			'<label>' + geneList[i].data.label + '</label>' +
 			'</option>');
 		
-		$("#genes_tab #" + shortId).click(updateSelectedGenes);
-		$("#genes_tab #" + shortId).select(updateSelectedGenes);
-		$("#genes_tab #" + shortId).dblclick(showGeneDetails);
+		$("#genes_tab #" + safeId).click(updateSelectedGenes);
+		$("#genes_tab #" + safeId).select(updateSelectedGenes);
+		$("#genes_tab #" + safeId).dblclick(showGeneDetails);
 		
 		// TODO qtip does not work with Chrome
 		var qtipOpts =
 		{
-			content: "id: " + shortId,
+			content: "id: " + safeId,
 			position:
 			{
 				corner:
@@ -1059,7 +1056,7 @@ function _refreshGenesTab()
 			}
 		};
 		
-		//$("#genes_tab #" + shortId).qtip(qtipOpts);
+		//$("#genes_tab #" + safeId).qtip(qtipOpts);
 	}
 }
 
@@ -1300,13 +1297,28 @@ function jokerAction()
 {
 	var selectedElements = _vis.selected();
 	
-	var str = "";
+	var str;
 	
 	if (selectedElements.length > 0)
 	{
+		str = _nodeDetails(selectedElements[0]);
+	}
+	
+	alert(str);
+}
+
+/**
+ * Temporary function for debugging purposes
+ */
+function _nodeDetails(node)
+{
+	var str = "";
+	
+	if (node != null)
+	{
 		str += "fields: ";
 		
-		for (var field in selectedElements[0])
+		for (var field in node)
 		{
 			str += field + ";";
 		}
@@ -1314,13 +1326,16 @@ function jokerAction()
 		str += "\n";
 		str += "data: \n";
 		
-		for (var field in selectedElements[0].data)
+		for (var field in node.data)
 		{
-			str += field + ": " +  selectedElements[0].data[field] + "\n";
+			str += field + ": " +  node.data[field] + "\n";
 		}
 	}
 	
-	alert(str);
+	str += "short id: " + _shortId(node.data.id) + "\n";
+	str += "safe id: " + _safeId(node.data.id) + "\n";
+	
+	return str;
 }
 
 /**
@@ -1559,18 +1574,54 @@ function _shortId(id)
 {
 	var shortId = id;
 	
-	if (id.contains("#"))
+	if (id.indexOf("#") != -1)
 	{
-		var pieces = shortId.split("#");
+		var pieces = id.split("#");
 		shortId = pieces[pieces.length - 1];
 	}
-	else if (id.contains(":"))
+	else if (id.indexOf(":") != -1)
 	{
-		var pieces = shortId.split(":");
+		var pieces = id.split(":");
 		shortId = pieces[pieces.length - 1];
 	}
 	
 	return shortId;
+}
+
+/**
+ * Replaces all occurrences of a problematic character with an under dash.
+ * Those characters cause problems with the "id" property of an HTML object.
+ * 
+ * @param id	id to be modified
+ * @return		safe version of the given id
+ */
+function _safeId(id)
+{
+	var safeId = id;
+	
+	safeId = _replaceAll(safeId, "/", "_");
+	safeId = _replaceAll(safeId, "\\", "_");
+	safeId = _replaceAll(safeId, "#", "_");
+	safeId = _replaceAll(safeId, ".", "_");
+	safeId = _replaceAll(safeId, ":", "_");
+	safeId = _replaceAll(safeId, '"', "_");
+	safeId = _replaceAll(safeId, "'", "_");
+	
+	return safeId;
+}
+
+function _replaceAll(source, toFind, toReplace)
+{
+	var target = source;
+	var index = target.indexOf(toFind);
+
+	while (index != -1)
+	{
+		target = target.replace(toFind, toReplace);
+		index = target.indexOf(toFind);
+	}
+
+	return target;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

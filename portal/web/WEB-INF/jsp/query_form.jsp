@@ -19,10 +19,8 @@
         localGeneSetChoice = "user-defined-list";
     }
 %>
-
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
-
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
@@ -43,7 +41,6 @@
         }
     %>
 </script>
-
 <div class="main_query_panel">
 
     <form id="main_form" action="index.do" method="get">

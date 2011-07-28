@@ -10,10 +10,6 @@ The Cancer Genomic Data Server (CGDS) web service interface provides direct prog
 
 Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.
 
-The CGDS web service provides access to both public and private cancer studies.  Public studies are accessible to everyone.  Private studies are only accessible to users who have the right to access them. 
-
-If a study is private, then it can be accessed by adding the fields email\_address and secret\_key to a data access command. All commands are data access commands _except_ getTypesOfCancer and getNetwork. See the section Accessing Private Studies below for details.
-
 # The CGDS R Package
 
 If you are interested in accessing CGDS via R, please check out our [CGDS-R library](cgds_r.jsp).
@@ -45,6 +41,14 @@ Recoverable errors, such as invalid gene symbols are reported as warnings.  Mult
      # Warning:  Unknown gene:  EGFR11
      # Warning:  Unknown gene:  EGFR12
 
+# Deprecated API
+
+As of August, 2011:
+
+* In previous versions of the API, the **getCancerStudies** command was referred to as **getCancerTypes**.  For backward compatibility, **getCancerTypes** still works, but is now considered deprecated.
+
+* In previous versions of the API, the **cancer_study_id** parameter was referred to as **cancer_type_id**.  For backward compatibility,, **cancer_type_id** still works, but is now considered deprecated.
+
 # Commands
 
 ## Get All Types of Cancer
@@ -72,7 +76,7 @@ Get all Types of Cancer: [webservice.do?cmd=getTypesOfCancer](http://cbio.mskcc.
 
 ### Description
 
-Retrieves meta-data regarding cancer studies stored on the server. Returns information about cancer studies accessible to the currently logged-in user: all public studies, and private studies which the user has the right to access.
+Retrieves meta-data regarding cancer studies stored on the server.
 
 ### Query Format
 
@@ -251,29 +255,4 @@ A tab-delimited file with the following columns:
 Get Clinical Data for All TCGA Ovarian Cases:
 
 [webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
-
-# Accessing Private Studies
-
-## Details
-
-Authorized users can access private cancer studies on the CGDS web service. Currently (July 2011) only system administrators can create user accounts and load private studies into the CGDS web service.  
-
-If a study is private, then it can be accessed by adding the fields email\_address and secret\_key to a data access command. All commands above are data access commands _except_ getTypesOfCancer and getNetwork. The secret key must be obtained from the system administrator.
-
-## Example
-
-### Query Format
-
-These fields must be added to a request's query string to access a private study:
-
-* **email\_address**= [email address] (required to access a private study)
-* **secret\_key**= [secret key] (required to access a private study)
-
-### Response Format
-
-Either "No cancer studies accessible..." or the data normally returned by the command.
-
-### Example
-
-Get all Cancer Studies accessible to arthur@gmail.com: [webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret](http://cbio.mskcc.org//cgds-public/webservice.do?cmd=getCancerStudies&email_address=arthur@gmail.com&secret_key=Secret)
 

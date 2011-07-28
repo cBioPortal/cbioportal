@@ -4,11 +4,18 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <script type="text/javascript">
 
-    // Store the current selected options as global variables;
+    // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= cancerTypeId%>';
     window.case_set_id_selected = '<%= caseSetId %>';
     window.gene_set_id_selected = '<%= geneSetChoice %>';
 
+    //  Store the currently selected genomic profiles within an associative array
+    window.genomic_profile_id_selected = new Array();
+    <%
+        for (String geneticProfileId:  geneticProfileIdSet) {
+            out.println ("window.genomic_profile_id_selected['" + geneticProfileId + "']=1;");
+        }
+    %>
 </script>
 
 <div class="main_query_panel">

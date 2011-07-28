@@ -1,9 +1,4 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.HashSet" %>
-<%@ page import="org.mskcc.portal.model.*" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.util.*" %>
 
 
@@ -21,30 +16,8 @@
 %>
 
 <%
-    ServletXssUtil xssUtil = ServletXssUtil.getInstance();
-    ArrayList<CancerType> cancerTypeList = (ArrayList<CancerType>)
-            request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
-    ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute
-            (QueryBuilder.PROFILE_LIST_INTERNAL);
-    String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
-            (QueryBuilder.GENETIC_PROFILE_IDS);
-
-    ArrayList<CaseSet> caseSets = (ArrayList<CaseSet>)
-            request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
-    if (geneSetChoice == null) {
-        geneSetChoice = "user-defined-list";
-    }
-
     request.setAttribute("index.jsp", Boolean.TRUE);
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-    String cgdsUrl = GlobalProperties.getCgdsUrl();
-    String cgdsUrlHome = cgdsUrl.replace("webservice.do", "");
-    String xdebug = xssUtil.getCleanInput(request, QueryBuilder.XDEBUG);
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 

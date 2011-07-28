@@ -57,7 +57,7 @@ $(document).ready(function(){
 
     //  set toggle Step 5: Optional arguments
     $("#optional_args").hide();
-    $("#step5").click(function(event) {
+    $("#step5_toggle").click(function(event) {
         event.preventDefault();
         $("#optional_args").toggle( "blind" );
     });

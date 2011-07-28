@@ -2,9 +2,13 @@ package org.mskcc.portal.servlet;
 
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.portal.util.OncoPrintSpecificationDriver;
+import org.mskcc.portal.util.ZScoreUtil;
 import org.mskcc.portal.model.CancerType;
 import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.oncoPrintSpecLanguage.Utilities;
+import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -70,16 +74,38 @@ public class CrossCancerStudyServlet extends HttpServlet {
         String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
         ArrayList<CancerType> cancerTypeList = GetCancerTypes.getCancerTypes(xdebug);
 
+        httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
+                cancerTypeList.get(0).getCancerTypeId());
         httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerTypeList);
         httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-        if (geneList == null || geneList.length() == 0) {
-            xdebug.logMsg(this, "Branching to Query Page");
+        boolean errorsExist = false;
+        if (geneList == null || geneList.trim().length() == 0) {
+            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                    "Please enter at least one gene symbol below. ");
+            errorsExist = true;
+        }
+        if (geneList != null && geneList.trim().length() > 0) {
+            String geneSymbols[] = geneList.split("\\s");
+            int numGenes = 0;
+            for (String gene : geneSymbols) {
+                if (gene.trim().length() > 0) {
+                    numGenes++;
+                }
+            }
+            if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                        "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
+                                + " genes or less.");
+                errorsExist = true;
+            }
+        }
+
+        if (errorsExist) {
             RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_query.jsp");
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
             dispatcher.forward(httpServletRequest, httpServletResponse);
         } else {
-            xdebug.logMsg(this, "Branching to Results Page");
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
             dispatcher.forward(httpServletRequest, httpServletResponse);

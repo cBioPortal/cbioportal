@@ -49,7 +49,7 @@
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
     if (geneSetChoice == null) {
-        geneSetChoice = "custom";
+        geneSetChoice = "user-defined-list";
     }
     GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
     ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();

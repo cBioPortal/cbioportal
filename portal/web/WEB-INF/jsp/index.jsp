@@ -37,7 +37,7 @@
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
     String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
     if (geneSetChoice == null) {
-        geneSetChoice = "custom";
+        geneSetChoice = "user-defined-list";
     }
 
     String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);

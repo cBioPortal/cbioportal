@@ -57,8 +57,9 @@
                 <li>See other <a href="http://code.google.com/p/cbio-cancer-genomics-portal/issues/list">open issues</a>...</li>
             </ul>
             </small>
-            <p>
 
+            <span class="tab_active">Query</span>
+            <span class="tab_inactive"><a href="javascript:swapTabs('tab_download');">Download Data</a></span>
             <%@ include file="query_form.jsp" %>
 
             </td>

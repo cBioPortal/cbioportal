@@ -10,32 +10,30 @@ var _selectFromTab;
 // array of control functions
 var _controlFunctions;
 
-// value constants
-const GENES_LIST_SIZE = 35;
-
 // edge type constants
-const IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
-const REACTS_WITH = "REACTS_WITH";
-const STATE_CHANGE = "STATE_CHANGE";
+var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
+var REACTS_WITH = "REACTS_WITH";
+var STATE_CHANGE = "STATE_CHANGE";
 
 // node type constants
-const PROTEIN = "Protein";
-const SMALL_MOLECULE = "SmallMolecule";
-const UNKNOWN = "Unknown";
+var PROTEIN = "Protein";
+var SMALL_MOLECULE = "SmallMolecule";
+var UNKNOWN = "Unknown";
 
 // class constants for css visualization
-const CHECKED_CLASS = "checked-menu-item";
-const SEPARATOR_CLASS = "separator-menu-item";
-const FIRST_CLASS = "first-menu-item";
-const LAST_CLASS = "last-menu-item";
-const MENU_CLASS = "main-menu-item";
-const SUB_MENU_CLASS = "sub-menu-item";
+var CHECKED_CLASS = "checked-menu-item";
+var SEPARATOR_CLASS = "separator-menu-item";
+var FIRST_CLASS = "first-menu-item";
+var LAST_CLASS = "last-menu-item";
+var MENU_CLASS = "main-menu-item";
+var SUB_MENU_CLASS = "sub-menu-item";
+var HOVERED_CLASS = "hovered-menu-item";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
 
 // force directed layout options
-var _layoutOptions;	
+var _layoutOptions;
 
 // array of selected elements, used by the visibility function for filtering
 var _selectedElements;
@@ -60,6 +58,9 @@ var _vis;
  */
 function initNetworkUI(vis)
 {
+	//TODO debug for IE (alert does not work use prompt instead!)
+	//prompt("initing network");
+	
 	_vis = vis;
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
@@ -68,17 +69,17 @@ function initNetworkUI(vis)
 	
 	_initControlFunctions();
 	_initLayoutOptions();
-	
+
 	_initMainMenu();
-	
+	_initDialogs();
+
 	// init tabs
+	$("#network_tabs").tabs();
 	_refreshGenesTab();
 	_refreshRelationsTab();
-	
+
 	// make UI visible
 	_setVisibility(true);
-	
-	
 }
 
 /**
@@ -142,10 +143,25 @@ function saveSettings()
 	{
 		if (_layoutOptions[i].id == "weightNorm")
 		{
-			// TODO find the selected option
+			// find the selected option and update the corresponding value
+			
+			if ($("#norm_linear").is(":selected"))
+			{
+				_layoutOptions[i].value = $("#norm_linear").val(); 
+			}
+			else if ($("#norm_invlinear").is(":selected"))
+			{
+				_layoutOptions[i].value = $("#norm_invlinear").val(); 
+			}
+			else if ($("#norm_log").is(":selected"))
+			{
+				_layoutOptions[i].value = $("#norm_log").val(); 
+			}
 		}
 		else if (_layoutOptions[i].id == "autoStabilize")
 		{
+			// check if the auto stabilize box is checked
+			
 			if($("#autoStabilize").is(":checked"))
 			{
 				_layoutOptions[i].value = true;
@@ -159,11 +175,10 @@ function saveSettings()
 		}
 		else
 		{
+			// simply copy the text field value
 			_layoutOptions[i].value = 
 				$("#" + _layoutOptions[i].id).val();
 		}
-		
-		
 	}
 	
 	// update graphLayout options
@@ -757,6 +772,7 @@ function _setVisibility(visible)
 {
 	if (visible)
 	{
+		//if ($("#network_tabs").hasClass("hidden-network-ui"))
 		if ($("#network_menu_div").hasClass("hidden-network-ui"))
 		{
 			$("#network_menu_div").removeClass("hidden-network-ui");
@@ -819,6 +835,7 @@ function _xrefArray()
 	linkMap["nucleotide sequence database"] = "";	
 	linkMap["refseq"] =	"";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
+	linkMap["chebi"] = "";
 	
 	return linkMap;
 }
@@ -846,15 +863,29 @@ function _edgeTypeArray()
  */
 function _initMainMenu()
 {	
-	$("#nav ul").css({display: "none"}); // Opera fix
+	// Opera fix
+	$("#network_menu ul").css({display: "none"});
 	
-	$("#nav li").hover(
+	// adds hover effect to main menu items (File, Topology, View)
+	
+	$("#network_menu li").hover(
 		function() {
 			$(this).find('ul:first').css(
 					{visibility: "visible",display: "none"}).show(400);
 		},
 		function() {
 			$(this).find('ul:first').css({visibility: "hidden"});
+		});
+	
+	
+	// adds hover effect to menu items
+	
+	$("#network_menu ul a").hover(
+		function() {
+			$(this).addClass(HOVERED_CLASS);
+		},
+		function() {
+			$(this).removeClass(HOVERED_CLASS);
 		});
 	
 	// adjust separators between menu items
@@ -935,11 +966,18 @@ function _initMainMenu()
 	{
 		$("#show_profile_data").removeClass(CHECKED_CLASS);
 	}
-	
+}
+
+/**
+ * Initializes dialog panels for node inspector, edge inspector, and layout
+ * settings.
+ */
+function _initDialogs()
+{
 	// adjust settings panel
 	$("#settings_dialog").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 300});
+		width: 333});
 	
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
@@ -950,12 +988,11 @@ function _initMainMenu()
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 300});
-	
-	// create tabs
-	$("#network_tabs").tabs();
 }
 
 /*
+ * Alternative version with checkboxes..
+ *
 function _refreshGenesTab()
 {
 	var nodes = _vis.nodes();
@@ -1029,7 +1066,8 @@ function _refreshGenesTab()
 		$("#genes_tab #" + safeId).select(updateSelectedGenes);
 		$("#genes_tab #" + safeId).dblclick(showGeneDetails);
 		
-		// TODO qtip does not work with Chrome
+		// TODO qtip does not work with Chrome because of the restrictions of
+		// the <select><option> structure.
 		var qtipOpts =
 		{
 			content: "id: " + safeId,
@@ -1121,9 +1159,8 @@ function _refreshRelationsTab()
 
 
 /**
- * Creates a map with <command, function> pairs.
- * 
- * @return an array (map) of control functions
+ * Creates a map (an array) with <command, function> pairs. Also, adds listener
+ * functions for the buttons and for the CytoscapeWeb canvas.
  */
 function _initControlFunctions()
 {
@@ -1521,7 +1558,12 @@ function _updatePropsUI()
 	{
 		if (_layoutOptions[i].id == "weightNorm")
 		{
-			// TODO set the correct option as selected
+			// clean all selections
+			$("#norm_linear").removeAttr("selected");
+			$("#norm_invlinear").removeAttr("selected");
+			$("#norm_log").removeAttr("selected");
+			
+			// set the correct option as selected
 			
 			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
 		}
@@ -1610,6 +1652,14 @@ function _safeId(id)
 	return safeId;
 }
 
+/**
+ * Replaces all occurrences of the given string in the source string.
+ * 
+ * @param source		string to be modified
+ * @param toFind		string to match
+ * @param toReplace		string to be replaced with the matched string
+ * @return				modified version of the source string
+ */
 function _replaceAll(source, toFind, toReplace)
 {
 	var target = source;

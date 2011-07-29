@@ -73,7 +73,6 @@ $(document).ready(function(){
 //  When the page is first loaded, the default query will be a cross-cancer type
 //  search in which the user will enter ONLY a gene list
 function setDefaultQuery() {
-
     //  Hide form fields not used in cross-study queries
     if ($("#select_cancer_type").val() == 'all'){
         $('#step2').hide();
@@ -82,12 +81,30 @@ function setDefaultQuery() {
     }
 }
 
+//  Determine whether to submit a cross-cancer query or
+//  a study-specific query
 function chooseAction() {
     if ($("#select_cancer_type").val() == 'all'){
        $("#main_form").get(0).setAttribute('action','cross_cancer.do');
     } else {
        $("#main_form").get(0).setAttribute('action','index.do');
     }
+}
+
+//  Determine which radio button was clicked and
+// automatically select the corresponding checkbox
+function selectCheckbox(subgroupClicked) {
+    var subgroupClass = subgroupClicked.attr('class');
+    var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
+    $(checkboxSelector).attr('checked',true);
+}
+
+//  Triggered when a genomic profile is unselected;
+//  make sure subrgoups are also unselected
+function unselectAllSubgroups(profileUnselected) {
+    var profileClass = profileUnselected.attr('class');
+    var radioSelector = "input."+profileClass+"[type=radio]";
+    $(radioSelector).attr('checked',false);
 }
 
 //  Triggered when a cancer study has been selected, either by the user
@@ -144,6 +161,18 @@ function cancerStudySelected() {
         $("#step3").show();
         $("#step5").show();
     }
+
+    //  Set up Event Handler for checking checkboxes associated with radio buttons
+    //  This can not be done on page load, because radio buttons are not found when
+    //  cancer study selected is "all"
+    $("input[type=radio]").click(function(){
+        selectCheckbox($(this));
+    });
+
+    //  Set up an Event Handler for User unselecting a genomic profile
+    $('input[type=checkbox]').click(function(){
+        unselectAllSubgroups($(this));
+    });
 }
 
 //  Triggered when a case set has been selected, either by the user
@@ -263,11 +292,13 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         }
     }); //  end for each genomic profile loop
 
-    if (numProfiles ==0) {
+    if (numProfiles == 0) {
         return;
     } else if(numProfiles >1) {
         //  If we have more than 1 profile, output group checkbox
-        profileHtml += "<input type='checkbox'>" + targetTitle + " data."
+        //  assign a class to associate the checkbox with any subgroups (radio buttons)
+        profileHtml += "<input type='checkbox' class='" + targetAlterationType + "'>"
+         + targetTitle + " data."
             + " Select one of the profiles below:";
         profileHtml += "<div class='genomic_profiles_subgroup'>";
     }
@@ -276,15 +307,16 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
         if (genomic_profile.show_in_analysis_tab == true
                 && genomic_profile.alteration_type == targetAlterationType) {
+
             //  Branch depending on number of profiles
             if (numProfiles == 1) {
-                profileHtml += "<input type='checkbox' "
+                profileHtml += "<input type='checkbox' class='" + targetAlterationType + "' "
                     + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
                     + genomic_profile.description + "'><br/>";
             } else if (numProfiles > 1) {
-                profileHtml += "<input type='radio'"
+                profileHtml += "<input type='radio' class='" + targetAlterationType + "' "
                     + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
@@ -297,6 +329,5 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         //  If we have more than 1 profile, output the end div tag
         profileHtml += "</div>";
     }
-
     $("#genomic_profiles").append(profileHtml);
 }

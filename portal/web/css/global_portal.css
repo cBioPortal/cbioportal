@@ -1051,11 +1051,13 @@ color:white;
 
 /* Main Query Panel */
 .main_query_panel {
-    border: 1px solid #aaaaaa;
+    border-top: 3px solid #DDDDDD;
+    border-left: 1px solid #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
     padding:10px;
-    margin-top:3px;
+    margin-top:6px;
     padding-top:0px;
-    margin-bottom:10px;
 }
 
 /* Step Section */

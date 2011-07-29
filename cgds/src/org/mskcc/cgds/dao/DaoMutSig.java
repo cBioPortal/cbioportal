@@ -1,13 +1,5 @@
 package org.mskcc.cgds.dao;
 
-/**
- * Created by IntelliJ IDEA.
- * User: lennartbastian
- * Date: 22/07/2011
- * Time: 10:55
- * To change this template use File | Settings | File Templates.
- */
-
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
@@ -31,11 +23,17 @@ public class DaoMutSig {
         }
 
         if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("gene");
+            myMySQLbulkLoader = new MySQLbulkLoader("mut_sig");
         }
         return daoMutSig;
     }
-
+    /**
+     * Adds a new MutSig Record to the Database.
+     *
+     * @param mutSig Mut Sig Object.
+     * @return number of records successfully added.
+     * @throws DaoException Database Error.
+     */
     public static int addMutSig(MutSig mutSig) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -45,12 +43,13 @@ public class DaoMutSig {
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
-                        Integer.toString(mutSig.getRank()), Integer.toString(mutSig.getN()),
-                        Integer.toString(mutSig.getn()), Integer.toString(mutSig.getnVal()),
-                        Integer.toString(mutSig.getnVer()), Integer.toString(mutSig.getCpG()),
-                        Integer.toString(mutSig.getCandG()), Integer.toString(mutSig.getAandT()),
-                        Integer.toString(mutSig.getIndel()), mutSig.getpValue(), mutSig.getqValue());
+                myMySQLbulkLoader.insertRecord(Integer.toString(mutSig.getCancerType()),
+                        Long.toString(gene.getEntrezGeneId()),Integer.toString(mutSig.getRank()),
+                        Integer.toString(mutSig.getN()), Integer.toString(mutSig.getn()),
+                        Integer.toString(mutSig.getnVal()), Integer.toString(mutSig.getnVer()),
+                        Integer.toString(mutSig.getCpG()), Integer.toString(mutSig.getCandG()),
+                        Integer.toString(mutSig.getAandT()), Integer.toString(mutSig.getIndel()),
+                        mutSig.getpValue(), mutSig.getqValue());
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {

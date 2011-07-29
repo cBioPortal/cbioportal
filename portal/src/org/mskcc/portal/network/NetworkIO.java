@@ -86,20 +86,25 @@ public class NetworkIO {
             line = bufReader.readLine();
             if (!line.startsWith("PARTICIPANT\tUNIFICATION_XREF\tRELATIONSHIP_XREF")) {
                 System.err.print("cPath2 format changed.");
-                return network;
+                //return network;
             }
+            
+            String[] nodeHeaders = line.split("\t");
             while ((line = bufReader.readLine())!=null && !line.isEmpty()) {
                 String[] strs = line.split("\t");
                 Node node = network.getNodeById(strs[0]);
-                for (int i=1; i<strs.length && i<3; i++) {
-                    for (String xref : strs[i].split(";")) {
-                        String[] typeId = xref.split(":",2);
-                        if (typeId[0].equals("HGNC"))
-                            node.addXref(typeId[0], typeId[1].toUpperCase());
-                        else
-                            node.addXref(typeId[0], typeId[1]);
+                for (int i=1; i<strs.length; i++) {
+                    if (nodeHeaders[i].endsWith("_XREF")) {
+                        for (String xref : strs[i].split(";")) {
+                            String[] typeId = xref.split(":",2);
+                            if (typeId[0].equals("HGNC"))
+                                node.addXref(typeId[0], typeId[1].toUpperCase());
+                            else
+                                node.addXref(typeId[0], typeId[1]);
+                        }
+                    } else {
+                        node.addAttribute(nodeHeaders[i], strs[i]);
                     }
-                    
                 }
             }
             

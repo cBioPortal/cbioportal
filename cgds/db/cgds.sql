@@ -14,7 +14,7 @@ drop table IF EXISTS cancer_study;
 drop table IF EXISTS access_rights;
 drop table IF EXISTS users;
 drop table IF EXISTS type_of_cancer;
-
+drop table IF EXISTS mut_sig;
 drop table IF EXISTS _case;
 drop table IF EXISTS cancer_type;
 drop table IF EXISTS case_list;
@@ -269,6 +269,8 @@ CREATE TABLE `interaction` (
   `EXPERIMENT_TYPES` varchar(1024) NOT NULL,
   `PMIDS` varchar(1024) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- Table Structure for `mut_sig`
 
 CREATE TABLE IF NOT EXISTS `mut_sig` (
   `CancerStudyID` int(11) NOT NULL,

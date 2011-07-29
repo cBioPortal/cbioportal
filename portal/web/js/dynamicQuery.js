@@ -292,7 +292,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         }
     }); //  end for each genomic profile loop
 
-    if (numProfiles ==0) {
+    if (numProfiles == 0) {
         return;
     } else if(numProfiles >1) {
         //  If we have more than 1 profile, output group checkbox
@@ -310,13 +310,13 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
             //  Branch depending on number of profiles
             if (numProfiles == 1) {
-                profileHtml += "<input type='checkbox' class=\"" + targetAlterationType + "\" " +
+                profileHtml += "<input type='checkbox' class='" + targetAlterationType + "' "
                     + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
                     + genomic_profile.description + "'><br/>";
             } else if (numProfiles > 1) {
-                profileHtml += "<input type='radio' class=\"" + targetAlterationType + "\" " +
+                profileHtml += "<input type='radio' class='" + targetAlterationType + "' "
                     + "name='genetic_profile_ids' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
@@ -329,6 +329,5 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         //  If we have more than 1 profile, output the end div tag
         profileHtml += "</div>";
     }
-
     $("#genomic_profiles").append(profileHtml);
 }

@@ -30,6 +30,7 @@ const FIRST_CLASS = "first-menu-item";
 const LAST_CLASS = "last-menu-item";
 const MENU_CLASS = "main-menu-item";
 const SUB_MENU_CLASS = "sub-menu-item";
+const HOVERED_CLASS = "hovered-menu-item";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -868,7 +869,8 @@ function _initMainMenu()
 	// Opera fix
 	$("#network_menu ul").css({display: "none"});
 	
-	// adds hover effect to main menu items
+	// adds hover effect to main menu items (File, Topology, View)
+	
 	$("#network_menu li").hover(
 		function() {
 			$(this).find('ul:first').css(
@@ -876,6 +878,17 @@ function _initMainMenu()
 		},
 		function() {
 			$(this).find('ul:first').css({visibility: "hidden"});
+		});
+	
+	
+	// adds hover effect to menu items
+	
+	$("#network_menu ul a").hover(
+		function() {
+			$(this).addClass(HOVERED_CLASS);
+		},
+		function() {
+			$(this).removeClass(HOVERED_CLASS);
 		});
 	
 	// adjust separators between menu items

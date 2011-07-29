@@ -10,6 +10,7 @@ package org.mskcc.cgds.dao;
 
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,7 +59,7 @@ public class DaoMutSig {
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CancerStudyID`,`Entrez_Gene_ID`, `rank`, `bigN`, `smallN`, `nVal`, `nVer`, `CpG`, `C+G`, `A+T`, " +
                                     "`Indel`, `p`, `q`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                    pstmt.setInt(1,mutSig.getCancerType());
+                    pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
                     pstmt.setInt(4, mutSig.getN());
@@ -105,7 +106,7 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 return mutSig;
@@ -134,7 +135,7 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 return mutSig;
@@ -148,9 +149,9 @@ public class DaoMutSig {
         }
     }
 
-        //get all MutSigs in the Database
+    //get all MutSigs in the Database
 
-        public ArrayList<MutSig> getAllMutSig() throws DaoException {
+    public ArrayList<MutSig> getAllMutSig() throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -163,7 +164,7 @@ public class DaoMutSig {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 mutSigList.add(mutSig);

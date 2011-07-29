@@ -1,4 +1,7 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%
+    if (localTabIndex != null && localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
+%>
 <div class="query_step_section" id="step5">
     <span class="step_header">Optional Arguments:  &nbsp;&nbsp;<small>[<a href="#" id="step5_toggle">Toggle</a>]</small></span>
 <br/>
@@ -19,3 +22,4 @@
     </div>
     </div>
 </div>
+<% } %>

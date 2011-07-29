@@ -1,8 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.*" %>
-
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 
 <%
+    org.mskcc.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     Config globalConfig = Config.getInstance();
     String siteTitle = globalConfig.getProperty("skin.title");
     String popeye = globalConfig.getProperty("popeye");
@@ -12,6 +14,12 @@
     } 
     if (siteTitle == null) {
         siteTitle = "cBio Cancer Genomics Portal";
+    }
+    String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
+    if (tabIndex == null) {
+        tabIndex = QueryBuilder.TAB_VISUALIZE;
+    } else {
+        tabIndex = URLEncoder.encode(tabIndex);
     }
 %>
 
@@ -48,18 +56,16 @@
             }
             %>
 
-            <small>
-            Developer Notes:
-            <ul>
-                <li>Data Download Tab will be added back soon...</li>
-                <li>Form validation is still a work in progress...</li>
-                <li>Losing state upon back button is an open, unresolved issue...</li>
-                <li>See other <a href="http://code.google.com/p/cbio-cancer-genomics-portal/issues/list">open issues</a>...</li>
-            </ul>
-            </small>
-
-            <span class="tab_active">Query</span>
-            <span class="tab_inactive"><a href="javascript:swapTabs('tab_download');">Download Data</a></span>
+            <%
+                //  Outputs Query and Download Tabs
+                if (tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
+                    out.println ("<span class='tab_active'>Query</span>");
+                    out.println ("<span class='tab_inactive'><a id='download_tab' href=''>Download Data</a></span>");
+                } else {
+                    out.println ("<span class='tab_inactive'><a id='query_tab' href=''>Query</a></span></span>");
+                    out.println ("<span class='tab_active'>Download Data</span>");
+                }
+            %>
             <%@ include file="query_form.jsp" %>
 
             </td>

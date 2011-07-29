@@ -85,7 +85,7 @@
 
 <div id="settings_dialog" class="hidden-network-ui" title="Layout Properties">
 	<div id="fd_layout_settings" class="content ui-widget-content">
-		<table>
+		<table align="center">
 			<tr title="The gravitational constant. Negative values produce a repulsive force.">
 				<td align="right">
 					<label>Gravitation</label>
@@ -157,7 +157,7 @@
 				<td>
 					<select id="weightNorm" size="1">
 						<option id="norm_linear" value="linear">linear</option>
-						<option id="norm_inlinear" value="invlinear">invlinear</option>
+						<option id="norm_invlinear" value="invlinear">invlinear</option>
 						<option id="norm_log" value="log">log</option>
 					</select>
 				</td>

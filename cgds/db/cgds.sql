@@ -269,3 +269,20 @@ CREATE TABLE `interaction` (
   `EXPERIMENT_TYPES` varchar(1024) NOT NULL,
   `PMIDS` varchar(1024) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `mut_sig` (
+  `CancerStudyID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` bigint(20) NOT NULL,
+  `rank` int(11) NOT NULL,
+  `bigN` int(11) NOT NULL,
+  `smallN` int(11) NOT NULL,
+  `nVal` int(11) NOT NULL,
+  `nVer` int(11) NOT NULL,
+  `CpG` int(11) NOT NULL,
+  `C+G` int(11) NOT NULL,
+  `A+T` int(11) NOT NULL,
+  `Indel` int(11) NOT NULL,
+  `p` varchar(30) NOT NULL,
+  `q` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+

@@ -40,6 +40,7 @@ public class DaoMutSig {
         ResultSet rs = null;
         //System.err.print("Adding MutSig \n");
         CanonicalGene gene = mutSig.getCanonicalGene();
+        MySQLbulkLoader.bulkLoadOff();
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader

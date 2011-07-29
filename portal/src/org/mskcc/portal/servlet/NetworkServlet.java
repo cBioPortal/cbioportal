@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.owasp.validator.html.PolicyException;
 
 import org.mskcc.portal.model.CaseSet;
+import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
@@ -112,8 +113,11 @@ public class NetworkServlet extends HttpServlet {
         }
         
         //  Get User Selected Genetic Profiles
-        String geneticProfileIdsStr = xssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS);
-        HashSet<String> geneticProfileIdSet = new HashSet<String>(Arrays.asList(geneticProfileIdsStr.split(" ")));
+        HashSet<String> geneticProfileIdSet = new HashSet<String>();
+        
+        for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
+            geneticProfileIdSet.addAll(Arrays.asList(geneticProfileIdsStr.split(" ")));
+        }
         
         String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
         // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
@@ -135,9 +139,11 @@ public class NetworkServlet extends HttpServlet {
         }
         
         // retrieve profiles from CGDS for new genes
+        Set<GeneticAlterationType> alterationTypes = new HashSet();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
         for (String profileId : geneticProfileIdSet) {                        
             GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+            alterationTypes.add(profile.getAlterationType());
             if( null == profile ){
                continue;
             }
@@ -179,13 +185,22 @@ public class NetworkServlet extends HttpServlet {
         for (String gene : netGeneList) {
             for (Node node : network.getNodesByXref(HGNC, gene.toUpperCase())) {
                 node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
-                node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsMutated(gene));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
-                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
-                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
+                if (alterationTypes.contains(GeneticAlterationType.MUTATION) ||
+                        alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
+                    node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsMutated(gene));
+                }
+                
+                if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                    node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                    node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                    node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                    node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
+                }
+                
+                if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
+                    node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
+                    node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
+                }
             }
         }
 

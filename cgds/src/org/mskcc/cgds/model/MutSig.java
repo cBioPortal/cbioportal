@@ -2,15 +2,6 @@ package org.mskcc.cgds.model;
 
 import org.mskcc.cgds.dao.DaoException;
 
-
-/**
- * Created by IntelliJ IDEA.
- * User: lennartbastian
- * Date: 22/07/2011
- * Time: 15:50
- * To change this template use File | Settings | File Templates.
- */
-
 public class MutSig {
     private int cancerType;
     private int rank;

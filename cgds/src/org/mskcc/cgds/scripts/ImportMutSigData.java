@@ -33,12 +33,12 @@ public class ImportMutSigData {
     }
 
     public void importData() throws IOException, DaoException {
-        //MySQLbulkLoader.bulkLoadOn();
+        MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(mutSigFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         System.err.println("Importing Data");
-        int cancerType = loadProps(metaDataFile);
+        int cancerType = loadProps();
         //DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while (line != null) {
 
@@ -98,9 +98,9 @@ public class ImportMutSigData {
         System.err.println("Done.");
     }
 
-    public int loadProps(File file) throws IOException, DaoException {
+    public int loadProps() throws IOException, DaoException {
         Properties props = new Properties();
-        props.load(new FileInputStream(file));
+        props.load(new FileInputStream(metaDataFile));
         String cancer_study_identifier;
         cancer_study_identifier = props.getProperty("cancer_study_identifier");
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_identifier);

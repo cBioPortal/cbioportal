@@ -10,27 +10,24 @@ var _selectFromTab;
 // array of control functions
 var _controlFunctions;
 
-// value constants
-const GENES_LIST_SIZE = 35;
-
 // edge type constants
-const IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
-const REACTS_WITH = "REACTS_WITH";
-const STATE_CHANGE = "STATE_CHANGE";
+var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
+var REACTS_WITH = "REACTS_WITH";
+var STATE_CHANGE = "STATE_CHANGE";
 
 // node type constants
-const PROTEIN = "Protein";
-const SMALL_MOLECULE = "SmallMolecule";
-const UNKNOWN = "Unknown";
+var PROTEIN = "Protein";
+var SMALL_MOLECULE = "SmallMolecule";
+var UNKNOWN = "Unknown";
 
 // class constants for css visualization
-const CHECKED_CLASS = "checked-menu-item";
-const SEPARATOR_CLASS = "separator-menu-item";
-const FIRST_CLASS = "first-menu-item";
-const LAST_CLASS = "last-menu-item";
-const MENU_CLASS = "main-menu-item";
-const SUB_MENU_CLASS = "sub-menu-item";
-const HOVERED_CLASS = "hovered-menu-item";
+var CHECKED_CLASS = "checked-menu-item";
+var SEPARATOR_CLASS = "separator-menu-item";
+var FIRST_CLASS = "first-menu-item";
+var LAST_CLASS = "last-menu-item";
+var MENU_CLASS = "main-menu-item";
+var SUB_MENU_CLASS = "sub-menu-item";
+var HOVERED_CLASS = "hovered-menu-item";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -775,8 +772,8 @@ function _setVisibility(visible)
 {
 	if (visible)
 	{
-		//if ($("#network_menu_div").hasClass("hidden-network-ui"))
-		if ($("#network_tabs").hasClass("hidden-network-ui"))
+		//if ($("#network_tabs").hasClass("hidden-network-ui"))
+		if ($("#network_menu_div").hasClass("hidden-network-ui"))
 		{
 			$("#network_menu_div").removeClass("hidden-network-ui");
 			$("#network_tabs").removeClass("hidden-network-ui");

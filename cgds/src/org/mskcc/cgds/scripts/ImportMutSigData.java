@@ -87,7 +87,8 @@ public class ImportMutSigData {
 
         File mutSigFile = new File(args[0]);
         File propertiesFile = new File(args[1]);
-        System.out.println("Reading data from:  " + mutSigFile.getAbsolutePath());
+        System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
+        System.out.println("Properties: " + propertiesFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(mutSigFile);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);

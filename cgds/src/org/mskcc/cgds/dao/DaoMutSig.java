@@ -58,7 +58,7 @@ public class DaoMutSig {
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CancerStudyID`,`Entrez_Gene_ID`, `rank`, `bigN`, `smallN`, `nVal`, `nVer`, `CpG`, `C+G`, `A+T`, " +
                                     "`Indel`, `p`, `q`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                    pstmt.setString(1,mutSig.getCancerType());
+                    pstmt.setInt(1,mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
                     pstmt.setInt(4, mutSig.getN());
@@ -105,7 +105,7 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getString("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 return mutSig;
@@ -134,7 +134,7 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getString("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 return mutSig;
@@ -163,7 +163,7 @@ public class DaoMutSig {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
-                MutSig mutSig = new MutSig(rs.getString("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
+                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"),  rs.getInt("bigN"), rs.getInt("smallN"),
                         rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
                         rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
                 mutSigList.add(mutSig);

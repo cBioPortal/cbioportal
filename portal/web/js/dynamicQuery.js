@@ -81,7 +81,6 @@ $(document).ready(function(){
 
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {
-    console.log("Tab:  " + tabAction);
 
     //  Change hidden field value
     $("#tab_index").val(tabAction);

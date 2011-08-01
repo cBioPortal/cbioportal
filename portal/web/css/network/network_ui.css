@@ -179,6 +179,55 @@
 	font-size: 12pt;
 }
 
+#node_inspector .percent-bar
+{
+	margin-top: 0.5em;
+	margin-left: 0.1em;
+	margin-right: 0.1em;
+	height: 0.3em;
+	border-right: 0px solid #b0b0b0;
+	clear: both;
+}
+
+#node_inspector .percent-cell
+{
+	width: 120px;
+}
+
+#node_inspector .percent-value
+{
+	
+}
+
+#node_inspector .percent-text
+{
+	
+}
+
+#node_inspector .profile
+{
+	border-collapse: collapse;
+	margin-bottom: 0.5em;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+}
+
+#node_inspector .profile-header
+{
+	margin-top: 0.5em;
+	font-weight: bold;
+}
+
+#node_inspector .percent-separator
+{
+	border-top:1px solid #aaaaaa;
+}
+
+#node_inspector .total-alteration
+{
+	
+}
+
 /*
  * Tabs
  */

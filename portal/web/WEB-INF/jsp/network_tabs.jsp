@@ -1,7 +1,7 @@
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
         <li><a href="#genes_tab"><span>Genes</span></a></li>
-        <li><a href="#relations_tab"><span>Relations</span></a></li>
+        <li><a href="#relations_tab"><span>Interactions</span></a></li>
         <li><a href="#help_tab"><span>Help</span></a></li>
     </ul>
     <div id="genes_tab">
@@ -84,21 +84,16 @@
 
 <div id="node_inspector" class="hidden-network-ui" title="Node Inspector">
 	<div id="node_inspector_content" class="content ui-widget-content">
-		<table class="xref">
-			<tr><td><strong>Cross References:</strong></td></tr>
-		</table>
-		<table class="data">
-			<tr><td><strong>Data:</strong></td></tr>
-		</table>
+		<table class="data"></table>
+		<table class="profile-header"></table>
+		<table class="profile"></table>
+		<table class="xref"></table>
 	</div>
 </div>
 
 <div id="edge_inspector" class="hidden-network-ui" title="Edge Inspector">
 	<div id="edge_inspector_content" class="content ui-widget-content">
-		<table class="xref">
-		</table>
-		<table class="data">
-			<tr><td><strong>Data:</strong></td></tr>
-		</table>
+		<table class="data"></table>
+		<table class="xref"></table>
 	</div>
 </div>

@@ -33,6 +33,10 @@ drop table IF EXISTS micro_rna_alteration;
 drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 
+drop table IF EXISTS protein_array_info;
+drop table IF EXISTS protein_array_target;
+drop table IF EXISTS protein_array_data;
+
 --
 -- Database: `cgds`
 --
@@ -290,3 +294,23 @@ CREATE TABLE IF NOT EXISTS `mut_sig` (
   `Q_VALUE` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `protein_array_info` (
+  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
+  `TYPE` varchar(50) NOT NULL,
+  `SOURCE_ORGANISM` varchar(50),
+  `VALIDATED` boolean,
+  PRIMARY KEY (`PROTEIN_ARRAY_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `protein_array_target` (
+  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `TARGET_RESIDUE` varchar(10) default NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `protein_array_data` (
+  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
+  `CASE_ID` varchar(255) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `ABUNDANCE` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

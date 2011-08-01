@@ -65,7 +65,7 @@
 	    		</li>
 	    		<li>
 	    			<a id="merge_links" onclick="handleMenuEvent('merge_links')">
-	    				Merge Relations
+	    				Merge Interactions
 	    			</a>
 	    		</li>
 	    		<li>

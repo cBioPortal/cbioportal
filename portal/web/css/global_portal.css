@@ -521,13 +521,13 @@ td.op_data_cell{
 }
 
 
-#threshold {
+/*#threshold {
     height: 35px;
     display: none;
     margin:0px;
     padding-top: 1px;
     margin-left:77px;
-}
+}  */
 
 #tabs {
     display: none;
@@ -1116,6 +1116,13 @@ color:white;
    margin-top:2px;
    margin-bottom:5px;
    font-size:90%;
+}
+
+/* Z-score threshold input (hidden until appropriate radio button selected) */
+#z_score_threshold {
+   display: none;
+   margin-left: 64px;
+   font-size: 90%;
 }
 
 /* Do not allow user to resize the text area */

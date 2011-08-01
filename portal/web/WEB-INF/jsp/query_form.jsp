@@ -7,11 +7,11 @@
     String localCaseIds = localXssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
     String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
     
-    String tabIndex = localXssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
-    if (tabIndex == null) {
-        tabIndex = QueryBuilder.TAB_VISUALIZE;
+    String localTabIndex = localXssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
+    if (localTabIndex == null) {
+        localTabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {
-        tabIndex = URLEncoder.encode(tabIndex);
+        localTabIndex = URLEncoder.encode(localTabIndex);
     }
 
     String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
@@ -19,10 +19,8 @@
         localGeneSetChoice = "user-defined-list";
     }
 %>
-
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
-
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
@@ -32,6 +30,7 @@
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
     window.case_set_id_selected = '<%= localCaseSetId %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
+    window.tab_index = '<%= localTabIndex %>';
 
     //  Store the currently selected genomic profiles within an associative array
     window.genomic_profile_id_selected = new Array();
@@ -43,12 +42,11 @@
         }
     %>
 </script>
-
 <div class="main_query_panel">
 
     <form id="main_form" action="index.do" method="get">
     <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
-           value="<%= tabIndex %>">
+           value="<%= localTabIndex %>">
         
     <%@ include file="step1_json.jsp" %>
     <%@ include file="step2_json.jsp" %>

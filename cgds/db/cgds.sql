@@ -9,12 +9,14 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+USE CGDS;
+
 drop table IF EXISTS encrypted_keys;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS access_rights;
 drop table IF EXISTS users;
 drop table IF EXISTS type_of_cancer;
-
+drop table IF EXISTS mut_sig;
 drop table IF EXISTS _case;
 drop table IF EXISTS cancer_type;
 drop table IF EXISTS case_list;
@@ -269,3 +271,22 @@ CREATE TABLE `interaction` (
   `EXPERIMENT_TYPES` varchar(1024) NOT NULL,
   `PMIDS` varchar(1024) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- Table Structure for `mut_sig`
+
+CREATE TABLE IF NOT EXISTS `mut_sig` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `ENTREZ_GENE_ID` bigint(20) NOT NULL,
+  `RANK` int(11) NOT NULL,
+  `BIG_N` int(11) NOT NULL,
+  `SMALL_N` int(11) NOT NULL,
+  `N_VAL` int(11) NOT NULL,
+  `N_VER` int(11) NOT NULL,
+  `CPG` int(11) NOT NULL,
+  `C+G` int(11) NOT NULL,
+  `A+T` int(11) NOT NULL,
+  `INDEL` int(11) NOT NULL,
+  `P_VALUE` varchar(30) NOT NULL,
+  `Q_VALUE` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+

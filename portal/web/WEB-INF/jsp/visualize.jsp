@@ -168,7 +168,7 @@
                 out.println ("</div>");
             } else { %>
 
-             <a href="" id="toggle_query_form">
+            <a href="" id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>Modify Query</a>
             <p/>

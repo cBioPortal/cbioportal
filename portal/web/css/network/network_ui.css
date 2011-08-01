@@ -1,6 +1,6 @@
+
 #network_menu_div
 {
-	/* margin-left: 18px; */
 	margin-top: -10px;
 }
 
@@ -24,17 +24,10 @@
 	padding-bottom: 0px;
 	border-left: 1px solid #aaaaaa;
 	border-right: 1px solid #aaaaaa;
-	/*font-weight: bold;*/
 	color: #2e6e9e;
 	text-decoration: none;
 	background-color: #e6e6e6;
 	background-repeat: no-repeat;
-}
-
-#network_menu a:hover
-{
-	background-color: #fff;
-	color: #2e6e9e;
 }
 
 #network_menu li
@@ -79,22 +72,29 @@
 	display:block;
 }
 
+
 /* 
  * Menu & Settings Panel
  */
- 
-.checked-menu-item
+
+#network_menu .hovered-menu-item
+{
+	background-color: #fff;
+	color: #2e6e9e;
+}
+
+#network_menu .checked-menu-item
 {
 	background-image: url("images/menu_check.gif");
 	background-position: left;
 }
 
-.separator-menu-item
+#network_menu .separator-menu-item
 {
 	border-top:1px solid #aaaaaa;
 }
 
-.first-menu-item
+#network_menu .first-menu-item
 {
 	-moz-border-radius-topleft: 5px;
 	-webkit-border-top-left-radius: 5px;
@@ -104,7 +104,7 @@
 	border-top-right-radius: 5px;
 }
 
-.last-menu-item
+#network_menu .last-menu-item
 {
 	border-bottom:1px solid #aaaaaa;
 	-moz-border-radius-bottomleft: 5px;
@@ -115,7 +115,7 @@
 	border-bottom-right-radius: 5px;
 }
 
-.main-menu-item
+#network_menu .main-menu-item
 {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -123,7 +123,7 @@
 	border:1px solid #aaaaaa;
 }
 
-.sub-menu-item
+#network_menu .sub-menu-item
 {
 	background-image: url("images/menu_right.png");
 	background-position: right;
@@ -177,6 +177,55 @@
 #node_inspector_content .data-row
 {
 	font-size: 12pt;
+}
+
+#node_inspector .percent-bar
+{
+	margin-top: 0.5em;
+	margin-left: 0.1em;
+	margin-right: 0.1em;
+	height: 0.3em;
+	border-right: 0px solid #b0b0b0;
+	clear: both;
+}
+
+#node_inspector .percent-cell
+{
+	width: 120px;
+}
+
+#node_inspector .percent-value
+{
+	
+}
+
+#node_inspector .percent-text
+{
+	
+}
+
+#node_inspector .profile
+{
+	border-collapse: collapse;
+	margin-bottom: 0.5em;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+}
+
+#node_inspector .profile-header
+{
+	margin-top: 0.5em;
+	font-weight: bold;
+}
+
+#node_inspector .percent-separator
+{
+	border-top:1px solid #aaaaaa;
+}
+
+#node_inspector .total-alteration
+{
+	
 }
 
 /*

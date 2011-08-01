@@ -67,8 +67,28 @@ $(document).ready(function(){
        chooseAction();
     });
 
+    //  Set up an Event Handler for the Query / Data Download Tabs
+    $("#query_tab").click(function(event) {
+       event.preventDefault();
+        userClickedMainTab("tab_visualize")
+    });
+    $("#download_tab").click(function(event) {
+       event.preventDefault();
+       userClickedMainTab("tab_download");
+    });
+
 });  //  end document ready function
 
+//  Triggered when the User Selects one of the Main Query or Download Tabs
+function userClickedMainTab(tabAction) {
+    console.log("Tab:  " + tabAction);
+
+    //  Change hidden field value
+    $("#tab_index").val(tabAction);
+
+    //  Then, submit the form
+    $("#main_form").submit();
+}
 
 //  When the page is first loaded, the default query will be a cross-cancer type
 //  search in which the user will enter ONLY a gene list
@@ -210,26 +230,18 @@ function addMetaDataToPage() {
 
     //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
-        $("#cancer_results").append('<h1>Cancer Study:  ' + cancer_study.name + '</h1>');
 
         //  Append to Cancer Study Pull-Down Menu
-        $("#select_cancer_type").append("<option value='" + key + "'>" + cancer_study.name + "</option>");
+        var addCancerStudy = true;
 
-        $("#cancer_results").append('<p>' + cancer_study.description + '</p>');
-        $("#cancer_results").append('<h2>Genomic Profiles:' + '</h2>');
-        $("#cancer_results").append('<ul>');
-        jQuery.each(cancer_study.genomic_profiles,function(i, genomic_profile) {
-            $("#cancer_results").append('<li>' + genomic_profile.name + ': ' + genomic_profile.description + "</li>'");
-        }); //  end for each genomic profile loop
-
-        $("#cancer_results").append('</ul>');
-        $("#cancer_results").append('<h2>Case Sets:' + '</h2>');
-        $("#cancer_results").append('<ul>');
-        jQuery.each(cancer_study.case_sets,function(i, case_set) {
-            $("#cancer_results").append('<li>' + case_set.name + ': ' + case_set.description + "</li>'");
-        }); //  end for each genomic profile loop
+        //  If the tab index is selected, and this is the all cancer studies option, do not show
+        if (window.tab_index == "tab_download" && key == "all") {
+            addCancerStudy = false;
+        }
+        if (addCancerStudy) {
+            $("#select_cancer_type").append("<option value='" + key + "'>" + cancer_study.name + "</option>");
+        }
         
-        $("#cancer_results").append('</ul>');
     });  //  end 1st for each cancer study loop
 
     //  Add Gene Sets to Pull-down Menu
@@ -283,18 +295,24 @@ function addMetaDataToPage() {
 function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle) {
     var numProfiles = 0;
     var profileHtml = "";
+    var downloadTab = false;
+
+    //  Determine whether we are in the download tab
+    if (window.tab_index == "tab_download") {
+        downloadTab = true;
+    }
 
     //  First count how many profiles match the targetAltertion type
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
-        if (genomic_profile.show_in_analysis_tab == true
-                && genomic_profile.alteration_type == targetAlterationType) {
+        if (genomic_profile.alteration_type == targetAlterationType) {
+            if (downloadTab || genomic_profile.show_in_analysis_tab == true)
             numProfiles++;
         }
     }); //  end for each genomic profile loop
 
-    if (numProfiles ==0) {
+    if (numProfiles == 0) {
         return;
-    } else if(numProfiles >1) {
+    } else if(numProfiles >1 && downloadTab == false) {
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
         profileHtml += "<input type='checkbox' class='" + targetAlterationType + "'>"
@@ -305,23 +323,23 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
     //  First count how many profiles match the targetAltertion type
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
-        if (genomic_profile.show_in_analysis_tab == true
-                && genomic_profile.alteration_type == targetAlterationType) {
 
-            //  Branch depending on number of profiles
-            if (numProfiles == 1) {
-                profileHtml += "<input type='checkbox' class=\"" + targetAlterationType + "\" "
-                    + "name='genetic_profile_ids' "
-                    + "value='" + genomic_profile.id + "'>" + genomic_profile.name + "</input>"
-                    + "  <img class='profile_help' src='images/help.png' title='"
-                    + genomic_profile.description + "'><br/>";
-            } else if (numProfiles > 1) {
-                profileHtml += "<input type='radio' class=\"" + targetAlterationType + "\" "
-                    //+ "name='genetic_profile_ids' "
-                    + "name='" + targetAlterationType + "_subgroup' "
-                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
-                    + "  <img class='profile_help' src='images/help.png' title='"
-                    + genomic_profile.description + "'><br/>";
+        if (genomic_profile.alteration_type == targetAlterationType) {
+            if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
+                //  Branch depending on number of profiles
+                var optionType = "checkbox";
+                if (downloadTab) {
+                    optionType = "radio";
+                } else {
+                    if (numProfiles == 1) {
+                        optionType = "checkbox";
+                    } else if (numProfiles > 1) {
+                        optionType = "radio";
+                    }
+                }
+                profileHtml += outputGenomicProfileOption (optionType, targetAlterationType,
+                        genomic_profile.id, genomic_profile.name, genomic_profile.description);                
+
             }
         }
     }); //  end for each genomic profile loop
@@ -330,6 +348,15 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         //  If we have more than 1 profile, output the end div tag
         profileHtml += "</div>";
     }
-
     $("#genomic_profiles").append(profileHtml);
+}
+
+// Outputs a Single Genomic Profile Options
+function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
+    var html =  "<input type='" + optionType + "' class='" + targetAlterationType + "' "
+        + "name='genetic_profile_ids' group='" + targetAlterationType + "'"
+        + "value='" + id +"'>" + name + "</input>"
+        + "  <img class='profile_help' src='images/help.png' title='"
+        + description + "'><br/>";
+    return html;
 }

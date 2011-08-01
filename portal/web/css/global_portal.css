@@ -271,9 +271,12 @@ color: #000;
     padding-right:10px;
     padding-bottom:5px;
     font-family: verdana, arial, sans-serif;
-    font-size:90%;
+    font-size:150%;
     font-weight:bold;
     color:#222222;
+    border-radius:          8px 8px 0px 0;
+    -moz-border-radius:     8px 8px 0px 0;
+    -webkit-border-radius:  8px 8px 0px 0;
 }
 
 .tab_active {
@@ -528,6 +531,7 @@ td.op_data_cell{
 
 #tabs {
     display: none;
+    margin-top:10px;    
 }
 
 #tabs li {
@@ -1051,11 +1055,13 @@ color:white;
 
 /* Main Query Panel */
 .main_query_panel {
-    border: 1px solid #aaaaaa;
+    border-top: 3px solid #DDDDDD;
+    border-left: 1px solid #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
     padding:10px;
-    margin-top:3px;
-    padding-top:0px;
-    margin-bottom:10px;
+    margin-top:6px;
+    padding-top:10px;
 }
 
 /* Step Section */
@@ -1119,4 +1125,9 @@ textarea {
 
 #query_form_on_results_page{
   background-color:#CCCCFF;
+}
+
+.profile_help {
+vertical-align:middle;
+padding:4px;
 }

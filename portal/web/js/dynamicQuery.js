@@ -130,7 +130,6 @@ function unselectAllSubgroups(profileUnselected) {
 // Show or hide mRNA threshold field based on mRNA profile selected
 function toggle_threshold(profileClicked) {
     var selectedProfile = profileClicked.val();
-    alert(selectedProfile);
     var inputType = profileClicked.attr('type');
 
     // when a radio button is clicked, show threshold input unless user chooses expression outliers

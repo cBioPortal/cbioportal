@@ -310,14 +310,15 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
             //  Branch depending on number of profiles
             if (numProfiles == 1) {
-                profileHtml += "<input type='checkbox' class=\"" + targetAlterationType + "\" " +
+                profileHtml += "<input type='checkbox' class=\"" + targetAlterationType + "\" "
                     + "name='genetic_profile_ids' "
-                    + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
+                    + "value='" + genomic_profile.id + "'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
                     + genomic_profile.description + "'><br/>";
             } else if (numProfiles > 1) {
-                profileHtml += "<input type='radio' class=\"" + targetAlterationType + "\" " +
-                    + "name='genetic_profile_ids' "
+                profileHtml += "<input type='radio' class=\"" + targetAlterationType + "\" "
+                    //+ "name='genetic_profile_ids' "
+                    + "name='" + targetAlterationType + "_subgroup' "
                     + "value='" + genomic_profile.id +"'>" + genomic_profile.name + "</input>"
                     + "  <img class='profile_help' src='images/help.png' title='"
                     + genomic_profile.description + "'><br/>";

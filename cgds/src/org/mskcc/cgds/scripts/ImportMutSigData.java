@@ -1,11 +1,10 @@
 package org.mskcc.cgds.scripts;
 
-/**
- * Created by IntelliJ IDEA.
- * User: lennartbastian
- * Date: 22/07/2011
- * Time: 11:15
- * To change this template use File | Settings | File Templates.
+/*
+ * Created by Lennart Bastian
+ * ImportMutSig is used to import the Broad Institutes MutSig data for different Cancer types
+ * into the CGDS SQL database.
+ * Command line users must specify a MutSig file, and properties file with the CancerID.
  */
 
 import org.mskcc.cgds.dao.*;
@@ -17,7 +16,6 @@ import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.util.*;
-
 import java.io.*;
 
 
@@ -32,14 +30,14 @@ public class ImportMutSigData {
         this.metaDataFile = metaDataFile;
     }
 
+    //method responsible for parsing MutSig data, and adding individual 'MutSig' objects to CDGS database.
+
     public void importData() throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(mutSigFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        System.err.println("Importing Data");
         int cancerType = loadProps();
-        //DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while (line != null) {
 
             if (pMonitor != null) {
@@ -63,23 +61,24 @@ public class ImportMutSigData {
                     String pValue = parts[10];
                     String qValue = parts[11];
                     CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
+                    //check if gene is null, if it is, re-assign an EntrezGeneID of 0, and log to pMonitor
+                    if (gene == null) {
+                        gene = new CanonicalGene(0, hugoGeneSymbol);
+                        pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);
+                    }
                     MutSig mutSig = new MutSig(cancerType, gene, rank, N, n, nVal, nVer, CpG, CandG, AandT, Indel, pValue, qValue);
                     DaoMutSig.addMutSig(mutSig);
                 }
             line = buf.readLine();
         }
-        /*
         if (MySQLbulkLoader.isBulkLoad()) {
             //daoMutSig.flushGenesToDatabase();
         }
-        */
     }
 
     public static void main(String[] args) throws Exception {
-        //DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        //daoGene.deleteAllRecords();
         if (args.length < 2) {
-            System.out.println("command line usage:  importMutSig.pl <ncbi_genes.txt> <MetaProperties.txt>");
+            System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <MetaProperties.txt>");
             System.exit(1);
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
@@ -95,10 +94,11 @@ public class ImportMutSigData {
         ImportMutSigData parser = new ImportMutSigData(mutSigFile, propertiesFile, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
-        System.err.println("Done.");
     }
 
-    public int loadProps() throws IOException, DaoException {
+    //parses MutSig properties file and extracts CancerStudyID
+
+    private int loadProps() throws IOException, DaoException {
         Properties props = new Properties();
         props.load(new FileInputStream(metaDataFile));
         String cancer_study_identifier;

@@ -47,7 +47,6 @@ public class TestImportMutSigData extends TestCase {
         ImportMutSigData parser = new ImportMutSigData(file, properties, pMonitor);
         //import data and properties: see ImportMutSigData Class
         parser.importData();
-        parser.loadProps();
 
         //Test if getMutSig works with a HugoGeneSymbol
         MutSig mutSig = DaoMutSig.getMutSig("EGFR");
@@ -55,6 +54,7 @@ public class TestImportMutSigData extends TestCase {
         assertEquals("EGFR", testGene.getHugoGeneSymbol());
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene testGene2 = daoGene.getGene("DDR2");
+
         //test if getMutSig also works by passing an EntrezGeneID
         mutSig = DaoMutSig.getMutSig(testGene2.getEntrezGeneId());
         assertEquals("0.0014", mutSig.getpValue());

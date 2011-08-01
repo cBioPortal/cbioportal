@@ -273,18 +273,18 @@ CREATE TABLE `interaction` (
 -- Table Structure for `mut_sig`
 
 CREATE TABLE IF NOT EXISTS `mut_sig` (
-  `CancerStudyID` int(11) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
-  `rank` int(11) NOT NULL,
-  `bigN` int(11) NOT NULL,
-  `smallN` int(11) NOT NULL,
-  `nVal` int(11) NOT NULL,
-  `nVer` int(11) NOT NULL,
-  `CpG` int(11) NOT NULL,
+  `RANK` int(11) NOT NULL,
+  `BIG_N` int(11) NOT NULL,
+  `SMALL_N` int(11) NOT NULL,
+  `N_VAL` int(11) NOT NULL,
+  `N_VER` int(11) NOT NULL,
+  `CPG` int(11) NOT NULL,
   `C+G` int(11) NOT NULL,
   `A+T` int(11) NOT NULL,
-  `Indel` int(11) NOT NULL,
-  `p` varchar(30) NOT NULL,
-  `q` varchar(30) NOT NULL
+  `INDEL` int(11) NOT NULL,
+  `P_VALUE` varchar(30) NOT NULL,
+  `Q_VALUE` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

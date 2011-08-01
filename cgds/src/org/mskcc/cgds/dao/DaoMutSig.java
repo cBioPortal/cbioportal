@@ -120,7 +120,7 @@ public class DaoMutSig {
         }
     }
 
-    //getMutSig from an entrezGeneID
+    //getMutSig with an entrezGeneID
 
     public static MutSig getMutSig(Long entrezGeneID) throws DaoException {
         Connection con = null;

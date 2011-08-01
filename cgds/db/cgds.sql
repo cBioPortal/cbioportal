@@ -9,6 +9,8 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+USE CGDS;
+
 drop table IF EXISTS encrypted_keys;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS access_rights;

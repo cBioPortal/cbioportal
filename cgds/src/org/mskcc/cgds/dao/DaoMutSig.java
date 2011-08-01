@@ -9,6 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/*
+ * Created by Lennart Bastian
+ * DaoMutSig defines methods that interact with the CGDS database
+ * getMutSig methods return MutSig objects. addMutSig takes a MutSig object and adds it to CGDS
+ * getAllMutSig returns an arraylist
+ *
+ */
+
 public class DaoMutSig {
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
     private static MySQLbulkLoader myMySQLbulkLoader = null;
@@ -16,6 +24,9 @@ public class DaoMutSig {
 
     private DaoMutSig() {
     }
+
+    //getInstance() is a static method which returns a new instance of daoMutSig. useful for calling non-static
+    //methods such as getMutSig
 
     public static DaoMutSig getInstance() throws DaoException {
         if (daoMutSig == null) {
@@ -27,13 +38,15 @@ public class DaoMutSig {
         }
         return daoMutSig;
     }
-    /**
+
+    /*
      * Adds a new MutSig Record to the Database.
      *
      * @param mutSig Mut Sig Object.
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
+
     public static int addMutSig(MutSig mutSig) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -45,7 +58,7 @@ public class DaoMutSig {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 myMySQLbulkLoader.insertRecord(Integer.toString(mutSig.getCancerType()),
-                        Long.toString(gene.getEntrezGeneId()),Integer.toString(mutSig.getRank()),
+                        Long.toString(gene.getEntrezGeneId()), Integer.toString(mutSig.getRank()),
                         Integer.toString(mutSig.getN()), Integer.toString(mutSig.getn()),
                         Integer.toString(mutSig.getnVal()), Integer.toString(mutSig.getnVer()),
                         Integer.toString(mutSig.getCpG()), Integer.toString(mutSig.getCandG()),
@@ -57,8 +70,9 @@ public class DaoMutSig {
                 if (mutSig != null) {
                     con = JdbcUtil.getDbConnection();
                     pstmt = con.prepareStatement
-                            ("INSERT INTO mut_sig (`CancerStudyID`,`Entrez_Gene_ID`, `rank`, `bigN`, `smallN`, `nVal`, `nVer`, `CpG`, `C+G`, `A+T`, " +
-                                    "`Indel`, `p`, `q`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                            ("INSERT INTO mut_sig (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `RANK`, `BIG_N`, `SMALL_N`," +
+                                    " `N_VAL`, `N_VER`, `CPG`, `C+G`, `A+T`, " +
+                                    "`INDEL`, `P_VALUE`, `Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
                     pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
@@ -81,7 +95,6 @@ public class DaoMutSig {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
@@ -106,9 +119,7 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
-                        rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
-                        rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
+                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
                 return mutSig;
             } else {
                 return null;
@@ -127,7 +138,6 @@ public class DaoMutSig {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = daoGene.getGene(entrezGeneID);
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
@@ -135,9 +145,8 @@ public class DaoMutSig {
             pstmt.setLong(1, entrezGeneID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
-                        rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
-                        rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
+                CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
+                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
                 return mutSig;
             } else {
                 return null;
@@ -164,9 +173,7 @@ public class DaoMutSig {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
-                MutSig mutSig = new MutSig(rs.getInt("CancerStudyID"), gene, rs.getInt("rank"), rs.getInt("bigN"), rs.getInt("smallN"),
-                        rs.getInt("nVal"), rs.getInt("nVer"), rs.getInt("CpG"), rs.getInt("C+G"), rs.getInt("A+T"),
-                        rs.getInt("Indel"), rs.getString("p"), rs.getString("q"));
+                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
                 mutSigList.add(mutSig);
             }
             return mutSigList;
@@ -190,6 +197,15 @@ public class DaoMutSig {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+    }
+
+
+    private static MutSig assignMutSig(CanonicalGene gene, ResultSet rs)
+            throws SQLException, DaoException {
+        MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"), gene, rs.getInt("RANK"), rs.getInt("BIG_N"),
+                rs.getInt("SMALL_N"), rs.getInt("N_VAL"), rs.getInt("N_VER"), rs.getInt("CPG"), rs.getInt("C+G"),
+                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("Q_VALUE"));
+        return mutSig;
     }
 
 

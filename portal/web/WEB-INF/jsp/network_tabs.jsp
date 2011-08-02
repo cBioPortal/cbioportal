@@ -10,9 +10,10 @@
 				<tr>
 					<td>
 						<input type="button" id="filter_genes" value="Hide"/>
-						<input type="button" id="crop_genes" value="Crop"/>
+						<input type="button" id="crop_genes" value="Crop"/>						
 					</td>
 					<td>
+						<input type="button" id="unhide_genes" value="Unhide"/>
 					</td>
 				</tr>
 				<tr>

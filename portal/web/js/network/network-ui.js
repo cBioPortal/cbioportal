@@ -28,7 +28,13 @@ var LAST_CLASS = "last-menu-item";
 var MENU_CLASS = "main-menu-item";
 var SUB_MENU_CLASS = "sub-menu-item";
 var HOVERED_CLASS = "hovered-menu-item";
-var PERCENT_SEPARATOR_CLASS = "percent-separator";
+var SECTION_SEPARATOR_CLASS = "section-separator";
+var TOP_ROW_CLASS = "top-row";
+var BOTTOM_ROW_CLASS = "bottom-row";
+var INNER_ROW_CLASS = "inner-row";
+
+// string constants
+var ID_PLACE_HOLDER = "REPLACE_WITH_ID";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -224,7 +230,7 @@ function showNodeInspector(evt)
 	_updateNodeInspectorContent(data);
 	
 	// open inspector panel
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -293,7 +299,7 @@ function _updateNodeInspectorContent(data)
 	if (links.length > 0)
 	{
 		$("#node_inspector_content .xref").append(
-				'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
+			'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
 		
 		_addXrefEntry('node', links[0].href, links[0].text);
 	}
@@ -316,14 +322,14 @@ function _addPercentages(data)
 	var percent;
 	
 	$("#node_inspector .profile-header").append('<tr class="header-row">' +
-		'<td><div class="total-alteration">Genomic Profiles:</div></td></tr>');
+		'<td><div>Genomic Profiles:</div></td></tr>');
 	
 	// add total alteration frequency
 	
 	percent = (data["PERCENT_ALTERED"] * 100);
 	
-	var row = '<tr class="percent-row">' +
-		'<td><div class="total-alteration">Total Alteration</div></td>' +
+	var row = '<tr class="total-alteration percent-row">' +
+		'<td><div class="percent-label">Total Alteration</div></td>' +
 		'<td class="percent-cell"></td>' +
 		'<td><div class="percent-value">' + percent.toFixed(1) + '%</div></td>' +
 		'</tr>';
@@ -336,7 +342,7 @@ function _addPercentages(data)
 	{
 		percent = (data["PERCENT_CNA_AMPLIFIED"] * 100);
 		_addPercentRow("cna-amplified", "Amplification", percent, "#FF2500");
-		$("#node_inspector .profile .cna-amplified").addClass(PERCENT_SEPARATOR_CLASS);
+		$("#node_inspector .profile .cna-amplified").addClass(SECTION_SEPARATOR_CLASS);
 		
 		percent = (data["PERCENT_CNA_GAINED"] * 100);
 		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
@@ -352,7 +358,7 @@ function _addPercentages(data)
 	{
 		percent = (data["PERCENT_MRNA_WAY_DOWN"] * 100);
 		_addPercentRow("mrna-way-down", "Up-regulation", percent, "#FFACA9");
-		$("#node_inspector .profile .mrna-way-down").addClass(PERCENT_SEPARATOR_CLASS);
+		$("#node_inspector .profile .mrna-way-down").addClass(SECTION_SEPARATOR_CLASS);
 		
 		percent = (data["PERCENT_MRNA_WAY_UP"] * 100);
 		_addPercentRow("mrna-way-up", "Down-regulation", percent, "#78AAD6");
@@ -362,7 +368,7 @@ function _addPercentages(data)
 	{
 		percent = (data["PERCENT_MUTATED"] * 100);
 		_addPercentRow("mutated", "Mutation", percent, "#008F00");
-		$("#node_inspector .profile .mutated").addClass(PERCENT_SEPARATOR_CLASS);
+		$("#node_inspector .profile .mutated").addClass(SECTION_SEPARATOR_CLASS);
 	}
 }
 
@@ -410,26 +416,83 @@ function showEdgeInspector(evt)
 	// TODO update the contents of the inspector by using the target edge
 	
 	var data = evt.target.data;
-	
-	// set title
-	$("#edge_inspector").dialog("option",
-		"title",
-		_vis.node(data.source).data.label + " -> " + 
-		_vis.node(data.target).data.label);
+	var title = _vis.node(data.source).data.label + " - " + 
+		_vis.node(data.target).data.label;
 	
 	// clean xref & data rows
 	$("#edge_inspector_content .data .data-row").remove();
 	
-	_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
-	_addDataRow("edge", "Type", data["type"]);
+	// if the target is a merged edge, then add information of all edges
+	// between the source and target
 	
-	if (data["INTERACTION_PUBMED_ID"] != null)
+	if (evt.target.merged)
 	{
-		_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+		// update title
+		title += ' (Summary Edge)';
+		
+		var edges = evt.target.edges;
+		
+		
+		// add information for each edge
+		
+		for (var i = 0; i < edges.length; i++)
+		{
+			data = edges[i].data;
+			
+			// add an empty row for better edge separation
+			$("#edge_inspector_content .data").append(
+				'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+			
+			// add edge data
+			
+			_addDataRow("edge",
+				"Source",
+				data["INTERACTION_DATA_SOURCE"],
+				TOP_ROW_CLASS);
+			
+			if (data["INTERACTION_PUBMED_ID"] == null)
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					BOTTOM_ROW_CLASS);
+			}
+			else
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					INNER_ROW_CLASS);
+				
+				_addDataRow("edge",
+					"PubMed ID",
+					data["INTERACTION_PUBMED_ID"],
+					BOTTOM_ROW_CLASS);
+			}
+		}
+		
+		// add an empty row for the last edge
+		$("#edge_inspector_content .data").append(
+			'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+	}
+	else
+	{
+		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
+		_addDataRow("edge", "Type", data["type"]);
+		
+		if (data["INTERACTION_PUBMED_ID"] != null)
+		{
+			_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+		}
 	}
 	
+	// set title
+	$("#edge_inspector").dialog("option",
+		"title",
+		title);
+	
 	// open inspector panel
-	$("#edge_inspector").dialog("open");
+	$("#edge_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -448,7 +511,11 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("option",
+		"height",
+		"auto");
+	
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -533,9 +600,9 @@ function filterSelectedGenes()
 }
 
 /**
- * Filters out all non-selected genes.
+ * Filters out all non-selected nodes.
  */
-function filterNonSelectedGenes()
+function filterNonSelected()
 {
 	// update selected elements
 	_selectedElements = _vis.selected("nodes");
@@ -824,11 +891,23 @@ function _removeHighlights()
  * @param type		type of the inspector (should be "node" or "edge")
  * @param label		label of the data field
  * @param value		value of the data field
+ * @param section	optional class value for row element
  */
-function _addDataRow(type, label, value)
+function _addDataRow(type, label, value /*, section*/)
 {
+	var section = arguments[3];
+	
+	if (section == null)
+	{
+		section = "";
+	}
+	else
+	{
+		section += " ";
+	}
+	
 	$("#" + type + "_inspector_content .data").append(
-		'<tr class="data-row"><td>' +
+		'<tr align="left" class="' + section + 'data-row"><td>' +
 		'<strong>' + label + ':</strong> ' + value + 
 		'</td></tr>');
 }
@@ -864,7 +943,24 @@ function _resolveXref(xref)
 		
 		// construct the link object containing href and text
 		link = new Object();
-		link.href = _linkMap[pieces[0].toLowerCase()] + "" + pieces[1];
+		
+		link.href = _linkMap[pieces[0].toLowerCase()];
+		 
+		if (link.href == null)
+		{
+			// unknown source
+			link.href = "#";
+		}
+		// else, check where search id should be inserted
+		else if (link.href.indexOf(ID_PLACE_HOLDER) != -1)
+		{
+			link.href = link.href.replace(ID_PLACE_HOLDER, pieces[1]);
+		}
+		else
+		{
+			link.href += pieces[1];
+		}
+		
 		link.text = xref;
 	}
 	
@@ -953,11 +1049,11 @@ function _xrefArray()
 	
 	// TODO find missing links
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
-	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=";
+	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["nucleotide sequence database"] = "";	
 	linkMap["refseq"] =	"";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["chebi"] = "";
+	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	
 	return linkMap;
 }
@@ -1104,7 +1200,7 @@ function _initDialogs()
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 400});
+		width: 366});
 	
 	// adjust edge inspector
 	$("#edge_inspector").dialog({autoOpen: false, 
@@ -1288,7 +1384,8 @@ function _initControlFunctions()
 {
 	_controlFunctions = new Array();
 	
-	_controlFunctions["hide_selected"] = _hideSelected;
+	//_controlFunctions["hide_selected"] = _hideSelected;
+	_controlFunctions["hide_selected"] = filterSelectedGenes;
 	_controlFunctions["unhide_all"] = _unhideAll;
 	_controlFunctions["perform_layout"] = _performLayout;
 	_controlFunctions["show_node_labels"] = _toggleNodeLabels;
@@ -1302,6 +1399,7 @@ function _initControlFunctions()
 	_controlFunctions["layout_properties"] = _openProperties;
 	_controlFunctions["highlight_neighbors"] = _highlightNeighbors;
 	_controlFunctions["remove_highlights"] = _removeHighlights;
+	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	
 	// TODO temp test button, remove when done
 	_controlFunctions["joker_button"] = jokerAction;
@@ -1313,7 +1411,8 @@ function _initControlFunctions()
 	
 	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);
-	$("#crop_genes").click(filterNonSelectedGenes);
+	$("#crop_genes").click(filterNonSelected);
+	$("#unhide_genes").click(_unhideAll);
 	
 	$("#update_edges").click(updateEdges);
 	
@@ -1666,7 +1765,7 @@ function _saveAsSvg()
 function _openProperties()
 {	
 	_updatePropsUI();
-	$("#settings_dialog").dialog("open");
+	$("#settings_dialog").dialog("open").height("auto");
 }
 
 /**

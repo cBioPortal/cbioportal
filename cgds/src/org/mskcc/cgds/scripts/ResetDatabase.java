@@ -53,6 +53,9 @@ public class ResetDatabase {
         daoGeneticProfileCases.deleteAllRecords();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         daoInteraction.deleteAllRecords();
+        DaoProteinArrayData.getInstance().deleteAllRecords();
+        DaoProteinArrayInfo.getInstance().deleteAllRecords();
+        DaoProteinArrayTarget.getInstance().deleteAllRecords();
 
         // No production keys stored in filesystem or code: digest the key; put it in properties; load it into dbms on startup
         DatabaseProperties databaseProperties = DatabaseProperties.getInstance();

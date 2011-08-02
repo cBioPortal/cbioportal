@@ -18,10 +18,10 @@
 {
 	cursor:pointer;
 	display:block;
-	padding-left: 20px;
-	padding-right: 20px;
-	padding-top: 0px;
-	padding-bottom: 0px;
+	padding-left: 1.5em;
+	padding-right: 1.5em;
+	padding-top: 0;
+	padding-bottom: 0;
 	border-left: 1px solid #aaaaaa;
 	border-right: 1px solid #aaaaaa;
 	color: #2e6e9e;
@@ -38,17 +38,17 @@
 
 #network_menu ul
 {
-	position:absolute;
-	display:none;
-	width:18em;
-	top:1.9em;
+	position: absolute;
+	display: none;
+	width: 20em;
+	top: 1.8em;
 }
 
 #network_menu li ul a
 {
-	width:15em;
-	height:auto;
-	float:left;
+	width: 17em;
+	height: auto;
+	float: left;
 }
 
 #network_menu ul ul
@@ -174,6 +174,11 @@
 /*
  * Inspectors
  */
+#node_inspector_content
+{
+	text-align: left;
+}
+
 #node_inspector_content .data-row
 {
 	font-size: 12pt;
@@ -218,14 +223,50 @@
 	font-weight: bold;
 }
 
-#node_inspector .percent-separator
+/*  
+ * IE ignores borders for tr elements, so setting borders for all td elements
+ * inside a tr.
+ */
+#node_inspector .section-separator td
 {
-	border-top:1px solid #aaaaaa;
+	border-top: 1px solid #aaaaaa;
 }
 
-#node_inspector .total-alteration
+#node_inspector .total-alteration td
 {
-	
+	border-bottom: 2px solid #aaaaaa;
+}
+
+#edge_inspector .top-row td
+{
+	border-top: 1px solid #aaaaaa;
+	border-left: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
+}
+
+#edge_inspector .inner-row td
+{
+	border-left: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
+}
+
+#edge_inspector .bottom-row td
+{
+	border-bottom: 1px solid #aaaaaa;
+	border-left: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
+}
+
+#edge_inspector .empty-row
+{
+	height: 0.5em;
+}
+
+#edge_inspector table
+{
+	border-collapse: collapse;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
 }
 
 /*

@@ -1,6 +1,7 @@
 
 package org.mskcc.cgds.scripts;
 
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
@@ -64,14 +65,16 @@ public class ImportProteinArrayData {
 //        DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
 //        daoPAD.deleteAllRecords();
         if (args.length < 2) {
-            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study ID>");
+            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study identifier>");
             System.exit(1);
         }
+        
+        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getStudyId();
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
-        int cancerStudyId = Integer.parseInt(args[1]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);

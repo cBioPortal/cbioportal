@@ -37,20 +37,21 @@ public class TestDaoMutSig extends TestCase {
         MutSig tp53 = new MutSig(1, gene1, 1, 145177, 48, 48, 0, 18, 17, 10, 3, "<1E-11", "<1E-8");
         DaoMutSig.addMutSig(tp53);
         CanonicalGene gene2 = new CanonicalGene(10298321, "PTEN");
-        DaoGeneOptimized daoGeneOptimized2 = DaoGeneOptimized.getInstance();
         daoGeneOptimized.addGene(gene2);
         MutSig pten = new MutSig(1, gene2, 2, 156252, 34, 29, 5, 6, 9, 7, 12, "<1E-11", "<1E-8");
         DaoMutSig.addMutSig(pten);
 
         //get tp53 from mutsig table using hugoGeneSymbol
-        MutSig mutSig = DaoMutSig.getMutSig("TP53");
+        MutSig mutSig = DaoMutSig.getMutSig("TP53", 1);
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertEquals("TP53", testGene.getHugoGeneSymbol());
+        assertEquals(1, mutSig.getCancerType());
         //get pten from mutsig table using entrez ID
         long foo = 10298321;
-        MutSig mutSig2 = DaoMutSig.getMutSig(foo);
-        CanonicalGene testGene2 = mutSig.getCanonicalGene();
+        MutSig mutSig2 = DaoMutSig.getMutSig(foo, 1);
+        CanonicalGene testGene2 = mutSig2.getCanonicalGene();
         assertEquals(10298321, testGene2.getEntrezGeneId());
+        assertEquals(1, mutSig2.getCancerType());
 
     }
 

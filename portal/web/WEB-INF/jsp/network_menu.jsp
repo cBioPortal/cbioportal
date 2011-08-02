@@ -20,12 +20,17 @@
 	    	<ul>
 	    		<li>
 	    			<a id="hide_selected" onclick="handleMenuEvent('hide_selected')">
-	    				Hide Selected
+	    				Hide
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="hide_non_selected" onclick="handleMenuEvent('hide_non_selected')">
+	    				Crop
 	    			</a>
 	    		</li>
 	    		<li>
 	    			<a id="unhide_all" onclick="handleMenuEvent('unhide_all')">
-	    				Unhide All
+	    				Unhide
 	    			</a>
 	    		</li>
 	    		<li>

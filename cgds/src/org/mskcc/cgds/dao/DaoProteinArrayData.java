@@ -8,8 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -104,18 +105,25 @@ public class DaoProteinArrayData {
      * @return ProteinArrayData Object.
      * @throws DaoException Database Error.
      */
-    public List<ProteinArrayData> getProteinArrayData(String arrayId) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, ArrayList<String> caseIds) throws DaoException {
         ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID = ?");
-            pstmt.setString(1, arrayId);
+            if (caseIds==null) {
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID = ?");
+                pstmt.setString(1, arrayId);
+            } else {
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID = ?"
+                        + " AND CASE_ID IN ('"+StringUtils.join(caseIds,"','") +"')");
+                pstmt.setString(1, arrayId);
+            }
             rs = pstmt.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 ProteinArrayData pad = new ProteinArrayData(arrayId,
                         rs.getString("CASE_ID"),
                         rs.getInt("CANCER_STUDY_ID"),

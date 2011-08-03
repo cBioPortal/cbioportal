@@ -3,10 +3,11 @@ package org.mskcc.cgds.model;
 import org.mskcc.cgds.dao.DaoException;
 
 /*
+ * @author Lennart Bastian
  * We use MutSig as an object to simplify the process of adding and getting
  * data from the mut_sig database in CGDS.
  * The MutSig object takes a total of 13 parameters, 12 of which correspond
- * directly to MutSig data collumns, and one of which is a CanonicalGene Object,
+ * directly to MutSig data columns, and one of which is a CanonicalGene Object,
  * containing a HugeGeneSymbol and EntrezGeneID.
  * This simplifies the process of switching back between the two, and ensuring
  * a stable system in which gene IDs do not fluctuate.

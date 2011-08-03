@@ -1,10 +1,10 @@
 package org.mskcc.cgds.scripts;
 
 /*
- * Created by Lennart Bastian
+ * @author Lennart Bastian
  * ImportMutSig is used to import the Broad Institutes MutSig data for different Cancer types
- * into the CGDS SQL database.
- * Command line users must specify a MutSig file, and properties file with the CancerID.
+ * into our CGDS SQL database.
+ * Command line users must specify a MutSig file, and properties file containing a CancerID.
  */
 
 import org.mskcc.cgds.dao.*;
@@ -62,6 +62,7 @@ public class ImportMutSigData {
                     String qValue = parts[11];
                     CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
                     //check if gene is null, if it is, re-assign an EntrezGeneID of 0, and log to pMonitor
+                    //this way data can still be found in CGDS and Gene can be manually assigned an EntrezID
                     if (gene == null) {
                         gene = new CanonicalGene(0, hugoGeneSymbol);
                         pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);

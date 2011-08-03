@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /*
- * Created by Lennart Bastian
+ * @author Lennart Bastian
  * DaoMutSig defines methods that interact with the CGDS database
  * getMutSig methods return MutSig objects. addMutSig takes a MutSig object and adds it to CGDS
  * getAllMutSig returns an arraylist

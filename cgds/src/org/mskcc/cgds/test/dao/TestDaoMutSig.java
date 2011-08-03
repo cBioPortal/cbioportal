@@ -10,11 +10,7 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.dao.DaoMutSig;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lennartbastian
- * Date: 25/07/2011
- * Time: 15:23
- * To change this template use File | Settings | File Templates.
+ * @author Lennart Bastian
  */
 
 

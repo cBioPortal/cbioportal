@@ -30,6 +30,7 @@ import org.mskcc.cgds.web_api.GetGeneticProfiles;
 import org.mskcc.cgds.web_api.GetMutationData;
 import org.mskcc.cgds.web_api.GetMutationFrequencies;
 import org.mskcc.cgds.web_api.GetNetwork;
+import org.mskcc.cgds.web_api.GetMutSig;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.ProtocolException;
@@ -48,6 +49,7 @@ public class WebService extends HttpServlet {
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";
     public static final String GENE_LIST = "gene_list";
     public static final String CMD = "cmd";
+    public static final String MUT_SIG = "mut_sig";
     public static final String GENE_SYMBOL = "gene_symbol";
     public static final String ENTREZ_GENE_ID = "entrez_gene_id";
     public static final String CASE_LIST = "case_list";
@@ -158,7 +160,9 @@ public class WebService extends HttpServlet {
             // identify every study accessible to the user  
             getCancerStudies( httpServletRequest, writer );
             return;
-         } 
+         }
+
+
 
          // TODO: CASES: REMOVE?
          // no cancer_study_id or no case_set_id or genetic_profile_id
@@ -219,6 +223,9 @@ public class WebService extends HttpServlet {
          } else if (cmd.equals("getMutationFrequency")) {
             // PROVIDES CANCER_STUDY_ID
             getMutationFrequency(httpServletRequest, writer);
+         } else if (cmd.equals("getMutSig")){
+            //Provides MutSig Data
+            getMutSig(httpServletRequest, writer);
          } else {
             throw new ProtocolException("Unrecognized command: " + cmd);
          }
@@ -341,6 +348,12 @@ public class WebService extends HttpServlet {
             throws DaoException, ProtocolException, UnsupportedEncodingException {
         HashSet <String> caseSet = new HashSet<String>(getCaseList (request));
 		String out = GetClinicalData.getClinicalData(caseSet);
+        writer.print(out);
+    }
+
+    private void getMutSig (HttpServletRequest request, PrintWriter writer)
+            throws DaoException{
+        String out = GetMutSig.GetMutSig(1);
         writer.print(out);
     }
 

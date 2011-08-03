@@ -71,6 +71,12 @@ $(document).ready(function(){
        userClickedMainTab("tab_download");
     });
 
+    $('.step_header').click(function(){
+         $(".ui-icon", this).toggle();
+         $("#optional_args").toggle();
+    })
+
+
 });  //  end document ready function
 
 

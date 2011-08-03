@@ -1,9 +1,12 @@
 
 package org.mskcc.cgds.scripts;
 
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.ProteinArrayData;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
@@ -13,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 /**
  *
@@ -64,14 +68,32 @@ public class ImportProteinArrayData {
 //        DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
 //        daoPAD.deleteAllRecords();
         if (args.length < 2) {
-            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study ID>");
+            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study identifier>");
             System.exit(1);
         }
+        
+        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getStudyId();
+        
+        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+        String idProfProt = args[1]+"_protein_array_protein_level";
+        if (daoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
+            GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
+                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Protein array-based protein level",
+                    "Protein array-based protein level", false);
+            daoGeneticProfile.addGeneticProfile(gpPro);
+        }
+        String idProfPhos = args[1]+"_protein_array_phosphorylation";
+        if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
+            GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
+                    GeneticAlterationType.PHOSPHORYLATION, "Protein array-based phosphorylation level",
+                    "Protein array-based phosphorylation level", false);
+            daoGeneticProfile.addGeneticProfile(gpPhos);
+        }
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
-        int cancerStudyId = Integer.parseInt(args[1]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);

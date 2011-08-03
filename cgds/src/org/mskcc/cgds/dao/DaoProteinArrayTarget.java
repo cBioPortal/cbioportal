@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
 
 /**
@@ -102,7 +101,7 @@ public class DaoProteinArrayTarget {
      * @return ProteinArrayInfo Object.
      * @throws DaoException Database Error.
      */
-    public List<ProteinArrayTarget> getProteinArrayInfo(long gene) throws DaoException {
+    public ArrayList<ProteinArrayTarget> getProteinArrayInfo(long gene) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -112,7 +111,7 @@ public class DaoProteinArrayTarget {
                     ("SELECT * FROM protein_array_target WHERE ENTREZ_GENE_ID = ?");
             pstmt.setLong(1, gene);
             
-            List<ProteinArrayTarget> list = new ArrayList<ProteinArrayTarget>();
+            ArrayList<ProteinArrayTarget> list = new ArrayList<ProteinArrayTarget>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 ProteinArrayTarget pat = new ProteinArrayTarget(rs.getString("PROTEIN_ARRAY_ID"),

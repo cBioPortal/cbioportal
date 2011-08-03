@@ -109,6 +109,12 @@ public class GetProfileData {
                     GeneticAlterationType.MUTATION_EXTENDED) {
                 caseMap = getMutationMap (targetCaseList, geneticProfile.getGeneticProfileId(),
                         canonicalGene.getEntrezGeneId());
+            } else if (geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
+                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(), "protein level");
+            } else if (geneticProfile.getGeneticAlterationType() ==
+                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
+                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(), "phosphorylation");
             } else {
                 //  Handle All Other Data Types another way
                 caseMap = daoGeneticAlteration.getGeneticAlterationMap
@@ -160,5 +166,36 @@ public class GetProfileData {
             }
         }
         return mutationMap;
+    }
+
+    private static HashMap <String, String> getProteinArrayDataMap (ArrayList<String> targetCaseList,
+            long entrezGeneId, String type) throws DaoException {
+        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
+        DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
+        DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
+
+        HashMap <String, String> arrayDataMap = new HashMap <String, String>();
+        
+        ArrayList<ProteinArrayTarget> targets = daoPAT.getProteinArrayInfo(entrezGeneId);
+        if (targets.isEmpty())
+            return arrayDataMap;
+        
+        String arrayId = null;
+        for (ProteinArrayTarget pat : targets) {
+            ProteinArrayInfo pai = daoPAI.getProteinArrayInfo(pat.getArrayId());
+            if (pai.getType().equals(type)) {
+                arrayId = pai.getId(); // select the first one of the type
+                break;
+            }
+        }
+        
+        if (arrayId == null)
+            return arrayDataMap;
+        
+        ArrayList<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
+        for (ProteinArrayData pad : pads) {
+            arrayDataMap.put(pad.getCaseId(), Double.toString(pad.getAbundance()));
+        }
+        return arrayDataMap;
     }
 }

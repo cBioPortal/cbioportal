@@ -5,7 +5,7 @@
 	    	<ul>
 	    		<li>
 	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
-	    				Save as image (PNG)
+	    				Save as Image (PNG)
 	    			</a>
 	    		</li>
 	    		<li>

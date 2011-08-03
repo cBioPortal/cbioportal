@@ -201,7 +201,7 @@
 
 #node_inspector .percent-value
 {
-	
+	text-align: right;
 }
 
 #node_inspector .percent-text
@@ -277,17 +277,16 @@
 	padding-bottom: 0.5em;
 	text-align: center;
 	font-size: 9pt;
+	width: 200px;
 }
 
 #genes_tab .in-query
 {
-	/*font-weight: bold;*/
 	color: #000000;
 }
 
 #genes_tab .not-in-query
 {
-	/*font-weight: bold;*/
 	color: #808080;
 }
 
@@ -320,6 +319,7 @@
 #relations_tab .percent-value
 {
 	font-size: 8pt;
+	text-align: right;
 }
 
 #relations_tab .edge-type-checkbox

@@ -10,17 +10,13 @@
 				<tr>
 					<td>
 						<input type="button" id="filter_genes" value="Hide"/>
-						<input type="button" id="crop_genes" value="Crop"/>						
-					</td>
-					<td>
-						<input type="button" id="unhide_genes" value="Unhide"/>
+						<input type="button" id="crop_genes" value="Crop"/>
+						<input type="button" id="unhide_genes" value="Unhide"/>						
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<input type="text" size="18" id="search" value=""/>
-					</td>
-					<td>
+						<input type="text" size="17" id="search" value=""/>
 						<input type="button" id="search_genes" value="Search"/>
 					</td>
 				</tr>
@@ -30,6 +26,11 @@
     <div id="relations_tab">
 		<div>
 	        <table>
+	        	<tr class="edge-type-header">
+	        		<td>
+	        			<strong>Type:</strong>
+	        		</td>
+	        	</tr>
 	        	<tr class="in-same-component">
 		        	<td class="edge-type-checkbox">
 		        		<input type="checkbox" checked="checked">
@@ -71,6 +72,29 @@
 	        		<td>
 	        			<div class="percent-value"></div>
 	        		</td>
+	        	</tr>
+	        	<tr class="edge-source-header">
+	        		<td>
+	        			<strong>Source:</strong>
+	        		</td>
+	        	</tr>
+	        	<tr class="reactome">
+	        		<td class="edge-source-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Reactome</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="nci">
+	        		<td class="edge-source-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>NCI</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="unknown">
+	        		<td class="edge-source-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Unknown</label>
+		        	</td>
 	        	</tr>
 	        </table>
 	    </div>

@@ -15,9 +15,14 @@ var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
 
+// edge source constants
+var REACTOME = "Reactome";
+var NCI = "NCI";
+
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
+
 var UNKNOWN = "Unknown";
 
 // class constants for css visualization
@@ -28,7 +33,13 @@ var LAST_CLASS = "last-menu-item";
 var MENU_CLASS = "main-menu-item";
 var SUB_MENU_CLASS = "sub-menu-item";
 var HOVERED_CLASS = "hovered-menu-item";
-var PERCENT_SEPARATOR_CLASS = "percent-separator";
+var SECTION_SEPARATOR_CLASS = "section-separator";
+var TOP_ROW_CLASS = "top-row";
+var BOTTOM_ROW_CLASS = "bottom-row";
+var INNER_ROW_CLASS = "inner-row";
+
+// string constants
+var ID_PLACE_HOLDER = "REPLACE_WITH_ID";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -45,6 +56,9 @@ var _alreadyFiltered;
 // array of filtered edge types
 var _edgeTypeVisibility;
 
+// array of filtered edge sources
+var _edgeSourceVisibility;
+
 // map used to resolve cross-references
 var _linkMap;
 
@@ -59,13 +73,11 @@ var _vis;
  */
 function initNetworkUI(vis)
 {
-	//TODO debug for IE (alert does not work use prompt instead!)
-	//prompt("initing network");
-	
 	_vis = vis;
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
+	_edgeSourceVisibility = _edgeSourceArray();
 	_resetFlags();
 	
 	_initControlFunctions();
@@ -224,7 +236,7 @@ function showNodeInspector(evt)
 	_updateNodeInspectorContent(data);
 	
 	// open inspector panel
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -293,7 +305,7 @@ function _updateNodeInspectorContent(data)
 	if (links.length > 0)
 	{
 		$("#node_inspector_content .xref").append(
-				'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
+			'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
 		
 		_addXrefEntry('node', links[0].href, links[0].text);
 	}
@@ -315,55 +327,110 @@ function _addPercentages(data)
 {
 	var percent;
 	
-	$("#node_inspector .profile-header").append('<tr class="header-row">' +
-		'<td><div class="total-alteration">Genomic Profiles:</div></td></tr>');
+	// init available profiles array
+	var available = new Array();
+	available['CNA'] = new Array();
+	available['MRNA'] = new Array();
+	available['MUTATED'] = new Array();
 	
-	// add total alteration frequency
-	
-	percent = (data["PERCENT_ALTERED"] * 100);
-	
-	var row = '<tr class="percent-row">' +
-		'<td><div class="total-alteration">Total Alteration</div></td>' +
-		'<td class="percent-cell"></td>' +
-		'<td><div class="percent-value">' + percent.toFixed(1) + '%</div></td>' +
-		'</tr>';
-
-	$("#node_inspector .profile").append(row);
-
-	// add other percentages
+	// add percentage values
 	
 	if (data["PERCENT_CNA_AMPLIFIED"] != null)
 	{
 		percent = (data["PERCENT_CNA_AMPLIFIED"] * 100);
 		_addPercentRow("cna-amplified", "Amplification", percent, "#FF2500");
-		$("#node_inspector .profile .cna-amplified").addClass(PERCENT_SEPARATOR_CLASS);
-		
+		available['CNA'].push("cna-amplified");
+	}	
+	
+	if (data["PERCENT_CNA_GAINED"] != null)
+	{
 		percent = (data["PERCENT_CNA_GAINED"] * 100);
 		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
-		
+		available['CNA'].push("cna-gained");
+	}
+	
+	if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] != null)
+	{
 		percent = (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100);
 		_addPercentRow("cna-homozygously-deleted", "Homozygous Deletion", percent, "#0332FF");
-		
+		available['CNA'].push("cna-homozygously-deleted");
+	}
+	
+	if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
+	{
 		percent = (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100);
 		_addPercentRow("cna-hemizygously-deleted", "Hemizygous Deletion", percent, "#9EDFE0");
+		available['CNA'].push("cna-hemizygously-deleted");
+	}
+	
+	if (data["PERCENT_MRNA_WAY_UP"] != null)
+	{
+		percent = (data["PERCENT_MRNA_WAY_UP"] * 100);
+		_addPercentRow("mrna-way-up", "Up-regulation", percent, "#FFACA9");
+		available['MRNA'].push("mrna-way-up");
 	}
 	
 	if (data["PERCENT_MRNA_WAY_DOWN"] != null)
 	{
 		percent = (data["PERCENT_MRNA_WAY_DOWN"] * 100);
-		_addPercentRow("mrna-way-down", "Up-regulation", percent, "#FFACA9");
-		$("#node_inspector .profile .mrna-way-down").addClass(PERCENT_SEPARATOR_CLASS);
-		
-		percent = (data["PERCENT_MRNA_WAY_UP"] * 100);
-		_addPercentRow("mrna-way-up", "Down-regulation", percent, "#78AAD6");
+		_addPercentRow("mrna-way-down", "Down-regulation", percent, "#78AAD6");
+		available['MRNA'].push("mrna-way-down");
 	}
 	
 	if (data["PERCENT_MUTATED"] != null)
 	{
 		percent = (data["PERCENT_MUTATED"] * 100);
 		_addPercentRow("mutated", "Mutation", percent, "#008F00");
-		$("#node_inspector .profile .mutated").addClass(PERCENT_SEPARATOR_CLASS);
+		available['MUTATED'].push("mutated");
 	}
+	
+	// add separators
+	
+	if (available['CNA'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['CNA'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	if (available['MRNA'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['MRNA'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	if (available['MUTATED'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['MUTATED'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	
+	// add header & total alteration value if at least one of the profiles is
+	// available
+	
+	if (available['CNA'].length > 0
+		|| available['MRNA'].length > 0
+		|| available['MUTATED'].length > 0)
+	{
+		
+		// add header
+		$("#node_inspector .profile-header").append('<tr class="header-row">' +
+			'<td><div>Genomic Profiles:</div></td></tr>');
+		
+		// add total alteration frequency
+		
+		percent = (data["PERCENT_ALTERED"] * 100);
+		
+		var row = '<tr class="total-alteration percent-row">' +
+			'<td><div class="percent-label">Total Alteration</div></td>' +
+			'<td class="percent-cell"></td>' +
+			'<td><div class="percent-value">' + percent.toFixed(1) + '%</div></td>' +
+			'</tr>';
+
+		// append as a first row
+		$("#node_inspector .profile").prepend(row);
+	}
+	
 }
 
 /**
@@ -410,26 +477,83 @@ function showEdgeInspector(evt)
 	// TODO update the contents of the inspector by using the target edge
 	
 	var data = evt.target.data;
-	
-	// set title
-	$("#edge_inspector").dialog("option",
-		"title",
-		_vis.node(data.source).data.label + " -> " + 
-		_vis.node(data.target).data.label);
+	var title = _vis.node(data.source).data.label + " - " + 
+		_vis.node(data.target).data.label;
 	
 	// clean xref & data rows
 	$("#edge_inspector_content .data .data-row").remove();
 	
-	_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
-	_addDataRow("edge", "Type", data["type"]);
+	// if the target is a merged edge, then add information of all edges
+	// between the source and target
 	
-	if (data["INTERACTION_PUBMED_ID"] != null)
+	if (evt.target.merged)
 	{
-		_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+		// update title
+		title += ' (Summary Edge)';
+		
+		var edges = evt.target.edges;
+		
+		
+		// add information for each edge
+		
+		for (var i = 0; i < edges.length; i++)
+		{
+			data = edges[i].data;
+			
+			// add an empty row for better edge separation
+			$("#edge_inspector_content .data").append(
+				'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+			
+			// add edge data
+			
+			_addDataRow("edge",
+				"Source",
+				data["INTERACTION_DATA_SOURCE"],
+				TOP_ROW_CLASS);
+			
+			if (data["INTERACTION_PUBMED_ID"] == null)
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					BOTTOM_ROW_CLASS);
+			}
+			else
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					INNER_ROW_CLASS);
+				
+				_addDataRow("edge",
+					"PubMed ID",
+					data["INTERACTION_PUBMED_ID"],
+					BOTTOM_ROW_CLASS);
+			}
+		}
+		
+		// add an empty row for the last edge
+		$("#edge_inspector_content .data").append(
+			'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+	}
+	else
+	{
+		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
+		_addDataRow("edge", "Type", data["type"]);
+		
+		if (data["INTERACTION_PUBMED_ID"] != null)
+		{
+			_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+		}
 	}
 	
+	// set title
+	$("#edge_inspector").dialog("option",
+		"title",
+		title);
+	
 	// open inspector panel
-	$("#edge_inspector").dialog("open");
+	$("#edge_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -448,7 +572,11 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("option",
+		"height",
+		"auto");
+	
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -499,11 +627,11 @@ function searchGene()
 		{
 			matched.push(genes[i].data.id);
 		}
-		else if (genes[i].data.id.toLowerCase().indexOf(
-			query.toLowerCase()) != -1)
-		{
-			matched.push(genes[i].data.id);
-		}
+//		else if (genes[i].data.id.toLowerCase().indexOf(
+//			query.toLowerCase()) != -1)
+//		{
+//			matched.push(genes[i].data.id);
+//		}
 	}
 	
 	// deselect all nodes
@@ -533,9 +661,9 @@ function filterSelectedGenes()
 }
 
 /**
- * Filters out all non-selected genes.
+ * Filters out all non-selected nodes.
  */
-function filterNonSelectedGenes()
+function filterNonSelected()
 {
 	// update selected elements
 	_selectedElements = _vis.selected("nodes");
@@ -559,13 +687,22 @@ function updateEdges()
 	// update filtered edge types
 	
 	_edgeTypeVisibility[IN_SAME_COMPONENT] =
-		$(".in-same-component input").is(":checked");
+		$("#relations_tab .in-same-component input").is(":checked");
 	
 	_edgeTypeVisibility[REACTS_WITH] =
-		$(".reacts-with input").is(":checked");
+		$("#relations_tab .reacts-with input").is(":checked");
 	
 	_edgeTypeVisibility[STATE_CHANGE] =
-		$(".state-change input").is(":checked");
+		$("#relations_tab .state-change input").is(":checked");
+	
+	_edgeSourceVisibility[REACTOME] =
+		$("#relations_tab .reactome input").is(":checked");
+	
+	_edgeSourceVisibility[NCI] =
+		$("#relations_tab .nci input").is(":checked");
+	
+	_edgeSourceVisibility[UNKNOWN] =
+		$("#relations_tab .unknown input").is(":checked");
 	
 	// remove current edge filters
 	_vis.removeFilter("edges");
@@ -585,25 +722,46 @@ function updateEdges()
  */
 function edgeVisibility(element)
 {
-	var visible;
+	var visible = true;
+	var typeVisible = true;
+	var sourceVisible = true;
 	
 	// if an element is already filtered then it should remain invisible
 	if (_alreadyFiltered[element.data.id] != null)
 	{
 		visible = false;
 	}
+	
 	// unknown edge type, do not filter
-	else if (_edgeTypeVisibility[element.data.type] == null)
+	if (_edgeTypeVisibility[element.data.type] == null)
 	{
-		visible = true;
+		typeVisible = true;
 	}
-	// check for the visibility of the edge type
+	// check the visibility of the edge type
 	else
 	{
-		visible = _edgeTypeVisibility[element.data.type];
+		typeVisible = _edgeTypeVisibility[element.data.type];
 	}
 	
-	return visible;
+	// unknown source, check the unknown flag
+	if (element.data['INTERACTION_DATA_SOURCE'] == null)
+	{
+		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+	}
+	// check the visibility of the known source
+	else if (element.data.INTERACTION_DATA_SOURCE == REACTOME ||
+		element.data.INTERACTION_DATA_SOURCE == NCI)
+	{
+		sourceVisible = 
+			_edgeSourceVisibility[element.data.INTERACTION_DATA_SOURCE];
+	}
+	// unknown source, check the unknown flag
+	else
+	{
+		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+	}
+	
+	return (visible && typeVisible && sourceVisible);
 }
 
 /**
@@ -662,12 +820,16 @@ function visibility(element)
 	{
 		return false;
 	}
-	// if an edge type is hidden all edges of that type should be invisible
+	// if an edge type is hidden, all edges of that type should be invisible
 	else if (_edgeTypeVisibility[element.data.type] != null
 			&& !_edgeTypeVisibility[element.data.type])
 	{
 		return false;
 	}
+	// TODO if an edge source is hidden, all edges of that source should be invisible
+	// TODO this function is not called anymore & no edge filtering via selecting
+	
+	
 	
 	// TODO find a better way (?) to check if it is selected, do not traverse
 	// all selected elements
@@ -824,11 +986,23 @@ function _removeHighlights()
  * @param type		type of the inspector (should be "node" or "edge")
  * @param label		label of the data field
  * @param value		value of the data field
+ * @param section	optional class value for row element
  */
-function _addDataRow(type, label, value)
+function _addDataRow(type, label, value /*, section*/)
 {
+	var section = arguments[3];
+	
+	if (section == null)
+	{
+		section = "";
+	}
+	else
+	{
+		section += " ";
+	}
+	
 	$("#" + type + "_inspector_content .data").append(
-		'<tr class="data-row"><td>' +
+		'<tr align="left" class="' + section + 'data-row"><td>' +
 		'<strong>' + label + ':</strong> ' + value + 
 		'</td></tr>');
 }
@@ -864,7 +1038,24 @@ function _resolveXref(xref)
 		
 		// construct the link object containing href and text
 		link = new Object();
-		link.href = _linkMap[pieces[0].toLowerCase()] + "" + pieces[1];
+		
+		link.href = _linkMap[pieces[0].toLowerCase()];
+		 
+		if (link.href == null)
+		{
+			// unknown source
+			link.href = "#";
+		}
+		// else, check where search id should be inserted
+		else if (link.href.indexOf(ID_PLACE_HOLDER) != -1)
+		{
+			link.href = link.href.replace(ID_PLACE_HOLDER, pieces[1]);
+		}
+		else
+		{
+			link.href += pieces[1];
+		}
+		
 		link.text = xref;
 	}
 	
@@ -951,13 +1142,13 @@ function _xrefArray()
 {
 	var linkMap = new Array();
 	
-	// TODO find missing links
-	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
-	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=";
-	linkMap["nucleotide sequence database"] = "";	
+	// TODO find missing links (RefSeq and Nucleotide Sequence Database)
 	linkMap["refseq"] =	"";
+	linkMap["nucleotide sequence database"] = "";
+	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
+	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["chebi"] = "";
+	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	
 	return linkMap;
 }
@@ -977,6 +1168,23 @@ function _edgeTypeArray()
 	typeArray[STATE_CHANGE] = true;
 	
 	return typeArray;
+}
+
+/**
+ * Creates a map for edge source visibility.
+ * 
+ * @return	an array (map) of edge source visibility.
+ */
+function _edgeSourceArray()
+{
+	var sourceArray = new Array();
+	
+	// by default every edge source is visible
+	sourceArray[REACTOME] = true;
+	sourceArray[NCI] = true;
+	sourceArray[UNKNOWN] = true;
+	
+	return sourceArray;
 }
 
 /**
@@ -1104,7 +1312,7 @@ function _initDialogs()
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 400});
+		width: 366});
 	
 	// adjust edge inspector
 	$("#edge_inspector").dialog({autoOpen: false, 
@@ -1184,11 +1392,10 @@ function _refreshGenesTab()
 			'<label>' + geneList[i].data.label + '</label>' +
 			'</option>');
 		
-		$("#genes_tab #" + safeId).click(updateSelectedGenes);
-		$("#genes_tab #" + safeId).select(updateSelectedGenes);
+		// add double click listener for each gene
 		$("#genes_tab #" + safeId).dblclick(showGeneDetails);
 		
-		// TODO qtip does not work with Chrome because of the restrictions of
+		// TODO qtip does not work with Chrome&IE because of the restrictions of
 		// the <select><option> structure.
 		var qtipOpts =
 		{
@@ -1217,6 +1424,19 @@ function _refreshGenesTab()
 		};
 		
 		//$("#genes_tab #" + safeId).qtip(qtipOpts);
+	}
+	
+	// add change listener to the select box
+	$("#genes_tab select").change(updateSelectedGenes);
+	
+	if (_isIE())
+	{
+		// listeners on <option> elements do not work in IE, therefore add 
+		// double click listener to the select box
+		$("#genes_tab select").dblclick(showGeneDetails);
+		
+		// TODO if multiple genes are selected, double click always shows
+		// the first selected genes details in IE
 	}
 }
 
@@ -1288,7 +1508,8 @@ function _initControlFunctions()
 {
 	_controlFunctions = new Array();
 	
-	_controlFunctions["hide_selected"] = _hideSelected;
+	//_controlFunctions["hide_selected"] = _hideSelected;
+	_controlFunctions["hide_selected"] = filterSelectedGenes;
 	_controlFunctions["unhide_all"] = _unhideAll;
 	_controlFunctions["perform_layout"] = _performLayout;
 	_controlFunctions["show_node_labels"] = _toggleNodeLabels;
@@ -1302,6 +1523,7 @@ function _initControlFunctions()
 	_controlFunctions["layout_properties"] = _openProperties;
 	_controlFunctions["highlight_neighbors"] = _highlightNeighbors;
 	_controlFunctions["remove_highlights"] = _removeHighlights;
+	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	
 	// TODO temp test button, remove when done
 	_controlFunctions["joker_button"] = jokerAction;
@@ -1313,7 +1535,8 @@ function _initControlFunctions()
 	
 	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);
-	$("#crop_genes").click(filterNonSelectedGenes);
+	$("#crop_genes").click(filterNonSelected);
+	$("#unhide_genes").click(_unhideAll);
 	
 	$("#update_edges").click(updateEdges);
 	
@@ -1666,7 +1889,7 @@ function _saveAsSvg()
 function _openProperties()
 {	
 	_updatePropsUI();
-	$("#settings_dialog").dialog("open");
+	$("#settings_dialog").dialog("open").height("auto");
 }
 
 /**
@@ -1794,6 +2017,23 @@ function _replaceAll(source, toFind, toReplace)
 	}
 
 	return target;
+}
+
+/**
+ * Checks if the user browser is IE.
+ * 
+ * @return	true if IE, false otherwise
+ */
+function _isIE()
+{
+	var result = false;
+	
+	if (navigator.appName.toLowerCase().indexOf("microsoft") != -1)
+	{
+		result = true;
+	}
+	
+	return result;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

@@ -105,35 +105,43 @@ public class DaoMutSig {
 
     //getMutSig from a hugoGeneSymbol
 
-    public static MutSig getMutSig(String hugoGeneSymbol) throws DaoException {
+    public static MutSig getMutSig(String hugoGeneSymbol, int cancerStudy) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        //get a new DaoGene Object, and get the EntrezGeneID
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
         Long entrezGeneID = gene.getEntrezGeneId();
-        try {
-            con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ?");
-            pstmt.setLong(1, entrezGeneID);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
-                return mutSig;
-            } else {
-                return null;
+        if (gene == null) {
+            System.err.print("This HugoGeneSymbol does not exist in Database: " + hugoGeneSymbol);
+            return null;
+        } else {
+            try {
+                con = JdbcUtil.getDbConnection();
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ? AND CANCER_STUDY_ID = ?");
+                pstmt.setLong(1, entrezGeneID);
+                pstmt.setInt(2, cancerStudy);
+                rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
+                    return mutSig;
+                } else {
+                    return null;
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(con, pstmt, rs);
             }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
 
-    //getMutSig with an entrezGeneID
 
-    public static MutSig getMutSig(Long entrezGeneID) throws DaoException {
+    //getMutSig with a stable entrezGeneID
+
+    public static MutSig getMutSig(Long entrezGeneID, int cancerStudy) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -141,10 +149,12 @@ public class DaoMutSig {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ?");
+                    ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ? AND CANCER_STUDY_ID = ?");
             pstmt.setLong(1, entrezGeneID);
+            pstmt.setInt(2, cancerStudy);
             rs = pstmt.executeQuery();
             if (rs.next()) {
+                //first go into gene database, and make a Canonical Gene Object with
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
                 MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
                 return mutSig;
@@ -160,7 +170,7 @@ public class DaoMutSig {
 
     //get all MutSigs in the Database
 
-    public ArrayList<MutSig> getAllMutSig() throws DaoException {
+    public ArrayList<MutSig> getAllMutSig(int cancerStudy) throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -169,7 +179,8 @@ public class DaoMutSig {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mut_sig");
+                    ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ?");
+            pstmt.setInt(1, cancerStudy);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));

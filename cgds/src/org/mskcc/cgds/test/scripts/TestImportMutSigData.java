@@ -30,13 +30,13 @@ public class TestImportMutSigData extends TestCase {
         pMonitor.setConsoleMode(false);
 
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("testData/cancers.txt"));
-        CancerStudy cancerStudy = new CancerStudy( "Glioblastoma TCGA", "GBM Description", "GBM_portal", "GBM", false );
+        CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "GBM_portal", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         assertEquals(1, cancerStudy.getStudyId());
 
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = new CanonicalGene(1956,"EGFR");
-        CanonicalGene gene2 = new CanonicalGene(4921,"DDR2");
+        CanonicalGene gene = new CanonicalGene(1956, "EGFR");
+        CanonicalGene gene2 = new CanonicalGene(4921, "DDR2");
         daoGeneOptimized.addGene(gene);
         daoGeneOptimized.addGene(gene2);
         assertEquals("EGFR", gene.getHugoGeneSymbol());
@@ -49,15 +49,17 @@ public class TestImportMutSigData extends TestCase {
         parser.importData();
 
         //Test if getMutSig works with a HugoGeneSymbol
-        MutSig mutSig = DaoMutSig.getMutSig("EGFR");
+        MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertEquals("EGFR", testGene.getHugoGeneSymbol());
+        assertEquals(19, mutSig.getnVal());
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene testGene2 = daoGene.getGene("DDR2");
 
         //test if getMutSig also works by passing an EntrezGeneID
-        mutSig = DaoMutSig.getMutSig(testGene2.getEntrezGeneId());
-        assertEquals("0.0014", mutSig.getpValue());
+        MutSig mutSig2 = DaoMutSig.getMutSig(testGene2.getEntrezGeneId(), 1);
+        assertEquals("0.0014", mutSig2.getpValue());
+        assertEquals(273743 , mutSig2.getN());
 
         //daoMutSig.getAllMutSig();
     }

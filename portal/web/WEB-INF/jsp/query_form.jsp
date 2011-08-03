@@ -43,22 +43,25 @@
     %>
 </script>
 <div class="main_query_panel">
-
-    <form id="main_form" action="index.do" method="get">
-    <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
+    <div id="main_query_form">
+        <form id="main_form" action="index.do" method="get">
+        <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
         
-    <%@ include file="step1_json.jsp" %>
-    <%@ include file="step2_json.jsp" %>
-    <%@ include file="step3_json.jsp" %>
-    <%@ include file="step4_json.jsp" %>
-    <%@ include file="step5_json.jsp" %>
-    <p/>
-    <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <%@ include file="step1_json.jsp" %>
+        <%@ include file="step2_json.jsp" %>
+        <%@ include file="step3_json.jsp" %>
+        <%@ include file="step4_json.jsp" %>
+        <%@ include file="step5_json.jsp" %>
+        <p/>
+        <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
 
-    <!--
-    <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
-    <div class="markdown" style="display:none;" id="cancer_results">
-    </div>
-    -->
+        </div>
+
+        <!--
+        <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
+        <div class="markdown" style="display:none;" id="cancer_results">
+        </div>
+        -->
+
 </div>

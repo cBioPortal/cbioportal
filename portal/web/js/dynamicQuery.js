@@ -15,15 +15,9 @@
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
-    //  Get Portal JSON Meta Data via JQuery AJAX
-    jQuery.getJSON("portal_meta_data.json",function(json){
-        //  Store JSON Data in global variable for later use
-        window.metaDataJson = json;
 
-        //  Add Meta Data to current page
-        addMetaDataToPage();
-    });  //  end getJSON function
-
+     //  Load Portal JSON Meta Data while showing loader image in place of query form
+     loadMetaData();
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_cancer_type").change(function() {
@@ -78,6 +72,40 @@ $(document).ready(function(){
     });
 
 });  //  end document ready function
+
+
+//  Load Portal JSON Meta Data, while showing loader image
+function loadMetaData() {
+        $('#load').remove();
+        //  show ajax loader image; loader is background image of div 'load' as set in css
+        $('.main_query_panel').append('<div id="load">&nbsp;</div>');
+        $('#load').fadeIn('slow');
+
+        //  hide the main query form until all meta data is loaded and added to page
+        $('#main_query_form').hide('fast',loadContent);
+
+        function loadContent() {
+            //  Get Portal JSON Meta Data via JQuery AJAX
+            jQuery.getJSON("portal_meta_data.json",function(json){
+                //  Store JSON Data in global variable for later use
+                window.metaDataJson = json;
+
+                //  Add Meta Data to current page
+                addMetaDataToPage();
+                showNewContent();
+            });
+        }
+        function showNewContent() {
+            //show content, hide loader only after content is shown
+            $('#main_query_form').fadeIn('fast',hideLoader());
+        }
+        function hideLoader() {
+            //hide loader image
+            $('#load').fadeOut();
+        }
+}
+
+
 
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {

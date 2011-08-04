@@ -6,6 +6,7 @@ import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * @author Lennart Bastian
@@ -14,56 +15,81 @@ public class GetMutSig {
 
     private GetMutSig() {
     }
+
     /*
-     * GetMutSig uses DaoMutSig to retrieve all MutSigs from Database
-     * in an Arraylist
-     * @throws DaoException Database Error
-     * @returns String - MutSig Table
-     */
-    public static String GetMutSig(int cancerStudy)
+    * GetMutSig uses DaoMutSig to retrieve all MutSigs of a specific
+    * cancer study from the database, in an Arraylist.
+    * One option is to input only a CancerStudyId and retrieve
+    * the entire Gene List.
+    * @throws DaoException Database Error
+    * @returns StringBuffer - MutSig Table
+    */
+
+    public static StringBuffer GetAMutSig(int cancerStudy)
             throws DaoException {
-        String toReturn = "";
+        StringBuffer toReturn = new StringBuffer();
         DaoMutSig daoMutSig = DaoMutSig.getInstance();
         ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy);
         for (int i = 0; i < mutSigList.size(); i++) {
-            toReturn += parseMutSig(mutSigList.get(i));
+            toReturn.append(parseMutSig(mutSigList.get(i)));
         }
         return toReturn;
     }
 
     /*
-     * Splits of each individual MutSig and returns as String
-     */
+    * The second option is to input either a Gene List (foo = false) of a Q Value Threshold (foo = true)
+    * to retrieve only a specific number of Genes.
+    */
+
+    public static StringBuffer GetAMutSig(int cancerStudy, String q_Value_or_Gene_List, Boolean foo)
+            throws DaoException, NumberFormatException {
+        StringBuffer toReturn = new StringBuffer();
+        //code for Q Value Threshold
+        if (foo) {
+            DaoMutSig daoMutSig = DaoMutSig.getInstance();
+            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy);
+            for (int i = 0; i < mutSigList.size(); i++) {
+                MutSig tempMutSig = mutSigList.get(i);
+                String str = tempMutSig.getqValue();
+                str = str.replace("<", "");
+                //Only return rows with a Q value less than specified threshold
+                if (Double.parseDouble(str) <= Double.parseDouble(q_Value_or_Gene_List))
+                    toReturn.append(parseMutSig(mutSigList.get(i)));
+            }
+            //code for Gene List
+        } else if (!foo) {
+            Pattern p = Pattern.compile("[,\\s]+");
+            String genes[] = p.split(q_Value_or_Gene_List);
+            for (String gene : genes) {
+                gene = gene.trim();
+                if (gene.length() == 0) continue;
+                MutSig mutSig = DaoMutSig.getMutSig(gene, cancerStudy);
+                toReturn.append(parseMutSig(mutSig));
+            }
+        }
+        return toReturn;
+    }
+
+    /*
+    * Splits of each individual MutSig and returns as String
+    */
 
     private static String parseMutSig(MutSig mutSig) {
         String toReturn = "";
-        toReturn += Integer.toString(mutSig.getCancerType());
-        toReturn += "\t";
+        toReturn += Integer.toString(mutSig.getCancerType()) + "\t";
         CanonicalGene gene = mutSig.getCanonicalGene();
-        toReturn += Long.toString(gene.getEntrezGeneId());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getRank());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getN());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getn());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getnVal());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getnVer());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getCpG());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getCandG());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getAandT());
-        toReturn += "\t";
-        toReturn += Integer.toString(mutSig.getIndel());
-        toReturn += "\t";
-        toReturn += mutSig.getpValue();
-        toReturn += "\t";
-        toReturn += mutSig.getqValue();
-        toReturn += "\n";
+        toReturn += Long.toString(gene.getEntrezGeneId()) + "\t";
+        toReturn += Integer.toString(mutSig.getRank()) + "\t";
+        toReturn += Integer.toString(mutSig.getN()) + "\t";
+        toReturn += Integer.toString(mutSig.getn()) + "\t";
+        toReturn += Integer.toString(mutSig.getnVal()) + "\t";
+        toReturn += Integer.toString(mutSig.getnVer()) + "\t";
+        toReturn += Integer.toString(mutSig.getCpG()) + "\t";
+        toReturn += Integer.toString(mutSig.getCandG()) + "\t";
+        toReturn += Integer.toString(mutSig.getAandT()) + "\t";
+        toReturn += Integer.toString(mutSig.getIndel()) + "\t";
+        toReturn += mutSig.getpValue() + "\t";
+        toReturn += mutSig.getqValue() + "\n";
         return toReturn;
     }
 }

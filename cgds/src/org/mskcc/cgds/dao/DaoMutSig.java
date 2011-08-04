@@ -112,11 +112,12 @@ public class DaoMutSig {
         //get a new DaoGene Object, and get the EntrezGeneID
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
-        Long entrezGeneID = gene.getEntrezGeneId();
+
         if (gene == null) {
             System.err.print("This HugoGeneSymbol does not exist in Database: " + hugoGeneSymbol);
             return null;
         } else {
+            Long entrezGeneID = gene.getEntrezGeneId();
             try {
                 con = JdbcUtil.getDbConnection();
                 pstmt = con.prepareStatement

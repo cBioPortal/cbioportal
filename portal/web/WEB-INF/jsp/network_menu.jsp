@@ -2,7 +2,7 @@
 	<ul id="network_menu">
 	    <li>
 	    	<a id="network_menu_file">File</a>
-	    	<ul>
+	    	<ul id="file_menu">
 	    		<li>
 	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
 	    				Save as Image (PNG)
@@ -17,7 +17,7 @@
 	    </li>
 	    <li>
 	    	<a id="network_menu_topology">Topology</a>
-	    	<ul>
+	    	<ul id="topology_menu">
 	    		<li>
 	    			<a id="hide_selected" onclick="handleMenuEvent('hide_selected')">
 	    				Hide
@@ -34,6 +34,11 @@
 	    			</a>
 	    		</li>
 	    		<li>
+	    			<a id="remove_disconnected" onclick="handleMenuEvent('remove_disconnected')">
+	    				Remove Disconnected Nodes on Hide
+	    			</a>
+	    		</li>
+	    		<li>
 	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
 	    				Auto Layout on Changes
 	    			</a>
@@ -42,7 +47,7 @@
 	    </li>
 	    <li>
 	    	<a id="network_menu_view">View</a>
-	    	<ul>
+	    	<ul id="view_menu">
 	    		<li>
 	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
 	    				Perform Layout

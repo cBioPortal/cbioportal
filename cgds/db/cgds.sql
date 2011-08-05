@@ -13,6 +13,7 @@ drop table IF EXISTS encrypted_keys;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS access_rights;
 drop table IF EXISTS users;
+drop table IF EXISTS authorities;
 drop table IF EXISTS type_of_cancer;
 drop table IF EXISTS mut_sig;
 drop table IF EXISTS _case;
@@ -70,8 +71,24 @@ CREATE TABLE IF NOT EXISTS `cancer_study` (
 CREATE TABLE IF NOT EXISTS `users` (
   `EMAIL` varchar(128) NOT NULL,
   `NAME` varchar(255),
+  `ENABLED` BOOLEAN NOT NULL,
+  `CONSUMER_KEY` varchar(100) NOT NULL,
+  `CONSUMER_SECRET` varchar(100) NOT NULL,
   PRIMARY KEY  (`EMAIL`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDb DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `access_rights`
+--
+
+CREATE TABLE IF NOT EXISTS `authorities` (
+  `EMAIL` varchar(128) NOT NULL,
+  `AUTHORITY` varchar(50) NOT NULL,
+  FOREIGN KEY (EMAIL) REFERENCES users (EMAIL),
+  UNIQUE index authorities_idx_1 (EMAIL, AUTHORITY)
+) ENGINE=InnoDb DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

@@ -18,12 +18,7 @@ public class SkinUtil {
      */
     public static boolean usersMustAuthenticate() {
         Config config = Config.getInstance();
-        String authentication =  config.getProperty("authenticate");
-        if (authentication != null && authentication.startsWith("T")) {
-            return true;
-        } else {
-            return false;
-        }
+		return new Boolean(config.getProperty("authenticate"));
     }
 
     /**
@@ -51,5 +46,4 @@ public class SkinUtil {
         }
         return globalPassword;
     }
-
 }

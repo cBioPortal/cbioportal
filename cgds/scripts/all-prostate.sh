@@ -2,7 +2,7 @@
 rm -v $CGDS_DATA_HOME/prostate/processed_*
 
 # Load up the Prosate Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/prostate/prostate.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/prostate/prostate.txt
 
 # Pre-process data for import
 # Runs:

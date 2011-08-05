@@ -221,7 +221,7 @@
 		  <equals arg1="${authenticate}" arg2="false"/>
 		  <then>
 			<copy overwrite="yes" todir="${build.dir}/WEB-INF" file="${web.dir}/WEB-INF/web.xml"/>
-			<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/applicationContext-security.xml" file="${web.dir}/WEB-INF/applicationContext-security-disabled.xml"/>
+			<copy overwrite="yes" tofile="${build.dir}/WEB-INF/classes/applicationContext-security.xml" file="${web.dir}/WEB-INF/applicationContext-security-disabled.xml"/>
 		  </then>
 		</elseif>
 		</if>

@@ -2,7 +2,7 @@
 rm -v $CGDS_DATA_HOME/gbm/processed_*
 
 # Load up the GBM Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/gbm/gbm.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/gbm/gbm.txt
 
 # Load Cases and Clinical Data
 ./importCaseList.pl $CGDS_DATA_HOME/gbm/case_lists

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -  Namespace-based Spring-Security configuration
+  -->
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+	xmlns:oauth="http://www.springframework.org/schema/security/oauth"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+						http://www.springframework.org/schema/security/oauth http://www.springframework.org/schema/security/spring-security-oauth-1.0.xsd">
+
+<!--
+	Should come from another file with value conditional based on build.properties
+-->
+  <global-method-security pre-post-annotations="enabled"/>
+
+<!--
+	spring security web based security element
+-->
+  <http auto-config='true' entry-point-ref="oauthProcessingFilterEntryPoint" use-expressions="true">
+	<intercept-url pattern="/credentials.do*" access="hasRole('ROLE_PORTAL_ADMIN')" />
+	<!--<intercept-url pattern="/credentials.do*" access="hasRole('ROLE_ADMIN') and hasIpAddress('192.168.1.0/24')" requires-channel"https"/>-->
+	<intercept-url pattern="/webservice.do*" access="hasRole('ROLE_USER')"/>
+	<intercept-url pattern="/**" access="denyAll"/>
+  </http>
+
+<!--
+	custom authentication provider - required for 2-legged oauth
+-->
+  <authentication-manager>
+	<authentication-provider user-service-ref="portalManagerDetailsService"/>
+  </authentication-manager>
+
+<!--
+	custom consumer details service - required for 2-legged oauth
+-->
+  <oauth:provider consumer-details-service-ref="portalManagerDetailsService"
+                  auth-handler-ref="consumerBasedAuthenticationHandler"
+                  token-services-ref="tokenServices"/>
+
+  <oauth:token-services id="tokenServices"/>
+
+<!-- 
+	 DAO Bean
+
+    <b:bean id="daoUser" class="org.mskcc.cgds.dao.DaoUser"/>
+    <b:bean id="daoUserAuthorities" class="org.mskcc.cgds.dao.DaoUserAuthorities"/>
+-->
+
+<!--
+	Some beans required for 2-legged oauth
+-->
+  <b:bean name="consumerBasedAuthenticationHandler" class="org.mskcc.cgds.oauth.ConsumerBasedAuthenticationHandler" />
+  <b:bean name="oauthProcessingFilterEntryPoint" class="org.springframework.security.oauth.provider.OAuthProcessingFilterEntryPoint" />
+  <b:bean name="portalManagerDetailsService" class="org.mskcc.cgds.oauth.CGDSConsumerDetailsService"/>
+
+<!-- 
+	 web_api beans
+-->
+    <b:bean id="userCredentials" class="org.mskcc.cgds.web_api.internal.UserCredentialsImpl"/>
+
+</b:beans>

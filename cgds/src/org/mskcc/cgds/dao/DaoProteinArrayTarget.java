@@ -101,7 +101,7 @@ public class DaoProteinArrayTarget {
      * @return ProteinArrayInfo Object.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayTarget> getProteinArrayInfo(long gene) throws DaoException {
+    public ArrayList<ProteinArrayTarget> getProteinArrayTarget(long gene) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

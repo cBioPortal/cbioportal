@@ -32,6 +32,7 @@ import org.mskcc.cgds.web_api.GetMutationFrequencies;
 import org.mskcc.cgds.web_api.GetNetwork;
 import org.mskcc.cgds.web_api.GetMutSig;
 import org.mskcc.cgds.web_api.GetProfileData;
+import org.mskcc.cgds.web_api.GetProteinArrayData;
 import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
@@ -57,6 +58,8 @@ public class WebService extends HttpServlet {
     public static final String SUPPRESS_MONDRIAN_HEADER = "suppress_mondrian_header";
     public static final String EMAIL_ADDRESS = "email_address";
     public static final String SECRET_KEY = "secret_key";
+    public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
+    public static final String PROTEIN_ARRAY_ID = "protein_array_id";
 
     /**
      * Shutdown the Servlet.
@@ -136,6 +139,36 @@ public class WebService extends HttpServlet {
                 outputMissingParameterError(writer, CMD);
                 return;
             }
+         // Branch, based on command.
+         if (null == cmd) {
+            outputMissingParameterError(writer, CMD);
+            return;
+         }
+         
+         // check command
+         if( !goodCommand( writer, cmd ) ){
+            return;
+         }
+         
+         if (cmd.equals("getTypesOfCancer")) {
+            // getTypesOfCancer requires no access control 
+            getTypesOfCancer(writer);
+            return;
+         }
+         if (cmd.equals("getNetwork")) {
+            // getNetwork doesn't access any data; so no access control needed  
+            getNetwork(httpServletRequest, writer);
+            return;
+         }
+         if (cmd.equals("getProteinArrayInfo")) {
+             getProteinArrayInfo(httpServletRequest, writer);
+             return;
+         }
+         if (cmd.equals("getProteinArrayData")) {
+             getProteinArrayData(httpServletRequest, writer);
+             return;
+         }
+
 
             // check command
             if (!goodCommand(writer, cmd)) {
@@ -262,6 +295,31 @@ public class WebService extends HttpServlet {
         ArrayList<String> targetGeneList = getGeneList(httpServletRequest);
         String out = GetNetwork.getNetwork(targetGeneList);
         writer.print(out);
+    }
+    
+    private void getProteinArrayInfo(HttpServletRequest httpServletRequest, 
+            PrintWriter writer) throws DaoException, ProtocolException {
+        String geneList = httpServletRequest.getParameter(GENE_LIST);
+        if (geneList == null || geneList.length() == 0) {
+            throw new ProtocolException ("Missing Parameter:  " + GENE_LIST);
+        }
+        ArrayList <String> targetGeneList = getGeneList (httpServletRequest);
+        
+        String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
+        writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList,type));
+    }
+    
+    private void getProteinArrayData(HttpServletRequest httpServletRequest, 
+            PrintWriter writer) throws DaoException, ProtocolException {
+        String arrayId = httpServletRequest.getParameter(PROTEIN_ARRAY_ID);
+        if (arrayId == null || arrayId.length() == 0) {
+            throw new ProtocolException ("Missing Parameter:  " + PROTEIN_ARRAY_ID);
+        }
+        ArrayList<String> targetCaseIds = null;
+        if (null != httpServletRequest.getParameter(CASE_LIST)
+                || null != httpServletRequest.getParameter(CASE_SET_ID))
+            targetCaseIds = getCaseList(httpServletRequest);
+        writer.print(GetProteinArrayData.getProteinArrayData(arrayId, targetCaseIds));
     }
 
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {
@@ -476,18 +534,19 @@ public class WebService extends HttpServlet {
         }
     }
 
-    private boolean goodCommand(PrintWriter writer, String cmd) {
-        // check that command is correct
-        String[] commands = {"getTypesOfCancer", "getNetwork", "getCancerStudies",
-                "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists",
-                "getClinicalData", "getMutationData", "getMutationFrequency"};
-        for (String aCmd : commands) {
-            if (aCmd.equals(cmd)) {
-                return true;
-            }
-        }
-        outputError(writer, "'" + cmd + "' not a valid command.");
-        return false;
+    private boolean goodCommand(PrintWriter writer, String cmd ){
+       // check that command is correct
+       String[] commands = { "getTypesOfCancer", "getNetwork", "getCancerStudies",
+                "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists", 
+                "getClinicalData", "getMutationData", "getMutationFrequency",
+                "getProteinArrayInfo", "getProteinArrayData"};
+       for( String aCmd : commands ){
+          if( aCmd.equals(cmd)){
+             return true;
+          }
+       }
+       outputError( writer, "'" + cmd + "' not a valid command." );
+       return false;
 
     }
 

@@ -14,7 +14,6 @@ import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.web_api.GetMutSig;
 import org.mskcc.cgds.dao.DaoException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 
 /**
@@ -53,12 +52,12 @@ public class TestGetMutSig extends TestCase {
 
         StringBuffer stringBuffer = GetMutSig.GetAMutSig(1);
         //System.out.println(stringBuffer);
-        /*
-        getMutSig("1", "","");
-        getMutSig("1", "","DDR2");
-        getMutSig("1", "","EGFR DDR2");
-        getMutSig("1", ".1","");
-        */
+
+        //getMutSig("1", "","");
+        //getMutSig("1", "","DDR2");
+        //getMutSig("1", "","EGFR DDR2");
+        //getMutSig("1", ".1","");
+
     }
     /*
      * this is taken directly from the WebService class, and minimally changed to function without

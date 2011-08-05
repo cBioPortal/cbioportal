@@ -40,13 +40,11 @@
 {
 	position: absolute;
 	display: none;
-	width: 20em;
 	top: 1.8em;
 }
 
 #network_menu li ul a
 {
-	width: 17em;
 	height: auto;
 	float: left;
 }
@@ -72,6 +70,35 @@
 	display:block;
 }
 
+#file_menu
+{
+	width: 19em;
+}
+
+#file_menu a
+{
+	width: 16em;
+}
+
+#topology_menu
+{
+	width: 26em;
+}
+
+#topology_menu a
+{
+	width: 23em;
+}
+
+#view_menu
+{
+	width: 20em;
+}
+
+#view_menu a
+{
+	width: 17em;
+}
 
 /* 
  * Menu & Settings Panel

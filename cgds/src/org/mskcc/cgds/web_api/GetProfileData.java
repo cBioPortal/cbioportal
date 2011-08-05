@@ -111,7 +111,7 @@ public class GetProfileData {
                         canonicalGene.getEntrezGeneId());
             } else if (geneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
-                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(), "protein level");
+                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(), "protein_level");
             } else if (geneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
                 caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(), "phosphorylation");
@@ -176,7 +176,7 @@ public class GetProfileData {
 
         HashMap <String, String> arrayDataMap = new HashMap <String, String>();
         
-        ArrayList<ProteinArrayTarget> targets = daoPAT.getProteinArrayInfo(entrezGeneId);
+        ArrayList<ProteinArrayTarget> targets = daoPAT.getProteinArrayTarget(entrezGeneId);
         if (targets.isEmpty())
             return arrayDataMap;
         

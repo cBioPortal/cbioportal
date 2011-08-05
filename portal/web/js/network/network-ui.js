@@ -1,5 +1,6 @@
 // flags
 var _autoLayout;
+var _removeDisconnected;
 var _nodeLabelsVisible;
 var _edgeLabelsVisible;
 var _panZoomVisible;
@@ -47,8 +48,11 @@ var _graphLayout = {name: "ForceDirected"};
 // force directed layout options
 var _layoutOptions;
 
-// array of selected elements, used by the visibility function for filtering
+// map of selected elements, used by the filtering functions
 var _selectedElements;
+
+// map of connected nodes, used by filtering functions
+var _connectedNodes;
 
 // array of previously filtered elements
 var _alreadyFiltered;
@@ -430,7 +434,6 @@ function _addPercentages(data)
 		// append as a first row
 		$("#node_inspector .profile").prepend(row);
 	}
-	
 }
 
 /**
@@ -647,11 +650,14 @@ function searchGene()
  */
 function filterSelectedGenes()
 {
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out selected elements
     _vis.filter("nodes", visibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh genes tab
     _refreshGenesTab();
@@ -665,11 +671,14 @@ function filterSelectedGenes()
  */
 function filterNonSelected()
 {
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out non-selected elements
     _vis.filter('nodes', geneVisibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh Genes tab
     _refreshGenesTab();
@@ -709,6 +718,9 @@ function updateEdges()
 	
 	// filter selected types
 	_vis.filter("edges", edgeVisibility, true);
+	
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
 	
 	// visualization changed, perform layout if necessary
 	_visChanged();
@@ -765,7 +777,8 @@ function edgeVisibility(element)
 }
 
 /**
- * Determines the visibility of a gene (node) for filtering purposes.
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter non-selected genes.
  * 
  * @param element	gene to be checked for visibility criteria
  * @return			true if the gene should be visible, false otherwise
@@ -781,22 +794,51 @@ function geneVisibility(element)
 	}
 	else
 	{
-		// TODO find a better way (?) to check if it is selected.
-		
 		// filter non-selected nodes
 		
-		for (var i=0; i < _selectedElements.length; i++)
+		if (_selectedElements[element.data.id] != null)
 		{
-			if (element.data.id == _selectedElements[i].data.id)
-			{
-				visible = true;
-				break;
-			}
+			visible = true;
 		}
 		
 		if (!visible)
 		{
 			// if the element should be filtered, then add it to the map
+			_alreadyFiltered[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+/**
+ * Determines the visibility of a node for filtering purposes. This function is
+ * designed to filter disconnected nodes.
+ * 
+ * @param element	node to be checked for visibility criteria
+ * @return			true if the node should be visible, false otherwise
+ */
+function isolation(element)
+{
+	var visible = false;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	else
+	{
+		// check if the node is connected, if it is disconnected it should be
+		// filtered out
+		if (_connectedNodes[element.data.id] != null)
+		{
+			visible = true;
+		}
+		
+		if (!visible)
+		{
+			// if the node should be filtered, then add it to the map
 			_alreadyFiltered[element.data.id] = element;
 		}
 	}
@@ -827,34 +869,109 @@ function visibility(element)
 		return false;
 	}
 	// TODO if an edge source is hidden, all edges of that source should be invisible
-	// TODO this function is not called anymore & no edge filtering via selecting
+	// TODO this function is not called anymore for edges (no edge filtering via selecting)
 	
-	
-	
-	// TODO find a better way (?) to check if it is selected, do not traverse
-	// all selected elements
-	
-	for (var i=0; i < _selectedElements.length; i++)
+	// if the element is selected, then it should be filtered
+	if (_selectedElements[element.data.id] != null)
 	{
-		if (element.data.id == _selectedElements[i].data.id)
-		{
-			_alreadyFiltered[element.data.id] = element;
-			return false;
-		}
+		_alreadyFiltered[element.data.id] = element;
+		return false;
 	}
 	
 	return true;
 }
 
 /**
- * Performs layout if auto layout flag is set. 
+ * Creates a map (on element id) of selected elements.
+ *  
+ * @param group		data group (nodes, edges, all)
+ * @return			a map of selected elements
+ */
+function _selectedElementsMap(group)
+{
+	var selected = _vis.selected(group);
+	var map = new Array();
+	
+	for (var i=0; i < selected.length; i++)
+	{
+		var key = selected[i].data.id;
+		map[key] = selected[i];
+	}
+	
+	return map;
+}
+
+/**
+ * Creates a map (on element id) of connected nodes.
+ * 
+ * @return	a map of connected nodes
+ */
+function _connectedNodesMap()
+{
+	var map = new Array();
+	var edges;
+	
+	// if edges merged, traverse over merged edges for a better performance
+	if (_vis.edgesMerged())
+	{
+		edges = _vis.mergedEdges();
+	}
+	// else traverse over regular edges
+	else
+	{
+		edges = _vis.edges();
+	}
+	
+	var source;
+	var target;
+	
+	
+	// for each edge, add the source and target to the map of connected nodes
+	for (var i=0; i < edges.length; i++)
+	{
+		if (edges[i].visible)
+		{
+			source = _vis.node(edges[i].data.source);
+			target = _vis.node(edges[i].data.target);
+		
+			map[source.data.id] = source;
+			map[target.data.id] = target;
+		}
+	}
+	
+	return map;
+}
+
+/**
+ * This function is designed to be invoked after an operation (such as filtering
+ * nodes or edges) that changes the graph topology. 
  */
 function _visChanged()
 {
+	// perform layout if auto layout flag is set
+	
 	if (_autoLayout)
 	{
 		// re-apply layout
 		_performLayout();
+	}
+}
+
+/**
+ * This function is designed to be invoked after an operation that filters
+ * nodes or edges.
+ */
+function _filterDisconnected()
+{
+	// filter disconnected nodes if the flag is set
+	
+	if (_removeDisconnected)
+	{
+		// update connected nodes map
+		_connectedNodes = _connectedNodesMap();
+		
+		// filter disconnected
+		_vis.filter('nodes', isolation, true);
 	}
 }
 
@@ -1068,6 +1185,7 @@ function _resolveXref(xref)
 function _resetFlags()
 {
 	_autoLayout = false;
+	_removeDisconnected = false;
 	_nodeLabelsVisible = true;
 	_edgeLabelsVisible = false;
 	_panZoomVisible = true;
@@ -1230,7 +1348,7 @@ function _initMainMenu()
 	
 	$("#hide_selected").addClass(FIRST_CLASS);
 	$("#hide_selected").addClass(MENU_SEPARATOR_CLASS);	
-	$("#auto_layout").addClass(MENU_SEPARATOR_CLASS);
+	$("#remove_disconnected").addClass(MENU_SEPARATOR_CLASS);
 	$("#auto_layout").addClass(LAST_CLASS);
 	
 	$("#perform_layout").addClass(FIRST_CLASS);
@@ -1250,6 +1368,15 @@ function _initMainMenu()
 	else
 	{
 		$("#auto_layout").removeClass(CHECKED_CLASS);
+	}
+	
+	if (_removeDisconnected)
+	{
+		$("#remove_disconnected").addClass(CHECKED_CLASS);
+	}
+	else
+	{
+		$("#remove_disconnected").removeClass(CHECKED_CLASS);
 	}
 	
 	if (_nodeLabelsVisible)
@@ -1517,6 +1644,7 @@ function _initControlFunctions()
 	_controlFunctions["merge_links"] = _toggleMerge;
 	_controlFunctions["show_pan_zoom_control"] = _togglePanZoom;
 	_controlFunctions["auto_layout"] = _toggleAutoLayout;
+	_controlFunctions["remove_disconnected"] = _toggleRemoveDisconnected;
 	_controlFunctions["show_profile_data"] = _toggleProfileData;
 	_controlFunctions["save_as_png"] = _saveAsPng;
 	_controlFunctions["save_as_svg"] = _saveAsSvg;
@@ -1576,11 +1704,14 @@ function _initLayoutOptions()
  */
 function _hideSelected()
 {
-	// update selected elements
-	_selectedElements = _vis.selected();
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("all");
 	
 	// filter out selected elements
     _vis.filter('all', visibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh genes tab
     _refreshGenesTab();
@@ -1607,9 +1738,9 @@ function _unhideAll()
 	// refresh & update genes tab 
 	_refreshGenesTab();
 	updateGenesTab();
-	
-	// visualization changed, perform layout if necessary
-	_visChanged();
+
+	// no need to call _visChanged(), since it is already called by updateEdges
+	//_visChanged();
 }
 
 /**
@@ -1820,7 +1951,7 @@ function _toggleMerge()
 }
 
 /**
- * Toggle auto layout options on or off. If auto layout is active, then the
+ * Toggle auto layout option on or off. If auto layout is active, then the
  * graph is laid out automatically upon any change.
  */
 function _toggleAutoLayout()
@@ -1834,6 +1965,30 @@ function _toggleAutoLayout()
 	var item = $("#auto_layout");
 	
 	if (_autoLayout)
+	{
+		item.addClass(CHECKED_CLASS);
+	}
+	else
+	{
+		item.removeClass(CHECKED_CLASS);
+	}
+}
+
+/**
+ * Toggle "remove disconnected on hide" option on or off. If this option is 
+ * active, then any disconnected node will also be hidden after the hide action.
+ */
+function _toggleRemoveDisconnected()
+{
+	// toggle removeDisconnected option
+	
+	_removeDisconnected = !_removeDisconnected;
+	
+	// update check icon of the corresponding menu item
+	
+	var item = $("#remove_disconnected");
+	
+	if (_removeDisconnected)
 	{
 		item.addClass(CHECKED_CLASS);
 	}

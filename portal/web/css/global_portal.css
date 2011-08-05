@@ -1064,6 +1064,11 @@ color:white;
     padding-top:10px;
 }
 
+/* Main Query Form */
+#main_query_form {
+    display:none; /* hide until window is loaded */
+}
+
 /* Step Section */
 .query_step_section {
     padding:10px;

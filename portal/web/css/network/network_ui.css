@@ -100,6 +100,16 @@
 	width: 17em;
 }
 
+#layout_menu
+{
+	width: 20em;
+}
+
+#layout_menu a
+{
+	width: 17em;
+}
+
 /* 
  * Menu & Settings Panel
  */
@@ -305,6 +315,11 @@
 	text-align: center;
 	font-size: 9pt;
 	width: 200px;
+}
+
+#genes_tab .header #search
+{
+	width: 111px;
 }
 
 #genes_tab .in-query

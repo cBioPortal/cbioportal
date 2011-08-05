@@ -108,20 +108,13 @@ package org.cytoscapeweb.view.render
 						drawDetails(d, size/2);
 					}
 					
-					// A value for the node color determined by the total alteration
-					var total:Number = Number(d.data.PERCENT_CNA_HEMIZYGOUSLY_DELETED) * 100
-						+ Number(d.data.PERCENT_CNA_AMPLIFIED) * 100
-						+ Number(d.data.PERCENT_CNA_HOMOZYGOUSLY_DELETED) * 100
-						+ Number(d.data.PERCENT_CNA_GAINED) * 100
-						+ Number(d.data.PERCENT_MUTATED) * 100
-						+ Number(d.data.PERCENT_MRNA_WAY_UP) * 100
-						+ Number(d.data.PERCENT_MRNA_WAY_DOWN) * 100;
-					
+					// Bottom half of the genes is colored according to total alteration percentage
+					var total:Number = Number(d.data.PERCENT_ALTERED) * 100;
+
 					g.beginFill(getNodeColorRW(total), 50);					
 					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
 					
 					// Top half of the genes is colored according to the IN_QUERY property
-
 					var inQuery:String = d.data.IN_QUERY;
 					
 					if(inQuery == "false")
@@ -132,6 +125,7 @@ package org.cytoscapeweb.view.render
 					{
 						g.beginFill(0x111111, 50);
 					}
+
 					drawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
 			}
 		}
@@ -189,9 +183,8 @@ package org.cytoscapeweb.view.render
 			
 			var thickness:int = 16; // Thickness of the detail disc
 			var smoothness:int = 90; // Determines how smooth the ars are drawn
-			var sectionMargin:int = 20; // Margins between disc parts
 			var circleMargin:int = 0; // Margin between the discs and the node
-			var insideMargin:Number = 0.5; // Inner margins for the percentage slices
+			var insideMargin:Number = 1.0; // Inner margins for the percentage slices (should be half the border thickness!)
 			
 			// These variables are used for the gradient color for unused disc parts
 			var fillType:String = "linear"
@@ -205,9 +198,13 @@ package org.cytoscapeweb.view.render
 			
 			g.lineStyle(0,0x000000,1);
 			
-			// Following part looks the available data and sets percentages if data is available
-			// If the top disc data is available
-			if(d.data.PERCENT_CNA_HEMIZYGOUSLY_DELETED != null)
+			// Following part looks at available data and sets percentages if data is available
+			
+			// Top disc
+			if (d.data.PERCENT_CNA_HEMIZYGOUSLY_DELETED != null ||
+				d.data.PERCENT_CNA_AMPLIFIED != null ||
+				d.data.PERCENT_CNA_HOMOZYGOUSLY_DELETED != null ||
+				d.data.PERCENT_CNA_GAINED != null)
 			{
 				var hemizygousDeletion:Number = Number(d.data.PERCENT_CNA_HEMIZYGOUSLY_DELETED) * 100;
 				var amplification:Number = Number(d.data.PERCENT_CNA_AMPLIFIED) * 100;
@@ -216,104 +213,128 @@ package org.cytoscapeweb.view.render
 				topFlag = true;
 			}
 			
-			// If the right disc data is available
-			if(d.data.PERCENT_MUTATED != null)
+			// Right disc
+			if (d.data.PERCENT_MUTATED != null)
 			{
 				var mutation:Number = Number(d.data.PERCENT_MUTATED) * 100;
 				rightFlag = true;
 			}
 			
-			// If the left disc data is available
-			if(d.data.PERCENT_MRNA_WAY_UP != null)
+			// Left disc
+			if (d.data.PERCENT_MRNA_WAY_UP != null ||
+				d.data.PERCENT_MRNA_WAY_DOWN != null)
 			{
 				var upRegulation:Number = Number(d.data.PERCENT_MRNA_WAY_UP) * 100;
 				var downRegulation:Number = Number(d.data.PERCENT_MRNA_WAY_DOWN) * 100;
 				leftFlag = true;
 			}
 			
-			/* Following part draws the disc slice if its flag is on, 3 disc part is drawn such a way
-			 * that there are 20 degree empty space between each part and the parts itself has a 100 degree
-			 * space. The gray backgrounds are drawn first and the corresponing colored percentages are
-			 * filled using the data about the node.
+			/* Following part draws the disc slice if associated flag is on, 3 disc parts are drawn in such a
+			 * way that there are 20 degrees empty space between each part and the parts themselves have a
+			 * 100 degrees space each, adding up to 360 degrees. The gray backgrounds are drawn first and the
+			 * corresponing colored percentages are filled using the data about the node.
 			 */
 			
 			// Don't draw anything if none is available
 			if (!(topFlag || rightFlag || leftFlag))
+			{
 				return;
+			}
 			
+			var innerRadius:Number;
+			var outerRadius:Number;
+
 			// Draws the top arc if its flag is on
-			if( topFlag == true)
+			if (topFlag == true)
 			{	
+				innerRadius = RADIUS + circleMargin;
+				outerRadius = RADIUS + thickness;
+
 				// The gray back part is drawn
-				g.lineStyle(2,0xDCDCDC,1);
+				g.lineStyle(2, 0xDCDCDC, 1);
 				g.beginFill(0xFFFFFF, 50);
-				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, innerRadius, outerRadius, 218/360, 104/360, smoothness, g);
 				
-				g.lineStyle(0,0xFFFFFF,0);
-				
+				innerRadius += insideMargin;
+				outerRadius -= insideMargin;
+
+				g.lineStyle(0, 0xFFFFFF, 0);
+
 				var hemizygousDeletionArc:int = hemizygousDeletion;
 				g.beginFill(0x9EDFE0, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360, (hemizygousDeletionArc/360), smoothness, g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360, (hemizygousDeletionArc/360), smoothness, g);
 				
 				var gainArc:int = gain;
 				g.beginFill(0xFFC5CC, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
 				
 				var amplificationArc:int = amplification;
 				g.beginFill(0xFF2500, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin,  221/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
 				
 				var homozygousDeletionArc:int = homozygousDeletion;
 				g.beginFill(0x0332FF, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, 221/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
 				
-				g.lineStyle(1,0x000000,1);
+				g.lineStyle(1, 0x000000, 1);
 			}	
 			else
 			{
-				g.lineStyle(1,0xDCDCDC,0.5);
+				g.lineStyle(1, 0xDCDCDC, 0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 220/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, 219/360, 102/360, smoothness, g);
 				g.endFill();
 			}
 			
-			if( rightFlag == true)
+			if (rightFlag == true)
 			{
-				g.lineStyle(2,0xDCDCDC,1);
+				innerRadius = RADIUS + circleMargin;
+				outerRadius = RADIUS + thickness;
+
+				g.lineStyle(2, 0xDCDCDC, 1);
 				g.beginFill(0xFFFFFF, 50);
-				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, innerRadius, outerRadius, -22/360, 104/360, smoothness, g);
 				
+				innerRadius += insideMargin;
+				outerRadius -= insideMargin;
+
 				g.lineStyle(0,0xDCDCDC,0);
 				
 				var mutationArc:int = mutation;
 				g.beginFill(0x008F00, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin+insideMargin, RADIUS+thickness-insideMargin, -19/360, (mutationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, -20/360, (mutationArc/360), smoothness,g);
 				
-				g.lineStyle(1,0x000000,1);
+				g.lineStyle(1, 0x000000, 1);
 			}
 			else
 			{
-				g.lineStyle(1,0xDCDCDC,0.5);
+				g.lineStyle(1, 0xDCDCDC, 0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -20/360, 100/360, smoothness, g);
+				drawSolidArc(0, 0, RADIUS+circleMargin, RADIUS+thickness, -21/360, 102/360, smoothness, g);
 				g.endFill();
 			}
 
-			if( leftFlag == true)
+			if (leftFlag == true)
 			{	
-				g.lineStyle(2,0xDCDCDC,1);
+				innerRadius = RADIUS + circleMargin;
+				outerRadius = RADIUS + thickness;
+
+				g.lineStyle(2, 0xDCDCDC, 1);
 				g.beginFill(0xFFFFFF, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 202/360, -(104/360), smoothness,g);
 				
-				g.lineStyle(0,0xDCDCDC,0);
+				innerRadius += insideMargin;
+				outerRadius -= insideMargin;
+
+				g.lineStyle(0, 0xDCDCDC, 0);
 
 				var upRegulationArc:int = upRegulation;
 				g.beginFill(0xFFACA9, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 201/360, -(upRegulationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 200/360, -(upRegulationArc/360), smoothness,g);
 				
 				var downRegulationArc:int = downRegulation;
 				g.beginFill(0x78AAD6, 50);
-				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 201/360 - (upRegulationArc/360), -(downRegulationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 200/360 - (upRegulationArc/360), -(downRegulationArc/360), smoothness,g);
 
 				// When only borders are to be drawn (like in the OncoPrint)
 //				g.endFill();
@@ -325,16 +346,17 @@ package org.cytoscapeweb.view.render
 //				g.lineStyle(1.5,0x78AAD6,1);
 //				drawSolidArc (0, 0, RADIUS+circleMargin+1.5, RADIUS+thickness-1.5, 201/360 - (upRegulationArc/360)-8/360, -(downRegulationArc/360), smoothness,g);
 
-				g.lineStyle(1,0x000000,1);
+				g.lineStyle(1, 0x000000, 1);
 			}
 			else
 			{
-				g.lineStyle(1,0xDCDCDC,0.5);
+				g.lineStyle(1, 0xDCDCDC, 0.5);
 				g.beginGradientFill(fillType, colors, alphas, ratios, matrix, spreadMethod);
-				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 200/360, -(100/360), smoothness,g);
+				drawSolidArc (0, 0, RADIUS+circleMargin, RADIUS+thickness, 201/360, -(102/360), smoothness,g);
 				g.endFill();
 			}
-			g.lineStyle(1,0x000000,1);
+			
+			g.lineStyle(1, 0x000000, 1);
 		}
 		
 		/**

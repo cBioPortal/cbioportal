@@ -16,7 +16,7 @@
 				</tr>
 				<tr>
 					<td>
-						<input type="text" size="17" id="search" value=""/>
+						<input type="text" id="search" value=""/>
 						<input type="button" id="search_genes" value="Search"/>
 					</td>
 				</tr>

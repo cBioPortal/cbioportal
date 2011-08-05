@@ -20,6 +20,7 @@ $(document).ready(function() {
         var mrna_profile_id = $('select[name="mrnra_profile_id"] option:selected').val();
         var cna_profile_id = $('select[name="cna_profile_id"] option:selected').val();
         var methylation_profile_id = $('select[name="methylation_profile_id"] option:selected').val();
+        var rppa_protein_profile_id = $('select[name="rppa_protein_profile_id"] option:selected').val();
         var plot_type = $('select[name="plot_type"] option:selected').val();
         var includeNormals = $('input:checkbox[name=include_normals]:checked').val();
 
@@ -34,6 +35,9 @@ $(document).ready(function() {
                 "&include_normals="+includeNormals;
                 if(methylation_profile_id){
                     toLoad = toLoad+"&methylation_profile_id="+methylation_profile_id;
+                }
+                if(rppa_protein_profile_id){
+                    toLoad = toLoad+"&rppa_protein_profile_id="+rppa_protein_profile_id;
                 }
                 toLoad = toLoad + "&plot_type="+plot_type;
 
@@ -118,9 +122,10 @@ $(document).ready(function() {
     int mRNAProfileCounter = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION);
     int cnaProfileCounter = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION);
     int methylationProfileCounter = countProfiles(profileList, GeneticAlterationType.METHYLATION);
+    int rppaProteinProfileCounter = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL);
 
-    if (mutationProfileCounter <=1 & mRNAProfileCounter <=1 & cnaProfileCounter <= 1
-            & methylationProfileCounter <=1) {
+    if (mutationProfileCounter <=1 && mRNAProfileCounter <=1 && cnaProfileCounter <= 1
+            && methylationProfileCounter <=1 && rppaProteinProfileCounter <= 1) {
         out.println ("<BR><BR>");
     } else {
         out.println ("<BR><BR><b>Data Types:</b><br><br>");
@@ -154,13 +159,22 @@ $(document).ready(function() {
             GeneticAlterationType.METHYLATION, geneticProfileIdSet, out);
     }
 
-    if (methylationProfileCounter > 0) {
+    //  Output rppa Profiles
+    if (rppaProteinProfileCounter > 0) {
+        outputProfiles(GeneratePlots.RPPA_PROTEIN_PROFILE_ID, profileList,
+            GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, geneticProfileIdSet, out);
+    }
+
+    if (methylationProfileCounter > 0 || rppaProteinProfileCounter > 0) {
         out.println ("<BR><BR><b>Plot Type:</b><br><br>");
     }
     out.println ("<select style=\"width:180;\"name='plot_type'>");
     out.println ("<option value='mrna_cna'>Copy Number v. mRNA</option>");
     if (methylationProfileCounter > 0) {
         out.println ("<option value='mrna_methylation'>DNA Methylation v. mRNA</option>");
+    }
+    if (rppaProteinProfileCounter > 0) {
+        out.println ("<option value='mrna_rppa_protein'>RPPA protein level v. mRNA</option>");
     }
     out.println ("</select>");
 

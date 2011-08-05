@@ -278,9 +278,8 @@ function _updateNodeInspectorContent(data)
 	if (data.type == PROTEIN)
 	{
 		_addDataRow("node", "Gene Symbol", data.label);
-		// TODO add description?
 		//_addDataRow("node", "Description", "TODO");
-		_addDataRow("node", "Gene specified by user", data.IN_QUERY);
+		_addDataRow("node", "User-Specified", data.IN_QUERY);
 	
 		// add percentage information
 		_addPercentages(data);
@@ -419,7 +418,7 @@ function _addPercentages(data)
 		
 		// add header
 		$("#node_inspector .profile-header").append('<tr class="header-row">' +
-			'<td><div>Genomic Profiles:</div></td></tr>');
+			'<td><div>Genomic Profile(s):</div></td></tr>');
 		
 		// add total alteration frequency
 		
@@ -719,8 +718,8 @@ function updateEdges()
 	// filter selected types
 	_vis.filter("edges", edgeVisibility, true);
 	
-    // also, filter disconnected nodes if necessary
-    _filterDisconnected();
+    // "filter disconnected" option might be confusing for edge filtering...
+    //_filterDisconnected();
 	
 	// visualization changed, perform layout if necessary
 	_visChanged();
@@ -868,8 +867,11 @@ function visibility(element)
 	{
 		return false;
 	}
-	// TODO if an edge source is hidden, all edges of that source should be invisible
+	// if an edge source is hidden, all edges of that source should be invisible
+	// else if (...)
+	
 	// TODO this function is not called anymore for edges (no edge filtering via selecting)
+	// so the edge visibility check can be omitted
 	
 	// if the element is selected, then it should be filtered
 	if (_selectedElements[element.data.id] != null)
@@ -1261,7 +1263,7 @@ function _xrefArray()
 	var linkMap = new Array();
 	
 	// TODO find missing links (RefSeq and Nucleotide Sequence Database)
-	linkMap["refseq"] =	"";
+	linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
 	linkMap["nucleotide sequence database"] = "";
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
@@ -1341,6 +1343,7 @@ function _initMainMenu()
 	$("#network_menu_file").addClass(MENU_CLASS);
 	$("#network_menu_topology").addClass(MENU_CLASS);
 	$("#network_menu_view").addClass(MENU_CLASS);
+	$("#network_menu_layout").addClass(MENU_CLASS);
 	
 	$("#save_as_png").addClass(FIRST_CLASS);
 	$("#save_as_png").addClass(MENU_SEPARATOR_CLASS);
@@ -1349,15 +1352,18 @@ function _initMainMenu()
 	$("#hide_selected").addClass(FIRST_CLASS);
 	$("#hide_selected").addClass(MENU_SEPARATOR_CLASS);	
 	$("#remove_disconnected").addClass(MENU_SEPARATOR_CLASS);
-	$("#auto_layout").addClass(LAST_CLASS);
+	$("#remove_disconnected").addClass(LAST_CLASS);
+	
+	$("#show_profile_data").addClass(FIRST_CLASS);
+	$("#show_profile_data").addClass(MENU_SEPARATOR_CLASS);
+	$("#highlight_neighbors").addClass(MENU_SEPARATOR_CLASS);
+	$("#remove_highlights").addClass(LAST_CLASS);
 	
 	$("#perform_layout").addClass(FIRST_CLASS);
 	$("#perform_layout").addClass(MENU_SEPARATOR_CLASS);
 	//$("#layout_properties").addClass(SUB_MENU_CLASS);
-	$("#show_profile_data").addClass(MENU_SEPARATOR_CLASS);
-	$("#highlight_neighbors").addClass(MENU_SEPARATOR_CLASS);
-	$("#merge_links").addClass(MENU_SEPARATOR_CLASS);
-	$("#show_pan_zoom_control").addClass(LAST_CLASS);
+	$("#auto_layout").addClass(MENU_SEPARATOR_CLASS);
+	$("#auto_layout").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
 	
@@ -1654,7 +1660,7 @@ function _initControlFunctions()
 	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	
 	// TODO temp test button, remove when done
-	_controlFunctions["joker_button"] = jokerAction;
+	//_controlFunctions["joker_button"] = jokerAction;
 	
 	// add button listeners
 	

@@ -8,11 +8,6 @@
 	    				Save as Image (PNG)
 	    			</a>
 	    		</li>
-	    		<li>
-	    			<a id="joker_button" onclick="handleMenuEvent('joker_button')">
-	    				TEMP..
-	    			</a>
-	    		</li>
 	    	</ul>
 	    </li>
 	    <li>
@@ -38,39 +33,14 @@
 	    				Remove Disconnected Nodes on Hide
 	    			</a>
 	    		</li>
-	    		<li>
-	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
-	    				Auto Layout on Changes
-	    			</a>
-	    		</li>
 	    	</ul>
 	    </li>
 	    <li>
 	    	<a id="network_menu_view">View</a>
 	    	<ul id="view_menu">
 	    		<li>
-	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
-	    				Perform Layout
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
-	    				Layout Properties ...
-	    			</a>
-	    		</li>
-	    		<li>
 	    			<a id="show_profile_data" onclick="handleMenuEvent('show_profile_data')">
 	    				Always Show Profile Data
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="highlight_neighbors" onclick="handleMenuEvent('highlight_neighbors')">
-	    				Highlight Neighbors
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="remove_highlights" onclick="handleMenuEvent('remove_highlights')">
-	    				Remove Highlights
 	    			</a>
 	    		</li>
 	    		<li>
@@ -86,6 +56,36 @@
 	    		<li>
 	    			<a id="show_pan_zoom_control" onclick="handleMenuEvent('show_pan_zoom_control')">
 	    				Show Pan-Zoom Control
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="highlight_neighbors" onclick="handleMenuEvent('highlight_neighbors')">
+	    				Highlight Neighbors
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="remove_highlights" onclick="handleMenuEvent('remove_highlights')">
+	    				Remove Highlights
+	    			</a>
+	    		</li>
+	    	</ul>
+	    </li>
+	    <li>
+	    	<a id="network_menu_layout">Layout</a>
+	    	<ul id="layout_menu">
+	    		<li>
+	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
+	    				Perform Layout
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
+	    				Layout Properties ...
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
+	    				Auto Layout on Changes
 	    			</a>
 	    		</li>
 	    	</ul>
@@ -199,7 +199,7 @@
 		</table>
 	</div>
 	<div class="footer">
-		<input type="button" id="save_layout_settings" class="ui-state-default" value="Save"/>
-		<input type="button" id="default_layout_settings" class="ui-state-default" value="Default"/>
+		<input type="button" id="save_layout_settings" value="Save"/>
+		<input type="button" id="default_layout_settings" value="Default"/>
 	</div>
 </div>

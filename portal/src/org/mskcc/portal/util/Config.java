@@ -29,4 +29,8 @@ public class Config {
         }
         return config;
     }
+
+	public boolean authenticate() {
+		return new Boolean(properties.getProperty("authenticate"));
+	}
 }

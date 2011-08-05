@@ -25,6 +25,7 @@ public class GeneratePlots extends HttpServlet {
     public static final String NORMAL_CASE_SET_ID = "normal_case_set_id";
     public static final String CNA_PROFILE_ID = "cna_profile_id";
     public static final String METHYLATION_PROFILE_ID = "methylation_profile_id";
+    public static final String RPPA_PROTEIN_PROFILE_ID = "rppa_protein_profile_id";
     public static final String MUTATION_PROFILE_ID = "mutation_profile_id";
     public static final String INCLUDE_NORMALS = "include_normals";
     public static final String R_INSTALLED = "r_installed";
@@ -67,6 +68,7 @@ public class GeneratePlots extends HttpServlet {
         String mRNAProfileId = servletXssUtil.getCleanInput (req, MRNA_PROFILE_ID);
         String cnaProfileId = servletXssUtil.getCleanInput (req, CNA_PROFILE_ID);
         String methylationProfileId = servletXssUtil.getCleanInput (req, METHYLATION_PROFILE_ID);
+        String rppaProteinProfileId = servletXssUtil.getCleanInput (req, RPPA_PROTEIN_PROFILE_ID);
         String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
         String normalCaseSetId = servletXssUtil.getCleanInput(req, NORMAL_CASE_SET_ID);
         String includeNormals = servletXssUtil.getCleanInput(req, INCLUDE_NORMALS);
@@ -178,6 +180,42 @@ public class GeneratePlots extends HttpServlet {
                 writer.append ("<img width=600 height=600 src='" + url1.toString() + "'>");
                 writer.append("</td></tr></table>");
             }
+
+            //  Output mRNA by RPPA protein level Scatter Plot
+            if (mRNAProfileId != null && methylationProfileId != null
+                    && plotType.equalsIgnoreCase("mrna_rppa_protein")) {
+                StringBuffer url1 = new StringBuffer ();
+                if (!rInstalled) {
+                    url1.append("http://172.21.218.47:8080/cgx/");
+                }
+                url1.append ("plot.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerTypeId);
+                writer.append("<table cellspacing=15><tr><td>");
+                url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
+                url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");
+                url1.append (rppaProteinProfileId + "," + mRNAProfileId);
+                url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
+                url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
+                url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                if (mutationProfileId != null && cnaProfileId != null) {
+                   url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
+                    + "," + mutationProfileId); 
+                }
+                if (includeNormals != null && includeNormals.equalsIgnoreCase("INCLUDE_NORMALS")
+                    && normalCaseSetId != null && normalCaseSetId.length() > 0) {
+                    url1.append("&" + PlotServlet.SKIN_NORMALS + "=" + normalCaseSetId);
+                }
+                String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
+                writer.append("<B>" + gene.toUpperCase() + ":  "
+                        + "RPPA protein level v. mRNA Expression ("
+                        + caseSetName + ")");
+                writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
+                writer.append("</B><BR>");
+                if (xdebug != null) {
+                    writer.append ("URL:  " + url1.toString());
+                }
+                writer.append ("<img width=600 height=600 src='" + url1.toString() + "'>");
+                writer.append("</td></tr></table>");
+            }
         }
         //  Output HTTP Parameters (only if XDEBUG is set)
         if (xdebug != null) {
@@ -196,6 +234,7 @@ public class GeneratePlots extends HttpServlet {
             writer.println("<li>mRNA Profile ID:  " + mRNAProfileId);
             writer.println("<li>CNA Profile ID:  " + cnaProfileId);
             writer.println("<li>Methylation Profile ID:  " + methylationProfileId);
+            writer.println("<li>RPPA protein Profile ID:  " + rppaProteinProfileId);
             writer.println("</ul>");
         }
         writer.println("</body></html>");

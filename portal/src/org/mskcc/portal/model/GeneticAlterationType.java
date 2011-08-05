@@ -59,6 +59,10 @@ public class GeneticAlterationType {
            return PROTEIN_LEVEL;
         } else if (type.equals(PHOSPHORYLATION.toString())) {
            return PHOSPHORYLATION;
+        } else if (type.equals(PROTEIN_ARRAY_PROTEIN_LEVEL.toString())) {
+           return PROTEIN_ARRAY_PROTEIN_LEVEL;
+        } else if (type.equals(PROTEIN_ARRAY_PHOSPHORYLATION.toString())) {
+           return PROTEIN_ARRAY_PHOSPHORYLATION;
         } else {
             throw new NullPointerException("Cannot find:  " + type);
         }
@@ -117,4 +121,16 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType PROTEIN_LEVEL
             = new GeneticAlterationType("PROTEIN_LEVEL");
+    
+    /**
+     * Protein level from protein array, such as RPPA
+     */
+    public static final GeneticAlterationType PROTEIN_ARRAY_PROTEIN_LEVEL
+            = new GeneticAlterationType("PROTEIN_ARRAY_PROTEIN_LEVEL");
+    
+    /**
+     * Phosphorylation from protein array, such as RPPA
+     */
+    public static final GeneticAlterationType PROTEIN_ARRAY_PHOSPHORYLATION
+            = new GeneticAlterationType("PROTEIN_ARRAY_PHOSPHORYLATION");
 }

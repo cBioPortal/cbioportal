@@ -110,7 +110,7 @@ public class CGDSConsumerDetailsService implements ConsumerDetailsService, UserD
 			// if user acct is enabled, put in map
 			if (user.isEnabled()) {
 				UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(user);
-				consumers.put(user.getEmai(),
+				consumers.put(user.getEmail(),
 							  createConsumerDetails(user.getEmail(), user.getEmail(), user.getConsumerSecret(), authorities.getAuthorities()));
 			}
 		}

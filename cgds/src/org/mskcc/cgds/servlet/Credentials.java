@@ -4,8 +4,8 @@ package org.mskcc.cgds.servlet;
 // imports
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.WebApiUtil;
+import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.cgds.util.DatabaseProperties;
-import org.mskcc.cgds.web_api.UserCredentials;
 import org.mskcc.cgds.web_api.ProtocolException;
 
 import org.springframework.context.ApplicationContext;
@@ -33,8 +33,8 @@ public class Credentials extends HttpServlet {
 
 	private static Log log = LogFactory.getLog(Credentials.class);
 
-	// ref to get user auth token
-	private UserCredentials userCredentials;
+	// ref to access control
+	private AccessControl accessControl;
 
    /**
      * Shutdown the Servlet.
@@ -64,7 +64,7 @@ public class Credentials extends HttpServlet {
 		// setup our context and init some beans
 		ApplicationContext context =
 			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		userCredentials = (UserCredentials)context.getBean("userCredentials");
+		accessControl = (AccessControl)context.getBean("accessControl");
     }
 
     /**
@@ -98,7 +98,7 @@ public class Credentials extends HttpServlet {
 			if (email == null) {
 				throw new ProtocolException ("Missing Parameter: email_address");
 			}
-			String out = userCredentials.getUserCredentials(email);
+			String out = accessControl.getUserCredentials(email);
 			writer.print(out);
 		} catch (DaoException e) {
 			e.printStackTrace();

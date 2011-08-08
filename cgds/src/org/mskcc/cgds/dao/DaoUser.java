@@ -25,11 +25,11 @@ public class DaoUser {
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection();
-         pstmt = con.prepareStatement("INSERT INTO users ( `EMAIL`, `NAME`, `ENABLED`, `CONSUMER_SECRET` ) VALUES (?,?,?,?,?)");
+         pstmt = con.prepareStatement("INSERT INTO users ( `EMAIL`, `NAME`, `ENABLED`, `CONSUMER_SECRET` ) VALUES (?,?,?,?)");
          pstmt.setString(1, user.getEmail());
          pstmt.setString(2, user.getName());
          pstmt.setBoolean(3, user.isEnabled());
-         pstmt.setString(5, user.getConsumerSecret());
+         pstmt.setString(4, user.getConsumerSecret());
          int rows = pstmt.executeUpdate();
          return rows;
       } catch (SQLException e) {

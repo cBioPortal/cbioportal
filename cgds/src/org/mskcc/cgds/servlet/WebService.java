@@ -37,6 +37,9 @@ import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 /**
  * Core Web Service.
  *
@@ -60,6 +63,9 @@ public class WebService extends HttpServlet {
     public static final String SECRET_KEY = "secret_key";
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
+
+	// ref to access control
+	private AccessControl accessControl;
 
     /**
      * Shutdown the Servlet.
@@ -89,6 +95,11 @@ public class WebService extends HttpServlet {
         dbProperties.setDbUser(dbUser);
         dbProperties.setDbPassword(dbPassword);
         verifyDbConnection();
+
+		// setup our context and init some beans
+		ApplicationContext context =
+			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+		accessControl = (AccessControl)context.getBean("accessControl");
     }
 
     /**
@@ -309,14 +320,14 @@ public class WebService extends HttpServlet {
 
     private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
             ProtocolException {
-        String out = AccessControl.getCancerStudies(httpServletRequest.getParameter(EMAIL_ADDRESS),
+        String out = accessControl.getCancerStudies(httpServletRequest.getParameter(EMAIL_ADDRESS),
                 httpServletRequest.getParameter(SECRET_KEY));
         writer.print(out);
     }
 
     private boolean checkAccess(HttpServletRequest httpServletRequest, PrintWriter writer,
                                 String stableStudyId) throws DaoException {
-        return AccessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
+        return accessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
                 httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
     }
 

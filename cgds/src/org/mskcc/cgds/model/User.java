@@ -6,12 +6,12 @@ import org.mskcc.cgds.util.EqualsUtil;
  * This represents a user, identified by an email address.
  * 
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * @author Benjamin Gross
  */
 public class User {
 	private String email;
 	private String name;     // optional
     private boolean enabled;
-	private String consumerKey;
 	private String consumerSecret;
 
 	public User() {
@@ -20,10 +20,10 @@ public class User {
 	}
 
 	public User(String email, String name) throws IllegalArgumentException {
-		this(email, name, false, "consumer_key", "consumer_secret");
+		this(email, name, false, "consumer_secret");
 	}
 
-	public User(String email, String name, boolean enabled, String consumerKey, String consumerSecret) throws IllegalArgumentException {
+	public User(String email, String name, boolean enabled, String consumerSecret) throws IllegalArgumentException {
 		this();
 		if (null == email) {
 			throw new IllegalArgumentException ("email is null.");
@@ -33,7 +33,6 @@ public class User {
 			this.name = name;
 		}
 		this.enabled = enabled;
-		this.consumerKey = consumerKey;
 		this.consumerSecret = consumerSecret;
 	}
 
@@ -42,7 +41,7 @@ public class User {
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = email.toLowerCase();
 	}
 
 	public String getName() {
@@ -59,14 +58,6 @@ public class User {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	public String getConsumerKey() {
-		return consumerKey;
-	}
-
-	public void setConsumerKey(String consumerKey) {
-		this.consumerKey = consumerKey;
 	}
 
 	public String getConsumerSecret() {

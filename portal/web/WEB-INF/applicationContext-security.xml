@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -  Namespace-based OpenID configuration
+  -->
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+	xmlns:oauth="http://www.springframework.org/schema/security/oauth"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+						http://www.springframework.org/schema/security/oauth http://www.springframework.org/schema/security/spring-security-oauth-1.0.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+<!--
+	Static resources not processed by spring security filters 
+-->
+    <http pattern="/css/**" security="none"/>
+    <http pattern="/images/**" security="none"/>
+    <http pattern="/js/**" security="none"/>
+	<http pattern="/gfx/**" security="none"/>
+
+<!--
+	OpenID setup
+-->
+	<http use-expressions="true">
+	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
+	  <intercept-url pattern="/index.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
+	  <intercept-url pattern="/**" access="denyAll"/>
+	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
+		<attribute-exchange identifier-match="https://www.google.com/.*">
+		  <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
+		  <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true"/>
+		  <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true"/>
+		</attribute-exchange>
+		<attribute-exchange identifier-match=".*yahoo.com.*">
+		  <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+		  <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true"/>
+		</attribute-exchange>
+		<attribute-exchange identifier-match=".*myopenid.com.*">
+		  <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
+		  <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true"/>
+		</attribute-exchange>
+	  </openid-login>
+	  <logout/>
+	  <remember-me token-repository-ref="tokenRepo"/>
+	</http>
+
+<!--
+	TokenRepository used for remember-me
+-->
+	<b:bean id="tokenRepo" class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl"/>
+
+<!--
+	Use default Authentication Manager
+-->
+    <authentication-manager alias="authenticationManager"/>
+
+<!--
+	A instance of TwoLeggedOAuthClient to be used by the OpenIDUserDetailsService.
+-->
+    <b:bean id="OAuthClient" class="org.mskcc.portal.oauth.internal.TwoLeggedOAuthClientImpl">
+	  <b:constructor-arg ref="springOAUTHConsumer"/>
+	  <!-- The following values should be a key within springOAuthConsumer.resourceDetailsStore -->
+	  <b:constructor-arg value="CGDS-MANAGER"/>
+	</b:bean>
+
+<!--
+    A custom UserDetailsService which will authenticate and establish authorities based on a backend database.
+-->
+    <b:bean id="customUserService" class="org.mskcc.portal.openIDlogin.OpenIDUserDetailsService">
+	  <b:constructor-arg ref="OAuthClient"/>
+	</b:bean>
+
+<!-- 
+	 Portal Manager Consumer Bean - used during 2legged OAuth with CGDS
+	 Currently, if entry key changes, an update to TwoLeggedOUthClient is required.
+-->
+    <b:bean id="springOAUTHConsumer" class="org.springframework.security.oauth.consumer.CoreOAuthConsumerSupport">
+	  <b:property name="protectedResourceDetailsService">
+		<b:bean class="org.springframework.security.oauth.consumer.InMemoryProtectedResourceDetailsService">
+		  <b:property name="resourceDetailsStore">
+			<util:map>
+			  <b:entry key="CGDS-MANAGER">
+				<b:bean class="org.springframework.security.oauth.consumer.BaseProtectedResourceDetails">
+				  <b:property name="consumerKey" value="portal_manager_key"/>
+				  <b:property name="signatureMethod" value="HMAC-SHA1"/>
+				  <b:property name="sharedSecret">
+					<b:bean class="org.springframework.security.oauth.common.signature.SharedConsumerSecret" >
+					  <b:constructor-arg value="portal_manager_secret"/>
+					</b:bean>
+				  </b:property>
+				</b:bean>
+			  </b:entry>
+			</util:map>
+		  </b:property>
+		</b:bean>
+	  </b:property>
+	</b:bean>
+
+</b:beans>

@@ -2,7 +2,7 @@
 rm -v $CGDS_DATA_HOME/ovarian/processed_*
 
 # Load up the Ovarian Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/ovarian/ovarian.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/ovarian/ovarian.txt
 
 # Pre-process data for import
 # Runs:

@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-                         "http://java.sun.com/dtd/web-app_2_3.dtd">
-<web-app>
+
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
     <display-name>Cancer Genomics Portal</display-name>
+
+	<!-- SPRING SECURITY SETTINGS START -->
+
+    <!--
+      - Location of the XML file that defines the root application context
+      - Applied by ContextLoaderListener.  We read this in to disable method security.
+	-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+		  /WEB-INF/classes/applicationContext-security.xml
+		</param-value>
+	</context-param>
+
+	<!-- SPRING SECURITY SETTINGS END -->
 
     <servlet>
         <servlet-name>query_builder</servlet-name>

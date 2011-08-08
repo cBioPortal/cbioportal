@@ -9,9 +9,11 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.mskcc.portal.openIDlogin.PortalAccessControl;
-import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.portal.util.Config;
+import org.mskcc.portal.util.SkinUtil;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.portal.oauth.internal.TwoLeggedOAuthClientImpl;
 
 import java.io.IOException;
 
@@ -64,7 +66,7 @@ public class CgdsProtocol {
     public String connect( NameValuePair[] data, XDebug xdebug ) throws IOException {
 
        // ACCESS CONTROL: IF EMAIL SET, ADD IT AND KEY TO data
-       data = PortalAccessControl.addAccessParams( xdebug.getRequest(), data );
+		//data = PortalAccessControl.addAccessParams( xdebug.getRequest(), data );
        /*
         * Debugging
         * CAUTION: THESE MESSAGES CONTAIN THE SECRET KEY
@@ -100,7 +102,14 @@ public class CgdsProtocol {
             //  Otherwise, connect to Web API
 
             //  Get CGDS URL Property
-            String cgdsUrl = GlobalProperties.getCgdsUrl();
+            String cgdsUrl = Config.getInstance().getProperty("cgds.url");
+
+			// short ciruit the remainder of code
+			if (SkinUtil.usersMustAuthenticate()) {
+				// candidate for spring injection
+				TwoLeggedOAuthClientImpl oAuthClient = new TwoLeggedOAuthClientImpl();
+				return oAuthClient.readProtectedResource(cgdsUrl, data);
+			}
 
             MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();

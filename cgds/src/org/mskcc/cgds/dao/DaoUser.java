@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import org.mskcc.cgds.model.User;
 
 /**
- * A User. They must have an EMAIL. NAME is optional (i.e., could be "").
+ * A User. They must have an EMAIL, ENABLED, CONSUMER_SECRET.
+ * NAME is optional (i.e., could be "").
  * 
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * @author Benjamin Gross
  */
 public class DaoUser {
 
@@ -23,9 +25,11 @@ public class DaoUser {
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection();
-         pstmt = con.prepareStatement("INSERT INTO users ( `EMAIL`, `NAME` ) VALUES (?,?)");
+         pstmt = con.prepareStatement("INSERT INTO users ( `EMAIL`, `NAME`, `ENABLED`, `CONSUMER_SECRET` ) VALUES (?,?,?,?)");
          pstmt.setString(1, user.getEmail());
          pstmt.setString(2, user.getName());
+         pstmt.setBoolean(3, user.isEnabled());
+         pstmt.setString(4, user.getConsumerSecret());
          int rows = pstmt.executeUpdate();
          return rows;
       } catch (SQLException e) {
@@ -122,6 +126,8 @@ public class DaoUser {
 
       user.setEmail(rs.getString("EMAIL"));
       user.setName(rs.getString("NAME"));
+      user.setEnabled(rs.getBoolean("ENABLED"));
+      user.setConsumerSecret(rs.getString("CONSUMER_SECRET"));
 
       return user;
    }

@@ -1,5 +1,5 @@
 # Load up the Sarcoma Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/sarcoma/sarcoma.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/sarcoma/sarcoma.txt
 
 # Imports All Case Lists
 ./importCaseList.pl $CGDS_DATA_HOME/sarcoma/case_lists

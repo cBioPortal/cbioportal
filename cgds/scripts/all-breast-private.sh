@@ -2,7 +2,7 @@
 rm -v $CGDS_DATA_HOME/breast/processed_*
 
 # Load up the Breast Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/breast/breast.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/breast/breast.txt
 
 # Pre-process data for import
 # Runs:

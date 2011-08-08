@@ -29,6 +29,10 @@
     <!-- Contains all third-party JAR files, required for compilation -->
     <property name="lib.dir"       value="lib"/>
 
+    <!-- The Spring lib directory -->
+    <!-- Contains all third-party JAR files, required for compilation -->
+    <property name="spring.lib.dir"       value="${lib.dir}/spring"/>
+
     <!-- The config directory-->
     <property name="config.dir"    value="config"/>
 
@@ -60,6 +64,9 @@
         classpath="lib/ant/catalina-ant.jar"/>
     <taskdef resource="checkstyletask.properties"
         classpath="lib/ant/checkstyle-all-5.0-beta01.jar"/>
+	<taskdef name="if"
+		 classname="net.sf.antcontrib.logic.IfTask"
+		 classpath="lib/ant/ant-contrib-1.0b3.jar"/>
 
     <!--  ============ Compilation Control Options ======================= -->
   	<property name="compile.debug"       value="true"/>
@@ -70,6 +77,9 @@
  	<path id="compile.classpath">
 		<pathelement path="${build.dir}/WEB-INF/classes"/>
 		<fileset dir="${lib.dir}">
+       		 	<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${spring.lib.dir}">
        		 	<include name="*.jar"/>
 		</fileset>
   	</path>
@@ -98,17 +108,20 @@
           <fileset dir="${src.dir}" excludes="**/*.java"/>
         </copy>
 
-        <!-- Copy over all third-part libs -->
+        <!-- Copy over all third-party libs -->
         <!-- Exclude servlet.jar See Servlet Spec 2.3, section 9.7.2 -->
         <copy todir="${build.dir}/WEB-INF/lib">
             <fileset dir="${lib.dir}">
-                <include name="**/*.jar"/>
+                <include name="*.jar"/>
                 <exclude name="servlet.jar"/>
+            </fileset>
+            <fileset dir="${spring.lib.dir}">
+                <include name="*.jar"/>
             </fileset>
         </copy>
     </target>
 
-    <!-- ==================== Jar Target ================================== -->
+	<!-- ==================== Jar Target ================================== -->
     <target name="jar" depends="compile"
         description="Creates binary JAR distribution.">
         <delete dir="${dist.dir}"/>
@@ -191,15 +204,38 @@
 
         <!-- Copy static content of this web application -->
         <copy todir="${build.dir}">
-          <fileset dir="${web.dir}"/>
+          <fileset dir="${web.dir}" excludes="**/*.xml"/>
         </copy>
-
-        <!-- Force copy of web.xml -->
-        <copy overwrite="yes" todir="${build.dir}/WEB-INF"
-            file="${web.dir}/WEB-INF/web.xml"/>
 
         <!-- Copy external dependencies as required -->
         <mkdir  dir="${build.dir}/WEB-INF/lib"/>
+
+        <!-- Force copy of web.xml -->
+		<if>
+		  <equals arg1="${authenticate}" arg2="true"/>
+		  <then>
+			<copy overwrite="yes" tofile="${build.dir}/WEB-INF/web.xml" file="${web.dir}/WEB-INF/web-security.xml"/>
+			<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes" file="${web.dir}/WEB-INF/applicationContext-security.xml"/>
+		  </then>
+		<elseif>
+		  <equals arg1="${authenticate}" arg2="false"/>
+		  <then>
+			<copy overwrite="yes" todir="${build.dir}/WEB-INF" file="${web.dir}/WEB-INF/web.xml"/>
+			<copy overwrite="yes" tofile="${build.dir}/WEB-INF/classes/applicationContext-security.xml" file="${web.dir}/WEB-INF/applicationContext-security-disabled.xml"/>
+		  </then>
+		</elseif>
+		</if>
+
+        <!-- Prepare applicationContext-security.xml, based on build.properties -->
+		<if>
+		  <equals arg1="${authenticate}" arg2="true"/>
+		  <then>
+			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
+					 token="portal_manager_key" value="${portal_manager_key}"/>
+			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
+					 token="portal_manager_secret" value="${portal_manager_secret}"/>
+		  </then>
+		</if>
 
         <!-- Prepare web.xml, based on build.properties -->
         <replace file="${build.dir}/WEB-INF/web.xml"
@@ -208,7 +244,6 @@
              token="pathway_commons_url_value" value="${pathway_commons.url}"/>
         <replace file="${build.dir}/WEB-INF/web.xml"
              token="r_installed_value" value="${r_installed}"/>
-
 
         <!-- Force copy of build.properties -->
         <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/org/mskcc/portal/util"

@@ -89,6 +89,7 @@ public class QueryBuilder extends HttpServlet {
         System.out.println ("Init Query Builder with CGDS URL:  " + cgdsUrl);
         GlobalProperties.setCgdsUrl(cgdsUrl);
 		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
+        System.out.println ("Init Query Builder with PathwayCommons URL:  " + pathwayCommonsUrl);
         GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
@@ -130,6 +131,8 @@ public class QueryBuilder extends HttpServlet {
         } else {
            userIsAuthenticated = true;
         }
+		// spring-security handling authentication now
+		userIsAuthenticated = true;
 
         if (userIsAuthenticated) {
             xdebug.logMsg(this, "Attempting to initiate new user query.");

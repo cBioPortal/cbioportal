@@ -20,7 +20,17 @@ public class ResponseUtil {
      * @throws IOException IO Error.
      */
     public static String getResponseString(HttpMethodBase method) throws IOException {
-        InputStream inStream = method.getResponseBodyAsStream();
+		return getResponseString(method.getResponseBodyAsStream());
+	}
+
+    /**
+     * Reads in the Response String from Server.
+     *
+     * @param inStream InputStream.
+     * @return Response String.
+     * @throws IOException IO Error.
+     */
+    public static String getResponseString(InputStream inStream) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
         StringBuffer buf = new StringBuffer();
         String line = in.readLine();

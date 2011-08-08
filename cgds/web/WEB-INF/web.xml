@@ -4,6 +4,21 @@
 <web-app>
     <display-name>Cancer Genomics Data Server</display-name>
 
+	<!-- SPRING SECURITY SETTINGS START -->
+
+    <!--
+      - Location of the XML file that defines the root application context
+      - Applied by ContextLoaderListener.  We read this in to disable method security.
+	-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+		  /WEB-INF/classes/applicationContext-security.xml
+        </param-value>
+	</context-param>
+
+	<!-- SPRING SECURITY SETTINGS END -->
+
 	<welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

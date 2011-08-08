@@ -71,7 +71,7 @@ public class CGDSConsumerDetailsService implements ConsumerDetailsService, UserD
         }
 
 		if (log.isDebugEnabled()) {
-			log.debug("consumer key: " + consumer.getConsumerKey());
+			log.debug("consumer key: " + key);
 			log.debug("consumer name: " + consumer.getConsumerName());
 			SignatureSecret sharedSecret = consumer.getSignatureSecret();
 			log.debug("shared secret: " + ((SharedConsumerSecret)sharedSecret).getConsumerSecret());
@@ -110,8 +110,8 @@ public class CGDSConsumerDetailsService implements ConsumerDetailsService, UserD
 			// if user acct is enabled, put in map
 			if (user.isEnabled()) {
 				UserAuthorities authorities = DaoUserAuthorities.getUserAuthorities(user);
-				consumers.put(user.getConsumerKey(),
-							  createConsumerDetails(user.getConsumerKey(), user.getEmail(), user.getConsumerSecret(), authorities.getAuthorities()));
+				consumers.put(user.getEmai(),
+							  createConsumerDetails(user.getEmail(), user.getEmail(), user.getConsumerSecret(), authorities.getAuthorities()));
 			}
 		}
 	}

@@ -139,36 +139,6 @@ public class WebService extends HttpServlet {
                 outputMissingParameterError(writer, CMD);
                 return;
             }
-         // Branch, based on command.
-         if (null == cmd) {
-            outputMissingParameterError(writer, CMD);
-            return;
-         }
-         
-         // check command
-         if( !goodCommand( writer, cmd ) ){
-            return;
-         }
-         
-         if (cmd.equals("getTypesOfCancer")) {
-            // getTypesOfCancer requires no access control 
-            getTypesOfCancer(writer);
-            return;
-         }
-         if (cmd.equals("getNetwork")) {
-            // getNetwork doesn't access any data; so no access control needed  
-            getNetwork(httpServletRequest, writer);
-            return;
-         }
-         if (cmd.equals("getProteinArrayInfo")) {
-             getProteinArrayInfo(httpServletRequest, writer);
-             return;
-         }
-         if (cmd.equals("getProteinArrayData")) {
-             getProteinArrayData(httpServletRequest, writer);
-             return;
-         }
-
 
             // check command
             if (!goodCommand(writer, cmd)) {
@@ -185,6 +155,15 @@ public class WebService extends HttpServlet {
                 getNetwork(httpServletRequest, writer);
                 return;
             }
+
+			if (cmd.equals("getProteinArrayInfo")) {
+				getProteinArrayInfo(httpServletRequest, writer);
+				return;
+			}
+			if (cmd.equals("getProteinArrayData")) {
+				getProteinArrayData(httpServletRequest, writer);
+				return;
+			}
 
             //  We support the new getCancerStudies plus the deprecated getCancerTypes command
             if (cmd.equals("getCancerStudies") || cmd.equals("getCancerTypes")) {

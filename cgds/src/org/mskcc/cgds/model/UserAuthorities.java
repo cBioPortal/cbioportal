@@ -24,7 +24,7 @@ public class UserAuthorities {
 
 	// accessors
 	public String getEmail() { return email; }
-	public void setEmail(String email) { this.email = email; }
+	public void setEmail(String email) { this.email = email.toLowerCase(); }
 	public Collection<String> getAuthorities() { return authorities; }
 	public void setAuthorities(Collection<String> authorities) { this.authorities = authorities; }
 }

@@ -43,8 +43,6 @@ public class OpenIDUserDetails extends User {
     public void setEmail(String email) {this.email = email; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-	public String getConsumerKey() { return consumerKey; }
-	public void setConsumerKey(String consumerKey) { this.consumerKey = consumerKey; }
 	public String getConsumerSecret() { return consumerSecret; }
 	public void setConsumerSecret(String consumerSecret) { this.consumerSecret = consumerSecret; }
 }

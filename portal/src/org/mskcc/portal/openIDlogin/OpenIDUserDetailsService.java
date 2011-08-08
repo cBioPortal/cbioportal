@@ -77,6 +77,7 @@ public class OpenIDUserDetailsService
         for (OpenIDAttribute attribute : attributes) {
             if (attribute.getName().equals("email")) {
                 email = attribute.getValues().get(0);
+				email = email.toLowerCase();
             }
             if (attribute.getName().equals("firstname")) {
                 firstName = attribute.getValues().get(0);
@@ -149,13 +150,11 @@ public class OpenIDUserDetailsService
 		
 			// process: consumer-key\tconsumer-secret\tauthorites
 			String parts[] = lines[1].split("\t");
-			String consumerKey = parts[0];
-			String consumerSecret = parts[1];
-			String authorities[] = parts[2].split(",");
+			String consumerSecret = parts[0];
+			String authorities[] = parts[1].split(",");
 
 			// some logging
 			if (log.isDebugEnabled()) {
-				log.debug("consumerKey: " + consumerKey);
 				log.debug("consumerSecret: " + consumerSecret);
 				for (String authority : authorities) {
 					log.debug("authority: " + authority);
@@ -166,7 +165,6 @@ public class OpenIDUserDetailsService
 			List<GrantedAuthority> grantedAuthorities =
 				AuthorityUtils.createAuthorityList(authorities);
 			toReturn  = new OpenIDUserDetails(id, grantedAuthorities);
-			toReturn.setConsumerKey(consumerKey);
 			toReturn.setConsumerSecret(consumerSecret);
 		}
 

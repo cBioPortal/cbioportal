@@ -11,6 +11,7 @@ import org.mskcc.cgds.model.UserAccessRight;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.util.internal.AccessControlImpl;
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.web_api.ProtocolException;
 
@@ -25,13 +26,14 @@ public class TestAccessControl extends TestCase {
     User user1;
     User user2;
     String clearTextKey;
+	AccessControl accessControl = new AccessControlImpl();
 
     public void testSecretKeys() throws Exception {
         ResetDatabase.resetDatabase();
         clearTextKey = "aSecretKey";
-        assertFalse(AccessControl.checkKey(clearTextKey));
-        AccessControl.createSecretKey(clearTextKey);
-        assertTrue(AccessControl.checkKey(clearTextKey));
+        assertFalse(accessControl.checkKey(clearTextKey));
+        accessControl.createSecretKey(clearTextKey);
+        assertTrue(accessControl.checkKey(clearTextKey));
     }
 
     public void testVariousUtilities() throws Exception {
@@ -43,30 +45,30 @@ public class TestAccessControl extends TestCase {
         userAccessRight = new UserAccessRight(user2.getEmail(), privateCancerStudy2.getStudyId());
         DaoUserAccessRight.addUserAccessRight(userAccessRight);
 
-        // test AccessControl.checkAccess
-        // assertFalse( AccessControl.checkAccess( "", "", CancerStudy.NO_SUCH_STUDY ) );
+        // test accessControl.checkAccess
+        // assertFalse( accessControl.checkAccess( "", "", CancerStudy.NO_SUCH_STUDY ) );
 
         // test access to a public study (id = 3)
-        assertTrue(AccessControl.checkAccess("", "", publicCancerStudy.getCancerStudyIdentifier()));
-        assertTrue(AccessControl.checkAccess(null, null, publicCancerStudy.getCancerStudyIdentifier()));
-        assertTrue(AccessControl.checkAccess("blah", "blah", publicCancerStudy.getCancerStudyIdentifier()));
-        assertFalse(AccessControl.checkAccess("", clearTextKey + "_NOT_KEY", privateCancerStudy1.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess("", "", publicCancerStudy.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess(null, null, publicCancerStudy.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess("blah", "blah", publicCancerStudy.getCancerStudyIdentifier()));
+        assertFalse(accessControl.checkAccess("", clearTextKey + "_NOT_KEY", privateCancerStudy1.getCancerStudyIdentifier()));
 
-        assertTrue(AccessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
-        assertTrue(AccessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
-        assertFalse(AccessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
-        assertFalse(AccessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
+        assertFalse(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
+        assertFalse(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
 
-        // test AccessControl.getCancerStudies
+        // test accessControl.getCancerStudies
         // just public studies
-        String studies = AccessControl.getCancerStudies("no such email", clearTextKey + "_NOT_KEY");
+        String studies = accessControl.getCancerStudies("no such email", clearTextKey + "_NOT_KEY");
         assertEquals("cancer_study_id\tname\tdescription\nstudy3\tpublic name\tdescription\n", studies);
 
-        studies = AccessControl.getCancerStudies(null, null);
+        studies = accessControl.getCancerStudies(null, null);
         assertEquals("cancer_study_id\tname\tdescription\nstudy3\tpublic name\tdescription\n", studies);
 
         // public and private studies
-        studies = AccessControl.getCancerStudies(user1.getEmail(), clearTextKey);
+        studies = accessControl.getCancerStudies(user1.getEmail(), clearTextKey);
         assertEquals("cancer_study_id\tname\tdescription\n" +
                 "study1\tname\tdescription\nstudy3\tpublic name\tdescription\n",
                 studies);
@@ -74,7 +76,7 @@ public class TestAccessControl extends TestCase {
         // no studies; delete the public one
         DaoCancerStudy.deleteCancerStudy(publicCancerStudy.getStudyId());
         try {
-            studies = AccessControl.getCancerStudies("no such email", clearTextKey);
+            studies = accessControl.getCancerStudies("no such email", clearTextKey);
             fail("Should throw ProtocolException.");
         } catch (ProtocolException e) {
             assertEquals("No cancer studies accessible; either provide credentials to access private studies, " +
@@ -105,8 +107,8 @@ public class TestAccessControl extends TestCase {
         DaoCancerStudy.addCancerStudy(publicCancerStudy);  // 3
 
         clearTextKey = "aSecretKey";
-        AccessControl.createSecretKey(clearTextKey);
-        AccessControl.createSecretKey("another Example key");
+        accessControl.createSecretKey(clearTextKey);
+        accessControl.createSecretKey("another Example key");
 
     }
 }

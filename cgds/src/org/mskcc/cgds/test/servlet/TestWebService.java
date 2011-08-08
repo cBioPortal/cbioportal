@@ -25,6 +25,7 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.servlet.WebService;
 import org.mskcc.cgds.test.util.NullHttpServletRequest;
 import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.util.internal.AccessControlImpl;
 import org.mskcc.cgds.util.ProgressMonitor;
 
 public class TestWebService extends TestCase {
@@ -37,6 +38,7 @@ public class TestWebService extends TestCase {
    String cleartextPwd;
    GeneticProfile privateGeneticProfile;      
    GeneticProfile publicGeneticProfile;
+	AccessControl accessControl = new AccessControlImpl();
    
    public void testWebService() throws Exception {
       setUpDBMS();
@@ -294,7 +296,7 @@ public class TestWebService extends TestCase {
       privateGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(privateSid);
 
       cleartextPwd = "SillyKey";
-      AccessControl.createSecretKey(cleartextPwd);
+      accessControl.createSecretKey(cleartextPwd);
    }
    
 }

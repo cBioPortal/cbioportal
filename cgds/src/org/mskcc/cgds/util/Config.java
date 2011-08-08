@@ -35,4 +35,12 @@ public class Config {
         }
         return config;
     }
+
+    /**
+     * Determines if users must authenticate or not.
+     * @return true or false.
+     */
+    public boolean usersMustAuthenticate() {
+		return new Boolean(properties.getProperty("authenticate"));
+    }
 }

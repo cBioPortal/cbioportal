@@ -105,7 +105,7 @@ public class TwoLeggedOAuthClientImpl implements OAuthClient {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication.getPrincipal() instanceof OpenIDUserDetails) {
 			OpenIDUserDetails openIDUserDetails = (OpenIDUserDetails)authentication.getPrincipal();
-			final String consumerKey = openIDUserDetails.getConsumerKey();
+			final String consumerKey = openIDUserDetails.getEmail();
 			final String consumerSecret = openIDUserDetails.getConsumerSecret();
 
 			if (log.isDebugEnabled()) {

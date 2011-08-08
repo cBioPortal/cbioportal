@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `ENABLED` BOOLEAN NOT NULL,
   `CONSUMER_SECRET` varchar(100) NOT NULL,
   PRIMARY KEY  (`EMAIL`)
-) ENGINE=InnoDb DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -90,10 +90,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `authorities` (
   `EMAIL` varchar(128) NOT NULL,
-  `AUTHORITY` varchar(50) NOT NULL,
-  FOREIGN KEY (EMAIL) REFERENCES users (EMAIL),
-  UNIQUE index authorities_idx_1 (EMAIL, AUTHORITY)
-) ENGINE=InnoDb DEFAULT CHARSET=latin1;
+  `AUTHORITY` varchar(50) NOT NULL
+  --FOREIGN KEY (EMAIL) REFERENCES users (EMAIL),
+  --UNIQUE index authorities_idx_1 (EMAIL, AUTHORITY)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

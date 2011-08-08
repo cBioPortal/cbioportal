@@ -47,7 +47,7 @@ public class UserCredentialsImpl implements UserCredentials {
         StringBuffer buf = new StringBuffer();
         if (user != null && user.isEnabled()) {
 			UserAuthorities userAuthorities = DaoUserAuthorities.getUserAuthorities(user);
-			buf.append(user.getConsumerKey() + "\t" + user.getConsumerSecret() + "\t");
+			buf.append(user.getConsumerSecret() + "\t");
 			for (String authority : userAuthorities.getAuthorities()) {
 				buf.append(authority + ",");
 			}

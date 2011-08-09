@@ -104,7 +104,7 @@ public class NetworkIO {
                             type = "Unknown";
                         }
                         node.setType(type);
-                    } else if (nodeHeaders[i].equals("PARTICIPANT_NAME")||nodeHeaders[i].equals("PARTICPANT_NAME")) {
+                    } else if (nodeHeaders[i].equals("PARTICIPANT_NAME")) {
                         for (String name : strs[i].split(";")) {
                             node.addAttribute("name", name);
                         }

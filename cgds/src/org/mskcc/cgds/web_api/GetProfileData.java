@@ -176,18 +176,12 @@ public class GetProfileData {
 
         HashMap <String, String> arrayDataMap = new HashMap <String, String>();
         
-        ArrayList<ProteinArrayTarget> targets = daoPAT.getProteinArrayTarget(entrezGeneId);
-        if (targets.isEmpty())
+        ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(entrezGeneId, type);
+        if (pais.isEmpty())
             return arrayDataMap;
         
-        String arrayId = null;
-        for (ProteinArrayTarget pat : targets) {
-            ProteinArrayInfo pai = daoPAI.getProteinArrayInfo(pat.getArrayId());
-            if (pai.getType().equals(type)) {
-                arrayId = pai.getId(); // select the first one of the type
-                break;
-            }
-        }
+        ProteinArrayInfo pai = pais.get(0);
+        String arrayId = pai.getId();
         
         if (arrayId == null)
             return arrayDataMap;

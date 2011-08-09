@@ -9,13 +9,33 @@ public class ProteinArrayInfo {
     private String id;
     private String type;
     private String source;
+    private String gene;
+    private String residue;
     private boolean validated;
 
-    public ProteinArrayInfo(String id, String type, String source, boolean validated) {
+    public ProteinArrayInfo(String id, String type, String source, String gene, String residue, boolean validated) {
         this.id = id;
         this.type = type;
         this.source = source;
+        this.gene = gene;
+        this.residue = residue;
         this.validated = validated;
+    }
+
+    public String getGene() {
+        return gene;
+    }
+
+    public void setGene(String gene) {
+        this.gene = gene;
+    }
+
+    public String getResidue() {
+        return residue;
+    }
+
+    public void setResidue(String residue) {
+        this.residue = residue;
     }
     
     public String getId() {

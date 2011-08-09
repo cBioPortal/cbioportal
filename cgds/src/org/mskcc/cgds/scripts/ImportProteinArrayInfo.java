@@ -8,7 +8,6 @@ import org.mskcc.cgds.dao.DaoProteinArrayTarget;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.ProteinArrayInfo;
-import org.mskcc.cgds.model.ProteinArrayTarget;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
@@ -50,12 +49,13 @@ public class ImportProteinArrayInfo {
             String arrayId = strs[6];
             String type = strs[7];
             String source = strs[5];
+            String symbols = strs[2];
+            String position = strs[3];
             boolean validated = strs[4].equals("(C)");
-            ProteinArrayInfo pai = new ProteinArrayInfo(arrayId, type, source, validated);
+            ProteinArrayInfo pai = new ProteinArrayInfo(arrayId, type, source, symbols, position, validated);
             daoPAI.addProteinArrayInfo(pai);
             
-            String position = strs[3];
-            for (String symbol : strs[2].split("/")) {
+            for (String symbol : symbols.split("/")) {
                 CanonicalGene gene = daoGene.getGene(symbol);
                 if (gene==null) {
                     System.err.println(symbol+" not exist");
@@ -63,8 +63,7 @@ public class ImportProteinArrayInfo {
                 }
                     
                 long entrez = gene.getEntrezGeneId();
-                ProteinArrayTarget pat = new ProteinArrayTarget(arrayId, entrez, position);
-                daoPAT.addProteinArrayTarget(pat);
+                daoPAT.addProteinArrayTarget(arrayId, entrez);
             }
             
         }

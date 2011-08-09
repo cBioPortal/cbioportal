@@ -290,10 +290,12 @@ public class WebService extends HttpServlet {
     private void getProteinArrayInfo(HttpServletRequest httpServletRequest, 
             PrintWriter writer) throws DaoException, ProtocolException {
         String geneList = httpServletRequest.getParameter(GENE_LIST);
+        ArrayList <String> targetGeneList;
         if (geneList == null || geneList.length() == 0) {
-            throw new ProtocolException ("Missing Parameter:  " + GENE_LIST);
+            targetGeneList = null;
+        }else {
+            targetGeneList = getGeneList (httpServletRequest);
         }
-        ArrayList <String> targetGeneList = getGeneList (httpServletRequest);
         
         String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
         writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList,type));

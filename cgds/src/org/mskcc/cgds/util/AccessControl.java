@@ -57,6 +57,9 @@ public interface AccessControl {
      */
     public String getCancerStudies(String email, String key) throws DaoException, ProtocolException;
 
+	////////////////////////////////////////////////////////////////////////////////
+	// The following methods are spring-security supported.
+
     /**
      * Get user credentials for given email address.
 	 *
@@ -65,4 +68,22 @@ public interface AccessControl {
      * @throws DaoException Database Error.
 	 */
     public String getUserCredentials(String email) throws DaoException;
+
+    /**
+     * Gets Cancer Studies.
+     *
+     * @return Cancer Studies Table.
+     * @throws DaoException         Database Error.
+     * @throws ProtocolException    Protocol Error.
+     */
+    public String getCancerStudies() throws DaoException, ProtocolException;
+
+    /**
+     * Return true if the user can access the study, false otherwise.
+	 *
+     * @param stableStudyId
+     * @return boolean
+     * @throws DaoException
+     */
+    public boolean checkAccess(String stableStudyId) throws DaoException;
 }

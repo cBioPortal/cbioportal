@@ -320,15 +320,17 @@ public class WebService extends HttpServlet {
 
     private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
             ProtocolException {
-        String out = accessControl.getCancerStudies(httpServletRequest.getParameter(EMAIL_ADDRESS),
-                httpServletRequest.getParameter(SECRET_KEY));
+        //String out = accessControl.getCancerStudies(httpServletRequest.getParameter(EMAIL_ADDRESS),
+		//											httpServletRequest.getParameter(SECRET_KEY));
+		String out = accessControl.getCancerStudies();
         writer.print(out);
     }
 
     private boolean checkAccess(HttpServletRequest httpServletRequest, PrintWriter writer,
                                 String stableStudyId) throws DaoException {
-        return accessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
-                httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
+        //return accessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
+		//								 httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
+		return accessControl.checkAccess(stableStudyId);
     }
 
     private void getMutationFrequency(HttpServletRequest httpServletRequest, PrintWriter writer)

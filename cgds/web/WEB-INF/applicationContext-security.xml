@@ -15,7 +15,9 @@
 <!--
 	Should come from another file with value conditional based on build.properties
 -->
-  <global-method-security pre-post-annotations="enabled"/>
+  <global-method-security pre-post-annotations="enabled">
+	<expression-handler ref="expressionHandler"/>
+  </global-method-security>
 
 <!--
 	spring security web based security element
@@ -28,14 +30,23 @@
   </http>
 
 <!--
-	custom authentication provider - required for 2-legged oauth
+	Custom authentication provider - required for 2-legged oauth
 -->
   <authentication-manager>
 	<authentication-provider user-service-ref="portalManagerDetailsService"/>
   </authentication-manager>
 
 <!--
-	custom consumer details service - required for 2-legged oauth
+	To use hasPermission() expressions, we have to configure a custom expression handler
+	with our own PermissionEvaluator.  See 15.3.2 Built-In Expression:
+	@http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html#el-permission-evaluator
+-->
+  <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+	<b:property name="permissionEvaluator" ref="customPermissionEvaluator" />
+  </b:bean>
+
+<!--
+	Custom consumer details service - required for 2-legged oauth
 -->
   <oauth:provider consumer-details-service-ref="portalManagerDetailsService"
                   auth-handler-ref="consumerBasedAuthenticationHandler"
@@ -49,6 +60,11 @@
     <b:bean id="daoUser" class="org.mskcc.cgds.dao.DaoUser"/>
     <b:bean id="daoUserAuthorities" class="org.mskcc.cgds.dao.DaoUserAuthorities"/>
 -->
+
+<!--
+	Our custom permission evaluator for cancer studies.
+-->
+  <b:bean name="customPermissionEvaluator" class="org.mskcc.cgds.util.CancerStudyPermissionEvaluator" />
 
 <!--
 	Some beans required for 2-legged oauth

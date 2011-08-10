@@ -142,7 +142,9 @@ public class TwoLeggedOAuthClientImpl implements OAuthClient {
 		// construct url with name - value pairs
 		StringBuffer canonicalURL = new StringBuffer(resourceURL + "?");
         for (NameValuePair nvp: data) {
-			canonicalURL.append("&" + nvp.getName() + "=" + nvp.getValue());
+			String name = nvp.getName().trim();
+			String value = nvp.getValue().trim().replaceAll(" ", "+");
+			canonicalURL.append("&" + name + "=" + value);
         }
 		canonicalURL.deleteCharAt(canonicalURL.indexOf("&"));
 		return readProtectedResource(new URL(canonicalURL.toString()));

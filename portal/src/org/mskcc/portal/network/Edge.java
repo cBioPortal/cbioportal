@@ -1,8 +1,10 @@
 
 package org.mskcc.portal.network;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class for Edge.
@@ -12,7 +14,7 @@ public class Edge {
     private Node source;
     private Node target;
     private String interactionType;
-    private List<Attribute> attrs;
+    private Map<String,Set<Object>> attrs; // map of attr type to attr value
     
     /**
      * 
@@ -24,7 +26,7 @@ public class Edge {
         this.source = source;
         this.target = target;
         this.interactionType = interactionType;
-        attrs = new ArrayList<Attribute>();
+        attrs = new LinkedHashMap<String,Set<Object>>();
     }
 
     /**
@@ -77,9 +79,9 @@ public class Edge {
 
     /**
      * 
-     * @return node attributes
+     * @return edge attributes
      */
-    public List<Attribute> getAttributes() {
+    public Map<String,Set<Object>> getAttributes() {
         return attrs;
     }
     
@@ -89,6 +91,11 @@ public class Edge {
      * @param value attribute value
      */
     public void addAttribute(String attr, Object value) {
-        attrs.add(new Attribute(attr, value));
-    }    
+        Set<Object> values = attrs.get(attr);
+        if (values==null) {
+            values = new HashSet<Object>();
+            attrs.put(attr, values);
+        }
+        values.add(value);
+    }   
 }

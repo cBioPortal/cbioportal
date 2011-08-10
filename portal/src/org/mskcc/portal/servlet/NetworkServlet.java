@@ -211,9 +211,14 @@ public class NetworkServlet extends HttpServlet {
             // using HGNC gene symbol as label if available
             public String getLabel(Node node) {
                 Set<String> ngnc = node.getXref(HGNC);
-                if (ngnc.isEmpty())
-                    return node.getId();
-                return ngnc.iterator().next();
+                if (!ngnc.isEmpty())
+                    return ngnc.iterator().next();
+                    
+                Set<Object> names = node.getAttributes().get("name");
+                if (names!=null && !names.isEmpty())
+                    return names.iterator().next().toString();
+                
+                return node.getId();
             }
         });
         PrintWriter writer = res.getWriter();

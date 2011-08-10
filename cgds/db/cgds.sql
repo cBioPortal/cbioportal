@@ -313,15 +313,16 @@ CREATE TABLE IF NOT EXISTS `mut_sig` (
 CREATE TABLE `protein_array_info` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `TYPE` varchar(50) NOT NULL,
-  `SOURCE_ORGANISM` varchar(50),
+  `GENE_SYMBOL` varchar(50) NOT NULL,
+  `SOURCE_ORGANISM` varchar(50) DEFAULT NULL,
+  `TARGET_RESIDUE` varchar(20) default NULL,
   `VALIDATED` boolean,
   PRIMARY KEY (`PROTEIN_ARRAY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `protein_array_target` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `ENTREZ_GENE_ID` int(255) NOT NULL,
-  `TARGET_RESIDUE` varchar(10) default NULL
+  `ENTREZ_GENE_ID` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `protein_array_data` (

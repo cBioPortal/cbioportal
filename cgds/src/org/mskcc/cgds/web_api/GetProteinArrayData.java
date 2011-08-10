@@ -4,16 +4,16 @@ package org.mskcc.cgds.web_api;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.DaoProteinArrayInfo;
-import org.mskcc.cgds.dao.DaoProteinArrayTarget;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.ProteinArrayData;
 import org.mskcc.cgds.model.ProteinArrayInfo;
-import org.mskcc.cgds.model.ProteinArrayTarget;
 
 /**
  *
@@ -24,35 +24,33 @@ public class GetProteinArrayData {
     public static String getProteinArrayInfo(ArrayList<String> targetGeneList, String type) 
             throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
-        DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         
-        StringBuilder sb = new StringBuilder("GENE_ID\tCOMMON\tARRAY_ID\tARRAY_TYPE\t"
+        StringBuilder sb = new StringBuilder("GENE\tARRAY_ID\tARRAY_TYPE\t"
                 + "RESIDUE\tANTIBODY_SOURCE\tVALIDATED\n");
         
-        for (String geneSymbol:  targetGeneList) {
-            CanonicalGene canonicalGene = daoGeneOptimized.getGene(geneSymbol);
-            if (canonicalGene == null) continue;
-            
-            long entrez = canonicalGene.getEntrezGeneId();
-            
-            for (ProteinArrayTarget pat : daoPAT.getProteinArrayTarget(entrez)) {
-                String arrayid = pat.getArrayId();
-                String residue = pat.getResidue();
-                ProteinArrayInfo pai = daoPAI.getProteinArrayInfo(arrayid);
-                if (type!=null && !type.isEmpty() && !type.equals(pai.getType()))
-                    continue;
-                
-                
-                sb.append(entrez); sb.append('\t');
-                sb.append(geneSymbol); sb.append('\t');
-                sb.append(arrayid); sb.append('\t');
-                sb.append(pai.getType()); sb.append('\t');
-                sb.append(residue); sb.append('\t');
-                sb.append(pai.getSource()); sb.append('\t');
-                sb.append(Boolean.toString(pai.isValidated()));
-                sb.append('\n');
+        ArrayList<ProteinArrayInfo> pais;
+        
+        if (targetGeneList==null) {
+            pais = daoPAI.getProteinArrayInfoForType(type);
+        } else {
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            Set<Long> entrezIds = new HashSet<Long>();
+            for (String symbol : targetGeneList) {
+                CanonicalGene gene = daoGene.getGene(symbol);
+                if (gene!=null)
+                    entrezIds.add(gene.getEntrezGeneId());
             }
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, type);
+        }
+        
+        for (ProteinArrayInfo pai : pais) {
+            sb.append(pai.getGene()); sb.append('\t');
+            sb.append(pai.getId()); sb.append('\t');
+            sb.append(pai.getType()); sb.append('\t');
+            sb.append(pai.getResidue()); sb.append('\t');
+            sb.append(pai.getSource()); sb.append('\t');
+            sb.append(Boolean.toString(pai.isValidated()));
+            sb.append('\n');
         }
         
         return sb.toString();

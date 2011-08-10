@@ -1,11 +1,10 @@
 
 package org.mskcc.portal.network;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ public class Node {
     
     private String id;
     private String type;
-    private List<Attribute> attrs;
+    private Map<String,Set<Object>> attrs; // map of attr type to attr value
     private Map<String,Set<String>> xrefs; // map of id type to ids
     
     /**
@@ -27,7 +26,7 @@ public class Node {
     Node(String id) {
         if (id==null) throw new IllegalArgumentException("Node ID cannot be null");
         this.id = id;
-        attrs = new ArrayList<Attribute>();
+        attrs = new LinkedHashMap<String,Set<Object>>();
         xrefs = new HashMap<String,Set<String>>();
     }
 
@@ -59,7 +58,7 @@ public class Node {
      * 
      * @return node attributes
      */
-    public List<Attribute> getAttributes() {
+    public Map<String,Set<Object>> getAttributes() {
         return attrs;
     }
     
@@ -90,7 +89,12 @@ public class Node {
      * @param value attribute value
      */
     public void addAttribute(String attr, Object value) {
-        attrs.add(new Attribute(attr, value));
+        Set<Object> values = attrs.get(attr);
+        if (values==null) {
+            values = new HashSet<Object>();
+            attrs.put(attr, values);
+        }
+        values.add(value);
     }
     
     public void addXref(String type, String id) {

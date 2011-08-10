@@ -531,9 +531,9 @@ public class WebService extends HttpServlet {
     private boolean goodCommand(PrintWriter writer, String cmd ){
        // check that command is correct
        String[] commands = { "getTypesOfCancer", "getNetwork", "getCancerStudies",
-                "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists", 
-                "getClinicalData", "getMutationData", "getMutationFrequency",
-                "getProteinArrayInfo", "getProteinArrayData"};
+							 "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists", 
+							 "getClinicalData", "getMutationData", "getMutationFrequency",
+							 "getProteinArrayInfo", "getProteinArrayData", "getMutSig"};
        for( String aCmd : commands ){
           if( aCmd.equals(cmd)){
              return true;

@@ -94,7 +94,7 @@ public class GetMutSig {
     }
 
     private static StringBuffer header(StringBuffer stringBuffer){
-        stringBuffer.append("rank\tgene\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq\n");
+        stringBuffer.append("Cancer\tGene\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq\n");
         return stringBuffer;
     }
 }

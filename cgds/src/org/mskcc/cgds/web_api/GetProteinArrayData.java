@@ -2,11 +2,13 @@
 package org.mskcc.cgds.web_api;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
@@ -56,26 +58,45 @@ public class GetProteinArrayData {
         return sb.toString();
     }
     
-    public static String getProteinArrayData(String arrayId, ArrayList<String> targetCaseList) 
+    public static String getProteinArrayData(List<String> arrayIds, ArrayList<String> targetCaseList) 
             throws DaoException {
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-        Map<String, Double> map = new HashMap<String,Double>();
-        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrayId, targetCaseList)) {
-            map.put(pad.getCaseId(), pad.getAbundance());
+        Map<String, Map<String,Double>> mapArrayCaseAbun = new HashMap<String,Map<String,Double>>();
+        Set<String> caseIds = new HashSet<String>();
+        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrayIds, targetCaseList)) {
+            String arrayId = pad.getArrayId();
+            String caseId = pad.getCaseId();
+            caseIds.add(caseId);
+            Map<String,Double> mapCaseAbun = mapArrayCaseAbun.get(arrayId);
+            if (mapCaseAbun==null) {
+                mapCaseAbun = new HashMap<String,Double>();
+                mapArrayCaseAbun.put(arrayId, mapCaseAbun);
+            }
+            mapCaseAbun.put(caseId, pad.getAbundance());
         }
         
-        StringBuilder sb = new StringBuilder("CASE_ID\tABUNDANCE\n");
+        StringBuilder sb = new StringBuilder();
         if (targetCaseList==null)
-            targetCaseList = new ArrayList<String>(map.keySet());
+            targetCaseList = new ArrayList<String>(caseIds);
         
-        for (String caseId : targetCaseList) {
-            sb.append(caseId); sb.append('\t');
-            Double abundance = map.get(caseId);
-            if (abundance==null)
-                sb.append("NaN");
-            else
-                sb.append(abundance.toString()); 
-            sb.append('\t');
+        sb.append('\t');
+        sb.append(StringUtils.join(targetCaseList, "\t"));
+        sb.append('\n');
+        
+        for (Map.Entry<String, Map<String,Double>> entry : mapArrayCaseAbun.entrySet()) {
+            String arrayId = entry.getKey();
+            sb.append(arrayId);
+            Map<String,Double> mapCaseAbun = entry.getValue();
+            
+            for (String caseId : targetCaseList) {
+                sb.append('\t');
+                Double abundance = mapCaseAbun.get(caseId);
+                if (abundance==null)
+                    sb.append("NaN");
+                else
+                    sb.append(abundance.toString()); 
+            }
+                
             sb.append('\n');
         }
         

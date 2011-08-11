@@ -4,6 +4,7 @@ import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.*;
 import org.mskcc.cgds.servlet.WebService;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -186,7 +187,7 @@ public class GetProfileData {
         if (arrayId == null)
             return arrayDataMap;
         
-        ArrayList<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
+        List<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
         for (ProteinArrayData pad : pads) {
             arrayDataMap.put(pad.getCaseId(), Double.toString(pad.getAbundance()));
         }

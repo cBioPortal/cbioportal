@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.regex.Pattern;
@@ -312,7 +313,7 @@ public class WebService extends HttpServlet {
         if (null != httpServletRequest.getParameter(CASE_LIST)
                 || null != httpServletRequest.getParameter(CASE_SET_ID))
             targetCaseIds = getCaseList(httpServletRequest);
-        writer.print(GetProteinArrayData.getProteinArrayData(arrayId, targetCaseIds));
+        writer.print(GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayId.split(" ")), targetCaseIds));
     }
 
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {

@@ -113,7 +113,7 @@
 			  <b:entry key="CGDS-MANAGER">
 				<b:bean class="org.springframework.security.oauth.consumer.BaseProtectedResourceDetails">
 				  <b:property name="consumerKey" value="portal_manager_key"/>
-				  <b:property name="signatureMethod" value="signature_method"/>
+				  <b:property name="signatureMethod" value="HMAC-SHA1"/>
 				  <b:property name="sharedSecret">
 					<b:bean class="org.springframework.security.oauth.common.signature.SharedConsumerSecret" >
 					  <b:constructor-arg value="portal_manager_secret"/>

@@ -234,8 +234,6 @@
 					 token="portal_manager_key" value="${portal_manager_key}"/>
 			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
 					 token="portal_manager_secret" value="${portal_manager_secret}"/>
-			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
-					 token="signature_method" value="${signature_method}"/>
 		  </then>
 		</if>
 

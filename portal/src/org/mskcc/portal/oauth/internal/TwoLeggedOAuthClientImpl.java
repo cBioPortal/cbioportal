@@ -2,7 +2,6 @@
 package org.mskcc.portal.oauth.internal;
 
 // imports
-import org.mskcc.portal.util.Config;
 import org.mskcc.portal.oauth.OAuthClient;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.openIDlogin.OpenIDUserDetails;
@@ -54,7 +53,6 @@ public class TwoLeggedOAuthClientImpl implements OAuthClient {
 	// some statics
 	private static final String CGDS_RESOURCE = "CGDS-USER";
 	private static Log log = LogFactory.getLog(TwoLeggedOAuthClientImpl.class);
-    private static final String signatureMethod = Config.getInstance().getProperty("signature_method");
 
 	// an instance of this class
 	// works on behalf of the following consumer support member
@@ -112,20 +110,16 @@ public class TwoLeggedOAuthClientImpl implements OAuthClient {
 
 			if (log.isDebugEnabled()) {
 				log.debug("rollOurOwnConsumer: " + consumerKey + ", " + consumerSecret);
-                if (signatureMethod.equals("PLAINTEXT")) {
-                    log.debug("***************************************************************************");
-                    log.debug("WARNING - setting PLAINTEXT password encoding!, HTTPS should be enabled!");
-                    log.debug("***************************************************************************");
-                }
+                log.debug("***************************************************************************");
+                log.debug("WARNING - setting PLAINTEXT password encoding!, HTTPS should be enabled!");
+                log.debug("***************************************************************************");
 			}
 
 			// create a new oauth consumer
 			toReturn = new CoreOAuthConsumerSupport();
-            if (signatureMethod.equals("PLAINTEXT")) {
-                CoreOAuthSignatureMethodFactory factory = new CoreOAuthSignatureMethodFactory();
-                factory.setSupportPlainText(true);
-                toReturn.setSignatureFactory(factory);
-            }
+            CoreOAuthSignatureMethodFactory factory = new CoreOAuthSignatureMethodFactory();
+            factory.setSupportPlainText(true);
+            toReturn.setSignatureFactory(factory);
 			toReturn.setProtectedResourceDetailsService(new ProtectedResourceDetailsService() {
 				@Override
 				public ProtectedResourceDetails loadProtectedResourceDetailsById(String id) throws IllegalArgumentException {
@@ -133,7 +127,7 @@ public class TwoLeggedOAuthClientImpl implements OAuthClient {
 					result.setId(CGDS_RESOURCE);
 					result.setConsumerKey(consumerKey);
 					result.setSharedSecret(new SharedConsumerSecret(consumerSecret));
-					result.setSignatureMethod(signatureMethod);
+					result.setSignatureMethod("PLAINTEXT");
 					return result;
 				}
 			});

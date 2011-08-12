@@ -2,6 +2,10 @@
 package org.mskcc.cgds.oauth;
 
 // imports
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.util.AccessControl;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +35,10 @@ public class OAuthPlaintextPasswordEncoder implements PasswordEncoder {
 	// ref to our logger
 	private static Log log = LogFactory.getLog(OAuthPlaintextPasswordEncoder.class);
 
+    // ref to an access control object used for password checking
+    @Autowired
+    AccessControl accessControl;
+
 	/**
 	 * Implementation of {@code PasswordEncoder}.
 	 */
@@ -46,15 +54,22 @@ public class OAuthPlaintextPasswordEncoder implements PasswordEncoder {
 	 * Implementation of {@code PasswordEncoder}.
 	 */
 	public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        
+
 		if (log.isDebugEnabled()) {
 			log.debug("isPasswordValid(), encPass: " + encPass);
 			log.debug("isPasswordValid(), rawPass: " + rawPass);
 		}
 
         // need to check password with encrypted version in the db
-		
-		// outta here
-		return true;
+        try {
+            return accessControl.checkKey(rawPass);
+        }
+        catch (DaoException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("isPasswordValid(), DaoException");
+                log.debug(e.getStackTrace());
+            }
+            return false;
+        }
 	}
 }

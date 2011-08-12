@@ -27,7 +27,7 @@ public class GetMutSig {
 
     public static StringBuffer GetAMutSig(int cancerStudy)
             throws DaoException {
-        StringBuffer toReturn = new StringBuffer();
+        StringBuffer toReturn = header(new StringBuffer());
         DaoMutSig daoMutSig = DaoMutSig.getInstance();
         ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy);
         for (int i = 0; i < mutSigList.size(); i++) {
@@ -43,7 +43,7 @@ public class GetMutSig {
 
     public static StringBuffer GetAMutSig(int cancerStudy, String q_Value_or_Gene_List, Boolean foo)
             throws DaoException, NumberFormatException {
-        StringBuffer toReturn = new StringBuffer();
+        StringBuffer toReturn = header(new StringBuffer());
         //code for Q Value Threshold
         if (foo) {
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
@@ -91,6 +91,11 @@ public class GetMutSig {
         toReturn += mutSig.getpValue() + "\t";
         toReturn += mutSig.getqValue() + "\n";
         return toReturn;
+    }
+
+    private static StringBuffer header(StringBuffer stringBuffer){
+        stringBuffer.append("Cancer\tGene\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq\n");
+        return stringBuffer;
     }
 }
 

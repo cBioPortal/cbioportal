@@ -17,4 +17,9 @@
 -->
   <global-method-security pre-post-annotations="disabled"/>
 
+<!-- 
+	 web_api beans
+-->
+   <b:bean id="accessControl" class="org.mskcc.cgds.util.internal.AccessControlImpl"/>
+
 </b:beans>

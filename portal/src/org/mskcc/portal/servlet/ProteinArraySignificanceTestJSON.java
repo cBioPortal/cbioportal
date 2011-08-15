@@ -1,19 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.mskcc.portal.servlet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,38 +15,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.inference.TestUtils;
 import org.apache.commons.math.MathException;
 
-import org.owasp.validator.html.PolicyException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 
-import org.mskcc.portal.model.CaseSet;
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.GeneticProfile;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.portal.model.ProteinArrayInfo;
-import org.mskcc.portal.network.Network;
-import org.mskcc.portal.network.NetworkIO;
-import org.mskcc.portal.network.Node;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
-import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.remote.GetProteinArrayData;
-import org.mskcc.portal.util.GeneticProfileUtil;
-import org.mskcc.portal.util.OncoPrintSpecificationDriver;
-import org.mskcc.portal.util.ProfileMerger;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.ZScoreUtil;
 
 /**
  *
@@ -97,19 +70,30 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             row.add(pai.isValidated());
             
             Map<String,Double> data = proteinArrayData.get(pai.getArrayId());
+            if (data==null) {
+                row.add("NaN");
+                row.add("NaN");
+                row.add("NaN");
+                row.add(";");
+            }
             
-            double pvalue = ttest(alterationMap, data);
-            if (Double.isNaN(pvalue))
-                row.add("");
-            else
-                row.add(Double.toString(pvalue));
+            List<double[]> sepAbun = separateAbundance(alterationMap, data);
+            double[] values = ttest(sepAbun.get(0),sepAbun.get(1));
+            for (double d : values) {
+                if (Double.isNaN(d))
+                    row.add("NaN");
+                else
+                    row.add(Double.toString(d));
+            }
+            
+            row.add(StringUtils.join(ArrayUtils.toObject(sepAbun.get(0)),",")+";"
+                    +StringUtils.join(ArrayUtils.toObject(sepAbun.get(1)),","));
         }
                 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(table, out);
-            //out.print(JSONValue.toJSONString(table));
         } finally {            
             out.close();
         }
@@ -144,10 +128,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         return ret;
     }
     
-    private double ttest(Map<String,Boolean> alterationMap, Map<String,Double> data) {
-        if (data==null)
-            return Double.NaN;
-        
+    private List<double[]> separateAbundance(Map<String,Boolean> alterationMap, Map<String,Double> data) {        
         List<Double> alteredList = new ArrayList<Double>();
         List<Double> unalteredList = new ArrayList<Double>();
         
@@ -161,18 +142,31 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                 }
             }
         }
-        
-        if (alteredList.size()<2 || unalteredList.size()<2)
-            return Double.NaN;
                 
         double[] alteredArray = ArrayUtils.toPrimitive(alteredList.toArray(new Double[0]));
         double[] unalteredArray = ArrayUtils.toPrimitive(unalteredList.toArray(new Double[0]));
+        
+        return Arrays.asList(unalteredArray, alteredArray);
+    }
+    
+    /**
+     * 
+     * @param alterationMap
+     * @param data
+     * @return [unaltered mean, altered mean, p-value]
+     */
+    private double[] ttest(double[] unalteredArray, double[] alteredArray) {        
+        double alteredMean = StatUtils.mean(alteredArray);
+        double unalteredMean = StatUtils.mean(unalteredArray);
+        
+        if (alteredArray.length<2 || unalteredArray.length<2)
+            return new double[]{unalteredMean, alteredMean, Double.NaN};
 
         try {
             double pvalue = TestUtils.tTest(alteredArray, unalteredArray);
-            return pvalue;
+            return new double[]{unalteredMean, alteredMean, pvalue};
         } catch (MathException e) {
-            return Double.NaN;
+            return new double[]{unalteredMean, alteredMean, Double.NaN};
         }
     }
     

@@ -79,6 +79,9 @@
 
     ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
+    
+    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0
+                || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
 %>
 
 <script type="text/javascript">
@@ -228,6 +231,10 @@
                     if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab'>Mutation Details</a></li>");
                     }
+                    
+                    if (rppaExists) {
+                        out.println ("<li><a href='#protein_exp' class='result-tab'>Protein Abundance</a></li>");
+                    }
 
                     out.println ("<li><a href='#event_map' class='result-tab'>Event Map</a></li>");
                     %>
@@ -292,6 +299,11 @@
             <%@ include file="heatmap.jsp" %>
             </div>   <!-- end heat map div -->
             <%@ include file="image_tabs_data.jsp" %>
+
+            <%
+            if (rppaExists) { %>
+                <%@ include file="protein_exp.jsp" %>
+            <% } %>
 
             <%
             if (QueryBuilder.INCLUDE_NETWORKS) { %>

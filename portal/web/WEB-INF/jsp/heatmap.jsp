@@ -171,7 +171,7 @@
             </textarea>
 <%
         out.println ("<P>Type of Genetic alterations across all cases:  (Alterations are summarized as MUT, Gain, HetLoss, etc.)");
-        out.println ("<P><textarea rows=10 cols=80>");
+        out.println ("<P><textarea rows=10 cols=80 id=\"heat_map\">");
         out.print ("Case ID\t");
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             out.print(geneWithScore.getGene().toUpperCase().trim() + "\t");

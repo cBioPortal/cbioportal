@@ -19,3 +19,4 @@ cgds/CGDS.iws
 cgds/Cgds.iml
 cgds/build
 .idea/
+^cgds/nbproject$

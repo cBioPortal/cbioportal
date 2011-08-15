@@ -36,6 +36,28 @@
     </servlet>
 
     <servlet>
+        <servlet-name>webservice</servlet-name>
+        <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
+        <init-param>
+            <param-name>db_host</param-name>
+            <param-value>db_host__value</param-value>
+        </init-param>
+         <init-param>
+            <param-name>db_name</param-name>
+            <param-value>db_name__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_user</param-name>
+            <param-value>db_user__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_password</param-name>
+            <param-value>db_password__value</param-value>
+        </init-param>
+        <load-on-startup/>
+    </servlet>
+
+    <servlet>
         <servlet-name>cross_cancer_query</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
     </servlet>
@@ -93,6 +115,11 @@
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>webservice</servlet-name>
+        <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>

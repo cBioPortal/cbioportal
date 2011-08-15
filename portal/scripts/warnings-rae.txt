@@ -1,0 +1,2 @@
+warning, cannot find entrez gene id for refseq id: NM_001111040
+warning, cannot find entrez gene id for refseq id: NM_001114117

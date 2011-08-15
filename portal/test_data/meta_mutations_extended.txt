@@ -1,0 +1,6 @@
+cancer_type_id: breast
+genetic_alteration_type: MUTATION_EXTENDED
+stable_id: breast_mutations
+show_profile_in_analysis_tab: true
+profile_description: Mutation data from whole exome sequencing.
+profile_name: Mutations

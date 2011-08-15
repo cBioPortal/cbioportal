@@ -18,5 +18,6 @@ cgds/CGDS.ipr
 cgds/CGDS.iws
 cgds/Cgds.iml
 cgds/build
+cgds/data
 .idea/
 ^cgds/nbproject$

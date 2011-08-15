@@ -67,12 +67,21 @@ public class AccessControlImpl implements AccessControl {
     public boolean checkKey(String userKey) throws DaoException {
         BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
+		if (log.isDebugEnabled()) {
+			log.debug("checkKey(), userKey: " + userKey);
+		}
+
         ArrayList<SecretKey> allKeys = DaoSecretKey.getAllSecretKeys();
         for (SecretKey secretKey : allKeys) {
                 if (passwordEncryptor.checkPassword(userKey, secretKey.getEncryptedKey())) {
                     return true;
                 }
         }
+
+		if (log.isDebugEnabled()) {
+            log.debug("checkKey(), userKey is not one of the secret keys, returning false.");
+		}
+
         return false;
     }
 

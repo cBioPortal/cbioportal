@@ -28,34 +28,41 @@
     };
     
     $(document).ready(function(){
-        var heat_map = $("textarea#heat_map").html();
-        
+        $('table#protein_expr').hide();
         $.post("ProteinArraySignificanceTest.json", 
-            {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:heat_map
+            {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html()
             },
             function(aDataSet){
-                //$("div#protein_exp").html(data);
-                //alert(data);
+                //$("div#protein_exp").html(aDataSet);
+                //alert(aDataSet);
                 //$('div#protein_exp').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" class="display" id="protein_expr"></table>' );
                 $('table#protein_expr').dataTable( {
                         "aaData": aDataSet,
                         "aoColumnDefs":[
-                            { //"sTitle": "Type",
+                            { //"sTitle": "Gene",
+                              //"bVisible": false,
                               "aTargets": [ 0 ]
                             },
-                            { //"sTitle": "Target Gene",
+                            { //"sTitle": "Alteration type",
+                              //"bVisible": false,
                               "aTargets": [ 1 ] 
                             },
+                            { //"sTitle": "Type",
+                              "aTargets": [ 2 ]
+                            },
+                            { //"sTitle": "Target Gene",
+                              "aTargets": [ 3 ] 
+                            },
                             { //"sTitle": "Target Residue",
-                              "aTargets": [ 2 ] 
+                              "aTargets": [ 4 ] 
                             },
                             { //"sTitle": "Source organism",
                               "bVisible": false, 
-                              "aTargets": [ 3 ] 
+                              "aTargets": [ 5 ] 
                             },
                             { //"sTitle": "Validated?",
                               "bVisible": false,
-                              "aTargets": [ 4 ]
+                              "aTargets": [ 6 ]
                             },
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -66,7 +73,7 @@
                                         return "NaN";
                                     return value.toFixed(2);
                                },
-                               "aTargets": [ 5 ]
+                               "aTargets": [ 7 ]
                             },
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -77,7 +84,7 @@
                                         return "NaN";
                                     return value.toFixed(2);
                                },
-                               "aTargets": [ 6 ]
+                               "aTargets": [ 8 ]
                             },
                             { //"sTitle": "p-value",
                               "sType": "num-nan-col",
@@ -89,8 +96,8 @@
                                     var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[5]);
-                                    var abunAltered = parseFloat(obj.aData[6]);
+                                    var abunUnaltered = parseFloat(obj.aData[7]);
+                                    var abunAltered = parseFloat(obj.aData[8]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;
@@ -99,28 +106,34 @@
                                     
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
                                },
-                               "aTargets": [ 7 ]
+                               "aTargets": [ 9 ]
                             },
                             { //"sTitle": "data",
                               "bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
-                              "aTargets": [ 8 ]
+                              "aTargets": [ 10 ]
                             }
                         ],
-                        "aaSorting": [[7,'asc']],
-                        "iDisplayLength": 25
+                        "aaSorting": [[9,'asc']],
+                        "iDisplayLength": 20
                 } );
-            },
-            "json"
+                $('table#protein_expr').show();
+                $('div#protein_expr_wait').remove();
+            }
+            ,"json"
         );
     });
 </script>
 
 <div class="section" id="protein_exp">
+    <div id="protein_expr_wait"><img src="images/ajax-loader.gif"/></div>
+    
     <table cellpadding="0" cellspacing="0" border="0" class="display" class="display" id="protein_expr">
         <thead>
             <tr valign="bottom">
+                <th rowspan="2">Gene</th>
+                <th rowspan="2">Alteration</th>
                 <th rowspan="2">Type</th>
                 <th colspan="2">Target</th>
                 <th rowspan="2">Source organism</th>
@@ -136,8 +149,5 @@
                 <th>Altered</th>
             </tr>
         </thead>
-        <tbody>
-            <tr><td><img src="images/ajax-loader.gif"/></td></tr>
-        </tbody>
     </table>
 </div>

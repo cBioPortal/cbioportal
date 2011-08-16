@@ -90,9 +90,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `authorities` (
   `EMAIL` varchar(128) NOT NULL,
-  `AUTHORITY` varchar(50) NOT NULL
-  --FOREIGN KEY (EMAIL) REFERENCES users (EMAIL),
-  --UNIQUE index authorities_idx_1 (EMAIL, AUTHORITY)
+  `AUTHORITY` varchar(50) NOT NULL,
+  FOREIGN KEY (EMAIL) REFERENCES users (EMAIL),
+  UNIQUE index authorities_idx_1 (EMAIL, AUTHORITY)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

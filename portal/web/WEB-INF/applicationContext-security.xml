@@ -50,8 +50,6 @@
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-      <!-- for now until QueryBuilder changes are complete -->
-      <!--<intercept-url pattern="/webservice.do*" access="permitAll"/>-->
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

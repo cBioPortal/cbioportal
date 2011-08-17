@@ -12,7 +12,6 @@ public class User {
 	private String email;
 	private String name;     // optional
     private boolean enabled;
-	private String consumerSecret;
 
 	public User() {
 		this.name = "";
@@ -20,10 +19,10 @@ public class User {
 	}
 
 	public User(String email, String name) throws IllegalArgumentException {
-		this(email, name, false, "consumer_secret");
+		this(email, name, false);
 	}
 
-	public User(String email, String name, boolean enabled, String consumerSecret) throws IllegalArgumentException {
+	public User(String email, String name, boolean enabled) throws IllegalArgumentException {
 		this();
 		if (null == email) {
 			throw new IllegalArgumentException ("email is null.");
@@ -33,7 +32,6 @@ public class User {
 			this.name = name;
 		}
 		this.enabled = enabled;
-		this.consumerSecret = consumerSecret;
 	}
 
 	public String getEmail() {
@@ -58,14 +56,6 @@ public class User {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	public String getConsumerSecret() {
-		return consumerSecret;
-	}
-
-	public void setConsumerSecret(String consumerSecret) {
-		this.consumerSecret = consumerSecret;
 	}
 
 	@Override

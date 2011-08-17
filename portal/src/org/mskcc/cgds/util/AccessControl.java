@@ -61,15 +61,6 @@ public interface AccessControl {
 	// The following methods are spring-security supported.
 
     /**
-     * Get user credentials for given email address.
-	 *
-     * @param email
-     * @return Table output.
-     * @throws DaoException Database Error.
-	 */
-    public String getUserCredentials(String email) throws DaoException;
-
-    /**
      * Gets Cancer Studies.
      *
      * @return Cancer Studies Table.

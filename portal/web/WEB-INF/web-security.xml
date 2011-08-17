@@ -60,6 +60,28 @@
     </servlet>
 
     <servlet>
+        <servlet-name>webservice</servlet-name>
+        <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
+        <init-param>
+            <param-name>db_host</param-name>
+            <param-value>db_host__value</param-value>
+        </init-param>
+         <init-param>
+            <param-name>db_name</param-name>
+            <param-value>db_name__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_user</param-name>
+            <param-value>db_user__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_password</param-name>
+            <param-value>db_password__value</param-value>
+        </init-param>
+        <load-on-startup/>
+    </servlet>
+
+    <servlet>
         <servlet-name>cross_cancer_query</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
     </servlet>
@@ -89,16 +111,6 @@
     </servlet>
 
     <servlet>
-        <servlet-name>openIDServlet</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.OpenIDServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.HandleOpenIDproviderResp</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>plot-test</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PlotTestServlet</servlet-class>
     </servlet>
@@ -112,6 +124,11 @@
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>webservice</servlet-name>
+        <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
@@ -156,16 +173,6 @@
     <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>openIDServlet</servlet-name>
-        <url-pattern>/openIDServlet.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <url-pattern>/handleOpenIDproviderResp.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

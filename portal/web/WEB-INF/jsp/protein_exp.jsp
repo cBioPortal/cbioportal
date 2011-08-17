@@ -231,6 +231,14 @@
                 } );
                 oTable.fnFilter("phosphorylation",2);
                 
+                $("input.checkbox-select-columns").change(function(){
+                    var cols = $(this).val().split(',');
+                    for (var iCol in cols) {
+                        oTable.fnSetColumnVis( cols[iCol], $(this).is(":checked") );
+                    }
+                    //oTable.fnAdjustColumnSizing();
+                });
+                
                 $('table#protein_expr_wrapper').show();
                 $('div#protein_expr_wait').remove();
             }
@@ -248,11 +256,26 @@
         
         <tr><td>
                 <br/><br/><br/>
-            <fieldset><legend>Parameters</legend>
-                <div id="gene_select_box"></div>
-                <div id="alteration_select_box"></div>
-                <div id="array_type_select_box"></div>
-            </fieldset>                
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tr><td>
+                    <fieldset><legend>Parameters</legend>
+                        <div id="gene_select_box"></div>
+                        <div id="alteration_select_box"></div>
+                        <div id="array_type_select_box"></div>
+                    </fieldset> 
+                </td></tr>
+                <tr><td>
+                        <br/>
+                    <fieldset><legend>Select Columns</legend>
+                        <input type="checkbox" class="checkbox-select-columns" name="target" value="3,4" checked="checked"/>Target<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="abundance" value="7,8" checked="checked"/>Abundance<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="p-value" value="9" checked="checked"/>p-value<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="plot" value="10" checked="checked"/>Plot<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="source" value="5"/>Source Organism<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="validated" value="6"/>Validated?<br />
+                    </fieldset> 
+                </td></tr>
+            </table>
         </td>
         <td>&nbsp;&nbsp;</td>
         <td>
@@ -263,7 +286,7 @@
                         <th rowspan="2">Alteration</th>
                         <th rowspan="2">Type</th>
                         <th colspan="2">Target</th>
-                        <th rowspan="2">Source organism</th>
+                        <th rowspan="2">Source Organism</th>
                         <th rowspan="2">Validated?</th>
                         <th colspan="2">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
                         <th rowspan="2">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>

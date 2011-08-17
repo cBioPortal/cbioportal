@@ -41,7 +41,7 @@ public class PortalMetaDataJSON extends HttpServlet {
     protected void doGet(HttpServletRequest httpServletRequest,
                          HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
-        XDebug xdebug = new XDebug();
+        XDebug xdebug = new XDebug(httpServletRequest);
 
         //  Cancer All Cancer Studies
         ArrayList<CancerType> cancerStudiesList = GetCancerTypes.getCancerTypes(xdebug);

@@ -13,7 +13,6 @@ import org.mskcc.portal.util.Config;
 import org.mskcc.portal.util.SkinUtil;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.oauth.internal.TwoLeggedOAuthClientImpl;
 
 import java.io.IOException;
 
@@ -104,13 +103,6 @@ public class CgdsProtocol {
             //  Get CGDS URL Property
             String cgdsUrl = Config.getInstance().getProperty("cgds.url");
 
-			// short ciruit the remainder of code
-			if (SkinUtil.usersMustAuthenticate()) {
-				// candidate for spring injection
-				TwoLeggedOAuthClientImpl oAuthClient = new TwoLeggedOAuthClientImpl();
-				return oAuthClient.readProtectedResource(cgdsUrl, data);
-			}
-
             MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();
             xdebug.logMsg(this, "Number of connections in pool:  " +
@@ -123,6 +115,10 @@ public class CgdsProtocol {
             //  Create GET / POST Method
             method = new PostMethod(cgdsUrl);
             method.setRequestBody(data);
+            // we need to added a cookie with session id to work with spring security
+			if (SkinUtil.usersMustAuthenticate()) {
+                method.setRequestHeader("Cookie", "JSESSIONID=" + xdebug.getRequest().getSession().getId());
+            }
             try {
 
                 //  Extract HTTP Status Code

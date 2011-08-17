@@ -87,7 +87,7 @@ public class DaoCancerStudy {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement("SELECT * FROM cancer_study WHERE CANCER_STUDY_ID=?");
+            pstmt = con.prepareStatement("SELECT * FROM cancer_study WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudyID);
             rs = pstmt.executeQuery();
             if (rs.next()) {

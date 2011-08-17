@@ -343,4 +343,11 @@
         </checkstyle>
     </target>
 
+        <!-- Move Target -->
+    <target name="move"
+            description="Moves file to Tomcat Directory for Deployment">
+        <copy file="${war.dir}/cgx.war"
+              todir="/Library/Tomcat/Home/webapps/"/>
+    </target>
+
 </project>

@@ -424,20 +424,20 @@ public class WebService extends HttpServlet {
            String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
            String gene_list = request.getParameter(GENE_LIST);
            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);
-           int cancerID = cancerStudy.getStudyId();
-           if (q_value_threshold == null
-                   && gene_list == null) {
+           int cancerID = cancerStudy.getInternalId();
+           if (q_value_threshold == null && gene_list == null) {
                StringBuffer output = GetMutSig.GetAMutSig(cancerID);
                writer.print(output);
-           } else if (q_value_threshold != null
-                   && gene_list == null) {
+           }
+           else if (q_value_threshold != null && gene_list == null) {
                StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
                writer.print(output);
-           } else if (q_value_threshold == null
-                   && gene_list == null) {
+           }
+           else if (q_value_threshold == null && gene_list != null) {
                StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
                writer.print(output);
-           } else {
+           }
+           else {
                writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
            }
        }

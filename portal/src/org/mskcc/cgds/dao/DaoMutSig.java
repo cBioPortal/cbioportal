@@ -72,7 +72,7 @@ public class DaoMutSig {
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `RANK`, `BIG_N`, `SMALL_N`," +
                                     " `N_VAL`, `N_VER`, `CPG`, `C+G`, `A+T`, " +
-                                    "`INDEL`, `P_VALUE`, `<Q_VALUE`,`Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                    "`INDEL`, `P_VALUE`, `LESS_THAN_Q_VALUE`,`Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                     pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
@@ -206,7 +206,7 @@ public class DaoMutSig {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ? AND Q_Value > ?");
+                    ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ? AND Q_Value < ?");
             pstmt.setInt(1, cancerStudy);
             pstmt.setDouble(2,qValueThreshold);
             rs = pstmt.executeQuery();
@@ -243,7 +243,7 @@ public class DaoMutSig {
             throws SQLException, DaoException {
         MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"), gene, rs.getInt("RANK"), rs.getInt("BIG_N"),
                 rs.getInt("SMALL_N"), rs.getInt("N_VAL"), rs.getInt("N_VER"), rs.getInt("CPG"), rs.getInt("C+G"),
-                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("<Q_VALUE"), rs.getDouble("Q_VALUE"));
+                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("LESS_THAN_Q_VALUE"), rs.getDouble("Q_VALUE"));
         return mutSig;
     }
 

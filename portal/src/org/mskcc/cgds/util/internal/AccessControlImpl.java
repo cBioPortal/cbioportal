@@ -153,48 +153,8 @@ public class AccessControlImpl implements AccessControl {
         }
     }
 
-    /**
-    * Get user credentials for given email address.
-	 *
-     * @param email
-     * @return Table output.
-     * @throws DaoException Database Error.
-	 *
-	 * Additional level of method security.  Only users with ROLE_PORTAL|_ADMIN
-	 * and a principal object of type ConsumerDetails (meaning we got here through OAUTH)
-	 * are allowed to access this method.  @PreAuthorized is evaluated before method is 
-	 * allowed to execute.
-	*/
-	@PreAuthorize("hasRole('ROLE_PORTAL_ADMIN') and " +
-				  "principal instanceof T(org.springframework.security.oauth.provider.ConsumerDetails)")
-    public String getUserCredentials(String email) throws DaoException {
-
-		if (log.isDebugEnabled()) {
-			log.debug("email: " + email);
-		}
-
-		User user = DaoUser.getUserByEmail(email);
-        StringBuffer buf = new StringBuffer();
-        if (user != null && user.isEnabled()) {
-			UserAuthorities userAuthorities = DaoUserAuthorities.getUserAuthorities(user);
-			buf.append(user.getConsumerSecret() + "\t");
-			for (String authority : userAuthorities.getAuthorities()) {
-				buf.append(authority + ",");
-			}
-			buf.deleteCharAt(buf.length()-1);
-			buf.append("\n");
-		}
-		else {
-			buf.append("Error:  Unknown user or account disabled:  " + email + ".\n");
-        }
-
-		if (log.isDebugEnabled()) {
-			log.debug("buffer: " + buf.toString());
-		}
-
-		// outta here
-        return buf.toString();
-    }
+	////////////////////////////////////////////////////////////////////////////////
+	// The following methods are spring-security supported.
 
     /**
      * Gets Cancer Studies.
@@ -202,14 +162,7 @@ public class AccessControlImpl implements AccessControl {
      * @return Cancer Studies Table.
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
-	 *
-	 * Method level security locks down this method call.  Only users with ROLE_USER
-	 * and a principal object of type ConsumerDetails (meaning we got here through OAUTH)
-	 * are allowed to access this method.  @PreAuthorized is evaluated before method is 
-	 * allowed to execute.
      */
-	@PreAuthorize("hasRole('ROLE_USER') and " +
-				  "principal instanceof T(org.springframework.security.oauth.provider.ConsumerDetails)")
     public String getCancerStudies() throws DaoException, ProtocolException {
 
 		if (log.isDebugEnabled()) {
@@ -283,6 +236,7 @@ public class AccessControlImpl implements AccessControl {
 	 */
 	@PreAuthorize("hasPermission(#cancerStudy, 'read')")
 	private boolean checkAccess(CancerStudy cancerStudy) {
+        // set to true so works when authentication is turned off
 		return true;
 	}
 }

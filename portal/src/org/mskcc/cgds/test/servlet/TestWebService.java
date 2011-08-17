@@ -260,9 +260,9 @@ public class TestWebService extends TestCase {
    private void setUpDBMS() throws DaoException, IOException{
       ResetDatabase.resetDatabase();
 
-      user1 = new User("artg@gmail.com", "Arthur", true, "not used");
+      user1 = new User("artg@gmail.com", "Arthur", true);
       DaoUser.addUser(user1);
-      user2 = new User("joe@gmail.com", "J", true, "not_used");
+      user2 = new User("joe@gmail.com", "J", true);
       DaoUser.addUser(user2);
 
       // load cancers

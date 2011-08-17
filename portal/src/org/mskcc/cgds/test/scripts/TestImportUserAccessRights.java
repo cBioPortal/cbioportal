@@ -23,7 +23,7 @@ public class TestImportUserAccessRights extends TestCase {
       DaoCancerStudy.addCancerStudy(cancerStudy);
 
       cancerStudy.setName("Breast");
-      cancerStudy.setCancerStudyIdentifier( "breast" );
+      cancerStudy.setCancerStudyStablId( "breast" );
       cancerStudy.setDescription("Breast Description");
       DaoCancerStudy.addCancerStudy(cancerStudy);
       

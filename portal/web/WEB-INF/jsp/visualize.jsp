@@ -18,19 +18,24 @@
 <%@ page import="org.mskcc.portal.util.OncoPrintSpecificationDriver" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
 <%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
+<%@ page import="org.mskcc.cgds.model.CancerStudy" %>
+<%@ page import="org.mskcc.cgds.model.CaseList" %>
+<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
 
 <%
-    ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute
+    ArrayList<GeneticProfile> profileList =
+            (ArrayList<GeneticProfile>) request.getAttribute
             (QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-    ArrayList<CaseSet> caseSets = (ArrayList<CaseSet>)
+    ArrayList<CaseList> caseSets = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    ArrayList<CancerType> cancerTypes = (ArrayList<CancerType>)
+    ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
@@ -121,13 +126,13 @@
                  out.println ("<br></div></p>");
                  out.println ("<p><small><strong>");
 
-                 for (CancerType cancerType: cancerTypes){
-                    if (cancerTypeId.equals(cancerType.getCancerTypeId())){
-                        smry = smry + cancerType.getCancerName();
+                 for (CancerStudy cancerStudy: cancerStudies){
+                    if (cancerTypeId.equals(cancerStudy.getCancerStudyStableId())){
+                        smry = smry + cancerStudy.getName();
                     }
                 }
-                for (CaseSet caseSet:  caseSets) {
-                    if (caseSetId.equals(caseSet.getId())) {
+                for (CaseList caseSet:  caseSets) {
+                    if (caseSetId.equals(caseSet.getStableId())) {
                         smry = smry + "/" + caseSet.getName() + ":  "
                                 + " (" + mergedCaseList.size() + ")";
                     }

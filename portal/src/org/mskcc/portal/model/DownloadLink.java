@@ -1,5 +1,7 @@
 package org.mskcc.portal.model;
 
+import org.mskcc.cgds.model.GeneticProfile;
+
 import java.util.ArrayList;
 
 /**

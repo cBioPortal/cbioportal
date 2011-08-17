@@ -41,12 +41,12 @@ public class DaoCancerStudy {
         try {
             con = JdbcUtil.getDbConnection();
             // CANCER_STUDY_IDENTIFIER may be null
-            if (cancerStudy.getCancerStudyIdentifier() != null) {
+            if (cancerStudy.getCancerStudyStableId() != null) {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                         "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                         + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID` ) VALUES (?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
-                pstmt.setString(1, cancerStudy.getCancerStudyIdentifier());
+                pstmt.setString(1, cancerStudy.getCancerStudyStableId());
                 pstmt.setString(2, cancerStudy.getName());
                 pstmt.setString(3, cancerStudy.getDescription());
                 pstmt.setBoolean(4, cancerStudy.isPublicStudy());
@@ -64,7 +64,7 @@ public class DaoCancerStudy {
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 int auto_id = rs.getInt(1);
-                cancerStudy.setStudyId(auto_id);
+                cancerStudy.setInternalId(auto_id);
             }
 
         } catch (SQLException e) {
@@ -260,7 +260,7 @@ public class DaoCancerStudy {
                 rs.getString("TYPE_OF_CANCER_ID"),
                 rs.getBoolean("PUBLIC"));
 
-        cancerStudy.setStudyId(rs.getInt("CANCER_STUDY_ID"));
+        cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;
     }
 }

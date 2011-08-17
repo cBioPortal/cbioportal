@@ -113,7 +113,7 @@ public class AccessControlImpl implements AccessControl {
 
         // does UserAccessRight contain user, studyId?
         return DaoUserAccessRight.containsUserAccessRightsByEmailAndStudy(email,
-                cancerStudy.getStudyId());
+                cancerStudy.getInternalId());
     }
 
     /**
@@ -130,7 +130,7 @@ public class AccessControlImpl implements AccessControl {
         ArrayList<CancerStudy> cancerStudyList = DaoCancerStudy.getAllCancerStudies();
         ArrayList<CancerStudy> accessibleCancerStudies = new ArrayList<CancerStudy>();
         for (CancerStudy cancerStudy : cancerStudyList) {
-            if (checkAccess(email, key, cancerStudy.getCancerStudyIdentifier())) {
+            if (checkAccess(email, key, cancerStudy.getCancerStudyStableId())) {
                 accessibleCancerStudies.add(cancerStudy);
             }
         }
@@ -142,7 +142,7 @@ public class AccessControlImpl implements AccessControl {
             for (CancerStudy cancerStudy : accessibleCancerStudies) {
                 
                 // changed to output stable identifier, instead of internal integer identifer.
-                buf.append(cancerStudy.getCancerStudyIdentifier() + "\t");
+                buf.append(cancerStudy.getCancerStudyStableId() + "\t");
                 buf.append(cancerStudy.getName() + "\t");
                 buf.append(cancerStudy.getDescription() + "\n");
             }
@@ -230,7 +230,7 @@ public class AccessControlImpl implements AccessControl {
             for (CancerStudy cancerStudy : accessibleCancerStudies) {
                 
                 // changed to output stable identifier, instead of internal integer identifer.
-                buf.append(cancerStudy.getCancerStudyIdentifier() + "\t");
+                buf.append(cancerStudy.getCancerStudyStableId() + "\t");
                 buf.append(cancerStudy.getName() + "\t");
                 buf.append(cancerStudy.getDescription() + "\n");
             }

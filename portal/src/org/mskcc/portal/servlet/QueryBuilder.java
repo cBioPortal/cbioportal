@@ -1,6 +1,5 @@
 package org.mskcc.portal.servlet;
 
-
 import java.io.IOException;
 
 import java.io.PrintWriter;
@@ -24,6 +23,11 @@ import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
 import org.mskcc.portal.util.*;
 import org.mskcc.portal.r_bridge.SurvivalPlot;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.dao.DaoException;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -166,29 +170,30 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get all Cancer Types
             try {
-                ArrayList<CancerType> cancerTypeList = GetCancerTypes.getCancerTypes(xdebug);
+                ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
 
                 if (cancerTypeId == null) {
-                    cancerTypeId = cancerTypeList.get(0).getCancerTypeId();
+                    cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
                 }
                 // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
                 httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
 
-                httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerTypeList);
+                httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerStudyList);
 
                 // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
                 //  Get Genetic Profiles for Selected Cancer Type
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
-                        (cancerTypeId, xdebug);
+                        (cancerTypeId);
                 httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
 
                 //  Get Case Sets for Selected Cancer Type
-                ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, xdebug);
+                xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
+                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
                 xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
-                CaseSet caseSet = new CaseSet();
+                CaseList caseSet = new CaseList();
                 caseSet.setName("User-defined Case List");
                 caseSet.setDescription("User defined case list.");
-                caseSet.setId("-1");
+                caseSet.setStableId("-1");
                 caseSets.add(caseSet);
                 httpServletRequest.setAttribute(CASE_SETS_INTERNAL, caseSets);
 
@@ -198,8 +203,8 @@ public class QueryBuilder extends HttpServlet {
                     httpServletRequest.setAttribute(CASE_SET_ID, caseSetId);
                 } else {
                     if (caseSets.size() > 0) {
-                        CaseSet zeroSet = caseSets.get(0);
-                        httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getId());
+                        CaseList zeroSet = caseSets.get(0);
+                        httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
                     }
                 }
                 String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
@@ -222,7 +227,11 @@ public class QueryBuilder extends HttpServlet {
                 forwardToErrorPage(httpServletRequest, httpServletResponse,
                         "The Cancer Genomics Data Server is not currently "
                                 + "available. <br/><br/>Please check back later.", xdebug);
-
+            } catch (DaoException e) {
+                xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
+                forwardToErrorPage(httpServletRequest, httpServletResponse,
+                        "The Cancer Genomics Data Server is not currently "
+                                + "available. <br/><br/>Please check back later.", xdebug);
             }
         } else {
             RequestDispatcher dispatcher =
@@ -301,10 +310,10 @@ public class QueryBuilder extends HttpServlet {
      * @throws ServletException
      */
     private void processData(HashSet<String> geneticProfileIdSet,
-                                ArrayList<GeneticProfile> profileList, 
+                                ArrayList<GeneticProfile> profileList,
                                 String geneListStr,
                                 String caseSetId, String caseIds,
-                                ArrayList<CaseSet> caseSetList,
+                                ArrayList<CaseList> caseSetList,
                                 ServletContext servletContext, HttpServletRequest request,
                                 HttpServletResponse response,
                                 XDebug xdebug)
@@ -321,8 +330,8 @@ public class QueryBuilder extends HttpServlet {
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         if (!caseSetId.equals("-1")) {
-            for (CaseSet caseSet : caseSetList) {
-                if (caseSet.getId().equals(caseSetId)) {
+            for (CaseList caseSet : caseSetList) {
+                if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
                     //TODO: why not break?
                 }
@@ -344,7 +353,7 @@ public class QueryBuilder extends HttpServlet {
             if( null == profile ){
                continue;
             }
-            xdebug.logMsg(this, "Getting data for:  " + profile.getName());
+            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             Date startTime = new Date();
             GetProfileData remoteCall = new GetProfileData();
             ProfileData pData = remoteCall.getProfileData(profile, geneList, caseIds, xdebug);
@@ -371,7 +380,8 @@ public class QueryBuilder extends HttpServlet {
             profileDataList.add(pData);
 
             //  Optionally, get Extended Mutation Data.
-            if (profile.getAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            if (profile.getGeneticAlterationType().equals
+                    (GeneticAlterationType.MUTATION_EXTENDED)) {
                 if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
                     startTime = new Date();
@@ -506,7 +516,8 @@ public class QueryBuilder extends HttpServlet {
      * @param httpServletRequest
      * @return true, if the form contains fatal error(s) that require it be resubmitted
      */
-    private boolean validateForm(String action, ArrayList<GeneticProfile> profileList,
+    private boolean validateForm(String action,
+                                ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
                                  String geneList, String caseSetId, String caseIds,
                                  HttpServletRequest httpServletRequest) {
@@ -577,9 +588,9 @@ public class QueryBuilder extends HttpServlet {
                     boolean mRNAProfileRadioSelected = false;
                     for (int i = 0; i < profileList.size(); i++) {
                         GeneticProfile geneticProfile = profileList.get(i);
-                        if (geneticProfile.getAlterationType()
+                        if (geneticProfile.getGeneticAlterationType()
                                 == GeneticAlterationType.MRNA_EXPRESSION
-                                && geneticProfileIdSet.contains(geneticProfile.getId())) {
+                                && geneticProfileIdSet.contains(geneticProfile.getStableId())) {
                             mRNAProfileRadioSelected = true;
                         }
                     }

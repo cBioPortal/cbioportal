@@ -105,7 +105,7 @@ public class ImportMutSigData {
         String cancer_study_identifier;
         cancer_study_identifier = props.getProperty("cancer_study_identifier");
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_identifier);
-        int cancerStudyID = cancerStudy.getStudyId();
+        int cancerStudyID = cancerStudy.getInternalId();
         return cancerStudyID;
     }
 

@@ -1,10 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
-<%@ page import="org.mskcc.portal.model.CancerType" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 
 <%
     Config globalConfig = Config.getInstance();
@@ -14,7 +14,7 @@
         siteTitle = "cBio Cancer Genomics Portal";
     }
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-    ArrayList<CancerType> cancerTypes = (ArrayList<CancerType>)
+    ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
 
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
@@ -35,9 +35,9 @@ $(document).ready(function(){
     <%
     //  Iterate through each Cancer Study
     //  For each cancer study, init AJAX
-    for (CancerType cancerType:  cancerTypes) {
+    for (CancerStudy cancerStudy:  cancerStudies) {
     %>
-    $("#study_<%= cancerType.getCancerTypeId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerType.getCancerTypeId() %>');
+    $("#study_<%= cancerStudy.getCancerStudyStableId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerStudy.getCancerStudyStableId() %>');
     <% } %>
 });
 </script>
@@ -50,7 +50,7 @@ $(document).ready(function(){
 
 <div class="ui-state-highlight ui-corner-all">
     <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em; margin-left: .3em"></span>
-    Results are available for <strong><%= (cancerTypes.size() - 1) %>
+    Results are available for <strong><%= (cancerStudies.size() - 1) %>
     cancer studies</strong>.  Click each cancer study below to view a summary of results.
     </p>
 </div>
@@ -82,8 +82,8 @@ jQuery(document).ready(function(){
 
 <div id="accordion">
     <%
-        for (CancerType cancerType:  cancerTypes) {
-            if (!cancerType.getCancerTypeId().equals("all")) {
+        for (CancerStudy cancerStudy:  cancerStudies) {
+            if (!cancerStudy.getCancerStudyStableId().equals("all")) {
                 out.println ("<div class='accordion_panel'>");
                 out.println ("<h1 class='head'>");
                 //  output triangle icons
@@ -91,8 +91,8 @@ jQuery(document).ready(function(){
                 out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
                 out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
                     + " style='float:left; display:none;'></span>");
-                out.println (cancerType.getCancerName() + "</h1>");
-                out.println ("<div class='accordion_ajax' id=\"study_" + cancerType.getCancerTypeId() + "\">");
+                out.println (cancerStudy.getName() + "</h1>");
+                out.println ("<div class='accordion_ajax' id=\"study_" + cancerStudy.getCancerStudyStableId() + "\">");
                 out.println ("<img src='images/ajax-loader2.gif'>");
                 out.println ("</div>");
                 out.println ("</div>");

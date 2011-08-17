@@ -1,13 +1,10 @@
 package org.mskcc.cgds.scripts;
 
-import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.GeneticProfileReader;
 import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cgds.model.GeneticProfile;
 
 import java.io.File;
 

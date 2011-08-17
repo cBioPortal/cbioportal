@@ -599,7 +599,7 @@ public class WebService extends HttpServlet {
                 if (aGeneticProfile != null &&
                         DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 }
             }
         }
@@ -614,7 +614,7 @@ public class WebService extends HttpServlet {
             }
             if (DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
                 cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                        (aCaseList.getCancerStudyId()).getCancerStudyIdentifier());
+                        (aCaseList.getCancerStudyId()).getCancerStudyStableId());
             } else {
                 return null;
             }
@@ -640,7 +640,7 @@ public class WebService extends HttpServlet {
                 }
                 if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 } else {
                     return null;
                 }

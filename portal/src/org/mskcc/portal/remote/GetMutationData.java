@@ -2,10 +2,9 @@ package org.mskcc.portal.remote;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
-import org.mskcc.portal.model.GeneticProfile;
-import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ExtendedMutation;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.model.GeneticProfile;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -43,7 +42,7 @@ public class GetMutationData {
             //  Prepare query parameters
             NameValuePair[] data = {
                     new NameValuePair(CgdsProtocol.CMD, "getMutationData"),
-                    new NameValuePair("genetic_profile_id", profile.getId()),
+                    new NameValuePair("genetic_profile_id", profile.getStableId()),
                     new NameValuePair("gene_list", geneBuf.toString()),
                     new NameValuePair("id_type", "gene_symbol"),
                     new NameValuePair(CgdsProtocol.CASE_LIST, caseIds)

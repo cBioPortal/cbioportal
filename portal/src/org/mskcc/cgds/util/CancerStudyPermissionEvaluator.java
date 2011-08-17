@@ -3,7 +3,6 @@ package org.mskcc.cgds.util;
 
 // imports
 import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.dao.DaoUserAccessRight;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,7 +49,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				log.debug("hasPermission(), cancer study is null.");
 			}
 			else {
-				log.debug("hasPermission(), cancer study id: " + cancerStudy.getStudyId());
+				log.debug("hasPermission(), cancer study id: " + cancerStudy.getInternalId());
 			}
 		}
 
@@ -65,7 +64,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		}
 
         // does UserAccessRight contain user, studyId?
-        //return DaoUserAccessRight.containsUserAccessRightsByEmailAndStudy(email, cancerStudy.getStudyId());
+        //return DaoUserAccessRight.containsUserAccessRightsByEmailAndStudy(email, cancerStudy.getInternalId());
 
 		// outta here
 		return true;

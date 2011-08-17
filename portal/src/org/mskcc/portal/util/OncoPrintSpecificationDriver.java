@@ -3,14 +3,14 @@ package org.mskcc.portal.util;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticProfile;
 
 public class OncoPrintSpecificationDriver {
 
@@ -47,20 +47,18 @@ public class OncoPrintSpecificationDriver {
       // TODO: replace when GeneticAlterationType is made a true enumeration
       for (GeneticProfile theGeneticProfile : profileList) {
 
-         if (theGeneticProfile.getAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-                  && geneticProfileIdSet.contains(theGeneticProfile.getId())) {
+         if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                  && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
             checkboxInputOncoPrintGeneDisplaySpec.setDefault( GeneticDataTypes.CopyNumberAlteration );
          }
 
-         if (theGeneticProfile.getAlterationType() == GeneticAlterationType.MRNA_EXPRESSION
-                  && geneticProfileIdSet.contains(theGeneticProfile.getId())) {
+         if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION
+                  && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
             checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold);
          }
          
-         // TODO: check and decide whether we should keep both kinds of MUTATION here
-         if ( (theGeneticProfile.getAlterationType() == GeneticAlterationType.MUTATION || 
-                  theGeneticProfile.getAlterationType() == GeneticAlterationType.MUTATION_EXTENDED )
-                  && geneticProfileIdSet.contains(theGeneticProfile.getId())) {
+         if ( (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED )
+                  && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
             checkboxInputOncoPrintGeneDisplaySpec.setDefault( GeneticDataTypes.Mutation );
          }
       }

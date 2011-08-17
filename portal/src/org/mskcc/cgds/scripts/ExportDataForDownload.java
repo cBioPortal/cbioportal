@@ -18,7 +18,6 @@ import org.mskcc.cgds.dao.*;
 //TODO: ACCESS CONTROL: change to CancerStudy
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.cgds.model.GeneticProfile;
 
 //TODO: NOW: put in cvs
@@ -131,8 +130,8 @@ public class ExportDataForDownload {
             htmlIndexFilePrintWriter.print(  "<LI>" + aCancerStudy.getName() + "</LI>\n"  );
             
             DaoGeneticProfile theDaoGeneticProfile = new DaoGeneticProfile();
-            ArrayList<GeneticProfile> theGeneticProfiles = 
-               theDaoGeneticProfile.getAllGeneticProfiles( aCancerStudy.getStudyId() );
+            ArrayList<GeneticProfile> theGeneticProfiles =
+               theDaoGeneticProfile.getAllGeneticProfiles( aCancerStudy.getInternalId() );
             htmlIndexFilePrintWriter.print( "<UL>" );
             
             // for each of this cancer's genetic profiles

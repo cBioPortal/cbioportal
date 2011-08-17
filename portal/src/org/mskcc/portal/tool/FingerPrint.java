@@ -1,11 +1,11 @@
 package org.mskcc.portal.tool;
 
 import org.mskcc.portal.model.ExtendedMutation;
-import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.tool.bundle.Bundle;
 import org.mskcc.portal.tool.bundle.BundleHelper;
 import org.mskcc.portal.tool.bundle.GeneRequest;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,6 +1,12 @@
 package org.mskcc.cgds.model;
 
 public class GeneticAlterationType {
+    public static final String HOMOZYGOUS_DELETION = "-2";
+    public static final String HEMIZYGOUS_DELETION = "-1";
+    public static final String ZERO = "0";
+    public static final String GAIN = "1";
+    public static final String AMPLIFICATION = "2";
+    public static final String NAN = "NaN";
 
     private String type;
 

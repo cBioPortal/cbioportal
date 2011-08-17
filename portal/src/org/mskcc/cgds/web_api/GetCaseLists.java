@@ -26,7 +26,7 @@ public class GetCaseLists {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         StringBuffer buf = new StringBuffer();
         if (cancerStudy != null) {
-            int cancerStudyInternalId = cancerStudy.getStudyId();
+            int cancerStudyInternalId = cancerStudy.getInternalId();
             DaoCaseList daoCaseList = new DaoCaseList();
             ArrayList<CaseList> list = daoCaseList.getAllCaseLists(cancerStudyInternalId);
             if (list.size() > 0) {

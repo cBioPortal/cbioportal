@@ -6,7 +6,6 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.ProteinArrayData;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
@@ -17,6 +16,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticProfile;
 
 /**
  *
@@ -72,7 +72,7 @@ public class ImportProteinArrayData {
             System.exit(1);
         }
         
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getStudyId();
+        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
         DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         String idProfProt = args[1]+"_protein_array_protein_level";

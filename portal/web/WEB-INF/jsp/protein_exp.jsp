@@ -5,6 +5,23 @@
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script> 
 
 <script type="text/javascript">
+    var newwindow = ''
+    function imgpopitup(url) {
+        if (newwindow.location && !newwindow.closed) {
+            newwindow.location.href = url; 
+            newwindow.focus(); } 
+        else { 
+            newwindow=window.open(url,'htmlname','width=600,height=600,resizable=1');} 
+    }
+    function boxplot(data,xlabel) {
+        // todo: rinstalled?
+        var url = 'boxplot.do?data='+data+'&xlabel='+xlabel+'&ylabel=Median-centered RPPA score';
+        imgpopitup(url);
+    }
+    // Based on JavaScript provided by Peter Curtis at www.pcurtis.com -->
+</script>
+
+<script type="text/javascript">
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
 	var x = parseFloat(a);
 	var y = parseFloat(b);
@@ -140,8 +157,9 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
-                               },
-                               "aTargets": [ 7 ]
+                              },
+                              "bSearchable": false,
+                              "aTargets": [ 7 ]
                             },
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -151,8 +169,9 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
-                               },
-                               "aTargets": [ 8 ]
+                              },
+                              "bSearchable": false,
+                              "aTargets": [ 8 ]
                             },
                             { //"sTitle": "p-value",
                               "sType": "num-nan-col",
@@ -161,7 +180,7 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     
-                                    var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+                                    var ret =value < 0.001 ? value.toExponential(2) : value.toFixed(3);
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[7]);
@@ -173,13 +192,19 @@
                                         return ret + "<img src=\"images/up1.png\"/>";
                                     
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
-                               },
-                               "aTargets": [ 9 ]
+                              },
+                              "bSearchable": false,
+                              "aTargets": [ 9 ]
                             },
-                            { //"sTitle": "data",
-                              "bVisible": false,
+                            { //"sTitle": "plot",
+                              //"bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
+                              "fnRender": function(obj) {
+//                                    if (isNaN(parseFloat(obj.aData[9])))
+//                                        return "";
+                                    return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";                                   
+                              },
                               "aTargets": [ 10 ]
                             }
                         ],
@@ -242,7 +267,7 @@
                         <th rowspan="2">Validated?</th>
                         <th colspan="2">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
                         <th rowspan="2">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2">Data</th>
+                        <th rowspan="2">Plot</th>
                     </tr>
                     <tr>
                         <th>Protein</th>

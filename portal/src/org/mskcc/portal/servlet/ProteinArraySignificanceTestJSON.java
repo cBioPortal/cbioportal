@@ -89,7 +89,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                         row.add("NaN");
                         row.add("NaN");
                         row.add("NaN");
-                        row.add(";");
+                        row.add("");
                     } else {
                         List<double[]> sepAbun = separateAbundance(altered, data);
                         double[] values = ttest(sepAbun.get(0),sepAbun.get(1));
@@ -100,8 +100,18 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                                 row.add(Double.toString(d));
                         }
 
-                        row.add(StringUtils.join(ArrayUtils.toObject(sepAbun.get(0)),",")+";"
-                                +StringUtils.join(ArrayUtils.toObject(sepAbun.get(1)),","));
+                        StringBuilder sbdata = new StringBuilder();
+                        if (sepAbun.get(0).length>0) {
+                            sbdata.append("Unaltered:");
+                            sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(0)),","));
+                            sbdata.append(';');
+                        }
+                        if (sepAbun.get(1).length>0) {
+                            sbdata.append("Altered:");
+                            sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(1)),","));
+                            sbdata.append(';');
+                        }
+                        row.add(sbdata.toString());
                     }
                     
                     table.add(row);
@@ -212,26 +222,6 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             return new double[]{unalteredMean, alteredMean, Double.NaN};
         }
     }
-    
-//    private boolean isAltered(String alteration, String type) {
-//        if (alteration.isEmpty())
-//            return false;
-//        
-//        if (type==null) // any type
-//            return true;
-//        
-//        int index = alteration.indexOf(type+";");
-//        if (index==-1)
-//            return false;
-//        
-//        if (index==0)
-//            return true;
-//        
-//        if (alteration.charAt(index-1)==';')
-//            return true;
-//        
-//        return false;
-//    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 

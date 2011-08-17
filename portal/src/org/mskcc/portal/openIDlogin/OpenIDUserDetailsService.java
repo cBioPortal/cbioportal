@@ -2,8 +2,9 @@
 package org.mskcc.portal.openIDlogin;
 
 // imports
-import org.mskcc.portal.util.Config;
-import org.mskcc.portal.oauth.OAuthClient;
+import org.mskcc.cgds.model.User;
+import org.mskcc.cgds.model.UserAuthorities;
+import org.mskcc.portal.dao.PortalUserDAO;
 
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
@@ -18,13 +19,11 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.net.URL;
 import java.util.List;
-
 
 /**
  * Custom UserDetailsService which authenticates
- * OpenID user against backend cgds database via OAuth.
+ * OpenID user against backend cgds database.
  *
  * @author Benjamin Gross
  */
@@ -34,17 +33,21 @@ public class OpenIDUserDetailsService
 	// logger
 	private static Log log = LogFactory.getLog(OpenIDUserDetailsService.class);
 
-	// ref to our OAuthConsumer
-    private OAuthClient oauthClient;
+	// ref to our user dao
+    private PortalUserDAO portalUserDAO;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param oauthClient OAuthClient
-	 */
-	public OpenIDUserDetailsService(OAuthClient oauthClient) {
-		this.oauthClient = oauthClient;
-	}
+    /**
+     * Constructor.
+     *
+     * Takes a ref to PortalUserDAO used to authenticate registered
+     * users in the database.
+     *
+     * @param portalUserDAO PortalUserDAO
+     */
+    public OpenIDUserDetailsService(PortalUserDAO portalUserDAO) {
+        this.portalUserDAO = portalUserDAO;
+    }
+          
 
     /**
      * Implementation of {@code UserDetailsService}.
@@ -102,73 +105,45 @@ public class OpenIDUserDetailsService
 
 		// check if this user exists in our backend db
 		try {
-			URL resourceURL =
-				new URL(Config.getInstance().getProperty("cgds_credentials.url") + "?email_address=" + email);
-			toReturn = extractUser(id, oauthClient.readProtectedResource(resourceURL));
-			if (toReturn != null) {
-				toReturn.setEmail(email);
-				toReturn.setName(fullName);
-			}
+            if (log.isDebugEnabled()) {
+                log.debug("loadUserDetails(), attempting to fetch portal user, email: " + email);
+            }
+            User user = portalUserDAO.getPortalUser(email);
+            if (user != null && user.isEnabled()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("loadUserDetails(), attempting to fetch portal user authorities, email: " + email);
+                }
+                UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(email);
+                if (authorities != null) {
+                    List<GrantedAuthority> grantedAuthorities =
+                        AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[0]));
+                    toReturn = new OpenIDUserDetails(id, grantedAuthorities);
+                    toReturn.setEmail(email);
+                    toReturn.setName(fullName);
+                }
+            }
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage());
+            }
+            else {
+                e.printStackTrace();
+            }
 		}
 
 		// outta here
 		if (toReturn == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("loadUserDetails(), user and/or user authorities is null, email: " + email);
+            }
 			throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
 		}
 		else {
+            if (log.isDebugEnabled()) {
+                log.debug("loadUserDetails(), successfully authenticated user, email: " + email);
+            }
 			return toReturn;
 		}
-    }
-
-	/**
-	 * Helper function to convert unformatted protectedResource
-	 * into an OpenIDUserDetails object.
-	 *
-	 * @param id String
-	 * @param content String
-	 */
-    private OpenIDUserDetails extractUser(String id, String content) {
-
-		// what we will return
-		OpenIDUserDetails toReturn = null;
-
-		// check for error/bad credentials
-		if (content == null || content.startsWith("Error:")) {
-			return null;
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug("id: " + id);
-		}
-		
-		String lines[] = content.split("\n");
-		// first line is cgds server header, second is what we are after
-		if (lines.length > 1) {
-		
-			// process: consumer-key\tconsumer-secret\tauthorites
-			String parts[] = lines[1].split("\t");
-			String consumerSecret = parts[0];
-			String authorities[] = parts[1].split(",");
-
-			// some logging
-			if (log.isDebugEnabled()) {
-				log.debug("consumerSecret: " + consumerSecret);
-				for (String authority : authorities) {
-					log.debug("authority: " + authority);
-				}
-			}
-
-			// create the OpenIDUserDetails object
-			List<GrantedAuthority> grantedAuthorities =
-				AuthorityUtils.createAuthorityList(authorities);
-			toReturn  = new OpenIDUserDetails(id, grantedAuthorities);
-			toReturn.setConsumerSecret(consumerSecret);
-		}
-
-		// outta here
-		return toReturn;
     }
 }

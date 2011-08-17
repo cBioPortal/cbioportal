@@ -60,6 +60,8 @@ public class ImportMutSigData {
                     int Indel = Integer.parseInt(parts[9]);
                     String pValue = parts[10];
                     String qValue = parts[11];
+                    String qValue2 = qValue.replace("<","");
+                    Double adjustedQValue = Double.parseDouble(qValue2);
                     CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
                     //check if gene is null, if it is, re-assign an EntrezGeneID of 0, and log to pMonitor
                     //this way data can still be found in CGDS and Gene can be manually assigned an EntrezID
@@ -67,7 +69,7 @@ public class ImportMutSigData {
                         gene = new CanonicalGene(0, hugoGeneSymbol);
                         pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);
                     }
-                    MutSig mutSig = new MutSig(cancerType, gene, rank, N, n, nVal, nVer, CpG, CandG, AandT, Indel, pValue, qValue);
+                    MutSig mutSig = new MutSig(cancerType, gene, rank, N, n, nVal, nVer, CpG, CandG, AandT, Indel, pValue, qValue, adjustedQValue);
                     DaoMutSig.addMutSig(mutSig);
                 }
             line = buf.readLine();
@@ -105,11 +107,9 @@ public class ImportMutSigData {
         String cancer_study_identifier;
         cancer_study_identifier = props.getProperty("cancer_study_identifier");
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_identifier);
-        int cancerStudyID = cancerStudy.getStudyId();
+        int cancerStudyID = cancerStudy.getInternalId();
         return cancerStudyID;
     }
-
-
 }
 
 

@@ -39,25 +39,25 @@ public class TestAccessControl extends TestCase {
     public void testVariousUtilities() throws Exception {
         setUpDBMS();
 
-        UserAccessRight userAccessRight = new UserAccessRight(user1.getEmail(), privateCancerStudy1.getStudyId());
+        UserAccessRight userAccessRight = new UserAccessRight(user1.getEmail(), privateCancerStudy1.getInternalId());
         DaoUserAccessRight.addUserAccessRight(userAccessRight);
 
-        userAccessRight = new UserAccessRight(user2.getEmail(), privateCancerStudy2.getStudyId());
+        userAccessRight = new UserAccessRight(user2.getEmail(), privateCancerStudy2.getInternalId());
         DaoUserAccessRight.addUserAccessRight(userAccessRight);
 
         // test accessControl.checkAccess
         // assertFalse( accessControl.checkAccess( "", "", CancerStudy.NO_SUCH_STUDY ) );
 
         // test access to a public study (id = 3)
-        assertTrue(accessControl.checkAccess("", "", publicCancerStudy.getCancerStudyIdentifier()));
-        assertTrue(accessControl.checkAccess(null, null, publicCancerStudy.getCancerStudyIdentifier()));
-        assertTrue(accessControl.checkAccess("blah", "blah", publicCancerStudy.getCancerStudyIdentifier()));
-        assertFalse(accessControl.checkAccess("", clearTextKey + "_NOT_KEY", privateCancerStudy1.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess("", "", publicCancerStudy.getCancerStudyStableId()));
+        assertTrue(accessControl.checkAccess(null, null, publicCancerStudy.getCancerStudyStableId()));
+        assertTrue(accessControl.checkAccess("blah", "blah", publicCancerStudy.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess("", clearTextKey + "_NOT_KEY", privateCancerStudy1.getCancerStudyStableId()));
 
-        assertTrue(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
-        assertTrue(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
-        assertFalse(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyIdentifier()));
-        assertFalse(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyIdentifier()));
+        assertTrue(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyStableId()));
+        assertTrue(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyStableId()));
 
         // test accessControl.getCancerStudies
         // just public studies
@@ -74,7 +74,7 @@ public class TestAccessControl extends TestCase {
                 studies);
 
         // no studies; delete the public one
-        DaoCancerStudy.deleteCancerStudy(publicCancerStudy.getStudyId());
+        DaoCancerStudy.deleteCancerStudy(publicCancerStudy.getInternalId());
         try {
             studies = accessControl.getCancerStudies("no such email", clearTextKey);
             fail("Should throw ProtocolException.");

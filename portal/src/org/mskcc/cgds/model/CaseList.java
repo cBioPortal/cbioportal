@@ -77,4 +77,17 @@ public class CaseList {
    public void setCaseList(ArrayList<String> caseList) {
       this.caseList = caseList;
    }
+
+    /**
+     * Gets list of all case IDs in the set as one string.
+     *
+     * @return space-delimited list of case IDs.
+     */
+    public String getCaseListAsString() {
+        StringBuffer str = new StringBuffer();
+        for (String caseId : caseList) {
+            str.append(caseId + " ");
+        }
+        return str.toString();
+    }
 }

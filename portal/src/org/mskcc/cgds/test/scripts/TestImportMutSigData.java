@@ -5,8 +5,6 @@ import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
-import org.mskcc.cgds.model.TypeOfCancer;
-import org.mskcc.cgds.scripts.ImportGeneData;
 import org.mskcc.cgds.scripts.ImportMutSigData;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
@@ -32,7 +30,7 @@ public class TestImportMutSigData extends TestCase {
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
         CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "GBM_portal", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
-        assertEquals(1, cancerStudy.getStudyId());
+        assertEquals(1, cancerStudy.getInternalId());
 
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         CanonicalGene gene = new CanonicalGene(1956, "EGFR");
@@ -53,6 +51,7 @@ public class TestImportMutSigData extends TestCase {
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertEquals("EGFR", testGene.getHugoGeneSymbol());
         assertEquals(19, mutSig.getnVal());
+        assertEquals(1E-8,mutSig.getAdjustedQValue());
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene testGene2 = daoGene.getGene("DDR2");
 
@@ -63,6 +62,4 @@ public class TestImportMutSigData extends TestCase {
 
         //daoMutSig.getAllMutSig();
     }
-
-
 }

@@ -1,60 +1,33 @@
 package org.mskcc.portal.remote;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.mskcc.portal.model.GeneticProfile;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cgds.dao.DaoCancerStudy;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 /**
- * Gets all Genetic Profiles associated with a specific cancer type.
+ * Gets all Genetic Profiles associated with a specific cancer study.
  */
 public class GetGeneticProfiles {
 
     /**
-     * Gets all Genetic Profiles associated with a specific cancer type.
+     * Gets all Genetic Profiles associated with a specific cancer study.
      *
-     * @param cancerTypeId Cancer Type ID.
+     * @param cancerStudyId Cancer Study ID.
      * @return ArrayList of GeneticProfile Objects.
-     * @throws RemoteException Remote / Network IO Error.
+     * @throws DaoException Remote / Network IO Error.
      */
-    public static ArrayList<GeneticProfile> getGeneticProfiles(String cancerTypeId, XDebug xdebug)
-            throws RemoteException {
-        ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
-        try {
-
-            // Prepare Query Parameters
-            NameValuePair[] data = {
-                    new NameValuePair(CgdsProtocol.CMD, "getGeneticProfiles"),
-                    new NameValuePair(CgdsProtocol.CANCER_STUDY_ID, cancerTypeId)
-            };
-
-            //  Parse Text Response
-            CgdsProtocol protocol = new CgdsProtocol(xdebug);
-            String content = protocol.connect(data, xdebug);
-            String lines[] = content.split("\n");
-            if (lines.length > 2) {
-                for (int i = 2; i < lines.length; i++) {
-                    String parts[] = lines[i].split("\t");
-                    String id = parts[0];
-                    String name = parts[1];
-                    String desc = parts[2];
-                    String alterationType = parts[4];
-                    boolean showInAnalysisTab = true;
-                    try {
-                        showInAnalysisTab = Boolean.parseBoolean(parts[5]);
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                    }
-                    GeneticProfile profile = new GeneticProfile(id, name,
-                            desc, alterationType, showInAnalysisTab);
-                    profileList.add(profile);
-                }
-            }
-        } catch (IOException e) {
-            throw new RemoteException("Remote Access Error", e);
+    public static ArrayList<GeneticProfile> getGeneticProfiles(String cancerStudyId)
+            throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        if (cancerStudy != null) {
+            DaoGeneticProfile daoProfile = new DaoGeneticProfile();
+            return daoProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+        } else {
+            return new ArrayList<GeneticProfile>();
         }
-        return profileList;
     }
 }

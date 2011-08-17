@@ -3,8 +3,8 @@ package org.mskcc.cgds.web_api;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.GeneticProfile;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ public class GetGeneticProfiles {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         StringBuffer buf = new StringBuffer();
         if (cancerStudy != null) {
-            int cancerStudyInternalId = cancerStudy.getStudyId();
+            int cancerStudyInternalId = cancerStudy.getInternalId();
             DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
             ArrayList<GeneticProfile> list =
                     daoGeneticProfile.getAllGeneticProfiles(cancerStudyInternalId);

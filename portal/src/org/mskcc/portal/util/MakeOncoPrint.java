@@ -1,9 +1,12 @@
 package org.mskcc.portal.util;
 
-import org.mskcc.portal.model.*;
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticProfile;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -36,7 +39,7 @@ public class MakeOncoPrint {
      * @throws IOException IO Error.
      */
     public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
-            ArrayList<CaseSet> caseSets, String caseSetId, double zScoreThreshold,
+            ArrayList<CaseList> caseSets, String caseSetId, double zScoreThreshold,
             OncoPrintType theOncoPrintType,
             boolean showAlteredColumns,
             HashSet<String> geneticProfileIdSet,
@@ -217,7 +220,7 @@ public class MakeOncoPrint {
      * @param width                     Width.
      * @param height                    Height.
      */
-    static void writeHTMLOncoPrint(ArrayList<CaseSet> caseSets, String caseSetId,
+    static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
             GeneticEvent matrix[][],
             int numColumnsToShow, boolean showAlteredColumns,
             OncoPrintSpecification theOncoPrintSpecification,
@@ -229,8 +232,8 @@ public class MakeOncoPrint {
 
         out.append("<div class=\"oncoprint\">\n");
         if (includeCaseSetDescription) {
-            for (CaseSet caseSet : caseSets) {
-                if (caseSetId.equals(caseSet.getId())) {
+            for (CaseList caseSet : caseSets) {
+                if (caseSetId.equals(caseSet.getStableId())) {
                     out.append(
                             "<p>Case Set: " + caseSet.getName()
                                     + ":  " + caseSet.getDescription() + "</p>");

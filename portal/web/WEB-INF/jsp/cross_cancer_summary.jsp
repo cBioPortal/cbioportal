@@ -1,21 +1,21 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.model.GeneticProfile" %>
-<%@ page import="org.mskcc.portal.model.CaseSet" %>
 <%@ page import="org.mskcc.portal.servlet.CrossCancerSummaryServlet" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.portal.model.ProfileDataSummary" %>
-<%@ page import="java.text.DecimalFormat" %>
 <%@ page import="org.mskcc.portal.util.MakeOncoPrint" %>
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cgds.model.CaseList" %>
+<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 
 <%
-    ArrayList<GeneticProfile> geneticProfileList = (ArrayList<GeneticProfile>)
+    ArrayList<GeneticProfile> geneticProfileList =
+            (ArrayList<GeneticProfile>)
             request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
-    HashMap<String, GeneticProfile> defaultGeneticProfileSet = (HashMap<String, GeneticProfile>)
+    HashMap<String, GeneticProfile> defaultGeneticProfileSet =
+            (HashMap<String, GeneticProfile>)
             request.getAttribute(CrossCancerSummaryServlet.DEFAULT_GENETIC_PROFILES);
-    ArrayList<CaseSet> caseSetList = (ArrayList<CaseSet>)
+    ArrayList<CaseList> caseSetList = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String defaultCaseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
 
@@ -45,8 +45,8 @@ $(document).ready(function(){
     StringBuffer gp = new StringBuffer("Genomic data shown for the following profiles:");
     gp.append ("<ul>");
     for (GeneticProfile geneticProfile:  geneticProfileList) {
-        if (defaultGeneticProfileSet.containsKey(geneticProfile.getId())) {
-           gp.append ("<li>" + geneticProfile.getName() );
+        if (defaultGeneticProfileSet.containsKey(geneticProfile.getStableId())) {
+           gp.append ("<li>" + geneticProfile.getProfileName());
         }
         gp.append ("</li>");
     }
@@ -57,8 +57,8 @@ $(document).ready(function(){
 
 <%
     StringBuffer cs = new StringBuffer ("Case set:  ");
-    for (CaseSet caseSet:  caseSetList) {
-        if (caseSet.getId().equals(defaultCaseSetId)) {
+    for (CaseList caseSet:  caseSetList) {
+        if (caseSet.getStableId().equals(defaultCaseSetId)) {
             cs.append (caseSet.getName());
         }
     }

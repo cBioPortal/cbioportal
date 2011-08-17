@@ -2,8 +2,8 @@ package org.mskcc.portal.tool.bundle;
 
 import org.mskcc.portal.model.ExtendedMutation;
 import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.util.ValueParser;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

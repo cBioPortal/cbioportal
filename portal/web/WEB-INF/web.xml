@@ -78,6 +78,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>generatePlots</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
@@ -149,6 +154,16 @@
     <servlet-mapping>
         <servlet-name>plot</servlet-name>
         <url-pattern>/plot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -142,7 +142,7 @@ public class GeneticProfileReader {
       GeneticAlterationType alterationType = GeneticAlterationType.getType(geneticAlterationTypeString);
 
       GeneticProfile geneticProfile = new GeneticProfile();
-      geneticProfile.setCancerStudyId(cancerStudy.getStudyId());
+      geneticProfile.setCancerStudyId(cancerStudy.getInternalId());
       geneticProfile.setStableId(stableId);
       geneticProfile.setProfileName(profileName);
       geneticProfile.setProfileDescription(profileDescription);

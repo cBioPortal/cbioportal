@@ -1,7 +1,6 @@
 package org.mskcc.cgds.dao;
 
 import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.CanonicalGene;
 
 import java.io.IOException;

@@ -1,7 +1,7 @@
 package org.mskcc.portal.util;
 
-import org.mskcc.portal.model.GeneticProfile;
-import org.mskcc.portal.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ public class GeneticProfileUtil {
     public static GeneticProfile getProfile(String profileId,
             ArrayList<GeneticProfile> profileList) {
         for (GeneticProfile profile : profileList) {
-            if (profile.getId().equals(profileId)) {
+            if (profile.getStableId().equals(profileId)) {
                 return profile;
             }
         }
@@ -43,9 +43,9 @@ public class GeneticProfileUtil {
         while (geneticProfileIdIterator.hasNext()) {
             String geneticProfileId = geneticProfileIdIterator.next();
             GeneticProfile geneticProfile = getProfile (geneticProfileId, profileList);
-            if (geneticProfile != null && geneticProfile.getAlterationType().
+            if (geneticProfile != null && geneticProfile.getGeneticAlterationType().
                     equals(GeneticAlterationType.MRNA_EXPRESSION)) {
-                String profileName = geneticProfile.getName();
+                String profileName = geneticProfile.getProfileName();
                 if (profileName != null) {
                     if (profileName.toLowerCase().contains("outlier")) {
                         return true;

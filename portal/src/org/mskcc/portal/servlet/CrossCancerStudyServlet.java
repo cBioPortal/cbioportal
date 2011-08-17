@@ -1,8 +1,9 @@
 package org.mskcc.portal.servlet;
 
-import org.mskcc.portal.model.CancerType;
 import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.dao.DaoException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -63,52 +64,55 @@ public class CrossCancerStudyServlet extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
+        try {
+            String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
+            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
 
-        String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
-        ArrayList<CancerType> cancerTypeList = GetCancerTypes.getCancerTypes(xdebug);
+            httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
+                    cancerStudyList.get(0).getCancerStudyStableId());
+            httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
+            httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-        httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
-                cancerTypeList.get(0).getCancerTypeId());
-        httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerTypeList);
-        httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
+            boolean errorsExist = false;
 
-        boolean errorsExist = false;
-
-        String action = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.ACTION);
-        if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
-            if (geneList == null || geneList.trim().length() == 0) {
-                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                        "Please enter at least one gene symbol below. ");
-                errorsExist = true;
-            }
-            if (geneList != null && geneList.trim().length() > 0) {
-                String geneSymbols[] = geneList.split("\\s");
-                int numGenes = 0;
-                for (String gene : geneSymbols) {
-                    if (gene.trim().length() > 0) {
-                        numGenes++;
-                    }
-                }
-                if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+            String action = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.ACTION);
+            if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
+                if (geneList == null || geneList.trim().length() == 0) {
                     httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                            "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
-                                    + " genes or less.");
+                            "Please enter at least one gene symbol below. ");
                     errorsExist = true;
                 }
-            }
-            if (errorsExist) {
+                if (geneList != null && geneList.trim().length() > 0) {
+                    String geneSymbols[] = geneList.split("\\s");
+                    int numGenes = 0;
+                    for (String gene : geneSymbols) {
+                        if (gene.trim().length() > 0) {
+                            numGenes++;
+                        }
+                    }
+                    if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
+                                        + " genes or less.");
+                        errorsExist = true;
+                    }
+                }
+                if (errorsExist) {
+                    RequestDispatcher dispatcher =
+                            getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                    dispatcher.forward(httpServletRequest, httpServletResponse);
+                } else {
+                    RequestDispatcher dispatcher =
+                            getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
+                    dispatcher.forward(httpServletRequest, httpServletResponse);
+                }
+            } else {
                 RequestDispatcher dispatcher =
                         getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                 dispatcher.forward(httpServletRequest, httpServletResponse);
-            } else {
-                RequestDispatcher dispatcher =
-                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
-                dispatcher.forward(httpServletRequest, httpServletResponse);
             }
-        } else {
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-            dispatcher.forward(httpServletRequest, httpServletResponse);
+        } catch (DaoException e) {
+            throw new ServletException (e);
         }
     }
 }

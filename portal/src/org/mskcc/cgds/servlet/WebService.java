@@ -187,6 +187,7 @@ public class WebService extends HttpServlet {
             if (cmd.equals("getMutSig")) {
                 //Provides MutSig Data
                 getMutSig(httpServletRequest, writer);
+                return;
             }
 
             //  We support the new getCancerStudies plus the deprecated getCancerTypes command
@@ -414,31 +415,28 @@ public class WebService extends HttpServlet {
      * The two latter parameters are optional.
      */
     private void getMutSig(HttpServletRequest request, PrintWriter writer)
-            throws DaoException {
-        String cancerStudyID = getCancerStudyId(request);
-        String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
-        String gene_list = request.getParameter(GENE_LIST);
-        try {
-            int cancerID = Integer.parseInt(cancerStudyID);
-            if ((q_value_threshold == null || q_value_threshold.length() == 0)
-                    && (gene_list == null || gene_list.length() == 0)) {
-                StringBuffer output = GetMutSig.GetAMutSig(cancerID);
-                writer.print(output);
-            } else if ((q_value_threshold != null || q_value_threshold.length() != 0)
-                    && (gene_list == null || gene_list.length() == 0)) {
-                StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
-                writer.print(output);
-            } else if ((q_value_threshold == null || q_value_threshold.length() == 0)
-                    && (gene_list != null || gene_list.length() != 0)) {
-                StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
-                writer.print(output);
-            } else {
-                writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
-            }
-        } catch (NumberFormatException e) {
-            writer.print("Enter a valid Cancer ID");
-        }
-    }
+               throws DaoException {
+           String cancerStudyID = getCancerStudyId(request);
+           String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
+           String gene_list = request.getParameter(GENE_LIST);
+           CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);
+           int cancerID = cancerStudy.getInternalId();
+           if (q_value_threshold == null && gene_list == null) {
+               StringBuffer output = GetMutSig.GetAMutSig(cancerID);
+               writer.print(output);
+           }
+           else if (q_value_threshold != null && gene_list == null) {
+               StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
+               writer.print(output);
+           }
+           else if (q_value_threshold == null && gene_list != null) {
+               StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
+               writer.print(output);
+           }
+           else {
+               writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
+           }
+       }
 
     private void getMutationData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
@@ -595,7 +593,7 @@ public class WebService extends HttpServlet {
                 if (aGeneticProfile != null &&
                         DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 }
             }
         }
@@ -610,7 +608,7 @@ public class WebService extends HttpServlet {
             }
             if (DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
                 cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                        (aCaseList.getCancerStudyId()).getCancerStudyIdentifier());
+                        (aCaseList.getCancerStudyId()).getCancerStudyStableId());
             } else {
                 return null;
             }
@@ -636,7 +634,7 @@ public class WebService extends HttpServlet {
                 }
                 if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier());
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 } else {
                     return null;
                 }

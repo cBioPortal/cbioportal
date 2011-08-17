@@ -14,12 +14,7 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.dao.DaoUser;
 import org.mskcc.cgds.dao.DaoUserAccessRight;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAccessRight;
+import org.mskcc.cgds.model.*;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.servlet.WebService;
@@ -88,14 +83,14 @@ public class TestWebService extends TestCase {
          "stableIdpublic\tprofileName\tprofileDescription\t3\tCOPY_NUMBER_ALTERATION\ttrue");  
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
-            WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyIdentifier()),
+            WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyStableId()),
             publicGenePro );
 
       // with bad key
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
             WebService.SECRET_KEY, "not_good_key", 
-            WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyIdentifier()),
+            WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyStableId()),
             publicGenePro );
       
       // missing email address for private study
@@ -168,7 +163,7 @@ public class TestWebService extends TestCase {
    }
    
    private String studyLine( CancerStudy cancerStudy ){
-      return cancerStudy.getCancerStudyIdentifier() + "\t" + cancerStudy.getName()
+      return cancerStudy.getCancerStudyStableId() + "\t" + cancerStudy.getName()
               + "\t" + cancerStudy.getDescription();
    }
 
@@ -223,7 +218,7 @@ public class TestWebService extends TestCase {
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
       assertTrue( studies.contains
-              (DaoCancerStudy.getCancerStudyByInternalId(privateGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (DaoCancerStudy.getCancerStudyByInternalId(privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when multiple profile_ids provided, as by getProfileData
       aNullHttpServletRequest = new NullHttpServletRequest();
@@ -232,9 +227,9 @@ public class TestWebService extends TestCase {
               + publicGeneticProfile.getStableId() );
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
       DaoCase daoCase = new DaoCase();
@@ -244,7 +239,7 @@ public class TestWebService extends TestCase {
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (publicGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       String c2 = "TCGA-54321";
       daoCase.addCase( c2, privateGeneticProfile.getGeneticProfileId() );
@@ -252,9 +247,9 @@ public class TestWebService extends TestCase {
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (publicGeneticProfile.getCancerStudyId()).getCancerStudyIdentifier()));
+              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
    }
    
    private void setUpDBMS() throws DaoException, IOException{
@@ -277,19 +272,19 @@ public class TestWebService extends TestCase {
       publicCancerStudy = new CancerStudy( "public name", "description", "study3", "brca", true );
       DaoCancerStudy.addCancerStudy(publicCancerStudy);  // 3
       
-      UserAccessRight userAccessRight = new UserAccessRight( user1.getEmail(), privateCancerStudy1.getStudyId() );
+      UserAccessRight userAccessRight = new UserAccessRight( user1.getEmail(), privateCancerStudy1.getInternalId() );
       DaoUserAccessRight.addUserAccessRight(userAccessRight);
       
       DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
       String publicSid = "stableIdpublic";
-      publicGeneticProfile = new GeneticProfile( publicSid, publicCancerStudy.getStudyId(), 
+      publicGeneticProfile = new GeneticProfile( publicSid, publicCancerStudy.getInternalId(),
                GeneticAlterationType.COPY_NUMBER_ALTERATION,
                "profileName", "profileDescription", true);
       aDaoGeneticProfile.addGeneticProfile( publicGeneticProfile );
       // have to refetch from the dbms to get the profile_id; sigh!
       publicGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId( publicSid ); 
       String privateSid = "stableIdPrivate";
-      privateGeneticProfile = new GeneticProfile( privateSid, privateCancerStudy1.getStudyId(), 
+      privateGeneticProfile = new GeneticProfile( privateSid, privateCancerStudy1.getInternalId(),
                GeneticAlterationType.COPY_NUMBER_ALTERATION,
                "profileName", "profileDescription", true);
       aDaoGeneticProfile.addGeneticProfile( privateGeneticProfile );

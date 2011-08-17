@@ -2,9 +2,9 @@ package org.mskcc.portal.tool;
 
 import java.util.HashSet;
 
-import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.util.ValueParser;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 /**
  * Render an "image" datatype, which includes a value and a link to a list of images.
@@ -24,7 +24,8 @@ public class RenderImageDataType{
 
    public static String render( String imageDatatype, ProfileData mergedProfile ){
       
-      GeneticAlterationType theGeneticAlterationType = GeneticAlterationType.getType(imageDatatype);
+      GeneticAlterationType theGeneticAlterationType =
+              GeneticAlterationType.getType(imageDatatype);
       if( null != theGeneticAlterationType ){
          StringBuffer sb = new StringBuffer();
 
@@ -170,10 +171,10 @@ public class RenderImageDataType{
          return null;
       }
       String value = null;
-      if( imageType.equals( GeneticAlterationType.PROTEIN_LEVEL.toString() ) ){
+      if( imageType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString() ) ){
          value = theValueParser.getUnparsedProteinLevelValue();
       }
-      if( imageType.equals( GeneticAlterationType.PHOSPHORYLATION.toString() ) ){
+      if( imageType.equals(GeneticAlterationType.PHOSPHORYLATION.toString() ) ){
          value = theValueParser.getUnparsedPhosphorylationValue();
       }
       return value;

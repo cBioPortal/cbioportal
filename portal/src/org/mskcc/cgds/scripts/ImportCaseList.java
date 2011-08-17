@@ -63,7 +63,7 @@ public class ImportCaseList {
 
       caseList = new CaseList();
       caseList.setStableId(stableId);
-      caseList.setCancerStudyId( theCancerStudy.getStudyId());
+      caseList.setCancerStudyId( theCancerStudy.getInternalId());
       caseList.setName(caseListName);
       caseList.setDescription(caseListDescription);
       caseList.setCaseList(caseIDsList);

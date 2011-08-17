@@ -63,7 +63,7 @@ public class DaoMutSig {
                         Integer.toString(mutSig.getnVal()), Integer.toString(mutSig.getnVer()),
                         Integer.toString(mutSig.getCpG()), Integer.toString(mutSig.getCandG()),
                         Integer.toString(mutSig.getAandT()), Integer.toString(mutSig.getIndel()),
-                        mutSig.getpValue(), mutSig.getqValue());
+                        mutSig.getpValue(), mutSig.getqValue(), Double.toString(mutSig.getAdjustedQValue()));
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
@@ -72,7 +72,7 @@ public class DaoMutSig {
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `RANK`, `BIG_N`, `SMALL_N`," +
                                     " `N_VAL`, `N_VER`, `CPG`, `C+G`, `A+T`, " +
-                                    "`INDEL`, `P_VALUE`, `Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                    "`INDEL`, `P_VALUE`, `LESS_THAN_Q_VALUE`,`Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                     pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
@@ -86,6 +86,7 @@ public class DaoMutSig {
                     pstmt.setInt(11, mutSig.getIndel());
                     pstmt.setString(12, mutSig.getpValue());
                     pstmt.setString(13, mutSig.getqValue());
+                    pstmt.setDouble(14, mutSig.getAdjustedQValue());
                     int rows = pstmt.executeUpdate();
                     //System.err.println("Normal Load: " + rows);
                     return rows;
@@ -196,6 +197,32 @@ public class DaoMutSig {
         }
     }
 
+    public ArrayList<MutSig> getAllMutSig(int cancerStudy, double qValueThreshold) throws DaoException {
+        ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ? AND Q_Value < ?");
+            pstmt.setInt(1, cancerStudy);
+            pstmt.setDouble(2,qValueThreshold);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
+                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
+                mutSigList.add(mutSig);
+            }
+            return mutSigList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
     public void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -216,7 +243,7 @@ public class DaoMutSig {
             throws SQLException, DaoException {
         MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"), gene, rs.getInt("RANK"), rs.getInt("BIG_N"),
                 rs.getInt("SMALL_N"), rs.getInt("N_VAL"), rs.getInt("N_VER"), rs.getInt("CPG"), rs.getInt("C+G"),
-                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("Q_VALUE"));
+                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("LESS_THAN_Q_VALUE"), rs.getDouble("Q_VALUE"));
         return mutSig;
     }
 

@@ -58,7 +58,7 @@ public class CancerStudy {
       this.publicStudy = publicQ;
    }
 
-   public String getCancerStudyIdentifier() {
+   public String getCancerStudyStableId() {
       return cancerStudyIdentifier;
    }
 
@@ -70,15 +70,15 @@ public class CancerStudy {
       this.typeOfCancerId = typeOfCancerId;
    }
 
-   public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+   public void setCancerStudyStablId(String cancerStudyIdentifier) {
       this.cancerStudyIdentifier = cancerStudyIdentifier;
    }
 
-   public int getStudyId() {
+   public int getInternalId() {
       return studyID;
    }
 
-   public void setStudyId(int studyId) {
+   public void setInternalId(int studyId) {
       this.studyID = studyId;
    }
 

@@ -37,10 +37,10 @@ public class TestGeneticProfileReader extends TestCase {
 
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
         ArrayList<GeneticProfile> list = daoGeneticProfile.getAllGeneticProfiles
-                (cancerStudy.getStudyId());
+                (cancerStudy.getInternalId());
         geneticProfile = list.get(0);
 
-        assertEquals(cancerStudy.getStudyId(), geneticProfile.getCancerStudyId());
+        assertEquals(cancerStudy.getInternalId(), geneticProfile.getCancerStudyId());
         assertEquals("Barry's CNA Data", geneticProfile.getProfileName());
         assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());

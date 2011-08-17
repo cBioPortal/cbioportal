@@ -41,23 +41,18 @@ public class GetMutSig {
     * to retrieve only a specific number of Genes.
     */
 
-    public static StringBuffer GetAMutSig(int cancerStudy, String q_Value_or_Gene_List, Boolean foo)
+    public static StringBuffer GetAMutSig(int cancerStudy, String q_Value_or_Gene_List, Boolean qOrGene)
             throws DaoException, NumberFormatException {
         StringBuffer toReturn = header(new StringBuffer());
         //code for Q Value Threshold
-        if (foo) {
+        if (qOrGene) {
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
-            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy);
+            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy, Double.parseDouble(q_Value_or_Gene_List));
             for (int i = 0; i < mutSigList.size(); i++) {
-                MutSig tempMutSig = mutSigList.get(i);
-                String str = tempMutSig.getqValue();
-                str = str.replace("<", "");
-                //Only return rows with a Q value less than specified threshold
-                if (Double.parseDouble(str) <= Double.parseDouble(q_Value_or_Gene_List))
-                    toReturn.append(parseMutSig(mutSigList.get(i)));
+            toReturn.append(parseMutSig(mutSigList.get(i)));
             }
             //code for Gene List
-        } else if (!foo) {
+        } else if (!qOrGene) {
             Pattern p = Pattern.compile("[,\\s]+");
             String genes[] = p.split(q_Value_or_Gene_List);
             for (String gene : genes) {
@@ -79,6 +74,7 @@ public class GetMutSig {
         toReturn += Integer.toString(mutSig.getCancerType()) + "\t";
         CanonicalGene gene = mutSig.getCanonicalGene();
         toReturn += Long.toString(gene.getEntrezGeneId()) + "\t";
+        toReturn += gene.getHugoGeneSymbol() + "\t";
         toReturn += Integer.toString(mutSig.getRank()) + "\t";
         toReturn += Integer.toString(mutSig.getN()) + "\t";
         toReturn += Integer.toString(mutSig.getn()) + "\t";
@@ -94,9 +90,7 @@ public class GetMutSig {
     }
 
     private static StringBuffer header(StringBuffer stringBuffer){
-        stringBuffer.append("Cancer\tGene\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq\n");
+        stringBuffer.append("Cancer\tEntrez\tHugo\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq\n");
         return stringBuffer;
     }
 }
-
-

@@ -20,41 +20,41 @@ public class TestDaoCancerStudy extends TestCase{
 
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "brca", false );
       DaoCancerStudy.addCancerStudy(cancerStudy);
-      assertEquals( 1, cancerStudy.getStudyId() ); //   `CANCER_STUDY_ID` auto_increment counts from 1
+      assertEquals( 1, cancerStudy.getInternalId() ); //   `CANCER_STUDY_ID` auto_increment counts from 1
 
       cancerStudy.setName("Breast");
-      cancerStudy.setCancerStudyIdentifier( "breast" );
+      cancerStudy.setCancerStudyStablId( "breast" );
       cancerStudy.setDescription("Breast Description");
       DaoCancerStudy.addCancerStudy(cancerStudy);
-      assertEquals( 2, cancerStudy.getStudyId() ); //   
+      assertEquals( 2, cancerStudy.getInternalId() ); //
 
       ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
       assertEquals(2, list.size());
 
       cancerStudy = list.get(0);
-      assertEquals("gbm", cancerStudy.getCancerStudyIdentifier());
+      assertEquals("gbm", cancerStudy.getCancerStudyStableId());
       assertEquals("GBM", cancerStudy.getName());
       assertEquals("GBM Description", cancerStudy.getDescription() );
-      assertEquals( 1, cancerStudy.getStudyId());
+      assertEquals( 1, cancerStudy.getInternalId());
 
       cancerStudy = list.get(1);
-      assertEquals( 2, cancerStudy.getStudyId());
+      assertEquals( 2, cancerStudy.getInternalId());
       assertEquals("Breast Description", cancerStudy.getDescription() );
       assertEquals("Breast", cancerStudy.getName());
 
       cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
-      assertEquals("gbm", cancerStudy.getCancerStudyIdentifier());
+      assertEquals("gbm", cancerStudy.getCancerStudyStableId());
       assertEquals("GBM", cancerStudy.getName());
       assertEquals("GBM Description", cancerStudy.getDescription() );
 
       assertEquals( null, DaoCancerStudy.getCancerStudyByStableId("no such study") );
-      assertTrue( DaoCancerStudy.doesCancerStudyExistByStableId( cancerStudy.getCancerStudyIdentifier() ) );
+      assertTrue( DaoCancerStudy.doesCancerStudyExistByStableId( cancerStudy.getCancerStudyStableId() ) );
       assertFalse( DaoCancerStudy.doesCancerStudyExistByStableId( "no such study" ) );
 
-      assertTrue( DaoCancerStudy.doesCancerStudyExistByInternalId( cancerStudy.getStudyId() ) );
+      assertTrue( DaoCancerStudy.doesCancerStudyExistByInternalId( cancerStudy.getInternalId() ) );
       assertFalse( DaoCancerStudy.doesCancerStudyExistByInternalId( -1 ) );
       
-      DaoCancerStudy.deleteCancerStudy( cancerStudy.getStudyId() );
+      DaoCancerStudy.deleteCancerStudy( cancerStudy.getInternalId() );
 
       list = DaoCancerStudy.getAllCancerStudies();
       assertEquals(1, list.size());
@@ -78,25 +78,25 @@ public class TestDaoCancerStudy extends TestCase{
       assertEquals(3, list.size());
 
       cancerStudy = list.get(0);
-      assertEquals(1, cancerStudy.getStudyId() );
+      assertEquals(1, cancerStudy.getInternalId() );
       assertEquals("GBM Description", cancerStudy1.getDescription());
       assertEquals("GBM public study x", cancerStudy1.getName());
       assertEquals(true, cancerStudy1.isPublicStudy());
 
       cancerStudy1 = list.get(1);
-      assertEquals(2, cancerStudy1.getStudyId());
+      assertEquals(2, cancerStudy1.getInternalId());
       assertEquals("GBM private study x", cancerStudy1.getName());
       assertEquals("GBM Description 2", cancerStudy1.getDescription());
       assertEquals(false, cancerStudy1.isPublicStudy());
 
       cancerStudy1 = list.get(2);
-      assertEquals(3, cancerStudy1.getStudyId());
+      assertEquals(3, cancerStudy1.getInternalId());
       assertEquals("Breast", cancerStudy1.getName());
       assertEquals("Breast Description", cancerStudy1.getDescription());
       assertEquals(false, cancerStudy1.isPublicStudy());
 
       cancerStudy1 = DaoCancerStudy.getCancerStudyByInternalId(1);
-      assertEquals(1, cancerStudy1.getStudyId());
+      assertEquals(1, cancerStudy1.getInternalId());
       assertEquals("GBM Description", cancerStudy1.getDescription());
       assertEquals("GBM public study x", cancerStudy1.getName());
       assertEquals(true, cancerStudy1.isPublicStudy());

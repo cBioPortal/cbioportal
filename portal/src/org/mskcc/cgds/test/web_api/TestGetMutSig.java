@@ -42,8 +42,8 @@ public class TestGetMutSig extends TestCase {
         assertEquals("EGFR", gene.getHugoGeneSymbol());
         assertEquals(4921, gene2.getEntrezGeneId());
 
-        MutSig mutSig = new MutSig(1, gene, 1,502500, 20, 19, 1, 4, 13, 3, 0, "<1E-11", "<1E-8");
-        MutSig mutSig2 = new MutSig(1, gene2, 15, 273743, 3, 3, 0, 1, 2, 0, 0, "0.0014", "0.13");
+        MutSig mutSig = new MutSig(1, gene, 1,502500, 20, 19, 1, 4, 13, 3, 0, "<1E-11", "<1E-8", 1E-8);
+        MutSig mutSig2 = new MutSig(1, gene2, 15, 273743, 3, 3, 0, 1, 2, 0, 0, "0.0014", "0.13",0.13);
         assertEquals("<1E-11",mutSig.getpValue());
         assertEquals("0.13", mutSig2.getqValue());
 

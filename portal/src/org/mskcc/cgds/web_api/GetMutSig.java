@@ -47,14 +47,9 @@ public class GetMutSig {
         //code for Q Value Threshold
         if (foo) {
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
-            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy);
+            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy, Double.parseDouble(q_Value_or_Gene_List));
             for (int i = 0; i < mutSigList.size(); i++) {
-                MutSig tempMutSig = mutSigList.get(i);
-                String str = tempMutSig.getqValue();
-                str = str.replace("<", "");
-                //Only return rows with a Q value less than specified threshold
-                if (Double.parseDouble(str) <= Double.parseDouble(q_Value_or_Gene_List))
-                    toReturn.append(parseMutSig(mutSigList.get(i)));
+            toReturn.append(parseMutSig(mutSigList.get(i)));
             }
             //code for Gene List
         } else if (!foo) {
@@ -98,5 +93,3 @@ public class GetMutSig {
         return stringBuffer;
     }
 }
-
-

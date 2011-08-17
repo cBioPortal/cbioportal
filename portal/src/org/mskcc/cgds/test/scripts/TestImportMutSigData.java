@@ -51,6 +51,7 @@ public class TestImportMutSigData extends TestCase {
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertEquals("EGFR", testGene.getHugoGeneSymbol());
         assertEquals(19, mutSig.getnVal());
+        assertEquals(1E-8,mutSig.getAdjustedQValue());
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene testGene2 = daoGene.getGene("DDR2");
 
@@ -61,6 +62,4 @@ public class TestImportMutSigData extends TestCase {
 
         //daoMutSig.getAllMutSig();
     }
-
-
 }

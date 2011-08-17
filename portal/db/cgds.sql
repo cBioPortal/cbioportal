@@ -307,7 +307,8 @@ CREATE TABLE IF NOT EXISTS `mut_sig` (
   `A+T` int(11) NOT NULL,
   `INDEL` int(11) NOT NULL,
   `P_VALUE` varchar(30) NOT NULL,
-  `Q_VALUE` varchar(30) NOT NULL
+  `<Q_VALUE` varchar(30) NOT NULL,
+  `Q_VALUE` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `protein_array_info` (

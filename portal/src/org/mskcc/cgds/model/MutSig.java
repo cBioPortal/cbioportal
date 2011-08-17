@@ -27,9 +27,10 @@ public class MutSig {
     private int Indel;
     private String pValue;
     private String qValue;
+    private Double adjustedQValue;
 
     public MutSig(int cancerType, CanonicalGene canonicalGene, int rank, int N, int n, int nVal, int nVer, int CpG,
-                  int CandG, int AandT, int Indel, String pValue, String qValue) {
+                  int CandG, int AandT, int Indel, String pValue, String qValue, Double adjustedQValue) {
         this.cancerType = cancerType;
         this.rank = rank;
         this.canonicalGene = canonicalGene;
@@ -43,6 +44,7 @@ public class MutSig {
         this.Indel = Indel;
         this.pValue = pValue;
         this.qValue = qValue;
+        this.adjustedQValue = adjustedQValue;
     }
 
     /*
@@ -106,5 +108,9 @@ public class MutSig {
 
     public String getqValue() {
         return qValue;
+    }
+
+    public Double getAdjustedQValue(){
+        return adjustedQValue;
     }
 }

@@ -3,7 +3,6 @@ package org.mskcc.cgds.util;
 
 // imports
 import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.dao.DaoUserAccessRight;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,9 +17,9 @@ import java.io.Serializable;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a
- * particular user has access to a particular cancer study.  Current,
- * we just use DaoUserAccessRight.  We should probably change to true ACL
- * in the future.
+ * particular user has access to a particular cancer study.
+ *
+ * Anonymous users will only get access to public studies.
  *
  * @author Benjamin Gross
  */
@@ -52,20 +51,41 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 			else {
 				log.debug("hasPermission(), cancer study id: " + cancerStudy.getStudyId());
 			}
+            if (authentication == null) {
+                log.debug("hasPermission(), authentication is null, " +
+                          "permission granted only if cancer study is public.");
+            }
 		}
 
+        // nothing to do if cancer study is null,
+        // return false as spring-security document specifies
 		if (cancerStudy == null) {
 			return false;
 		}
 
+        boolean publicStudy = cancerStudy.isPublicStudy();
+        if (log.isDebugEnabled()) {
+            log.debug("hasPermission(), public study: " + publicStudy);
+        }
+
+        // if public study or
+        // public study and authentication is null (anonymous user)
+        // bypass granted authorities check
+        if (publicStudy || (publicStudy && authentication == null)) {
+            return true;
+        }
+        // private study and anonymous user does not get permission
+        else if (!publicStudy && authentication == null) {
+            return false;
+        }
+
 		if (log.isDebugEnabled()) {
 			UserDetails userDetails = (UserDetails)authentication.getPrincipal();
-			log.debug("username: " + userDetails.getUsername());
-			log.debug("hasPermission(), public study: " + cancerStudy.isPublicStudy());
+			log.debug("hasPermission(), username: " + userDetails.getUsername());
 		}
 
         // does UserAccessRight contain user, studyId?
-        //return DaoUserAccessRight.containsUserAccessRightsByEmailAndStudy(email, cancerStudy.getStudyId());
+        // - compare this cancer study with authorities
 
 		// outta here
 		return true;

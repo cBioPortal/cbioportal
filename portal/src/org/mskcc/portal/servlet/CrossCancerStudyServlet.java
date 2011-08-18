@@ -1,10 +1,12 @@
 package org.mskcc.portal.servlet;
 
-import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.owasp.validator.html.PolicyException;
+
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -12,7 +14,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.
@@ -22,6 +27,20 @@ import java.util.ArrayList;
 public class CrossCancerStudyServlet extends HttpServlet {
 
     private ServletXssUtil servletXssUtil;
+
+    // ref to access control
+    private AccessControl accessControl;
+
+    /**
+     * Constructor.
+     */
+    public CrossCancerStudyServlet() {
+
+        // setup our context and init some beans
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+        accessControl = (AccessControl) context.getBean("accessControl");
+    }
 
     /**
      * Initializes the servlet.
@@ -66,7 +85,8 @@ public class CrossCancerStudyServlet extends HttpServlet {
         xdebug.startTimer();
         try {
             String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
-            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
+
+            List<CancerStudy> cancerStudyList = accessControl.getCancerStudiesAsList();
 
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
                     cancerStudyList.get(0).getCancerStudyStableId());
@@ -113,6 +133,8 @@ public class CrossCancerStudyServlet extends HttpServlet {
             }
         } catch (DaoException e) {
             throw new ServletException (e);
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
         }
     }
 }

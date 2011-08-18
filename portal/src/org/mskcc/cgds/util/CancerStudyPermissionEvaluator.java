@@ -49,7 +49,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				log.debug("hasPermission(), cancer study is null.");
 			}
 			else {
-				log.debug("hasPermission(), cancer study id: " + cancerStudy.getStudyId());
+				log.debug("hasPermission(), cancer study id (internal ID): " + cancerStudy.getInternalId());
 			}
             if (authentication == null) {
                 log.debug("hasPermission(), authentication is null, " +

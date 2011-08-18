@@ -1,6 +1,6 @@
 package org.mskcc.portal.tool;
 
-import org.mskcc.portal.model.ExtendedMutation;
+import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.tool.bundle.Bundle;
 import org.mskcc.portal.tool.bundle.BundleHelper;

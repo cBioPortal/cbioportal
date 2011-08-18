@@ -4,7 +4,7 @@ import org.mskcc.portal.tool.bundle.BundleFactory;
 import org.mskcc.portal.tool.bundle.Bundle;
 import org.mskcc.portal.tool.bundle.GeneRequest;
 import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.ExtendedMutation;
+import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetProfileData;

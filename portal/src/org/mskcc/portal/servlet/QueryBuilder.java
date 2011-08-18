@@ -27,6 +27,7 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
 import org.owasp.validator.html.PolicyException;
 
@@ -300,7 +301,7 @@ public class QueryBuilder extends HttpServlet {
                                 ServletContext servletContext, HttpServletRequest request,
                                 HttpServletResponse response,
                                 XDebug xdebug)
-            throws IOException, ServletException {
+            throws IOException, ServletException, DaoException {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);

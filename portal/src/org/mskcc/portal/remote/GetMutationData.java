@@ -2,7 +2,7 @@ package org.mskcc.portal.remote;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
-import org.mskcc.portal.model.ExtendedMutation;
+import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.cgds.model.GeneticProfile;
 

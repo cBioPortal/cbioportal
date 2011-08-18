@@ -417,6 +417,8 @@ public class WebService extends HttpServlet {
     private void getMutSig(HttpServletRequest request, PrintWriter writer)
                throws DaoException {
            String cancerStudyID = getCancerStudyId(request);
+           if ((cancerStudyID == null) || (cancerStudyID.length() == 0))
+               writer.print("Please enter a Cancer Type");
            String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
            String gene_list = request.getParameter(GENE_LIST);
            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);

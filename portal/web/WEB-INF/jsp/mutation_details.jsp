@@ -1,5 +1,5 @@
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.portal.model.ExtendedMutation" %>
+<%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>

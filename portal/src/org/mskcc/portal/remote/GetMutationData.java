@@ -1,13 +1,14 @@
 package org.mskcc.portal.remote;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.dao.DaoMutation;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.cgds.model.GeneticProfile;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 /**
@@ -28,93 +29,29 @@ public class GetMutationData {
      * @throws java.rmi.RemoteException Remote / Network IO Error.
      */
     public ArrayList <ExtendedMutation> getMutationData(GeneticProfile profile,
-                ArrayList<String> geneList, String caseIds, XDebug xdebug) throws RemoteException {
-
-        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
-        //  Prepare gene list
-        StringBuffer geneBuf = new StringBuffer();
-        for (String gene : geneList) {
-            geneBuf.append(gene + " ");
-        }
-
-        //  Connect to remote server
+                ArrayList<String> geneList, String caseIds, XDebug xdebug) throws DaoException {
         try {
-            //  Prepare query parameters
-            NameValuePair[] data = {
-                    new NameValuePair(CgdsProtocol.CMD, "getMutationData"),
-                    new NameValuePair("genetic_profile_id", profile.getStableId()),
-                    new NameValuePair("gene_list", geneBuf.toString()),
-                    new NameValuePair("id_type", "gene_symbol"),
-                    new NameValuePair(CgdsProtocol.CASE_LIST, caseIds)
-            };
-
-            //  Connect and get response
-            CgdsProtocol protocol = new CgdsProtocol(xdebug);
-            content = protocol.connect(data, xdebug);
-            uri = protocol.getURI();
-            String lines[] = content.split("\n");
-
-            //  Determine where real data starts
-            int startData = -1;
-            for (int i = 0; i < lines.length; i++) {
-                String line = lines[i];
-                if (!line.startsWith("#")) {
-                    startData = i;
-                    break;
-                } else {
-                    if (line.startsWith("# Warning")) {
-                        line = line.replaceAll("# Warning:  ", "");
-                        warningList.add(line);
-                    }
-                }
+        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        ArrayList<Long> entrezIDList= new ArrayList<Long>();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        DaoMutation daoMutation = DaoMutation.getInstance();
+        int GeneticProfile = profile.getGeneticProfileId();
+        //convert HUGOGENE List to ENTREZIDGENE List
+        for (String gene : geneList) {
+            CanonicalGene canonicalGene = daoGeneOptimized.getGene(gene);
+            Long EntrezGeneID = canonicalGene.getEntrezGeneId();
+            entrezIDList.add((EntrezGeneID));
+        }
+        //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
+        for (Long entrezID : entrezIDList){
+            ArrayList<ExtendedMutation> tempMutationList = daoMutation.getMutations(GeneticProfile, entrezID);
+            for (ExtendedMutation mutation : tempMutationList){
+                mutationList.add(mutation);
             }
-
-            //  Parse the profile data
-            if (lines.length > 3) {
-                for (int i = startData+1; i < lines.length; i++) {
-                    String parts[] = lines[i].split("\t");
-                    ExtendedMutation mutation = new ExtendedMutation();
-
-                    String entrezGeneId = parts[0];
-                    String geneSymbol = parts[1];
-                    String caseId = parts[2];
-                    String center = parts[3];
-                    String mutationStatus = parts[4];
-                    String mutationType = parts[5];
-                    String validationStatus = parts[6];
-                    String aminoAcidChange = parts[7];
-                    String functionalImpactScore = parts[8].trim();
-                    String xvarLink = parts[9].trim();
-                    String xvarLinkPdb = parts[10].trim();
-                    String xvarLinkMsa = parts[11].trim();
-                    String chr = parts[12].trim();
-                    String startPosition = parts[13].trim();
-                    String endPosition = parts[14].trim();
-
-                    mutation.setGeneSymbol(geneSymbol);
-                    mutation.setEntrezGeneId(Integer.parseInt(entrezGeneId));
-                    mutation.setCaseId(caseId);
-                    mutation.setCenter(center);
-                    mutation.setMutationStatus(mutationStatus);
-                    mutation.setMutationType(mutationType);
-                    mutation.setValidationStatus(validationStatus);
-                    mutation.setAminoAcidChange(aminoAcidChange);
-                    mutation.setFunctionalImpactScore(functionalImpactScore);
-                    mutation.setLinkXVar(xvarLink);
-                    mutation.setLinkPdb(xvarLinkPdb);
-                    mutation.setLinkMsa(xvarLinkMsa);
-                    mutation.setChr(chr);
-                    try {
-                        mutation.setStartPosition(Long.parseLong(startPosition));
-                        mutation.setEndPosition(Long.parseLong(endPosition));
-                    } catch (NumberFormatException e) {
-                    }
-                    mutationList.add(mutation);
-                }
-                return mutationList;
-            }
-        } catch (IOException e) {
-            throw new RemoteException("Remote Access Error", e);
+        }
+          return mutationList;
+        } catch (DaoException e) {
+          System.err.println("Database Error: " + e.getMessage());
         }
         return null;
     }

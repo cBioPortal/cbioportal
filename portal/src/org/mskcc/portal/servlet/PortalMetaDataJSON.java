@@ -8,13 +8,11 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.model.GeneSet;
+import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.util.GeneSetUtil;
 import org.mskcc.portal.util.XDebug;
-
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,10 +23,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.List;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all
@@ -37,20 +31,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Ethan Cerami.
  */
 public class PortalMetaDataJSON extends HttpServlet {
-
-    // ref to access control
-    private AccessControl accessControl;
-
-    /**
-     * Constructor.
-     */
-    public PortalMetaDataJSON() {
-
-        // setup our context and init some beans
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
-    }
 
     /**
      * Handles HTTP GET Request.
@@ -67,7 +47,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 
         //  Cancer All Cancer Studies
         try {
-            List<CancerStudy> cancerStudiesList = accessControl.getCancerStudiesAsList();
+            ArrayList<CancerStudy> cancerStudiesList = GetCancerTypes.getCancerStudies();
 
             //  Get all Genomic Profiles and Case Sets for each Cancer Study
             Map rootMap = new LinkedHashMap();
@@ -126,8 +106,6 @@ public class PortalMetaDataJSON extends HttpServlet {
             writer.flush();
             writer.close();
         } catch (DaoException e) {
-            throw new ServletException(e);
-        } catch (ProtocolException e) {
             throw new ServletException(e);
         }
     }

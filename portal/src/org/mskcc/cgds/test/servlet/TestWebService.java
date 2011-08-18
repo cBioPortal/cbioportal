@@ -52,23 +52,12 @@ public class TestWebService extends TestCase {
       // bad command
       checkRequest( mkStringArray( WebService.CMD, "badCommand" ), "Error: 'badCommand' not a valid command." );
       
+      /* TBD: Recoded when we provide granualar access
       // public studies
       String[] publicStudies = mkStringArray( "cancer_study_id\tname\tdescription", 
                studyLine( publicCancerStudy ) );
       checkRequest( mkStringArray( WebService.CMD, "getCancerStudies" ), publicStudies );
-      checkRequest( mkStringArray( WebService.CMD, "getCancerStudies", WebService.EMAIL_ADDRESS, "no such email" ), publicStudies );
-      checkRequest( mkStringArray( WebService.CMD, "getCancerStudies", WebService.SECRET_KEY, "no such key" ), publicStudies );
-      
-      // public and private studies
-      String[] publicAndPrivateStudiesFor1 = mkStringArray( "cancer_study_id\tname\tdescription", 
-            studyLine( privateCancerStudy1 ),
-            studyLine( publicCancerStudy )
-            );
-      checkRequest( mkStringArray( 
-            WebService.CMD, "getCancerStudies", 
-            WebService.EMAIL_ADDRESS, user1.getEmail(),
-            WebService.SECRET_KEY, cleartextPwd ),
-            publicAndPrivateStudiesFor1 );
+      */
       
       // no cancer_study_id for "getGeneticProfiles" 
       checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles" ), 
@@ -86,6 +75,7 @@ public class TestWebService extends TestCase {
             WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyStableId()),
             publicGenePro );
 
+      /* TBD: Recoded when we provide granualar access
       // with bad key
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
@@ -125,7 +115,7 @@ public class TestWebService extends TestCase {
             WebService.EMAIL_ADDRESS, user1.getEmail() 
             ), 
             mkStringArray( privateGenePro1 ) );
-
+      */
    }
    
    private void checkRequest( String[] requestFields, String... responseLines ) throws IOException{
@@ -272,8 +262,8 @@ public class TestWebService extends TestCase {
       publicCancerStudy = new CancerStudy( "public name", "description", "study3", "brca", true );
       DaoCancerStudy.addCancerStudy(publicCancerStudy);  // 3
       
-      UserAccessRight userAccessRight = new UserAccessRight( user1.getEmail(), privateCancerStudy1.getInternalId() );
-      DaoUserAccessRight.addUserAccessRight(userAccessRight);
+      //UserAccessRight userAccessRight = new UserAccessRight( user1.getEmail(), privateCancerStudy1.getInternalId() );
+      //DaoUserAccessRight.addUserAccessRight(userAccessRight);
       
       DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
       String publicSid = "stableIdpublic";
@@ -289,9 +279,6 @@ public class TestWebService extends TestCase {
                "profileName", "profileDescription", true);
       aDaoGeneticProfile.addGeneticProfile( privateGeneticProfile );
       privateGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(privateSid);
-
-      cleartextPwd = "SillyKey";
-      accessControl.createSecretKey(cleartextPwd);
    }
    
 }

@@ -8,7 +8,6 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.mskcc.portal.openIDlogin.PortalAccessControl;
 import org.mskcc.portal.util.Config;
 import org.mskcc.portal.util.SkinUtil;
 import org.mskcc.portal.util.ResponseUtil;
@@ -64,22 +63,7 @@ public class CgdsProtocol {
      */
     public String connect( NameValuePair[] data, XDebug xdebug ) throws IOException {
 
-       // ACCESS CONTROL: IF EMAIL SET, ADD IT AND KEY TO data
-		//data = PortalAccessControl.addAccessParams( xdebug.getRequest(), data );
-       /*
-        * Debugging
-        * CAUTION: THESE MESSAGES CONTAIN THE SECRET KEY
-
-       System.err.println("\nIssuing CGDS request");
-       for( StackTraceElement ste : Thread.currentThread().getStackTrace() ){
-          System.err.println( ste.toString() );
-       }
-       System.err.println( PortalAccessControl.urlRequest(data) );
-
-       PortalAccessControl.createDebugMessages( this, xdebug, data );
-        */
-        
-       //  Create a key, based on the NameValuePair[] data
+        //  Create a key, based on the NameValuePair[] data
         String key = createKey(data);
         xdebug.logMsg(this, "Using Cache Key:  " + key);
 
@@ -87,8 +71,6 @@ public class CgdsProtocol {
         CacheManager singletonManager = CacheManager.getInstance();
         Cache memoryCache = singletonManager.getCache("memory_cache");
         xdebug.logMsg(this, "Cache Status:  " + memoryCache.getStatus().toString());
-
-        // TODO: Later: ACCESS CONTROL: DECIDE WHETHER WE WANT TO PUT PRIVATE DATA IN THE cache
 
         //  If Content is found in cache, return it
         Element element = memoryCache.get(key);

@@ -28,15 +28,9 @@ public class TestAccessControl extends TestCase {
     String clearTextKey;
 	AccessControl accessControl = new AccessControlImpl();
 
-    public void testSecretKeys() throws Exception {
-        ResetDatabase.resetDatabase();
-        clearTextKey = "aSecretKey";
-        assertFalse(accessControl.checkKey(clearTextKey));
-        accessControl.createSecretKey(clearTextKey);
-        assertTrue(accessControl.checkKey(clearTextKey));
-    }
-
     public void testVariousUtilities() throws Exception {
+        /* TBD: Recoded when we provide granualar access
+
         setUpDBMS();
 
         UserAccessRight userAccessRight = new UserAccessRight(user1.getEmail(), privateCancerStudy1.getInternalId());
@@ -84,9 +78,11 @@ public class TestAccessControl extends TestCase {
                     e.getMsg());
 
         }
+        */
     }
 
     private void setUpDBMS() throws DaoException, IOException {
+        /*
         ResetDatabase.resetDatabase();
 
         user1 = new User("artg@gmail.com", "Arthur", true);
@@ -109,6 +105,6 @@ public class TestAccessControl extends TestCase {
         clearTextKey = "aSecretKey";
         accessControl.createSecretKey(clearTextKey);
         accessControl.createSecretKey("another Example key");
-
+        */
     }
 }

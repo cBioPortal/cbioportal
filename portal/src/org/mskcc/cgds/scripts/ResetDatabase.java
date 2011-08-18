@@ -22,9 +22,8 @@ public class ResetDatabase {
      */
     public static void resetAnySizeDatabase() throws DaoException {
 
-        DaoSecretKey.deleteAllRecords();
         DaoUser.deleteAllRecords();
-        DaoUserAccessRight.deleteAllRecords();
+        //DaoUserAccessRight.deleteAllRecords();
         DaoTypeOfCancer.deleteAllRecords();
         DaoCancerStudy.deleteAllRecords();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
@@ -56,13 +55,6 @@ public class ResetDatabase {
         DaoProteinArrayData.getInstance().deleteAllRecords();
         DaoProteinArrayInfo.getInstance().deleteAllRecords();
         DaoProteinArrayTarget.getInstance().deleteAllRecords();
-
-        // No production keys stored in filesystem or code: digest the key; put it in properties; load it into dbms on startup
-        DatabaseProperties databaseProperties = DatabaseProperties.getInstance();
-        SecretKey secretKey = new SecretKey();
-        secretKey.setEncryptedKey(databaseProperties.getDbEncryptedKey());
-        DaoSecretKey.addSecretKey(secretKey);
-
     }
 
     public static void resetDatabase() throws DaoException {

@@ -23,9 +23,9 @@ import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.cgds.util.DatabaseProperties;
 import org.mskcc.cgds.web_api.GetCaseLists;
+import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.GetClinicalData;
 import org.mskcc.cgds.web_api.GetGeneticProfiles;
 import org.mskcc.cgds.web_api.GetMutationData;
@@ -37,9 +37,6 @@ import org.mskcc.cgds.web_api.GetProteinArrayData;
 import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Core Web Service.
@@ -64,20 +61,6 @@ public class WebService extends HttpServlet {
     public static final String SECRET_KEY = "secret_key";
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
-
-    // ref to access control
-    private AccessControl accessControl;
-
-    /**
-     * Constructor.
-     */
-    public WebService() {
-
-        // setup our context and init some beans
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
-    }
 
     /**
      * Shutdown the Servlet.
@@ -166,12 +149,10 @@ public class WebService extends HttpServlet {
             }
 
             if (cmd.equals("getTypesOfCancer")) {
-                // getTypesOfCancer requires no access control
                 getTypesOfCancer(writer);
                 return;
             }
             if (cmd.equals("getNetwork")) {
-                // getNetwork doesn't access any data; so no access control needed
                 getNetwork(httpServletRequest, writer);
                 return;
             }
@@ -185,16 +166,12 @@ public class WebService extends HttpServlet {
                 return;
             }
             if (cmd.equals("getMutSig")) {
-                //Provides MutSig Data
                 getMutSig(httpServletRequest, writer);
                 return;
             }
 
             //  We support the new getCancerStudies plus the deprecated getCancerTypes command
             if (cmd.equals("getCancerStudies") || cmd.equals("getCancerTypes")) {
-
-                // getCancerStudies requires special access control
-                // identify every study accessible to the user
                 getCancerStudies(httpServletRequest, writer);
                 return;
             }
@@ -226,21 +203,6 @@ public class WebService extends HttpServlet {
                 }
             }
 
-            // check access control
-            for (String cancerStudyID : cancerStudyIDs) {
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);
-                if (!checkAccess(httpServletRequest, writer, cancerStudyID)) {
-
-                    // access denied
-                    outputError(writer, "User cannot access the cancer study called '" + cancerStudy.getName()
-                            + "'. Please provide credentials to access private data.");
-                    return;
-                }
-            }
-
-            // IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-            // all web api commands that access private data (except getcancerstudies, which is a special case)
-            // must be placed AFTER this comment, so that the user's right to access the data is verified
             if (cmd.equals("getGeneticProfiles")) {
                 // PROVIDES CANCER_STUDY_ID
                 getGeneticProfiles(httpServletRequest, writer);
@@ -333,13 +295,8 @@ public class WebService extends HttpServlet {
 
     private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
             ProtocolException {
-        String out = accessControl.getCancerStudiesAsTable();
+        String out = GetTypesOfCancer.getCancerStudies();
         writer.print(out);
-    }
-
-    private boolean checkAccess(HttpServletRequest httpServletRequest, PrintWriter writer,
-                                String stableStudyId) throws DaoException {
-        return accessControl.checkAccess(stableStudyId);
     }
 
     private void getMutationFrequency(HttpServletRequest httpServletRequest, PrintWriter writer)

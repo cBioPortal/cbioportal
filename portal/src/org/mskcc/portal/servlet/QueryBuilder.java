@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -29,12 +28,7 @@ import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Central Servlet for building queries.
@@ -88,20 +82,6 @@ public class QueryBuilder extends HttpServlet {
 
     private ServletXssUtil servletXssUtil;
 
-    // ref to access control
-    private AccessControl accessControl;
-
-    /**
-     * Constructor.
-     */
-    public QueryBuilder() {
-
-        // setup our context and init some beans
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
-    }
-
     /**
      * Initializes the servlet.
      *
@@ -149,119 +129,97 @@ public class QueryBuilder extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();
-        boolean userIsAuthenticated = false;
-        if (SkinUtil.usersMustAuthenticate()) {
-            userIsAuthenticated = UserInfo.isUserAuthenticated(httpServletRequest);
-        } else {
-           userIsAuthenticated = true;
+
+        xdebug.logMsg(this, "Attempting to initiate new user query.");
+        
+        if (httpServletRequest.getRequestURL() != null) {
+            httpServletRequest.setAttribute(ATTRIBUTE_URL_BEFORE_FORWARDING,
+                                            httpServletRequest.getRequestURL().toString());
         }
-		// spring-security handling authentication now
-		userIsAuthenticated = true;
 
-        if (userIsAuthenticated) {
-            xdebug.logMsg(this, "Attempting to initiate new user query.");
+        //  Get User Selected Action
+        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
 
-            if (httpServletRequest.getRequestURL() != null) {
-                httpServletRequest.setAttribute(ATTRIBUTE_URL_BEFORE_FORWARDING,
-                        httpServletRequest.getRequestURL().toString());
+        //  Get User Selected Cancer Type
+        String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
+
+        //  Get User Selected Genetic Profiles
+        String geneticProfileIds[] = httpServletRequest.getParameterValues(GENETIC_PROFILE_IDS);
+        HashSet<String> geneticProfileIdSet = new HashSet<String>();
+        if (geneticProfileIds != null && geneticProfileIds.length > 0) {
+            for (String geneticProfileIdDirty : geneticProfileIds) {
+                String geneticProfileIdClean = servletXssUtil.getCleanInput(geneticProfileIdDirty);
+                geneticProfileIdSet.add(geneticProfileIdClean);
             }
+        }
+        httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
 
-            //  Get User Selected Action
-            String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
+        //  Get User Defined Gene List
+        String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
+        xdebug.logMsg(this, "Gene List is set to:  " + geneList);
 
-            // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
-            //  Get User Selected Cancer Type
-            String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
+        //  Get all Cancer Types
+        try {
+            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
 
-            //  Get User Selected Genetic Profiles
-            String geneticProfileIds[] = httpServletRequest.getParameterValues(GENETIC_PROFILE_IDS);
-            HashSet<String> geneticProfileIdSet = new HashSet<String>();
-            if (geneticProfileIds != null && geneticProfileIds.length > 0) {
-                for (String geneticProfileIdDirty : geneticProfileIds) {
-                    String geneticProfileIdClean = servletXssUtil.getCleanInput(geneticProfileIdDirty);
-                    geneticProfileIdSet.add(geneticProfileIdClean);
+            if (cancerTypeId == null) {
+                cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
+            }
+            
+            httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
+            httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerStudyList);
+
+            //  Get Genetic Profiles for Selected Cancer Type
+            ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
+                (cancerTypeId);
+            httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
+
+            //  Get Case Sets for Selected Cancer Type
+            xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
+            ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
+            xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
+            CaseList caseSet = new CaseList();
+            caseSet.setName("User-defined Case List");
+            caseSet.setDescription("User defined case list.");
+            caseSet.setStableId("-1");
+            caseSets.add(caseSet);
+            httpServletRequest.setAttribute(CASE_SETS_INTERNAL, caseSets);
+
+            //  Get User Selected Case Set
+            String caseSetId = servletXssUtil.getCleanInput(httpServletRequest, CASE_SET_ID);
+            if (caseSetId != null) {
+                httpServletRequest.setAttribute(CASE_SET_ID, caseSetId);
+            } else {
+                if (caseSets.size() > 0) {
+                    CaseList zeroSet = caseSets.get(0);
+                    httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
                 }
             }
-            httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
+            String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
+            httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
-            //  Get User Defined Gene List
-            String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
-            xdebug.logMsg(this, "Gene List is set to:  " + geneList);
+            boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
+                                               caseSetId, caseIds, httpServletRequest);
+            if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-            //  Get all Cancer Types
-            try {
-                List<CancerStudy> cancerStudyList = accessControl.getCancerStudiesAsList();
-
-                if (cancerTypeId == null) {
-                    cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
-                }
-                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
-                httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerTypeId);
-
-                httpServletRequest.setAttribute(CANCER_TYPES_INTERNAL, cancerStudyList);
-
-                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
-                //  Get Genetic Profiles for Selected Cancer Type
-                ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
-                        (cancerTypeId);
-                httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
-
-                //  Get Case Sets for Selected Cancer Type
-                xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
-                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
-                xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
-                CaseList caseSet = new CaseList();
-                caseSet.setName("User-defined Case List");
-                caseSet.setDescription("User defined case list.");
-                caseSet.setStableId("-1");
-                caseSets.add(caseSet);
-                httpServletRequest.setAttribute(CASE_SETS_INTERNAL, caseSets);
-
-                //  Get User Selected Case Set
-                String caseSetId = servletXssUtil.getCleanInput(httpServletRequest, CASE_SET_ID);
-                if (caseSetId != null) {
-                    httpServletRequest.setAttribute(CASE_SET_ID, caseSetId);
-                } else {
-                    if (caseSets.size() > 0) {
-                        CaseList zeroSet = caseSets.get(0);
-                        httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
-                    }
-                }
-                String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
-                httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
-
-                boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
-                        caseSetId, caseIds, httpServletRequest);
-                if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
-
-                   processData(geneticProfileIdSet, profileList, geneList, caseSetId,
+                processData(geneticProfileIdSet, profileList, geneList, caseSetId,
                             caseIds, caseSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
-                } else {
-                    RequestDispatcher dispatcher =
-                            getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                    dispatcher.forward(httpServletRequest, httpServletResponse);
-                }
-            } catch (RemoteException e) {
-                xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
-                forwardToErrorPage(httpServletRequest, httpServletResponse,
-                                   "The Cancer Genomics Data Server is not currently "
-                                   + "available. <br/><br/>Please check back later.", xdebug);
-            } catch (DaoException e) {
-                xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
-                forwardToErrorPage(httpServletRequest, httpServletResponse,
-                                   "The Cancer Genomics Data Server is not currently "
-                                   + "available. <br/><br/>Please check back later.", xdebug);
-            } catch (ProtocolException e) {
-                xdebug.logMsg(this, "Got ProtocolException:  " + e.getMessage());
-                forwardToErrorPage(httpServletRequest, httpServletResponse,
-                                   "No cancer studies accessible; either provide credentials to access "
-                                   + " public studies, or ask administrator to load public ones.", xdebug);
+            } else {
+                RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                dispatcher.forward(httpServletRequest, httpServletResponse);
             }
-        } else {
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/login.jsp");
-            dispatcher.forward(httpServletRequest, httpServletResponse);
+        } catch (RemoteException e) {
+            xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
+            forwardToErrorPage(httpServletRequest, httpServletResponse,
+                               "The Cancer Genomics Data Server is not currently "
+                               + "available. <br/><br/>Please check back later.", xdebug);
+        } catch (DaoException e) {
+            xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
+            forwardToErrorPage(httpServletRequest, httpServletResponse,
+                               "The Cancer Genomics Data Server is not currently "
+                               + "available. <br/><br/>Please check back later.", xdebug);
         }
     }
 

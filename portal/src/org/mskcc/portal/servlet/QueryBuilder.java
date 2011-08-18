@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -28,7 +29,12 @@ import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Central Servlet for building queries.
@@ -81,6 +87,20 @@ public class QueryBuilder extends HttpServlet {
     public static final String INDEX_PAGE = "index.do";
 
     private ServletXssUtil servletXssUtil;
+
+    // ref to access control
+    private AccessControl accessControl;
+
+    /**
+     * Constructor.
+     */
+    public QueryBuilder() {
+
+        // setup our context and init some beans
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+        accessControl = (AccessControl) context.getBean("accessControl");
+    }
 
     /**
      * Initializes the servlet.
@@ -170,7 +190,7 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get all Cancer Types
             try {
-                ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
+                List<CancerStudy> cancerStudyList = accessControl.getCancerStudiesAsList();
 
                 if (cancerTypeId == null) {
                     cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
@@ -225,13 +245,18 @@ public class QueryBuilder extends HttpServlet {
             } catch (RemoteException e) {
                 xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
                 forwardToErrorPage(httpServletRequest, httpServletResponse,
-                        "The Cancer Genomics Data Server is not currently "
-                                + "available. <br/><br/>Please check back later.", xdebug);
+                                   "The Cancer Genomics Data Server is not currently "
+                                   + "available. <br/><br/>Please check back later.", xdebug);
             } catch (DaoException e) {
                 xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
                 forwardToErrorPage(httpServletRequest, httpServletResponse,
-                        "The Cancer Genomics Data Server is not currently "
-                                + "available. <br/><br/>Please check back later.", xdebug);
+                                   "The Cancer Genomics Data Server is not currently "
+                                   + "available. <br/><br/>Please check back later.", xdebug);
+            } catch (ProtocolException e) {
+                xdebug.logMsg(this, "Got ProtocolException:  " + e.getMessage());
+                forwardToErrorPage(httpServletRequest, httpServletResponse,
+                                   "No cancer studies accessible; either provide credentials to access "
+                                   + " public studies, or ask administrator to load public ones.", xdebug);
             }
         } else {
             RequestDispatcher dispatcher =

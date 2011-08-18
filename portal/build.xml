@@ -234,9 +234,13 @@
 		  <equals arg1="${authenticate}" arg2="true"/>
 		  <then>
 			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
-					 token="portal_manager_key" value="${portal_manager_key}"/>
+					 token="db_host_value" value="${db.host}"/>
 			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
-					 token="portal_manager_secret" value="${portal_manager_secret}"/>
+					 token="db_name_value" value="${db.name}"/>
+			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
+					 token="db_user_value" value="${db.user}"/>
+			<replace file="${build.dir}/WEB-INF/classes/applicationContext-security.xml"
+					 token="db_password_value" value="${db.password}"/>
 		  </then>
 		</if>
 

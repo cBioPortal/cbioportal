@@ -9,11 +9,7 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-USE CGDS;
-
-drop table IF EXISTS encrypted_keys;
 drop table IF EXISTS cancer_study;
-drop table IF EXISTS access_rights;
 drop table IF EXISTS users;
 drop table IF EXISTS authorities;
 drop table IF EXISTS type_of_cancer;
@@ -43,15 +39,6 @@ drop table IF EXISTS protein_array_data;
 --
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `encrypted_keys`
---
-
-CREATE TABLE IF NOT EXISTS `encrypted_keys` (
-  `ENCRYPTED_KEY` varchar(100) NOT NULL,
-  PRIMARY KEY  (`ENCRYPTED_KEY`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `cancer_study`
@@ -89,18 +76,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `authorities` (
   `EMAIL` varchar(128) NOT NULL,
-  `AUTHORITY` varchar(50) NOT NULL,
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `access_rights`
---
-
-CREATE TABLE IF NOT EXISTS `access_rights` (
-  `EMAIL` varchar(128) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL
+  `AUTHORITY` varchar(50) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

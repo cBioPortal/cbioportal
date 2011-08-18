@@ -3,8 +3,11 @@ package org.mskcc.cgds.util;
 
 // imports
 import org.mskcc.cgds.model.SecretKey;
+import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.ProtocolException;
+
+import java.util.List;
 
 /**
  * Utilities for managing access control.
@@ -61,13 +64,22 @@ public interface AccessControl {
 	// The following methods are spring-security supported.
 
     /**
-     * Gets Cancer Studies.
+     * Gets Cancer Studies. Used by QueryBuilder.
+     *
+     * @return List<CancerStudy>
+     * @throws DaoException         Database Error.
+     * @throws ProtocolException    Protocol Error.
+     */
+    public List<CancerStudy> getCancerStudiesAsList() throws DaoException, ProtocolException;
+
+    /**
+     * Gets Cancer Studies. Used by Webservice.
      *
      * @return Cancer Studies Table.
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
      */
-    public String getCancerStudies() throws DaoException, ProtocolException;
+    public String getCancerStudiesAsTable() throws DaoException, ProtocolException;
 
     /**
      * Return true if the user can access the study, false otherwise.

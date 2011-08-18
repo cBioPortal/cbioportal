@@ -2,11 +2,9 @@
 package org.mskcc.cgds.util.internal;
 
 // imports
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.SecretKey;
 import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.UserAuthorities;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.model.SecretKey;
 
 import org.mskcc.cgds.web_api.ProtocolException;
 
@@ -14,7 +12,6 @@ import org.mskcc.cgds.dao.DaoUser;
 import org.mskcc.cgds.dao.DaoSecretKey;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.dao.DaoUserAccessRight;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +24,8 @@ import org.jasypt.util.password.BasicPasswordEncryptor;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Collections;
 
 /**
  * Utilities for managing access control.
@@ -148,13 +147,51 @@ public class AccessControlImpl implements AccessControl {
             }
             return buf.toString();
         } else {
-            throw new ProtocolException("No cancer studies accessible; either provide credentials to access private studies, " +
-                    "or ask administrator to load public ones.\n");
+            throw new ProtocolException("No cancer studies accessible; " + 
+                                        "either provide credentials to access private studies, " +
+                                        "or ask administrator to load public ones.\n");
         }
     }
-
+    
 	////////////////////////////////////////////////////////////////////////////////
 	// The following methods are spring-security supported.
+
+    /**
+     * Gets Cancer Studies. Used by QueryBuilder.
+     *
+     * @return List<CancerStudy>
+     * @throws DaoException         Database Error.
+     * @throws ProtocolException    Protocol Error.
+     */
+    public List<CancerStudy> getCancerStudiesAsList() throws DaoException, ProtocolException {
+
+		if (log.isDebugEnabled()) {
+			log.debug("getCancerStudies(), getting accessible cancer studies.");
+		}
+
+		// get list of accessible cancer studies
+        List<CancerStudy> accessibleCancerStudies = getAccessibleCancerStudies();
+
+        if (accessibleCancerStudies.size() > 0) {
+
+            //  sort the list
+            Collections.sort(accessibleCancerStudies, new CancerStudiesComparator());
+
+            //  Then, insert "All" Cancer Types at beginning
+            ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
+            CancerStudy cancerStudy = new CancerStudy("All Cancer Types", "All Cancer Types",
+                                                      "all", "all", true);
+            finalCancerStudiesList.add(cancerStudy);
+            finalCancerStudiesList.addAll(accessibleCancerStudies);
+            
+            return finalCancerStudiesList;
+        }
+        else {
+            throw new ProtocolException("No cancer studies accessible; "+
+                                        "either provide credentials to access private studies, " +
+                                        "or ask administrator to load public ones.\n");
+        }
+    }
 
     /**
      * Gets Cancer Studies.
@@ -163,7 +200,7 @@ public class AccessControlImpl implements AccessControl {
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
      */
-    public String getCancerStudies() throws DaoException, ProtocolException {
+    public String getCancerStudiesAsTable() throws DaoException, ProtocolException {
 
 		if (log.isDebugEnabled()) {
 			log.debug("getCancerStudies(), getting accessible cancer studies.");
@@ -188,9 +225,11 @@ public class AccessControlImpl implements AccessControl {
                 buf.append(cancerStudy.getDescription() + "\n");
             }
             return buf.toString();
-        } else {
-            throw new ProtocolException("No cancer studies accessible; either provide credentials to access private studies, " +
-                    "or ask administrator to load public ones.\n");
+        }
+        else {
+            throw new ProtocolException("No cancer studies accessible; " + 
+                                        "either provide credentials to access private studies, " +
+                                        "or ask administrator to load public ones.\n");
         }
     }
 
@@ -239,4 +278,22 @@ public class AccessControlImpl implements AccessControl {
         // set to true so works when authentication is turned off
 		return true;
 	}
+}
+
+/**
+ * Compares Cancer Studies, so that we can sort them alphabetically.
+ */
+class CancerStudiesComparator implements Comparator {
+
+    /**
+     * Compare two cancer studies.
+     * @param o  First Cancer Study.
+     * @param o1 Second Cancer Study.
+     * @return int indicating name sort order.
+     */
+    public int compare(Object o, Object o1) {
+        CancerStudy study0 = (CancerStudy) o;
+        CancerStudy study1 = (CancerStudy) o1;
+        return study0.getName().compareTo(study1.getName());
+    }
 }

@@ -333,7 +333,7 @@ public class WebService extends HttpServlet {
 
     private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
             ProtocolException {
-        String out = accessControl.getCancerStudies();
+        String out = accessControl.getCancerStudiesAsTable();
         writer.print(out);
     }
 

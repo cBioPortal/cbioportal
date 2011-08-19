@@ -204,6 +204,7 @@
         <mkdir  dir="${build.dir}"/>
         <mkdir  dir="${build.dir}/WEB-INF"/>
         <mkdir  dir="${build.dir}/WEB-INF/classes"/>
+        <mkdir  dir="${build.dir}/META-INF"/>
 
         <!-- Copy static content of this web application -->
         <copy todir="${build.dir}">
@@ -219,6 +220,7 @@
 		  <then>
 			<copy overwrite="yes" tofile="${build.dir}/WEB-INF/web.xml" file="${web.dir}/WEB-INF/web-security.xml"/>
 			<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes" file="${web.dir}/WEB-INF/applicationContext-security.xml"/>
+			<!--<copy overwrite="yes" todir="${build.dir}/META-INF" file="${web.dir}/WEB-INF/context.xml"/>-->
 		  </then>
 		<elseif>
 		  <equals arg1="${authenticate}" arg2="false"/>

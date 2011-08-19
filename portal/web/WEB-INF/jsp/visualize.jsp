@@ -22,6 +22,7 @@
 <%@ page import="org.mskcc.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cgds.model.ClinicalData" %>
 
 <%
     ArrayList<GeneticProfile> profileList =

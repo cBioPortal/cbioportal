@@ -38,19 +38,19 @@
 -->
 	<http use-expressions="true">
 	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
-	  <intercept-url pattern="/index.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/show_data.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/plot.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/plot.pdf" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/network.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-	  <intercept-url pattern="/swf/*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
-      <intercept-url pattern="/webservice.do*" access="isAuthenticated() and hasRole('ROLE_USER')"/>
+	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
+	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot.pdf" access="isAuthenticated()"/>
+	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
+      <intercept-url pattern="/webservice.do*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">

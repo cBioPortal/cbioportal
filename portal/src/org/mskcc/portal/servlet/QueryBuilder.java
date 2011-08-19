@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;

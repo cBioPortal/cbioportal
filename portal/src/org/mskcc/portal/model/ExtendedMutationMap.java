@@ -2,6 +2,7 @@ package org.mskcc.portal.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.mskcc.cgds.model.ExtendedMutation;
 
 public class ExtendedMutationMap {
     HashMap <String, ArrayList<ExtendedMutation>> mutationMap =

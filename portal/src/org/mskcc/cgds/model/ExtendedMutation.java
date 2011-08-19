@@ -6,6 +6,7 @@ public class ExtendedMutation {
    private int    geneticProfileId;
    private String caseId;
    private long   entrezGeneId;
+   private String geneSymbol;
    private String center;
    private String sequencer;
    private String mutationStatus;
@@ -165,6 +166,14 @@ public class ExtendedMutation {
 
    public String toString() {
       return ToStringBuilder.reflectionToString(this);
+   }
+
+   public void setGeneSymbol(String geneSymbol) {
+        this.geneSymbol = geneSymbol;
+   }
+
+   public String getGeneSymbol(){
+       return geneSymbol;
    }
    
    public String keyFieldsToString() {

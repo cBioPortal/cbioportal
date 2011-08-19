@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.portal.r_bridge.SurvivalAnalysis" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="org.mskcc.portal.util.UrlUtil" %>
+<%@ page import="org.mskcc.cgds.model.ClinicalData" %>
 
 <div class="section" id="survival">
 

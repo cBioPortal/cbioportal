@@ -1,6 +1,7 @@
 
 package org.mskcc.portal.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import org.rosuda.REngine.Rserve.RConnection;
  * @author jj
  */
 public class BoxPlotServlet extends HttpServlet {
-    private static Logger logger = Logger.getLogger(PlotServlet.class);
+    private static Logger logger = Logger.getLogger(BoxPlotServlet.class);
 
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
@@ -115,8 +116,14 @@ public class BoxPlotServlet extends HttpServlet {
             RConnection c = new RConnection();
 
             // open device
-            c.parseAndEval(plot.toString());
-
+            try {
+                c.parseAndEval(plot.toString());
+            } catch (org.rosuda.REngine.REngineException e) {
+                if (!new File(tmpfile).exists()) {
+                    throw e;
+                }
+            }
+            
             // There is no I/O API in REngine because it's actually more efficient to use R for this
             // we limit the file size to 1MB which should be sufficient and we delete the file as well
             REXP xp = c.parseAndEval("r=readBin('" + tmpfile

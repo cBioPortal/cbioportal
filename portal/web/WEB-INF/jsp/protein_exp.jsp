@@ -111,6 +111,10 @@
             return r+'</select>';
     }
     
+    function showBoxPlot(oTable, nTr) {
+        
+    };
+    
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
         $.post("ProteinArraySignificanceTest.json", 
@@ -180,7 +184,9 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     
-                                    var ret =value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+                                    var ret = "<a href=\"#\" class=\"p-value-plot-hide\">"
+                                        +(value < 0.001 ? value.toExponential(2) : value.toFixed(3))
+                                        +"</a>";
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[7]);
@@ -197,14 +203,15 @@
                               "aTargets": [ 9 ]
                             },
                             { //"sTitle": "plot",
-                              //"bVisible": false,
+                              "bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
-                              "fnRender": function(obj) {
+//                              "fnRender": function(obj) {
 //                                    if (isNaN(parseFloat(obj.aData[9])))
 //                                        return "";
-                                    return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";                                   
-                              },
+//                                    //return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";
+//                                    //return "<img id=\"details_img\" src=\"images/details_open.png\">";
+//                              },
                               "aTargets": [ 10 ]
                             }
                         ],
@@ -238,6 +245,28 @@
                     }
                     //oTable.fnAdjustColumnSizing();
                 });
+                
+                /* Add event listener for opening and closing details
+                 * Note that the indicator for showing which row is open is not controlled by DataTables,
+                 * rather it is done here
+                 */
+                $('.p-value-plot-hide').live('click', function () {
+                        var nTr = this.parentNode.parentNode;
+                        /* Open this row */
+                        $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
+                        var aData = oTable.fnGetData( nTr );
+                        var data = aData[10];
+                        var xlabel = "";
+                        var url = 'boxplot.do?data='+data+'&xlabel='+xlabel+'&ylabel=Median-centered RPPA score';
+                        var img = '<img src="'+url+'">';
+                        oTable.fnOpen( nTr, img, 'details' );
+                } );
+                $('.p-value-plot-show').live('click', function () {
+                        var nTr = this.parentNode.parentNode;
+                        /* close this row */
+                        $(this).removeClass('p-value-plot-show').addClass('p-value-plot-hide');
+                        oTable.fnClose( nTr );;
+                } );
                 
                 $('table#protein_expr_wrapper').show();
                 $('div#protein_expr_wait').remove();

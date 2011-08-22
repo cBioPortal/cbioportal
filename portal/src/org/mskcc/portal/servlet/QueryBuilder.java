@@ -426,8 +426,6 @@ public class QueryBuilder extends HttpServlet {
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
 
-            PrintWriter writer = response.getWriter();
-
             if (output != null) {
 
                 String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
@@ -441,11 +439,13 @@ public class QueryBuilder extends HttpServlet {
                     String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                             geneticProfileIdSet, profileList, true, true);
+                    PrintWriter writer = response.getWriter();
                     writer.write(out);
                     writer.flush();
                     writer.close();
                 } else if (output.equalsIgnoreCase("html")) {
                     response.setContentType("text/html");
+                    PrintWriter writer = response.getWriter();
                     writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                             "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                             "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -469,6 +469,7 @@ public class QueryBuilder extends HttpServlet {
 
                     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                             theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                    PrintWriter writer = response.getWriter();
                     writer.write("" + dataSummary.getPercentCasesAffected());
                     writer.flush();
                     writer.close();

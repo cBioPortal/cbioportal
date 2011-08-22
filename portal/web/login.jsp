@@ -44,7 +44,8 @@
             <p>To request access, please send email to:  cancergenomics AT cbio.mskcc.org</p>
         </div>
     <% } %>
-	   <table cellspacing="2px">
+       <br>
+       <table cellspacing="2px">
 	     <tr>
 	       <td>
 	         <!-- Simple OpenID Selector -->

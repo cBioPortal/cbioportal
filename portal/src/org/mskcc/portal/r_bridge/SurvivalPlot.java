@@ -1,6 +1,6 @@
 package org.mskcc.portal.r_bridge;
 
-import org.mskcc.portal.model.ClinicalData;
+import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXP;

@@ -1,8 +1,6 @@
 package org.mskcc.portal.test.stats;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
@@ -10,6 +8,8 @@ import org.mskcc.portal.stats.OddsRatio;
 import org.mskcc.portal.util.ProfileMerger;
 import org.mskcc.portal.util.WebFileConnect;
 import org.mskcc.portal.util.ZScoreUtil;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +20,10 @@ public class TestOddsRatio extends TestCase {
     public void testFisherExact() throws IOException {
         ArrayList<ProfileData> profileList = new ArrayList<ProfileData>();
 
-        GeneticProfile profile0 = new GeneticProfile("gbm", "CNA", "NA",
-                GeneticAlterationType.COPY_NUMBER_ALTERATION, true);
+        GeneticProfile profile0 =
+                new GeneticProfile("gbm", 1,
+                        GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                        "CNA", "CNA", true);
         String matrix0[][] = WebFileConnect.retrieveMatrix(new File("test_data/cna_sample2.txt"));
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);

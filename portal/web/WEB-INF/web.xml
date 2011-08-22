@@ -36,6 +36,28 @@
     </servlet>
 
     <servlet>
+        <servlet-name>webservice</servlet-name>
+        <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
+        <init-param>
+            <param-name>db_host</param-name>
+            <param-value>db_host__value</param-value>
+        </init-param>
+         <init-param>
+            <param-name>db_name</param-name>
+            <param-value>db_name__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_user</param-name>
+            <param-value>db_user__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_password</param-name>
+            <param-value>db_password__value</param-value>
+        </init-param>
+        <load-on-startup/>
+    </servlet>
+
+    <servlet>
         <servlet-name>cross_cancer_query</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
     </servlet>
@@ -56,22 +78,17 @@
     </servlet>
 
     <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>generatePlots</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
             <param-name>r_installed</param-name>
             <param-value>r_installed_value</param-value>
         </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>openIDServlet</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.OpenIDServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.HandleOpenIDproviderResp</servlet-class>
     </servlet>
 
     <servlet>
@@ -88,6 +105,16 @@
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>webservice</servlet-name>
+        <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
@@ -130,18 +157,18 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>openIDServlet</servlet-name>
-        <url-pattern>/openIDServlet.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <url-pattern>/handleOpenIDproviderResp.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -152,6 +179,11 @@
     <servlet-mapping>
         <servlet-name>network</servlet-name>
         <url-pattern>/network.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

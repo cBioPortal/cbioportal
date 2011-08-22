@@ -1,7 +1,7 @@
 package org.mskcc.portal.util;
 
 import org.mskcc.portal.servlet.QueryBuilder;
-import org.mskcc.portal.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticProfile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

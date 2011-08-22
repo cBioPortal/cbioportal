@@ -3,22 +3,21 @@ package org.mskcc.portal.tool;
 import org.mskcc.portal.tool.bundle.BundleFactory;
 import org.mskcc.portal.tool.bundle.Bundle;
 import org.mskcc.portal.tool.bundle.GeneRequest;
-import org.mskcc.portal.model.GeneticProfile;
-import org.mskcc.portal.model.CaseSet;
 import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.ExtendedMutation;
+import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.remote.GetMutationData;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.dao.DaoException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class ExecuteBundle {
     private static NumberFormat percentFormat = DecimalFormat.getPercentInstance();
 
     public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException,
-            InvocationTargetException, InstantiationException, IOException {
+            InvocationTargetException, InstantiationException, IOException, DaoException {
 
         XDebug xdebug = new XDebug();
         GlobalProperties.setCgdsUrl("http://localhost:8080/cgds-public/webservice.do");
@@ -41,11 +40,11 @@ public class ExecuteBundle {
 
         //  Get Genetic Profiles
         ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles
-                (OVARIAN_CANCER, xdebug);
+                (OVARIAN_CANCER);
 
         //  Get Case Sets
         System.out.println ("Retrieving case sets...");
-        ArrayList<CaseSet> caseSetList = GetCaseSets.getCaseSets(OVARIAN_CANCER, xdebug);
+        ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(OVARIAN_CANCER);
 
         Bundle bundle = BundleFactory.createBundle("BRCA");
 
@@ -71,24 +70,27 @@ public class ExecuteBundle {
                         + " does not exist.");
             }
             System.out.println("Retrieving data for:  " + geneRequest.getGeneSymbol()
-                    + ":  " + geneticProfile.getName() + ", " + geneRequest.getAlterationType());
+                    + ":  " + geneticProfile.getProfileName() + ", " + geneRequest.getAlterationType());
             ArrayList <String> geneList = new ArrayList <String>();
             geneList.add(geneRequest.getGeneSymbol());
-            if (geneticProfile.getAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+            if (geneticProfile.getGeneticAlterationType()
+                    == GeneticAlterationType.MUTATION_EXTENDED) {
                 GetMutationData remoteCall = new GetMutationData();
                 ArrayList <ExtendedMutation> mutationList =
                         remoteCall.getMutationData(geneticProfile, geneList, caseIds, xdebug);
                 mutationMap.put(geneRequest.getGeneSymbol(), mutationList);
-            } else if (geneticProfile.getAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION){
+            } else if (geneticProfile.getGeneticAlterationType()
+                    == GeneticAlterationType.COPY_NUMBER_ALTERATION){
                 GetProfileData remoteCall = new GetProfileData();
                 ProfileData pData = remoteCall.getProfileData(geneticProfile, geneList, caseIds, xdebug);
                 cnaMap.put (geneRequest.getGeneSymbol(), pData);
-            } else if (geneticProfile.getAlterationType() == GeneticAlterationType.METHYLATION_BINARY) {
+            } else if (geneticProfile.getGeneticAlterationType()
+                    == GeneticAlterationType.METHYLATION_BINARY) {
                 GetProfileData remoteCall = new GetProfileData();
                 ProfileData pData = remoteCall.getProfileData(geneticProfile, geneList, caseIds, xdebug);
                 binaryMethylationMap.put (geneRequest.getGeneSymbol(), pData);
             } else {
-                System.out.println ("Cannot process:  " + geneticProfile.getAlterationType());
+                System.out.println ("Cannot process:  " + geneticProfile.getGeneticAlterationType());
             }
         }
 
@@ -129,16 +131,16 @@ public class ExecuteBundle {
     private static GeneticProfile getProfile(String profileId,
                                              ArrayList<GeneticProfile> profileList) {
         for (GeneticProfile profile : profileList) {
-            if (profile.getId().equals(profileId)) {
+            if (profile.getStableId().equals(profileId)) {
                 return profile;
             }
         }
         return null;
     }
 
-    private static String getCaseIds (String caseSetId, ArrayList<CaseSet> caseSetList) {
-        for (CaseSet caseSet : caseSetList) {
-            if (caseSet.getId().equals(caseSetId)) {
+    private static String getCaseIds (String caseSetId, ArrayList<CaseList> caseSetList) {
+        for (CaseList caseSet : caseSetList) {
+            if (caseSet.getStableId().equals(caseSetId)) {
                 return caseSet.getCaseListAsString();
             }
         }
@@ -146,9 +148,9 @@ public class ExecuteBundle {
     }
 
     private static ArrayList<String> getCaseList
-            (String caseSetId, ArrayList<CaseSet> caseSetList) {
-        for (CaseSet caseSet : caseSetList) {
-            if (caseSet.getId().equals(caseSetId)) {
+            (String caseSetId, ArrayList<CaseList> caseSetList) {
+        for (CaseList caseSet : caseSetList) {
+            if (caseSet.getStableId().equals(caseSetId)) {
                 return caseSet.getCaseList();
             }
         }

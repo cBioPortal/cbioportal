@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.regex.Pattern;
@@ -64,8 +65,8 @@ public class WebService extends HttpServlet {
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
 
-	// ref to access control
-	private AccessControl accessControl;
+    // ref to access control
+    private AccessControl accessControl;
 
     /**
      * Shutdown the Servlet.
@@ -96,10 +97,10 @@ public class WebService extends HttpServlet {
         dbProperties.setDbPassword(dbPassword);
         verifyDbConnection();
 
-		// setup our context and init some beans
-		ApplicationContext context =
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		accessControl = (AccessControl)context.getBean("accessControl");
+        // setup our context and init some beans
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+        accessControl = (AccessControl) context.getBean("accessControl");
     }
 
     /**
@@ -167,14 +168,18 @@ public class WebService extends HttpServlet {
                 return;
             }
 
-			if (cmd.equals("getProteinArrayInfo")) {
-				getProteinArrayInfo(httpServletRequest, writer);
-				return;
-			}
-			if (cmd.equals("getProteinArrayData")) {
-				getProteinArrayData(httpServletRequest, writer);
-				return;
-			}
+            if (cmd.equals("getProteinArrayInfo")) {
+                getProteinArrayInfo(httpServletRequest, writer);
+                return;
+            }
+            if (cmd.equals("getProteinArrayData")) {
+                getProteinArrayData(httpServletRequest, writer);
+                return;
+            }
+            if (cmd.equals("getMutSig")) {
+                //Provides MutSig Data
+                getMutSig(httpServletRequest, writer);
+            }
 
             //  We support the new getCancerStudies plus the deprecated getCancerTypes command
             if (cmd.equals("getCancerStudies") || cmd.equals("getCancerTypes")) {
@@ -245,9 +250,6 @@ public class WebService extends HttpServlet {
             } else if (cmd.equals("getMutationFrequency")) {
                 // PROVIDES CANCER_STUDY_ID
                 getMutationFrequency(httpServletRequest, writer);
-            } else if (cmd.equals("getMutSig")) {
-                //Provides MutSig Data
-                getMutSig(httpServletRequest, writer);
             } else {
                 throw new ProtocolException("Unrecognized command: " + cmd);
             }
@@ -286,32 +288,32 @@ public class WebService extends HttpServlet {
         String out = GetNetwork.getNetwork(targetGeneList);
         writer.print(out);
     }
-    
-    private void getProteinArrayInfo(HttpServletRequest httpServletRequest, 
-            PrintWriter writer) throws DaoException, ProtocolException {
+
+    private void getProteinArrayInfo(HttpServletRequest httpServletRequest,
+                                     PrintWriter writer) throws DaoException, ProtocolException {
         String geneList = httpServletRequest.getParameter(GENE_LIST);
-        ArrayList <String> targetGeneList;
+        ArrayList<String> targetGeneList;
         if (geneList == null || geneList.length() == 0) {
             targetGeneList = null;
-        }else {
-            targetGeneList = getGeneList (httpServletRequest);
+        } else {
+            targetGeneList = getGeneList(httpServletRequest);
         }
-        
+
         String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
-        writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList,type));
+        writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList, type));
     }
-    
-    private void getProteinArrayData(HttpServletRequest httpServletRequest, 
-            PrintWriter writer) throws DaoException, ProtocolException {
+
+    private void getProteinArrayData(HttpServletRequest httpServletRequest,
+                                     PrintWriter writer) throws DaoException, ProtocolException {
         String arrayId = httpServletRequest.getParameter(PROTEIN_ARRAY_ID);
         if (arrayId == null || arrayId.length() == 0) {
-            throw new ProtocolException ("Missing Parameter:  " + PROTEIN_ARRAY_ID);
+            throw new ProtocolException("Missing Parameter:  " + PROTEIN_ARRAY_ID);
         }
         ArrayList<String> targetCaseIds = null;
         if (null != httpServletRequest.getParameter(CASE_LIST)
                 || null != httpServletRequest.getParameter(CASE_SET_ID))
             targetCaseIds = getCaseList(httpServletRequest);
-        writer.print(GetProteinArrayData.getProteinArrayData(arrayId, targetCaseIds));
+        writer.print(GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayId.split(" ")), targetCaseIds));
     }
 
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {
@@ -323,16 +325,16 @@ public class WebService extends HttpServlet {
     private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
             ProtocolException {
         //String out = accessControl.getCancerStudies(httpServletRequest.getParameter(EMAIL_ADDRESS),
-		//											httpServletRequest.getParameter(SECRET_KEY));
-		String out = accessControl.getCancerStudies();
+        //											httpServletRequest.getParameter(SECRET_KEY));
+        String out = accessControl.getCancerStudies();
         writer.print(out);
     }
 
     private boolean checkAccess(HttpServletRequest httpServletRequest, PrintWriter writer,
                                 String stableStudyId) throws DaoException {
         //return accessControl.checkAccess(httpServletRequest.getParameter(EMAIL_ADDRESS),
-		//								 httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
-		return accessControl.checkAccess(stableStudyId);
+        //								 httpServletRequest.getParameter(SECRET_KEY), stableStudyId);
+        return accessControl.checkAccess(stableStudyId);
     }
 
     private void getMutationFrequency(HttpServletRequest httpServletRequest, PrintWriter writer)
@@ -412,21 +414,25 @@ public class WebService extends HttpServlet {
         String cancerStudyID = getCancerStudyId(request);
         String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
         String gene_list = request.getParameter(GENE_LIST);
-        int cancerID = Integer.parseInt(cancerStudyID);
-        if ((q_value_threshold == null || q_value_threshold.length() == 0)
-                && (gene_list == null || gene_list.length() == 0)) {
-            StringBuffer output = GetMutSig.GetAMutSig(cancerID);
-            writer.print(output);
-        } else if ((q_value_threshold != null || q_value_threshold.length() != 0)
-                && (gene_list == null || gene_list.length() == 0)) {
-            StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
-            writer.print(output);
-        } else if ((q_value_threshold == null || q_value_threshold.length() == 0)
-                && (gene_list != null || gene_list.length() != 0)) {
-            StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
-            writer.print(output);
-        } else {
-            writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
+        try {
+            int cancerID = Integer.parseInt(cancerStudyID);
+            if ((q_value_threshold == null || q_value_threshold.length() == 0)
+                    && (gene_list == null || gene_list.length() == 0)) {
+                StringBuffer output = GetMutSig.GetAMutSig(cancerID);
+                writer.print(output);
+            } else if ((q_value_threshold != null || q_value_threshold.length() != 0)
+                    && (gene_list == null || gene_list.length() == 0)) {
+                StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
+                writer.print(output);
+            } else if ((q_value_threshold == null || q_value_threshold.length() == 0)
+                    && (gene_list != null || gene_list.length() != 0)) {
+                StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
+                writer.print(output);
+            } else {
+                writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
+            }
+        } catch (NumberFormatException e) {
+            writer.print("Enter a valid Cancer ID");
         }
     }
 
@@ -528,19 +534,19 @@ public class WebService extends HttpServlet {
         }
     }
 
-    private boolean goodCommand(PrintWriter writer, String cmd ){
-       // check that command is correct
-       String[] commands = { "getTypesOfCancer", "getNetwork", "getCancerStudies",
-							 "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists", 
-							 "getClinicalData", "getMutationData", "getMutationFrequency",
-							 "getProteinArrayInfo", "getProteinArrayData", "getMutSig"};
-       for( String aCmd : commands ){
-          if( aCmd.equals(cmd)){
-             return true;
-          }
-       }
-       outputError( writer, "'" + cmd + "' not a valid command." );
-       return false;
+    private boolean goodCommand(PrintWriter writer, String cmd) {
+        // check that command is correct
+        String[] commands = {"getTypesOfCancer", "getNetwork", "getCancerStudies",
+                "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists",
+                "getClinicalData", "getMutationData", "getMutationFrequency",
+                "getProteinArrayInfo", "getProteinArrayData", "getMutSig"};
+        for (String aCmd : commands) {
+            if (aCmd.equals(cmd)) {
+                return true;
+            }
+        }
+        outputError(writer, "'" + cmd + "' not a valid command.");
+        return false;
 
     }
 

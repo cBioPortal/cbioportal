@@ -1,0 +1,15 @@
+@title=Sample Title
+!Sample Gene Set 1
+AKT1
+AKT2
+AKT3
+!Sample Gene Set 2
+ARAF
+ATM
+!Sample Gene Set 3
+BRAF
+BRCA1
+BRCA2
+!Sample Gene Set 4
+BRCA1
+RAS = HRAS, NRAS, KRAS

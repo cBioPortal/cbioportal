@@ -1,6 +1,6 @@
 package org.mskcc.portal.tool.bundle;
 
-import org.mskcc.portal.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 public class GeneRequest {
     private String geneSymbol;

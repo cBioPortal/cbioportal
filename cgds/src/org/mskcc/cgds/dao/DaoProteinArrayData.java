@@ -8,8 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 import java.io.IOException;
 
+import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -97,15 +102,19 @@ public class DaoProteinArrayData {
             return -1;
         }
     }
+    
+    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, ArrayList<String> caseIds) throws DaoException {
+        return getProteinArrayData(Collections.singleton(arrayId), caseIds);
+    }
 
     /**
      * Gets the ProteinArrayData with the Specified array ID.
      *
      * @param arrayId protein array ID.
-     * @return ProteinArrayData Object.
+     * @return map of array id to a list of protein array data.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, ArrayList<String> caseIds) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, ArrayList<String> caseIds) throws DaoException {
         ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -114,17 +123,18 @@ public class DaoProteinArrayData {
             con = JdbcUtil.getDbConnection();
             if (caseIds==null) {
                 pstmt = con.prepareStatement
-                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID = ?");
-                pstmt.setString(1, arrayId);
+                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID IN ('"
+                        + StringUtils.join(arrayIds, "','") + "')");
             } else {
                 pstmt = con.prepareStatement
-                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID = ?"
+                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID IN ('"
+                        + StringUtils.join(arrayIds, "','") + "')"
                         + " AND CASE_ID IN ('"+StringUtils.join(caseIds,"','") +"')");
-                pstmt.setString(1, arrayId);
             }
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                ProteinArrayData pad = new ProteinArrayData(arrayId,
+                ProteinArrayData pad = new ProteinArrayData(
+                        rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getInt("CANCER_STUDY_ID"),
                         rs.getDouble("ABUNDANCE"));

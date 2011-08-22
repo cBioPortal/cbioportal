@@ -1,11 +1,11 @@
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.model.GeneticProfile" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.model.GeneticAlterationType" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.portal.servlet.GeneratePlots" %>
+<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -178,11 +178,11 @@ $(document).ready(function() {
     }
     out.println ("</select>");
 
-    for (CaseSet caseSet:  caseSets) {
+    for (CaseList caseSet:  caseSets) {
         if (caseSet.getName().toLowerCase().contains("normal")) {
             out.println ("&nbsp;<BR><INPUT TYPE=CHECKBOX NAME='" + GeneratePlots.INCLUDE_NORMALS +"' VALUE='INCLUDE_NORMALS'/>Include Normals");
             out.println ("<INPUT TYPE=HIDDEN NAME=" + GeneratePlots.NORMAL_CASE_SET_ID + "' VALUE='"
-                    + caseSet.getId() + "'/>");
+                    + caseSet.getStableId() + "'/>");
         }
     }
 
@@ -205,11 +205,12 @@ $(document).ready(function() {
 
 <%!
     // Counts Number of Genetic Profiles of the Specified Alteration Type.
-    public int countProfiles(ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
+    public int countProfiles(ArrayList<GeneticProfile> profileList,
+            GeneticAlterationType type) {
         int counter = 0;
         for (int i = 0; i < profileList.size(); i++) {
             GeneticProfile profile = profileList.get(i);
-            if (profile.getAlterationType() == type) {
+            if (profile.getGeneticAlterationType() == type) {
                 counter++;
             }
         }
@@ -224,21 +225,21 @@ $(document).ready(function() {
         boolean mRNASelected = false;
         for (int i = 0; i < profileList.size(); i++) {
             GeneticProfile profile = profileList.get(i);
-            if (profile.getAlterationType() == type) {
-                out.print("<option value='" + profile.getId()
-                        + "' title='" + profile.getDescription() + "' ");
-                if (geneticProfileIdSet.contains(profile.getId())) {
+            if (profile.getGeneticAlterationType() == type) {
+                out.print("<option value='" + profile.getStableId()
+                        + "' title='" + profile.getProfileDescription() + "' ");
+                if (geneticProfileIdSet.contains(profile.getStableId())) {
                     out.print ("SELECTED ");
                 } else if (type.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
                     //  Output the first Non-Z-Score mRNA Profile as Default
-                    if (!profile.getName().toLowerCase().contains("z-score")
+                    if (!profile.getProfileName().toLowerCase().contains("z-score")
                             && mRNASelected == false) {
                         out.print ("SELECTED ");
                         mRNASelected = true;
                     }
                 }
                 out.print (">");
-                out.print (profile.getName() + "</option>");
+                out.print (profile.getProfileName() + "</option>");
             }
         }
         out.println("</select>");

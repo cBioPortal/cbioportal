@@ -8,12 +8,10 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.mskcc.portal.openIDlogin.PortalAccessControl;
 import org.mskcc.portal.util.Config;
 import org.mskcc.portal.util.SkinUtil;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.oauth.internal.TwoLeggedOAuthClientImpl;
 
 import java.io.IOException;
 
@@ -65,22 +63,7 @@ public class CgdsProtocol {
      */
     public String connect( NameValuePair[] data, XDebug xdebug ) throws IOException {
 
-       // ACCESS CONTROL: IF EMAIL SET, ADD IT AND KEY TO data
-		//data = PortalAccessControl.addAccessParams( xdebug.getRequest(), data );
-       /*
-        * Debugging
-        * CAUTION: THESE MESSAGES CONTAIN THE SECRET KEY
-
-       System.err.println("\nIssuing CGDS request");
-       for( StackTraceElement ste : Thread.currentThread().getStackTrace() ){
-          System.err.println( ste.toString() );
-       }
-       System.err.println( PortalAccessControl.urlRequest(data) );
-
-       PortalAccessControl.createDebugMessages( this, xdebug, data );
-        */
-        
-       //  Create a key, based on the NameValuePair[] data
+        //  Create a key, based on the NameValuePair[] data
         String key = createKey(data);
         xdebug.logMsg(this, "Using Cache Key:  " + key);
 
@@ -88,8 +71,6 @@ public class CgdsProtocol {
         CacheManager singletonManager = CacheManager.getInstance();
         Cache memoryCache = singletonManager.getCache("memory_cache");
         xdebug.logMsg(this, "Cache Status:  " + memoryCache.getStatus().toString());
-
-        // TODO: Later: ACCESS CONTROL: DECIDE WHETHER WE WANT TO PUT PRIVATE DATA IN THE cache
 
         //  If Content is found in cache, return it
         Element element = memoryCache.get(key);
@@ -104,13 +85,6 @@ public class CgdsProtocol {
             //  Get CGDS URL Property
             String cgdsUrl = Config.getInstance().getProperty("cgds.url");
 
-			// short ciruit the remainder of code
-			if (SkinUtil.usersMustAuthenticate()) {
-				// candidate for spring injection
-				TwoLeggedOAuthClientImpl oAuthClient = new TwoLeggedOAuthClientImpl();
-				return oAuthClient.readProtectedResource(cgdsUrl, data);
-			}
-
             MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();
             xdebug.logMsg(this, "Number of connections in pool:  " +
@@ -123,6 +97,10 @@ public class CgdsProtocol {
             //  Create GET / POST Method
             method = new PostMethod(cgdsUrl);
             method.setRequestBody(data);
+            // we need to added a cookie with session id to work with spring security
+			if (SkinUtil.usersMustAuthenticate()) {
+                method.setRequestHeader("Cookie", "JSESSIONID=" + xdebug.getRequest().getSession().getId());
+            }
             try {
 
                 //  Extract HTTP Status Code

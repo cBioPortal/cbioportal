@@ -103,7 +103,7 @@ public class DaoProteinArrayData {
         }
     }
     
-    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, ArrayList<String> caseIds) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, Collection<String> caseIds) throws DaoException {
         return getProteinArrayData(Collections.singleton(arrayId), caseIds);
     }
 
@@ -114,7 +114,7 @@ public class DaoProteinArrayData {
      * @return map of array id to a list of protein array data.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, ArrayList<String> caseIds) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, Collection<String> caseIds) throws DaoException {
         ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -27,7 +27,7 @@ public class GetCancerTypes {
 
         //  Then, insert "All" Cancer Types at beginning
         ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-        CancerStudy cancerStudy = new CancerStudy("All Cancer Types", "All Cancer Types",
+        CancerStudy cancerStudy = new CancerStudy("All Cancer Studies", "All Cancer Studies",
                 "all", "all", true);
         finalCancerStudiesList.add(cancerStudy);
         finalCancerStudiesList.addAll(cancerStudyList);

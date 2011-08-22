@@ -3,7 +3,6 @@ package org.mskcc.portal.servlet;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.util.*;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
@@ -11,6 +10,7 @@ import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -168,7 +168,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
     private void getGenomicData(HashMap<String, GeneticProfile> defaultGeneticProfileSet,
             CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
             HttpServletRequest request,
-            HttpServletResponse response, XDebug xdebug) throws IOException, ServletException {
+            HttpServletResponse response, XDebug xdebug) throws IOException,
+            ServletException, DaoException {
 
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);        
         boolean showAlteredColumnsBool = false;
@@ -196,8 +197,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             xdebug.logMsg(this, "Using gene list:  " + geneList);
-            GetProfileData remoteCall = new GetProfileData();
-            ProfileData pData = remoteCall.getProfileData(profile, geneList, caseIds, xdebug);
+            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);
         }

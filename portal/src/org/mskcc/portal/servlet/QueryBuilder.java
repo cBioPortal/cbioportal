@@ -30,6 +30,9 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -340,13 +343,13 @@ public class QueryBuilder extends HttpServlet {
             }
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             Date startTime = new Date();
-            GetProfileData remoteCall = new GetProfileData();
-            ProfileData pData = remoteCall.getProfileData(profile, geneList, caseIds, xdebug);
+            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            ProfileData pData = remoteCall.getProfileData();
             Date stopTime = new Date();
             long timeElapsed = stopTime.getTime() - startTime.getTime();
             xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
             DownloadLink downloadLink = new DownloadLink(profile, geneList, caseIds,
-                    remoteCall.getContent());
+                    remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
             if( pData == null ){
@@ -356,7 +359,6 @@ public class QueryBuilder extends HttpServlet {
                   System.err.println( "pData.getGeneList() == null" );
                }
             }
-            xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
             if (pData != null) {
                 xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
                 xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());

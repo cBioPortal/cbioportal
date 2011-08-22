@@ -29,7 +29,6 @@ import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
-import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.OncoPrintSpecificationDriver;
 import org.mskcc.portal.util.ProfileMerger;
@@ -39,6 +38,7 @@ import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.web_api.GetProfileData;
 
 /**
  * Retrieving 
@@ -151,8 +151,8 @@ public class NetworkServlet extends HttpServlet {
                        continue;
                     }
 
-                    GetProfileData remoteCall = new GetProfileData();
-                    ProfileData pData = remoteCall.getProfileData(profile, netGenes, caseIds, xdebug);
+                    GetProfileData remoteCall = new GetProfileData(profile, netGenes, caseIds);
+                    ProfileData pData = remoteCall.getProfileData();
                     if( pData == null ){
                        System.err.println( "pData == null" );
                     }else{
@@ -160,7 +160,6 @@ public class NetworkServlet extends HttpServlet {
                           System.err.println( "pData.getGeneList() == null" );
                        }
                     }
-                    xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
                     if (pData != null) {
                         xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
                         xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());

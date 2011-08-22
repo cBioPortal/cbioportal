@@ -24,8 +24,8 @@ import org.rosuda.REngine.Rserve.RConnection;
 public class BoxPlotServlet extends HttpServlet {
     private static Logger logger = Logger.getLogger(BoxPlotServlet.class);
 
-    public static final int PLOT_WIDTH = 600;
-    public static final int PLOT_HEIGHT = 600;
+    public static final String PLOT_WIDTH = "width";
+    public static final String PLOT_HEIGHT = "height";
     public static final String DATA = "data";
     public static final String XLABEL = "xlabel";
     public static final String YLABEL = "ylabel";
@@ -46,6 +46,8 @@ public class BoxPlotServlet extends HttpServlet {
             String strData = request.getParameter(DATA);
             String xlabel = request.getParameter(XLABEL);
             String ylabel = request.getParameter(YLABEL);
+            String width = request.getParameter(PLOT_WIDTH);
+            String height = request.getParameter(PLOT_HEIGHT);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png
@@ -81,9 +83,9 @@ public class BoxPlotServlet extends HttpServlet {
                 plot.append("');\n");
             } else {
                 plot.append("Cairo(width=");
-                plot.append(PLOT_WIDTH);
+                plot.append(width);
                 plot.append(", height=");
-                plot.append(PLOT_HEIGHT);
+                plot.append(height);
                 plot.append(", file='");
                 plot.append(tmpfile);
                 plot.append("', type='");

@@ -877,6 +877,7 @@ table {
 }
 
 #header td.navigation li.selected, #header td.navigation li a:hover {
+    height:29px;
     background:#8cbadc;
     color:#ffffff;
     text-decoration:none;

@@ -82,6 +82,7 @@
 %>
 
 <script type="text/javascript">
+
     function getTinyURL(longURL, success) {
         var API = 'http://json-tinyurl.appspot.com/?url=',
         URL = API + encodeURIComponent(longURL) + '&callback=?';
@@ -89,15 +90,15 @@
 	    $.getJSON(URL, function(data){
         	success && success(data.tinyurl);
         });
-}
-</script>
+    }
 
-<script type="text/javascript">
-     function shrinkURL(longURL){
-     getTinyURL(longURL, function(tinyurl){
-          $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
-     });
-};
+    function shrinkURL(longURL){
+        getTinyURL(longURL, function(tinyurl){
+            $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
+        });
+    }
+
+
 </script>
 
 <html>

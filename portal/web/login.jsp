@@ -54,8 +54,10 @@
 	         <!-- Simple OpenID Selector -->
 	         <form action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
 	           <input type="hidden" name="action" value="verify" />
-	           <fieldset>
-	             <legend>Access to this portal is only available to authorized users.</legend>
+               <p/>
+               <fieldset>
+	             <legend>Access to this portal is only available to authorized users.  To request access,
+                 please send email to:  cancergenomics AT cbio.mskcc.org.</legend>
 	             <div id="openid_choice">
 	               <p>Please click your account provider:</p>
 	               <div id="openid_btns"></div>

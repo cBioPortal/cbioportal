@@ -30,6 +30,13 @@ body {
   height:120px;
 }
 
+#login_header_wrapper {
+  background: #fff ;
+  margin:0px; padding:0px;
+  width:860px;
+  height:50px;
+}
+
 #header h1 {
   margin:0px;
   font-family: verdana, arial, sans-serif;
@@ -817,6 +824,13 @@ table {
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   margin:0px;
   height:120px;
+}
+
+#login_header_top {
+  padding:5px 0px 0px 0px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  margin:0px;
+  height:70px;
 }
 
 #header td.navigation {

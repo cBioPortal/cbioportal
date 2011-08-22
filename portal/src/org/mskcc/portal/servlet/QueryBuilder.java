@@ -377,6 +377,11 @@ public class QueryBuilder extends HttpServlet {
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
                                     geneList, caseIds, xdebug);
+                    xdebug.logMsg(this, "Total number of mutation records retrieved:  "
+                        + tempMutationList.size());
+                    for (ExtendedMutation mutation:  tempMutationList) {
+                        xdebug.logMsg(this, "Extended Mutation:  " + mutation.getGeneSymbol());
+                    }
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         mutationList.addAll(tempMutationList);
                     }

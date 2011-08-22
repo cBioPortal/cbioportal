@@ -19,10 +19,14 @@ public class GetClinicalData {
 
     /**
      * Gets clinical data for specified cases.
+     * Note: getClinicalData takes a string of CaseIds. However,
+     * the DAO object takes a HashSet of cases, meaning this
+     * string must be split and converted to a HashSet.
+     * TODO: If string caseIDs is not originally separated by spaces, correct separator.
      *
      * @param caseIds Case IDs.
      * @return an ArrayList of ClinicalData Objects
-     * @throws DaoException DaoObject for MySQL exception.
+     * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
      */
     public static ArrayList<ClinicalData> getClinicalData(String caseIds, XDebug xdebug) throws DaoException {
 
@@ -35,55 +39,7 @@ public class GetClinicalData {
             return daoClinicalData.getCases(caseSet);
         } catch (DaoException e) {
             System.err.println("Database Error: " + e.getMessage());
-        }
-        return null;
-    }
-
-
-    private static Double getDouble(String parts[], int index) {
-        if (parts == null) {
             return null;
-        } else if (index < 0) {
-            return null;
-        } else {
-            try {
-                String value = parts[index];
-                if (value.length() == 0) {
-                    return null;
-                } else if (value.equalsIgnoreCase(NA)) {
-                    return null;
-                } else {
-                    try {
-                        Double dValue = Double.parseDouble(value);
-                        return dValue;
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
-        }
-    }
-
-    private static String getString(String parts[], int index) {
-        if (parts == null) {
-            return null;
-        } else if (index < 0) {
-            return null;
-        } else {
-            try {
-                String value = parts[index];
-                if (value.length() == 0) {
-                    return null;
-                } else if (value.equalsIgnoreCase(NA)) {
-                    return null;
-                } else {
-                    return value;
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
         }
     }
 }

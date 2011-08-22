@@ -25,8 +25,8 @@ public class GetMutationData {
      * @param profile  GeneticProfile Object.
      * @param geneList ArrayList of official gene symbols.
      * @param caseIds  Space-delimited list of case IDs.
-     * @return ProfileData Object.
-     * @throws java.rmi.RemoteException Remote / Network IO Error.
+     * @return ProfileData Object in an ArrayList.
+     * @throws DaoException, as of August 2011 GetMutationData has direct access to DAO Objects.
      */
     public ArrayList <ExtendedMutation> getMutationData(GeneticProfile profile,
                 ArrayList<String> geneList, String caseIds, XDebug xdebug) throws DaoException {

@@ -9,7 +9,9 @@ import java.util.HashMap;
 /**
  * Encapsulates Genetic Profile Data.
  * Stores the properties of each gene in each case.
- * also stores lists of the genes and cases
+ * Also stores lists of the genes and cases.
+ *
+ * @author Ethan Cerami.
  */
 public class ProfileData {
     private String[][] matrix;

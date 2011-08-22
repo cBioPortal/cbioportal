@@ -1,2 +1,0 @@
-ant remove
-ant install

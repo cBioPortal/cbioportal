@@ -341,7 +341,7 @@ public class WebService extends HttpServlet {
     }
 
     private void getProfileData(HttpServletRequest request, PrintWriter writer)
-            throws DaoException, ProtocolException, UnsupportedEncodingException {
+            throws DaoException, ProtocolException, IOException {
         ArrayList<String> caseList = getCaseList(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = getGeneticProfileId(request);
@@ -354,8 +354,9 @@ public class WebService extends HttpServlet {
         }
 
         Boolean suppressMondrianHeader = new Boolean(request.getParameter(SUPPRESS_MONDRIAN_HEADER));
-        String out = GetProfileData.getProfileData(geneticProfileIdList, targetGeneList,
+        GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 caseList, suppressMondrianHeader);
+        String out = getProfileData.getRawContent();
         writer.print(out);
     }
 

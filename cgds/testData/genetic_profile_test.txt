@@ -1,6 +1,0 @@
-cancer_study_identifier:  gbm
-stable_id:  gbm_rae
-profile_name:  Barry's CNA Data
-profile_description:  Blah	Blah.
-genetic_alteration_type:  COPY_NUMBER_ALTERATION
-target_line:  Barry

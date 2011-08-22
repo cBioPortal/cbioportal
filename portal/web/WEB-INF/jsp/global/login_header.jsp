@@ -93,4 +93,4 @@
 
   <tr valign="top">
     <td>
-        <div id="content">
+        <div>

@@ -32,25 +32,21 @@
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
 <jsp:include page="WEB-INF/jsp/global/login_header.jsp" flush="true" />
-<div id="main">
+
+<%
+    String login_error = request.getParameter("login_error");
+%>
+
+    <% if (login_error != null) { %>
+        <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:30px"> 
+            <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+            <strong>Unauthorized:</strong> You are not authorized to access this resource.
+            <p>To request access, please send email to:  cancergenomics AT cbio.mskcc.org</p>
+        </div>
+    <% } %>
 	   <table cellspacing="2px">
-		 <c:if test="${not empty param.login_error}">
-		   <tr>
-	         <td>
-	           <h1>&nbsp</h1>
-			   <font color="red">
-				 Your login attempt was not successful, try again.<br/><br/>
-				 Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>.
-			   </font>
-			 </td>
-           </tr>
-		   <tr><td>&nbsp</td></tr>
-		 </c:if>
 	     <tr>
 	       <td>
-			 <c:if test="${empty param.login_error}">
-	           <h1>&nbsp</h1>
-			 </c:if>
 	         <!-- Simple OpenID Selector -->
 	         <form action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
 	           <input type="hidden" name="action" value="verify" />
@@ -76,7 +72,6 @@
 	       </td>
 	     </tr>
        </table>
-</div>
 </td>
 </tr>
 <tr>

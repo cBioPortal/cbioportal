@@ -30,6 +30,9 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -340,13 +343,13 @@ public class QueryBuilder extends HttpServlet {
             }
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             Date startTime = new Date();
-            GetProfileData remoteCall = new GetProfileData();
-            ProfileData pData = remoteCall.getProfileData(profile, geneList, caseIds, xdebug);
+            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            ProfileData pData = remoteCall.getProfileData();
             Date stopTime = new Date();
             long timeElapsed = stopTime.getTime() - startTime.getTime();
             xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
             DownloadLink downloadLink = new DownloadLink(profile, geneList, caseIds,
-                    remoteCall.getContent());
+                    remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
             if( pData == null ){
@@ -356,7 +359,6 @@ public class QueryBuilder extends HttpServlet {
                   System.err.println( "pData.getGeneList() == null" );
                }
             }
-            xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
             if (pData != null) {
                 xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
                 xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
@@ -375,6 +377,11 @@ public class QueryBuilder extends HttpServlet {
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
                                     geneList, caseIds, xdebug);
+                    xdebug.logMsg(this, "Total number of mutation records retrieved:  "
+                        + tempMutationList.size());
+                    for (ExtendedMutation mutation:  tempMutationList) {
+                        xdebug.logMsg(this, "Extended Mutation:  " + mutation.getGeneSymbol());
+                    }
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         mutationList.addAll(tempMutationList);
                     }
@@ -419,8 +426,6 @@ public class QueryBuilder extends HttpServlet {
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
 
-            PrintWriter writer = response.getWriter();
-
             if (output != null) {
 
                 String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
@@ -434,11 +439,13 @@ public class QueryBuilder extends HttpServlet {
                     String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                             geneticProfileIdSet, profileList, true, true);
+                    PrintWriter writer = response.getWriter();
                     writer.write(out);
                     writer.flush();
                     writer.close();
                 } else if (output.equalsIgnoreCase("html")) {
                     response.setContentType("text/html");
+                    PrintWriter writer = response.getWriter();
                     writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                             "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                             "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -462,6 +469,7 @@ public class QueryBuilder extends HttpServlet {
 
                     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                             theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                    PrintWriter writer = response.getWriter();
                     writer.write("" + dataSummary.getPercentCasesAffected());
                     writer.flush();
                     writer.close();

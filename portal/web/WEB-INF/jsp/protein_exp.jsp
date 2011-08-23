@@ -5,23 +5,6 @@
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script> 
 
 <script type="text/javascript">
-    var newwindow = ''
-    function imgpopitup(url) {
-        if (newwindow.location && !newwindow.closed) {
-            newwindow.location.href = url; 
-            newwindow.focus(); } 
-        else { 
-            newwindow=window.open(url,'htmlname','width=600,height=600,resizable=1');} 
-    }
-    function boxplot(data,xlabel) {
-        // todo: rinstalled?
-        var url = 'boxplot.do?data='+data+'&xlabel='+xlabel+'&ylabel=Median-centered RPPA score';
-        imgpopitup(url);
-    }
-    // Based on JavaScript provided by Peter Curtis at www.pcurtis.com -->
-</script>
-
-<script type="text/javascript">
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
 	var x = parseFloat(a);
 	var y = parseFloat(b);
@@ -111,6 +94,10 @@
             return r+'</select>';
     }
     
+    function showBoxPlot(oTable, nTr) {
+        
+    };
+    
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
         $.post("ProteinArraySignificanceTest.json", 
@@ -180,7 +167,7 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     
-                                    var ret =value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+                                    var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[7]);
@@ -196,16 +183,23 @@
                               "bSearchable": false,
                               "aTargets": [ 9 ]
                             },
+                            { //"sTitle": "data",
+                              "bVisible": false,
+                              "bSearchable": false,
+                              "bSortable": false,
+                              "aTargets": [ 10 ]
+                            },
                             { //"sTitle": "plot",
-                              //"bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-//                                    if (isNaN(parseFloat(obj.aData[9])))
-//                                        return "";
-                                    return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";                                   
+                                    if (isNaN(parseFloat(obj.aData[9])))
+                                        return "";
+                                    //return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";
+                                    return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
-                              "aTargets": [ 10 ]
+                              "aTargets": [ 11 ]
+                                
                             }
                         ],
                         "aaSorting": [[9,'asc']],
@@ -239,6 +233,30 @@
                     //oTable.fnAdjustColumnSizing();
                 });
                 
+                /* Add event listener for opening and closing details
+                 * Note that the indicator for showing which row is open is not controlled by DataTables,
+                 * rather it is done here
+                 */
+                $('.details_img').live('click', function () {
+                    var nTr = this.parentNode.parentNode;
+                    if ( this.src.match('details_close') ) {
+                            /* This row is already open - close it */
+                            this.src = "images/details_open.png";
+                            oTable.fnClose( nTr );
+                    } else {
+                        /* Open this row */
+                        this.src = "images/details_close.png";
+                        $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
+                        var aData = oTable.fnGetData( nTr );
+                        var data = aData[10];
+                        var xlabel = "";
+                        var url = 'boxplot.do?data='+data+'&xlabel='+xlabel
+                            +'&ylabel=Median-centered RPPA score&width=500&height=400';
+                        var img = '<img src="'+url+'">';
+                        oTable.fnOpen( nTr, img, 'details' );
+                    }
+                } );
+                
                 $('table#protein_expr_wrapper').show();
                 $('div#protein_expr_wait').remove();
             }
@@ -270,7 +288,7 @@
                         <input type="checkbox" class="checkbox-select-columns" name="target" value="3,4" checked="checked"/>Target<br />
                         <input type="checkbox" class="checkbox-select-columns" name="abundance" value="7,8" checked="checked"/>Abundance<br />
                         <input type="checkbox" class="checkbox-select-columns" name="p-value" value="9" checked="checked"/>p-value<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="plot" value="10" checked="checked"/>Plot<br />
+                        <input type="checkbox" class="checkbox-select-columns" name="plot" value="11" checked="checked"/>Plot<br />
                         <input type="checkbox" class="checkbox-select-columns" name="source" value="5"/>Source Organism<br />
                         <input type="checkbox" class="checkbox-select-columns" name="validated" value="6"/>Validated?<br />
                     </fieldset> 
@@ -290,6 +308,7 @@
                         <th rowspan="2">Validated?</th>
                         <th colspan="2">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
                         <th rowspan="2">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th rowspan="2">data</th>
                         <th rowspan="2">Plot</th>
                     </tr>
                     <tr>

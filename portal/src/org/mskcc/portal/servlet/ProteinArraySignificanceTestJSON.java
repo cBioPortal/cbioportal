@@ -25,7 +25,8 @@ import org.apache.commons.math.MathException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
-import org.mskcc.portal.model.ProteinArrayInfo;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.ProteinArrayInfo;
 import org.mskcc.portal.remote.GetProteinArrayData;
 import org.mskcc.portal.util.XDebug;
 
@@ -62,8 +63,14 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         Set<String> allCases = getAllCases(heatMapLines);
         Map<String,Set<String>>[] alteredCases = getAlteredCases(heatMapLines, genes.length);
         
-        Map<String,ProteinArrayInfo> proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, null, xdebug);
-        Map<String,Map<String,Double>> proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases, xdebug);
+        Map<String,ProteinArrayInfo> proteinArrays;
+        Map<String,Map<String,Double>> proteinArrayData;
+        try {
+            proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, null, xdebug);
+            proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases, xdebug);
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        }
         
         for (int i=0; i<genes.length; i++) {
             Map<String,Set<String>> mapAlterationAltereCases = alteredCases[i];
@@ -78,13 +85,13 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                     
                     row.add(genes[i]);
                     row.add(alteration);
-                    row.add(pai.getArrayType());
+                    row.add(pai.getType());
                     row.add(pai.getGene());
                     row.add(pai.getResidue());
                     row.add(pai.getSource());
                     row.add(pai.isValidated());
 
-                    Map<String,Double> data = proteinArrayData.get(pai.getArrayId());
+                    Map<String,Double> data = proteinArrayData.get(pai.getId());
                     if (data==null) {
                         row.add("NaN");
                         row.add("NaN");

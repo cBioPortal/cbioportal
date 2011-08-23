@@ -73,17 +73,16 @@
 <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
   <tr valign="top">
     <td colspan="3">
-    <div id="header_wrapper">
-    <div id="header">
+    <div id="login_header_wrapper">
+    <div id="login_header_top">
 
         <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
     	<tr>
 	        <td class="logo" width="250px"><a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"/></a></td>
             <td class="logo" width="330px"><a href="index.do"><img src="<%= siteName %>" alt="Main Logo"/></a></td>
-            <td class="logo" width="200px"><img src="<%= tagLine %>" alt="Tag Line"/></td>
+            <td class="logo" width="200px"><img src="<%= tagLine %>"/></td>
         </tr>
         </table>
-		<div id="login_header"></div>
     <!-- End DIV id="header" -->
     </div>
 
@@ -94,4 +93,4 @@
 
   <tr valign="top">
     <td>
-        <div id="content">
+        <div>

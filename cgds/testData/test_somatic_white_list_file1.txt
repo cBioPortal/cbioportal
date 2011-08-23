@@ -1,4 +1,0 @@
-ONE
-FOUR
-FOO
-TWELVE

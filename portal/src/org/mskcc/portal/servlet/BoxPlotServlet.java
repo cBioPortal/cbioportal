@@ -1,6 +1,7 @@
 
 package org.mskcc.portal.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,10 @@ import org.rosuda.REngine.Rserve.RConnection;
  * @author jj
  */
 public class BoxPlotServlet extends HttpServlet {
-    private static Logger logger = Logger.getLogger(PlotServlet.class);
+    private static Logger logger = Logger.getLogger(BoxPlotServlet.class);
 
-    public static final int PLOT_WIDTH = 600;
-    public static final int PLOT_HEIGHT = 600;
+    public static final String PLOT_WIDTH = "width";
+    public static final String PLOT_HEIGHT = "height";
     public static final String DATA = "data";
     public static final String XLABEL = "xlabel";
     public static final String YLABEL = "ylabel";
@@ -45,6 +46,8 @@ public class BoxPlotServlet extends HttpServlet {
             String strData = request.getParameter(DATA);
             String xlabel = request.getParameter(XLABEL);
             String ylabel = request.getParameter(YLABEL);
+            String width = request.getParameter(PLOT_WIDTH);
+            String height = request.getParameter(PLOT_HEIGHT);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png
@@ -80,9 +83,9 @@ public class BoxPlotServlet extends HttpServlet {
                 plot.append("');\n");
             } else {
                 plot.append("Cairo(width=");
-                plot.append(PLOT_WIDTH);
+                plot.append(width);
                 plot.append(", height=");
-                plot.append(PLOT_HEIGHT);
+                plot.append(height);
                 plot.append(", file='");
                 plot.append(tmpfile);
                 plot.append("', type='");
@@ -115,8 +118,14 @@ public class BoxPlotServlet extends HttpServlet {
             RConnection c = new RConnection();
 
             // open device
-            c.parseAndEval(plot.toString());
-
+            try {
+                c.parseAndEval(plot.toString());
+            } catch (org.rosuda.REngine.REngineException e) {
+                if (!new File(tmpfile).exists()) {
+                    throw e;
+                }
+            }
+            
             // There is no I/O API in REngine because it's actually more efficient to use R for this
             // we limit the file size to 1MB which should be sufficient and we delete the file as well
             REXP xp = c.parseAndEval("r=readBin('" + tmpfile

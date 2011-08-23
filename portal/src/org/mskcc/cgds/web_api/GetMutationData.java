@@ -35,7 +35,7 @@ public class GetMutationData {
         //  Output Actual Data
         ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                 geneticProfile.getGeneticAlterationType(),
-                buf);
+                buf, new ArrayList<String>());
 
         //  Output DATA_TYPE
         buf.append("# DATA_TYPE\t " + geneticProfile.getProfileName() + "\n");

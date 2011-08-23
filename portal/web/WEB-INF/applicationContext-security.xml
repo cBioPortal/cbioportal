@@ -38,6 +38,14 @@
 -->
 	<http use-expressions="true">
 	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
+      <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/faq.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/data_sets.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/about_us.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
 	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
@@ -68,7 +76,7 @@
 		  <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true"/>
 		</attribute-exchange>
 	  </openid-login>
-	  <logout/>
+	  <logout logout-success-url="/login.jsp?logout_success=true"/>
       <!-- to enable access from matlab, r, python, etc clients -->
       <session-management session-fixation-protection="none"/>
 	</http>

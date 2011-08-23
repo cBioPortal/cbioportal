@@ -1,8 +1,19 @@
 <%@ page import="org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON" %>
 
-<link href="css/data_table.css" type="text/css" rel="stylesheet"/>
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .dataTables_length {
+                width: auto;
+        }
+</style>
 
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 
 <script type="text/javascript">
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
@@ -94,20 +105,23 @@
             return r+'</select>';
     }
     
-    function showBoxPlot(oTable, nTr) {
-        
-    };
-    
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
+        var params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
+        };
         $.post("ProteinArraySignificanceTest.json", 
-            {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html()
-            },
+            params,
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
-                //$('div#protein_exp').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" class="display" id="protein_expr"></table>' );
                 var oTable = $('table#protein_expr').dataTable( {
+                        "sDom": '<"H"Cfr>t<"F"lip>', // selectable columns
+			"oColVis": {
+                            "activate": "mouseover"
+                        },
+                        "bJQueryUI": true,
                         "aaData": aDataSet,
                         "aoColumnDefs":[
                             { //"sTitle": "Gene",
@@ -203,35 +217,28 @@
                             }
                         ],
                         "aaSorting": [[9,'asc']],
-                        "iDisplayLength": 25
+                        "oLanguage": {
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)",
+                            "sInfoFiltered": "",
+                            "sLengthMenu": "Show _MENU_ per page"
+                        },
+                        "iDisplayLength": -1,
+                        "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
                 
-                /* Add select menu*/
-                $("div#gene_select_box").html("<b>Gene</b>:<br/>"+fnCreateSelect(oTable.fnGetColumnData(0),"rppa_gene_select","Any"));
-                $('select#rppa_gene_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 0);
-                } );
-                oTable.fnFilter("Any",0);
-                
-                $("div#alteration_select_box").html("<br/><b>Alteration</b>:<br/>"+fnCreateSelect(oTable.fnGetColumnData(1),"rppa_alteration_select","Any"));
-                $('select#rppa_alteration_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 1);
-                } );
-                oTable.fnFilter("Any",1);
-                
-                $("div#array_type_select_box").html("<br/><b>Antibody Type</b>:<br/>"+fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation"));
+                $('div#protein_expr_filter').append("<br/>Antibody Type: "+fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation"));
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 2);
                 } );
                 oTable.fnFilter("phosphorylation",2);
-                
-                $("input.checkbox-select-columns").change(function(){
-                    var cols = $(this).val().split(',');
-                    for (var iCol in cols) {
-                        oTable.fnSetColumnVis( cols[iCol], $(this).is(":checked") );
-                    }
-                    //oTable.fnAdjustColumnSizing();
-                });
+//                
+//                $("input.checkbox-select-columns").change(function(){
+//                    var cols = $(this).val().split(',');
+//                    for (var iCol in cols) {
+//                        oTable.fnSetColumnVis( cols[iCol], $(this).is(":checked") );
+//                    }
+//                    //oTable.fnAdjustColumnSizing();
+//                });
                 
                 /* Add event listener for opening and closing details
                  * Note that the indicator for showing which row is open is not controlled by DataTables,
@@ -272,7 +279,8 @@
     
     <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper">
         
-        <tr><td>
+        <tr>
+            <!--td>
                 <br/><br/><br/>
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr><td>
@@ -295,21 +303,21 @@
                 </td></tr>
             </table>
         </td>
-        <td>&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;</td-->
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead>
                     <tr valign="bottom">
-                        <th rowspan="2">Gene</th>
-                        <th rowspan="2">Alteration</th>
-                        <th rowspan="2">Type</th>
-                        <th colspan="2">Target</th>
-                        <th rowspan="2">Source Organism</th>
-                        <th rowspan="2">Validated?</th>
-                        <th colspan="2">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
-                        <th rowspan="2">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2">data</th>
-                        <th rowspan="2">Plot</th>
+                        <th rowspan="2" nowrap="nowrap">Gene</th>
+                        <th rowspan="2" nowrap="nowrap">Alteration</th>
+                        <th rowspan="2" nowrap="nowrap">Type</th>
+                        <th colspan="2" nowrap="nowrap">Target</th>
+                        <th rowspan="2" nowrap="nowrap">Source Organism</th>
+                        <th rowspan="2" nowrap="nowrap">Validated?</th>
+                        <th colspan="2" nowrap="nowrap">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap">data</th>
+                        <th rowspan="2" nowrap="nowrap">Plot</th>
                     </tr>
                     <tr>
                         <th>Protein</th>
@@ -318,6 +326,22 @@
                         <th>Altered</th>
                     </tr>
                 </thead>
+                <tfoot>
+                    <tr valign="bottom">
+                        <th>Gene</th>
+                        <th>Alteration</th>
+                        <th>Type</th>
+                        <th>Protein</th>
+                        <th>Residue</th>
+                        <th>Source Organism</th>
+                        <th>Validated?</th>
+                        <th>Unaltered</th>
+                        <th>Altered</th>
+                        <th>p-value</th>
+                        <th>data</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
         </td></tr>
     </table>

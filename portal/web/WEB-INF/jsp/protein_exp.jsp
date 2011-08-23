@@ -94,19 +94,17 @@
             return r+'</select>';
     }
     
-    function showBoxPlot(oTable, nTr) {
-        
-    };
-    
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
+        var params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
+        };
         $.post("ProteinArraySignificanceTest.json", 
-            {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html()
-            },
+            params,
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
-                //$('div#protein_exp').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" class="display" id="protein_expr"></table>' );
                 var oTable = $('table#protein_expr').dataTable( {
                         "aaData": aDataSet,
                         "aoColumnDefs":[

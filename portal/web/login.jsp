@@ -35,10 +35,17 @@
 
 <%
     String login_error = request.getParameter("login_error");
+    String logout_success = request.getParameter("logout_success");
 %>
 
+    <% if (logout_success != null) { %>
+        <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:30px">
+            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+            <strong>You are now signed out.</strong></p>
+        </div>
+    <% } %>
     <% if (login_error != null) { %>
-        <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:30px"> 
+        <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:30px">
             <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
             <strong>Unauthorized:</strong> You are not authorized to access this resource.
             <p>To request access, please send email to:  cancergenomics AT cbio.mskcc.org</p>

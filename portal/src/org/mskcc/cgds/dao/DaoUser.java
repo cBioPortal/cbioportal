@@ -121,12 +121,8 @@ public class DaoUser {
 
    private static User extractUser(ResultSet rs) throws SQLException {
 
-      User user = new User();
-
-      user.setEmail(rs.getString("EMAIL"));
-      user.setName(rs.getString("NAME"));
-      user.setEnabled(rs.getBoolean("ENABLED"));
-
-      return user;
+       return new User(rs.getString("EMAIL"),
+                       rs.getString("NAME"),
+                       rs.getBoolean("ENABLED"));
    }
 }

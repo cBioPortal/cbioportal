@@ -4,13 +4,12 @@ import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.dao.DaoUserAccessRight;
+import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAccessRight;
+import org.mskcc.cgds.model.UserAuthorities;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.cgds.util.internal.AccessControlImpl;
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.web_api.ProtocolException;
@@ -26,7 +25,6 @@ public class TestAccessControl extends TestCase {
     User user1;
     User user2;
     String clearTextKey;
-	AccessControl accessControl = new AccessControlImpl();
 
     public void testVariousUtilities() throws Exception {
         /* TBD: Recoded when we provide granualar access

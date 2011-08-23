@@ -220,7 +220,7 @@
 		  <then>
 			<copy overwrite="yes" tofile="${build.dir}/WEB-INF/web.xml" file="${web.dir}/WEB-INF/web-security.xml"/>
 			<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes" file="${web.dir}/WEB-INF/applicationContext-security.xml"/>
-			<!--<copy overwrite="yes" todir="${build.dir}/META-INF" file="${web.dir}/WEB-INF/context.xml"/>-->
+			<copy overwrite="yes" todir="${build.dir}/META-INF" file="${web.dir}/WEB-INF/context.xml"/>
 		  </then>
 		<elseif>
 		  <equals arg1="${authenticate}" arg2="false"/>

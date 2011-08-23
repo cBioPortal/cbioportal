@@ -238,11 +238,14 @@ public class DaoMutation {
         return mutationList;
     }
 
-    private ExtendedMutation extractMutation(ResultSet rs) throws SQLException {
+    private ExtendedMutation extractMutation(ResultSet rs) throws SQLException, DaoException {
         ExtendedMutation mutation = new ExtendedMutation();
         mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         mutation.setCaseId(rs.getString("CASE_ID"));
         mutation.setEntrezGeneId(rs.getLong("ENTREZ_GENE_ID"));
+        DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
+        CanonicalGene gene = aDaoGene.getGene(mutation.getEntrezGeneId());
+        mutation.setGeneSymbol(gene.getHugoGeneSymbol());
         mutation.setCenter(rs.getString("CENTER"));
         mutation.setSequencer(rs.getString("SEQUENCER"));
         mutation.setMutationStatus(rs.getString("MUTATION_STATUS"));

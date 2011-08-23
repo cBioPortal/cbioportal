@@ -23,7 +23,7 @@ public class ResetDatabase {
     public static void resetAnySizeDatabase() throws DaoException {
 
         DaoUser.deleteAllRecords();
-        //DaoUserAccessRight.deleteAllRecords();
+        DaoUserAuthorities.deleteAllRecords();
         DaoTypeOfCancer.deleteAllRecords();
         DaoCancerStudy.deleteAllRecords();
         DaoMicroRna daoMicroRna = new DaoMicroRna();

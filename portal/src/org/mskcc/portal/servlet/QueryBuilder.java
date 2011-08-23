@@ -314,16 +314,28 @@ public class QueryBuilder extends HttpServlet {
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
+        ArrayList<String> tempGeneList = new ArrayList<String>();
+        for (String gene : geneList){
+            gene = gene.toUpperCase();
+            tempGeneList.add(gene);
+        }
+        geneList = tempGeneList;
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
+        HashSet<String> caseIdList = null;
         if (!caseSetId.equals("-1")) {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
+                    caseIdList = new HashSet<String>(caseSet.getCaseList());
+                    caseSet.getCaseList();
                     //TODO: why not break?
                 }
             }
+        } else if (caseSetId.equals("-1")) {
+
+                caseIdList.add(caseSetId);
         }
         
         request.setAttribute(CASE_IDS, caseIds);
@@ -376,7 +388,7 @@ public class QueryBuilder extends HttpServlet {
                     GetMutationData remoteCallMutation = new GetMutationData();
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
-                                    geneList, caseIds, xdebug);
+                                    geneList, caseIdList, xdebug);
                     xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                         + tempMutationList.size());
                     for (ExtendedMutation mutation:  tempMutationList) {

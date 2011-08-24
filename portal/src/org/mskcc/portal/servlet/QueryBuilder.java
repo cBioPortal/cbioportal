@@ -267,7 +267,7 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         }
-        //if user specifies specific cases, add these to hashset, and send to GetMutationData
+        //if user specifies cases, add these to hashset, and send to GetMutationData
             else {
             String[] caseIdSplit = caseIds.split("\\s+");
             setOfCaseIds = new HashSet<String>();

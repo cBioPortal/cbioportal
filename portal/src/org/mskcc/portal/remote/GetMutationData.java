@@ -57,6 +57,7 @@ public class GetMutationData {
                     ArrayList<ExtendedMutation> tempmutationList =
                             daoMutation.getMutations(GeneticProfile, entrezID);
                     for (ExtendedMutation mutation : tempmutationList){
+                        // seperate out mutations for the given set of caseIDS.
                         if (caseIdSet.contains(mutation.getCaseId()))
                             mutationList.add(mutation);
                     }

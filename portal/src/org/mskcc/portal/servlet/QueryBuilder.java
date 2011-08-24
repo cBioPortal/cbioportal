@@ -265,8 +265,6 @@ public class QueryBuilder extends HttpServlet {
                     caseSet.getCaseList();
                 }
             }
-        } else if (caseSetId.equals("-1")) {
-                caseIdList.add(caseSetId);
         }
         
         request.setAttribute(CASE_IDS, caseIds);

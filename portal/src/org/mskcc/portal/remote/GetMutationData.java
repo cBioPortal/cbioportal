@@ -25,7 +25,7 @@ public class GetMutationData {
      *
      * @param profile  GeneticProfile Object.
      * @param geneList ArrayList of official gene symbols.
-     * @param caseIds  Space-delimited list of case IDs.
+     * @param caseIdSet HashSet of Strings which are Case Ids.
      * @return ProfileData Object in an ArrayList.
      * @throws DaoException, as of August 2011 GetMutationData has direct access to DAO Objects.
      */

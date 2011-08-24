@@ -23,7 +23,7 @@
 <%
 // Output step 4 form validation error
 if (step4ErrorMsg != null) {
-    out.println("<div class='ui-state-error ui-corner-all' style='margin-top:4px; padding:5px;'>"
+    out.println("<div class='ui-state-error ui-corner-all'>"
             + "<span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>"
             + "<strong>" + step4ErrorMsg + "</strong>");
 }

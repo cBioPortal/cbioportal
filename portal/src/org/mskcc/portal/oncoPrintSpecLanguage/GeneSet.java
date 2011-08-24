@@ -52,7 +52,7 @@ public class GeneSet {
        ArrayList<String> allGenes = new ArrayList<String>();
        for( GeneWithSpec gene: Genes ){
           if( null != gene.name ){
-             allGenes.add( gene.name );
+             allGenes.add( gene.name.toUpperCase());
           }
       }
        return allGenes;

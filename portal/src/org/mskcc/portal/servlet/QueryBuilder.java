@@ -250,7 +250,6 @@ public class QueryBuilder extends HttpServlet {
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
         ArrayList<String> tempGeneList = new ArrayList<String>();
         for (String gene : geneList){
-            gene = gene.toUpperCase();
             tempGeneList.add(gene);
         }
         geneList = tempGeneList;

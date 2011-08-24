@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
@@ -256,17 +257,25 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
-        HashSet<String> caseIdList = null;
+        HashSet<String> setOfCaseIds = null;
         if (!caseSetId.equals("-1")) {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
-                    caseIdList = new HashSet<String>(caseSet.getCaseList());
+                    setOfCaseIds = new HashSet<String>(caseSet.getCaseList());
                     caseSet.getCaseList();
                 }
             }
-        } else if (caseSetId.equals("-1")) {
-                caseIdList.add(caseSetId);
+        }
+        //if user specifies cases, add these to hashset, and send to GetMutationData
+            else {
+            String[] caseIdSplit = caseIds.split("\\s+");
+            setOfCaseIds = new HashSet<String>();
+            for (String caseID : caseIdSplit){
+                if (null != caseID){
+                   setOfCaseIds.add(caseID);
+                }
+            }
         }
         
         request.setAttribute(CASE_IDS, caseIds);
@@ -314,7 +323,7 @@ public class QueryBuilder extends HttpServlet {
                     GetMutationData remoteCallMutation = new GetMutationData();
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
-                                    geneList, caseIdList, xdebug);
+                                    geneList, setOfCaseIds, xdebug);
                     xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                         + tempMutationList.size());
                     if (tempMutationList != null && tempMutationList.size() > 0) {
@@ -482,7 +491,7 @@ public class QueryBuilder extends HttpServlet {
                                 ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
                                  String geneList, String caseSetId, String caseIds,
-                                 HttpServletRequest httpServletRequest) {
+                                 HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.TAB_INDEX);
         if (action != null) {
@@ -508,21 +517,34 @@ public class QueryBuilder extends HttpServlet {
                     errorsExist = true;
                 }
                 if (geneList != null && geneList.trim().length() > 0) {
-                    String geneSymbols[] = geneList.split("\\s");
-                    int numGenes = 0;
-                    for (String gene : geneSymbols) {
-                        if (gene.trim().length() > 0) {
-                            numGenes++;
-                        }
-                    }
-
-                    if (numGenes > MAX_NUM_GENES) {
-                        httpServletRequest.setAttribute(STEP4_ERROR_MSG,
-                                "Please restrict your request to " + MAX_NUM_GENES
+                    GeneValidator geneValidator = new GeneValidator(geneList);
+                    int numGenes = geneValidator.getGeneList().size();
+                    if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
                                         + " genes or less.");
                         errorsExist = true;
                     }
-                    
+
+                    //  Validate the incoming gene list
+                    ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
+                    if (invalidGeneList.size() > 0) {
+                        StringBuffer errorMessage = new StringBuffer
+                                ("Invalid or unrecognized gene(s):  ");
+                        for (int i=0; i<invalidGeneList.size(); i++) {
+                            String invalidGeneId = invalidGeneList.get(i);
+                            errorMessage.append(invalidGeneId);
+                            if (i < invalidGeneList.size() -1) {
+                                errorMessage.append(", ");
+                            } else {
+                                errorMessage.append(".");
+                            }
+                        }
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                errorMessage.toString());
+                        errorsExist = true;
+                    }
+
                     // output any errors generated by the parser
                     ParserOutput theOncoPrintSpecParserOutput =
                             OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,

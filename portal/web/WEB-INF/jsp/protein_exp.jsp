@@ -10,6 +10,9 @@
         .dataTables_length {
                 width: auto;
         }
+        td.rppa-details {
+                background-color : white;
+        }
 </style>
 
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
@@ -267,7 +270,7 @@
                         var html = '<img src="boxplot.do?'+param+'">'
                                 +'<br/>&nbsp;&nbsp;'
                                 +'<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>';
-                        oTable.fnOpen( nTr, html, 'details' );
+                        oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
                 } );
                 
@@ -291,22 +294,22 @@
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead>
                     <tr valign="bottom">
-                        <th rowspan="2" nowrap="nowrap">Gene</th>
-                        <th rowspan="2" nowrap="nowrap">Alteration</th>
-                        <th rowspan="2" nowrap="nowrap">Type</th>
-                        <th colspan="2" nowrap="nowrap">Target</th>
-                        <th rowspan="2" nowrap="nowrap">Source Organism</th>
-                        <th rowspan="2" nowrap="nowrap">Validated?</th>
-                        <th colspan="2" nowrap="nowrap">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap">data</th>
-                        <th rowspan="2" nowrap="nowrap">Plot</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Gene</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Alteration</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Type</th>
+                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Target</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Source Organism</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Validated?</th>
+                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">data</th>
+                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Plot</th>
                     </tr>
                     <tr>
-                        <th>Protein</th>
-                        <th>Residue</th>
-                        <th>Unaltered</th>
-                        <th>Altered</th>
+                        <th nowrap="nowrap" style="font-size:80%">Protein</th>
+                        <th nowrap="nowrap" style="font-size:80%">Residue</th>
+                        <th nowrap="nowrap" style="font-size:80%">Unaltered</th>
+                        <th nowrap="nowrap" style="font-size:80%">Altered</th>
                     </tr>
                 </thead>
                 <tfoot>

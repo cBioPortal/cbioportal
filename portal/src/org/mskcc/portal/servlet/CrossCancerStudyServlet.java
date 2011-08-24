@@ -1,6 +1,7 @@
 package org.mskcc.portal.servlet;
 
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.portal.util.GeneValidator;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.portal.remote.GetCancerTypes;
@@ -84,17 +85,31 @@ public class CrossCancerStudyServlet extends HttpServlet {
                     errorsExist = true;
                 }
                 if (geneList != null && geneList.trim().length() > 0) {
-                    String geneSymbols[] = geneList.split("\\s");
-                    int numGenes = 0;
-                    for (String gene : geneSymbols) {
-                        if (gene.trim().length() > 0) {
-                            numGenes++;
-                        }
-                    }
+                    GeneValidator geneValidator = new GeneValidator(geneList);
+                    int numGenes = geneValidator.getGeneList().size();
                     if (numGenes > QueryBuilder.MAX_NUM_GENES) {
                         httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
                                 "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
                                         + " genes or less.");
+                        errorsExist = true;
+                    }
+
+                    //  Validate the incoming gene list
+                    ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
+                    if (invalidGeneList.size() > 0) {
+                        StringBuffer errorMessage = new StringBuffer
+                                ("Invalid or unrecognized gene(s):  ");
+                        for (int i=0; i<invalidGeneList.size(); i++) {
+                            String invalidGeneId = invalidGeneList.get(i);
+                            errorMessage.append(invalidGeneId);
+                            if (i < invalidGeneList.size() -1) {
+                                errorMessage.append(", ");
+                            } else {
+                                errorMessage.append(".");
+                            }
+                        }
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                errorMessage.toString());
                         errorsExist = true;
                     }
                 }

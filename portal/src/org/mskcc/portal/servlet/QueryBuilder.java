@@ -30,8 +30,6 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
@@ -228,58 +226,6 @@ public class QueryBuilder extends HttpServlet {
         }
     }
 
-
-
-    // This method checks the user information sent in the Authorization
-    // header against the database of users maintained in the users Hashtable.
-    protected boolean allowUser(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        String auth = request.getHeader("Authorization");
-        if (auth == null) {
-            askForPassword (response);
-            return false;
-        } else {
-            String userInfo = auth.substring(6).trim();
-            // TODO: replace unsupported library
-            /*
-             * but sun.misc.* isn't supported (see http://java.sun.com/products/jdk/faq/faq-sun-packages.html);
-             * replace it with 
-             * import org.apache.commons.codec.binary.Base64;
-             * 
-            String nameAndPassword = new String(Base64.decodeBase64(userInfo.getBytes())); 
-             * 
-             */
-            sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
-            String nameAndPassword = new String (decoder.decodeBuffer(userInfo));
-            if (nameAndPassword != null) {
-                int index = nameAndPassword.indexOf(":");
-                if (index > -1) {
-                    String user = nameAndPassword.substring(0, index);
-                    String password = nameAndPassword.substring(index+1);
-
-                    // Check our user list to see if that user and password are "allowed"
-                    if (user.equals("tcga_user") && password.equals("tcga123")) {
-                        return true;
-                    } else {
-                        askForPassword(response);
-                        return false;
-                    }
-                } else {
-                    askForPassword(response);
-                    return false;
-                }
-            } else {
-                askForPassword(response);
-                return false;
-            }
-        }
-    }
-
-    private void askForPassword (HttpServletResponse response) throws IOException {
-        response.setHeader("WWW-Authenticate", "BASIC realm=\"users\"");
-        response.sendError(response.SC_UNAUTHORIZED);
-    }
-    
     /**
      * process a good request
      * 
@@ -309,11 +255,12 @@ public class QueryBuilder extends HttpServlet {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr, 
+       ParserOutput theOncoPrintSpecParserOutput =
+               OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
                 geneticProfileIdSet, profileList, zScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
-        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
+        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
         ArrayList<String> tempGeneList = new ArrayList<String>();
         for (String gene : geneList){
             gene = gene.toUpperCase();
@@ -383,7 +330,6 @@ public class QueryBuilder extends HttpServlet {
                     (GeneticAlterationType.MUTATION_EXTENDED)) {
                 if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
-                    startTime = new Date();
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
                     GetMutationData remoteCallMutation = new GetMutationData();
                     ArrayList<ExtendedMutation> tempMutationList =
@@ -397,9 +343,6 @@ public class QueryBuilder extends HttpServlet {
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         mutationList.addAll(tempMutationList);
                     }
-                    stopTime = new Date();
-                    timeElapsed = stopTime.getTime() - startTime.getTime();
-                    xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
                 } else {
                     request.setAttribute(MUTATION_DETAIL_LIMIT_REACHED, Boolean.TRUE);
                 }
@@ -448,7 +391,8 @@ public class QueryBuilder extends HttpServlet {
                 if (output.equalsIgnoreCase("svg")) {
                     response.setContentType("image/svg+xml");
                     MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
+                            caseSetList, caseSetId,
                             zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                             geneticProfileIdSet, profileList, true, true);
                     PrintWriter writer = response.getWriter();
@@ -512,14 +456,6 @@ public class QueryBuilder extends HttpServlet {
     
     /**
      * validate the portal web input form.
-     * @param action
-     * @param profileList
-     * @param geneticProfileIdSet
-     * @param geneList the list of genes, possibly annotated with the OncoPrintSpec language
-     * @param caseSetId
-     * @param caseIds
-     * @param httpServletRequest
-     * @return true, if the form contains fatal error(s) that require it be resubmitted
      */
     private boolean validateForm(String action,
                                 ArrayList<GeneticProfile> profileList,
@@ -561,20 +497,26 @@ public class QueryBuilder extends HttpServlet {
 
                     if (numGenes > MAX_NUM_GENES) {
                         httpServletRequest.setAttribute(STEP4_ERROR_MSG,
-                                "Please restrict your request to " + MAX_NUM_GENES + " genes or less.");
+                                "Please restrict your request to " + MAX_NUM_GENES
+                                        + " genes or less.");
                         errorsExist = true;
                     }
                     
                     // output any errors generated by the parser
-                    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList, 
-                             geneticProfileIdSet, profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, httpServletRequest ) );                    
+                    ParserOutput theOncoPrintSpecParserOutput =
+                            OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
+                             geneticProfileIdSet, profileList,
+                                    ZScoreUtil.getZScore(geneticProfileIdSet, profileList,
+                                            httpServletRequest ) );
                     
-                    if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0<theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
+                    if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0
+                            <theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
                        StringBuffer sb = new StringBuffer();
                        for( String e: theOncoPrintSpecParserOutput.getSyntaxErrors() ){
                           sb.append(e+"<br>");
                        }
-                       for( OncoPrintLangException e: theOncoPrintSpecParserOutput.getSemanticsErrors() ){
+                       for( OncoPrintLangException e:
+                               theOncoPrintSpecParserOutput.getSemanticsErrors() ){
                           sb.append(e.getMessage()+"<br>");
                        }
                        httpServletRequest.setAttribute(STEP4_ERROR_MSG, sb.toString() );

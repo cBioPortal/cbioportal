@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
@@ -30,8 +31,6 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
@@ -228,75 +227,10 @@ public class QueryBuilder extends HttpServlet {
         }
     }
 
-
-
-    // This method checks the user information sent in the Authorization
-    // header against the database of users maintained in the users Hashtable.
-    protected boolean allowUser(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        String auth = request.getHeader("Authorization");
-        if (auth == null) {
-            askForPassword (response);
-            return false;
-        } else {
-            String userInfo = auth.substring(6).trim();
-            // TODO: replace unsupported library
-            /*
-             * but sun.misc.* isn't supported (see http://java.sun.com/products/jdk/faq/faq-sun-packages.html);
-             * replace it with 
-             * import org.apache.commons.codec.binary.Base64;
-             * 
-            String nameAndPassword = new String(Base64.decodeBase64(userInfo.getBytes())); 
-             * 
-             */
-            sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
-            String nameAndPassword = new String (decoder.decodeBuffer(userInfo));
-            if (nameAndPassword != null) {
-                int index = nameAndPassword.indexOf(":");
-                if (index > -1) {
-                    String user = nameAndPassword.substring(0, index);
-                    String password = nameAndPassword.substring(index+1);
-
-                    // Check our user list to see if that user and password are "allowed"
-                    if (user.equals("tcga_user") && password.equals("tcga123")) {
-                        return true;
-                    } else {
-                        askForPassword(response);
-                        return false;
-                    }
-                } else {
-                    askForPassword(response);
-                    return false;
-                }
-            } else {
-                askForPassword(response);
-                return false;
-            }
-        }
-    }
-
-    private void askForPassword (HttpServletResponse response) throws IOException {
-        response.setHeader("WWW-Authenticate", "BASIC realm=\"users\"");
-        response.sendError(response.SC_UNAUTHORIZED);
-    }
-    
     /**
      * process a good request
      * 
-     * @param geneticProfileIdSet  User Selected Genetic Profiles
-     * @param profileList  Genetic Profiles for Selected Cancer Type
-     * @param geneListStr  User Defined Gene List, i.e., input in the 'gene symbols / OQL' text box
-     * @param caseSetId  
-     * @param caseIds  User Selected Case Set
-     * @param caseSetList  Case Sets for Selected Cancer Type
-     * @param servletContext
-     * @param request  the HTTP Request
-     * @param response the HTTP Response
-     * @param xdebug
-     * 
-     * @throws IOException
-     * @throws ServletException
-     */
+    */
     private void processData(HashSet<String> geneticProfileIdSet,
                                 ArrayList<GeneticProfile> profileList,
                                 String geneListStr,
@@ -309,33 +243,39 @@ public class QueryBuilder extends HttpServlet {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr, 
+       ParserOutput theOncoPrintSpecParserOutput =
+               OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
                 geneticProfileIdSet, profileList, zScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
-        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes() );
+        geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
         ArrayList<String> tempGeneList = new ArrayList<String>();
         for (String gene : geneList){
-            gene = gene.toUpperCase();
             tempGeneList.add(gene);
         }
         geneList = tempGeneList;
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
-        HashSet<String> caseIdList = null;
+        HashSet<String> setOfCaseIds = null;
         if (!caseSetId.equals("-1")) {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
-                    caseIdList = new HashSet<String>(caseSet.getCaseList());
+                    setOfCaseIds = new HashSet<String>(caseSet.getCaseList());
                     caseSet.getCaseList();
-                    //TODO: why not break?
                 }
             }
-        } else if (caseSetId.equals("-1")) {
-
-                caseIdList.add(caseSetId);
+        }
+        //if user specifies cases, add these to hashset, and send to GetMutationData
+            else {
+            String[] caseIdSplit = caseIds.split("\\s+");
+            setOfCaseIds = new HashSet<String>();
+            for (String caseID : caseIdSplit){
+                if (null != caseID){
+                   setOfCaseIds.add(caseID);
+                }
+            }
         }
         
         request.setAttribute(CASE_IDS, caseIds);
@@ -354,12 +294,8 @@ public class QueryBuilder extends HttpServlet {
                continue;
             }
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
-            Date startTime = new Date();
             GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
             ProfileData pData = remoteCall.getProfileData();
-            Date stopTime = new Date();
-            long timeElapsed = stopTime.getTime() - startTime.getTime();
-            xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
             DownloadLink downloadLink = new DownloadLink(profile, geneList, caseIds,
                     remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
@@ -383,23 +319,16 @@ public class QueryBuilder extends HttpServlet {
                     (GeneticAlterationType.MUTATION_EXTENDED)) {
                 if (geneList.size() <= MUTATION_DETAIL_LIMIT) {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
-                    startTime = new Date();
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
                     GetMutationData remoteCallMutation = new GetMutationData();
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
-                                    geneList, caseIdList, xdebug);
+                                    geneList, setOfCaseIds, xdebug);
                     xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                         + tempMutationList.size());
-                    for (ExtendedMutation mutation:  tempMutationList) {
-                        xdebug.logMsg(this, "Extended Mutation:  " + mutation.getGeneSymbol());
-                    }
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         mutationList.addAll(tempMutationList);
                     }
-                    stopTime = new Date();
-                    timeElapsed = stopTime.getTime() - startTime.getTime();
-                    xdebug.logMsg(this, "Total Time for Connection to Web API:  " + timeElapsed + " ms.");
                 } else {
                     request.setAttribute(MUTATION_DETAIL_LIMIT_REACHED, Boolean.TRUE);
                 }
@@ -429,6 +358,10 @@ public class QueryBuilder extends HttpServlet {
 
             xdebug.logMsg(this, "Merged Profile, Number of genes:  "
                     + mergedProfile.getGeneList().size());
+            ArrayList<String> mergedProfileGeneList = mergedProfile.getGeneList();
+            for (String currentGene:  mergedProfileGeneList) {
+                xdebug.logMsg(this, "Merged Profile Gene:  " + currentGene);
+            }
             xdebug.logMsg(this, "Merged Profile, Number of cases:  "
                     + mergedProfile.getCaseIdList().size());
             request.setAttribute(MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
@@ -446,58 +379,24 @@ public class QueryBuilder extends HttpServlet {
                     showAlteredColumnsBool = true;
                 }
                 if (output.equalsIgnoreCase("svg")) {
-                    response.setContentType("image/svg+xml");
-                    MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-                            zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                            geneticProfileIdSet, profileList, true, true);
-                    PrintWriter writer = response.getWriter();
-                    writer.write(out);
-                    writer.flush();
-                    writer.close();
+                    outputSvg(response, geneListStr, mergedProfile, caseSetList, caseSetId,
+                            zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
+                            profileList);
                 } else if (output.equalsIgnoreCase("html")) {
-                    response.setContentType("text/html");
-                    PrintWriter writer = response.getWriter();
-                    writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-                            "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                            "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
-                    writer.write ("<head>\n");
-                    writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-                    writer.write ("<title>OncoPrint::Results</title>\n");
-                    writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-                    writer.write ("</head>\n");
-                    writer.write ("<body style=\"background-color:#FFFFFF\">\n");
-                    MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-                    String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-                            zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                            geneticProfileIdSet, profileList, true, true);
-                    writer.write(out);
-                    writer.write ("</body>\n");
-                    writer.write ("</html>\n");
-                    writer.flush();
-                    writer.close();
+                    outputOncoprintHtml(response, geneListStr, mergedProfile, caseSetList,
+                            caseSetId, zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
+                            profileList);
                 } else if (output.equals("text")) {
-                    response.setContentType("text/plain");
-
-                    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
-                    PrintWriter writer = response.getWriter();
-                    writer.write("" + dataSummary.getPercentCasesAffected());
-                    writer.flush();
-                    writer.close();
+                    outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
+                            zScoreThreshold);
                 } else if (output.equals(OS_SURVIVAL_PLOT)) {
-                    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
-                    SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
-                            clinicalDataList, dataSummary, format, response);
+                    outputOsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
+                            zScoreThreshold, clinicalDataList, format, response);
                 } else if (output.equals(DFS_SURVIVAL_PLOT)) {
-                    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
-                    SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS, 
-                            clinicalDataList, dataSummary, format, response);
+                    outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
+                            zScoreThreshold, clinicalDataList, format, response);
                 }
             } else {
-
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
                 RequestDispatcher dispatcher =
@@ -509,23 +408,90 @@ public class QueryBuilder extends HttpServlet {
                     response, 0, xdebug);
         }
     }
-    
+
+    private void outputDfsSurvivalPlot(ProfileData mergedProfile,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ArrayList<ClinicalData> clinicalDataList, String format,
+            HttpServletResponse response) throws IOException {
+        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+        SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS,
+                clinicalDataList, dataSummary, format, response);
+    }
+
+    private void outputOsSurvivalPlot(ProfileData mergedProfile,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ArrayList<ClinicalData> clinicalDataList, String format,
+            HttpServletResponse response) throws IOException {
+        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+        SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
+                clinicalDataList, dataSummary, format, response);
+    }
+
+    private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold) throws IOException {
+        response.setContentType("text/plain");
+        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+        PrintWriter writer = response.getWriter();
+        writer.write("" + dataSummary.getPercentCasesAffected());
+        writer.flush();
+        writer.close();
+    }
+
+    private void outputOncoprintHtml(HttpServletResponse response, String geneListStr,
+            ProfileData mergedProfile, ArrayList<CaseList> caseSetList, String caseSetId,
+            double zScoreThreshold, boolean showAlteredColumnsBool,
+            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
+            throws IOException {
+        response.setContentType("text/html");
+        PrintWriter writer = response.getWriter();
+        writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
+                "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
+        writer.write ("<head>\n");
+        writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
+        writer.write ("<title>OncoPrint::Results</title>\n");
+        writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+        writer.write ("</head>\n");
+        writer.write ("<body style=\"background-color:#FFFFFF\">\n");
+        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
+        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+                geneticProfileIdSet, profileList, true, true);
+        writer.write(out);
+        writer.write ("</body>\n");
+        writer.write ("</html>\n");
+        writer.flush();
+        writer.close();
+    }
+
+    private void outputSvg(HttpServletResponse response, String geneListStr,
+            ProfileData mergedProfile, ArrayList<CaseList> caseSetList,
+            String caseSetId, double zScoreThreshold, boolean showAlteredColumnsBool,
+            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
+            throws IOException {
+        response.setContentType("image/svg+xml");
+        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
+        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
+                caseSetList, caseSetId,
+                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+                geneticProfileIdSet, profileList, true, true);
+        PrintWriter writer = response.getWriter();
+        writer.write(out);
+        writer.flush();
+        writer.close();
+    }
+
     /**
      * validate the portal web input form.
-     * @param action
-     * @param profileList
-     * @param geneticProfileIdSet
-     * @param geneList the list of genes, possibly annotated with the OncoPrintSpec language
-     * @param caseSetId
-     * @param caseIds
-     * @param httpServletRequest
-     * @return true, if the form contains fatal error(s) that require it be resubmitted
      */
     private boolean validateForm(String action,
                                 ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
                                  String geneList, String caseSetId, String caseIds,
-                                 HttpServletRequest httpServletRequest) {
+                                 HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.TAB_INDEX);
         if (action != null) {
@@ -551,30 +517,49 @@ public class QueryBuilder extends HttpServlet {
                     errorsExist = true;
                 }
                 if (geneList != null && geneList.trim().length() > 0) {
-                    String geneSymbols[] = geneList.split("\\s");
-                    int numGenes = 0;
-                    for (String gene : geneSymbols) {
-                        if (gene.trim().length() > 0) {
-                            numGenes++;
-                        }
-                    }
-
-                    if (numGenes > MAX_NUM_GENES) {
-                        httpServletRequest.setAttribute(STEP4_ERROR_MSG,
-                                "Please restrict your request to " + MAX_NUM_GENES + " genes or less.");
+                    GeneValidator geneValidator = new GeneValidator(geneList);
+                    int numGenes = geneValidator.getGeneList().size();
+                    if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
+                                        + " genes or less.");
                         errorsExist = true;
                     }
-                    
+
+                    //  Validate the incoming gene list
+                    ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
+                    if (invalidGeneList.size() > 0) {
+                        StringBuffer errorMessage = new StringBuffer
+                                ("Invalid or unrecognized gene(s):  ");
+                        for (int i=0; i<invalidGeneList.size(); i++) {
+                            String invalidGeneId = invalidGeneList.get(i);
+                            errorMessage.append(invalidGeneId);
+                            if (i < invalidGeneList.size() -1) {
+                                errorMessage.append(", ");
+                            } else {
+                                errorMessage.append(".");
+                            }
+                        }
+                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                                errorMessage.toString());
+                        errorsExist = true;
+                    }
+
                     // output any errors generated by the parser
-                    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList, 
-                             geneticProfileIdSet, profileList, ZScoreUtil.getZScore(geneticProfileIdSet, profileList, httpServletRequest ) );                    
+                    ParserOutput theOncoPrintSpecParserOutput =
+                            OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
+                             geneticProfileIdSet, profileList,
+                                    ZScoreUtil.getZScore(geneticProfileIdSet, profileList,
+                                            httpServletRequest ) );
                     
-                    if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0<theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
+                    if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0
+                            <theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
                        StringBuffer sb = new StringBuffer();
                        for( String e: theOncoPrintSpecParserOutput.getSyntaxErrors() ){
                           sb.append(e+"<br>");
                        }
-                       for( OncoPrintLangException e: theOncoPrintSpecParserOutput.getSemanticsErrors() ){
+                       for( OncoPrintLangException e:
+                               theOncoPrintSpecParserOutput.getSemanticsErrors() ){
                           sb.append(e.getMessage()+"<br>");
                        }
                        httpServletRequest.setAttribute(STEP4_ERROR_MSG, sb.toString() );

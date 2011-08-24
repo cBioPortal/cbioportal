@@ -262,10 +262,12 @@
                         var aData = oTable.fnGetData( nTr );
                         var data = aData[10];
                         var xlabel = "";
-                        var url = 'boxplot.do?data='+data+'&xlabel='+xlabel
+                        var param = 'data='+data+'&xlabel='+xlabel
                             +'&ylabel=Median-centered RPPA score&width=500&height=400';
-                        var img = '<img src="'+url+'">';
-                        oTable.fnOpen( nTr, img, 'details' );
+                        var html = '<img src="boxplot.do?'+param+'">'
+                                +'<br/>&nbsp;&nbsp;'
+                                +'<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>';
+                        oTable.fnOpen( nTr, html, 'details' );
                     }
                 } );
                 
@@ -285,30 +287,6 @@
     <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper">
         
         <tr>
-            <!--td>
-                <br/><br/><br/>
-            <table cellpadding="0" cellspacing="0" border="0">
-                <tr><td>
-                    <fieldset><legend>Parameters</legend>
-                        <div id="gene_select_box"></div>
-                        <div id="alteration_select_box"></div>
-                        <div id="array_type_select_box"></div>
-                    </fieldset> 
-                </td></tr>
-                <tr><td>
-                        <br/>
-                    <fieldset><legend>Select Columns</legend>
-                        <input type="checkbox" class="checkbox-select-columns" name="target" value="3,4" checked="checked"/>Target<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="abundance" value="7,8" checked="checked"/>Abundance<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="p-value" value="9" checked="checked"/>p-value<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="plot" value="11" checked="checked"/>Plot<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="source" value="5"/>Source Organism<br />
-                        <input type="checkbox" class="checkbox-select-columns" name="validated" value="6"/>Validated?<br />
-                    </fieldset> 
-                </td></tr>
-            </table>
-        </td>
-        <td>&nbsp;&nbsp;</td-->
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead>

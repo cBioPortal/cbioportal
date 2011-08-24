@@ -10,6 +10,9 @@
         .dataTables_length {
                 width: auto;
         }
+        td.rppa-details {
+                background-color : white;
+        }
 </style>
 
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
@@ -267,7 +270,7 @@
                         var html = '<img src="boxplot.do?'+param+'">'
                                 +'<br/>&nbsp;&nbsp;'
                                 +'<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>';
-                        oTable.fnOpen( nTr, html, 'details' );
+                        oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
                 } );
                 

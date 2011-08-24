@@ -3,19 +3,17 @@ package org.mskcc.portal.test.tool;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.tool.RenderImageDataType;
 import org.mskcc.portal.util.ProfileMerger;
 import org.mskcc.portal.util.WebFileConnect;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 public class TestRenderImageDataType extends TestCase {
    
@@ -23,14 +21,18 @@ public class TestRenderImageDataType extends TestCase {
       
       ArrayList<ProfileData> profileList = new ArrayList<ProfileData>();
 
-      GeneticProfile profile0 = new GeneticProfile("ovarian_cna", "CNA", "NA",
-              GeneticAlterationType.COPY_NUMBER_ALTERATION, true);
+      GeneticProfile profile0 =
+              new GeneticProfile("ovarian_cna", 1,
+              GeneticAlterationType.COPY_NUMBER_ALTERATION,
+                      "Ovarian CNA", "Ovarian CNA", true);
       String matrix0[][] = WebFileConnect.retrieveMatrix(new File("test_data/cna_sample.txt"));
       ProfileData data0 = new ProfileData(profile0, matrix0);
       profileList.add(data0);
 
-      GeneticProfile profile1 = new GeneticProfile("ovarian_protein", "PROTEIN_LEVEL", "NA",
-               GeneticAlterationType.PROTEIN_LEVEL, true);
+      GeneticProfile profile1 = new
+              GeneticProfile
+              ("ovarian_protein", 1, GeneticAlterationType.PROTEIN_LEVEL,
+              "Ovarian Protein", "Ovarian Protein", true);
       String matrix1[][] = WebFileConnect.retrieveMatrix(
                new File("test_data/protein_sample.txt"));
       ProfileData data1 = new ProfileData(profile1, matrix1);

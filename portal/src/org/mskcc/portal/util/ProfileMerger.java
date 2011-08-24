@@ -1,7 +1,7 @@
 package org.mskcc.portal.util;
 
-import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.model.ProfileData;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public class ProfileMerger {
             //  Get the data value and alteration type for gene X in caseId Y in profile Z
             String value = data.getValue(gene, caseId);
             GeneticAlterationType alterationType =
-                    data.getGeneticProfile().getAlterationType();
+                    data.getGeneticProfile().getGeneticAlterationType();
 
             //  Handle Copy Number Changes
             if (alterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
@@ -114,11 +114,10 @@ public class ProfileMerger {
                 if (value != null) {
                     status.append(GeneticAlterationType.MRNA_EXPRESSION + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
-            } else if (alterationType.equals(GeneticAlterationType.MUTATION)
-                    || alterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            } else if (alterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 //  Handle Mutation Data
                 if (value != null) {
-                    status.append(GeneticAlterationType.MUTATION + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                    status.append(GeneticAlterationType.MUTATION_EXTENDED + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
             } else if (alterationType.equals(GeneticAlterationType.METHYLATION)) {
                 if (value != null) {

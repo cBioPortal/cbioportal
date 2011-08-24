@@ -2,55 +2,60 @@
 	<ul id="network_menu">
 	    <li>
 	    	<a id="network_menu_file">File</a>
-	    	<ul>
+	    	<ul id="file_menu">
 	    		<li>
 	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
-	    				Save as image (PNG)
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="joker_button" onclick="handleMenuEvent('joker_button')">
-	    				TEMP..
+	    				Save as Image (PNG)
 	    			</a>
 	    		</li>
 	    	</ul>
 	    </li>
 	    <li>
 	    	<a id="network_menu_topology">Topology</a>
-	    	<ul>
+	    	<ul id="topology_menu">
 	    		<li>
 	    			<a id="hide_selected" onclick="handleMenuEvent('hide_selected')">
-	    				Hide Selected
+	    				Hide
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="hide_non_selected" onclick="handleMenuEvent('hide_non_selected')">
+	    				Crop
 	    			</a>
 	    		</li>
 	    		<li>
 	    			<a id="unhide_all" onclick="handleMenuEvent('unhide_all')">
-	    				Unhide All
+	    				Unhide
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
-	    				Auto Layout on Changes
+	    			<a id="remove_disconnected" onclick="handleMenuEvent('remove_disconnected')">
+	    				Remove Disconnected Nodes on Hide
 	    			</a>
 	    		</li>
 	    	</ul>
 	    </li>
 	    <li>
 	    	<a id="network_menu_view">View</a>
-	    	<ul>
-	    		<li>
-	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
-	    				Perform Layout
-	    			</a>
-	    		</li>
-	    		<li>
-	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
-	    				Layout Properties ...
-	    			</a>
-	    		</li>
+	    	<ul id="view_menu">
 	    		<li>
 	    			<a id="show_profile_data" onclick="handleMenuEvent('show_profile_data')">
 	    				Always Show Profile Data
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="merge_links" onclick="handleMenuEvent('merge_links')">
+	    				Merge Interactions
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="show_node_labels" onclick="handleMenuEvent('show_node_labels')">
+	    				Show Node Labels
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="show_pan_zoom_control" onclick="handleMenuEvent('show_pan_zoom_control')">
+	    				Show Pan-Zoom Control
 	    			</a>
 	    		</li>
 	    		<li>
@@ -63,19 +68,24 @@
 	    				Remove Highlights
 	    			</a>
 	    		</li>
+	    	</ul>
+	    </li>
+	    <li>
+	    	<a id="network_menu_layout">Layout</a>
+	    	<ul id="layout_menu">
 	    		<li>
-	    			<a id="merge_links" onclick="handleMenuEvent('merge_links')">
-	    				Merge Relations
+	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
+	    				Perform Layout
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_node_labels" onclick="handleMenuEvent('show_node_labels')">
-	    				Show Node Labels
+	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
+	    				Layout Properties ...
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_pan_zoom_control" onclick="handleMenuEvent('show_pan_zoom_control')">
-	    				Show Pan-Zoom Control
+	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
+	    				Auto Layout on Changes
 	    			</a>
 	    		</li>
 	    	</ul>
@@ -189,7 +199,7 @@
 		</table>
 	</div>
 	<div class="footer">
-		<input type="button" id="save_layout_settings" class="ui-state-default" value="Save"/>
-		<input type="button" id="default_layout_settings" class="ui-state-default" value="Default"/>
+		<input type="button" id="save_layout_settings" value="Save"/>
+		<input type="button" id="default_layout_settings" value="Default"/>
 	</div>
 </div>

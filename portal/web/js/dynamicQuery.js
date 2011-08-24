@@ -15,15 +15,9 @@
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
-    //  Get Portal JSON Meta Data via JQuery AJAX
-    jQuery.getJSON("portal_meta_data.json",function(json){
-        //  Store JSON Data in global variable for later use
-        window.metaDataJson = json;
 
-        //  Add Meta Data to current page
-        addMetaDataToPage();
-    });  //  end getJSON function
-
+     //  Load Portal JSON Meta Data while showing loader image in place of query form
+     loadMetaData();
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_cancer_type").change(function() {
@@ -77,7 +71,47 @@ $(document).ready(function(){
        userClickedMainTab("tab_download");
     });
 
+    $('.step_header').click(function(){
+         $(".ui-icon", this).toggle();
+         $("#optional_args").toggle();
+    })
+
+
 });  //  end document ready function
+
+
+//  Load Portal JSON Meta Data, while showing loader image
+function loadMetaData() {
+        $('#load').remove();
+        //  show ajax loader image; loader is background image of div 'load' as set in css
+        $('.main_query_panel').append('<div id="load">&nbsp;</div>');
+        $('#load').fadeIn('slow');
+
+        //  hide the main query form until all meta data is loaded and added to page
+        $('#main_query_form').hide('fast',loadContent);
+
+        function loadContent() {
+            //  Get Portal JSON Meta Data via JQuery AJAX
+            jQuery.getJSON("portal_meta_data.json",function(json){
+                //  Store JSON Data in global variable for later use
+                window.metaDataJson = json;
+
+                //  Add Meta Data to current page
+                addMetaDataToPage();
+                showNewContent();
+            });
+        }
+        function showNewContent() {
+            //show content, hide loader only after content is shown
+            $('#main_query_form').fadeIn('fast',hideLoader());
+        }
+        function hideLoader() {
+            //hide loader image
+            $('#load').fadeOut();
+        }
+}
+
+
 
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {
@@ -124,6 +158,32 @@ function unselectAllSubgroups(profileUnselected) {
     var profileClass = profileUnselected.attr('class');
     var radioSelector = "input."+profileClass+"[type=radio]";
     $(radioSelector).attr('checked',false);
+}
+
+// Show or hide mRNA threshold field based on mRNA profile selected
+function toggle_threshold(profileClicked) {
+    var selectedProfile = profileClicked.val();
+    var inputType = profileClicked.attr('type');
+
+    // when a radio button is clicked, show threshold input unless user chooses expression outliers
+    if(inputType == 'radio'){
+        if(selectedProfile.indexOf("outlier")==-1){
+            $("#z_score_threshold").slideDown();
+        } else {
+            $("#z_score_threshold").slideUp();
+        }
+    } else if(inputType == 'checkbox'){
+        var subgroup = $("input.MRNA_EXPRESSION[type=radio]");
+        // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
+        // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
+        if (profileClicked.attr('checked') && (subgroup = null || subgroup.length==0)){
+            $("#z_score_threshold").slideDown();
+        }
+        // if checkbox is unselected, hide threshold input regardless of whether there are subgroups
+        else if(!profileClicked.attr('checked')){
+            $("#z_score_threshold").slideUp();
+        }
+    }
 }
 
 //  Triggered when a cancer study has been selected, either by the user
@@ -191,6 +251,11 @@ function cancerStudySelected() {
     //  Set up an Event Handler for User unselecting a genomic profile
     $('input[type=checkbox]').click(function(){
         unselectAllSubgroups($(this));
+    });
+
+    //  Set up an Event Handler for showing/hiding mRNA threshold input
+    $(".MRNA_EXPRESSION").click(function(){
+       toggle_threshold($(this));
     });
 }
 
@@ -322,21 +387,25 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
     //  First count how many profiles match the targetAltertion type
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
+
         if (genomic_profile.alteration_type == targetAlterationType) {
             if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
                 //  Branch depending on number of profiles
                 var optionType = "checkbox";
+                var inputName = 'genetic_profile_ids';
                 if (downloadTab) {
                     optionType = "radio";
                 } else {
                     if (numProfiles == 1) {
                         optionType = "checkbox";
+                        inputName = 'genetic_profile_ids';
                     } else if (numProfiles > 1) {
                         optionType = "radio";
+                        inputName = targetAlterationType + "_subtype";
                     }
                 }
-                profileHtml += outputGenomicProfileOption (optionType, targetAlterationType,
-                        genomic_profile.id, genomic_profile.name, genomic_profile.description);                
+                profileHtml += outputGenomicProfileOption (optionType, inputName, targetAlterationType,
+                        genomic_profile.id, genomic_profile.name, genomic_profile.description);
             }
         }
     }); //  end for each genomic profile loop
@@ -345,13 +414,23 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         //  If we have more than 1 profile, output the end div tag
         profileHtml += "</div>";
     }
+
+    if(targetAlterationType == 'MRNA_EXPRESSION'){
+        var inputName = '<%=QueryBuilder.Z_SCORE_THRESHOLD%>';
+        profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
+        + "<input type='text' name='" + inputName + "' size='6' value='2.0'>"
+        + "</div>";
+    }
+
     $("#genomic_profiles").append(profileHtml);
+
 }
 
 // Outputs a Single Genomic Profile Options
-function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
+function outputGenomicProfileOption (optionType, inputName, targetAlterationType, id, name, description) {
     var html =  "<input type='" + optionType + "' class='" + targetAlterationType + "' "
-        + "name='genetic_profile_ids' group='" + targetAlterationType + "'"
+        //+ "name='genetic_profile_ids' group='" + targetAlterationType + "'"
+        + "name='" + inputName + "' "
         + "value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";

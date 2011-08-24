@@ -1,11 +1,11 @@
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.model.GeneticProfile" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.model.GeneticAlterationType" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.portal.servlet.GeneratePlots" %>
+<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -20,6 +20,7 @@ $(document).ready(function() {
         var mrna_profile_id = $('select[name="mrnra_profile_id"] option:selected').val();
         var cna_profile_id = $('select[name="cna_profile_id"] option:selected').val();
         var methylation_profile_id = $('select[name="methylation_profile_id"] option:selected').val();
+        var rppa_protein_profile_id = $('select[name="rppa_protein_profile_id"] option:selected').val();
         var plot_type = $('select[name="plot_type"] option:selected').val();
         var includeNormals = $('input:checkbox[name=include_normals]:checked').val();
 
@@ -34,6 +35,9 @@ $(document).ready(function() {
                 "&include_normals="+includeNormals;
                 if(methylation_profile_id){
                     toLoad = toLoad+"&methylation_profile_id="+methylation_profile_id;
+                }
+                if(rppa_protein_profile_id){
+                    toLoad = toLoad+"&rppa_protein_profile_id="+rppa_protein_profile_id;
                 }
                 toLoad = toLoad + "&plot_type="+plot_type;
 
@@ -118,9 +122,10 @@ $(document).ready(function() {
     int mRNAProfileCounter = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION);
     int cnaProfileCounter = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION);
     int methylationProfileCounter = countProfiles(profileList, GeneticAlterationType.METHYLATION);
+    int rppaProteinProfileCounter = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL);
 
-    if (mutationProfileCounter <=1 & mRNAProfileCounter <=1 & cnaProfileCounter <= 1
-            & methylationProfileCounter <=1) {
+    if (mutationProfileCounter <=1 && mRNAProfileCounter <=1 && cnaProfileCounter <= 1
+            && methylationProfileCounter <=1 && rppaProteinProfileCounter <= 1) {
         out.println ("<BR><BR>");
     } else {
         out.println ("<BR><BR><b>Data Types:</b><br><br>");
@@ -154,7 +159,13 @@ $(document).ready(function() {
             GeneticAlterationType.METHYLATION, geneticProfileIdSet, out);
     }
 
-    if (methylationProfileCounter > 0) {
+    //  Output rppa Profiles
+    if (rppaProteinProfileCounter > 0) {
+        outputProfiles(GeneratePlots.RPPA_PROTEIN_PROFILE_ID, profileList,
+            GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, geneticProfileIdSet, out);
+    }
+
+    if (methylationProfileCounter > 0 || rppaProteinProfileCounter > 0) {
         out.println ("<BR><BR><b>Plot Type:</b><br><br>");
     }
     out.println ("<select style=\"width:180;\"name='plot_type'>");
@@ -162,13 +173,16 @@ $(document).ready(function() {
     if (methylationProfileCounter > 0) {
         out.println ("<option value='mrna_methylation'>DNA Methylation v. mRNA</option>");
     }
+    if (rppaProteinProfileCounter > 0) {
+        out.println ("<option value='mrna_rppa_protein'>RPPA protein level v. mRNA</option>");
+    }
     out.println ("</select>");
 
-    for (CaseSet caseSet:  caseSets) {
+    for (CaseList caseSet:  caseSets) {
         if (caseSet.getName().toLowerCase().contains("normal")) {
             out.println ("&nbsp;<BR><INPUT TYPE=CHECKBOX NAME='" + GeneratePlots.INCLUDE_NORMALS +"' VALUE='INCLUDE_NORMALS'/>Include Normals");
             out.println ("<INPUT TYPE=HIDDEN NAME=" + GeneratePlots.NORMAL_CASE_SET_ID + "' VALUE='"
-                    + caseSet.getId() + "'/>");
+                    + caseSet.getStableId() + "'/>");
         }
     }
 
@@ -191,11 +205,12 @@ $(document).ready(function() {
 
 <%!
     // Counts Number of Genetic Profiles of the Specified Alteration Type.
-    public int countProfiles(ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
+    public int countProfiles(ArrayList<GeneticProfile> profileList,
+            GeneticAlterationType type) {
         int counter = 0;
         for (int i = 0; i < profileList.size(); i++) {
             GeneticProfile profile = profileList.get(i);
-            if (profile.getAlterationType() == type) {
+            if (profile.getGeneticAlterationType() == type) {
                 counter++;
             }
         }
@@ -210,21 +225,21 @@ $(document).ready(function() {
         boolean mRNASelected = false;
         for (int i = 0; i < profileList.size(); i++) {
             GeneticProfile profile = profileList.get(i);
-            if (profile.getAlterationType() == type) {
-                out.print("<option value='" + profile.getId()
-                        + "' title='" + profile.getDescription() + "' ");
-                if (geneticProfileIdSet.contains(profile.getId())) {
+            if (profile.getGeneticAlterationType() == type) {
+                out.print("<option value='" + profile.getStableId()
+                        + "' title='" + profile.getProfileDescription() + "' ");
+                if (geneticProfileIdSet.contains(profile.getStableId())) {
                     out.print ("SELECTED ");
                 } else if (type.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
                     //  Output the first Non-Z-Score mRNA Profile as Default
-                    if (!profile.getName().toLowerCase().contains("z-score")
+                    if (!profile.getProfileName().toLowerCase().contains("z-score")
                             && mRNASelected == false) {
                         out.print ("SELECTED ");
                         mRNASelected = true;
                     }
                 }
                 out.print (">");
-                out.print (profile.getName() + "</option>");
+                out.print (profile.getProfileName() + "</option>");
             }
         }
         out.println("</select>");

@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-                         "http://java.sun.com/dtd/web-app_2_3.dtd">
-<web-app>
+
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
     <display-name>Cancer Genomics Portal</display-name>
+
+	<!-- SPRING SECURITY SETTINGS START -->
+
+    <!--
+      - Location of the XML file that defines the root application context
+      - Applied by ContextLoaderListener.  We read this in to disable method security.
+	-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+		  /WEB-INF/classes/applicationContext-security.xml
+		</param-value>
+	</context-param>
+
+	<!-- SPRING SECURITY SETTINGS END -->
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
@@ -16,6 +33,28 @@
             <param-value>pathway_commons_url_value</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>webservice</servlet-name>
+        <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
+        <init-param>
+            <param-name>db_host</param-name>
+            <param-value>db_host__value</param-value>
+        </init-param>
+         <init-param>
+            <param-name>db_name</param-name>
+            <param-value>db_name__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_user</param-name>
+            <param-value>db_user__value</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_password</param-name>
+            <param-value>db_password__value</param-value>
+        </init-param>
+        <load-on-startup/>
     </servlet>
 
     <servlet>
@@ -39,22 +78,17 @@
     </servlet>
 
     <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>generatePlots</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
             <param-name>r_installed</param-name>
             <param-value>r_installed_value</param-value>
         </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>openIDServlet</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.OpenIDServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.HandleOpenIDproviderResp</servlet-class>
     </servlet>
 
     <servlet>
@@ -71,6 +105,16 @@
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>webservice</servlet-name>
+        <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
@@ -113,18 +157,18 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>openIDServlet</servlet-name>
-        <url-pattern>/openIDServlet.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>handleOpenIDproviderResp</servlet-name>
-        <url-pattern>/handleOpenIDproviderResp.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -135,6 +179,11 @@
     <servlet-mapping>
         <servlet-name>network</servlet-name>
         <url-pattern>/network.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

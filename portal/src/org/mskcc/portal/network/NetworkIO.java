@@ -84,7 +84,7 @@ public class NetworkIO {
             
             // read nodes xrefs
             line = bufReader.readLine();
-            if (!line.startsWith("PARTICIPANT\tUNIFICATION_XREF\tRELATIONSHIP_XREF")) {
+            if (!line.startsWith("PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\tUNIFICATION_XREF\tRELATIONSHIP_XREF")) {
                 System.err.print("cPath2 format changed.");
                 //return network;
             }
@@ -93,8 +93,22 @@ public class NetworkIO {
             while ((line = bufReader.readLine())!=null && !line.isEmpty()) {
                 String[] strs = line.split("\t");
                 Node node = network.getNodeById(strs[0]);
-                for (int i=1; i<strs.length; i++) {
-                    if (nodeHeaders[i].endsWith("_XREF")) {
+                for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
+                    if (nodeHeaders[i].equals("PARTICIPANT_TYPE")) {
+                        String type;
+                        if (strs[i].equals("ProteinReference")) {
+                            type = "Protein";
+                        } else if (strs[i].equals("SmallMoleculeReference")) {
+                            type = "SmallMolecule";
+                        } else {
+                            type = "Unknown";
+                        }
+                        node.setType(type);
+                    } else if (nodeHeaders[i].equals("PARTICIPANT_NAME")) {
+                        for (String name : strs[i].split(";")) {
+                            node.addAttribute("name", name);
+                        }
+                    } else if (nodeHeaders[i].endsWith("_XREF")) {
                         for (String xref : strs[i].split(";")) {
                             String[] typeId = xref.split(":",2);
                             if (typeId[0].equals("HGNC"))
@@ -106,20 +120,6 @@ public class NetworkIO {
                         node.addAttribute(nodeHeaders[i], strs[i]);
                     }
                 }
-            }
-            
-            // set node types
-            // TODO: remove this after node types are exported
-            for (Node node : network.getNodes()) {
-                String id = node.getId();
-                String type;
-                if (id.startsWith("urn:miriam:uniprot:"))
-                    type = "Protein";
-                else if (id.startsWith("urn:miriam:chebi:"))
-                    type = "SmallMolecule";
-                else
-                    type = "Unknown";
-                node.setType(type);
             }
             
             return network;
@@ -173,26 +173,7 @@ public class NetworkIO {
             sbNodeEdge.append(node.getType());
             sbNodeEdge.append("</data>\n");
             
-            for (Attribute av : node.getAttributes()) {
-                String attr = av.getName();
-                Object value = av.getValue();
-                
-                sbNodeEdge.append("   <data key=\"");
-                sbNodeEdge.append(attr);
-                sbNodeEdge.append("\">");
-                sbNodeEdge.append(value);
-                sbNodeEdge.append("</data>\n");
-                
-                String type = getAttrType(value);
-                
-                String pre = mapNodeAttrNameType.get(attr);
-                if (pre!=null) {
-                    if (!pre.equals(type))
-                        mapNodeAttrNameType.put(attr, "string");
-                } else {
-                    mapNodeAttrNameType.put(attr, type);
-                }
-            }
+            exportAttributes(node.getAttributes(),sbNodeEdge,mapNodeAttrNameType);
             sbNodeEdge.append("  </node>\n");
         }
         
@@ -209,26 +190,7 @@ public class NetworkIO {
             sbNodeEdge.append(edge.getInteractionType());
             sbNodeEdge.append("</data>\n");
             
-            for (Attribute av : edge.getAttributes()) {
-                String attr = av.getName();
-                Object value = av.getValue();
-                
-                sbNodeEdge.append("   <data key=\"");
-                sbNodeEdge.append(attr);
-                sbNodeEdge.append("\">");
-                sbNodeEdge.append(value);
-                sbNodeEdge.append("</data>\n");
-                
-                String type = getAttrType(value);
-                
-                String pre = mapEdgeAttrNameType.get(attr);
-                if (pre!=null) {
-                    if (!pre.equals(type))
-                        mapEdgeAttrNameType.put(attr, "string");
-                } else {
-                    mapEdgeAttrNameType.put(attr, type);
-                }
-            }
+            exportAttributes(edge.getAttributes(),sbNodeEdge,mapEdgeAttrNameType);
             sbNodeEdge.append("  </edge>\n");
         }
         
@@ -268,6 +230,31 @@ public class NetworkIO {
         sb.append("</graphml>\n");
         
         return sb.toString();
+    }
+    
+    private static void exportAttributes(Map<String,Set<Object>> attrs, 
+            StringBuilder to, Map<String,String> mapAttrNameType) {
+        for (Map.Entry<String,Set<Object>> entry : attrs.entrySet()) {
+            String attr = entry.getKey();
+
+            for (Object value : entry.getValue()) {
+                to.append("   <data key=\"");
+                to.append(attr);
+                to.append("\">");
+                to.append(value);
+                to.append("</data>\n");
+
+                String type = getAttrType(value);
+
+                String pre = mapAttrNameType.get(attr);
+                if (pre!=null) {
+                    if (!pre.equals(type))
+                        mapAttrNameType.put(attr, "string");
+                } else {
+                    mapAttrNameType.put(attr, type);
+                }
+            }
+        }
     }
     
     private static String getAttrType(Object obj) {

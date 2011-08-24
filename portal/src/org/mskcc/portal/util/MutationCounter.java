@@ -1,7 +1,7 @@
 package org.mskcc.portal.util;
 
 import org.mskcc.portal.model.ExtendedMutationMap;
-import org.mskcc.portal.model.ExtendedMutation;
+import org.mskcc.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
 

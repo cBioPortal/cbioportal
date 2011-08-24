@@ -5,8 +5,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mskcc.portal.openIDlogin.PortalAccessControl;
-
 /**
  * Encapsulates Real-time debugging information.
  * XDebug provides a simple facility for logging debug messages,

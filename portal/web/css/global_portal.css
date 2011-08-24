@@ -30,6 +30,13 @@ body {
   height:120px;
 }
 
+#login_header_wrapper {
+  background: #fff ;
+  margin:0px; padding:0px;
+  width:860px;
+  height:50px;
+}
+
 #header h1 {
   margin:0px;
   font-family: verdana, arial, sans-serif;
@@ -521,13 +528,13 @@ td.op_data_cell{
 }
 
 
-#threshold {
+/*#threshold {
     height: 35px;
     display: none;
     margin:0px;
     padding-top: 1px;
     margin-left:77px;
-}
+}  */
 
 #tabs {
     display: none;
@@ -819,6 +826,13 @@ table {
   height:120px;
 }
 
+#login_header_top {
+  padding:5px 0px 0px 0px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  margin:0px;
+  height:70px;
+}
+
 #header td.navigation {
     position:relative;
     font: 14px verdana, arial, helvetica, sans-serif;
@@ -863,6 +877,7 @@ table {
 }
 
 #header td.navigation li.selected, #header td.navigation li a:hover {
+    height:29px;
     background:#8cbadc;
     color:#ffffff;
     text-decoration:none;
@@ -902,6 +917,25 @@ table {
   width: 160px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;
+}
+
+#login_header {
+  height: 50px;
+  background-color: #1974b8;
+  clear: both;
+  text-align: center;
+  padding-top:12px;
+  /*color: #B6CEF9;*/
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  border-right: 1px solid #ffffff;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #0f3974;
+  border-left:1px solid #0f3974; /*#bbb;*/
+  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
 }
 
 #footer {
@@ -1064,6 +1098,11 @@ color:white;
     padding-top:10px;
 }
 
+/* Main Query Form */
+#main_query_form {
+    display:none; /* hide until window is loaded */
+}
+
 /* Step Section */
 .query_step_section {
     padding:10px;
@@ -1116,6 +1155,13 @@ color:white;
    margin-top:2px;
    margin-bottom:5px;
    font-size:90%;
+}
+
+/* Z-score threshold input (hidden until appropriate radio button selected) */
+#z_score_threshold {
+   display: none;
+   margin-left: 64px;
+   font-size: 90%;
 }
 
 /* Do not allow user to resize the text area */

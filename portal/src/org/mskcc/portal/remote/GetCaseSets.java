@@ -1,11 +1,11 @@
 package org.mskcc.portal.remote;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.mskcc.portal.model.CaseSet;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.dao.DaoCaseList;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CaseList;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 /**
@@ -13,52 +13,23 @@ import java.util.ArrayList;
  */
 public class GetCaseSets {
 
-   // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
     /**
-     * Gets all Case Sets Associated with a specific Cancer type.
+     * Gets all Case Sets Associated with a specific Cancer Study.
      *
-     * @param cancerTypeId Cancer Type ID.
+     * @param cancerStudyId Cancer Study ID.
      * @return ArrayList of CaseSet Objects.
-     * @throws RemoteException Remote / Network IO Error.
+     * @throws DaoException Database Error.
      */
-   // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
-    public static ArrayList<CaseSet> getCaseSets(String cancerTypeId, XDebug xdebug)
-            throws RemoteException {
-        ArrayList<CaseSet> caseList = new ArrayList<CaseSet>();
-        String content = "";
-        try {
-
-            //  Create Query Parameters
-            NameValuePair[] data = {
-                    new NameValuePair(CgdsProtocol.CMD, "getCaseLists"),
-                    new NameValuePair(CgdsProtocol.CANCER_STUDY_ID, cancerTypeId)
-            };
-
-            // Parse Text Response
-            CgdsProtocol protocol = new CgdsProtocol(xdebug);
-            content = protocol.connect(data, xdebug);
-            String lines[] = content.split("\n");
-            if (lines.length > 2) {
-                for (int i = 2; i < lines.length; i++) {
-                    String parts[] = lines[i].split("\t");
-                    String id = parts[0];
-                    String name = parts[1];
-                    String desc = parts[2];
-                    String cases = parts[4];
-                    CaseSet caseSet = new CaseSet();
-                    caseSet.setId(id);
-                    caseSet.setName(name);
-                    caseSet.setDescription(desc);
-                    caseSet.setCaseList(cases);
-                    caseList.add(caseSet);
-                    xdebug.logMsg(GetCaseSets.class, "Case Set Retrieved:  " + id);
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new RemoteException("Remote Access Error:  Got line:  " + content, e);
-        } catch (IOException e) {
-            throw new RemoteException("Remote Access Error", e);
+    public static ArrayList<CaseList> getCaseSets(String cancerStudyId)
+            throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        if (cancerStudy != null) {
+            DaoCaseList daoCaseList = new DaoCaseList();
+            ArrayList<CaseList> caseList = daoCaseList.getAllCaseLists(cancerStudy.getInternalId());
+            return caseList;
+        } else {
+            ArrayList<CaseList> caseList = new ArrayList<CaseList>();
+            return caseList;
         }
-        return caseList;
     }
 }

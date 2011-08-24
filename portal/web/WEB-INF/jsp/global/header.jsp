@@ -1,3 +1,6 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
 <%
     Config globalConfig = Config.getInstance();
     String tagLine = globalConfig.getProperty("tag_line_image");
@@ -28,6 +31,7 @@
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <!DOCTYPE HTML>
 <html>
@@ -73,7 +77,7 @@
 <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
   <tr valign="top">
     <td colspan="3">
-    <div id="header_wrapper">
+	 <div id="header_wrapper">
     <div id="header">
 
         <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
@@ -82,9 +86,17 @@
             <td class="logo" width="330px"><a href="index.do"><img src="<%= siteName %>" alt="Main Logo"/></a></td>
             <td class="logo" width="200px"><img src="<%= tagLine %>" alt="Tag Line"/></td>
         </tr>
+<%
+   if (SkinUtil.usersMustAuthenticate()) {
+%>
+		<tr>
+			<td colspan="3"><span style="float:right;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span></td>
+		</tr>
+<%
+}
+%>
         </table>
-
-        <table width="100%">
+       <table width="100%">
         <tr>
             <td class="navigation">
                <ul>
@@ -113,16 +125,11 @@
 					   	<a href="web_api.jsp">Web API</a>
 					</li>
 					<li class="internal">
-					   	<a href="cgds_r.jsp">R/MATLAB</a>
+					   	<a href="cgds_r.jsp">R Package</a>
 					</li>
                     <li class="internal">
                         <a href="networks.jsp">Networks</a>
                     </li>
-                    <!--
-                    <li class="internal">
-                        <a href="login.jsp">Login</a>
-                    </li>
-                    -->
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>

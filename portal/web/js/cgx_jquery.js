@@ -24,8 +24,11 @@ $(document).ready(function(){
     $('input[value*="mutation"]').attr('checked', true);
 
 
+
+/**********  THIS HAS BEEN REPLACED IN dynamicQuery.js ********/
+/***********                   CAN BE DELETED                       *********/
     //only show threshold options if gene expression profile is checked
-    $('#threshold').hide();
+    /*$('#threshold').hide();
     $('#mRNAcheckbox' ).click(function(){
         var checkboxSelected = $('#mRNAcheckbox input[type=checkbox]:checked').val();
         var radio = $('#mRNAcheckbox input[type=radio]').val();
@@ -42,7 +45,8 @@ $(document).ready(function(){
         } else {
             $('#threshold').slideUp();
         }
-    });
+    });      */
+/*****************************************************************/
 
     var hovering=false;
     var maxNextClicks = $('#ppy2 li').length * 2;

@@ -1,11 +1,16 @@
 package org.mskcc.portal.servlet;
 
-import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.util.*;
+import org.mskcc.portal.model.ProfileData;
+import org.mskcc.portal.model.ProfileDataSummary;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -81,37 +86,41 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         }
 
         // In order to process request, we must have a gene list, and a cancer type
-        String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
-        String cancerStudyId = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        try {
+            String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
+            String cancerStudyId = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
-        //  Get all Genetic Profiles Associated with this Cancer Study ID.
-        ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId, xdebug);
+            //  Get all Genetic Profiles Associated with this Cancer Study ID.
+            ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
-        //  Get all Case Lists Associated with this Cancer Study ID.
-        ArrayList<CaseSet> caseSetList = GetCaseSets.getCaseSets(cancerStudyId, xdebug);
+            //  Get all Case Lists Associated with this Cancer Study ID.
+            ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
 
-        httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
-        httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
+            httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
+            httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
 
-        //  Get the default case set
-        CaseSet defaultCaseSet = getDefaultCaseSet(caseSetList);
-        httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getId());
-        
-        //  Get the default genomic profiles
-        HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
-        httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
+            //  Get the default case set
+            CaseList defaultCaseSet = getDefaultCaseSet(caseSetList);
+            httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getStableId());
 
-        //  Create URL for Cancer Study Details
-        String cancerStudyDetailsUrl = createCancerStudyDetailsUrl(cancerStudyId,
-                defaultGeneticProfileSet, defaultCaseSet, geneList);
-        httpServletRequest.setAttribute(CANCER_STUDY_DETAILS_URL, cancerStudyDetailsUrl);
+            //  Get the default genomic profiles
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
+            httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
-        getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
-                httpServletRequest,
-                httpServletResponse, xdebug);
-        RequestDispatcher dispatcher =
-                getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
-        dispatcher.forward(httpServletRequest, httpServletResponse);
+            //  Create URL for Cancer Study Details
+            String cancerStudyDetailsUrl = createCancerStudyDetailsUrl(cancerStudyId,
+                    defaultGeneticProfileSet, defaultCaseSet, geneList);
+            httpServletRequest.setAttribute(CANCER_STUDY_DETAILS_URL, cancerStudyDetailsUrl);
+
+            getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
+                    httpServletRequest,
+                    httpServletResponse, xdebug);
+            RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
+            dispatcher.forward(httpServletRequest, httpServletResponse);
+        } catch (DaoException e) {
+            throw new ServletException (e);
+        }
     }
 
     /**
@@ -123,7 +132,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      * @param geneList                  Gene List from User.
      */
     private String createCancerStudyDetailsUrl(String cancerStudyId,
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet, CaseSet defaultCaseSet,
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet, CaseList defaultCaseSet,
             String geneList) {
         String AMP = "&";
 
@@ -136,12 +145,12 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         //  Append all Genomic Profiles
         for (GeneticProfile geneticProfile:  defaultGeneticProfileSet.values()) {
             detailsUrl.append(AMP + QueryBuilder.GENETIC_PROFILE_IDS + "="
-                    + URLEncoder.encode(geneticProfile.getId()));
+                    + URLEncoder.encode(geneticProfile.getStableId()));
         }
 
         //  Append Case Set ID
         detailsUrl.append(AMP + QueryBuilder.CASE_SET_ID + "="
-                + URLEncoder.encode(defaultCaseSet.getId()));
+                + URLEncoder.encode(defaultCaseSet.getStableId()));
 
         //  Append Genes
         detailsUrl.append(AMP + QueryBuilder.GENE_LIST + "="
@@ -157,9 +166,10 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      * Gets all Genomic Data.
      */
     private void getGenomicData(HashMap<String, GeneticProfile> defaultGeneticProfileSet,
-            CaseSet defaultCaseSet, String geneListStr, ArrayList<CaseSet> caseList,
+            CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
             HttpServletRequest request,
-            HttpServletResponse response, XDebug xdebug) throws IOException, ServletException {
+            HttpServletResponse response, XDebug xdebug) throws IOException,
+            ServletException, DaoException {
 
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);        
         boolean showAlteredColumnsBool = false;
@@ -185,10 +195,10 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         String caseIds = defaultCaseSet.getCaseListAsString();
 
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
-            xdebug.logMsg(this, "Getting data for:  " + profile.getName());
+            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             xdebug.logMsg(this, "Using gene list:  " + geneList);
-            GetProfileData remoteCall = new GetProfileData();
-            ProfileData pData = remoteCall.getProfileData(profile, geneList, caseIds, xdebug);
+            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);
         }
@@ -207,7 +217,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseList, defaultCaseSet.getId(),
+                caseList, defaultCaseSet.getStableId(),
                 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 new HashSet<String>(defaultGeneticProfileSet.keySet()),
                 new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), false, false);
@@ -224,8 +234,8 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      * @param caseSetList List of all Case Sets.
      * @return the "best" default case set.
      */
-    private CaseSet getDefaultCaseSet(ArrayList<CaseSet> caseSetList) {
-        for (CaseSet caseSet : caseSetList) {
+    private CaseList getDefaultCaseSet(ArrayList<CaseList> caseSetList) {
+        for (CaseList caseSet : caseSetList) {
             String name = caseSet.getName();
             if (name.startsWith("All Complete Tumors")) {
                 return caseSet;
@@ -248,17 +258,17 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         HashMap<String, GeneticProfile> defaultSet = new HashMap<String, GeneticProfile>();
         boolean cnaChosen = false;
         for (GeneticProfile geneticProfile : geneticProfileList) {
-            GeneticAlterationType geneticAlterationType = geneticProfile.getAlterationType();
-            String name = geneticProfile.getName();
+            GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
+            String name = geneticProfile.getProfileName();
             if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-                defaultSet.put(geneticProfile.getId(), geneticProfile);
+                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
             }
             if (name.contains("GISTIC") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getId(), geneticProfile);
+                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
                 cnaChosen = true;
             }
             if (name.contains("RAE") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getId(), geneticProfile);
+                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
                 cnaChosen = true;
             }
         }

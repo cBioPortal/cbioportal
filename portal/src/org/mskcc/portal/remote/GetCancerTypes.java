@@ -1,72 +1,45 @@
 package org.mskcc.portal.remote;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.mskcc.portal.model.CancerType;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.CancerStudy;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
 /**
- * Gets all Cancer Types stored in Remote CGDS Server.
+ * Gets all Cancer Studies stored in CGDS Server.
  */
 public class GetCancerTypes {
 
     /**
-     * Gets all Cancer Types stored in Remote CGDS Server.
+     * Gets all Cancer Studies stored in Remote CGDS Server.
      *
-     * @return ArrayList of CancerType Objects.
-     * @throws RemoteException Remote / Network IO Error.
+     * @return ArrayList of CancerStudy Objects.
+     * @throws DaoException Database Access Exception.
      */
-    public static ArrayList<CancerType> getCancerTypes(XDebug xdebug) throws RemoteException {
-        ArrayList<CancerType> cancerTypeList = new ArrayList<CancerType>();
-        CancerType cancerType = null;
-        try {
-            //  Set Query Parameters
-            NameValuePair[] data = {
-                    //new  new NameValuePair(CgdsProtocol.CMD, "getCancerStudies"),
-                    new NameValuePair(CgdsProtocol.CMD, "getCancerTypes"),
-            };
-
-            //  Parse Text Response
-            CgdsProtocol protocol = new CgdsProtocol(xdebug);
-            String content = protocol.connect(data, xdebug);
-            String lines[] = content.split("\n");
-            if (lines.length > 2) {
-                for (int i = 2; i < lines.length; i++) {
-                    String parts[] = lines[i].split("\t");
-                    String id = parts[0];
-                    String name = parts[1];
-                    String description = parts[2];
-                    cancerType = new CancerType(id, name);
-                    cancerType.setDescription(description);
-                    cancerTypeList.add(cancerType);
-                }
-            }
-        } catch (IOException e) {
-            throw new RemoteException("Remote Access Error", e);
-        }
+    public static ArrayList<CancerStudy> getCancerStudies() throws DaoException {
+        ArrayList<CancerStudy> cancerStudyList = DaoCancerStudy.getAllCancerStudies();
 
         //  Before returning the list, sort it alphabetically
-        Collections.sort(cancerTypeList, new CancerTypeComparator());
+        Collections.sort(cancerStudyList, new CancerStudiesComparator());
 
-        //  Then, insert All Cancer Types at beginning
-        ArrayList<CancerType> finalCancerTypeList = new ArrayList<CancerType>();
-        cancerType = new CancerType("all", "All Cancer Types");
-        finalCancerTypeList.add(cancerType);
-        finalCancerTypeList.addAll(cancerTypeList);
+        //  Then, insert "All" Cancer Types at beginning
+        ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
+        CancerStudy cancerStudy = new CancerStudy("All Cancer Studies", "All Cancer Studies",
+                "all", "all", true);
+        finalCancerStudiesList.add(cancerStudy);
+        finalCancerStudiesList.addAll(cancerStudyList);
 
-        return finalCancerTypeList;
+        return finalCancerStudiesList;
     }
 }
 
 /**
  * Compares Cancer Studies, so that we can sort them alphabetically.
  */
-class CancerTypeComparator implements Comparator {
+class CancerStudiesComparator implements Comparator {
 
     /**
      * Compare two cancer studies.
@@ -75,8 +48,8 @@ class CancerTypeComparator implements Comparator {
      * @return int indicating name sort order.
      */
     public int compare(Object o, Object o1) {
-        CancerType study0 = (CancerType) o;
-        CancerType study1 = (CancerType) o1;
-        return study0.getCancerName().compareTo(study1.getCancerName());
+        CancerStudy study0 = (CancerStudy) o;
+        CancerStudy study1 = (CancerStudy) o1;
+        return study0.getName().compareTo(study1.getName());
     }
 }

@@ -3,7 +3,10 @@
     if (localTabIndex != null && localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
 %>
 <div class="query_step_section" id="step5">
-    <span class="step_header">Optional Arguments:  &nbsp;&nbsp;<small>[<a href="#" id="step5_toggle">Toggle</a>]</small></span>
+    <span class="step_header">
+    <span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+    <span class='ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
+    Optional Arguments:  &nbsp;&nbsp;</span>
 <br/>
 <div class="toggler">
     <p/>

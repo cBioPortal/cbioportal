@@ -1,9 +1,6 @@
 package org.mskcc.portal.util;
 
 import java.util.HashMap;
-import static java.lang.System.out;
-
-import org.mskcc.portal.model.GeneticAlterationType;
 import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;
 import org.mskcc.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
@@ -15,6 +12,7 @@ import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 /**
  * Takes a String encoding of genetic data created by ProfileMerger, and some
@@ -366,7 +364,8 @@ public class ValueParser {
     */
    public boolean isMutated() {
       // don't use isDiscreteTypeThisLevel because of mutation's complex values
-      String mutationValue = datatypeToValueMap.get(GeneticAlterationType.MUTATION.toString());
+      String mutationValue = datatypeToValueMap.get
+              (GeneticAlterationType.MUTATION_EXTENDED.toString());
       if (mutationValue != null) {
          // TODO: fix: this is a little dangerous, because it means that ANY
          // value for mutation other than these will be reported as a mutation;
@@ -391,7 +390,8 @@ public class ValueParser {
       if (isMutated()) {
          return true;
       } else {
-         String mutationValue = datatypeToValueMap.get(GeneticAlterationType.MUTATION.toString());
+         String mutationValue = datatypeToValueMap.get
+                 (GeneticAlterationType.MUTATION_EXTENDED.toString());
          if (mutationValue != null) {
             if (mutationValue.equalsIgnoreCase(GeneticAlterationType.NAN)) {
                return false;
@@ -426,7 +426,7 @@ public class ValueParser {
          case Methylation:
             return GeneticAlterationType.METHYLATION;
          case Mutation:
-            return GeneticAlterationType.MUTATION;
+            return GeneticAlterationType.MUTATION_EXTENDED;
       }
       // unreachable code; keep compiler happy
       // TODO: throw an exception

@@ -1,12 +1,15 @@
 package org.mskcc.portal.remote;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.mskcc.portal.model.ClinicalData;
+import org.mskcc.cgds.dao.DaoClinicalData;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.util.XDebug;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Gets clinical data for specified cases.
@@ -16,92 +19,31 @@ public class GetClinicalData {
 
     /**
      * Gets clinical data for specified cases.
+     * Note: getClinicalData takes a string of CaseIds. However,
+     * the DAO object takes a HashSet of cases, meaning this
+     * string must be split and converted to a HashSet.
+     * TODO: If string caseIDs is not originally separated by spaces, correct separator.
      *
      * @param caseIds Case IDs.
-     * @return Tab-delimited content.
-     * @throws RemoteException Remote Server IO Error.
+     * @return an ArrayList of ClinicalData Objects
+     * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
      */
-    public static ArrayList<ClinicalData> getClinicalData(String caseIds,
-                                                          XDebug xdebug) throws RemoteException {
+    public static ArrayList<ClinicalData> getClinicalData(String caseIds, XDebug xdebug) throws DaoException {
+        if (caseIds != null && caseIds.length() > 0){
         try {
-
-            //  Create Query Parameters
-            NameValuePair[] data = {
-                    new NameValuePair(CgdsProtocol.CMD, "getClinicalData"),
-                    new NameValuePair(CgdsProtocol.CASE_LIST, caseIds)
-            };
-
-            // Parse Text Response
-            CgdsProtocol protocol = new CgdsProtocol(xdebug);
-            String content = protocol.connect(data, xdebug);
-            String lines[] = content.split("\n");
-            ArrayList<ClinicalData> clinicalDataList = new ArrayList<ClinicalData>();
-            if (lines.length > 2) {
-                for (int i = 2; i < lines.length; i++) {
-                    String parts[] = lines[i].split("\t");
-                    String caseId = getString(parts, 0);
-                    Double osMonths = getDouble(parts, 1);
-                    String osStatus = getString(parts, 2);
-                    Double dfsMonths = getDouble(parts, 3);
-                    String dfsStatus = getString(parts, 4);
-                    Double ageAtDiagnosis = getDouble(parts, 5);
-                    if (caseId != null) {
-                        ClinicalData clinicalData = new ClinicalData(caseId, osMonths, osStatus,
-                                dfsMonths, dfsStatus, ageAtDiagnosis);
-                        clinicalDataList.add(clinicalData);
-                    }
-                }
+            DaoClinicalData daoClinicalData = new DaoClinicalData();
+            String caseIdList[] = caseIds.split(" ");
+            //check to make sure caseIdList != null, then convert to caseSet, pass through DAO and return
+            //an arraylist retrieved from the DAO.
+            if (caseIdList.length > 0){
+            Set<String> caseSet = new HashSet<String>(Arrays.asList(caseIdList));
+            return daoClinicalData.getCases(caseSet);
             }
-            return clinicalDataList;
-        } catch (IOException e) {
-            throw new RemoteException("Remote Access Error", e);
+        } catch (DaoException e) {
+            System.err.println("Database Error: " + e.getMessage());
+            return null;
         }
-    }
-
-    private static Double getDouble(String parts[], int index) {
-        if (parts == null) {
-            return null;
-        } else if (index < 0) {
-            return null;
-        } else {
-            try {
-                String value = parts[index];
-                if (value.length() == 0) {
-                    return null;
-                } else if (value.equalsIgnoreCase(NA)) {
-                    return null;
-                } else {
-                    try {
-                        Double dValue = Double.parseDouble(value);
-                        return dValue;
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
         }
-    }
-
-    private static String getString(String parts[], int index) {
-        if (parts == null) {
-            return null;
-        } else if (index < 0) {
-            return null;
-        } else {
-            try {
-                String value = parts[index];
-                if (value.length() == 0) {
-                    return null;
-                } else if (value.equalsIgnoreCase(NA)) {
-                    return null;
-                } else {
-                    return value;
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
-        }
+    return new ArrayList<ClinicalData>();
     }
 }

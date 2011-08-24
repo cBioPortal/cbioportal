@@ -1,5 +1,6 @@
 // flags
 var _autoLayout;
+var _removeDisconnected;
 var _nodeLabelsVisible;
 var _edgeLabelsVisible;
 var _panZoomVisible;
@@ -15,19 +16,31 @@ var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
 
+// edge source constants
+var REACTOME = "Reactome";
+var NCI = "NCI";
+
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
+
 var UNKNOWN = "Unknown";
 
 // class constants for css visualization
 var CHECKED_CLASS = "checked-menu-item";
-var SEPARATOR_CLASS = "separator-menu-item";
+var MENU_SEPARATOR_CLASS = "separator-menu-item";
 var FIRST_CLASS = "first-menu-item";
 var LAST_CLASS = "last-menu-item";
 var MENU_CLASS = "main-menu-item";
 var SUB_MENU_CLASS = "sub-menu-item";
 var HOVERED_CLASS = "hovered-menu-item";
+var SECTION_SEPARATOR_CLASS = "section-separator";
+var TOP_ROW_CLASS = "top-row";
+var BOTTOM_ROW_CLASS = "bottom-row";
+var INNER_ROW_CLASS = "inner-row";
+
+// string constants
+var ID_PLACE_HOLDER = "REPLACE_WITH_ID";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -35,14 +48,20 @@ var _graphLayout = {name: "ForceDirected"};
 // force directed layout options
 var _layoutOptions;
 
-// array of selected elements, used by the visibility function for filtering
+// map of selected elements, used by the filtering functions
 var _selectedElements;
+
+// map of connected nodes, used by filtering functions
+var _connectedNodes;
 
 // array of previously filtered elements
 var _alreadyFiltered;
 
 // array of filtered edge types
 var _edgeTypeVisibility;
+
+// array of filtered edge sources
+var _edgeSourceVisibility;
 
 // map used to resolve cross-references
 var _linkMap;
@@ -58,13 +77,11 @@ var _vis;
  */
 function initNetworkUI(vis)
 {
-	//TODO debug for IE (alert does not work use prompt instead!)
-	//prompt("initing network");
-	
 	_vis = vis;
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
+	_edgeSourceVisibility = _edgeSourceArray();
 	_resetFlags();
 	
 	_initControlFunctions();
@@ -223,7 +240,7 @@ function showNodeInspector(evt)
 	_updateNodeInspectorContent(data);
 	
 	// open inspector panel
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -235,19 +252,42 @@ function showNodeInspector(evt)
 function _updateNodeInspectorContent(data)
 {
 	// set title
+	
+	var title = data.label;
+	
+	if (title == null)
+	{
+		title = data.id;
+	}
+	
 	$("#node_inspector").dialog("option",
 		"title",
-		data.label);
+		title);
 	
-	// clean xref & data rows
+	// clean xref, percent, and data rows
+	
 	$("#node_inspector_content .data .data-row").remove();
 	$("#node_inspector_content .xref .xref-row").remove();
+	$("#node_inspector_content .profile .percent-row").remove();
+	$("#node_inspector_content .profile-header .header-row").remove();
 	
-	// for each data field, add a new row to inspector
+	// add id
 	
-	_addDataRow("node", "id", data.id);
-	_addDataRow("node", "label", data.label);
-	_addDataRow("node", "in query", data.IN_QUERY);
+	_addDataRow("node", "ID", data.id);
+	
+	if (data.type == PROTEIN)
+	{
+		_addDataRow("node", "Gene Symbol", data.label);
+		//_addDataRow("node", "Description", "TODO");
+		_addDataRow("node", "User-Specified", data.IN_QUERY);
+	
+		// add percentage information
+		_addPercentages(data);
+	}
+	
+	// add cross references
+	
+	var links = new Array();
 	
 	for (var field in data)
 	{
@@ -255,25 +295,174 @@ function _updateNodeInspectorContent(data)
 		{
 			// parse the xref data, and construct the link and its label
 			
-			var link = _resolveXref(data[field]);
+			var link;
 			
-			// add to xref table
-			if (link != null)
-			{				
-				_addXrefRow("node", link.href, link.text);
+			if (data[field] != null)
+			{
+				link = _resolveXref(data[field]);
+				links.push(link);
 			}
 		}
-		// TODO what to do with percent values?
-		/*
-		else if (!field.startsWith("PERCENT"))
-		{
-			$("#node_inspector_content .node_data").append(
-				'<tr class="data-row"><td>' +
-				field + ': ' + data[field] + 
-				'</td></tr>');
-		}
-		*/
 	}
+	
+	if (links.length > 0)
+	{
+		$("#node_inspector_content .xref").append(
+			'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
+		
+		_addXrefEntry('node', links[0].href, links[0].text);
+	}
+	
+	for (var i=1; i < links.length; i++)
+	{
+		$("#node_inspector_content .xref-row td").append(', ');
+		_addXrefEntry('node', links[i].href, links[i].text);
+	}
+}
+
+/**
+ * Add percentages (genomic profile data) to the node inspector with their
+ * corresponding colors & names.
+ * 
+ * @param data	node (gene) data
+ */
+function _addPercentages(data)
+{
+	var percent;
+	
+	// init available profiles array
+	var available = new Array();
+	available['CNA'] = new Array();
+	available['MRNA'] = new Array();
+	available['MUTATED'] = new Array();
+	
+	// add percentage values
+	
+	if (data["PERCENT_CNA_AMPLIFIED"] != null)
+	{
+		percent = (data["PERCENT_CNA_AMPLIFIED"] * 100);
+		_addPercentRow("cna-amplified", "Amplification", percent, "#FF2500");
+		available['CNA'].push("cna-amplified");
+	}	
+	
+	if (data["PERCENT_CNA_GAINED"] != null)
+	{
+		percent = (data["PERCENT_CNA_GAINED"] * 100);
+		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
+		available['CNA'].push("cna-gained");
+	}
+	
+	if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] != null)
+	{
+		percent = (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100);
+		_addPercentRow("cna-homozygously-deleted", "Homozygous Deletion", percent, "#0332FF");
+		available['CNA'].push("cna-homozygously-deleted");
+	}
+	
+	if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
+	{
+		percent = (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100);
+		_addPercentRow("cna-hemizygously-deleted", "Hemizygous Deletion", percent, "#9EDFE0");
+		available['CNA'].push("cna-hemizygously-deleted");
+	}
+	
+	if (data["PERCENT_MRNA_WAY_UP"] != null)
+	{
+		percent = (data["PERCENT_MRNA_WAY_UP"] * 100);
+		_addPercentRow("mrna-way-up", "Up-regulation", percent, "#FFACA9");
+		available['MRNA'].push("mrna-way-up");
+	}
+	
+	if (data["PERCENT_MRNA_WAY_DOWN"] != null)
+	{
+		percent = (data["PERCENT_MRNA_WAY_DOWN"] * 100);
+		_addPercentRow("mrna-way-down", "Down-regulation", percent, "#78AAD6");
+		available['MRNA'].push("mrna-way-down");
+	}
+	
+	if (data["PERCENT_MUTATED"] != null)
+	{
+		percent = (data["PERCENT_MUTATED"] * 100);
+		_addPercentRow("mutated", "Mutation", percent, "#008F00");
+		available['MUTATED'].push("mutated");
+	}
+	
+	// add separators
+	
+	if (available['CNA'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['CNA'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	if (available['MRNA'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['MRNA'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	if (available['MUTATED'].length > 0)
+	{
+		$("#node_inspector .profile ." + available['MUTATED'][0]).addClass(
+			SECTION_SEPARATOR_CLASS);
+	}
+	
+	
+	// add header & total alteration value if at least one of the profiles is
+	// available
+	
+	if (available['CNA'].length > 0
+		|| available['MRNA'].length > 0
+		|| available['MUTATED'].length > 0)
+	{
+		
+		// add header
+		$("#node_inspector .profile-header").append('<tr class="header-row">' +
+			'<td><div>Genomic Profile(s):</div></td></tr>');
+		
+		// add total alteration frequency
+		
+		percent = (data["PERCENT_ALTERED"] * 100);
+		
+		var row = '<tr class="total-alteration percent-row">' +
+			'<td><div class="percent-label">Total Alteration</div></td>' +
+			'<td class="percent-cell"></td>' +
+			'<td><div class="percent-value">' + percent.toFixed(1) + '%</div></td>' +
+			'</tr>';
+
+		// append as a first row
+		$("#node_inspector .profile").prepend(row);
+	}
+}
+
+/**
+ * Adds a row to the genomic profile table of the node inspector.
+ * 
+ * @param section	class name of the percentage
+ * @param label		label to be displayed
+ * @param percent	percentage value
+ * @param color		color of the percent bar
+ */
+function _addPercentRow(section, label, percent, color)
+{
+	var row = '<tr class="' + section + ' percent-row">' +
+		'<td><div class="percent-label"></div></td>' +
+		'<td class="percent-cell"><div class="percent-bar"></div></td>' +
+		'<td><div class="percent-value"></div></td>' +
+		'</tr>';
+	
+	$("#node_inspector .profile").append(row);
+	
+	$("#node_inspector .profile ." + section + " .percent-label").text(label);
+
+	$("#node_inspector .profile ." + section + " .percent-bar").css(
+		"width", (parseInt(percent) + 1) + "%");
+	
+	$("#node_inspector .profile ." + section + " .percent-bar").css(
+		"background-color", color);
+	
+	$("#node_inspector .profile ." + section + " .percent-value").text(
+		percent.toFixed(1) + "%");
 }
 
 /**
@@ -290,22 +479,83 @@ function showEdgeInspector(evt)
 	// TODO update the contents of the inspector by using the target edge
 	
 	var data = evt.target.data;
-	
-	// set title
-	$("#edge_inspector").dialog("option",
-		"title",
-		data.id);
+	var title = _vis.node(data.source).data.label + " - " + 
+		_vis.node(data.target).data.label;
 	
 	// clean xref & data rows
 	$("#edge_inspector_content .data .data-row").remove();
 	
-	for (var field in data)
+	// if the target is a merged edge, then add information of all edges
+	// between the source and target
+	
+	if (evt.target.merged)
 	{
-		_addDataRow("edge", field, data[field]);
+		// update title
+		title += ' (Summary Edge)';
+		
+		var edges = evt.target.edges;
+		
+		
+		// add information for each edge
+		
+		for (var i = 0; i < edges.length; i++)
+		{
+			data = edges[i].data;
+			
+			// add an empty row for better edge separation
+			$("#edge_inspector_content .data").append(
+				'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+			
+			// add edge data
+			
+			_addDataRow("edge",
+				"Source",
+				data["INTERACTION_DATA_SOURCE"],
+				TOP_ROW_CLASS);
+			
+			if (data["INTERACTION_PUBMED_ID"] == null)
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					BOTTOM_ROW_CLASS);
+			}
+			else
+			{
+				_addDataRow("edge",
+					"Type",
+					data["type"],
+					INNER_ROW_CLASS);
+				
+				_addDataRow("edge",
+					"PubMed ID",
+					data["INTERACTION_PUBMED_ID"],
+					BOTTOM_ROW_CLASS);
+			}
+		}
+		
+		// add an empty row for the last edge
+		$("#edge_inspector_content .data").append(
+			'<tr align="left" class="empty-row data-row"><td> </td></tr>');
+	}
+	else
+	{
+		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
+		_addDataRow("edge", "Type", data["type"]);
+		
+		if (data["INTERACTION_PUBMED_ID"] != null)
+		{
+			_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+		}
 	}
 	
+	// set title
+	$("#edge_inspector").dialog("option",
+		"title",
+		title);
+	
 	// open inspector panel
-	$("#edge_inspector").dialog("open");
+	$("#edge_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -324,7 +574,11 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	$("#node_inspector").dialog("open");
+	$("#node_inspector").dialog("option",
+		"height",
+		"auto");
+	
+	$("#node_inspector").dialog("open").height("auto");
 }
 
 /**
@@ -375,11 +629,11 @@ function searchGene()
 		{
 			matched.push(genes[i].data.id);
 		}
-		else if (genes[i].data.id.toLowerCase().indexOf(
-			query.toLowerCase()) != -1)
-		{
-			matched.push(genes[i].data.id);
-		}
+//		else if (genes[i].data.id.toLowerCase().indexOf(
+//			query.toLowerCase()) != -1)
+//		{
+//			matched.push(genes[i].data.id);
+//		}
 	}
 	
 	// deselect all nodes
@@ -395,11 +649,14 @@ function searchGene()
  */
 function filterSelectedGenes()
 {
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out selected elements
     _vis.filter("nodes", visibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh genes tab
     _refreshGenesTab();
@@ -409,15 +666,18 @@ function filterSelectedGenes()
 }
 
 /**
- * Filters out all non-selected genes.
+ * Filters out all non-selected nodes.
  */
-function filterNonSelectedGenes()
+function filterNonSelected()
 {
-	// update selected elements
-	_selectedElements = _vis.selected("nodes");
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out non-selected elements
     _vis.filter('nodes', geneVisibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh Genes tab
     _refreshGenesTab();
@@ -435,19 +695,31 @@ function updateEdges()
 	// update filtered edge types
 	
 	_edgeTypeVisibility[IN_SAME_COMPONENT] =
-		$(".in-same-component input").is(":checked");
+		$("#relations_tab .in-same-component input").is(":checked");
 	
 	_edgeTypeVisibility[REACTS_WITH] =
-		$(".reacts-with input").is(":checked");
+		$("#relations_tab .reacts-with input").is(":checked");
 	
 	_edgeTypeVisibility[STATE_CHANGE] =
-		$(".state-change input").is(":checked");
+		$("#relations_tab .state-change input").is(":checked");
+	
+	_edgeSourceVisibility[REACTOME] =
+		$("#relations_tab .reactome input").is(":checked");
+	
+	_edgeSourceVisibility[NCI] =
+		$("#relations_tab .nci input").is(":checked");
+	
+	_edgeSourceVisibility[UNKNOWN] =
+		$("#relations_tab .unknown input").is(":checked");
 	
 	// remove current edge filters
 	_vis.removeFilter("edges");
 	
 	// filter selected types
 	_vis.filter("edges", edgeVisibility, true);
+	
+    // "filter disconnected" option might be confusing for edge filtering...
+    //_filterDisconnected();
 	
 	// visualization changed, perform layout if necessary
 	_visChanged();
@@ -461,29 +733,51 @@ function updateEdges()
  */
 function edgeVisibility(element)
 {
-	var visible;
+	var visible = true;
+	var typeVisible = true;
+	var sourceVisible = true;
 	
 	// if an element is already filtered then it should remain invisible
 	if (_alreadyFiltered[element.data.id] != null)
 	{
 		visible = false;
 	}
+	
 	// unknown edge type, do not filter
-	else if (_edgeTypeVisibility[element.data.type] == null)
+	if (_edgeTypeVisibility[element.data.type] == null)
 	{
-		visible = true;
+		typeVisible = true;
 	}
-	// check for the visibility of the edge type
+	// check the visibility of the edge type
 	else
 	{
-		visible = _edgeTypeVisibility[element.data.type];
+		typeVisible = _edgeTypeVisibility[element.data.type];
 	}
 	
-	return visible;
+	// unknown source, check the unknown flag
+	if (element.data['INTERACTION_DATA_SOURCE'] == null)
+	{
+		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+	}
+	// check the visibility of the known source
+	else if (element.data.INTERACTION_DATA_SOURCE == REACTOME ||
+		element.data.INTERACTION_DATA_SOURCE == NCI)
+	{
+		sourceVisible = 
+			_edgeSourceVisibility[element.data.INTERACTION_DATA_SOURCE];
+	}
+	// unknown source, check the unknown flag
+	else
+	{
+		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+	}
+	
+	return (visible && typeVisible && sourceVisible);
 }
 
 /**
- * Determines the visibility of a gene (node) for filtering purposes.
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter non-selected genes.
  * 
  * @param element	gene to be checked for visibility criteria
  * @return			true if the gene should be visible, false otherwise
@@ -499,22 +793,51 @@ function geneVisibility(element)
 	}
 	else
 	{
-		// TODO find a better way (?) to check if it is selected.
-		
 		// filter non-selected nodes
 		
-		for (var i=0; i < _selectedElements.length; i++)
+		if (_selectedElements[element.data.id] != null)
 		{
-			if (element.data.id == _selectedElements[i].data.id)
-			{
-				visible = true;
-				break;
-			}
+			visible = true;
 		}
 		
 		if (!visible)
 		{
 			// if the element should be filtered, then add it to the map
+			_alreadyFiltered[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+/**
+ * Determines the visibility of a node for filtering purposes. This function is
+ * designed to filter disconnected nodes.
+ * 
+ * @param element	node to be checked for visibility criteria
+ * @return			true if the node should be visible, false otherwise
+ */
+function isolation(element)
+{
+	var visible = false;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	else
+	{
+		// check if the node is connected, if it is disconnected it should be
+		// filtered out
+		if (_connectedNodes[element.data.id] != null)
+		{
+			visible = true;
+		}
+		
+		if (!visible)
+		{
+			// if the node should be filtered, then add it to the map
 			_alreadyFiltered[element.data.id] = element;
 		}
 	}
@@ -538,37 +861,119 @@ function visibility(element)
 	{
 		return false;
 	}
-	// if an edge type is hidden all edges of that type should be invisible
+	// if an edge type is hidden, all edges of that type should be invisible
 	else if (_edgeTypeVisibility[element.data.type] != null
 			&& !_edgeTypeVisibility[element.data.type])
 	{
 		return false;
 	}
+	// if an edge source is hidden, all edges of that source should be invisible
+	// else if (...)
 	
-	// TODO find a better way (?) to check if it is selected, do not traverse
-	// all selected elements
+	// TODO this function is not called anymore for edges (no edge filtering via selecting)
+	// so the edge visibility check can be omitted
 	
-	for (var i=0; i < _selectedElements.length; i++)
+	// if the element is selected, then it should be filtered
+	if (_selectedElements[element.data.id] != null)
 	{
-		if (element.data.id == _selectedElements[i].data.id)
-		{
-			_alreadyFiltered[element.data.id] = element;
-			return false;
-		}
+		_alreadyFiltered[element.data.id] = element;
+		return false;
 	}
 	
 	return true;
 }
 
 /**
- * Performs layout if auto layout flag is set. 
+ * Creates a map (on element id) of selected elements.
+ *  
+ * @param group		data group (nodes, edges, all)
+ * @return			a map of selected elements
+ */
+function _selectedElementsMap(group)
+{
+	var selected = _vis.selected(group);
+	var map = new Array();
+	
+	for (var i=0; i < selected.length; i++)
+	{
+		var key = selected[i].data.id;
+		map[key] = selected[i];
+	}
+	
+	return map;
+}
+
+/**
+ * Creates a map (on element id) of connected nodes.
+ * 
+ * @return	a map of connected nodes
+ */
+function _connectedNodesMap()
+{
+	var map = new Array();
+	var edges;
+	
+	// if edges merged, traverse over merged edges for a better performance
+	if (_vis.edgesMerged())
+	{
+		edges = _vis.mergedEdges();
+	}
+	// else traverse over regular edges
+	else
+	{
+		edges = _vis.edges();
+	}
+	
+	var source;
+	var target;
+	
+	
+	// for each edge, add the source and target to the map of connected nodes
+	for (var i=0; i < edges.length; i++)
+	{
+		if (edges[i].visible)
+		{
+			source = _vis.node(edges[i].data.source);
+			target = _vis.node(edges[i].data.target);
+		
+			map[source.data.id] = source;
+			map[target.data.id] = target;
+		}
+	}
+	
+	return map;
+}
+
+/**
+ * This function is designed to be invoked after an operation (such as filtering
+ * nodes or edges) that changes the graph topology. 
  */
 function _visChanged()
 {
+	// perform layout if auto layout flag is set
+	
 	if (_autoLayout)
 	{
 		// re-apply layout
 		_performLayout();
+	}
+}
+
+/**
+ * This function is designed to be invoked after an operation that filters
+ * nodes or edges.
+ */
+function _filterDisconnected()
+{
+	// filter disconnected nodes if the flag is set
+	
+	if (_removeDisconnected)
+	{
+		// update connected nodes map
+		_connectedNodes = _connectedNodesMap();
+		
+		// filter disconnected
+		_vis.filter('nodes', isolation, true);
 	}
 }
 
@@ -700,29 +1105,39 @@ function _removeHighlights()
  * @param type		type of the inspector (should be "node" or "edge")
  * @param label		label of the data field
  * @param value		value of the data field
+ * @param section	optional class value for row element
  */
-function _addDataRow(type, label, value)
+function _addDataRow(type, label, value /*, section*/)
 {
+	var section = arguments[3];
+	
+	if (section == null)
+	{
+		section = "";
+	}
+	else
+	{
+		section += " ";
+	}
+	
 	$("#" + type + "_inspector_content .data").append(
-		'<tr class="data-row"><td>' +
-		label + ': ' + value + 
+		'<tr align="left" class="' + section + 'data-row"><td>' +
+		'<strong>' + label + ':</strong> ' + value + 
 		'</td></tr>');
 }
 
 /**
- * Adds a cross reference row to the node or edge inspector.
+ * Adds a cross reference entry to the node or edge inspector.
  * 
  * @param type		type of the inspector (should be "node" or "edge")
  * @param href		URL of the reference 
  * @param label		label to be displayed
  */
-function _addXrefRow(type, href, label)
+function _addXrefEntry(type, href, label)
 {
-	$("#" + type + "_inspector_content .xref").append(
-		'<tr class="xref-row"><td>' +
+	$("#" + type + "_inspector_content .xref-row td").append(
 		'<a href="' + href + '" target="_blank">' +
-		label + '</a>' + 
-		'</td></tr>');
+		label + '</a>');
 }
 
 /**
@@ -742,7 +1157,24 @@ function _resolveXref(xref)
 		
 		// construct the link object containing href and text
 		link = new Object();
-		link.href = _linkMap[pieces[0].toLowerCase()] + "" + pieces[1];
+		
+		link.href = _linkMap[pieces[0].toLowerCase()];
+		 
+		if (link.href == null)
+		{
+			// unknown source
+			link.href = "#";
+		}
+		// else, check where search id should be inserted
+		else if (link.href.indexOf(ID_PLACE_HOLDER) != -1)
+		{
+			link.href = link.href.replace(ID_PLACE_HOLDER, pieces[1]);
+		}
+		else
+		{
+			link.href += pieces[1];
+		}
+		
 		link.text = xref;
 	}
 	
@@ -755,6 +1187,7 @@ function _resolveXref(xref)
 function _resetFlags()
 {
 	_autoLayout = false;
+	_removeDisconnected = false;
 	_nodeLabelsVisible = true;
 	_edgeLabelsVisible = false;
 	_panZoomVisible = true;
@@ -829,13 +1262,13 @@ function _xrefArray()
 {
 	var linkMap = new Array();
 	
-	// TODO find missing links
+	// TODO find missing links (RefSeq and Nucleotide Sequence Database)
+	linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
+	linkMap["nucleotide sequence database"] = "";
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
-	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=";
-	linkMap["nucleotide sequence database"] = "";	
-	linkMap["refseq"] =	"";
+	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["chebi"] = "";
+	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	
 	return linkMap;
 }
@@ -855,6 +1288,23 @@ function _edgeTypeArray()
 	typeArray[STATE_CHANGE] = true;
 	
 	return typeArray;
+}
+
+/**
+ * Creates a map for edge source visibility.
+ * 
+ * @return	an array (map) of edge source visibility.
+ */
+function _edgeSourceArray()
+{
+	var sourceArray = new Array();
+	
+	// by default every edge source is visible
+	sourceArray[REACTOME] = true;
+	sourceArray[NCI] = true;
+	sourceArray[UNKNOWN] = true;
+	
+	return sourceArray;
 }
 
 /**
@@ -893,23 +1343,27 @@ function _initMainMenu()
 	$("#network_menu_file").addClass(MENU_CLASS);
 	$("#network_menu_topology").addClass(MENU_CLASS);
 	$("#network_menu_view").addClass(MENU_CLASS);
+	$("#network_menu_layout").addClass(MENU_CLASS);
 	
 	$("#save_as_png").addClass(FIRST_CLASS);
-	$("#save_as_png").addClass(SEPARATOR_CLASS);
+	$("#save_as_png").addClass(MENU_SEPARATOR_CLASS);
 	$("#save_as_png").addClass(LAST_CLASS);
 	
 	$("#hide_selected").addClass(FIRST_CLASS);
-	$("#hide_selected").addClass(SEPARATOR_CLASS);	
-	$("#auto_layout").addClass(SEPARATOR_CLASS);
-	$("#auto_layout").addClass(LAST_CLASS);
+	$("#hide_selected").addClass(MENU_SEPARATOR_CLASS);	
+	$("#remove_disconnected").addClass(MENU_SEPARATOR_CLASS);
+	$("#remove_disconnected").addClass(LAST_CLASS);
+	
+	$("#show_profile_data").addClass(FIRST_CLASS);
+	$("#show_profile_data").addClass(MENU_SEPARATOR_CLASS);
+	$("#highlight_neighbors").addClass(MENU_SEPARATOR_CLASS);
+	$("#remove_highlights").addClass(LAST_CLASS);
 	
 	$("#perform_layout").addClass(FIRST_CLASS);
-	$("#perform_layout").addClass(SEPARATOR_CLASS);
+	$("#perform_layout").addClass(MENU_SEPARATOR_CLASS);
 	//$("#layout_properties").addClass(SUB_MENU_CLASS);
-	$("#show_profile_data").addClass(SEPARATOR_CLASS);
-	$("#highlight_neighbors").addClass(SEPARATOR_CLASS);
-	$("#merge_links").addClass(SEPARATOR_CLASS);
-	$("#show_pan_zoom_control").addClass(LAST_CLASS);
+	$("#auto_layout").addClass(MENU_SEPARATOR_CLASS);
+	$("#auto_layout").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
 	
@@ -920,6 +1374,15 @@ function _initMainMenu()
 	else
 	{
 		$("#auto_layout").removeClass(CHECKED_CLASS);
+	}
+	
+	if (_removeDisconnected)
+	{
+		$("#remove_disconnected").addClass(CHECKED_CLASS);
+	}
+	else
+	{
+		$("#remove_disconnected").removeClass(CHECKED_CLASS);
 	}
 	
 	if (_nodeLabelsVisible)
@@ -982,12 +1445,12 @@ function _initDialogs()
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 300});
+		width: 366});
 	
 	// adjust edge inspector
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 300});
+		width: 350});
 }
 
 /*
@@ -1062,11 +1525,10 @@ function _refreshGenesTab()
 			'<label>' + geneList[i].data.label + '</label>' +
 			'</option>');
 		
-		$("#genes_tab #" + safeId).click(updateSelectedGenes);
-		$("#genes_tab #" + safeId).select(updateSelectedGenes);
+		// add double click listener for each gene
 		$("#genes_tab #" + safeId).dblclick(showGeneDetails);
 		
-		// TODO qtip does not work with Chrome because of the restrictions of
+		// TODO qtip does not work with Chrome&IE because of the restrictions of
 		// the <select><option> structure.
 		var qtipOpts =
 		{
@@ -1095,6 +1557,19 @@ function _refreshGenesTab()
 		};
 		
 		//$("#genes_tab #" + safeId).qtip(qtipOpts);
+	}
+	
+	// add change listener to the select box
+	$("#genes_tab select").change(updateSelectedGenes);
+	
+	if (_isIE())
+	{
+		// listeners on <option> elements do not work in IE, therefore add 
+		// double click listener to the select box
+		$("#genes_tab select").dblclick(showGeneDetails);
+		
+		// TODO if multiple genes are selected, double click always shows
+		// the first selected genes details in IE
 	}
 }
 
@@ -1166,7 +1641,8 @@ function _initControlFunctions()
 {
 	_controlFunctions = new Array();
 	
-	_controlFunctions["hide_selected"] = _hideSelected;
+	//_controlFunctions["hide_selected"] = _hideSelected;
+	_controlFunctions["hide_selected"] = filterSelectedGenes;
 	_controlFunctions["unhide_all"] = _unhideAll;
 	_controlFunctions["perform_layout"] = _performLayout;
 	_controlFunctions["show_node_labels"] = _toggleNodeLabels;
@@ -1174,15 +1650,17 @@ function _initControlFunctions()
 	_controlFunctions["merge_links"] = _toggleMerge;
 	_controlFunctions["show_pan_zoom_control"] = _togglePanZoom;
 	_controlFunctions["auto_layout"] = _toggleAutoLayout;
+	_controlFunctions["remove_disconnected"] = _toggleRemoveDisconnected;
 	_controlFunctions["show_profile_data"] = _toggleProfileData;
 	_controlFunctions["save_as_png"] = _saveAsPng;
 	_controlFunctions["save_as_svg"] = _saveAsSvg;
 	_controlFunctions["layout_properties"] = _openProperties;
 	_controlFunctions["highlight_neighbors"] = _highlightNeighbors;
 	_controlFunctions["remove_highlights"] = _removeHighlights;
+	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	
 	// TODO temp test button, remove when done
-	_controlFunctions["joker_button"] = jokerAction;
+	//_controlFunctions["joker_button"] = jokerAction;
 	
 	// add button listeners
 	
@@ -1191,7 +1669,8 @@ function _initControlFunctions()
 	
 	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);
-	$("#crop_genes").click(filterNonSelectedGenes);
+	$("#crop_genes").click(filterNonSelected);
+	$("#unhide_genes").click(_unhideAll);
 	
 	$("#update_edges").click(updateEdges);
 	
@@ -1231,11 +1710,14 @@ function _initLayoutOptions()
  */
 function _hideSelected()
 {
-	// update selected elements
-	_selectedElements = _vis.selected();
+	// update selected elements map
+	_selectedElements = _selectedElementsMap("all");
 	
 	// filter out selected elements
     _vis.filter('all', visibility, true);
+    
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
     
     // refresh genes tab
     _refreshGenesTab();
@@ -1262,9 +1744,9 @@ function _unhideAll()
 	// refresh & update genes tab 
 	_refreshGenesTab();
 	updateGenesTab();
-	
-	// visualization changed, perform layout if necessary
-	_visChanged();
+
+	// no need to call _visChanged(), since it is already called by updateEdges
+	//_visChanged();
 }
 
 /**
@@ -1475,7 +1957,7 @@ function _toggleMerge()
 }
 
 /**
- * Toggle auto layout options on or off. If auto layout is active, then the
+ * Toggle auto layout option on or off. If auto layout is active, then the
  * graph is laid out automatically upon any change.
  */
 function _toggleAutoLayout()
@@ -1489,6 +1971,30 @@ function _toggleAutoLayout()
 	var item = $("#auto_layout");
 	
 	if (_autoLayout)
+	{
+		item.addClass(CHECKED_CLASS);
+	}
+	else
+	{
+		item.removeClass(CHECKED_CLASS);
+	}
+}
+
+/**
+ * Toggle "remove disconnected on hide" option on or off. If this option is 
+ * active, then any disconnected node will also be hidden after the hide action.
+ */
+function _toggleRemoveDisconnected()
+{
+	// toggle removeDisconnected option
+	
+	_removeDisconnected = !_removeDisconnected;
+	
+	// update check icon of the corresponding menu item
+	
+	var item = $("#remove_disconnected");
+	
+	if (_removeDisconnected)
 	{
 		item.addClass(CHECKED_CLASS);
 	}
@@ -1544,7 +2050,7 @@ function _saveAsSvg()
 function _openProperties()
 {	
 	_updatePropsUI();
-	$("#settings_dialog").dialog("open");
+	$("#settings_dialog").dialog("open").height("auto");
 }
 
 /**
@@ -1672,6 +2178,23 @@ function _replaceAll(source, toFind, toReplace)
 	}
 
 	return target;
+}
+
+/**
+ * Checks if the user browser is IE.
+ * 
+ * @return	true if IE, false otherwise
+ */
+function _isIE()
+{
+	var result = false;
+	
+	if (navigator.appName.toLowerCase().indexOf("microsoft") != -1)
+	{
+		result = true;
+	}
+	
+	return result;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

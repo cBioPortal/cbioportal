@@ -18,9 +18,6 @@ import org.apache.commons.lang.StringUtils;
 
 import org.owasp.validator.html.PolicyException;
 
-import org.mskcc.portal.model.CaseSet;
-import org.mskcc.portal.model.GeneticAlterationType;
-import org.mskcc.portal.model.GeneticProfile;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.portal.network.Network;
@@ -32,12 +29,16 @@ import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
-import org.mskcc.portal.remote.GetProfileData;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.OncoPrintSpecificationDriver;
 import org.mskcc.portal.util.ProfileMerger;
 import org.mskcc.portal.util.XDebug;
 import org.mskcc.portal.util.ZScoreUtil;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.web_api.GetProfileData;
 
 /**
  * Retrieving 
@@ -74,151 +75,159 @@ public class NetworkServlet extends HttpServlet {
                       HttpServletResponse res)
             throws ServletException, IOException {
         res.setContentType("text/xml");
-        XDebug xdebug = new XDebug( req );
-        
-        ServletXssUtil xssUtil;
         try {
-            xssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
-        
-        //  Get User Defined Gene List
-        String geneListStr = xssUtil.getCleanInput(req, QueryBuilder.GENE_LIST);
-        Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
-        
-        //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
-        
-        Network network;
-        try {
-            network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
-        } catch (Exception e) {
-            xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
-            network = new Network(); // send an empty network instead
-        }
-        
-        if (!network.getNodes().isEmpty()) {        
-            // add attribute is_query to indicate if a node is in query genes
-            // and get the list of genes in network
-            ArrayList<String> netGenes = new ArrayList<String>();
-            for (Node node : network.getNodes()) {
-                Set<String> ngnc = node.getXref(HGNC);
+            XDebug xdebug = new XDebug( req );
 
-                boolean in_query = false;
-                if (!ngnc.isEmpty()) { 
-                    String sym = ngnc.iterator().next();
-                    in_query = queryGenes.contains(sym);
-                    netGenes.add(sym);
-                } 
-                node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(in_query));
+            ServletXssUtil xssUtil;
+            try {
+                xssUtil = ServletXssUtil.getInstance();
+            } catch (PolicyException e) {
+                throw new ServletException (e);
             }
 
-            //  Get User Selected Genetic Profiles
-            HashSet<String> geneticProfileIdSet = new HashSet<String>();
+            //  Get User Defined Gene List
+            String geneListStr = xssUtil.getCleanInput(req, QueryBuilder.GENE_LIST);
+            Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
 
-            for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
-                geneticProfileIdSet.addAll(Arrays.asList(geneticProfileIdsStr.split(" ")));
+            //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
+
+            Network network;
+            try {
+                network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+            } catch (Exception e) {
+                xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
+                network = new Network(); // send an empty network instead
             }
 
-            String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
-            // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
-            //  Get Genetic Profiles for Selected Cancer Type
-            ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId, xdebug);
+            if (!network.getNodes().isEmpty()) {
+                // add attribute is_query to indicate if a node is in query genes
+                // and get the list of genes in network
+                ArrayList<String> netGenes = new ArrayList<String>();
+                for (Node node : network.getNodes()) {
+                    Set<String> ngnc = node.getXref(HGNC);
 
-            String caseIds = xssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
+                    boolean in_query = false;
+                    if (!ngnc.isEmpty()) {
+                        String sym = ngnc.iterator().next();
+                        in_query = queryGenes.contains(sym);
+                        netGenes.add(sym);
+                    }
+                    node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(in_query));
+                }
 
-            if (caseIds==null || caseIds.isEmpty()) {
-                String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
-                    //  Get Case Sets for Selected Cancer Type
-                    ArrayList<CaseSet> caseSets = GetCaseSets.getCaseSets(cancerTypeId, xdebug);
-                    for (CaseSet cs : caseSets) {
-                        if (cs.getId().equals(caseSetId)) {
-                            caseIds = cs.getCaseListAsString();
-                            break;
+                //  Get User Selected Genetic Profiles
+                HashSet<String> geneticProfileIdSet = new HashSet<String>();
+
+                for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
+                    geneticProfileIdSet.addAll(Arrays.asList(geneticProfileIdsStr.split(" ")));
+                }
+
+                String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
+                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+                //  Get Genetic Profiles for Selected Cancer Type
+                ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
+
+                String caseIds = xssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
+
+                if (caseIds==null || caseIds.isEmpty()) {
+                    String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
+                        //  Get Case Sets for Selected Cancer Type
+                        ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
+                        for (CaseList cs : caseSets) {
+                            if (cs.getStableId().equals(caseSetId)) {
+                                caseIds = cs.getCaseListAsString();
+                                break;
+                            }
+                        }
+                }
+
+                // retrieve profiles from CGDS for new genes
+                Set<GeneticAlterationType> alterationTypes = new HashSet();
+                ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
+                for (String profileId : geneticProfileIdSet) {
+                    GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+                    alterationTypes.add(profile.getGeneticAlterationType());
+                    if( null == profile ){
+                       continue;
+                    }
+
+                    GetProfileData remoteCall = new GetProfileData(profile, netGenes, caseIds);
+                    ProfileData pData = remoteCall.getProfileData();
+                    if( pData == null ){
+                       System.err.println( "pData == null" );
+                    }else{
+                       if( pData.getGeneList() == null ){
+                          System.err.println( "pData.getGeneList() == null" );
+                       }
+                    }
+                    if (pData != null) {
+                        xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
+                        xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
+                    }
+                    xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
+                    profileDataList.add(pData);
+
+                }
+
+                ProfileMerger merger = new ProfileMerger(profileDataList);
+                ProfileData netMergedProfile = merger.getMergedProfile();
+                ArrayList<String> netGeneList = netMergedProfile.getGeneList();
+
+                double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, req);
+
+                ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
+                        StringUtils.join(netGeneList, " "), geneticProfileIdSet,
+                        profileList, zScoreThreshold);
+
+                OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
+                ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
+                        netOncoPrintSpec, zScoreThreshold );
+
+                // add attributes
+                for (String gene : netGeneList) {
+                    for (Node node : network.getNodesByXref(HGNC, gene.toUpperCase())) {
+                        node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
+                        if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
+                                alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
+                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsMutated(gene));
+                        }
+
+                        if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
+                        }
+
+                        if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
+                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
                         }
                     }
-            }
-
-            // retrieve profiles from CGDS for new genes
-            Set<GeneticAlterationType> alterationTypes = new HashSet();
-            ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
-            for (String profileId : geneticProfileIdSet) {                        
-                GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-                alterationTypes.add(profile.getAlterationType());
-                if( null == profile ){
-                   continue;
-                }
-
-                GetProfileData remoteCall = new GetProfileData();
-                ProfileData pData = remoteCall.getProfileData(profile, netGenes, caseIds, xdebug);
-                if( pData == null ){
-                   System.err.println( "pData == null" );
-                }else{
-                   if( pData.getGeneList() == null ){
-                      System.err.println( "pData.getGeneList() == null" );
-                   }
-                }
-                xdebug.logMsg(this, "URI:  " + remoteCall.getURI());
-                if (pData != null) {
-                    xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
-                    xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
-                }
-                xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
-                profileDataList.add(pData);
-
-            }
-
-            ProfileMerger merger = new ProfileMerger(profileDataList);
-            ProfileData netMergedProfile = merger.getMergedProfile();
-            ArrayList<String> netGeneList = netMergedProfile.getGeneList();
-
-            double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, req);
-
-            ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
-                    StringUtils.join(netGeneList, " "), geneticProfileIdSet,
-                    profileList, zScoreThreshold);
-
-            OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-            ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
-                    netOncoPrintSpec, zScoreThreshold );
-
-            // add attributes
-            for (String gene : netGeneList) {
-                for (Node node : network.getNodesByXref(HGNC, gene.toUpperCase())) {
-                    node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
-                    if (alterationTypes.contains(GeneticAlterationType.MUTATION) ||
-                            alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
-                        node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary.getPercentCasesWhereGeneIsMutated(gene));
-                    }
-
-                    if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
-                        node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                        node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                        node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                        node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary.getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
-                    }
-
-                    if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
-                        node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary.getPercentCasesWhereMRNAIsUpRegulated(gene));
-                        node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary.getPercentCasesWhereMRNAIsDownRegulated(gene));
-                    }
                 }
             }
-        }
 
-        
-        String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
-            // using HGNC gene symbol as label if available
-            public String getLabel(Node node) {
-                Set<String> ngnc = node.getXref(HGNC);
-                if (ngnc.isEmpty())
+
+            String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
+                // using HGNC gene symbol as label if available
+                public String getLabel(Node node) {
+                    Set<String> ngnc = node.getXref(HGNC);
+                    if (!ngnc.isEmpty())
+                        return ngnc.iterator().next();
+
+                    Set<Object> names = node.getAttributes().get("name");
+                    if (names!=null && !names.isEmpty())
+                        return names.iterator().next().toString();
+
                     return node.getId();
-                return ngnc.iterator().next();
-            }
-        });
-        PrintWriter writer = res.getWriter();
-        writer.write(graphml);
-        writer.flush();
+                }
+            });
+            PrintWriter writer = res.getWriter();
+            writer.write(graphml);
+            writer.flush();
+        } catch (DaoException e) {
+            throw new ServletException (e);
+        }
     }
     
 }

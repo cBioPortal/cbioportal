@@ -235,12 +235,12 @@ public class MakeOncoPrint {
                 "<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>") ;
 
 
-        out.append("<script type=\"text/javascript\">\n"+
+        /*out.append("<script type=\"text/javascript\">\n"+
                     "$(document).ready(function(){  \n" +
                     "$(\".oncoprint_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 25});\n" +
                     "});\n" +
                     "</script>\n");
-
+        */
         out.append("<div class=\"oncoprint\">\n");
         if (includeCaseSetDescription) {
             for (CaseList caseSet : caseSets) {
@@ -331,10 +331,10 @@ public class MakeOncoPrint {
 
                 out.append("<td class='op_data_cell'>"
 
-                        //+ IMG(iconFileName.toString(), width, height, event.caseCaseId())
+                        + IMG(iconFileName.toString(), width, height, event.caseCaseId())
 
                         // temporary tooltip = event.toString()+"\n"+event.caseCaseId()
-                        + IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
+                        //+ IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
                         + "</td>\n");
 
             }

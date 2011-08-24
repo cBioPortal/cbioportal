@@ -639,7 +639,13 @@ td.op_data_cell{
 
 #optional_args {
   background:  #dddddd;
-  padding:2px;
+  margin:5px;
+  padding:3px;
+  font-size:11px;
+}
+
+#step5 .step_header{
+  cursor:pointer;
 }
 
 .tiny {

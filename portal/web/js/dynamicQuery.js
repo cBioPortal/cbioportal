@@ -107,7 +107,12 @@ function loadMetaData() {
         }
         function hideLoader() {
             //hide loader image
-            $('#load').fadeOut();
+            $('#load').fadeOut('fast',removeLoader());
+        }
+        function removeLoader() {
+            // remove loader image so that it will not appear in the
+            // modify-query section on results page
+            $('#load').remove();
         }
 }
 
@@ -124,14 +129,21 @@ function userClickedMainTab(tabAction) {
 }
 
 //  When the page is first loaded, the default query will be a cross-cancer type
-//  search in which the user will enter ONLY a gene list
-function setDefaultQuery() {
-    //  Hide form fields not used in cross-study queries
-    if ($("#select_cancer_type").val() == 'all'){
-        $('#step2').hide();
-        $('#step3').hide();
-        $('#step5').hide();
-    }
+//  search in which the user will enter ONLY a gene list; Also when "All Cancer Studies"
+//  is selected in Step 1
+function crossCancerStudySelected() {
+     $('#step2').hide();
+     $('#step3').hide();
+     $('#step5').hide();
+     $('#cancer_study_desc').hide();
+}
+
+//  Need to display extra steps whenever an individual cancer study is selected
+function singleCancerStudySelected() {
+     $("#step2").show();
+     $("#step3").show();
+     $("#step5").show();
+     $("#cancer_study_desc").show();
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -191,7 +203,7 @@ function toggle_threshold(profileClicked) {
 function cancerStudySelected() {
     var cancerStudyId = $("#select_cancer_type").val();
     if (cancerStudyId=='all'){
-        setDefaultQuery();
+        crossCancerStudySelected();
         return;
     }
 
@@ -236,9 +248,7 @@ function cancerStudySelected() {
 
     //  Show any hidden form fields
     if(!$("#step2").is(":visible")){
-        $("#step2").show();
-        $("#step3").show();
-        $("#step5").show();
+        singleCancerStudySelected();
     }
 
     //  Set up Event Handler for checking checkboxes associated with radio buttons
@@ -348,7 +358,8 @@ function addMetaDataToPage() {
         }
     });  //  end for each genomic profile option
 
-    setDefaultQuery();
+    // cross-cancer study selected by default
+    crossCancerStudySelected();
 }
 
 // Adds the specified genomic profiles to the page.

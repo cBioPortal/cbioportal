@@ -1183,3 +1183,11 @@ textarea {
 vertical-align:middle;
 padding:4px;
 }
+<<<<<<< local
+=======
+
+.ui-state-error{
+  padding:5px !important;
+  margin-top:10px !important;
+  font-size:125%;
+}>>>>>>> other

@@ -234,7 +234,6 @@
                               "fnRender": function(obj) {
                                     if (isNaN(parsePValue(obj.aData[9])))
                                         return "";
-                                    //return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 11 ]
@@ -290,9 +289,12 @@
                         var xlabel = "";
                         var param = 'data='+data+'&xlabel='+xlabel
                             +'&ylabel=Median-centered RPPA score&width=500&height=400';
-                        var html = '<img src="boxplot.do?'+param+'">'
-                                +'<br/>&nbsp;&nbsp;'
-                                +'<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>';
+                        var html = 'Boxplots of RPPA data (antibody:'+aData[3].replace(/<[^>]*>/g,"");
+                        if (aData[4])
+                            html += '['+aData[4]+']';
+                        html += ') for altered and unaltered cases ';
+                        html += ' [<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>]<br/>' 
+                                + '<img src="boxplot.do?'+param+'">';
                         oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
                 } );

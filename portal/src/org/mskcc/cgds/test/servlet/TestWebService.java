@@ -13,14 +13,12 @@ import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.dao.DaoUserAccessRight;
+import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.model.*;
 import org.mskcc.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.servlet.WebService;
 import org.mskcc.cgds.test.util.NullHttpServletRequest;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.util.internal.AccessControlImpl;
 import org.mskcc.cgds.util.ProgressMonitor;
 
 public class TestWebService extends TestCase {
@@ -33,7 +31,6 @@ public class TestWebService extends TestCase {
    String cleartextPwd;
    GeneticProfile privateGeneticProfile;      
    GeneticProfile publicGeneticProfile;
-	AccessControl accessControl = new AccessControlImpl();
    
    public void testWebService() throws Exception {
       setUpDBMS();
@@ -262,8 +259,8 @@ public class TestWebService extends TestCase {
       publicCancerStudy = new CancerStudy( "public name", "description", "study3", "brca", true );
       DaoCancerStudy.addCancerStudy(publicCancerStudy);  // 3
       
-      //UserAccessRight userAccessRight = new UserAccessRight( user1.getEmail(), privateCancerStudy1.getInternalId() );
-      //DaoUserAccessRight.addUserAccessRight(userAccessRight);
+      UserAuthorities authorities = new UserAuthorities(user1.getEmail(), java.util.Arrays.asList("ROLE_USER"));
+      DaoUserAuthorities.addUserAuthorities(authorities);
       
       DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
       String publicSid = "stableIdpublic";

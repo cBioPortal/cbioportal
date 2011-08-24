@@ -10,6 +10,7 @@ import org.mskcc.portal.util.XDebug;
 import org.mskcc.cgds.model.GeneticProfile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Gets Mutation Data for all specified genes in a specific genetic profile.
@@ -28,31 +29,45 @@ public class GetMutationData {
      * @return ProfileData Object in an ArrayList.
      * @throws DaoException, as of August 2011 GetMutationData has direct access to DAO Objects.
      */
-    public ArrayList <ExtendedMutation> getMutationData(GeneticProfile profile,
-                ArrayList<String> geneList, String caseIds, XDebug xdebug) throws DaoException {
-        try {
-        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
-        ArrayList<Long> entrezIDList= new ArrayList<Long>();
+    public ArrayList<ExtendedMutation> getMutationData(GeneticProfile profile,
+                                                       ArrayList<String> geneList, HashSet<String> caseIdSet, XDebug xdebug) throws DaoException {
+
+        //initialize DAO objects and ArrayLists
+        ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
+        ArrayList<Long> entrezIDList = new ArrayList<Long>();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         DaoMutation daoMutation = DaoMutation.getInstance();
+
+        //Get Genetic Profile ID from GeneticProfile Object
         int GeneticProfile = profile.getGeneticProfileId();
-        //convert HUGOGENE List to ENTREZIDGENE List
-        for (String gene : geneList) {
-            CanonicalGene canonicalGene = daoGeneOptimized.getGene(gene);
-            Long EntrezGeneID = canonicalGene.getEntrezGeneId();
-            entrezIDList.add((EntrezGeneID));
-        }
-        //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
-        for (Long entrezID : entrezIDList){
-            ArrayList<ExtendedMutation> tempMutationList = daoMutation.getMutations(GeneticProfile, entrezID);
-            for (ExtendedMutation mutation : tempMutationList){
-                mutationList.add(mutation);
+        if (geneList.size() > 0) {
+            //convert HUGOGENE List to ENTREZIDGENE List
+            for (String gene : geneList) {
+                if (null != gene) {
+                    CanonicalGene canonicalGene = daoGeneOptimized.getGene(gene);
+                    if(null != canonicalGene){
+                    Long EntrezGeneID = canonicalGene.getEntrezGeneId();
+                    entrezIDList.add((EntrezGeneID));
+                    }
+                }
+            }
+            try {
+                //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
+                for (Long entrezID : entrezIDList) {
+                    ArrayList<ExtendedMutation> tempmutationList =
+                            daoMutation.getMutations(GeneticProfile, entrezID);
+                    for (ExtendedMutation mutation : tempmutationList){
+                        if (caseIdSet.contains(mutation.getCaseId()))
+                            mutationList.add(mutation);
+                    }
+
+                }
+                return mutationList;
+            } catch (DaoException e) {
+                System.err.println("Database Error: " + e.getMessage());
             }
         }
-          return mutationList;
-        } catch (DaoException e) {
-          System.err.println("Database Error: " + e.getMessage());
-        }
+        System.err.println("Invalid list of Genes entered");
         return null;
     }
 

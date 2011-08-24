@@ -64,13 +64,30 @@ public class DaoUserAuthorities {
 		}
 	}
 
+	public static void removeUserAuthorities(User user) throws DaoException {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserAuthorities toReturn;
+		try {
+			con = JdbcUtil.getDbConnection();
+			pstmt = con.prepareStatement("DELETE FROM authorities where EMAIL=?");
+			pstmt.setString(1, user.getEmail());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(con, pstmt, rs);
+		}
+	}
+
 	public static void deleteAllRecords() throws DaoException {
 	   Connection con = null;
 	   PreparedStatement pstmt = null;
 	   ResultSet rs = null;
       try {
 		  con = JdbcUtil.getDbConnection();
-		  pstmt = con.prepareStatement("TRUNCATE TABLE access_rights");
+		  pstmt = con.prepareStatement("TRUNCATE TABLE authorities");
 		  pstmt.executeUpdate();
       } catch (SQLException e) {
 		  throw new DaoException(e);

@@ -14,7 +14,7 @@ public class CanonicalGene extends Gene {
         return entrezGeneId;
     }
 
-    public void setEntrezGeneId(int entrezGeneId) {
+    public void setEntrezGeneId(long entrezGeneId) {
         this.entrezGeneId = entrezGeneId;
     }
 

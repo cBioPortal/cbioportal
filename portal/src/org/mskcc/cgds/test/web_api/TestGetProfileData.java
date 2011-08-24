@@ -57,8 +57,9 @@ public class TestGetProfileData extends TestCase {
         caseIdList.add("TCGA-02-0003");
         caseIdList.add("TCGA-02-0006");
 
-        String out = GetProfileData.getProfileData(geneticProfileIdList, targetGeneList,
+        GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 caseIdList, new Boolean(false));
+        String out = getProfileData.getRawContent();
         String lines[] = out.split("\n");
         assertEquals("# DATA_TYPE\t GISTIC CNA" , lines[0]);
         assertEquals("# COLOR_GRADIENT_SETTINGS\t COPY_NUMBER_ALTERATION", lines[1]);

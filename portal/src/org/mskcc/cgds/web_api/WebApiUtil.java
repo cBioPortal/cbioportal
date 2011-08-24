@@ -18,13 +18,17 @@ public class WebApiUtil {
     private static HashSet <String> variantMicroRnaIdSet;
     public static String WEP_API_HEADER = "# CGDS Kernel:  Data served up fresh at:  "
             + new Date() +"\n";
+    public static String TAB = "\t";
+    public static String NEW_LINE = "\n";
+
 
     public static void outputWebApiHeader(StringBuffer buf) {
         buf.append (WEP_API_HEADER);
     }
 
     public static ArrayList <Gene> getGeneList (ArrayList<String> targetGeneList,
-                    GeneticAlterationType alterationType, StringBuffer warningBuffer) throws DaoException {
+                    GeneticAlterationType alterationType, StringBuffer warningBuffer,
+                    ArrayList<String> warningList) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
         if (microRnaIdSet == null) {
@@ -70,10 +74,14 @@ public class WebApiUtil {
                             geneList.add(microRna);
                         }
                     } else {
-                        warningBuffer.append ("# Warning:  Unknown microRNA:  " + geneId + "\n");
+                        String msg = "# Warning:  Unknown microRNA:  " + geneId;
+                        warningBuffer.append (msg + "\n");
+                        warningList.add(msg);
                     }
                 } else {
-                    warningBuffer.append ("# Warning:  Unknown gene:  " + geneId + "\n");
+                    String msg = "# Warning:  Unknown gene:  " + geneId;
+                    warningBuffer.append (msg + "\n");
+                    warningList.add(msg);
                 }
             } else {
                 geneList.add(gene);

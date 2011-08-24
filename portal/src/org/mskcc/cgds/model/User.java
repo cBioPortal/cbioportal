@@ -10,27 +10,18 @@ import org.mskcc.cgds.util.EqualsUtil;
  */
 public class User {
 	private String email;
-	private String name;     // optional
+	private String name;
     private boolean enabled;
 
-	public User() {
-		this.name = "";
-		this.enabled = false;
-	}
-
-	public User(String email, String name) throws IllegalArgumentException {
-		this(email, name, false);
-	}
-
 	public User(String email, String name, boolean enabled) throws IllegalArgumentException {
-		this();
 		if (null == email) {
 			throw new IllegalArgumentException ("email is null.");
 		}
 		this.email = email;
-		if (null != name) {
-			this.name = name;
+		if (null == name) {
+            throw new IllegalArgumentException ("name is null.");
 		}
+        this.name = name;
 		this.enabled = enabled;
 	}
 

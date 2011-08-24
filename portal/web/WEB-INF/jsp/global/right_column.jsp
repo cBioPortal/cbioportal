@@ -16,13 +16,13 @@
 %>
 
 <div id="right_side">
-
+<!--
 <h3>Getting Started</h3>
 
 	<p>New to the portal?</p>
 
     <p>Check out our <a href="video.jsp">video tutorial</a>.</p>
-
+-->
 <h3>Data Sets</h3>
 
  <jsp:include page="<%= dataSetsRightColumn%>" flush="true" />

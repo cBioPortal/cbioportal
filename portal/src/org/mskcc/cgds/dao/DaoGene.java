@@ -58,7 +58,7 @@ class DaoGene {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 myMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
-                        gene.getHugoGeneSymbol());
+                        gene.getHugoGeneSymbol().toUpperCase());
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
@@ -69,7 +69,12 @@ class DaoGene {
                             ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`) "
                                     + "VALUES (?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
-                    pstmt.setString(2, gene.getHugoGeneSymbol());
+
+                    //  Most HUGO Gene Symbols are in all Upper Case
+                    //  Even for the few that are not, we store them in upper case
+                    //  so that we can do quick look ups, and deal with users who
+                    //  specify lower case of mixed case gene symbols.
+                    pstmt.setString(2, gene.getHugoGeneSymbol().toUpperCase());
                     int rows = pstmt.executeUpdate();
                     return rows;
                 } else {

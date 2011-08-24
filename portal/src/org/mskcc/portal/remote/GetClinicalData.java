@@ -29,17 +29,21 @@ public class GetClinicalData {
      * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
      */
     public static ArrayList<ClinicalData> getClinicalData(String caseIds, XDebug xdebug) throws DaoException {
-
+        if (caseIds != null && caseIds.length() > 0){
         try {
             DaoClinicalData daoClinicalData = new DaoClinicalData();
             String caseIdList[] = caseIds.split(" ");
-            Set<String> caseSet = new HashSet<String>();
-            //for (String caseID : caseIdList) {caseSet.add(caseID);}
-            caseSet.addAll(Arrays.asList(caseIdList));
+            //check to make sure caseIdList != null, then convert to caseSet, pass through DAO and return
+            //an arraylist retrieved from the DAO.
+            if (caseIdList.length > 0){
+            Set<String> caseSet = new HashSet<String>(Arrays.asList(caseIdList));
             return daoClinicalData.getCases(caseSet);
+            }
         } catch (DaoException e) {
             System.err.println("Database Error: " + e.getMessage());
             return null;
         }
+        }
+    return new ArrayList<ClinicalData>();
     }
 }

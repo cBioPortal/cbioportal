@@ -3,186 +3,204 @@ package org.mskcc.cgds.model;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class ExtendedMutation {
-   private int    geneticProfileId;
-   private String caseId;
-   private long   entrezGeneId;
-   private String geneSymbol;
-   private String center;
-   private String sequencer;
-   private String mutationStatus;
-   private String validationStatus;
-   private String chr;
-   private long   startPosition;
-   private long   endPosition;
-   private String aminoAcidChange;
-   private String mutationType;
-   private String functionalImpactScore;
-   private String linkXVar;
-   private String linkPdb;
-   private String linkMsa;
+    private int geneticProfileId;
+    private String caseId;
+    private long entrezGeneId;
+    private CanonicalGene gene;
+    private String geneSymbol;
+    private String center;
+    private String sequencer;
+    private String mutationStatus;
+    private String validationStatus;
+    private String chr;
+    private long startPosition;
+    private long endPosition;
+    private String aminoAcidChange;
+    private String mutationType;
+    private String functionalImpactScore;
+    private String linkXVar;
+    private String linkPdb;
+    private String linkMsa;
 
-   public ExtendedMutation(){
-   }
-   
-   /**
-    * Construct an ExtendedMutation with the fields needed for testing.
-    * Include mutationType mutationStatus ValidationStatus and EntrezGeneId.
-    */
-   public ExtendedMutation( long entrezGeneId, String validationStatus, String mutationStatus,
-            String mutationType) {
-      this.entrezGeneId = entrezGeneId;
-      this.mutationStatus = mutationStatus;
-      this.validationStatus = validationStatus;
-      this.mutationType = mutationType;
-   }
+    public ExtendedMutation() {
+    }
 
-   public int getGeneticProfileId() {
-      return geneticProfileId;
-   }
+    /**
+     * Construct an ExtendedMutation with the fields needed for testing.
+     * Include mutationType mutationStatus ValidationStatus and EntrezGeneId.
+     */
+    public ExtendedMutation(long entrezGeneId, String validationStatus, String mutationStatus,
+                            String mutationType) {
+        this.entrezGeneId = entrezGeneId;
+        this.mutationStatus = mutationStatus;
+        this.validationStatus = validationStatus;
+        this.mutationType = mutationType;
+    }
 
-   public void setGeneticProfileId(int geneticProfileId) {
-      this.geneticProfileId = geneticProfileId;
-   }
+    public ExtendedMutation(CanonicalGene gene, String validationStatus, String mutationStatus,
+                            String mutationType) {
+        this.entrezGeneId = gene.getEntrezGeneId();
+        this.geneSymbol = gene.getHugoGeneSymbol();
+        this.mutationStatus = mutationStatus;
+        this.validationStatus = validationStatus;
+        this.mutationType = mutationType;
+    }
 
-   public String getCaseId() {
-      return caseId;
-   }
+    public int getGeneticProfileId() {
+        return geneticProfileId;
+    }
 
-   public void setCaseId(String caseId) {
-      this.caseId = caseId;
-   }
+    public void setGeneticProfileId(int geneticProfileId) {
+        this.geneticProfileId = geneticProfileId;
+    }
 
-   public long getEntrezGeneId() {
-      return entrezGeneId;
-   }
+    public String getCaseId() {
+        return caseId;
+    }
 
-   public void setEntrezGeneId(long entrezGeneId) {
-      this.entrezGeneId = entrezGeneId;
-   }
+    public void setCaseId(String caseId) {
+        this.caseId = caseId;
+    }
 
-   public String getCenter() {
-      return center;
-   }
+    public long getEntrezGeneId() {
+        return entrezGeneId;
+    }
 
-   public void setCenter(String center) {
-      this.center = center;
-   }
+    public void setEntrezGeneId(long entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
+    }
 
-   public String getMutationStatus() {
-      return mutationStatus;
-   }
+    public String getCenter() {
+        return center;
+    }
 
-   public void setMutationStatus(String mutationStatus) {
-      this.mutationStatus = mutationStatus;
-   }
+    public void setCenter(String center) {
+        this.center = center;
+    }
 
-   public String getValidationStatus() {
-      return validationStatus;
-   }
+    public String getMutationStatus() {
+        return mutationStatus;
+    }
 
-   public void setValidationStatus(String validationStatus) {
-      this.validationStatus = validationStatus;
-   }
+    public void setMutationStatus(String mutationStatus) {
+        this.mutationStatus = mutationStatus;
+    }
 
-   public String getChr() {
-      return chr;
-   }
+    public String getValidationStatus() {
+        return validationStatus;
+    }
 
-   public void setChr(String chr) {
-      this.chr = chr;
-   }
+    public void setValidationStatus(String validationStatus) {
+        this.validationStatus = validationStatus;
+    }
 
-   public long getStartPosition() {
-      return startPosition;
-   }
+    public String getChr() {
+        return chr;
+    }
 
-   public void setStartPosition(long startPosition) {
-      this.startPosition = startPosition;
-   }
+    public void setChr(String chr) {
+        this.chr = chr;
+    }
 
-   public long getEndPosition() {
-      return endPosition;
-   }
+    public long getStartPosition() {
+        return startPosition;
+    }
 
-   public void setEndPosition(long endPosition) {
-      this.endPosition = endPosition;
-   }
+    public void setStartPosition(long startPosition) {
+        this.startPosition = startPosition;
+    }
 
-   public String getAminoAcidChange() {
-      return aminoAcidChange;
-   }
+    public long getEndPosition() {
+        return endPosition;
+    }
 
-   public void setAminoAcidChange(String aminoAcidChange) {
-      this.aminoAcidChange = aminoAcidChange;
-   }
+    public void setEndPosition(long endPosition) {
+        this.endPosition = endPosition;
+    }
 
-   public String getMutationType() {
-      return mutationType;
-   }
+    public String getAminoAcidChange() {
+        return aminoAcidChange;
+    }
 
-   public void setMutationType(String mutationType) {
-      this.mutationType = mutationType;
-   }
+    public void setAminoAcidChange(String aminoAcidChange) {
+        this.aminoAcidChange = aminoAcidChange;
+    }
 
-   public String getFunctionalImpactScore() {
-      return functionalImpactScore;
-   }
+    public String getMutationType() {
+        return mutationType;
+    }
 
-   public void setFunctionalImpactScore(String fImpact) {
-      this.functionalImpactScore = fImpact;
-   }
+    public void setMutationType(String mutationType) {
+        this.mutationType = mutationType;
+    }
 
-   public String getLinkXVar() {
-      return linkXVar;
-   }
+    public String getFunctionalImpactScore() {
+        return functionalImpactScore;
+    }
 
-   public void setLinkXVar(String linkXVar) {
-      this.linkXVar = linkXVar;
-   }
+    public void setFunctionalImpactScore(String fImpact) {
+        this.functionalImpactScore = fImpact;
+    }
 
-   public String getLinkPdb() {
-      return linkPdb;
-   }
+    public String getLinkXVar() {
+        return linkXVar;
+    }
 
-   public void setLinkPdb(String linkPdb) {
-      this.linkPdb = linkPdb;
-   }
+    public void setLinkXVar(String linkXVar) {
+        this.linkXVar = linkXVar;
+    }
 
-   public String getLinkMsa() {
-      return linkMsa;
-   }
+    public String getLinkPdb() {
+        return linkPdb;
+    }
 
-   public void setLinkMsa(String linkMsa) {
-      this.linkMsa = linkMsa;
-   }
+    public void setLinkPdb(String linkPdb) {
+        this.linkPdb = linkPdb;
+    }
 
-   public String getSequencer() {
-      return sequencer;
-   }
+    public String getLinkMsa() {
+        return linkMsa;
+    }
 
-   public void setSequencer(String sequencer) {
-      this.sequencer = sequencer;
-   }
+    public void setLinkMsa(String linkMsa) {
+        this.linkMsa = linkMsa;
+    }
 
-   public String toString() {
-      return ToStringBuilder.reflectionToString(this);
-   }
+    public String getSequencer() {
+        return sequencer;
+    }
 
-   public void setGeneSymbol(String geneSymbol) {
+    public void setSequencer(String sequencer) {
+        this.sequencer = sequencer;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    public void setGeneSymbol(String geneSymbol) {
         this.geneSymbol = geneSymbol;
-   }
+    }
 
-   public String getGeneSymbol(){
-       return geneSymbol;
-   }
-   
-   public String keyFieldsToString() {
-      return new ToStringBuilder(this).
-         append("entrezGeneId", entrezGeneId).
-         append("mutationStatus", mutationStatus).
-         append("validationStatus", validationStatus).
-         append("mutationType", mutationType).
-         toString();      
-   }
-   
+    public String getGeneSymbol() {
+        return geneSymbol;
+    }
+
+    public void setGene(CanonicalGene gene) {
+        this.gene = gene;
+    }
+
+    public CanonicalGene getGene() {
+        return gene;
+    }
+
+    public String keyFieldsToString() {
+        return new ToStringBuilder(this).
+                append("entrezGeneId", entrezGeneId).
+                append("mutationStatus", mutationStatus).
+                append("validationStatus", validationStatus).
+                append("mutationType", mutationType).
+                toString();
+    }
+
 }

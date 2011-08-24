@@ -96,10 +96,7 @@
    if (SkinUtil.usersMustAuthenticate()) {
 %>
 		<tr>
-			<td colspan="3"><span style="float:right;">You are logged in as <sec:authentication property='principal.name' />, <a href="j_spring_security_logout">logoff</a>.</span></td>
-		</tr>
-		<tr>
-            <td colspan="3"><span style="float:right;">Your current user credential is: <c:out value='${pageContext.session.id}'/>.</span></td>
+			<td colspan="3"><span style="float:right;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span></td>
 		</tr>
 <%
 }
@@ -115,9 +112,11 @@
 					<li class="internal" id="results">
 					    <a href="#">Results</a>
 					</li>
-					<li class="internal">
+                    <!--
+                    <li class="internal">
 					   	<a href="video.jsp">Tutorial</a>
 					</li>
+					-->
 					<li class="internal">
 					   	<a href="news.jsp">News</a>
 					</li>

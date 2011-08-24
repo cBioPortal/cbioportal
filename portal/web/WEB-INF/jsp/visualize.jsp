@@ -240,7 +240,7 @@
                     }
                     
                     if (rppaExists) {
-                        out.println ("<li><a href='#protein_exp' class='result-tab'>Protein Abundance</a></li>");
+                        out.println ("<li><a href='#protein_exp' class='result-tab'>RPPA Data</a></li>");
                     }
 
                     out.println ("<li><a href='#event_map' class='result-tab'>Event Map</a></li>");

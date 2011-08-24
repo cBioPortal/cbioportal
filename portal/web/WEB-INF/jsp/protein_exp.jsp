@@ -31,9 +31,13 @@
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 
 <script type="text/javascript">
+    function parsePValue(str) {
+        return parseFloat(str.replace(/<[^>]*>/g,""));
+    }
+    
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
-	var x = parseFloat(a);
-	var y = parseFloat(b);
+	var x = parsePValue(a);
+	var y = parsePValue(b);
         if (isNaN(x)) {
             return isNaN(y) ? 0 : 1;
         }
@@ -43,8 +47,8 @@
     };
 
     jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
-	var x = parseFloat(a);
-	var y = parseFloat(b);
+	var x = parsePValue(a);
+	var y = parsePValue(b);
         if (isNaN(x)) {
             return isNaN(y) ? 0 : 1;
         }
@@ -153,6 +157,9 @@
                               "aTargets": [ 2 ]
                             },
                             { //"sTitle": "Target Gene",
+                              "fnRender": function(obj) {
+                                    return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                              },
                               "aTargets": [ 3 ] 
                             },
                             { //"sTitle": "Target Residue",
@@ -198,6 +205,8 @@
                                         return "NaN";
                                     
                                     var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+                                    if (value <= 0.05)
+                                        ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[7]);
@@ -306,24 +315,24 @@
         <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
-                <thead>
+                <thead style="font-size:80%">
                     <tr valign="bottom">
-                        <th rowspan="2" style="font-size:80%">Gene</th>
-                        <th rowspan="2" style="font-size:80%">Alteration</th>
-                        <th rowspan="2" style="font-size:80%">Type</th>
-                        <th colspan="2" class="ui-state-default" style="font-size:80%">Target</th>
-                        <th rowspan="2" style="font-size:80%">Source Organism</th>
-                        <th rowspan="2" style="font-size:80%">Validated?</th>
-                        <th colspan="2" class="ui-state-default" style="font-size:80%">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2" style="font-size:80%">data</th>
-                        <th rowspan="2" style="font-size:80%">Plot</th>
+                        <th rowspan="2">Gene</th>
+                        <th rowspan="2">Alteration</th>
+                        <th rowspan="2">Type</th>
+                        <th colspan="2" class="ui-state-default">Target</th>
+                        <th rowspan="2">Source Organism</th>
+                        <th rowspan="2">Validated?</th>
+                        <th colspan="2" class="ui-state-default">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th rowspan="2">data</th>
+                        <th rowspan="2">Plot</th>
                     </tr>
                     <tr>
-                        <th style="font-size:80%">Protein</th>
-                        <th style="font-size:80%">Residue</th>
-                        <th style="font-size:80%">Unaltered</th>
-                        <th style="font-size:80%">Altered</th>
+                        <th>Protein</th>
+                        <th>Residue</th>
+                        <th>Unaltered</th>
+                        <th>Altered</th>
                     </tr>
                 </thead>
                 <tfoot>

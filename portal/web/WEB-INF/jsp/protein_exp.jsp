@@ -116,10 +116,11 @@
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
+                var aiExclude = [0,1,2,10];
                 var oTable = $('table#protein_expr').dataTable( {
                         "sDom": '<"H"Cfr>t<"F"lip>', // selectable columns
 			"oColVis": {
-                            "activate": "mouseover"
+                            //"aiExclude": aiExclude
                         },
                         "bJQueryUI": true,
                         "aaData": aDataSet,
@@ -226,19 +227,23 @@
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
                 
+                // filter for antibody type
                 $('div#protein_expr_filter').append("<br/>Antibody Type: "+fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation"));
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 2);
                 } );
                 oTable.fnFilter("phosphorylation",2);
-//                
-//                $("input.checkbox-select-columns").change(function(){
-//                    var cols = $(this).val().split(',');
-//                    for (var iCol in cols) {
-//                        oTable.fnSetColumnVis( cols[iCol], $(this).is(":checked") );
-//                    }
-//                    //oTable.fnAdjustColumnSizing();
-//                });
+                
+                // remove element from selectable columns - to fix a bug of ColVis
+                var excludeButtonRemoved = false;
+                $('div.ColVis button.ColVis_Button').click(function() {
+                    if (!excludeButtonRemoved) {
+                        for (var i=aiExclude.length-1; i>=0; i--) {
+                            $('div.ColVis_collection button.ColVis_Button').eq(aiExclude[i]).remove();
+                        }
+                        excludeButtonRemoved = true;
+                    }
+                });
                 
                 /* Add event listener for opening and closing details
                  * Note that the indicator for showing which row is open is not controlled by DataTables,
@@ -339,7 +344,7 @@
                         <th>Altered</th>
                         <th>p-value</th>
                         <th>data</th>
-                        <th></th>
+                        <th>Plot</th>
                     </tr>
                 </tfoot>
             </table>

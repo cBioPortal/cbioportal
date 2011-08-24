@@ -334,7 +334,7 @@ public class MakeOncoPrint {
                         //+ IMG(iconFileName.toString(), width, height, event.caseCaseId())
 
                         // temporary tooltip = event.toString()+"\n"+event.caseCaseId()
-                        + IMG(iconFileName.toString(), width, height, event.toString()+"; "+event.caseCaseId())
+                        + IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
                         + "</td>\n");
 
             }

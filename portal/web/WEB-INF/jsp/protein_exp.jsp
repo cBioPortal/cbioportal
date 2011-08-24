@@ -7,8 +7,20 @@
                 float: left;
                 margin-bottom: 0
         }
+        .datatable-filter-custom {
+                float: left
+        }
         .dataTables_length {
                 width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
         }
         td.rppa-details {
                 background-color : white;
@@ -121,7 +133,7 @@
                 //alert(aDataSet);
                 var aiExclude = [0,1,2,10];
                 var oTable = $('table#protein_expr').dataTable( {
-                        "sDom": '<"H"Cfr>t<"F"lip>', // selectable columns
+                        "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
                             //"aiExclude": aiExclude
                         },
@@ -222,7 +234,7 @@
                         ],
                         "aaSorting": [[9,'asc']],
                         "oLanguage": {
-                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)",
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
                             "sLengthMenu": "Show _MENU_ per page"
                         },
@@ -231,7 +243,9 @@
                 } );
                 
                 // filter for antibody type
-                $('div#protein_expr_filter').append("<br/>Antibody Type: "+fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation"));
+                $('div.datatable-filter-custom').html("Antibody Type: "
+                    +fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation")
+                    +"&nbsp;&nbsp;&nbsp;");
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 2);
                 } );
@@ -287,29 +301,29 @@
 <div class="section" id="protein_exp">
     <div id="protein_expr_wait"><img src="images/ajax-loader.gif"/></div>
     
-    <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper">
+    <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper" width="100%">
         
         <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead>
                     <tr valign="bottom">
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Gene</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Alteration</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Type</th>
-                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Target</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Source Organism</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Validated?</th>
-                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
+                        <th rowspan="2" style="font-size:80%">Gene</th>
+                        <th rowspan="2" style="font-size:80%">Alteration</th>
+                        <th rowspan="2" style="font-size:80%">Type</th>
+                        <th colspan="2" class="ui-state-default" style="font-size:80%">Target</th>
+                        <th rowspan="2" style="font-size:80%">Source Organism</th>
+                        <th rowspan="2" style="font-size:80%">Validated?</th>
+                        <th colspan="2" class="ui-state-default" style="font-size:80%">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
                         <th rowspan="2" nowrap="nowrap" style="font-size:80%">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">data</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Plot</th>
+                        <th rowspan="2" style="font-size:80%">data</th>
+                        <th rowspan="2" style="font-size:80%">Plot</th>
                     </tr>
                     <tr>
-                        <th nowrap="nowrap" style="font-size:80%">Protein</th>
-                        <th nowrap="nowrap" style="font-size:80%">Residue</th>
-                        <th nowrap="nowrap" style="font-size:80%">Unaltered</th>
-                        <th nowrap="nowrap" style="font-size:80%">Altered</th>
+                        <th style="font-size:80%">Protein</th>
+                        <th style="font-size:80%">Residue</th>
+                        <th style="font-size:80%">Unaltered</th>
+                        <th style="font-size:80%">Altered</th>
                     </tr>
                 </thead>
                 <tfoot>

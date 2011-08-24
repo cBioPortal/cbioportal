@@ -350,6 +350,10 @@ public class QueryBuilder extends HttpServlet {
 
             xdebug.logMsg(this, "Merged Profile, Number of genes:  "
                     + mergedProfile.getGeneList().size());
+            ArrayList<String> mergedProfileGeneList = mergedProfile.getGeneList();
+            for (String currentGene:  mergedProfileGeneList) {
+                xdebug.logMsg(this, "Merged Profile Gene:  " + currentGene);
+            }
             xdebug.logMsg(this, "Merged Profile, Number of cases:  "
                     + mergedProfile.getCaseIdList().size());
             request.setAttribute(MERGED_PROFILE_DATA_INTERNAL, mergedProfile);

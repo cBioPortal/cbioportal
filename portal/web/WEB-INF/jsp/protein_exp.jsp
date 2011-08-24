@@ -232,7 +232,7 @@
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    if (isNaN(parseFloat(obj.aData[9])))
+                                    if (isNaN(parsePValue(obj.aData[9])))
                                         return "";
                                     //return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";

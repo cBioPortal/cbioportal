@@ -106,9 +106,11 @@
 					<li class="internal" id="results">
 					    <a href="#">Results</a>
 					</li>
-					<li class="internal">
+                    <!--
+                    <li class="internal">
 					   	<a href="video.jsp">Tutorial</a>
 					</li>
+					-->
 					<li class="internal">
 					   	<a href="news.jsp">News</a>
 					</li>

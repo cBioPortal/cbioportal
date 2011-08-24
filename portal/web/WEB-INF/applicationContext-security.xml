@@ -46,7 +46,7 @@
       <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
-      <intercept-url pattern="/onco_query_lang_descr.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
 	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>

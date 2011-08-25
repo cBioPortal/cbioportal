@@ -28,7 +28,7 @@ public class GeneValidator {
             String parts[] = currentGene.split(":");
             String geneId = parts[0];
             if (geneId.trim().length() > 0) {
-                CanonicalGene gene = daoGeneOptimized.getGene(geneId);
+                CanonicalGene gene = daoGeneOptimized.getGene(geneId.toUpperCase());
                 if (gene == null) {
                     invalidGeneList.add(geneId);
                 } else {

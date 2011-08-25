@@ -2,6 +2,7 @@
 <%@ page import="org.mskcc.portal.util.XDebugMessage" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.util.XDebug" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 <%
     request.setAttribute(QueryBuilder.HTML_TITLE, "cBio Cancer Genomics Pathway Portal::Error");
     String userErrorMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
@@ -17,8 +18,7 @@
             <% if (userErrorMessage != null) {
                 out.println ("<h4>" + userErrorMessage + "</h4>");
             } else { %>
-            <h4>An Error Has Occurred.  Please try again or send email to
-                <a href="http://cbio.mskcc.org/people/info/ethan_cerami.html">Ethan Cerami</a>.</h4>
+            <h4>An Error Has Occurred.  Please try again or send email to <%= SkinUtil.getEmailContact() %>.</h4>
               <% } %>
             <br/>
             </td>

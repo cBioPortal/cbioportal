@@ -10,5 +10,3 @@ The cBio Cancer Genomics Portal is developed and maintained by the [Computationa
  * Chris Sander
  
 Funding for the portal is provided in part from our grant as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp).
-
-Please email us at <img style="vertical-align: middle;" src="images/cancergenomics_email_address.png"> with any questions or feedback.

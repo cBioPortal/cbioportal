@@ -76,4 +76,13 @@ public class SkinUtil {
         Config config = Config.getInstance();
 		return new Boolean(config.getProperty("authenticate"));
     }
+    
+    /**
+     * Determines whether to include networks
+     * @return true or false
+     */
+    public static boolean includeNetworks() {
+        Config config = Config.getInstance();
+        return Boolean.parseBoolean(config.getProperty("include_networks"));
+    }
 }

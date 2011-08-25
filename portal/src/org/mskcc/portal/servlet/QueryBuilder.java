@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Arrays;
-import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -38,7 +36,7 @@ import org.owasp.validator.html.PolicyException;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
-    public static final boolean INCLUDE_NETWORKS = true;
+    //public static final boolean INCLUDE_NETWORKS = true;
     public static final String CGDS_URL_PARAM = "cgds_url";
     public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";

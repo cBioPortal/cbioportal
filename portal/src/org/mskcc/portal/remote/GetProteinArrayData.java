@@ -18,6 +18,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GetProteinArrayData {
+    
+    public static Set<String> getProteinArrayTypes() throws DaoException {
+        return DaoProteinArrayInfo.getInstance().getAllAntibodyTypes();
+    }
 
     /**
      * 
@@ -28,12 +32,12 @@ public class GetProteinArrayData {
      * @throws DaoException 
      */
     public static Map<String,ProteinArrayInfo> getProteinArrayInfo(List<String> geneList,
-                                      String type, XDebug xdebug) throws DaoException {
+                                      Collection<String> types, XDebug xdebug) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         List<ProteinArrayInfo> pais;
         
         if (geneList==null) {
-            pais = daoPAI.getProteinArrayInfoForType(type);
+            pais = daoPAI.getProteinArrayInfoForType(types);
         } else {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             Set<Long> entrezIds = new HashSet();
@@ -43,7 +47,7 @@ public class GetProteinArrayData {
                     entrezIds.add(cGene.getEntrezGeneId());
                 }
             }
-            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, type);
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, types);
         }
         
         Map<String,ProteinArrayInfo> ret = new HashMap<String,ProteinArrayInfo>();

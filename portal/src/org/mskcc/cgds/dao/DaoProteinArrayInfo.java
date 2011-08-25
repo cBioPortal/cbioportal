@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Collection;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -116,23 +118,23 @@ public class DaoProteinArrayInfo {
         return pais.get(0);
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, String type) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, Collection<String> types) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         ArrayList<ProteinArrayInfo> pais = new ArrayList<ProteinArrayInfo>();
         try {
             con = JdbcUtil.getDbConnection();
-            if (type==null) {
+            if (types==null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_info WHERE PROTEIN_ARRAY_ID in ('"
                             +StringUtils.join(arrayIds, "','")+"')");
             } else {
                 
                 pstmt = con.prepareStatement
-                        ("SELECT * FROM protein_array_info WHERE TYPE = ? AND "
-                        + "PROTEIN_ARRAY_ID in ('"+StringUtils.join(arrayIds, "','")+"')");
-                pstmt.setString(1, type);
+                        ("SELECT * FROM protein_array_info WHERE TYPE in ('"
+                        + StringUtils.join(types, "','")+"')"
+                        + " AND PROTEIN_ARRAY_ID in ('"+StringUtils.join(arrayIds, "','")+"')");
             }
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -159,20 +161,20 @@ public class DaoProteinArrayInfo {
      * @return ArrayList of ProteinArrayInfoes.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForType(String type) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForType(Collection<String> types) throws DaoException {
         ArrayList<ProteinArrayInfo> list = new ArrayList<ProteinArrayInfo>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            if (type==null) {
+            if (types==null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_info");
             } else {
                 pstmt = con.prepareStatement
-                        ("SELECT * FROM protein_array_info WHERE TYPE = ?");
-                pstmt.setString(1, type);
+                        ("SELECT * FROM protein_array_info WHERE TYPE in ('"
+                        +StringUtils.join(types, "','")+"')");
             }
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -192,14 +194,36 @@ public class DaoProteinArrayInfo {
         }
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezId(long entrezId, String type) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezId(long entrezId, Collection<String> types) throws DaoException {
         Collection<String> arrayIds = DaoProteinArrayTarget.getInstance().getProteinArrayIds(Collections.singleton(entrezId));
-        return getProteinArrayInfo(arrayIds, type);
+        return getProteinArrayInfo(arrayIds, types);
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezIds(Collection<Long> entrezIds, String type) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezIds(Collection<Long> entrezIds, Collection<String> types) throws DaoException {
         Collection<String> arrayIds = DaoProteinArrayTarget.getInstance().getProteinArrayIds(entrezIds);
-        return getProteinArrayInfo(arrayIds, type);
+        return getProteinArrayInfo(arrayIds, types);
+    }
+    
+    public Set<String> getAllAntibodyTypes() throws DaoException {
+        Set<String> ret = new HashSet<String>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                        ("SELECT DISTINCT TYPE FROM protein_array_info");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                ret.add(rs.getString(1));
+            }
+            return ret;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+        
     }
 
     /**

@@ -3,6 +3,7 @@ package org.mskcc.cgds.dao;
 import org.mskcc.cgds.model.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,7 +117,7 @@ public class GeneticAlterationUtil {
 
         HashMap <String, String> arrayDataMap = new HashMap <String, String>();
 
-        ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(entrezGeneId, type);
+        ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(entrezGeneId, Collections.singleton(type));
         if (pais.isEmpty())
             return arrayDataMap;
 

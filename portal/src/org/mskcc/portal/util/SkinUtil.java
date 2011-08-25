@@ -31,7 +31,10 @@ public class SkinUtil {
      */
     public static String getEmailContact() {
         Config config = Config.getInstance();
-        return config.getProperty("skin.email_contact");
+        String emailAddress = config.getProperty("skin.email_contact");
+
+        //  Return email address within mailme span, so that we can obfuscate with JQuery.
+        return ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
     }
 
     /**

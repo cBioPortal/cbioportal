@@ -964,13 +964,13 @@ table {
 }
 
 #footer A:link {
-	COLOR: #FFFFFF; text-decoration: none;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:visited {
-	COLOR: #FFFFFF; text-decoration: none;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:active {
-	COLOR: #FFFFFF; text-decoration: none;
+	COLOR: #FFFFFF; text-decoration: underline;
 }
 #footer A:hover {
 	COLOR: #FFFFFF; text-decoration: underline;

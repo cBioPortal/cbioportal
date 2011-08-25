@@ -138,12 +138,18 @@ function crossCancerStudySelected() {
      $('#cancer_study_desc').hide();
 }
 
-//  Need to display extra steps whenever an individual cancer study is selected
+//  Display extra steps when an individual cancer study is selected
 function singleCancerStudySelected() {
      $("#step2").show();
      $("#step3").show();
      $("#step5").show();
      $("#cancer_study_desc").show();
+     selectDefaultGenomicProfiles();
+}
+
+//   Set default selections
+function selectDefaultGenomicProfiles() {
+    
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -409,13 +415,11 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
                 } else {
                     if (numProfiles == 1) {
                         optionType = "checkbox";
-                        inputName = 'genetic_profile_ids';
                     } else if (numProfiles > 1) {
                         optionType = "radio";
-                        inputName = targetAlterationType + "_subtype";
                     }
                 }
-                profileHtml += outputGenomicProfileOption (optionType, inputName, targetAlterationType,
+                profileHtml += outputGenomicProfileOption (optionType, targetAlterationType,
                         genomic_profile.id, genomic_profile.name, genomic_profile.description);
             }
         }
@@ -438,10 +442,10 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 }
 
 // Outputs a Single Genomic Profile Options
-function outputGenomicProfileOption (optionType, inputName, targetAlterationType, id, name, description) {
+function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
     var html =  "<input type='" + optionType + "' class='" + targetAlterationType + "' "
         //+ "name='genetic_profile_ids' group='" + targetAlterationType + "'"
-        + "name='" + inputName + "' "
+        + "name='genetic_profile_ids'"
         + "value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";

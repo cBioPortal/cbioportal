@@ -222,28 +222,36 @@
                     out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alterations'>Summary</a></li>");
 
                     if (QueryBuilder.INCLUDE_NETWORKS) {
-                        out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>Network</a></li>");
+                        out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>"
+                        + "Network</a></li>");
                     }
 
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple Plots, including CNA v. mRNA Expression'>Plots</a></li>");
+                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple Plots, including CNA v. mRNA Expression'>"
+                        + "Plots</a></li>");
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival' class='result-tab' title='Survival Analysis and Kaplan Meir curves'>Survival</a></li>");
+                        out.println ("<li><a href='#survival' class='result-tab' title='Survival Analysis and Kaplan Meir curves'>"
+                        + "Survival</a></li>");
                     }
 
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                        out.println ("<li><a href='#gene_correlation' class='result-tab'>Mutual Exclusivity</a></li>");
+                        out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual Exclusivity and Co-occurrence Analysis'>"
+                        + "Mutual Exclusivity</a></li>");
                     }
 
                     if (showMutTab){
-                        out.println ("<li><a href='#mutation_details' class='result-tab' title=''>Mutation Details</a></li>");
+                        out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation Details, including mutation type, "
+                         + "amino acid change, validation status and predicted functional consequence'>"
+                         + "Mutation Details</a></li>");
                     }
                     
                     if (rppaExists) {
-                        out.println ("<li><a href='#protein_exp' class='result-tab' title=''>RPPA Data</a></li>");
+                        out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) Data'>"
+                        + "RPPA Data</a></li>");
                     }
 
-                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed Event Map of all Genomic Alterations'>Event Map</a></li>");
+                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed Event Map of all Genomic Alterations'>"
+                        + "Event Map</a></li>");
                     %>
 
                     <%@ include file="image_tabs.jsp" %>

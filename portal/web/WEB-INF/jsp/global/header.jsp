@@ -1,25 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<%
-    Config globalConfig = Config.getInstance();
-    String tagLine = globalConfig.getProperty("tag_line_image");
-    String siteName = globalConfig.getProperty("header_image");
-
-    if (tagLine == null) {
-        tagLine = "images/tag_line.png";
-    } else {
-        tagLine = "images/" + tagLine;
-    }
-    if (siteName == null) {
-        siteName = "images/site_name.png";
-    } else {
-        siteName = "images/" + siteName;
-    }
-%>
-
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.Config" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <!DOCTYPE HTML>
@@ -49,8 +31,8 @@
         <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
     	<tr>
 	        <td class="logo" width="250px"><a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"/></a></td>
-            <td class="logo" width="330px"><a href="index.do"><img src="<%= siteName %>" alt="Main Logo"/></a></td>
-            <td class="logo" width="200px"><img src="<%= tagLine %>" alt="Tag Line"/></td>
+            <td class="logo" width="330px"><a href="index.do"><img src="<%= SkinUtil.getHeaderImage() %>" alt="Main Logo"/></a></td>
+            <td class="logo" width="200px"><img src="<%= SkinUtil.getTagLineImage() %>" alt="Tag Line"/></td>
         </tr>
 <%
    if (SkinUtil.usersMustAuthenticate()) {

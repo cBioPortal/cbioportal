@@ -26,14 +26,45 @@ public class SkinUtil {
     }
 
     /**
+     * Gets the Site Tag Line.
+     * @return site tag line.
+     */
+    public static String getTagLineImage() {
+        Config config = Config.getInstance();
+        String tagLineImage = config.getProperty("skin.tag_line_image");
+        if (tagLineImage == null) {
+            tagLineImage = "images/tag_line.png";
+        } else {
+            tagLineImage = "images/" + tagLineImage;
+        }
+        return tagLineImage;
+    }
+
+    /**
+     * Gets the Site Header Image.
+     * @return site header image.
+     */
+    public static String getHeaderImage() {
+        Config config = Config.getInstance();
+        String headerImage = config.getProperty("skin.header_image");
+        if (headerImage == null) {
+            headerImage = "images/site_name.png";
+        } else {
+            headerImage = "images/" + headerImage;
+        }
+        return headerImage;
+    }
+
+    /**
      * Gets the Site Email Contact.
+     * Emails should be in the form of:  xxx AT yyy DOT com.
      * @return site email contact.
      */
     public static String getEmailContact() {
         Config config = Config.getInstance();
         String emailAddress = config.getProperty("skin.email_contact");
 
-        //  Return email address within mailme span, so that we can obfuscate with JQuery.
+        //  Return email address within mailme span, so that we can de-obfuscate with JQuery.
         return ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
     }
 

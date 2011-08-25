@@ -1,12 +1,12 @@
 ###### STAND UP TO CANCER PORTAL ######
-
 # Application Name and Version
 app.name=su2c
 app.version=0.1
 
-#TEMPORARY TITLE UNTIL WE KNOW WHAT IT WILL BE
 skin.title=cBio Su2C Cancer Genomics Portal
 skin.blurb=The cBio SU2C Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
+skin.tag_line_image=su2c-logo.png
+skin.header_image=su2c_portal_name.png
 
 # Manager webapp username and password
 manager.username=tomcat
@@ -21,25 +21,11 @@ data_sets=data_sets_su2c.html
 data_sets_right_column=data_sets_su2c_right_column.html
 examples_right_column=examples_su2c.html
 faq=faq_su2c.html
-tag_line_image=su2c-logo.png
-header_image=su2c_portal_name.png
 popeye=preview_su2c.jsp
 
 global_css=global_portal.css
 special_css=su2c_portal.css
-
 step_image_suffix=_su2c
 
 # Authentication Props
 authenticate=T
-authenticate.user_name=su2c
-authenticate.password=[SPECIFY PASSWORD HERE]
-
-#cgds.url=http://172.21.218.47:8080/cgds-public/webservice.do
-#cgds.url=http://localhost:8080/cgds-public/webservice.do
-#cgds.url=http://buri.cbio.mskcc.org:38080/cgds-public/webservice.do
-
-
-
-
-

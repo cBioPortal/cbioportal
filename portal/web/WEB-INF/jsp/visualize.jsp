@@ -219,7 +219,7 @@
                         }
                     }
 
-                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alteration'>Summary</a></li>");
+                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alterations'>Summary</a></li>");
 
                     if (QueryBuilder.INCLUDE_NETWORKS) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>Network</a></li>");

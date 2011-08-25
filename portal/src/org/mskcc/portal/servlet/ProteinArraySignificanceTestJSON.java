@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,8 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     public static final String HEAT_MAP = "heat_map";
     public static final String GENE = "gene";
     public static final String ALTERATION_TYPE = "alteration";
+    public static final String ANTIBODY_TYPE = "antibody";
+    public static final String EXCLUDE_ANTIBODY_TYPE = "exclude_antibody";
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -56,6 +59,24 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         String heatMap = request.getParameter(HEAT_MAP);
         String gene = request.getParameter(GENE);
         String alterationType = request.getParameter(ALTERATION_TYPE);
+        String antibodyType = request.getParameter(ANTIBODY_TYPE);
+        String excludeAntibodyType = request.getParameter(EXCLUDE_ANTIBODY_TYPE);
+        
+        Collection<String> antibodyTypes;
+        if (antibodyType==null) {
+            if (excludeAntibodyType == null) {
+                antibodyTypes = null; // include all
+            } else {
+                try {
+                    antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
+                    antibodyTypes.removeAll(Arrays.asList(excludeAntibodyType.split(" ")));
+                } catch (DaoException e) {
+                    throw new ServletException(e);
+                }
+            }
+        } else {
+            antibodyTypes = Arrays.asList(antibodyType.split(" "));
+        }
         
         String[] heatMapLines = heatMap.split("\n");
         String[] genes = heatMapLines[0].split("\t");
@@ -80,7 +101,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         Map<String,ProteinArrayInfo> proteinArrays;
         Map<String,Map<String,Double>> proteinArrayData;
         try {
-            proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, null, xdebug);
+            proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, antibodyTypes, xdebug);
             proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases, xdebug);
         } catch (DaoException e) {
             throw new ServletException(e);

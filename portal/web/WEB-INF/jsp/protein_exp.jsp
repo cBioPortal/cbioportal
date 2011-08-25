@@ -1,4 +1,9 @@
 <%@ page import="org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON" %>
+<%@ page import="org.mskcc.portal.remote.GetProteinArrayData" %>
+<%@ page import="java.util.Set" %>
+<%
+    Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
+%>
 
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";
@@ -7,8 +12,20 @@
                 float: left;
                 margin-bottom: 0
         }
+        .datatable-filter-custom {
+                float: left
+        }
         .dataTables_length {
                 width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
         }
         td.rppa-details {
                 background-color : white;
@@ -19,9 +36,13 @@
 <script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 
 <script type="text/javascript">
+    function parsePValue(str) {
+        return parseFloat(str.replace(/<[^>]*>/g,""));
+    }
+    
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
-	var x = parseFloat(a);
-	var y = parseFloat(b);
+	var x = parsePValue(a);
+	var y = parsePValue(b);
         if (isNaN(x)) {
             return isNaN(y) ? 0 : 1;
         }
@@ -31,8 +52,8 @@
     };
 
     jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
-	var x = parseFloat(a);
-	var y = parseFloat(b);
+	var x = parsePValue(a);
+	var y = parsePValue(b);
         if (isNaN(x)) {
             return isNaN(y) ? 0 : 1;
         }
@@ -41,59 +62,14 @@
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
-    (function($) {
-    /*
-     * Function: fnGetColumnData
-     * Purpose:  Return an array of table values from a particular column.
-     * Returns:  array string: 1d data array 
-     * Inputs:   object:oSettings - dataTable settings object. This is always the last argument past to the function
-     *           int:iColumn - the id of the column to extract the data from
-     *           bool:bUnique - optional - if set to false duplicated values are not filtered out
-     *           bool:bFiltered - optional - if set to false all the table data is used (not only the filtered)
-     *           bool:bIgnoreEmpty - optional - if set to false empty values are not filtered from the result array
-     * Author:   Benedikt Forchhammer <b.forchhammer /AT\ mind2.de>
-     */
-    $.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique, bFiltered, bIgnoreEmpty ) {
-            // check that we have a column id
-            if ( typeof iColumn == "undefined" ) return new Array();
-
-            // by default we only wany unique data
-            if ( typeof bUnique == "undefined" ) bUnique = true;
-
-            // by default we do want to only look at filtered data
-            if ( typeof bFiltered == "undefined" ) bFiltered = true;
-
-            // by default we do not wany to include empty values
-            if ( typeof bIgnoreEmpty == "undefined" ) bIgnoreEmpty = true;
-
-            // list of rows which we're going to loop through
-            var aiRows;
-
-            // use only filtered rows
-            if (bFiltered == true) aiRows = oSettings.aiDisplay; 
-            // use all rows
-            else aiRows = oSettings.aiDisplayMaster; // all row numbers
-
-            // set up data array	
-            var asResultData = new Array();
-
-            for (var i=0,c=aiRows.length; i<c; i++) {
-                    iRow = aiRows[i];
-                    var aData = this.fnGetData(iRow);
-                    var sValue = aData[iColumn];
-
-                    // ignore empty values?
-                    if (bIgnoreEmpty == true && sValue.length == 0) continue;
-
-                    // ignore unique values?
-                    else if (bUnique == true && jQuery.inArray(sValue, asResultData) > -1) continue;
-
-                    // else push the value onto the result data array
-                    else asResultData.push(sValue);
-            }
-
-            return asResultData;
-    }}(jQuery));
+    function getProteinArrayTypes() {
+        var ret = Array();
+        var i = 0;
+        <%for (String type : antibodyTypes) {%>
+                ret[i++] = "<%=type%>";
+        <%}%>
+        return ret;
+    }
 
     function fnCreateSelect(aData, id, defaultOpt)
     {
@@ -112,7 +88,8 @@
         $('table#protein_expr_wrapper').hide();
         var params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
+            <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
         };
         $.post("ProteinArraySignificanceTest.json", 
             params,
@@ -121,7 +98,7 @@
                 //alert(aDataSet);
                 var aiExclude = [0,1,2,10];
                 var oTable = $('table#protein_expr').dataTable( {
-                        "sDom": '<"H"Cfr>t<"F"lip>', // selectable columns
+                        "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
                             //"aiExclude": aiExclude
                         },
@@ -141,6 +118,9 @@
                               "aTargets": [ 2 ]
                             },
                             { //"sTitle": "Target Gene",
+                              "fnRender": function(obj) {
+                                    return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                              },
                               "aTargets": [ 3 ] 
                             },
                             { //"sTitle": "Target Residue",
@@ -186,6 +166,8 @@
                                         return "NaN";
                                     
                                     var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+                                    if (value <= 0.05)
+                                        ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[7]);
@@ -211,9 +193,8 @@
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    if (isNaN(parseFloat(obj.aData[9])))
+                                    if (isNaN(parsePValue(obj.aData[9])))
                                         return "";
-                                    //return "<a href=\"javascript:boxplot('"+obj.aData[10]+"','')\">Boxplot</a>";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 11 ]
@@ -222,20 +203,13 @@
                         ],
                         "aaSorting": [[9,'asc']],
                         "oLanguage": {
-                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)",
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
                             "sLengthMenu": "Show _MENU_ per page"
                         },
                         "iDisplayLength": -1,
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
-                
-                // filter for antibody type
-                $('div#protein_expr_filter').append("<br/>Antibody Type: "+fnCreateSelect(oTable.fnGetColumnData(2),"array_type_alteration_select","phosphorylation"));
-                $('select#array_type_alteration_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 2);
-                } );
-                oTable.fnFilter("phosphorylation",2);
                 
                 // remove element from selectable columns - to fix a bug of ColVis
                 var excludeButtonRemoved = false;
@@ -267,9 +241,12 @@
                         var xlabel = "";
                         var param = 'data='+data+'&xlabel='+xlabel
                             +'&ylabel=Median-centered RPPA score&width=500&height=400';
-                        var html = '<img src="boxplot.do?'+param+'">'
-                                +'<br/>&nbsp;&nbsp;'
-                                +'<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>';
+                        var html = 'Boxplots of RPPA data (antibody:'+aData[3].replace(/<[^>]*>/g,"");
+                        if (aData[4])
+                            html += '['+aData[4]+']';
+                        html += ') for altered and unaltered cases ';
+                        html += ' [<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>]<br/>' 
+                                + '<img src="boxplot.do?'+param+'">';
                         oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
                 } );
@@ -280,36 +257,57 @@
             ,"json"
         );
         
-        
+        params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
+            <%=ProteinArraySignificanceTestJSON.EXCLUDE_ANTIBODY_TYPE%>:'phosphorylation'
+        };
+        $.post("ProteinArraySignificanceTest.json", 
+            params,
+            function(aDataSet){
+                var oTable = $('table#protein_expr').dataTable();
+                oTable.fnAddData(aDataSet, false);
+                
+                // filter for antibody type
+                oTable.fnFilter("phosphorylation",2);
+                $('div.datatable-filter-custom').html("Antibody Type: "+
+                    fnCreateSelect(getProteinArrayTypes(),"array_type_alteration_select","phosphorylation")
+                    );
+                $('select#array_type_alteration_select').change( function () {
+                        oTable.fnFilter( $(this).val(), 2);
+                } );
+            },
+            "json"
+        );
     });
 </script>
 
 <div class="section" id="protein_exp">
     <div id="protein_expr_wait"><img src="images/ajax-loader.gif"/></div>
     
-    <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper">
+    <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper" width="100%">
         
         <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
-                <thead>
+                <thead style="font-size:80%">
                     <tr valign="bottom">
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Gene</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Alteration</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Type</th>
-                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Target</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Source Organism</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Validated?</th>
-                        <th colspan="2" nowrap="nowrap" class="ui-state-default" style="font-size:80%">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">data</th>
-                        <th rowspan="2" nowrap="nowrap" style="font-size:80%">Plot</th>
+                        <th rowspan="2">Gene</th>
+                        <th rowspan="2">Alteration</th>
+                        <th rowspan="2">Type</th>
+                        <th colspan="2" class="ui-state-default">Target</th>
+                        <th rowspan="2">Source Organism</th>
+                        <th rowspan="2">Validated?</th>
+                        <th colspan="2" class="ui-state-default">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
+                        <th rowspan="2" nowrap="nowrap">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th rowspan="2">data</th>
+                        <th rowspan="2">Plot</th>
                     </tr>
                     <tr>
-                        <th nowrap="nowrap" style="font-size:80%">Protein</th>
-                        <th nowrap="nowrap" style="font-size:80%">Residue</th>
-                        <th nowrap="nowrap" style="font-size:80%">Unaltered</th>
-                        <th nowrap="nowrap" style="font-size:80%">Altered</th>
+                        <th>Protein</th>
+                        <th>Residue</th>
+                        <th>Unaltered</th>
+                        <th>Altered</th>
                     </tr>
                 </thead>
                 <tfoot>

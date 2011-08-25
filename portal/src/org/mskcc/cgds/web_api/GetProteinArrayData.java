@@ -2,6 +2,7 @@
 package org.mskcc.cgds.web_api;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -32,8 +33,9 @@ public class GetProteinArrayData {
         
         ArrayList<ProteinArrayInfo> pais;
         
+        Set<String> types = Collections.singleton(type);
         if (targetGeneList==null) {
-            pais = daoPAI.getProteinArrayInfoForType(type);
+            pais = daoPAI.getProteinArrayInfoForType(types);
         } else {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             Set<Long> entrezIds = new HashSet<Long>();
@@ -42,7 +44,7 @@ public class GetProteinArrayData {
                 if (gene!=null)
                     entrezIds.add(gene.getEntrezGeneId());
             }
-            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, type);
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, types);
         }
         
         for (ProteinArrayInfo pai : pais) {

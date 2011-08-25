@@ -29,6 +29,7 @@
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
 <jsp:include page="WEB-INF/jsp/global/login_header.jsp" flush="true" />
@@ -48,7 +49,7 @@
         <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:30px">
             <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
             <strong>Unauthorized:</strong> You are not authorized to access this resource.
-            <p>To request access, please send email to:  cancergenomics AT cbio.mskcc.org</p>
+            <p>To request access, please send email to:  <%= SkinUtil.getEmailContact() %></p>
         </div>
     <% } %>
        <br>
@@ -61,7 +62,7 @@
                <p/>
                <fieldset>
 	             <legend>Access to this portal is only available to authorized users.  To request access,
-                 please send email to:  cancergenomics AT cbio.mskcc.org.</legend>
+                 please send email to:  <%= SkinUtil.getEmailContact() %>.</legend>
 	             <div id="openid_choice">
 	               <p>Please click your account provider:</p>
 	               <div id="openid_btns"></div>

@@ -91,6 +91,7 @@
 %>
 
 <script type="text/javascript">
+
     function getTinyURL(longURL, success) {
         var API = 'http://json-tinyurl.appspot.com/?url=',
         URL = API + encodeURIComponent(longURL) + '&callback=?';
@@ -98,15 +99,15 @@
 	    $.getJSON(URL, function(data){
         	success && success(data.tinyurl);
         });
-}
-</script>
+    }
 
-<script type="text/javascript">
-     function shrinkURL(longURL){
-     getTinyURL(longURL, function(tinyurl){
-          $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
-     });
-};
+    function shrinkURL(longURL){
+        getTinyURL(longURL, function(tinyurl){
+            $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
+        });
+    }
+
+
 </script>
 
 <html>
@@ -218,16 +219,16 @@
                         }
                     }
 
-                    out.println ("<li><a href='#summary' class='result-tab'>Summary</a></li>");
+                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alteration'>Summary</a></li>");
 
                     if (QueryBuilder.INCLUDE_NETWORKS) {
-                        out.println ("<li><a href='#network' class='result-tab'>Network</a></li>");
+                        out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>Network</a></li>");
                     }
 
-                    out.println ("<li><a href='#plots' class='result-tab'>Plots</a></li>");
+                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple Plots, including CNA v. mRNA Expression'>Plots</a></li>");
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival' class='result-tab'>Survival</a></li>");
+                        out.println ("<li><a href='#survival' class='result-tab' title='Survival Analysis and Kaplan Meir curves'>Survival</a></li>");
                     }
 
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
@@ -235,21 +236,21 @@
                     }
 
                     if (showMutTab){
-                        out.println ("<li><a href='#mutation_details' class='result-tab'>Mutation Details</a></li>");
+                        out.println ("<li><a href='#mutation_details' class='result-tab' title=''>Mutation Details</a></li>");
                     }
                     
                     if (rppaExists) {
-                        out.println ("<li><a href='#protein_exp' class='result-tab'>RPPA Data</a></li>");
+                        out.println ("<li><a href='#protein_exp' class='result-tab' title=''>RPPA Data</a></li>");
                     }
 
-                    out.println ("<li><a href='#event_map' class='result-tab'>Event Map</a></li>");
+                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed Event Map of all Genomic Alterations'>Event Map</a></li>");
                     %>
 
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
-                    out.println ("<li><a href='#data_download' class='result-tab'>Data Download</a></li>");
-                    out.println ("<li><a href='#bookmark_email' class='result-tab'>Bookmark/Email</a></li>");
+                    out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Data Download</a></li>");
+                    out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or Generate a URL for Email'>Bookmark/Email</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
 
                     out.println ("</ul>");
@@ -348,6 +349,9 @@
             $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
         }
     });
+
+    //  Set up Tip-Tip Event Handler for Genomic Profiles help
+    $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
 
 </body>

@@ -169,6 +169,7 @@ public class MakeOncoPrint {
                 "version=\"1.1\" \n" +
                 "    width=\"" + windowWidth + "\" height=\"" + windowHeight + "\">\n");
 
+
         //  Output One Gene per Row
         int x = 0;
         int y = 25;
@@ -230,6 +231,16 @@ public class MakeOncoPrint {
             boolean includeCaseSetDescription,
             boolean includeLegend) {
 
+        out.append("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n" +
+                "<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>") ;
+
+
+        /*out.append("<script type=\"text/javascript\">\n"+
+                    "$(document).ready(function(){  \n" +
+                    "$(\".oncoprint_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 25});\n" +
+                    "});\n" +
+                    "</script>\n");
+        */
         out.append("<div class=\"oncoprint\">\n");
         if (includeCaseSetDescription) {
             for (CaseList caseSet : caseSets) {
@@ -316,8 +327,14 @@ public class MakeOncoPrint {
                 }
                 iconFileName.append(".png");
 
+
+
                 out.append("<td class='op_data_cell'>"
+
                         + IMG(iconFileName.toString(), width, height, event.caseCaseId())
+
+                        // temporary tooltip = event.toString()+"\n"+event.caseCaseId()
+                        //+ IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
                         + "</td>\n");
 
             }
@@ -390,7 +407,7 @@ public class MakeOncoPrint {
                 "' alt='" + theImage + // TODO: FOR PRODUCTION; real ALT, should be description of genetic alteration
                 "' width='" + width + "' height='" + height+"'");
         if (null != toolTip) {
-            sb.append(" class=\"Tips1\" title=\"" + toolTip + "\"");
+            sb.append(" class=\"oncoprint_help\" title=\"" + toolTip + "\"");
         }
         return sb.append("/>").toString();
     }

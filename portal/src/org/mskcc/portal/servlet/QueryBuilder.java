@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
@@ -256,17 +257,25 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
-        HashSet<String> caseIdList = null;
+        HashSet<String> setOfCaseIds = null;
         if (!caseSetId.equals("-1")) {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
-                    caseIdList = new HashSet<String>(caseSet.getCaseList());
+                    setOfCaseIds = new HashSet<String>(caseSet.getCaseList());
                     caseSet.getCaseList();
                 }
             }
-        } else if (caseSetId.equals("-1")) {
-                caseIdList.add(caseSetId);
+        }
+        //if user specifies cases, add these to hashset, and send to GetMutationData
+            else {
+            String[] caseIdSplit = caseIds.split("\\s+");
+            setOfCaseIds = new HashSet<String>();
+            for (String caseID : caseIdSplit){
+                if (null != caseID){
+                   setOfCaseIds.add(caseID);
+                }
+            }
         }
         
         request.setAttribute(CASE_IDS, caseIds);
@@ -314,7 +323,7 @@ public class QueryBuilder extends HttpServlet {
                     GetMutationData remoteCallMutation = new GetMutationData();
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
-                                    geneList, caseIdList, xdebug);
+                                    geneList, setOfCaseIds, xdebug);
                     xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                         + tempMutationList.size());
                     if (tempMutationList != null && tempMutationList.size() > 0) {

@@ -57,6 +57,12 @@
 <script type="text/javascript" src="js/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/global-tabs.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+        });
+    </script>
            
 <script type="text/javascript">
 

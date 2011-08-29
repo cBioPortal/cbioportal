@@ -197,6 +197,10 @@ public class QueryBuilder extends HttpServlet {
                             caseIds, caseSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
+                if (errorsExist) {
+                   httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE,
+                           "Please fix the errors below.");
+                }
                 RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                 dispatcher.forward(httpServletRequest, httpServletResponse);

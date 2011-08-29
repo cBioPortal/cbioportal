@@ -166,6 +166,7 @@ function chooseAction() {
 // automatically select the corresponding checkbox
 function selectCheckbox(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
+    console.log("Clicked:  " + subgroupClass);
     var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
     $(checkboxSelector).attr('checked',true);
 }
@@ -399,14 +400,13 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         profileHtml += "<div class='genomic_profiles_subgroup'>";
     }
 
-    //  First count how many profiles match the targetAltertion type
+    //  Iterate through all genomic profiles
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
 
         if (genomic_profile.alteration_type == targetAlterationType) {
             if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
                 //  Branch depending on number of profiles
                 var optionType = "checkbox";
-                var inputName = 'genetic_profile_ids';
                 if (downloadTab) {
                     optionType = "radio";
                 } else {
@@ -440,11 +440,13 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
 // Outputs a Single Genomic Profile Options
 function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
-    var html =  "<input type='" + optionType + "' class='" + targetAlterationType + "' "
-        //+ "name='genetic_profile_ids' group='" + targetAlterationType + "'"
-        + "name='genetic_profile_ids'"
-        + "value='" + id +"'>" + name + "</input>"
+    var paramName = "genetic_profile_ids_" + targetAlterationType;
+    var html =  "<input type='" + optionType + "' "
+        + " name='" + paramName + "'"
+        + " class='" + targetAlterationType + "'"
+        + " value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";
+    console.log(html);
     return html;
 }

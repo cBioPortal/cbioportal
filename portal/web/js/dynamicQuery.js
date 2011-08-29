@@ -363,9 +363,6 @@ function addMetaDataToPage() {
             $(this).attr('checked','checked');
         }
     });  //  end for each genomic profile option
-
-    // cross-cancer study selected by default
-    crossCancerStudySelected();
 }
 
 // Adds the specified genomic profiles to the page.

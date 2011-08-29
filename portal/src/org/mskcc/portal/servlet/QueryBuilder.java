@@ -332,7 +332,7 @@ public class QueryBuilder extends HttpServlet {
                System.err.println( "pData == null" );
             }else{
                if( pData.getGeneList() == null ){
-                  System.err.println( "pData.getGeneList() == null" );
+                  System.err.println( "pData.getValidGeneList() == null" );
                }
             }
             if (pData != null) {
@@ -546,7 +546,7 @@ public class QueryBuilder extends HttpServlet {
                 }
                 if (geneList != null && geneList.trim().length() > 0) {
                     GeneValidator geneValidator = new GeneValidator(geneList);
-                    int numGenes = geneValidator.getGeneList().size();
+                    int numGenes = geneValidator.getValidGeneList().size();
                     if (numGenes > QueryBuilder.MAX_NUM_GENES) {
                         httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
                                 "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES

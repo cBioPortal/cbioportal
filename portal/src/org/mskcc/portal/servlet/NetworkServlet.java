@@ -157,7 +157,7 @@ public class NetworkServlet extends HttpServlet {
                        System.err.println( "pData == null" );
                     }else{
                        if( pData.getGeneList() == null ){
-                          System.err.println( "pData.getGeneList() == null" );
+                          System.err.println( "pData.getValidGeneList() == null" );
                        }
                     }
                     if (pData != null) {

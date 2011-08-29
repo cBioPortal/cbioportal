@@ -36,7 +36,7 @@
                 <%
                    if (SkinUtil.usersMustAuthenticate()) {
                 %>
-                <span style="float:right;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span>
+                <nobr><span style="float:right;font-size:10px;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span></nobr>
                 <% } %>
             </td>
         </tr>

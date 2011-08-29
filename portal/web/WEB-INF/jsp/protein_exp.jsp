@@ -210,6 +210,9 @@
                         "iDisplayLength": -1,
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
+
+                // help
+                $('.datatable_help').tipTip();
                 
                 // remove element from selectable columns - to fix a bug of ColVis
                 var excludeButtonRemoved = false;
@@ -298,8 +301,8 @@
                         <th colspan="2" class="ui-state-default">Target</th>
                         <th rowspan="2">Source Organism</th>
                         <th rowspan="2">Validated?</th>
-                        <th colspan="2" class="ui-state-default">Ave. Abundance<a href="#" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."><sup>1</sup></a></th>
-                        <th rowspan="2" nowrap="nowrap">p-value<a href="#" title="Based on two-sided two sample student t-test."><sup>2</sup></a></th>
+                        <th colspan="2" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
+                        <th rowspan="2" nowrap="nowrap">p-value<img class="datatable_help" src="images/help.png" title="Based on two-sided two sample student t-test."/></th>
                         <th rowspan="2">data</th>
                         <th rowspan="2">Plot</th>
                     </tr>

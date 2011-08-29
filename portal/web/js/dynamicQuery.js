@@ -82,41 +82,39 @@ $(document).ready(function(){
 
 //  Load Portal JSON Meta Data, while showing loader image
 function loadMetaData() {
+    $('#load').remove();
+    //  show ajax loader image; loader is background image of div 'load' as set in css
+    $('.main_query_panel').append('<div id="load">&nbsp;</div>');
+    $('#load').fadeIn('slow');
+
+    //  hide the main query form until all meta data is loaded and added to page
+    $('#main_query_form').hide('fast',loadContent);
+
+    function loadContent() {
+        //  Get Portal JSON Meta Data via JQuery AJAX
+        jQuery.getJSON("portal_meta_data.json",function(json){
+            //  Store JSON Data in global variable for later use
+            window.metaDataJson = json;
+
+            //  Add Meta Data to current page
+            addMetaDataToPage();
+            showNewContent();
+        });
+    }
+    function showNewContent() {
+        //show content, hide loader only after content is shown
+        $('#main_query_form').fadeIn('fast',hideLoader());
+    }
+    function hideLoader() {
+        //hide loader image
+        $('#load').fadeOut('fast',removeLoader());
+    }
+    function removeLoader() {
+        // remove loader image so that it will not appear in the
+        // modify-query section on results page
         $('#load').remove();
-        //  show ajax loader image; loader is background image of div 'load' as set in css
-        $('.main_query_panel').append('<div id="load">&nbsp;</div>');
-        $('#load').fadeIn('slow');
-
-        //  hide the main query form until all meta data is loaded and added to page
-        $('#main_query_form').hide('fast',loadContent);
-
-        function loadContent() {
-            //  Get Portal JSON Meta Data via JQuery AJAX
-            jQuery.getJSON("portal_meta_data.json",function(json){
-                //  Store JSON Data in global variable for later use
-                window.metaDataJson = json;
-
-                //  Add Meta Data to current page
-                addMetaDataToPage();
-                showNewContent();
-            });
-        }
-        function showNewContent() {
-            //show content, hide loader only after content is shown
-            $('#main_query_form').fadeIn('fast',hideLoader());
-        }
-        function hideLoader() {
-            //hide loader image
-            $('#load').fadeOut('fast',removeLoader());
-        }
-        function removeLoader() {
-            // remove loader image so that it will not appear in the
-            // modify-query section on results page
-            $('#load').remove();
-        }
+    }
 }
-
-
 
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {
@@ -144,12 +142,6 @@ function singleCancerStudySelected() {
      $("#step3").show();
      $("#step5").show();
      $("#cancer_study_desc").show();
-     selectDefaultGenomicProfiles();
-}
-
-//   Set default selections
-function selectDefaultGenomicProfiles() {
-    
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -354,13 +346,15 @@ function addMetaDataToPage() {
 
     //  Set things up, based on all currently selected genomic profiles
     //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids'
-    $("input:[name=genetic_profile_ids]").each(function(index) {
+    $("input:[name*=genetic_profile_ids]").each(function(index) {
         //  val() is the value that or stable ID of the genetic profile ID
         var currentValue = $(this).val();
 
         //  if the user has this stable ID already selected, mark it as checked
         if (window.genomic_profile_id_selected[currentValue] == 1) {
             $(this).attr('checked','checked');
+            //  Select the surrounding checkbox
+            selectCheckbox($(this));
         }
     });  //  end for each genomic profile option
 }

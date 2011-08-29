@@ -51,10 +51,12 @@
             </div>
 
             <%
-            if (userMessage != null) {
-                out.println ("<div class='user_message'>" + userMessage + "</div>");
-            }
-            %>
+            if (userMessage != null) { %>
+                <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
+                    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong><%= userMessage %></strong></p>
+                </div>
+            <% } %>
 
             <%
                 //  Outputs Query and Download Tabs

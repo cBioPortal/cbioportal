@@ -166,7 +166,6 @@ function chooseAction() {
 // automatically select the corresponding checkbox
 function selectCheckbox(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
-    console.log("Clicked:  " + subgroupClass);
     var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
     $(checkboxSelector).attr('checked',true);
 }
@@ -447,6 +446,5 @@ function outputGenomicProfileOption (optionType, targetAlterationType, id, name,
         + " value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";
-    console.log(html);
     return html;
 }

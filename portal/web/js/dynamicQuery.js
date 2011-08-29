@@ -220,6 +220,11 @@ function cancerStudySelected() {
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", "Copy Number");
     addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", "mRNA Expression");
+    
+    //  show protein level rppa data in the download tab
+    if (window.tab_index == "tab_download") {
+        addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", "RPPA");;
+    }
 
     //  Update the Case Set Pull-Down Menu
     //  First, clear all existing pull-down menus

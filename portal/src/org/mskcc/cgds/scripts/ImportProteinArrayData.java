@@ -78,15 +78,15 @@ public class ImportProteinArrayData {
         String idProfProt = args[1]+"_protein_array_protein_level";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
-                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Protein array-based protein level",
-                    "Protein array-based protein level", false);
+                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "RPPA protein level",
+                    "Reverse phase protein array data (protein level)", true);
             daoGeneticProfile.addGeneticProfile(gpPro);
         }
         String idProfPhos = args[1]+"_protein_array_phosphorylation";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
             GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
-                    GeneticAlterationType.PHOSPHORYLATION, "Protein array-based phosphorylation level",
-                    "Protein array-based phosphorylation level", false);
+                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "RPPA phosphorylation",
+                    "Reverse phase protein array data (phosphorylation)", false);
             daoGeneticProfile.addGeneticProfile(gpPhos);
         }
         

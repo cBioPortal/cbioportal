@@ -49,13 +49,6 @@ $(document).ready(function(){
       $(".query-toggle").toggle();
     });
 
-    //  set toggle Step 5: Optional arguments
-    $("#optional_args").hide();
-    $("#step5_toggle").click(function(event) {
-        event.preventDefault();
-        $("#optional_args").toggle( "blind" );
-    });
-
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
        chooseAction();
@@ -71,11 +64,21 @@ $(document).ready(function(){
        userClickedMainTab("tab_download");
     });
 
-    $('.step_header').click(function(){
+    //  set toggle Step 5: Optional arguments
+    $("#optional_args").hide();
+    /*$("#step5_toggle").click(function(event) {
+        event.preventDefault();
+        $("#optional_args").toggle( "blind" );
+    });*/
+
+    $('#step5 > .step_header').click(function(){
          $(".ui-icon", this).toggle();
          $("#optional_args").toggle();
-    })
+    });
 
+    // unset cookie for results tabs, so that a new query
+    // always goes to summary tab first
+    $.cookie("results-tab",null);
 
 });  //  end document ready function
 

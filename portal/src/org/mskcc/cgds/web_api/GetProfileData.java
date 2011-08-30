@@ -143,15 +143,12 @@ public class GetProfileData {
             }
         }
 
-        String geneticProfileId = null;
-        GeneticProfile geneticProfile = null;
-
         //  Branch based on number of profiles requested.
         //  In the first case, we have 1 profile and 1 or more genes.
         //  In the second case, we have > 1 profiles and only 1 gene.
         if (targetGeneticProfileIdList.size() == 1) {
-            geneticProfileId = targetGeneticProfileIdList.get(0);
-            geneticProfile = daoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
+            String geneticProfileId = targetGeneticProfileIdList.get(0);
+            GeneticProfile geneticProfile = daoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
             //  Get the Gene List
             ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
@@ -169,27 +166,77 @@ public class GetProfileData {
             outputRow(targetCaseList, buf);
 
             //  Iterate through all validated genes, and extract profile data.
-            for (Gene gene: geneList) {
-                outputGeneRow(gene, targetCaseList, geneticProfile, buf);
+            for (Gene gene: geneList) {                
+                ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+                        targetCaseList, geneticProfile);
+                outputGeneRow(dataRow, gene, buf);
             }
         } else {
             //  Ouput Column Headings
             buf.append ("GENETIC_PROFILE_ID\tALTERATION_TYPE\tGENE_ID\tCOMMON");
             outputRow(targetCaseList, buf);
-
-            //  Iterate through all genetic profiles
+            
+            ArrayList<GeneticProfile> profiles = new ArrayList<GeneticProfile>(targetGeneticProfileIdList.size());
+            boolean includeRPPAProteinLevel = false;
             for (String gId:  targetGeneticProfileIdList) {
-                geneticProfile = daoGeneticProfile.getGeneticProfileByStableId(gId);
+                GeneticProfile profile = daoGeneticProfile.getGeneticProfileByStableId(gId);
+                profiles.add(profile);
+                if (profile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL)
+                    includeRPPAProteinLevel = true;
+            }
 
-                //  Get the Gene List
+            // for rppa protein level, choose the best correlated one
+            if (includeRPPAProteinLevel && profiles.size()==2) {
+                GeneticProfile gp1, gp2;
+                if (profiles.get(0).getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
+                    gp1 = profiles.get(1);
+                    gp2 = profiles.get(0);
+                } else {
+                    gp1 = profiles.get(0);
+                    gp2 = profiles.get(1);
+                }
+                
+                // get data of the other profile
+                ArrayList<String> dataRow1 = null;
                 ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
-                        geneticProfile.getGeneticAlterationType(), buf, warningList);
+                        gp1.getGeneticAlterationType(), buf, warningList);
                 
                 if (geneList.size() > 0) {
                     Gene gene = geneList.get(0);
-                    buf.append (geneticProfile.getStableId() + WebApiUtil.TAB
-                            + geneticProfile.getGeneticAlterationType() + WebApiUtil.TAB);
-                    outputGeneRow(gene, targetCaseList, geneticProfile, buf);
+                    buf.append (gp1.getStableId() + WebApiUtil.TAB
+                            + gp1.getGeneticAlterationType() + WebApiUtil.TAB);   
+                    dataRow1 = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+                            targetCaseList, gp1);
+                    outputGeneRow(dataRow1, gene, buf);
+                }
+                
+                // get data of protein array
+                geneList = WebApiUtil.getGeneList(targetGeneList,
+                        gp2.getGeneticAlterationType(), buf, warningList);
+                
+                if (geneList.size() > 0) {
+                    Gene gene = geneList.get(0);
+                    buf.append (gp2.getStableId() + WebApiUtil.TAB
+                            + gp2.getGeneticAlterationType() + WebApiUtil.TAB);   
+                    ArrayList<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
+                            (CanonicalGene)gene, targetCaseList, dataRow1);
+                    outputGeneRow(dataRow, gene, buf);
+                }
+            } else {            
+                //  Iterate through all genetic profiles
+                for (GeneticProfile geneticProfile : profiles) {
+                    //  Get the Gene List
+                    ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+                            geneticProfile.getGeneticAlterationType(), buf, warningList);
+
+                    if (geneList.size() > 0) {
+                        Gene gene = geneList.get(0);
+                        buf.append (geneticProfile.getStableId() + WebApiUtil.TAB
+                                + geneticProfile.getGeneticAlterationType() + WebApiUtil.TAB);   
+                        ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+                                targetCaseList, geneticProfile);
+                        outputGeneRow(dataRow, gene, buf);
+                    }
                 }
             }
         }
@@ -203,11 +250,8 @@ public class GetProfileData {
         buf.append (WebApiUtil.NEW_LINE);
     }
 
-    private static void outputGeneRow(Gene gene, ArrayList<String>
-            targetCaseList, GeneticProfile targetGeneticProfile, StringBuffer buf)
+    private static void outputGeneRow(ArrayList<String> dataRow, Gene gene, StringBuffer buf)
             throws DaoException {
-        ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                targetCaseList, targetGeneticProfile);
         if (gene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
             buf.append (canonicalGene.getEntrezGeneId() + WebApiUtil.TAB);

@@ -5,7 +5,10 @@ import org.mskcc.cgds.model.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+
+import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 
 /**
  * Utility Class for Retrieving Genetic Alteration Data.
@@ -39,7 +42,7 @@ public class GeneticAlterationUtil {
         //  First branch:  are we dealing with a canonical (protein-coding) gene or a microRNA?
         if (targetGene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) targetGene;
-            HashMap<String, String> caseMap;
+            Map<String, String> caseMap;
 
             //  Handle Mutations one way
             if (targetGeneticProfile.getGeneticAlterationType() ==
@@ -49,11 +52,11 @@ public class GeneticAlterationUtil {
             } else if (targetGeneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
                 caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(),
-                        GeneticAlterationType.PROTEIN_LEVEL.toString());
+                        GeneticAlterationType.PROTEIN_LEVEL.toString(),null)[0];
             } else if (targetGeneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
                 caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(),
-                        GeneticAlterationType.PHOSPHORYLATION.toString());
+                        GeneticAlterationType.PHOSPHORYLATION.toString(),null)[0];
             } else {
                 //  Handle All Other Data Types another way
                 caseMap = daoGeneticAlteration.getGeneticAlterationMap
@@ -87,6 +90,26 @@ public class GeneticAlterationUtil {
         }
         return dataRow;
     }
+    
+    public static ArrayList<String> getBestCorrelatedProteinArrayDataRow(CanonicalGene targetGene,
+            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData)
+            throws DaoException {
+        ArrayList<String> dataRow = new ArrayList<String>();
+        Map<String, String>[] caseMaps = getProteinArrayDataMap (targetCaseList, targetGene.getEntrezGeneId(),
+                        GeneticAlterationType.PROTEIN_LEVEL.toString(),null);
+        
+        Map<String, String> caseMap = getBestCorrelatedCaseMap(caseMaps, targetCaseList, correlatedToData);
+        //  Iterate through all cases in the profile
+        for (String caseId:  targetCaseList) {
+            String value = caseMap.get(caseId);
+            if (value == null) {
+                dataRow.add (NAN);
+            } else {
+                dataRow.add (value);
+            }
+        }
+        return dataRow;
+    }
 
     /**
      * Gets a Map of Mutation Data.
@@ -110,27 +133,89 @@ public class GeneticAlterationUtil {
     /**
      * Gets a Map of Protein Array Data.
      */
-    private static HashMap <String, String> getProteinArrayDataMap
-            (ArrayList<String> targetCaseList, long entrezGeneId, String type) throws DaoException {
+    private static Map <String, String>[] getProteinArrayDataMap
+            (ArrayList<String> targetCaseList, long entrezGeneId, String type,
+            ArrayList<String> correlatedToData) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-
-        HashMap <String, String> arrayDataMap = new HashMap <String, String>();
+        
+        Map <String, String>[] ret;
 
         ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(entrezGeneId, Collections.singleton(type));
-        if (pais.isEmpty())
-            return arrayDataMap;
-
-        ProteinArrayInfo pai = pais.get(0);
-        String arrayId = pai.getId();
-
-        if (arrayId == null)
-            return arrayDataMap;
-
-        List<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
-        for (ProteinArrayData pad : pads) {
-            arrayDataMap.put(pad.getCaseId(), Double.toString(pad.getAbundance()));
+        if (pais.isEmpty()) {
+            ret = new Map[1];
+            Map <String, String> map = Collections.emptyMap();
+            ret[0] = map;
+            return ret;
         }
-        return arrayDataMap;
+
+        int n = correlatedToData==null ? 1:pais.size();
+        ret = new Map[n];
+        
+        for (int i=0; i<n; i++) {
+            ProteinArrayInfo pai = pais.get(0);
+            String arrayId = pai.getId();
+
+            if (arrayId == null)
+                continue;
+
+            ret[i] = new HashMap<String,String>();
+            List<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
+            for (ProteinArrayData pad : pads) {
+                ret[i].put(pad.getCaseId(), Double.toString(pad.getAbundance()));
+            }
+        }
+        return ret;
+    }
+    
+    private static Map<String,String> getBestCorrelatedCaseMap(Map<String, String>[] caseMaps,
+            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData) {
+        if (caseMaps.length==1 || correlatedToData==null || correlatedToData.size()!= targetCaseList.size())
+            return caseMaps[0];
+        
+        Map<String, String> ret = null;
+        double maxCorr = Double.NEGATIVE_INFINITY;
+        for (Map<String, String> map : caseMaps) {
+            double corr = calcCorrCoef(map, targetCaseList, correlatedToData);
+            if (corr > maxCorr) {
+                maxCorr = corr;
+                ret = map;
+            }
+        }
+        
+        return ret;
+    }
+    
+    private static double calcCorrCoef(Map<String, String> caseMap,
+            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData) {
+        try {
+            List<Double> l1 = new ArrayList<Double>();
+            List<Double> l2 = new ArrayList<Double>();
+            for (int i=0; i<targetCaseList.size(); i++) {
+                String targetCase = targetCaseList.get(i);
+                if (correlatedToData.get(i).equals("NAN"))
+                    continue;
+
+                String abun = caseMap.get(targetCase);
+                if (abun==null)
+                    continue;
+
+                l1.add(Double.valueOf(abun));
+                l2.add(Double.valueOf(correlatedToData.get(i)));
+            }
+
+            int n = l1.size();
+            double[] d1 = new double[n];
+            double[] d2 = new double[n];
+            for (int i=0; i<n; i++) {
+                d1[i] = l1.get(i);
+                d2[i] = l2.get(i);
+            }
+
+            PearsonsCorrelation pc = new PearsonsCorrelation();
+            return pc.correlation(d1, d2);
+        } catch (Exception e) {
+            return -2.0;
+        }
     }
 }

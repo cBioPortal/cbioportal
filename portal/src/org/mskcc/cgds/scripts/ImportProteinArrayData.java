@@ -60,7 +60,7 @@ public class ImportProteinArrayData {
             
         }
         if (MySQLbulkLoader.isBulkLoad()) {
-            //daoMutSig.flushGenesToDatabase();
+            //daoPAD.flushProteinArrayInfoesToDatabase();
         }
     }
     
@@ -75,14 +75,14 @@ public class ImportProteinArrayData {
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
         DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        String idProfProt = args[1]+"_protein_array_protein_level";
+        String idProfProt = args[1]+"_RPPA_protein_level";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "RPPA protein level",
                     "Reverse phase protein array data (protein level)", true);
             daoGeneticProfile.addGeneticProfile(gpPro);
         }
-        String idProfPhos = args[1]+"_protein_array_phosphorylation";
+        String idProfPhos = args[1]+"_RPPA_phosphorylation";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
             GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
                     GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "RPPA phosphorylation",

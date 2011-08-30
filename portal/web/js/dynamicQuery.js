@@ -82,41 +82,39 @@ $(document).ready(function(){
 
 //  Load Portal JSON Meta Data, while showing loader image
 function loadMetaData() {
+    $('#load').remove();
+    //  show ajax loader image; loader is background image of div 'load' as set in css
+    $('.main_query_panel').append('<div id="load">&nbsp;</div>');
+    $('#load').fadeIn('slow');
+
+    //  hide the main query form until all meta data is loaded and added to page
+    $('#main_query_form').hide('fast',loadContent);
+
+    function loadContent() {
+        //  Get Portal JSON Meta Data via JQuery AJAX
+        jQuery.getJSON("portal_meta_data.json",function(json){
+            //  Store JSON Data in global variable for later use
+            window.metaDataJson = json;
+
+            //  Add Meta Data to current page
+            addMetaDataToPage();
+            showNewContent();
+        });
+    }
+    function showNewContent() {
+        //show content, hide loader only after content is shown
+        $('#main_query_form').fadeIn('fast',hideLoader());
+    }
+    function hideLoader() {
+        //hide loader image
+        $('#load').fadeOut('fast',removeLoader());
+    }
+    function removeLoader() {
+        // remove loader image so that it will not appear in the
+        // modify-query section on results page
         $('#load').remove();
-        //  show ajax loader image; loader is background image of div 'load' as set in css
-        $('.main_query_panel').append('<div id="load">&nbsp;</div>');
-        $('#load').fadeIn('slow');
-
-        //  hide the main query form until all meta data is loaded and added to page
-        $('#main_query_form').hide('fast',loadContent);
-
-        function loadContent() {
-            //  Get Portal JSON Meta Data via JQuery AJAX
-            jQuery.getJSON("portal_meta_data.json",function(json){
-                //  Store JSON Data in global variable for later use
-                window.metaDataJson = json;
-
-                //  Add Meta Data to current page
-                addMetaDataToPage();
-                showNewContent();
-            });
-        }
-        function showNewContent() {
-            //show content, hide loader only after content is shown
-            $('#main_query_form').fadeIn('fast',hideLoader());
-        }
-        function hideLoader() {
-            //hide loader image
-            $('#load').fadeOut('fast',removeLoader());
-        }
-        function removeLoader() {
-            // remove loader image so that it will not appear in the
-            // modify-query section on results page
-            $('#load').remove();
-        }
+    }
 }
-
-
 
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {
@@ -144,12 +142,6 @@ function singleCancerStudySelected() {
      $("#step3").show();
      $("#step5").show();
      $("#cancer_study_desc").show();
-     selectDefaultGenomicProfiles();
-}
-
-//   Set default selections
-function selectDefaultGenomicProfiles() {
-    
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -228,6 +220,11 @@ function cancerStudySelected() {
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", "Copy Number");
     addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", "mRNA Expression");
+    
+    //  show protein level rppa data in the download tab
+    if (window.tab_index == "tab_download") {
+        addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", "RPPA");;
+    }
 
     //  Update the Case Set Pull-Down Menu
     //  First, clear all existing pull-down menus
@@ -354,18 +351,17 @@ function addMetaDataToPage() {
 
     //  Set things up, based on all currently selected genomic profiles
     //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids'
-    $("input:[name=genetic_profile_ids]").each(function(index) {
+    $("input:[name*=genetic_profile_ids]").each(function(index) {
         //  val() is the value that or stable ID of the genetic profile ID
         var currentValue = $(this).val();
 
         //  if the user has this stable ID already selected, mark it as checked
         if (window.genomic_profile_id_selected[currentValue] == 1) {
             $(this).attr('checked','checked');
+            //  Select the surrounding checkbox
+            selectCheckbox($(this));
         }
     });  //  end for each genomic profile option
-
-    // cross-cancer study selected by default
-    crossCancerStudySelected();
 }
 
 // Adds the specified genomic profiles to the page.
@@ -402,14 +398,13 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         profileHtml += "<div class='genomic_profiles_subgroup'>";
     }
 
-    //  First count how many profiles match the targetAltertion type
+    //  Iterate through all genomic profiles
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
 
         if (genomic_profile.alteration_type == targetAlterationType) {
             if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
                 //  Branch depending on number of profiles
                 var optionType = "checkbox";
-                var inputName = 'genetic_profile_ids';
                 if (downloadTab) {
                     optionType = "radio";
                 } else {
@@ -443,10 +438,11 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 
 // Outputs a Single Genomic Profile Options
 function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
-    var html =  "<input type='" + optionType + "' class='" + targetAlterationType + "' "
-        //+ "name='genetic_profile_ids' group='" + targetAlterationType + "'"
-        + "name='genetic_profile_ids'"
-        + "value='" + id +"'>" + name + "</input>"
+    var paramName = "genetic_profile_ids_" + targetAlterationType;
+    var html =  "<input type='" + optionType + "' "
+        + " name='" + paramName + "'"
+        + " class='" + targetAlterationType + "'"
+        + " value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";
     return html;

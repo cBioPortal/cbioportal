@@ -3,6 +3,7 @@ package org.mskcc.portal.util;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 
 import java.util.ArrayList;
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  */
 public class GeneValidator {
     private ArrayList<String> invalidGeneList = new ArrayList<String>();
-    private ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
+    private ArrayList<CanonicalGene> validGeneList = new ArrayList<CanonicalGene>();
 
     /**
      * Constructor.
@@ -22,17 +23,21 @@ public class GeneValidator {
      * @throws DaoException Database Error.
      */
     public GeneValidator (String geneListString) throws DaoException {
+        ParserOutput theOncoPrintSpecParserOutput =
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneListString);
+
+        //  Use the OncoPrint Parser to Easily Extract the Genes
+        ArrayList<String> geneList = new ArrayList<String>();
+        geneList.addAll(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
+
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        String genes[] = geneListString.split("\\s+");
-        for (String currentGene:  genes) {
-            String parts[] = currentGene.split(":");
-            String geneId = parts[0];
-            if (geneId.trim().length() > 0) {
-                CanonicalGene gene = daoGeneOptimized.getGene(geneId.toUpperCase());
-                if (gene == null) {
-                    invalidGeneList.add(geneId);
+        for (String currentGene:  geneList) {
+            if (currentGene.trim().length() > 0) {
+                CanonicalGene dbGene = daoGeneOptimized.getGene(currentGene.toUpperCase());
+                if (dbGene == null) {
+                    invalidGeneList.add(currentGene);
                 } else {
-                    geneList.add(gene);
+                    validGeneList.add(dbGene);
                 }
             }
         }
@@ -42,15 +47,15 @@ public class GeneValidator {
      * Gets the Error List.
      * @return ArrayList of Error Messages.
      */
-    public ArrayList getInvalidGeneList() {
+    public ArrayList<String> getInvalidGeneList() {
         return invalidGeneList;
     }
 
     /**
-     * Gets the Gene List.
+     * Gets the Valid Gene List.
      * @return ArrayList of Canonical Genes.
      */
-    public ArrayList<CanonicalGene> getGeneList() {
-        return geneList;
+    public ArrayList<CanonicalGene> getValidGeneList() {
+        return validGeneList;
     }
 }

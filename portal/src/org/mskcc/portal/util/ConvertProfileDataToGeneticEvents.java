@@ -33,7 +33,7 @@ public class ConvertProfileDataToGeneticEvents {
       
       ArrayList <String> goodGenes = new ArrayList <String>();
       for( String gene : geneList ){
-         // TODO: replace with a hash lookup, as pData.getGeneList().contains is O(n), so this for-loop is O(n**2)
+         // TODO: replace with a hash lookup, as pData.getValidGeneList().contains is O(n), so this for-loop is O(n**2)
          if (pData.getGeneList().contains( gene )) {
             goodGenes.add(gene);
          }

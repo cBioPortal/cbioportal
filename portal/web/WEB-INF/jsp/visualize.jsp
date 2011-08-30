@@ -17,6 +17,7 @@
 <%@ page import="org.mskcc.portal.util.HeatMapLegend" %>
 <%@ page import="org.mskcc.portal.util.OncoPrintSpecificationDriver" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 <%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.CaseList" %>
@@ -88,6 +89,8 @@
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0
                 || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
+    
+    boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
 <script type="text/javascript">
@@ -221,7 +224,7 @@
 
                     out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alterations'>Summary</a></li>");
 
-                    if (QueryBuilder.INCLUDE_NETWORKS) {
+                    if (includeNetworks) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>"
                         + "Network</a></li>");
                     }
@@ -321,7 +324,7 @@
             <% } %>
 
             <%
-            if (QueryBuilder.INCLUDE_NETWORKS) { %>
+            if (includeNetworks) { %>
                 <%@ include file="networks.jsp" %>
             <% } %>
             

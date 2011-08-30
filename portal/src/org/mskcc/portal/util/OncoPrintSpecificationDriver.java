@@ -81,4 +81,47 @@ public class OncoPrintSpecificationDriver {
       return theOncoPrintSpecParserOutput;
 
    }
+
+   /**
+    * A wrapper for the OncoPrintSpec parser, which includes the list of genetic
+    * data types input in the user's checkboxes. Performs two complementary
+    * functions:
+    * <ul>
+    * <LI>LimitLanguageDefaultToProfile: Limit the specification returned by the
+    * language to the genetic data types that the user selects in the
+    * checkboxes.
+    * <LI>LanguageCannotOverrunProfile: If the user explicitly selects a data
+    * type in the language, but does not choose it in the checkboxes, add an
+    * error.
+    * </ul>
+    * <p>
+    *
+    * @param geneListStr an OncoPrintSpec specification
+    * @return output from parsing geneListStr
+    */
+   static public ParserOutput callOncoPrintSpecParserDriver(String geneListStr) {
+      OncoPrintGeneDisplaySpec checkboxInputOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
+      ParserOutput theOncoPrintSpecParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser(
+               geneListStr, checkboxInputOncoPrintGeneDisplaySpec );
+
+      // II. LanguageCannotOverrunProfile: If the OncoSpec asked for data types
+      // not in the geneticProfileIdSet, add semantics error(s)
+      OncoPrintSpecification anOncoPrintSpecification =
+              theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
+      ArrayList<OncoPrintLangException> theSemanticsErrors =
+              theOncoPrintSpecParserOutput.getSemanticsErrors();
+
+      OncoPrintGeneDisplaySpec unionOncoPrintGeneDisplaySpec =
+              anOncoPrintSpecification.getUnionOfPossibleLevels();
+      for( GeneticDataTypes aGeneticDataType : GeneticDataTypes.values() ){
+         if(unionOncoPrintGeneDisplaySpec.typeDifference
+                 (checkboxInputOncoPrintGeneDisplaySpec, aGeneticDataType ) ){
+            theSemanticsErrors.add( new OncoPrintLangException
+                    ("Error: " +  aGeneticDataType +
+                     " specified in the list of genes, but not selected in " +
+                            "the Genetic Profile Checkboxes." ) );
+         }
+      }
+      return theOncoPrintSpecParserOutput;
+   }
 }

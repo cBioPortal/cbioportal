@@ -697,7 +697,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        
        OncoPrintSpecification aOncoPrintSpecification = new OncoPrintSpecification();
        
-       String[] genes = { "g1", "gene2", "Last" };
+       String[] genes = { "G1", "GENE2", "LAST" };
        OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
        theOncoPrintGeneDisplaySpec.setDefault( 1.5f );
        GeneSet aGeneSet = new GeneSet( );
@@ -709,16 +709,16 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        Assert.assertEquals( new ArrayList<String>( Arrays.asList( genes ) ), aOncoPrintSpecification.listOfGenes() );
 
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( new GeneWithSpec( "gene2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
+       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
 
        aOncoPrintSpecification.add(aGeneSet);
        ArrayList<String> t = new ArrayList<String>( Arrays.asList( genes ) );
        t.addAll( new ArrayList<String>( Arrays.asList( genes ) ) );
        Assert.assertEquals( t, aOncoPrintSpecification.listOfGenes() );
 
-       Assert.assertEquals( null, aOncoPrintSpecification.getGeneWithSpec( "geneName" ) );
+       Assert.assertEquals( null, aOncoPrintSpecification.getGeneWithSpec( "GENENAME" ) );
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( new GeneWithSpec( "gene2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
+       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
        
     }
     
@@ -730,7 +730,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        // TODO: change to .equals, when implemented
        Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(), anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
        
-       String[] genes = { "g1", "Last" };
+       String[] genes = { "G1", "LAST" };
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
        theOncoPrintGeneDisplaySpec.setDefault( 2.5 );
        anOncoPrintSpecification = new OncoPrintSpecification( genes, theOncoPrintGeneDisplaySpec );

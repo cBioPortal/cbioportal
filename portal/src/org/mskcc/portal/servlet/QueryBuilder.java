@@ -4,12 +4,7 @@ import java.io.IOException;
 
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -38,7 +33,7 @@ import org.owasp.validator.html.PolicyException;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
-    public static final boolean INCLUDE_NETWORKS = true;
+    //public static final boolean INCLUDE_NETWORKS = true;
     public static final String CGDS_URL_PARAM = "cgds_url";
     public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
@@ -148,15 +143,7 @@ public class QueryBuilder extends HttpServlet {
         String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
 
         //  Get User Selected Genetic Profiles
-        String geneticProfileIds[] = httpServletRequest.getParameterValues(GENETIC_PROFILE_IDS);
-        HashSet<String> geneticProfileIdSet = new HashSet<String>();
-        if (geneticProfileIds != null && geneticProfileIds.length > 0) {
-            for (String geneticProfileIdDirty : geneticProfileIds) {
-                String geneticProfileIdClean = servletXssUtil.getCleanInput(geneticProfileIdDirty);
-                geneticProfileIdSet.add(geneticProfileIdClean);
-            }
-        }
-        httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
+        HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
         //  Get User Defined Gene List
         String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
@@ -210,6 +197,10 @@ public class QueryBuilder extends HttpServlet {
                             caseIds, caseSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
+                if (errorsExist) {
+                   httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE,
+                           "Please fix the errors below.");
+                }
                 RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                 dispatcher.forward(httpServletRequest, httpServletResponse);
@@ -225,6 +216,43 @@ public class QueryBuilder extends HttpServlet {
                                "The Cancer Genomics Data Server is not currently "
                                + "available. <br/><br/>Please check back later.", xdebug);
         }
+    }
+
+    /**
+     * Gets all Genetic Profile IDs.
+     *
+     * These values are passed with parameter names like this:
+     *
+     * genetic_profile_ids
+     * genetic_profile_ids_MUTATION
+     * genetic_profile_ids_MUTATION_EXTENDED
+     * genetic_profile_ids_COPY_NUMBER_ALTERATION
+     * genetic_profile_ids_MRNA_EXPRESSION
+     *
+     *
+     * @param httpServletRequest HTTPServlet Request.
+     * @return HashSet of GeneticProfileIDs.
+     */
+    private HashSet<String> getGeneticProfileIds(HttpServletRequest httpServletRequest,
+        XDebug xdebug) {
+        HashSet<String> geneticProfileIdSet = new HashSet<String>();
+        Enumeration nameEnumeration = httpServletRequest.getParameterNames();
+        while (nameEnumeration.hasMoreElements()) {
+            String currentName = (String) nameEnumeration.nextElement();
+            if (currentName.startsWith(GENETIC_PROFILE_IDS)) {
+                String geneticProfileIds[] = httpServletRequest.getParameterValues(currentName);
+                if (geneticProfileIds != null && geneticProfileIds.length > 0) {
+                    for (String geneticProfileIdDirty : geneticProfileIds) {
+                        String geneticProfileIdClean = servletXssUtil.getCleanInput(geneticProfileIdDirty);
+                        xdebug.logMsg (this, "Received Genetic Profile ID:  "
+                                + currentName + ":  " + geneticProfileIdClean);
+                        geneticProfileIdSet.add(geneticProfileIdClean);
+                    }
+                }
+            }
+        }
+        httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
+        return geneticProfileIdSet;
     }
 
     /**
@@ -304,7 +332,7 @@ public class QueryBuilder extends HttpServlet {
                System.err.println( "pData == null" );
             }else{
                if( pData.getGeneList() == null ){
-                  System.err.println( "pData.getGeneList() == null" );
+                  System.err.println( "pData.getValidGeneList() == null" );
                }
             }
             if (pData != null) {
@@ -518,7 +546,7 @@ public class QueryBuilder extends HttpServlet {
                 }
                 if (geneList != null && geneList.trim().length() > 0) {
                     GeneValidator geneValidator = new GeneValidator(geneList);
-                    int numGenes = geneValidator.getGeneList().size();
+                    int numGenes = geneValidator.getValidGeneList().size();
                     if (numGenes > QueryBuilder.MAX_NUM_GENES) {
                         httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
                                 "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES

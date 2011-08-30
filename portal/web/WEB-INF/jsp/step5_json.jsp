@@ -18,7 +18,7 @@
          logOddsOptionChecked = " checked ";
      }
     %>
-        <input type="checkbox" <%= logOddsOptionChecked %>
+        <input class="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>" type="checkbox" <%= logOddsOptionChecked %>
            name="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>"
            value="<%= Boolean.TRUE%>">Compute <B>Mutual Exclusivity / Co-occurence</B> between all pairs of genes.
             <br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not recommended for more than 10 genes.

@@ -21,6 +21,7 @@
 %>
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
+
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
@@ -54,9 +55,9 @@
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
         <p/>
-        <input type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
 
-        </div>
+    </div>
 
         <!--
         <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>

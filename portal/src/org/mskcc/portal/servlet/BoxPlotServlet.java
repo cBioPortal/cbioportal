@@ -76,20 +76,18 @@ public class BoxPlotServlet extends HttpServlet {
             String tmpfile = "tmp"+ request.getRequestedSessionId()
                     + String.valueOf(System.currentTimeMillis() + "." + format);
 
-            plot.append("library(Cairo);\n");
             if (format.equals("pdf")) {
                 plot.append("pdf(width=6, height=6, file='");
                 plot.append(tmpfile);
                 plot.append("');\n");
             } else {
-                plot.append("Cairo(width=");
+                plot.append("png(width=");
                 plot.append(width);
                 plot.append(", height=");
                 plot.append(height);
                 plot.append(", file='");
                 plot.append(tmpfile);
-                plot.append("', type='");
-                plot.append(format);
+                plot.append("', type='cairo'");
                 plot.append("', units=\"px\")\n");
             }
 

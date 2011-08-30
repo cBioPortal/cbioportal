@@ -1,4 +1,3 @@
-library(Cairo)
 library(survival)
 attach(df)
 

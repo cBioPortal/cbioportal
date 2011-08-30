@@ -101,9 +101,10 @@ public class PlotServlet extends HttpServlet {
             // Must use Cairo Library, so that we can generate Images without GUI
             StringBuffer plot = new StringBuffer("library(cgdsr);\n");
 
+            plot.append("library(Cairo);\n");
             if (format.equals("png")) {
-                plot.append("png(width=" + PLOT_WIDTH + ", height="
-                    + PLOT_HEIGHT + ", file='" + tmpfile + "', type='cairo', units=\"px\")\n");
+                plot.append("Cairo(width=" + PLOT_WIDTH + ", height="
+                    + PLOT_HEIGHT + ", file='" + tmpfile + "', type='" + format + "', units=\"px\")\n");
             } else {
                 plot.append("pdf(width=6, height=6, file='" + tmpfile + "')\n");
             }

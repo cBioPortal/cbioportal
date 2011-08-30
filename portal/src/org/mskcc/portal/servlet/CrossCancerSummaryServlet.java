@@ -78,13 +78,6 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
 
-        //  This delay code is temporarily, and is used to test the AJAX spinners.
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         // In order to process request, we must have a gene list, and a cancer type
         try {
             String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);

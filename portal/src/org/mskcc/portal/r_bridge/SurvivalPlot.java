@@ -32,9 +32,10 @@ public class SurvivalPlot {
 
             //  Create Temp File
             String tmpfile = "tmp" + String.valueOf(System.currentTimeMillis()) + "." + format;
+            rCode.append("library(Cairo);\n");
             if (format.equals("png")) {
-                rCode.append("png(width=" + PLOT_WIDTH + ", height="
-                    + PLOT_HEIGHT + ", file='" + tmpfile + "', type='cairo', units=\"px\")\n");
+                rCode.append("Cairo(width=" + PLOT_WIDTH + ", height="
+                    + PLOT_HEIGHT + ", file='" + tmpfile + "', type='" + format + "', units=\"px\")\n");
             } else {
                 rCode.append("pdf(width=6, height=6, file='" + tmpfile + "')\n");
             }

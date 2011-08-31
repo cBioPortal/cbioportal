@@ -183,7 +183,7 @@ public class GeneratePlots extends HttpServlet {
                 }
 
                 //  Output mRNA by RPPA protein level Scatter Plot
-                if (mRNAProfileId != null && methylationProfileId != null
+                if (mRNAProfileId != null && rppaProteinProfileId != null
                         && plotType.equalsIgnoreCase("mrna_rppa_protein")) {
                     StringBuffer url1 = new StringBuffer ();
                     if (!rInstalled) {
@@ -197,10 +197,8 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
-                    if (mutationProfileId != null && cnaProfileId != null) {
-                       url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
-                        + "," + mutationProfileId);
-                    }
+                    url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + mRNAProfileId
+                        + "," + rppaProteinProfileId);
                     if (includeNormals != null && includeNormals.equalsIgnoreCase("INCLUDE_NORMALS")
                         && normalCaseSetId != null && normalCaseSetId.length() > 0) {
                         url1.append("&" + PlotServlet.SKIN_NORMALS + "=" + normalCaseSetId);

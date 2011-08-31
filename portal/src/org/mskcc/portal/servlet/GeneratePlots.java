@@ -194,7 +194,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
                     url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");
                     url1.append (mRNAProfileId + "," + rppaProteinProfileId);
-                    url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
+                    url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     if (mutationProfileId != null && cnaProfileId != null) {

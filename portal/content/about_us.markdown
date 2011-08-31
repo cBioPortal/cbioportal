@@ -4,6 +4,7 @@ The cBio Cancer Genomics Portal is developed and maintained by the [Computationa
 
  * Ethan Cerami, MSKCC
  * Nikolaus Schultz, MSKCC
+ * Benjamin Gross, MSKCC
  * Arthur Goldberg, MSKCC
  * Caitlin Byrne, MSKCC
  * Anders Jacobsen, MSKCC

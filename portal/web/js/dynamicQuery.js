@@ -417,7 +417,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
                         optionType = "radio";
                     }
                 }
-                profileHtml += outputGenomicProfileOption (optionType, targetAlterationType,
+                profileHtml += outputGenomicProfileOption (downloadTab, optionType, targetAlterationType,
                         genomic_profile.id, genomic_profile.name, genomic_profile.description);
             }
         }
@@ -440,8 +440,21 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
 }
 
 // Outputs a Single Genomic Profile Options
-function outputGenomicProfileOption (optionType, targetAlterationType, id, name, description) {
-    var paramName = "genetic_profile_ids_" + targetAlterationType;
+function outputGenomicProfileOption (downloadTab, optionType, targetAlterationType, id, name,
+                     description) {
+    //  This following if/else requires some explanation.
+    //  If we are in the download tab, all the input fields must use the same name.
+    //  This enforces all inputs to work as a single group of radio buttons.
+    //  If we are in the query tab, the input fields must be specified by alteration type.
+    //  This enforces all the inputs of the same alteration type to work as a single group of radio
+    //  buttons.
+    var paramName;
+    if (downloadTab) {
+        paramName =  "genetic_profile_ids";
+    } else {
+        paramName = "genetic_profile_ids_" + targetAlterationType;
+    }
+
     var html =  "<input type='" + optionType + "' "
         + " name='" + paramName + "'"
         + " class='" + targetAlterationType + "'"

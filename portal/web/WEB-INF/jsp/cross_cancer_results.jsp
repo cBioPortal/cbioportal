@@ -74,9 +74,7 @@ jQuery(document).ready(function(){
         //  This toggles the ui-icons within head 
         jQuery(".ui-icon", this).toggle();
         return false;
-	}).next().hide();
-    // Open the first section
-    $("#accordion .head:first").next().toggle();
+	}).next().show();
 });
 </script>
 
@@ -88,9 +86,9 @@ jQuery(document).ready(function(){
                 out.println ("<h1 class='head'>");
                 //  output triangle icons
                 //  the float:left style is required;  otherwise icons appear on their own line.
-                out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
+                out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;display:none;'></span>");
                 out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
-                    + " style='float:left; display:none;'></span>");
+                    + " style='float:left;'></span>");
                 out.println (cancerStudy.getName() + "</h1>");
                 out.println ("<div class='accordion_ajax' id=\"study_" + cancerStudy.getCancerStudyStableId() + "\">");
                 out.println ("<img src='images/ajax-loader2.gif'>");

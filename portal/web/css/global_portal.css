@@ -1051,7 +1051,8 @@ overflow:auto;
 background-color:#eeeeee;
 border: 1px solid #aaaaaa;
 padding:1px;
-color:white;
+text-decoration:none !important;
+cursor: default;
 }
 
 /*********************************************************************

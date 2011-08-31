@@ -14,6 +14,7 @@ portal/Portal.iws
 \.rej$
 \.conflict\~$
 .DS_Store
+cgds-data
 cgds/CGDS.ipr
 cgds/CGDS.iws
 cgds/Cgds.iml

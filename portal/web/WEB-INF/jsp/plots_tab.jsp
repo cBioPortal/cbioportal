@@ -169,12 +169,12 @@ $(document).ready(function() {
         out.println ("<BR><BR><b>Plot Type:</b><br><br>");
     }
     out.println ("<select style=\"width:180;\"name='plot_type'>");
-    out.println ("<option value='mrna_cna'>Copy Number v. mRNA</option>");
+    out.println ("<option value='mrna_cna'>mRNA v. Copy Number</option>");
     if (methylationProfileCounter > 0) {
-        out.println ("<option value='mrna_methylation'>DNA Methylation v. mRNA</option>");
+        out.println ("<option value='mrna_methylation'>mRNA v. DNA Methylation</option>");
     }
     if (rppaProteinProfileCounter > 0) {
-        out.println ("<option value='mrna_rppa_protein'>mRNA v. RPPA protein level</option>");
+        out.println ("<option value='mrna_rppa_protein'> RPPA protein level v. mRNA</option>");
     }
     out.println ("</select>");
 

@@ -59,7 +59,8 @@
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
-      <intercept-url pattern="/webservice.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">

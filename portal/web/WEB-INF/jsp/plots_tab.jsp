@@ -174,7 +174,7 @@ $(document).ready(function() {
         out.println ("<option value='mrna_methylation'>DNA Methylation v. mRNA</option>");
     }
     if (rppaProteinProfileCounter > 0) {
-        out.println ("<option value='mrna_rppa_protein'>RPPA protein level v. mRNA</option>");
+        out.println ("<option value='mrna_rppa_protein'>mRNA v. RPPA protein level</option>");
     }
     out.println ("</select>");
 

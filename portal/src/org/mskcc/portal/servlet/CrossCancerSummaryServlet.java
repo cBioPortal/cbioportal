@@ -249,22 +249,44 @@ public class CrossCancerSummaryServlet extends HttpServlet {
      */
     private HashMap<String, GeneticProfile> getDefaultGeneticProfiles(ArrayList<GeneticProfile> geneticProfileList) {
         HashMap<String, GeneticProfile> defaultSet = new HashMap<String, GeneticProfile>();
-        boolean cnaChosen = false;
-        for (GeneticProfile geneticProfile : geneticProfileList) {
-            GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-            String name = geneticProfile.getProfileName();
-            if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
+        boolean mutationChosen = false;
+        GeneticProfile gisticProfile = null;
+        GeneticProfile raeProfile = null;
+        GeneticProfile otherCnaProfile = null;
+
+        //  Iterate through all profiles
+        for (GeneticProfile currentProfile : geneticProfileList) {
+            GeneticAlterationType geneticAlterationType = currentProfile.getGeneticAlterationType();
+            String name = currentProfile.getProfileName();
+
+            // Picks the first mutation profile
+            if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)
+                    && !mutationChosen) {
+                defaultSet.put(currentProfile.getStableId(), currentProfile);
+                mutationChosen = true;
             }
-            if (name.contains("GISTIC") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
-                cnaChosen = true;
-            }
-            if (name.contains("RAE") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
-                cnaChosen = true;
+
+            //  Store the CNA Profiles
+            if (geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                if (name.contains("GISTIC") && gisticProfile == null) {
+                    gisticProfile = currentProfile;
+                } else if (name.contains("RAE") && raeProfile == null) {
+                    raeProfile = currentProfile;
+                } else if (otherCnaProfile == null) {
+                    otherCnaProfile = currentProfile;
+                }
             }
         }
+
+        //  Priority Rules for CNA: GISTIC is chosen first;  followed by RAE
+        if (gisticProfile != null) {
+            defaultSet.put(gisticProfile.getStableId(), gisticProfile);
+        } else if (raeProfile != null) {
+            defaultSet.put(raeProfile.getStableId(), raeProfile);
+        } else if (otherCnaProfile != null) {
+            defaultSet.put(otherCnaProfile.getStableId(), otherCnaProfile);
+        }
+
         return defaultSet;
     }
 }

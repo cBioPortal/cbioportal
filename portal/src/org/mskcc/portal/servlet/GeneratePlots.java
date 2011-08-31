@@ -183,7 +183,7 @@ public class GeneratePlots extends HttpServlet {
                 }
 
                 //  Output mRNA by RPPA protein level Scatter Plot
-                if (mRNAProfileId != null && methylationProfileId != null
+                if (mRNAProfileId != null && rppaProteinProfileId != null
                         && plotType.equalsIgnoreCase("mrna_rppa_protein")) {
                     StringBuffer url1 = new StringBuffer ();
                     if (!rInstalled) {
@@ -193,7 +193,7 @@ public class GeneratePlots extends HttpServlet {
                     writer.append("<table cellspacing=15><tr><td>");
                     url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
                     url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");
-                    url1.append (rppaProteinProfileId + "," + mRNAProfileId);
+                    url1.append (mRNAProfileId + "," + rppaProteinProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
@@ -207,8 +207,7 @@ public class GeneratePlots extends HttpServlet {
                     }
                     String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
                     writer.append("<B>" + gene.toUpperCase() + ":  "
-                            + "RPPA protein level v. mRNA Expression ("
-                            + caseSetName + ")");
+                            + "mRNA Expression ("+ caseSetName + ") v. RPPA protein level");
                     writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
                     writer.append("</B><BR>");
                     if (xdebug != null) {

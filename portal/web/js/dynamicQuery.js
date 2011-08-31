@@ -15,7 +15,6 @@
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
-
      //  Load Portal JSON Meta Data while showing loader image in place of query form
      loadMetaData();
 
@@ -161,8 +160,12 @@ function chooseAction() {
 // automatically select the corresponding checkbox
 function selectCheckbox(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
-    var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
-    $(checkboxSelector).attr('checked',true);
+    if (subgroupClass != undefined && subgroupClass != "") {
+        var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
+        if (checkboxSelector != undefined) {
+            $(checkboxSelector).attr('checked',true);
+        }
+    }
 }
 
 //  Triggered when a genomic profile is unselected;
@@ -353,7 +356,7 @@ function addMetaDataToPage() {
     }
 
     //  Set things up, based on all currently selected genomic profiles
-    //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids'
+    //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
     $("input:[name*=genetic_profile_ids]").each(function(index) {
         //  val() is the value that or stable ID of the genetic profile ID
         var currentValue = $(this).val();
@@ -429,9 +432,10 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
     }
 
     if(targetAlterationType == 'MRNA_EXPRESSION'){
-        var inputName = '<%=QueryBuilder.Z_SCORE_THRESHOLD%>';
+        var inputName = 'Z_SCORE_THRESHOLD';
         profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
-        + "<input type='text' name='" + inputName + "' size='6' value='2.0'>"
+        + "<input type='text' name='" + inputName + "' size='6' value='"
+                + window.zscore_threshold + "'>"
         + "</div>";
     }
 

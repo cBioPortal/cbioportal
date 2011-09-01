@@ -352,9 +352,9 @@ public class QueryBuilder extends HttpServlet {
                     ArrayList<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile,
                                     geneList, setOfCaseIds, xdebug);
-                    xdebug.logMsg(this, "Total number of mutation records retrieved:  "
-                        + tempMutationList.size());
                     if (tempMutationList != null && tempMutationList.size() > 0) {
+                        xdebug.logMsg(this, "Total number of mutation records retrieved:  "
+                            + tempMutationList.size());
                         mutationList.addAll(tempMutationList);
                     }
                 } else {

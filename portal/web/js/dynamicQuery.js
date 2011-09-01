@@ -138,12 +138,38 @@ function crossCancerStudySelected() {
      $('#cancer_study_desc').hide();
 }
 
-//  Display extra steps when an individual cancer study is selected
+//  Display extra steps and make default selections
+//  when an individual cancer study is selected
 function singleCancerStudySelected() {
+
+
+    if (window.tab_index != "tab_download"){ // download tab has no defaults
+
+        var setDefaults = true;
+
+        // if no checkboxes are checked, make default selections
+        $('input:checkbox').each(function(){
+            if ($(this).attr('checked')){
+                setDefaults = false;
+                return;
+            }
+        });
+
+        if (setDefaults){
+            makeDefaultSelections();
+        }
+    }
+
      $("#step2").show();
      $("#step3").show();
      $("#step5").show();
      $("#cancer_study_desc").show();
+}
+
+function makeDefaultSelections(){
+     $('.MUTATION_EXTENDED').attr('checked',true);
+     $('.COPY_NUMBER_ALTERATION:checkbox').attr('checked',true);
+     $('.COPY_NUMBER_ALTERATION:radio').first().attr('checked',true);
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -157,7 +183,7 @@ function chooseAction() {
 }
 
 //  Determine which radio button was clicked and
-// automatically select the corresponding checkbox
+//  automatically select the corresponding checkbox
 function selectCheckbox(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
     if (subgroupClass != undefined && subgroupClass != "") {
@@ -255,11 +281,6 @@ function cancerStudySelected() {
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".profile_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
 
-    //  Show any hidden form fields
-    if(!$("#step2").is(":visible")){
-        singleCancerStudySelected();
-    }
-
     //  Set up Event Handler for checking checkboxes associated with radio buttons
     //  This can not be done on page load, because radio buttons are not found when
     //  cancer study selected is "all"
@@ -276,6 +297,9 @@ function cancerStudySelected() {
     $(".MRNA_EXPRESSION").click(function(){
        toggle_threshold($(this));
     });
+
+    // Set default selections and make sure all steps are visible 
+    singleCancerStudySelected();
 }
 
 //  Triggered when a case set has been selected, either by the user

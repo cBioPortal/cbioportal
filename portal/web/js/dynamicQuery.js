@@ -431,7 +431,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         profileHtml += "</div>";
     }
 
-    if(targetAlterationType == 'MRNA_EXPRESSION'){
+    if(targetAlterationType == 'MRNA_EXPRESSION' && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
         profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"

@@ -9,7 +9,6 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.mskcc.portal.util.Config;
-import org.mskcc.portal.util.SkinUtil;
 import org.mskcc.portal.util.ResponseUtil;
 import org.mskcc.portal.util.XDebug;
 
@@ -97,10 +96,6 @@ public class CgdsProtocol {
             //  Create GET / POST Method
             method = new PostMethod(cgdsUrl);
             method.setRequestBody(data);
-            // we need to added a cookie with session id to work with spring security
-			if (SkinUtil.usersMustAuthenticate()) {
-                method.setRequestHeader("Cookie", "JSESSIONID=" + xdebug.getRequest().getSession().getId());
-            }
             try {
 
                 //  Extract HTTP Status Code

@@ -160,16 +160,44 @@ function singleCancerStudySelected() {
         }
     }
 
-     $("#step2").show();
-     $("#step3").show();
-     $("#step5").show();
-     $("#cancer_study_desc").show();
+    $("#step2").show();
+    $("#step3").show();
+    $("#step5").show();
+    $("#cancer_study_desc").show();
 }
 
+//  Select default genomic profiles
 function makeDefaultSelections(){
      $('.MUTATION_EXTENDED').attr('checked',true);
      $('.COPY_NUMBER_ALTERATION:checkbox').attr('checked',true);
      $('.COPY_NUMBER_ALTERATION:radio').first().attr('checked',true);
+}
+
+//  Determine whether there are any sections that need to be
+//  shown/hidden based on current selections (for now, this
+//  really only applies to the modify query section on
+//  results page)
+function reviewCurrentSelections(){
+
+   if ($(".MRNA_EXPRESSION").length >= 1){
+        $(".MRNA_EXPRESSION").each(function(){
+            toggle_threshold($(this));
+        });
+   }
+
+   if ($("#optional_args > input").length >= 1){
+       $("#optional_args > input").each(function(){
+           if ($(this).attr('checked')){
+               // hide/show is ugly, but not sure exactly how toggle works
+               // and couldn't get it to work.. this will do for now
+               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+               $("#optional_args").toggle();
+               return;
+           }
+       });
+   }
+
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -216,6 +244,7 @@ function toggle_threshold(profileClicked) {
         }
     } else if(inputType == 'checkbox'){
         var subgroup = $("input.MRNA_EXPRESSION[type=radio]");
+
         // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
         // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
         if (profileClicked.attr('checked') && (subgroup = null || subgroup.length==0)){
@@ -392,6 +421,10 @@ function addMetaDataToPage() {
             selectCheckbox($(this));
         }
     });  //  end for each genomic profile option
+
+    // determine whether any selections have already been made
+    // to make sure all of the fields are shown/hidden as appropriate
+    reviewCurrentSelections();
 }
 
 // Adds the specified genomic profiles to the page.

@@ -1,7 +1,9 @@
 # September 3, 2011
 
 * You can now query across different cancer studies (feature available directly from the home page).
+* Our [MATLAB CGDS Cancer Genomics Toolbox](cgds_r.jsp) is now available.  The toolbox enables you to download data from the cBio Portal, and import it directly into MATLAB.
 * The code for the cBio Portal has now been fully open sourced, and made available at [Google Code](http://code.google.com/p/cbio-cancer-genomics-portal/).  If you would like to join our open source efforts and make the portal even better, drop us an email.
+
 
 # March 2, 2011
 

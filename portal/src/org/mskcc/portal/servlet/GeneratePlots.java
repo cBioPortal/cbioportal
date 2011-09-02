@@ -138,8 +138,8 @@ public class GeneratePlots extends HttpServlet {
                     }
                     String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
                     writer.append("<B>" + gene.toUpperCase() + ":  "
-                            + "CNA v. mRNA Expression ("
-                            + caseSetName + ")");
+                            + "mRNA Expression ("
+                            + caseSetName + ") v. CNA");
                     writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
                     writer.append ("</B><BR>");
                     writer.append ("<img width=600 height=600 src='" + url1.toString() + "'>");
@@ -171,8 +171,8 @@ public class GeneratePlots extends HttpServlet {
                     }
                     String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
                     writer.append("<B>" + gene.toUpperCase() + ":  "
-                            + "DNA Methylation v. mRNA Expression ("
-                            + caseSetName + ")");
+                            + "mRNA Expression ("
+                            + caseSetName + ") v. DNA Methylation");
                     writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
                     writer.append("</B><BR>");
                     if (xdebug != null) {
@@ -194,7 +194,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
                     url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");
                     url1.append (mRNAProfileId + "," + rppaProteinProfileId);
-                    url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
+                    url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     if (mutationProfileId != null && cnaProfileId != null) {
@@ -207,7 +207,7 @@ public class GeneratePlots extends HttpServlet {
                     }
                     String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
                     writer.append("<B>" + gene.toUpperCase() + ":  "
-                            + "mRNA Expression ("+ caseSetName + ") v. RPPA protein level");
+                            + "RPPA protein level v. mRNA Expression ("+ caseSetName + ")");
                     writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
                     writer.append("</B><BR>");
                     if (xdebug != null) {

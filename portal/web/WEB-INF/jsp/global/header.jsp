@@ -68,12 +68,17 @@
                     <li class="internal">
 					   	<a href="about_us.jsp">About</a>
 					</li>
-                    <li class="internal">
-					   	<a href="web_api.jsp">Web API</a>
-					</li>
-					<li class="internal">
-					   	<a href="cgds_r.jsp">R Package</a>
-					</li>
+                    <%
+                        //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
+                        if (!SkinUtil.usersMustAuthenticate()) {
+                    %>
+                        <li class="internal">
+                            <a href="web_api.jsp">Web API</a>
+                        </li>
+                        <li class="internal">
+                            <a href="cgds_r.jsp">R/MATLAB</a>
+                        </li>
+                    <% } %>
                     <li class="internal">
                         <a href="networks.jsp">Networks</a>
                     </li>

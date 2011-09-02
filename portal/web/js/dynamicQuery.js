@@ -138,12 +138,66 @@ function crossCancerStudySelected() {
      $('#cancer_study_desc').hide();
 }
 
-//  Display extra steps when an individual cancer study is selected
+//  Display extra steps and make default selections
+//  when an individual cancer study is selected
 function singleCancerStudySelected() {
-     $("#step2").show();
-     $("#step3").show();
-     $("#step5").show();
-     $("#cancer_study_desc").show();
+
+
+    if (window.tab_index != "tab_download"){ // download tab has no defaults
+
+        var setDefaults = true;
+
+        // if no checkboxes are checked, make default selections
+        $('input:checkbox').each(function(){
+            if ($(this).attr('checked')){
+                setDefaults = false;
+                return;
+            }
+        });
+
+        if (setDefaults){
+            makeDefaultSelections();
+        }
+    }
+
+    $("#step2").show();
+    $("#step3").show();
+    $("#step5").show();
+    $("#cancer_study_desc").show();
+}
+
+//  Select default genomic profiles
+function makeDefaultSelections(){
+     $('.MUTATION_EXTENDED').attr('checked',true);
+     $('.COPY_NUMBER_ALTERATION:checkbox').attr('checked',true);
+     $('.COPY_NUMBER_ALTERATION:radio').first().attr('checked',true);
+}
+
+//  Determine whether there are any sections that need to be
+//  shown/hidden based on current selections (for now, this
+//  really only applies to the modify query section on
+//  results page)
+function reviewCurrentSelections(){
+
+   if ($(".MRNA_EXPRESSION").length >= 1){
+        $(".MRNA_EXPRESSION").each(function(){
+            toggle_threshold($(this));
+        });
+   }
+
+   if ($("#optional_args > input").length >= 1){
+       $("#optional_args > input").each(function(){
+           if ($(this).attr('checked')){
+               // hide/show is ugly, but not sure exactly how toggle works
+               // and couldn't get it to work.. this will do for now
+               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+               $("#optional_args").toggle();
+               return;
+           }
+       });
+   }
+
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -157,7 +211,7 @@ function chooseAction() {
 }
 
 //  Determine which radio button was clicked and
-// automatically select the corresponding checkbox
+//  automatically select the corresponding checkbox
 function selectCheckbox(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
     if (subgroupClass != undefined && subgroupClass != "") {
@@ -190,6 +244,7 @@ function toggle_threshold(profileClicked) {
         }
     } else if(inputType == 'checkbox'){
         var subgroup = $("input.MRNA_EXPRESSION[type=radio]");
+
         // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
         // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
         if (profileClicked.attr('checked') && (subgroup = null || subgroup.length==0)){
@@ -255,11 +310,6 @@ function cancerStudySelected() {
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".profile_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
 
-    //  Show any hidden form fields
-    if(!$("#step2").is(":visible")){
-        singleCancerStudySelected();
-    }
-
     //  Set up Event Handler for checking checkboxes associated with radio buttons
     //  This can not be done on page load, because radio buttons are not found when
     //  cancer study selected is "all"
@@ -276,6 +326,9 @@ function cancerStudySelected() {
     $(".MRNA_EXPRESSION").click(function(){
        toggle_threshold($(this));
     });
+
+    // Set default selections and make sure all steps are visible 
+    singleCancerStudySelected();
 }
 
 //  Triggered when a case set has been selected, either by the user
@@ -368,6 +421,10 @@ function addMetaDataToPage() {
             selectCheckbox($(this));
         }
     });  //  end for each genomic profile option
+
+    // determine whether any selections have already been made
+    // to make sure all of the fields are shown/hidden as appropriate
+    reviewCurrentSelections();
 }
 
 // Adds the specified genomic profiles to the page.
@@ -431,7 +488,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         profileHtml += "</div>";
     }
 
-    if(targetAlterationType == 'MRNA_EXPRESSION'){
+    if(targetAlterationType == 'MRNA_EXPRESSION' && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
         profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
@@ -460,6 +517,7 @@ function outputGenomicProfileOption (downloadTab, optionType, targetAlterationTy
     }
 
     var html =  "<input type='" + optionType + "' "
+        + "id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetAlterationType + "'"
         + " value='" + id +"'>" + name + "</input>"

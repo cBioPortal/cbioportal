@@ -150,7 +150,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                 + URLEncoder.encode(geneList));
 
         //  Append action parameters
-        detailsUrl.append("&action=Submit&tab_index=tab_visualize");
+        detailsUrl.append("&"+QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT+"&tab_index=tab_visualize");
 
         return detailsUrl.toString();
     }

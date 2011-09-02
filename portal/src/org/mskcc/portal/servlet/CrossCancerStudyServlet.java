@@ -77,7 +77,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
             boolean errorsExist = false;
 
-            String action = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.ACTION);
+            String action = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.ACTION_NAME);
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
                 if (geneList == null || geneList.trim().length() == 0) {
                     httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,

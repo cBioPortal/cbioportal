@@ -45,7 +45,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
     public static final String GENE_LIST = "gene_list";
-    public static final String ACTION = "action";
+    public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
     public static final String FORMAT = "format";
     public static final String PLOT_TYPE = "plot_type";
@@ -133,7 +133,7 @@ public class QueryBuilder extends HttpServlet {
         }
 
         //  Get User Selected Action
-        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
+        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION_NAME);
 
         //  Get User Selected Cancer Type
         String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);

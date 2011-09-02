@@ -1,0 +1,200 @@
+rank	gene	description	N	n	CpG_transition	other_CG_transition	CG_transversion	AT_mutation	indelPlusnull	p	q
+1	TP53	tumor protein p53	429215	279	47	31	39	61	101	<1.00e-11	<9.43e-08
+2	BRCA1	breast cancer 1, early onset	1927005	12	0	0	1	0	11	<1.00e-11	<9.43e-08
+3	ZNF614	zinc finger protein 614	578782	9	0	3	3	0	3	5.56e-08	0.00035
+4	BRCA2	breast cancer 2, early onset	3019195	12	1	0	0	1	10	1.10e-07	0.00052
+5	NF1	neurofibromin 1 (neurofibromatosis, von Recklinghausen disease, Watson disease)	2798166	15	1	1	1	3	9	3.33e-07	0.0013
+6	RB1	retinoblastoma 1 (including osteosarcoma)	873863	9	0	1	3	0	5	5.35e-07	0.0017
+7	FAT3	FAT tumor suppressor homolog 3 (Drosophila)	3838502	20	4	2	3	10	1	5.67e-06	0.015
+8	B4GALNT4	beta-1,4-N-acetyl-galactosaminyl transferase 4	63507	3	0	0	0	3	0	0.000019	0.045
+9	OR4F21	olfactory receptor, family 4, subfamily F, member 21	101827	3	0	0	0	0	3	0.000033	0.059
+10	CHST2	carbohydrate (N-acetylglucosamine-6-O) sulfotransferase 2	208383	5	0	2	2	1	0	0.000035	0.059
+11	GABRA6	gamma-aminobutyric acid (GABA) A receptor, alpha 6	468472	6	1	3	1	1	0	0.000035	0.059
+12	CYP11B1	cytochrome P450, family 11, subfamily B, polypeptide 1	484160	7	1	0	3	3	0	0.000043	0.067
+13	KCNJ12	potassium inwardly-rectifying channel, subfamily J, member 12	301490	5	5	0	0	0	0	0.000052	0.072
+14	TBP	TATA box binding protein	345578	4	0	0	0	0	4	0.000053	0.072
+15	CDK12		1426742	9	0	0	1	3	5	0.000060	0.076
+16	LMF1	lipase maturation factor 1	65659	3	1	0	0	2	0	0.000079	0.093
+17	TACC3	transforming, acidic coiled-coil containing protein 3	360824	5	0	1	0	2	2	0.00012	0.13
+18	GLI2	GLI-Kruppel family member GLI2	1028065	10	2	3	3	1	1	0.00012	0.13
+19	CNGA1	cyclic nucleotide gated channel alpha 1	588648	5	0	0	1	0	4	0.00015	0.14
+20	ACBD4	acyl-Coenzyme A binding domain containing 4	171365	3	0	0	0	0	3	0.00017	0.14
+21	RASAL1	RAS protein activator like 1 (GAP1 like)	606636	6	0	3	1	0	2	0.00018	0.14
+22	C9orf171		258635	5	2	0	2	0	1	0.00018	0.14
+23	OR5D16	olfactory receptor, family 5, subfamily D, member 16	329646	4	2	0	1	1	0	0.00018	0.14
+24	ZNF479	zinc finger protein 479	368015	5	0	2	2	1	0	0.00019	0.14
+25	NBPF16	neuroblastoma breakpoint family, member 16	468684	4	0	0	0	0	4	0.00020	0.14
+26	RAB26	RAB26, member RAS oncogene family	67223	3	0	0	1	1	1	0.00020	0.14
+27	C10orf140	chromosome 10 open reading frame 140	449118	5	0	0	2	0	3	0.00021	0.14
+28	PAOX	polyamine oxidase (exo-N4-amino)	230220	4	1	0	0	1	2	0.00021	0.14
+29	KLHL29	kelch-like 29 (Drosophila)	54428	2	0	0	0	0	2	0.00027	0.18
+30	CSMD3	CUB and Sushi multiple domains 3	3909951	18	0	2	7	8	1	0.00028	0.18
+31	SNTG1	syntrophin, gamma 1	534607	5	0	1	1	0	3	0.00037	0.23
+32	ANKRD36	ankyrin repeat domain 36	63146	2	0	0	0	0	2	0.00041	0.24
+33	RB1CC1	RB1-inducible coiled-coil 1	1556304	7	0	1	0	1	5	0.00042	0.24
+34	C1orf95	chromosome 1 open reading frame 95	86474	3	0	0	2	0	1	0.00044	0.24
+35	DUSP19	dual specificity phosphatase 19	228922	4	0	0	1	3	0	0.00046	0.24
+36	HIST1H1C	histone cluster 1, H1c	206598	4	0	1	2	0	1	0.00047	0.24
+37	MGRN1	mahogunin, ring finger 1	371049	5	0	1	1	2	1	0.00050	0.25
+38	PPP1R3A	protein phosphatase 1, regulatory (inhibitor) subunit 3A	1148315	8	1	1	2	4	0	0.00051	0.25
+39	ATG9B	ATG9 autophagy related 9 homolog B (S. cerevisiae)	202035	4	0	0	2	1	1	0.00061	0.29
+40	C12orf40	chromosome 12 open reading frame 40	554174	5	1	1	2	1	0	0.00062	0.29
+41	FAM171B		794962	7	1	1	2	2	1	0.00068	0.31
+42	GPR149	G protein-coupled receptor 149	622409	6	1	2	1	2	0	0.00068	0.31
+43	PGLYRP4	peptidoglycan recognition protein 4	395488	3	3	0	0	0	0	0.00071	0.31
+44	HIST1H2BH	histone cluster 1, H2bh	120592	3	2	1	0	0	0	0.00072	0.31
+45	DEFB118	defensin, beta 118	129063	3	0	1	1	0	1	0.00073	0.31
+46	KIT	v-kit Hardy-Zuckerman 4 feline sarcoma viral oncogene homolog	1017600	7	2	1	0	3	1	0.00079	0.32
+47	RIMS4	regulating synaptic membrane exocytosis 4	243355	4	2	1	1	0	0	0.00082	0.32
+48	NBPF14	neuroblastoma breakpoint family, member 14	489513	4	1	1	0	0	2	0.00082	0.32
+49	PXN	paxillin	366665	5	1	0	4	0	0	0.00083	0.32
+50	MAS1L	MAS1 oncogene-like	371922	4	1	2	1	0	0	0.00086	0.32
+51	ZDHHC12	zinc finger, DHHC-type containing 12	82397	2	0	0	0	0	2	0.00087	0.32
+52	C6orf142	chromosome 6 open reading frame 142	475589	5	0	2	1	1	1	0.00090	0.32
+53	OR6A2	olfactory receptor, family 6, subfamily A, member 2	329909	4	1	0	1	2	0	0.00090	0.32
+54	COL22A1	collagen, type XXII, alpha 1	1588023	8	3	2	0	3	0	0.00091	0.32
+55	MFAP3L	microfibrillar-associated protein 3-like	417660	4	0	0	1	0	3	0.00093	0.32
+56	VN1R5	vomeronasal 1 receptor 5	314362	4	0	2	1	1	0	0.00096	0.32
+57	GAS2L1	growth arrest-specific 2 like 1	219469	4	0	0	3	1	0	0.00097	0.32
+58	EYA1	eyes absent homolog 1 (Drosophila)	638931	5	0	3	2	0	0	0.0010	0.33
+59	CNTNAP5	contactin associated protein-like 5	1152367	7	1	3	0	2	1	0.0010	0.33
+60	EFEMP1	EGF-containing fibulin-like extracellular matrix protein 1	503790	5	1	0	3	0	1	0.0010	0.33
+61	SLCO1C1	solute carrier organic anion transporter family, member 1C1	773300	6	0	1	4	1	0	0.0011	0.34
+62	USH2A	Usher syndrome 2A (autosomal recessive, mild)	5374237	20	2	5	3	7	3	0.0012	0.35
+63	PROKR2	prokineticin receptor 2	378094	4	3	0	0	1	0	0.0012	0.36
+64	POTED		354440	4	0	0	0	3	1	0.0012	0.36
+65	TRAF1	TNF receptor-associated factor 1	360920	4	1	0	0	2	1	0.0012	0.36
+66	OTOF	otoferlin	1315040	8	2	2	0	2	2	0.0013	0.36
+67	LRFN5	leucine rich repeat and fibronectin type III domain containing 5	680669	5	2	0	1	1	1	0.0013	0.36
+68	VSIG2	V-set and immunoglobulin domain containing 2	298161	4	1	0	2	0	1	0.0013	0.36
+69	TOP2A	topoisomerase (DNA) II alpha 170kDa	1232025	6	0	0	2	0	4	0.0013	0.36
+70	NXPH2	neurexophilin 2	221507	3	0	0	0	1	2	0.0014	0.36
+71	LZTS2	leucine zipper, putative tumor suppressor 2	322413	4	0	0	1	2	1	0.0014	0.36
+72	RTN2	reticulon 2	440031	5	2	0	1	2	0	0.0014	0.36
+73	ADAM8	ADAM metallopeptidase domain 8	61852	2	0	0	0	1	1	0.0014	0.36
+74	HAS2	hyaluronan synthase 2	584016	5	0	1	3	0	1	0.0014	0.36
+75	PDE12	phosphodiesterase 12	470870	4	0	0	0	4	0	0.0014	0.36
+76	MOGAT3	monoacylglycerol O-acyltransferase 3	273312	4	0	0	2	2	0	0.0015	0.37
+77	SDC1	syndecan 1	259794	4	0	1	3	0	0	0.0015	0.37
+78	QSOX2	quiescin Q6 sulfhydryl oxidase 2	462840	5	0	1	1	2	1	0.0015	0.37
+79	TFAP2D	transcription factor AP-2 delta (activating enhancer binding protein 2 delta)	464747	5	2	0	2	1	0	0.0016	0.38
+80	PCGF1	polycomb group ring finger 1	228345	3	0	2	0	1	0	0.0016	0.39
+81	LCOR	ligand dependent nuclear receptor corepressor	411298	4	0	1	1	0	2	0.0017	0.39
+82	PARP10	poly (ADP-ribose) polymerase family, member 10	573073	5	1	0	1	3	0	0.0017	0.39
+83	GLRA3	glycine receptor, alpha 3	467162	4	1	2	1	0	0	0.0017	0.39
+84	PRRG3	proline rich Gla (G-carboxyglutamic acid) 3 (transmembrane)	217176	3	0	0	0	2	1	0.0017	0.39
+85	SI	sucrase-isomaltase (alpha-glucosidase)	1892079	10	1	1	4	4	0	0.0018	0.39
+86	RUFY1	RUN and FYVE domain containing 1	587844	5	0	1	4	0	0	0.0018	0.39
+87	NOTCH1	Notch homolog 1, translocation-associated (Drosophila)	234482	4	1	0	3	0	0	0.0018	0.39
+88	P2RY13	purinergic receptor P2Y, G-protein coupled, 13	339876	4	0	0	1	3	0	0.0018	0.39
+89	C20orf185	chromosome 20 open reading frame 185	492511	4	0	3	0	1	0	0.0019	0.39
+90	UBQLN3	ubiquilin 3	607047	5	1	2	2	0	0	0.0019	0.39
+91	STAU1	staufen, RNA binding protein, homolog 1 (Drosophila)	607448	4	3	0	1	0	0	0.0019	0.39
+92	MYH1	myosin, heavy chain 1, skeletal muscle, adult	1935706	9	2	0	2	5	0	0.0020	0.41
+93	ATP8B3	ATPase, class I, type 8B, member 3	142625	3	0	1	2	0	0	0.0020	0.41
+94	KCNS3	potassium voltage-gated channel, delayed-rectifier, subfamily S, member 3	508684	4	3	0	1	0	0	0.0021	0.41
+95	SON	SON DNA binding protein	2015104	8	0	2	0	2	4	0.0021	0.41
+96	CPXCR1	CPX chromosome region, candidate 1	261326	3	1	0	0	1	1	0.0021	0.41
+97	OR10H1	olfactory receptor, family 10, subfamily H, member 1	268127	4	1	0	2	1	0	0.0022	0.41
+98	LMTK3	lemur tyrosine kinase 3	297707	4	0	1	2	0	1	0.0022	0.41
+99	EMR3	egf-like module containing, mucin-like, hormone receptor-like 3	660501	5	1	1	0	2	1	0.0022	0.42
+100	B3GAT1	beta-1,3-glucuronyltransferase 1 (glucuronosyltransferase P)	163116	3	1	1	0	1	0	0.0022	0.42
+101	DIO3	deiodinase, iodothyronine, type III	188053	3	1	0	0	2	0	0.0022	0.42
+102	EPHA7	EPH receptor A7	1000335	7	0	1	4	2	0	0.0023	0.42
+103	DAD1	defender against cell death 1	118140	2	0	0	0	0	2	0.0023	0.42
+104	OR5H2	olfactory receptor, family 5, subfamily H, member 2	301822	3	0	2	1	0	0	0.0023	0.42
+105	NHP2		120019	2	0	2	0	0	0	0.0024	0.42
+106	SMARCB1	SWI/SNF related, matrix associated, actin dependent regulator of chromatin, subfamily b, member 1	362303	4	1	1	0	1	1	0.0024	0.42
+107	CNTNAP2	contactin associated protein-like 2	1352279	8	3	1	2	2	0	0.0024	0.42
+108	C10orf113	chromosome 10 open reading frame 113	161358	3	0	1	1	1	0	0.0024	0.42
+109	GPHB5	glycoprotein hormone beta 5	78620	2	0	0	0	2	0	0.0024	0.42
+110	ATP6AP1	ATPase, H+ transporting, lysosomal accessory protein 1	350875	4	0	0	1	2	1	0.0024	0.42
+111	TSPYL1	TSPY-like 1	403857	3	0	0	0	0	3	0.0025	0.42
+112	BOD1		122767	2	0	2	0	0	0	0.0025	0.42
+113	PCDHB9	protocadherin beta 9	503716	5	1	1	3	0	0	0.0025	0.42
+114	BAI3	brain-specific angiogenesis inhibitor 3	1564282	8	0	0	6	1	1	0.0025	0.42
+115	TUBB2C	tubulin, beta 2C	96441	2	0	0	0	2	0	0.0025	0.42
+116	TMEM132D	transmembrane protein 132D	999833	7	1	1	1	2	2	0.0027	0.43
+117	CYP2C19	cytochrome P450, family 2, subfamily C, polypeptide 19	515508	4	0	0	0	4	0	0.0027	0.44
+118	C4orf35	chromosome 4 open reading frame 35	393889	4	0	0	3	1	0	0.0027	0.44
+119	C12orf34	chromosome 12 open reading frame 34	131936	3	1	0	2	0	0	0.0028	0.44
+120	LRRC7	leucine rich repeat containing 7	1570617	8	0	0	6	2	0	0.0030	0.47
+121	SCAMP3	secretory carrier membrane protein 3	344445	4	1	0	2	0	1	0.0031	0.47
+122	C18orf1	chromosome 18 open reading frame 1	284871	3	0	0	0	3	0	0.0031	0.47
+123	PMPCB	peptidase (mitochondrial processing) beta	504724	4	0	0	4	0	0	0.0031	0.47
+124	TKTL1	transketolase-like 1	636003	5	0	2	2	0	1	0.0031	0.47
+125	AOC2	amine oxidase, copper containing 2 (retina-specific)	737728	4	1	0	0	0	3	0.0031	0.47
+126	ARHGEF9	Cdc42 guanine nucleotide exchange factor (GEF) 9	519981	5	0	1	2	1	1	0.0031	0.47
+127	CTSL1	cathepsin L1	336158	3	0	2	0	0	1	0.0031	0.47
+128	PXDNL	peroxidasin homolog (Drosophila)-like	1020141	7	0	0	3	3	1	0.0032	0.47
+129	L3MBTL2	l(3)mbt-like 2 (Drosophila)	613109	5	0	2	1	2	0	0.0032	0.47
+130	PSMC3	proteasome (prosome, macropain) 26S subunit, ATPase, 3	410901	4	0	0	1	1	2	0.0032	0.47
+131	BDKRB1	bradykinin receptor B1	321393	4	1	0	2	1	0	0.0033	0.47
+132	CRTAC1	cartilage acidic protein 1	567370	5	0	1	1	2	1	0.0033	0.47
+133	SLURP1	secreted LY6/PLAUR domain containing 1	13093	1	0	0	0	0	1	0.0033	0.47
+134	MC2R	melanocortin 2 receptor (adrenocorticotropic hormone)	279868	3	2	0	0	1	0	0.0034	0.47
+135	KIR3DL3	killer cell immunoglobulin-like receptor, three domains, long cytoplasmic tail, 3	254882	3	1	0	0	2	0	0.0034	0.47
+136	PRPH2	peripherin 2 (retinal degeneration, slow)	339199	4	1	0	1	2	0	0.0034	0.47
+137	KCNA3	potassium voltage-gated channel, shaker-related subfamily, member 3	422147	4	4	0	0	0	0	0.0034	0.47
+138	CLEC4F	C-type lectin domain family 4, member F	597059	5	0	0	2	3	0	0.0035	0.47
+139	TMPRSS15		1023444	6	1	0	4	1	0	0.0035	0.47
+140	MUC5B	mucin 5B, oligomeric mucus/gel-forming	1353994	8	1	2	1	3	1	0.0035	0.47
+141	HOXD10	homeobox D10	295027	3	0	2	0	1	0	0.0036	0.49
+142	ADSSL1	adenylosuccinate synthase like 1	303786	3	0	0	0	3	0	0.0037	0.49
+143	ZMAT1	zinc finger, matrin type 1	602948	3	1	2	0	0	0	0.0037	0.49
+144	PAX3	paired box 3	498367	5	1	0	2	2	0	0.0037	0.49
+145	CACNG6	calcium channel, voltage-dependent, gamma subunit 6	151359	2	0	0	0	0	2	0.0038	0.49
+146	SNPH	syntaphilin	255874	3	0	0	1	0	2	0.0038	0.49
+147	CRB1	crumbs homolog 1 (Drosophila)	1420562	7	2	1	3	1	0	0.0038	0.49
+148	ZNF238	zinc finger protein 238	487613	4	2	0	0	1	1	0.0038	0.49
+149	CCDC87	coiled-coil domain containing 87	701076	4	0	0	0	1	3	0.0040	0.50
+150	THOP1	thimet oligopeptidase 1	154440	3	1	0	1	1	0	0.0040	0.50
+151	GPX6	glutathione peroxidase 6 (olfactory)	204229	3	0	0	1	1	1	0.0040	0.50
+152	CHRM2	cholinergic receptor, muscarinic 2	470899	4	1	0	2	1	0	0.0040	0.50
+153	OR10J3	olfactory receptor, family 10, subfamily J, member 3	339642	3	1	1	1	0	0	0.0041	0.50
+154	WNT16	wingless-type MMTV integration site family, member 16	340361	3	0	1	0	0	2	0.0042	0.50
+155	KIAA1324L	KIAA1324-like	802639	5	1	2	1	1	0	0.0042	0.50
+156	OR5M11	olfactory receptor, family 5, subfamily M, member 11	270666	3	1	0	2	0	0	0.0042	0.50
+157	EPDR1	ependymin related protein 1 (zebrafish)	210972	3	0	0	2	0	1	0.0043	0.50
+158	DPP10	dipeptidyl-peptidase 10	826813	5	1	0	0	3	1	0.0043	0.50
+159	VSTM2A	V-set and transmembrane domain containing 2A	130243	2	1	0	0	0	1	0.0043	0.50
+160	SRC	v-src sarcoma (Schmidt-Ruppin A-2) viral oncogene homolog (avian)	406421	4	0	0	4	0	0	0.0043	0.50
+161	CBLN4	cerebellin 4 precursor	178617	3	1	0	2	0	0	0.0043	0.50
+162	HTR2C	5-hydroxytryptamine (serotonin) receptor 2C	461759	4	0	2	1	1	0	0.0044	0.50
+163	HCN4	hyperpolarization activated cyclic nucleotide-gated potassium channel 4	562695	5	0	1	2	2	0	0.0044	0.50
+164	MYL4	myosin, light chain 4, alkali; atrial, embryonic	202400	3	1	0	1	1	0	0.0044	0.50
+165	TAF6L	TAF6-like RNA polymerase II, p300/CBP-associated factor (PCAF)-associated factor, 65kDa	439463	3	0	3	0	0	0	0.0044	0.50
+166	ADAMTS16	ADAM metallopeptidase with thrombospondin type 1 motif, 16	1001549	6	1	1	0	3	1	0.0044	0.50
+167	ADCY2	adenylate cyclase 2 (brain)	1096628	6	3	0	3	0	0	0.0044	0.50
+168	NEK10	NIMA (never in mitosis gene a)- related kinase 10	620340	4	1	0	3	0	0	0.0045	0.50
+169	OR5V1	olfactory receptor, family 5, subfamily V, member 1	330353	3	1	0	1	1	0	0.0045	0.50
+170	PLXNB2	plexin B2	318262	4	1	0	3	0	0	0.0045	0.50
+171	ASNA1	arsA arsenite transporter, ATP-binding, homolog 1 (bacterial)	324615	3	2	0	0	0	1	0.0045	0.50
+172	KIF2B	kinesin family member 2B	648743	5	1	0	3	0	1	0.0046	0.50
+173	WIF1	WNT inhibitory factor 1	350129	3	0	0	0	1	2	0.0047	0.51
+174	ZNF706	zinc finger protein 706	79526	2	0	0	1	0	1	0.0047	0.51
+175	GPR141	G protein-coupled receptor 141	316521	3	1	1	0	1	0	0.0047	0.51
+176	OR11G2	olfactory receptor, family 11, subfamily G, member 2	343984	3	1	0	1	0	1	0.0047	0.51
+177	FBXW7	F-box and WD repeat domain containing 7	866820	4	2	1	0	0	1	0.0048	0.51
+178	CSF2RA	colony stimulating factor 2 receptor, alpha, low-affinity (granulocyte-macrophage)	118649	2	1	0	0	0	1	0.0048	0.51
+179	IL1F6	interleukin 1 family, member 6 (epsilon)	148346	2	1	1	0	0	0	0.0048	0.51
+180	C6orf132	chromosome 6 open reading frame 132	18523	1	0	0	0	0	1	0.0048	0.51
+181	FAM75A3	family with sequence similarity 75, member A3	422631	3	1	2	0	0	0	0.0049	0.51
+182	TBX5	T-box 5	532440	4	1	0	0	3	0	0.0049	0.51
+183	HIST1H1A	histone cluster 1, H1a	216126	3	0	1	2	0	0	0.0050	0.51
+184	MICALL2	MICAL-like 2	58882	2	0	0	2	0	0	0.0050	0.51
+185	LPAR4	lysophosphatidic acid receptor 4	369768	3	1	0	2	0	0	0.0050	0.51
+186	MARCH2	membrane-associated ring finger (C3HC4) 2	214944	3	0	0	1	1	1	0.0050	0.51
+187	ALG10B	asparagine-linked glycosylation 10 homolog B (yeast, alpha-1,2-glucosyltransferase)	441552	4	0	1	2	1	0	0.0051	0.51
+188	YBX1	Y box binding protein 1	234037	3	0	0	3	0	0	0.0051	0.51
+189	PAK3	p21 (CDKN1A)-activated kinase 3	612415	5	0	0	2	2	1	0.0051	0.51
+190	G6PD	glucose-6-phosphate dehydrogenase	446369	4	0	2	2	0	0	0.0051	0.51
+191	OR5F1	olfactory receptor, family 5, subfamily F, member 1	294138	3	1	0	2	0	0	0.0052	0.52
+192	FAM163A		134753	2	0	0	0	2	0	0.0053	0.52
+193	ZNF500	zinc finger protein 500	290848	3	1	0	0	2	0	0.0053	0.52
+194	FBLN2	fibulin 2	575892	4	0	1	0	1	2	0.0053	0.52
+195	ANKRD30A	ankyrin repeat domain 30A	956677	5	0	0	0	5	0	0.0054	0.52
+196	OR10A7	olfactory receptor, family 10, subfamily A, member 7	326317	3	0	2	1	0	0	0.0055	0.53
+197	RGS7	regulator of G-protein signaling 7	512746	4	1	1	0	2	0	0.0056	0.53
+198	UTP14A	UTP14, U3 small nucleolar ribonucleoprotein, homolog A (yeast)	755059	4	0	0	0	1	3	0.0056	0.53
+199	FAM83A	family with sequence similarity 83, member A	316822	3	2	1	0	0	0	0.0056	0.53

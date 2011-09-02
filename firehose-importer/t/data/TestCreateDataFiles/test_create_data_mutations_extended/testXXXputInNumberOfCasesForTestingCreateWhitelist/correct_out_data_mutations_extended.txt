@@ -1,0 +1,21 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+			TCGA-04-1311										NA	NA	NA
+			TCGA-04-1312										NA	NA	NA
+			TCGA-04-1313										NA	NA	NA
+			TCGA-04-1314										NA	NA	NA
+			TCGA-04-1315										NA	NA	NA
+			TCGA-04-1316										NA	NA	NA
+			TCGA-04-1317										NA	NA	NA
+			TCGA-04-1318										NA	NA	NA
+			TCGA-04-1319										NA	NA	NA
+			TCGA-04-1320										NA	NA	NA
+			TCGA-04-1321										NA	NA	NA
+			TCGA-04-1322										NA	NA	NA
+			TCGA-04-1323										NA	NA	NA
+			TCGA-04-1324										NA	NA	NA
+			TCGA-04-1325										NA	NA	NA
+			TCGA-04-1326										NA	NA	NA
+			TCGA-04-1327										NA	NA	NA
+			TCGA-04-1328										NA	NA	NA
+			TCGA-04-1329										NA	NA	NA
+			TCGA-04-1330										NA	NA	NA

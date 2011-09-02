@@ -1,0 +1,6 @@
+cancer_study_identifier: GENERIC_CANCER
+genetic_alteration_type: MRNA_EXPRESSION
+stable_id: GENERIC_CANCER_mrna
+profile_description: Expression levels for 7 genes in 3 GENERIC_CANCER cases
+show_profile_in_analysis_tab: false
+profile_name: mRNA and microRNA expression (all genes)

@@ -1,0 +1,7 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+BAI2	576	broad.mit.edu	TCGA-04-1331	Unknown	Unknown	Unknown	x	1	31974808	31974808	Missense_Mutation		low		
+LRRC41	10489	broad.mit.edu	TCGA-04-1331	Unknown	Valid	Somatic	x	1	46524584	46524584	Missense_Mutation		low		
+C1orf173	127254	broad.mit.edu	TCGA-04-1331	Unknown	Unknown	Unknown		1	74828082	74828082	Missense_Mutation		low		
+SSX2IP	117178	broad.mit.edu	TCGA-04-1331	Unknown	Valid	Somatic	x	1	84900740	84900740	Silent		--		--
+NTNG1	22854	broad.mit.edu	TCGA-04-1331	Unknown	Valid	Somatic	x	1	107668441	107668441	Missense_Mutation		low		
+PGLYRP3	114771	broad.mit.edu	TCGA-04-1331	Unknown	Unknown	Unknown	x	1	151541551	151541551	Missense_Mutation		low		mutationassessor.org/pdb.php?prot=PGRP3_HUMAN&from=192&to=328&var=S229Y

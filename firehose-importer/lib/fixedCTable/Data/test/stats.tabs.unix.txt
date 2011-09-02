@@ -1,0 +1,4 @@
+PersonID	Department	DeptNum	UsageIndex
+Muth,Pearl	Channel Sales	1115	18.55
+Zack,Chris	Retail Sales	2203	21.0
+Bart,Marco	Resale	2209	35.6

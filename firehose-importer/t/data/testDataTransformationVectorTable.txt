@@ -1,0 +1,16 @@
+# test DATA TRANSFORMATION VECTOR TABLE
+# data files
+create_data_CNA
+    dir1 file1 data_CNA.txt;
+## # miRNA is the only case with a version in the file name 
+create_data_miRNA
+      dir1x file1x 
+      data_miRNA.txt
+      extraArg;
+create_data_mRNA_median_Zscores
+      dir1y file1y 
+      dir2 file2 
+	data_mRNA_median_Zscores.txt;
+
+# ODD     dir1y file1y       dir2 	oddEnd;
+

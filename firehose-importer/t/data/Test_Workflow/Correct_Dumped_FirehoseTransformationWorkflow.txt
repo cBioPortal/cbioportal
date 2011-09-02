@@ -1,0 +1,122 @@
+my $VAR1 = bless( {
+   'EXECUTED' => {},
+   'HASH_OF_SUBROUTINES' => {
+      'create_data_mRNA_median_Zscores' => {
+           'OUTPUT_FILE' => 'data_mutations_extended.txt',
+           'DIRS_AND_FILES' => [
+              [
+              'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>',
+              'all_thresholded.by_genes.txt'
+              ],
+              [
+              'gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version>',
+              '<CANCER>.medianexp.txt'
+              ]
+             ]
+           },
+      'create_data_mutations_extended' => {
+          'OUTPUT_FILE' => 'data_mutations_extended.txt',
+          'DIRS_AND_FILES' => [
+              [
+             'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>',
+             '<CANCER>.maf.annotated'
+              ]
+             ]
+           },
+      'create_data_miRNA' => {
+          'OUTPUT_FILE' => 'data_expression_median.txt',
+          'DIRS_AND_FILES' => [
+            [
+             'gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version>',
+             '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt'
+            ]
+            ]
+         },
+      'create_mutation_white_list' => {
+          'OUTPUT_FILE' => 'significantlyMutatedSomaticGenesWhitelist.txt',
+          'ARGUMENTS' => '0.1,50',
+          'DIRS_AND_FILES' => [
+             [
+             'gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>',
+             '<CANCER>.sig_genes.txt'
+             ]
+            ]
+          },
+      'create_data_mRNA_median' => {
+          'OUTPUT_FILE' => 'data_expression_median.txt',
+          'DIRS_AND_FILES' => [
+             [
+             'gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version>',
+             '<CANCER>.medianexp.txt'
+             ]
+            ]
+          },
+      'create_data_both_mRNA_miRNA' => {
+          'OUTPUT_FILE' => 'data_expression_median.txt',
+          'DIRS_AND_FILES' => [
+              [
+             'gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version>',
+             '<CANCER>.medianexp.txt'
+              ],
+              [
+             'gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version>',
+             '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt'
+              ]
+             ]
+           },
+      'create_data_CNA' => {
+         'OUTPUT_FILE' => 'data_CNA.txt',
+         'DIRS_AND_FILES' => [
+            [
+            'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>',
+            'all_thresholded.by_genes.txt'
+            ]
+           ]
+         },
+      'create_data_methylation' => {
+          'OUTPUT_FILE' => 'data_methylation.txt',
+          'DIRS_AND_FILES' => [
+             [
+             'gdac.broadinstitute.org_<CANCER>.Correlate_Methylation_vs_mRNA.Level_4.<date><version>',
+             'Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt'
+             ],
+             [
+             'gdac.broadinstitute.org_<CANCER>.Merge_methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.<date><version>',
+             '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt'
+             ]
+            ]
+          }
+      },
+   'INDEX_OF_NEXT' => 0,
+   'DEPENDENCIES' => {
+     'REQUIRES' => {},
+     'PRECLUDED_BY' => {
+        'create_data_miRNA' => {
+          'create_data_both_mRNA_miRNA' => 1
+           },
+        'create_data_mRNA_median' => {
+            'create_data_both_mRNA_miRNA' => 1
+           }
+        }
+      },
+   'SUBROUTINE_NUMBER' => {
+      'create_data_mRNA_median_Zscores' => 5,
+      'create_data_mutations_extended' => 4,
+      'create_data_miRNA' => 3,
+      'create_mutation_white_list' => 6,
+      'create_data_mRNA_median' => 2,
+      'create_data_both_mRNA_miRNA' => 1,
+      'create_data_CNA' => 0,
+      'create_data_methylation' => 7
+     },
+   'SEQUENCE_OF_SUBROUTINES' => [
+      'create_data_CNA',
+      'create_data_both_mRNA_miRNA',
+      'create_data_mRNA_median',
+      'create_data_miRNA',
+      'create_data_mutations_extended',
+      'create_data_mRNA_median_Zscores',
+      'create_mutation_white_list',
+      'create_data_methylation'
+       ]
+   }, 'FirehoseTransformationWorkflow' );

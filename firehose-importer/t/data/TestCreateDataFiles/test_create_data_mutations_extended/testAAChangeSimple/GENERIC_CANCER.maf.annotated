@@ -1,0 +1,10 @@
+Protein_Change	Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+e7-2		3		TCGA-04-1331												
+R219H		5		TCGA-04-1331												
+p.811_812EE>D*		7		TCGA-04-1331												
+missense		9		TCGA-04-1331												
+		11		TCGA-04-1331												
+NULL		13		TCGA-04-1331												
+		15		TCGA-04-1331											mutationassessor.org/?cm=msa&ty=f&p=PGRP3_HUMAN&rb=192&re=328&var=S229Y	
+p.R219H		17		TCGA-04-1331											http://mutationassessor.org[sent]	
+A123J		19		TCGA-04-1331												

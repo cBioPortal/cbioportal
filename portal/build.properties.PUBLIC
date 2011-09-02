@@ -3,9 +3,9 @@ app.name=public-portal
 app.version=0.1
 
 # Database Settings
-db.name=cgds
-db.user=root
-db.password=
+db.name=cgds_public
+db.user=XXX
+db.password=XXX
 db.host=localhost
 
 # Pathway Commons:  cPath2 URL

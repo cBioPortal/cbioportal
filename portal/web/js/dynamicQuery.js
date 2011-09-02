@@ -517,6 +517,7 @@ function outputGenomicProfileOption (downloadTab, optionType, targetAlterationTy
     }
 
     var html =  "<input type='" + optionType + "' "
+        + "id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetAlterationType + "'"
         + " value='" + id +"'>" + name + "</input>"

@@ -8,6 +8,9 @@ db.user=
 db.password=
 db.host=localhost
 
+# Location of log file
+log.file.path=portal.log
+
 #TITLE 
 skin.title=cBio TCGA Cancer Genomics Portal
 skin.email_contact=cancergenomics at cbio dot mskcc dot org

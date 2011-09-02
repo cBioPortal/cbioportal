@@ -286,6 +286,10 @@
         <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes"
             file="${config.dir}/log4j.properties"/>
 
+        <!-- Prepare log4j.properties, based on build.properties -->
+        <replace file="${build.dir}/WEB-INF/classes/log4j.properties"
+             token="log.file.path" value="${log.file.path}"/>
+
     </target>
 
     <!-- ==================== Reload Target =============================== -->

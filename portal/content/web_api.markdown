@@ -15,14 +15,14 @@ Additionally, clients can easily retrieve "slices" of genomic data.  For example
 If you are interested in accessing CGDS via R, please check out our [CGDS-R library](cgds_r.jsp).
 
 # Basic Query Syntax
-All web queries are available at: [http://cbio.mskcc.org/cgx/webservice.do](http://cbio.mskcc.org/cgx/webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
+All web queries are available at: [webservice.do](webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
 
 * **cmd** = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.
 * optional additional parameters, depending of the command (see below).
 
 For example, the following query will request all case lists for the TCGA GBM data:
 
-[webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+[webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
 
 # Response Header and Error Messages
 
@@ -92,7 +92,7 @@ A tab-delimited file with three columns:
 
 ### Example
 
-Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCancerStudies)
+Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCancerStudies)
 
 ## Get All Genetic Profiles for a Specific Cancer Study
 
@@ -123,7 +123,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm)
+Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -148,7 +148,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
 
 ## Get Profile Data
 
@@ -165,8 +165,8 @@ Retrieves genomic profile data for one or more genes.
 
 You can either:
 
-* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
-* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR](http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR)
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR)
 
 #### Response Format 1
 
@@ -226,7 +226,7 @@ A tab-delimited file with the following columns:
 
 Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
 
-[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://cbio.mskcc.org/cgx/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
+[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
 
 ## Get Clinical Data
 
@@ -254,5 +254,5 @@ A tab-delimited file with the following columns:
 
 Get Clinical Data for All TCGA Ovarian Cases:
 
-[webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://cbio.mskcc.org/cgx/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
+[webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://cbio.mskcc.org/public-portal/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
 

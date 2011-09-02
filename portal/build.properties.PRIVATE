@@ -1,7 +1,5 @@
-###### TCGA PORTAL ######
-
 # Application Name and Version
-app.name=tcga_internal_portal
+app.name=private
 app.version=0.1
 
 #TITLE 

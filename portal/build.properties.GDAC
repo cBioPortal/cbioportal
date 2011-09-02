@@ -1,7 +1,5 @@
-###### TCGA PORTAL ######
-
 # Application Name and Version
-app.name=tcga_public_portal
+app.name=gdac
 app.version=0.1
 
 #TITLE 
@@ -24,10 +22,4 @@ data_sets=data_sets_tcga.html
 data_sets_right_column=data_sets_tcga_right_column.html
 examples_right_column=examples_tcga.html
 faq=faq_tcga.html
-
-# Authentication Props
-authenticate=T
-authenticate.user_name=tcga
-authenticate.password=[SPECIFY PASSWORD HERE]
-
 

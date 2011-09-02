@@ -34,7 +34,6 @@ import org.owasp.validator.html.PolicyException;
  */
 public class QueryBuilder extends HttpServlet {
     //public static final boolean INCLUDE_NETWORKS = true;
-    public static final String CGDS_URL_PARAM = "cgds_url";
     public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
@@ -88,9 +87,6 @@ public class QueryBuilder extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        String cgdsUrl = getInitParameter(CGDS_URL_PARAM);
-        System.out.println ("Init Query Builder with CGDS URL:  " + cgdsUrl);
-        GlobalProperties.setCgdsUrl(cgdsUrl);
 		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
         System.out.println ("Init Query Builder with PathwayCommons URL:  " + pathwayCommonsUrl);
         GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);

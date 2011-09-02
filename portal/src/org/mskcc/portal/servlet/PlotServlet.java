@@ -3,7 +3,6 @@ package org.mskcc.portal.servlet;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.owasp.validator.html.PolicyException;
-import org.mskcc.portal.util.GlobalProperties;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -109,8 +108,10 @@ public class PlotServlet extends HttpServlet {
                 plot.append("pdf(width=6, height=6, file='" + tmpfile + "')\n");
             }
 
-            String cgdsUrl = GlobalProperties.getCgdsUrl();
-            cgdsUrl = cgdsUrl.replaceAll("webservice.do", "");
+            String currentUrl = req.getRequestURL().toString();
+            logger.info("Current URL is:  " + currentUrl);
+            String cgdsUrl = currentUrl.replace("plot.do", "");
+            logger.info("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");
             if (caseSetId != null && !caseSetId.equals("-1")) {

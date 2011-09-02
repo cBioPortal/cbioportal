@@ -11,7 +11,6 @@ skin.header_image=su2c_portal_name.png
 manager.username=tomcat
 manager.password=tomcat
 
-cgds.url=http://buri.cbio.mskcc.org:38080/su2c-cgds/webservice.do
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 r_installed=true
 about=about_us_su2c.html

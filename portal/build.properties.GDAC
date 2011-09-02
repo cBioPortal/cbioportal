@@ -17,7 +17,6 @@ skin.blurb=The cBio TCGA Cancer Genomics Portal provides <b>visualization</b>, <
 manager.username=tomcat
 manager.password=tomcat
 
-cgds.url=http://buri.cbio.mskcc.org:38080/gdac-portal/webservice.do
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
 r_installed=true

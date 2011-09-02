@@ -248,8 +248,6 @@
 
         <!-- Prepare web.xml, based on build.properties -->
         <replace file="${build.dir}/WEB-INF/web.xml"
-             token="cgds_url_value" value="${cgds.url}"/>
-        <replace file="${build.dir}/WEB-INF/web.xml"
              token="pathway_commons_url_value" value="${pathway_commons.url}"/>
         <replace file="${build.dir}/WEB-INF/web.xml"
              token="r_installed_value" value="${r_installed}"/>

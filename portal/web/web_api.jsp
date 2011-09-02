@@ -11,10 +11,6 @@
     }
 %>
 
-<%
-    String cgdsUrl = GlobalProperties.getCgdsUrl();
-%>
-
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Web Interface"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 <div id="main">

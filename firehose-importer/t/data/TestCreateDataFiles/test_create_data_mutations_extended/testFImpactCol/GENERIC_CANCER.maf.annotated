@@ -1,0 +1,8 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Start_position	End_position	Strand	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	dbSNP_RS	dbSNP_Val_Status	Tumor_Sample_Barcode	Matched_Norm_Sample_Barcode	Match_Norm_Seq_Allele1	Match_Norm_Seq_Allele2	Tumor_Validation_Allele1	Tumor_Validation_Allele2	Match_Norm_Validation_Allele1	Match_Norm_Validation_Allele2	Verification_Status	Validation_Status	Mutation_Status	Sequencing_Phase	Sequence_Source	Validation_Method	Score	BAM_file	Sequencer	patient	dataset	type	classification	start	end	gene	chr	ref_allele	tum_allele1	tum_allele2	context	gene_name	patient_name	newbase	categ	MA_MSA	MA_PDB	MA_Func.Impact	MA_FI.score	MA_VC.score	MA_VS.score	MA_PC.score	MA_PS.score
+XYZ	3														TCGA-04-1331-01																																			low					
+LRRC41	6														TCGA-04-1331-01																																			neutral					
+C1orf173	9														TCGA-04-1331-01																																			high					
+SSX2IP	12														TCGA-04-1331-01																																			--					
+NTNG1	15														TCGA-04-1331-01																																								
+PGLYRP3	18														TCGA-04-1331-01																																			medium					
+XXX	21														TCGA-04-1331-01																																			H					

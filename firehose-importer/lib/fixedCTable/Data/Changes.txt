@@ -1,0 +1,54 @@
+Revision history for Data::CTable
+	
+1.03  2004-11-11
+
+	- Updated version numbers in the sample subclasses.
+
+1.02  2004-11-10
+
+	- Fixed a few minor bugs and corrected a few comments.
+	
+	- Added omit_warn and its related utility methods.
+
+1.01  2002-09-17
+
+	- Suppressed col_rename warning when name is unchanged.
+	
+	- Added progress notices when automatic Mac Upper-ASCII mapping
+	  will occur.
+
+1.00  2002-06-29
+
+	- Updated "getweather" example program (eg/getweather.pl) for new
+      data format.
+
+0.99  2002-05-15
+
+	- Fixed bug in write(), sort() and a few other subroutines which
+	  were ignoring overridden _Selection parameter when using named
+	  calling convention.
+
+0.98  2002-05-08
+
+	- Fixed bug in test suite causing test 24 to fail instead of
+	  merely warn when optional Data::ShowTable module is missing.
+
+	- Removed modules from standard Perl dist (e.g. Data::Dumper) from
+	  PREREQ_PM (having them listed there was causing CPAN to rebuild
+	  Perl)
+
+0.97  2002-05-07
+
+	- Fixed build shortcoming.
+
+0.96  2002-04-30
+
+	- First public release
+
+0.95  2002-04-12
+
+	- Continued prep
+
+0.90  2002-04-12
+
+	- Internal testing release

@@ -1,0 +1,5 @@
+BRCA_MA.maf  brca
+BCM-Firehose-CRC-27may11.MA.txt  coadread
+GBM.maf  gbm
+LUSC.maf  lusc
+OV.maf ov

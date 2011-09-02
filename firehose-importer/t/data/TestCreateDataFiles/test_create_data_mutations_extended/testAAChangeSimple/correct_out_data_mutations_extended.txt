@@ -1,0 +1,10 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+	3		TCGA-04-1331									e7-2	NA	NA	NA
+	5		TCGA-04-1331									R219H	NA	NA	NA
+	7		TCGA-04-1331									811_812EE>D*	NA	NA	NA
+	9		TCGA-04-1331									missense	NA	NA	NA
+	11		TCGA-04-1331										NA	NA	NA
+	13		TCGA-04-1331										NA	NA	NA
+	15		TCGA-04-1331									S229Y	NA	mutationassessor.org/?cm=msa&ty=f&p=PGRP3_HUMAN&rb=192&re=328&var=S229Y	NA
+	17		TCGA-04-1331									R219H	NA	NA	NA
+	19		TCGA-04-1331									A123J	NA	NA	NA

@@ -1,0 +1,55 @@
+my $right_self = {
+    'EXECUTED' => {},
+    'HASH_OF_SUBROUTINES' => {
+          'subA' => {
+              'OUTPUT_FILE' => 'out_for_A',
+              'DIRS_AND_FILES' => [
+                  [
+                    'dirA',
+                    'fileA'
+                  ]
+                   ]
+            },
+          'subB' => {
+              'OUTPUT_FILE' => 'out_for_B',
+              'DIRS_AND_FILES' => [
+                  [
+                    'dirB',
+                    'fileB'
+                  ]
+                   ]
+            },
+          'subC' => {
+              'OUTPUT_FILE' => 'out_for_C',
+              'DIRS_AND_FILES' => [
+                  [
+                    'dirC',
+                    'fileC'
+                  ]
+                   ]
+            }
+           },
+    'INDEX_OF_NEXT' => 0,
+    'DEPENDENCIES' => {
+         'REQUIRES' => {
+             'subB' => {
+              'subA' => 1
+               }
+           },
+         'PRECLUDED_BY' => {
+              'subC' => {
+               'subB' => 1
+                }
+            }
+       },
+    'SUBROUTINE_NUMBER' => {
+           'subA' => 0,
+           'subB' => 1,
+           'subC' => 2
+         },
+    'SEQUENCE_OF_SUBROUTINES' => [
+           'subA',
+           'subB',
+           'subC'
+            ]
+  };

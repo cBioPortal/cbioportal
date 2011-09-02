@@ -1,0 +1,9 @@
+# test DATA TRANSFORMATION VECTOR TABLE
+# data files
+create_data_CNA
+    gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version> all_thresholded.by_genes.txt data_CNA.txt;
+## # miRNA is the only case with a version in the file name 
+create_data_miRNA
+      gdac.broadinstitute.org_<cancer>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> 
+      PR_GDAC_<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt data_miRNA.txt;
+

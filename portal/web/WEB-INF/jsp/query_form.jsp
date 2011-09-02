@@ -60,7 +60,7 @@
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
         <p/>
-        <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
 
     </div>
 

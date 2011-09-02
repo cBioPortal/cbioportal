@@ -21,14 +21,10 @@ public class JdbcUtil {
      * @throws java.sql.SQLException Error Connecting to Database.
      */
     public static Connection getDbConnection() throws SQLException {
-//        java.util.Date startTime = new java.util.Date();
         if (ds == null) {
             initDataSource();
         }
         Connection con = ds.getConnection();
-//        java.util.Date stopTime = new java.util.Date();
-//        long time = stopTime.getTime() - startTime.getTime();
-//        System.out.println("Time to open DB Connection:  " + time + " ms");
         return con;
     }
 

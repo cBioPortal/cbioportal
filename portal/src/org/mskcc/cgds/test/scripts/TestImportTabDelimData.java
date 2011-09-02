@@ -179,15 +179,5 @@ public class TestImportTabDelimData extends TestCase {
 
         value = dao.getGeneticAlteration(1, "DD638", 7849);
         assertEquals ("0.55", value );
-        
-        /*
-         * Oct., 2010 change: this functionality is no longer supported
-
-        String value = dao.getGeneticAlteration(1, "DD639", 2978);
-        System.out.println( "value is: "+ value );
-        String parts[] = value.split(",");
-        assertEquals ("2", parts[0].trim());
-        assertEquals ("1", parts[1].trim());
-         */
     }
 }

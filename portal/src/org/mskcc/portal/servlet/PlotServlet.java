@@ -109,9 +109,9 @@ public class PlotServlet extends HttpServlet {
             }
 
             String currentUrl = req.getRequestURL().toString();
-            logger.info("Current URL is:  " + currentUrl);
+            logger.debug("Current URL is:  " + currentUrl);
             String cgdsUrl = currentUrl.replace("plot.do", "");
-            logger.info("Web API URL is:  " + cgdsUrl);
+            logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");
             if (caseSetId != null && !caseSetId.equals("-1")) {
@@ -159,8 +159,8 @@ public class PlotServlet extends HttpServlet {
             plot.append (");\n");
             plot.append ("dev.off();\n");
 
-            logger.info("Call to R Follows:");
-            logger.info(plot.toString());
+            logger.debug("Call to R Follows:");
+            logger.debug(plot.toString());
 
             // open device
             c.parseAndEval(plot.toString());

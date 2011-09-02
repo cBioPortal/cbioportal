@@ -76,7 +76,7 @@ public class WebService extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        System.out.println("Starting up the Cancer Genomics Data Server...");
+        System.out.println("Starting up the Web Service API...");
         System.out.println("Reading in init parameters from web.xml");
         DatabaseProperties dbProperties = DatabaseProperties.getInstance();
         ServletConfig config = this.getServletConfig();

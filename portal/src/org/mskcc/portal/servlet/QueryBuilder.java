@@ -88,7 +88,6 @@ public class QueryBuilder extends HttpServlet {
     public void init() throws ServletException {
         super.init();
 		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
-        System.out.println ("Init Query Builder with PathwayCommons URL:  " + pathwayCommonsUrl);
         GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();

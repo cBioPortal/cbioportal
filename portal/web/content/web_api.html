@@ -70,6 +70,7 @@
 <li>What case sets are available for cancer study X?  For example, what case sets are available for TCGA Glioblastoma?</li>
 </ul>
 <p>Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.</p>
+<p>Please note that the example queries below are accurate, but they are not guaranteed to return data, as our database is constantly being updated.</p>
 <h1 id="the-cgds-r-package">The CGDS R Package</h1>
 <p>If you are interested in accessing CGDS via R, please check out our <a href="cgds_r.jsp">CGDS-R library</a>.</p>
 <h1 id="basic-query-syntax">Basic Query Syntax</h1>
@@ -79,7 +80,7 @@
 <li>optional additional parameters, depending of the command (see below).</li>
 </ul>
 <p>For example, the following query will request all case lists for the TCGA GBM data:</p>
-<p><a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
 <h1 id="response-header-and-error-messages">Response Header and Error Messages</h1>
 <p>The first line of each response begins with a hash mark (#), and will contain data regarding the server status.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
@@ -135,7 +136,7 @@
 <li><strong>description:</strong>  short description of the cancer study.</li>
 </ul>
 <h3 id="example_1">Example</h3>
-<p>Get all Cancer Studies: <a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCancerStudies">webservice.do?cmd=getCancerStudies</a></p>
+<p>Get all Cancer Studies: <a href="webservice.do?cmd=getCancerStudies">webservice.do?cmd=getCancerStudies</a></p>
 <h2 id="get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</h2>
 <h3 id="description_2">Description</h3>
 <p>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</p>
@@ -163,7 +164,7 @@
 <li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
 </ul>
 <h3 id="example_2">Example</h3>
-<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm</a></p>
 <h2 id="get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</h2>
 <h3 id="description_3">Description</h3>
 <p>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
@@ -183,7 +184,7 @@
 <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
 </ul>
 <h3 id="example_3">Example</h3>
-<p>Get all Case Lists for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Case Lists for Glioblastoma (TCGA): <a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
 <h2 id="get-profile-data">Get Profile Data</h2>
 <h3 id="description_4">Description</h3>
 <p>Retrieves genomic profile data for one or more genes.</p>
@@ -196,8 +197,8 @@
 </ul>
 <p>You can either:</p>
 <ul>
-<li>Specify multiple genes and a single genetic profile ID. Example: <a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
-<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR</a></li>
+<li>Specify multiple genes and a single genetic profile ID. Example: <a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
+<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR</a></li>
 </ul>
 <h4 id="response-format-1">Response Format 1</h4>
 <p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:</p>
@@ -251,7 +252,7 @@
 </ul>
 <h3 id="example_4">Example</h3>
 <p>Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:</p>
-<p><a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
+<p><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
 <h2 id="get-clinical-data">Get Clinical Data</h2>
 <h3 id="description_6">Description</h3>
 <p>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</p>
@@ -272,4 +273,4 @@
 </ul>
 <h3 id="example_5">Example</h3>
 <p>Get Clinical Data for All TCGA Ovarian Cases:</p>
-<p><a href="http://cbio.mskcc.org/public-portal/webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<p><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>

@@ -78,7 +78,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             antibodyTypes = Arrays.asList(antibodyType.split(" "));
         }
         
-        String[] heatMapLines = heatMap.split("\n");
+        String[] heatMapLines = heatMap.split("\r?\n");
         String[] genes = heatMapLines[0].split("\t");
         genes[0] = "Any";
         Set<String> allCases = getAllCases(heatMapLines);

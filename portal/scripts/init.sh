@@ -12,6 +12,3 @@
 
 # Load up Cancer Types
 ./importTypesOfCancer.pl $CGDS_DATA_HOME/cancers.txt
-
-# Load RPPA antibody information
-./importProteinArrayInfo.pl $CGDS_DATA_HOME/RPPA_antibody_list.txt

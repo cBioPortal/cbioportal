@@ -82,11 +82,14 @@ public class ImportProteinArrayData {
     }
     
     private void addRPPACaseList(ArrayList<String> cases) throws DaoException {
+        DaoCaseList daoCaseList = new DaoCaseList();
+        if (daoCaseList.getCaseListByStableId(cancerStudyStableId+"_RPPA")!=null)
+            return;
+        
         CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"All tumors with RPPA data");
         caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by reverse phase protein array.");
         caseList.setCaseList(cases);
         
-        DaoCaseList daoCaseList = new DaoCaseList();
         daoCaseList.addCaseList(caseList);
     }
     
@@ -110,8 +113,6 @@ public class ImportProteinArrayData {
     }
     
     public static void main(String[] args) throws Exception {
-//        DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-//        daoPAD.deleteAllRecords();
         if (args.length < 2) {
             System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study identifier>");
             System.exit(1);

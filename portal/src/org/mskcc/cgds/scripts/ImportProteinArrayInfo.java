@@ -47,6 +47,9 @@ public class ImportProteinArrayInfo {
             
             String[] strs = line.split("\t");
             String arrayId = strs[6];
+            if (daoPAI.getProteinArrayInfo(arrayId)!=null)
+                continue;
+            
             String type = strs[7];
             String source = strs[5];
             String symbols = strs[2];
@@ -73,10 +76,6 @@ public class ImportProteinArrayInfo {
     }
     
     public static void main(String[] args) throws Exception {
-        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
-        DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
-        daoPAI.deleteAllRecords();
-        daoPAT.deleteAllRecords();
         if (args.length == 0) {
             System.out.println("command line usage:  importProteinArrayInfo.pl <RPPT_antibody_list.txt>");
             System.exit(1);

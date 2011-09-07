@@ -719,7 +719,7 @@ sub create_data_mRNA_median_Zscores{
 
     # 2) map Hugo_Symbol in <CANCER>.medianexp.txt into a 'best' gene ID 
     # todo: make a "real" temp file; avoid concurency collisions
-    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.medianexp.txt' );
+    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt' );
     $self->create_data_mRNA_median( $globalHash, [ $FirehoseMRNA_File ], [ $MRNA_FileCtable ], $tmpFirehoseMRNA_File );
 
     my $cmdLineCP = set_up_classpath( $codeForCGDS );

@@ -24,8 +24,8 @@ use CaseIDs;
 # a 'list' file is a file of records, with fields containing gene symbol, gene ID, case ID, etc. 
 # a 'profile' file is a matrix of V[gene][case], with some header rows and header columns
 my $fileProperties = {
-    '<CANCER>.medianexp.txt' => {
-        example => 'OV.medianexp.txt',
+    '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt' => {
+        example => 'BRCA.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
         structure => 'profile',
         numHeaderRows => 2,
         geneIDcol => undef,

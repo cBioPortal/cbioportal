@@ -2,16 +2,16 @@ package org.mskcc.portal.util;
 
 import org.mskcc.portal.model.GeneSet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * Stores arbitrary gene sets, to be displayed to the user.
+ * Singleton to store arbitrary gene sets, to be displayed to the user.
  * <p/>
  * This will (eventually) be replaced with live gene sets from Broad MSigDB and Pathway Commons.
+ *
+ * @author Ethan Cerami
  */
 public class GeneSetUtil {
     private ArrayList<GeneSet> geneSetList = new ArrayList<GeneSet>();
@@ -20,8 +20,9 @@ public class GeneSetUtil {
     /**
      * Gets Global Singleton.
      * @return GeneSetUtil.
+     * @throws IOException IO Error.
      */
-    public static GeneSetUtil getInstance() {
+    public static GeneSetUtil getInstance() throws IOException {
         if (geneSetUtil == null) {
             geneSetUtil = new GeneSetUtil();
         }
@@ -30,34 +31,12 @@ public class GeneSetUtil {
 
     /**
      * Private Constructor.
+     * @throws IOException IO Error.
      */
-    private GeneSetUtil() {
-        GeneSet g0 = new GeneSet();
-
-        //  Custom Gene Set Goes First
-        g0.setName("User-defined List");
-        g0.setGeneList("");
-        geneSetList.add(g0);
-        g0 = new GeneSet();
-
-        //  Load Gene Sets
-        try {
-            InputStream in = this.getClass().getResourceAsStream("gene_sets.txt");
-            BufferedReader bufReader = new BufferedReader(new InputStreamReader(in));
-            String line = bufReader.readLine();
-            while (line != null) {
-                line = line.trim();
-                String parts[] = line.split("=");
-                g0 = new GeneSet();
-                g0.setName(parts[0]);
-                g0.setGeneList(parts[1]);
-                geneSetList.add(g0);
-                line = bufReader.readLine();
-            }
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private GeneSetUtil() throws IOException {
+        InputStream in = this.getClass().getResourceAsStream("gene_sets.txt");
+        geneSetList = GeneSetReader.readGeneSets(in);
+        in.close();
     }
 
     /**

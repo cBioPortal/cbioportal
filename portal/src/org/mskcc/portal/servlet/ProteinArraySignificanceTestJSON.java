@@ -3,6 +3,7 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.inference.TestUtils;
 
@@ -42,6 +42,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     public static final String ALTERATION_TYPE = "alteration";
     public static final String ANTIBODY_TYPE = "antibody";
     public static final String EXCLUDE_ANTIBODY_TYPE = "exclude_antibody";
+    public static final String DATA_SCALE = "data_scale";
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -61,6 +62,8 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         String alterationType = request.getParameter(ALTERATION_TYPE);
         String antibodyType = request.getParameter(ANTIBODY_TYPE);
         String excludeAntibodyType = request.getParameter(EXCLUDE_ANTIBODY_TYPE);
+        String strDataScale = request.getParameter(DATA_SCALE);
+        double dataScale = strDataScale==null?0:Double.parseDouble(strDataScale);
         
         Collection<String> antibodyTypes;
         if (antibodyType==null) {
@@ -82,21 +85,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         String[] genes = heatMapLines[0].split("\t");
         genes[0] = "Any";
         Set<String> allCases = getAllCases(heatMapLines);
-        Map<String,Set<String>>[] alteredCases;
-        
-        int ixGene = 0;
-        if (gene==null) {
-            alteredCases = getAlteredCases(heatMapLines, genes.length);
-        } else {
-            for (; ixGene<genes.length; ixGene++) {
-                if (genes[ixGene].equals(gene))
-                    break;
-            }
-            Set<String> set = getAlteredCases(heatMapLines, ixGene, alterationType);
-            Map<String,Set<String>> map = Collections.singletonMap(gene, set);
-            alteredCases = new Map[1];
-            alteredCases[0] = map;
-        }
+        Map<String,Set<String>>[] alteredCases = getAlteredCases(heatMapLines, genes, gene, alterationType);
         
         Map<String,ProteinArrayInfo> proteinArrays;
         Map<String,Map<String,Double>> proteinArrayData;
@@ -109,10 +98,10 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         
         if (gene==null) {        
             for (int i=0; i<genes.length; i++) {
-                export(table, genes[i], alteredCases[i], proteinArrays, proteinArrayData);
+                export(table, genes[i], alteredCases[i], proteinArrays, proteinArrayData, dataScale);
             }
         } else {
-            export(table, gene, alteredCases[0], proteinArrays, proteinArrayData);
+            export(table, gene, alteredCases[0], proteinArrays, proteinArrayData, dataScale);
         }
                 
         response.setContentType("application/json");
@@ -129,7 +118,8 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         String gene,
         Map<String,Set<String>> mapAlterationAltereCases,
         Map<String,ProteinArrayInfo> proteinArrays,
-        Map<String,Map<String,Double>> proteinArrayData) {
+        Map<String,Map<String,Double>> proteinArrayData,
+        double dataScale) {
         for (Map.Entry<String,Set<String>> entry : mapAlterationAltereCases.entrySet()) {
             String alteration = entry.getKey();
             Set<String> altered = entry.getValue();
@@ -139,6 +129,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             for (ProteinArrayInfo pai : proteinArrays.values()) {
                 JSONArray row = new JSONArray();
 
+                row.add(pai.getId());
                 row.add(gene);
                 row.add(alteration);
                 row.add(pai.getType());
@@ -162,27 +153,37 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                         else
                             row.add(Double.toString(d));
                     }
-
-                    StringBuilder sbdata = new StringBuilder();
-                    if (sepAbun.get(0).length>0) {
-                        sbdata.append("Unaltered:");
-                        sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(0)),","));
-                        sbdata.append(';');
-                    }
-                    if (sepAbun.get(1).length>0) {
-                        sbdata.append("Altered:");
-                        sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(1)),","));
-                        sbdata.append(';');
-                    }
-                    row.add(sbdata.toString());
+                    row.add(groupData2String(sepAbun,dataScale));
                 }
+                row.add(""); // dumb row for plot
 
                 table.add(row);
             }
         }
     }
     
-    private Set<String> getAlteredCases(String[] lines, int ixGene,
+    static Map<String,Set<String>>[] getAlteredCases(String[] heatMapLines, String[] genes, String gene,
+            String alterationType)  throws ServletException{
+        Map<String,Set<String>>[] alteredCases;
+        
+        int ixGene = 0;
+        if (gene==null) {
+            alteredCases = getAlteredCases(heatMapLines, genes.length);
+        } else {
+            for (; ixGene<genes.length; ixGene++) {
+                if (genes[ixGene].equals(gene))
+                    break;
+            }
+            Set<String> set = getAlteredCases(heatMapLines, ixGene, alterationType);
+            Map<String,Set<String>> map = Collections.singletonMap(gene, set);
+            alteredCases = new Map[1];
+            alteredCases[0] = map;
+        }
+        
+        return alteredCases;
+    }
+    
+    static Set<String> getAlteredCases(String[] lines, int ixGene,
             String alterationType) throws ServletException {
         Set<String> ret = new HashSet<String>();
         for (int i=1; i<lines.length; i++) {
@@ -226,7 +227,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
      * @return array of map from alteration type to set of altered cases
      * @throws ServletException 
      */
-    private Map<String,Set<String>>[] getAlteredCases(String[] lines, int nGenes)
+    static Map<String,Set<String>>[] getAlteredCases(String[] lines, int nGenes)
             throws ServletException {  
         Map<String,Set<String>>[] ret = new HashMap[nGenes];
         for (int i=0; i<nGenes; i++) {
@@ -265,7 +266,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         return ret;
     }
     
-    private Set<String> getAllCases(String[] lines) {
+    static Set<String> getAllCases(String[] lines) {
         Set<String> cases = new HashSet<String>();
         for (int i=1; i<lines.length; i++) {
             cases.add(lines[i].substring(0, lines[i].indexOf('\t')));
@@ -273,7 +274,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         return cases;
     }
     
-    private List<double[]> separateAbundance(Set<String> alteredCases, Map<String,Double> data) {        
+    static List<double[]> separateAbundance(Set<String> alteredCases, Map<String,Double> data) {        
         List<Double> alteredList = new ArrayList<Double>();
         List<Double> unalteredList = new ArrayList<Double>();
         
@@ -291,13 +292,49 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
         return Arrays.asList(unalteredArray, alteredArray);
     }
     
+    static String groupData2String(List<double[]> sepAbun, double dataScale) {
+        StringBuilder sbdata = new StringBuilder();
+        if (sepAbun.get(0).length>0) {
+            sbdata.append("Unaltered:");
+//            sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(0)),","));
+            sbdata.append(encodingAbun(sepAbun.get(0),dataScale));
+            sbdata.append(';');
+        }
+        if (sepAbun.get(1).length>0) {
+            sbdata.append("Altered:");
+//            sbdata.append(StringUtils.join(ArrayUtils.toObject(sepAbun.get(1)),","));
+            sbdata.append(encodingAbun(sepAbun.get(1),dataScale));
+            sbdata.append(';');
+        }
+        return sbdata.toString();
+    }
+    
+    static String encodingAbun(double[] abun,double scale) {
+        if (abun.length==0)
+            return "";
+        
+        StringBuilder sb = new StringBuilder(Double.toString(encodingAbun(abun[0],scale)));
+        for (int i=1; i<abun.length; i++) {
+            sb.append(',');
+            sb.append(encodingAbun(abun[i],scale));
+        }
+        
+        return sb.toString();
+    }
+    
+    static double encodingAbun(double abun,double scale) {
+        if (scale==0)
+            return abun;
+        return ((int)(abun*scale))/scale;
+    }
+    
     /**
      * 
      * @param alterationMap
      * @param data
      * @return [unaltered mean, altered mean, p-value]
      */
-    private double[] ttest(double[] unalteredArray, double[] alteredArray) {        
+    private static double[] ttest(double[] unalteredArray, double[] alteredArray) {        
         double alteredMean = StatUtils.mean(alteredArray);
         double unalteredMean = StatUtils.mean(unalteredArray);
         

@@ -40,14 +40,14 @@
 - create_data_both_mRNA_miRNA:
     outfile: data_expression_median.txt
     dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version> <CANCER>.medianexp.txt
+        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
         - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  
 # mRNA expression; will do nothing if both mRNA and miRNA data are present
 - create_data_mRNA_median:
     outfile: data_expression_median.txt
     dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version> <CANCER>.medianexp.txt
+        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
 
 # # miRNA; also will do nothing if both mRNA and miRNA data are present
 - create_data_miRNA:
@@ -66,7 +66,7 @@
     outfile: data_mRNA_median_Zscores.txt
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_thresholded.by_genes.txt 
-        - gdac.broadinstitute.org_<CANCER>.mRNA_Preprocess_Median.Level_4.<date><version> <CANCER>.medianexp.txt 
+        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
 
 # obtain per-cancer gene 'whitelist' from mutation significance file
 # since significantlyMutatedSomaticGenesWhitelist is not a data_* file, it won't have a meta file created, and won't be loaded into the cgds dbms

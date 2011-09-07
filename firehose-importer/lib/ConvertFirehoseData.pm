@@ -129,7 +129,7 @@ sub CreateCancersCGDSinput{
               'All tumors with aCGH data (<cases> samples)',
         },
         'cases_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.medianexp.txt',
+            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_mrna',
             'cancer_study_identifier'        => '<cancer>',
@@ -138,7 +138,7 @@ sub CreateCancersCGDSinput{
               'All samples with mRNA expression data (<cases> samples)',
         },
         'cases_normal_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.medianexp.txt',
+            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
             'xformFunc'               => \&matchedNormalCaseID,  # the CASE-IDs sub that identifies normals            
             # todo: someday firehose will include normals data
 
@@ -175,7 +175,7 @@ sub CreateCancersCGDSinput{
         # todo: make these table/config file driven
         [ qw( 
             all_thresholded.by_genes.txt
-            <CANCER>.medianexp.txt
+            <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
          ) ],
         'union',
         {
@@ -195,7 +195,7 @@ sub CreateCancersCGDSinput{
         $cancer,
         # todo: make these table/config file driven
         [ qw( 
-            <CANCER>.medianexp.txt
+            <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
             all_thresholded.by_genes.txt
             <CANCER>.maf.annotated
          ) ],

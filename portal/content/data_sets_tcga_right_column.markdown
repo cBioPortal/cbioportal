@@ -57,5 +57,4 @@
 <td style="text-align: right;">284</td>
 </tr>
 </table>
-
-<p>Last update: 9/6/2011.<br><a href="data_sets.jsp">More...</a></p>
+Based on the Firehose run from 07/28/2011.</p>

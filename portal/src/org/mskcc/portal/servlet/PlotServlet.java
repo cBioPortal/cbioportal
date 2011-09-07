@@ -110,7 +110,15 @@ public class PlotServlet extends HttpServlet {
 
             String currentUrl = req.getRequestURL().toString();
             logger.debug("Current URL is:  " + currentUrl);
+            // locate host name to replace
+            int startOfHostname = currentUrl.indexOf("//") + 2;
+            int endOfHostname = currentUrl.indexOf(":", startOfHostname);
+            if (endOfHostname == -1) {
+                endOfHostname = currentUrl.indexOf("/", startOfHostname) - 1;
+            }
+            String hostname = currentUrl.substring(startOfHostname, endOfHostname);
             String cgdsUrl = currentUrl.replace("plot.do", "");
+            cgdsUrl = cgdsUrl.replace(hostname, "127.0.0.1");
             logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");

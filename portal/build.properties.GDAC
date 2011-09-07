@@ -9,12 +9,13 @@ db.password=
 db.host=localhost
 
 # Location of log file
-log.file.path=portal.log
+log.file.path=gdac-portal.log
 
 #TITLE 
 skin.title=cBio TCGA Cancer Genomics Portal
 skin.email_contact=cancergenomics at cbio dot mskcc dot org
-skin.blurb=The cBio TCGA Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.<p>  21 August 2011 TCGA data.
+skin.blurb=<b>Data in this portal is based on the 28 July 2011 Broad Firehose run of TCGA data.  Additional mutation files have been added from each disease working group.</b>
+skin.header_image=site_name_beta.png
 
 # Manager webapp username and password
 manager.username=tomcat
@@ -23,7 +24,7 @@ manager.password=tomcat
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
 r_installed=true
-authenticate=false
+authenticate=true
 include_networks=false
 
 faq=faq_tcga.html
@@ -32,4 +33,3 @@ news=news_tcga.html
 data_sets=data_sets_tcga.html
 examples_right_column=examples_tcga.html
 data_sets_right_column=data_sets_tcga_right_column.html
-header_image=site_name_beta.png

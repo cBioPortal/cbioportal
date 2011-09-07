@@ -93,7 +93,11 @@ public class NetworkServlet extends HttpServlet {
 
             Network network;
             try {
+                xdebug.logMsg(this, "Retrieving networks from cPath2...");
+                xdebug.startTimer();
                 network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Successfully retrieved networks from cPath2: took "+xdebug.getTimeElapsed()+"ms");
             } catch (Exception e) {
                 xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
                 network = new Network(); // send an empty network instead
@@ -102,6 +106,9 @@ public class NetworkServlet extends HttpServlet {
             if (!network.getNodes().isEmpty()) {
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
+                xdebug.logMsg(this, "Retrieving data from CGDS...");
+                xdebug.startTimer();
+                
                 ArrayList<String> netGenes = new ArrayList<String>();
                 for (Node node : network.getNodes()) {
                     Set<String> ngnc = node.getXref(HGNC);
@@ -123,7 +130,7 @@ public class NetworkServlet extends HttpServlet {
                 }
 
                 String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
-                // TODO: Later: ACCESS CONTROL: change to cancer study, etc.
+                
                 //  Get Genetic Profiles for Selected Cancer Type
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
 
@@ -160,11 +167,6 @@ public class NetworkServlet extends HttpServlet {
                           System.err.println( "pData.getValidGeneList() == null" );
                        }
                     }
-                    if (pData != null) {
-                        xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
-                        xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
-                    }
-                    xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
                     profileDataList.add(pData);
 
                 }
@@ -205,6 +207,9 @@ public class NetworkServlet extends HttpServlet {
                         }
                     }
                 }
+                
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Successfully retrieved data from CGDS: took "+xdebug.getTimeElapsed()+"ms");
             }
 
 
@@ -222,6 +227,11 @@ public class NetworkServlet extends HttpServlet {
                     return node.getId();
                 }
             });
+            
+            String xd = req.getParameter("xdebug");
+            if (xd!=null && xd.equals("1"))
+                writeXDebug(xdebug,req,res);
+            
             PrintWriter writer = res.getWriter();
             writer.write(graphml);
             writer.flush();
@@ -230,4 +240,15 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
+    private void writeXDebug(XDebug xdebug, HttpServletRequest req,
+                      HttpServletResponse res) 
+            throws ServletException, IOException {
+        PrintWriter writer = res.getWriter();
+        writer.write("<!--xdebug messages begin:\n");
+        for (Object msg : xdebug.getDebugMessages()) {
+            writer.write(((org.mskcc.portal.util.XDebugMessage)msg).getMessage());
+            writer.write("\n");
+        }
+        writer.write("xdebug messages end-->\n");
+    }
 }

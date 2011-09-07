@@ -4,6 +4,7 @@
 	Author:  Ethan Cerami
 -->
 <project name="Portal" default="compile" basedir=".">
+
     <!--  Environment Variables -->
     <property environment="env"/>
 
@@ -248,8 +249,6 @@
 
         <!-- Prepare web.xml, based on build.properties -->
         <replace file="${build.dir}/WEB-INF/web.xml"
-             token="cgds_url_value" value="${cgds.url}"/>
-        <replace file="${build.dir}/WEB-INF/web.xml"
              token="pathway_commons_url_value" value="${pathway_commons.url}"/>
         <replace file="${build.dir}/WEB-INF/web.xml"
              token="r_installed_value" value="${r_installed}"/>
@@ -287,6 +286,10 @@
         <!-- Force Copy log properties -->
         <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes"
             file="${config.dir}/log4j.properties"/>
+
+        <!-- Prepare log4j.properties, based on build.properties -->
+        <replace file="${build.dir}/WEB-INF/classes/log4j.properties"
+             token="log.file.path" value="${log.file.path}"/>
 
     </target>
 

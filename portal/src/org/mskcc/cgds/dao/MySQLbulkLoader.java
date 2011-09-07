@@ -57,7 +57,6 @@ public class MySQLbulkLoader {
       tempFileHandle.deleteOnExit();
 
       tempFileName = tempFileHandle.getAbsolutePath();
-      // System.out.println( "MySQLbulkLoader: Created '" + tempFileName + "'.");
 
       if (!tempFileHandle.exists()) {
          throw new FileNotFoundException("File does not exist: " + tempFileHandle);
@@ -134,17 +133,11 @@ public class MySQLbulkLoader {
          
          // will throw error if attempts to overwrite primary keys in table
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
-         // System.out.println( "MySQLbulkLoader: Executing '" + command + "'.");
          long startTime = System.currentTimeMillis();
          boolean rv = stmt.execute( command );
          // TODO: throw exception if rv == true
          int updateCount = stmt.getUpdateCount();
          long duration = (System.currentTimeMillis() - startTime)/1000;
-         //System.out.println( "MySQLbulkLoader: Took " + duration + " sec to use 'LOAD DATA ...' to insert " + updateCount + " records in " + tableName + ".");
-         
-         //  will be parsed by compareDirectAndBulkDBMSload.pl:     my( $minutes, $constant, $table, @rest) = split( "\t", $line );
-         //System.out.format("%.1f", duration/60.0 );
-         //System.out.println( "\tLOAD_FILE\t" + tableName + "\t containing\t" + updateCount + "\trecords.");
 
          // reopen empty temp file
          this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));

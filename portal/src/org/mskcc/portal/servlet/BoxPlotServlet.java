@@ -110,8 +110,8 @@ public class BoxPlotServlet extends HttpServlet {
             plot.append("stripchart(data~group, add=T, pch=16, vertical=T, method='jitter', jitter=0.1);\n");
             plot.append ("dev.off();\n");
 
-            logger.info("Call to R Follows:");
-            logger.info(plot.toString());
+            logger.debug("Call to R Follows:");
+            logger.debug(plot.toString());
             
             //response.getWriter().print(plot);
 

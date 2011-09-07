@@ -285,7 +285,6 @@ public class TestMutationFilter extends TestCase {
    
    private void alwaysRejectTheseMutations(MutationFilter myMutationFilter){
 
-      // System.out.println( myMutationFilter.toString() );
       // always reject an empty mutation
       ExtendedMutation anEmptyExtendedMutation = new ExtendedMutation();
       assertFalse( myMutationFilter.acceptMutation( anEmptyExtendedMutation ) );

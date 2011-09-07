@@ -1,15 +1,15 @@
 # Application Name and Version
-app.name=public
+app.name=public-portal
 app.version=0.1
 
 # Database Settings
-db.name=cgds
-db.user=root
-db.password=
+db.name=cgds_public
+db.user=XXX
+db.password=XXX
 db.host=localhost
 
-# Web API URL
-cgds.url=http://cbioportal.org/public/webservice.do
+# Location of log file
+log.file.path=portal.log
 
 # Pathway Commons:  cPath2 URL
 pathway_commons.url=http://www.pathwaycommons.org/pc2

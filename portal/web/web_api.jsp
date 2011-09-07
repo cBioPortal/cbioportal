@@ -11,10 +11,6 @@
     }
 %>
 
-<%
-    String cgdsUrl = GlobalProperties.getCgdsUrl();
-%>
-
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Web Interface"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 <div id="main">
@@ -23,14 +19,6 @@
             <td>
             <h1>Web Interface</h1>
             <div class="markdown">
-            <% if (!cgdsUrl.startsWith("http://cbio.mskcc.org/cgx/")) { %>
-                    <div class="url_warning">
-                    <B>Please note:  All Web API calls for this portal are available at:
-                    <a href="<%= cgdsUrl %>"><%= cgdsUrl %></a>.  The <i>examples</i> below point to our
-                    public portal available at
-                    <a href="http://cbio.mskcc.org/cgx/webservice.do">http://cbio.mskcc.org/cgx/webservice.do</a>.</B>
-                    </div>
-                <% } %>
             <P><jsp:include page="content/web_api.html" flush="true" /></p>
 
             </div>

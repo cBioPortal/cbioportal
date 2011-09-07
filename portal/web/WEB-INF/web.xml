@@ -25,10 +25,6 @@
         <servlet-name>query_builder</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>
         <init-param>
-            <param-name>cgds_url</param-name>
-            <param-value>cgds_url_value</param-value>
-        </init-param>
-        <init-param>
             <param-name>pathway_commons_url</param-name>
             <param-value>pathway_commons_url_value</param-value>
         </init-param>

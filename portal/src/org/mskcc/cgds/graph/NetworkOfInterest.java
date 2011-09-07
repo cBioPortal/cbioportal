@@ -57,7 +57,6 @@ public class NetworkOfInterest {
                 }
             }
             if (seedDegree == 1 && !seedSet.contains(gene)) {
-                // System.out.println ("Mark for deletion:  " + gene);
                 deleteList.add(gene);
             }
         }

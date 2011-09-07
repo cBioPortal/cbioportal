@@ -34,7 +34,6 @@ import org.owasp.validator.html.PolicyException;
  */
 public class QueryBuilder extends HttpServlet {
     //public static final boolean INCLUDE_NETWORKS = true;
-    public static final String CGDS_URL_PARAM = "cgds_url";
     public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
@@ -46,7 +45,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
     public static final String GENE_LIST = "gene_list";
-    public static final String ACTION = "action";
+    public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
     public static final String FORMAT = "format";
     public static final String PLOT_TYPE = "plot_type";
@@ -88,11 +87,7 @@ public class QueryBuilder extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        String cgdsUrl = getInitParameter(CGDS_URL_PARAM);
-        System.out.println ("Init Query Builder with CGDS URL:  " + cgdsUrl);
-        GlobalProperties.setCgdsUrl(cgdsUrl);
 		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
-        System.out.println ("Init Query Builder with PathwayCommons URL:  " + pathwayCommonsUrl);
         GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
@@ -137,7 +132,7 @@ public class QueryBuilder extends HttpServlet {
         }
 
         //  Get User Selected Action
-        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION);
+        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION_NAME);
 
         //  Get User Selected Cancer Type
         String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);

@@ -91,12 +91,15 @@
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
         };
+        if ($.browser.msie) //TODO: this is a temporary fix for bug #74
+            params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
+                        
         $.post("ProteinArraySignificanceTest.json", 
             params,
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
-                var aiExclude = [0,1,2,10];
+                var aiExclude = [1,2,3,11];
                 var oTable = $('table#protein_expr').dataTable( {
                         "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
@@ -109,30 +112,34 @@
                               "bVisible": false,
                               "aTargets": [ 0 ]
                             },
+                            { //"sTitle": "Gene",
+                              "bVisible": false,
+                              "aTargets": [ 1 ]
+                            },
                             { //"sTitle": "Alteration type",
                               "bVisible": false,
-                              "aTargets": [ 1 ] 
+                              "aTargets": [ 2 ] 
                             },
                             { //"sTitle": "Type",
                               "bVisible": false,
-                              "aTargets": [ 2 ]
+                              "aTargets": [ 3 ]
                             },
                             { //"sTitle": "Target Gene",
                               "fnRender": function(obj) {
                                     return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
                               },
-                              "aTargets": [ 3 ] 
+                              "aTargets": [ 4 ] 
                             },
                             { //"sTitle": "Target Residue",
-                              "aTargets": [ 4 ] 
+                              "aTargets": [ 5 ] 
                             },
                             { //"sTitle": "Source organism",
                               "bVisible": false, 
-                              "aTargets": [ 5 ] 
+                              "aTargets": [ 6 ] 
                             },
                             { //"sTitle": "Validated?",
                               "bVisible": false,
-                              "aTargets": [ 6 ]
+                              "aTargets": [ 7 ]
                             },
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -144,7 +151,7 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
-                              "aTargets": [ 7 ]
+                              "aTargets": [ 8 ]
                             },
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -156,7 +163,7 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
-                              "aTargets": [ 8 ]
+                              "aTargets": [ 9 ]
                             },
                             { //"sTitle": "p-value",
                               "sType": "num-nan-col",
@@ -170,8 +177,8 @@
                                         ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[7]);
-                                    var abunAltered = parseFloat(obj.aData[8]);
+                                    var abunUnaltered = parseFloat(obj.aData[8]);
+                                    var abunAltered = parseFloat(obj.aData[9]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;
@@ -181,27 +188,27 @@
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
                               },
                               "bSearchable": false,
-                              "aTargets": [ 9 ]
+                              "aTargets": [ 10 ]
                             },
                             { //"sTitle": "data",
                               "bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
-                              "aTargets": [ 10 ]
+                              "aTargets": [ 11 ]
                             },
                             { //"sTitle": "plot",
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    if (isNaN(parsePValue(obj.aData[9])))
+                                    if (isNaN(parsePValue(obj.aData[10])))
                                         return "";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
-                              "aTargets": [ 11 ]
+                              "aTargets": [ 12 ]
                                 
                             }
                         ],
-                        "aaSorting": [[9,'asc']],
+                        "aaSorting": [[10,'asc']],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
@@ -240,15 +247,14 @@
                         this.src = "images/details_close.png";
                         $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
                         var aData = oTable.fnGetData( nTr );
-                        var data = aData[10];
+                        var data = aData[11];
                         var xlabel = "";
-                        var param = 'data='+data+'&xlabel='+xlabel
-                            +'&ylabel=Median-centered RPPA score&width=500&height=400';
-                        var html = 'Boxplots of RPPA data (antibody:'+aData[3].replace(/<[^>]*>/g,"");
-                        if (aData[4])
-                            html += '['+aData[4]+']';
+                        var param = 'xlabel='+xlabel+'&ylabel=Median-centered RPPA score&width=500&height=400&data='+data;
+                        var html = 'Boxplots of RPPA data (antibody:'+aData[4].replace(/<[^>]*>/g,"");
+                        if (aData[5])
+                            html += '['+aData[5]+']';
                         html += ') for altered and unaltered cases ';
-                        html += ' [<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>]<br/>' 
+                        html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>' 
                                 + '<img src="boxplot.do?'+param+'">';
                         oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
@@ -272,12 +278,12 @@
                 oTable.fnAddData(aDataSet, false);
                 
                 // filter for antibody type
-                oTable.fnFilter("phosphorylation",2);
+                oTable.fnFilter("phosphorylation",3);
                 $('div.datatable-filter-custom').html("Antibody Type: "+
                     fnCreateSelect(getProteinArrayTypes(),"array_type_alteration_select","phosphorylation")
                     );
                 $('select#array_type_alteration_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 2);
+                        oTable.fnFilter( $(this).val(), 3);
                 } );
             },
             "json"
@@ -295,6 +301,7 @@
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead style="font-size:80%">
                     <tr valign="bottom">
+                        <th rowspan="2">RPPA ID</th>
                         <th rowspan="2">Gene</th>
                         <th rowspan="2">Alteration</th>
                         <th rowspan="2">Type</th>
@@ -315,6 +322,7 @@
                 </thead>
                 <tfoot>
                     <tr valign="bottom">
+                        <th>RPPA ID</th>
                         <th>Gene</th>
                         <th>Alteration</th>
                         <th>Type</th>

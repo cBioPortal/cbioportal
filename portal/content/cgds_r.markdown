@@ -26,7 +26,7 @@ Maintained by [Anders Jacobsen](http://cbio.mskcc.org/people/info/anders_jacobse
 
 	library('cgdsr')
 	
-	mycgds = CGDS("http://cbio.mskcc.org/public-portal/")
+	mycgds = CGDS("http://www.cbioportal.org/public-portal")
 
 	# basic server API tests
 	test(mycgds) 
@@ -75,7 +75,7 @@ An included tutorial ("showdemo cgdstutorial") shows how to use all the function
 	% Get started by adding the CGDS toolbox directory to the path (this will depend
 	% on install location) and setting the server URL
 	addpath('/MATLAB/cgds');
-	cgdsURL = 'http://cbio.mskcc.org/public-portal/';
+	cgdsURL = 'http://www.cbioportal.org/public-portal';
 
 	% Show toolbox help ('helpwin cgds' will open in the Help window)
 	help cgds;

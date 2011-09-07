@@ -117,7 +117,7 @@ public class PlotServlet extends HttpServlet {
                 endOfHostname = currentUrl.indexOf("/", startOfHostname) - 1;
             }
             String hostname = currentUrl.substring(startOfHostname, endOfHostname);
-            String cgdsUrl = currentUrl.replace("plot.do", "");
+            String cgdsUrl = currentUrl.replaceAll("plot.(do|pdf)", "");
             cgdsUrl = cgdsUrl.replace(hostname, "127.0.0.1");
             logger.debug("Web API URL is:  " + cgdsUrl);
 

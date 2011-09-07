@@ -106,6 +106,7 @@
                             //"aiExclude": aiExclude
                         },
                         "bJQueryUI": true,
+                        "bDestroy": true,
                         "aaData": aDataSet,
                         "aoColumnDefs":[
                             { //"sTitle": "Gene",

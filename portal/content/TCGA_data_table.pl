@@ -51,6 +51,7 @@ print OUT2 "</tr>\n\n";
 
 
 <IN3>;
+$line_ct = 0;
 while ($line = <IN3>) {
 
 	chomp $line;
@@ -58,7 +59,12 @@ while ($line = <IN3>) {
 	$data[0] =~ tr/a-z/A-Z/;
 
 	unless ($data[6]==0) {
+      if ($line_ct++ % 2) {
+        print OUT1 "\t<tr>\n";
+      }
+      else {
 		print OUT1 "\t<tr class=\"rowcolor\">\n";
+      }
 		print OUT1 "\t\t<td><b>$data[0]</b></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$data[0]}</b></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";

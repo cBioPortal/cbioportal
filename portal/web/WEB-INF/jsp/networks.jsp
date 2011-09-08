@@ -130,7 +130,7 @@
                     var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
                     var ix2 = graphml.indexOf("xdebug messages end-->");
                     var xdebugmsgs = graphml.substring(ix1,ix2);
-                    $("div#cytoscapeweb").css('height','80%');
+                    $("div#cytoscapeweb").css('height','70%');
                     $("td#vis_content").append("\n<div id='network_xdebug'>"+xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
                 }
             }

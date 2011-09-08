@@ -93,7 +93,6 @@ public class NetworkServlet extends HttpServlet {
 
             Network network;
             try {
-                xdebug.logMsg(this, "Retrieving networks from cPath2...");
                 xdebug.startTimer();
                 network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
                 xdebug.stopTimer();
@@ -107,7 +106,6 @@ public class NetworkServlet extends HttpServlet {
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
-                xdebug.startTimer();
                 
                 ArrayList<String> netGenes = new ArrayList<String>();
                 for (Node node : network.getNodes()) {
@@ -123,6 +121,7 @@ public class NetworkServlet extends HttpServlet {
                 }
 
                 //  Get User Selected Genetic Profiles
+                xdebug.startTimer();
                 HashSet<String> geneticProfileIdSet = new HashSet<String>();
 
                 for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
@@ -131,7 +130,11 @@ public class NetworkServlet extends HttpServlet {
 
                 String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
                 
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Got User Selected Genetic Profiles. Took "+xdebug.getTimeElapsed()+"ms");
+                
                 //  Get Genetic Profiles for Selected Cancer Type
+                xdebug.startTimer();
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
 
                 String caseIds = xssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
@@ -147,11 +150,15 @@ public class NetworkServlet extends HttpServlet {
                             }
                         }
                 }
+                
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Got Genetic Profiles for Selected Cancer Type. Took "+xdebug.getTimeElapsed()+"ms");
 
-                // retrieve profiles from CGDS for new genes
+                // retrieve profile data from CGDS for new genes
                 Set<GeneticAlterationType> alterationTypes = new HashSet();
                 ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
                 for (String profileId : geneticProfileIdSet) {
+                    xdebug.startTimer();
                     GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
                     alterationTypes.add(profile.getGeneticAlterationType());
                     if( null == profile ){
@@ -168,10 +175,17 @@ public class NetworkServlet extends HttpServlet {
                        }
                     }
                     profileDataList.add(pData);
-
+                
+                    xdebug.stopTimer();
+                    xdebug.logMsg(this, "Got profile data from CGDS for new genes for "+profile.getProfileName()+". Took "+xdebug.getTimeElapsed()+"ms");
                 }
 
+                xdebug.startTimer();
                 ProfileMerger merger = new ProfileMerger(profileDataList);
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Merged profiles. Took "+xdebug.getTimeElapsed()+"ms");
+                
+                xdebug.startTimer();
                 ProfileData netMergedProfile = merger.getMergedProfile();
                 ArrayList<String> netGeneList = netMergedProfile.getGeneList();
 
@@ -184,8 +198,12 @@ public class NetworkServlet extends HttpServlet {
                 OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
                 ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
                         netOncoPrintSpec, zScoreThreshold );
+                
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Got profile data summary. Took "+xdebug.getTimeElapsed()+"ms");
 
                 // add attributes
+                xdebug.startTimer();
                 for (String gene : netGeneList) {
                     for (Node node : network.getNodesByXref(HGNC, gene.toUpperCase())) {
                         node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary.getPercentCasesWhereGeneIsAltered(gene));
@@ -209,7 +227,7 @@ public class NetworkServlet extends HttpServlet {
                 }
                 
                 xdebug.stopTimer();
-                xdebug.logMsg(this, "Successfully retrieved data from CGDS: took "+xdebug.getTimeElapsed()+"ms");
+                xdebug.logMsg(this, "Added node attributes. Took "+xdebug.getTimeElapsed()+"ms");
             }
 
 

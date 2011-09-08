@@ -33,7 +33,7 @@ import org.owasp.validator.html.PolicyException;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
-    //public static final boolean INCLUDE_NETWORKS = true;
+    public static final String CLIENT_TRANSPOSE_MATRIX = "transpose_matrix";
     public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";

@@ -1,6 +1,6 @@
 /******************************************************************************************
 * Dynamic Query Javascript, built with JQuery
-* @author Ethan Cerami
+* @author Ethan Cerami, Caitlin Byrne. 
 *
 * This code performs the following functions:
 *
@@ -11,6 +11,12 @@
 * 3.  Creates event handler for when user selects a gene set.  This triggers updates to the
       gene set text area.
 ******************************************************************************************/
+
+// Create Constants
+var PROFILE_MUTATION = "PROFILE_MUTATION";
+var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
+var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
+var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
@@ -142,7 +148,6 @@ function crossCancerStudySelected() {
 //  when an individual cancer study is selected
 function singleCancerStudySelected() {
 
-
     if (window.tab_index != "tab_download"){ // download tab has no defaults
 
         var setDefaults = true;
@@ -168,9 +173,9 @@ function singleCancerStudySelected() {
 
 //  Select default genomic profiles
 function makeDefaultSelections(){
-     $('.MUTATION_EXTENDED').attr('checked',true);
-     $('.COPY_NUMBER_ALTERATION:checkbox').attr('checked',true);
-     $('.COPY_NUMBER_ALTERATION:radio').first().attr('checked',true);
+     $('.' + PROFILE_MUTATION_EXTENDED).attr('checked',true);
+     $('.' + PROFILE_COPY_NUMBER_ALTERATION +':checkbox').attr('checked',true);
+     $('.' + PROFILE_COPY_NUMBER_ALTERATION +':radio').first().attr('checked',true);
 }
 
 //  Determine whether there are any sections that need to be
@@ -179,9 +184,9 @@ function makeDefaultSelections(){
 //  results page)
 function reviewCurrentSelections(){
 
-   if ($(".MRNA_EXPRESSION").length >= 1){
-        $(".MRNA_EXPRESSION").each(function(){
-            toggle_threshold($(this));
+   if ($("." + PROFILE_MRNA_EXPRESSION).length >= 1){
+        $("." + PROFILE_MRNA_EXPRESSION).each(function(){
+            togglemRNAThresholdPanel($(this));
         });
    }
 
@@ -197,7 +202,6 @@ function reviewCurrentSelections(){
            }
        });
    }
-
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -210,9 +214,8 @@ function chooseAction() {
     }
 }
 
-//  Determine which radio button was clicked and
-//  automatically select the corresponding checkbox
-function selectCheckbox(subgroupClicked) {
+//  Triggered when a genomic profile radio button is selected
+function genomicProfileRadioButtonSelected(subgroupClicked) {
     var subgroupClass = subgroupClicked.attr('class');
     if (subgroupClass != undefined && subgroupClass != "") {
         var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
@@ -222,16 +225,15 @@ function selectCheckbox(subgroupClicked) {
     }
 }
 
-//  Triggered when a genomic profile is unselected;
-//  make sure subrgoups are also unselected
-function unselectAllSubgroups(profileUnselected) {
-    var profileClass = profileUnselected.attr('class');
+//  Triggered when a genomic profile group check box is selected.
+function profileGroupCheckBoxSelected(profileGroup) {
+    var profileClass = profileGroup.attr('class');
     var radioSelector = "input."+profileClass+"[type=radio]";
     $(radioSelector).attr('checked',false);
 }
 
 // Show or hide mRNA threshold field based on mRNA profile selected
-function toggle_threshold(profileClicked) {
+function togglemRNAThresholdPanel(profileClicked) {
     var selectedProfile = profileClicked.val();
     var inputType = profileClicked.attr('type');
 
@@ -243,7 +245,7 @@ function toggle_threshold(profileClicked) {
             $("#z_score_threshold").slideUp();
         }
     } else if(inputType == 'checkbox'){
-        var subgroup = $("input.MRNA_EXPRESSION[type=radio]");
+        var subgroup = $("input." + PROFILE_MRNA_EXPRESSION + "[type=radio]");
 
         // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
         // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
@@ -277,10 +279,10 @@ function cancerStudySelected() {
     $("#genomic_profiles").html("");
 
     //  Add Genomic Profiles, in this order
-    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION", "Mutation");
-    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", "Mutation");
-    addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", "Copy Number");
-    addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", "mRNA Expression");
+    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION", PROFILE_MUTATION, "Mutation");
+    addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", PROFILE_MUTATION_EXTENDED, "Mutation");
+    addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", PROFILE_COPY_NUMBER_ALTERATION, "Copy Number");
+    addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", PROFILE_MRNA_EXPRESSION, "mRNA Expression");
     
     //  show protein level rppa data in the download tab
     if (window.tab_index == "tab_download") {
@@ -310,21 +312,19 @@ function cancerStudySelected() {
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".profile_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
 
-    //  Set up Event Handler for checking checkboxes associated with radio buttons
-    //  This can not be done on page load, because radio buttons are not found when
-    //  cancer study selected is "all"
-    $("input[type=radio]").click(function(){
-        selectCheckbox($(this));
+    //  Set up Event Handler for user selecting a genomic profile radio button
+    $("input[type='radio'][name*='genetic_profile_']").click(function(){
+        genomicProfileRadioButtonSelected($(this));
     });
 
-    //  Set up an Event Handler for User unselecting a genomic profile
-    $('input[type=checkbox]').click(function(){
-        unselectAllSubgroups($(this));
+    //  Set up an Event Handler for user selecting a genomic profile checkbox
+    $("input[type='checkbox'][class*='PROFILE_']").click(function(){
+        profileGroupCheckBoxSelected($(this));
     });
 
     //  Set up an Event Handler for showing/hiding mRNA threshold input
-    $(".MRNA_EXPRESSION").click(function(){
-       toggle_threshold($(this));
+    $("." + PROFILE_MRNA_EXPRESSION).click(function(){
+       togglemRNAThresholdPanel($(this));
     });
 
     // Set default selections and make sure all steps are visible 
@@ -418,7 +418,7 @@ function addMetaDataToPage() {
         if (window.genomic_profile_id_selected[currentValue] == 1) {
             $(this).attr('checked','checked');
             //  Select the surrounding checkbox
-            selectCheckbox($(this));
+            genomicProfileRadioButtonSelected($(this));
         }
     });  //  end for each genomic profile option
 
@@ -432,7 +432,7 @@ function addMetaDataToPage() {
 // 1.  0 profiles of targetType --> show nothing
 // 2.  1 profile of targetType --> show as checkbox
 // 3.  >1 profiles of targetType --> show group checkbox plus radio buttons
-function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle) {
+function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass, targetTitle) {
     var numProfiles = 0;
     var profileHtml = "";
     var downloadTab = false;
@@ -445,8 +445,9 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
     //  First count how many profiles match the targetAltertion type
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
         if (genomic_profile.alteration_type == targetAlterationType) {
-            if (downloadTab || genomic_profile.show_in_analysis_tab == true)
-            numProfiles++;
+            if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
+                numProfiles++;
+            }
         }
     }); //  end for each genomic profile loop
 
@@ -455,7 +456,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
     } else if(numProfiles >1 && downloadTab == false) {
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
-        profileHtml += "<input type='checkbox' class='" + targetAlterationType + "'>"
+        profileHtml += "<input type='checkbox' class='" + targetClass + "'>"
          + targetTitle + " data."
             + " Select one of the profiles below:";
         profileHtml += "<div class='genomic_profiles_subgroup'>";
@@ -477,8 +478,8 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
                         optionType = "radio";
                     }
                 }
-                profileHtml += outputGenomicProfileOption (downloadTab, optionType, targetAlterationType,
-                        genomic_profile.id, genomic_profile.name, genomic_profile.description);
+                profileHtml += outputGenomicProfileOption (downloadTab, optionType,
+                        targetClass, genomic_profile.id, genomic_profile.name, genomic_profile.description);
             }
         }
     }); //  end for each genomic profile loop
@@ -488,20 +489,18 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetTitle
         profileHtml += "</div>";
     }
 
-    if(targetAlterationType == 'MRNA_EXPRESSION' && downloadTab == false){
+    if(targetClass == PROFILE_MRNA_EXPRESSION && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
         profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.zscore_threshold + "'>"
         + "</div>";
     }
-
     $("#genomic_profiles").append(profileHtml);
-
 }
 
 // Outputs a Single Genomic Profile Options
-function outputGenomicProfileOption (downloadTab, optionType, targetAlterationType, id, name,
+function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, name,
                      description) {
     //  This following if/else requires some explanation.
     //  If we are in the download tab, all the input fields must use the same name.
@@ -513,13 +512,13 @@ function outputGenomicProfileOption (downloadTab, optionType, targetAlterationTy
     if (downloadTab) {
         paramName =  "genetic_profile_ids";
     } else {
-        paramName = "genetic_profile_ids_" + targetAlterationType;
+        paramName = "genetic_profile_ids_" + targetClass;
     }
 
     var html =  "<input type='" + optionType + "' "
         + "id='" + id + "'"
         + " name='" + paramName + "'"
-        + " class='" + targetAlterationType + "'"
+        + " class='" + targetClass + "'"
         + " value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";

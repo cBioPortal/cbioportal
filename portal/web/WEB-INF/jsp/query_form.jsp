@@ -19,6 +19,7 @@
     }
 
     String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
+    String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
     if (localGeneSetChoice == null) {
         localGeneSetChoice = "user-defined-list";
     }
@@ -29,6 +30,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
+<%@ page import="java.io.IOException" %>
 <script type="text/javascript">
 
     // Store the currently selected options as global variables;
@@ -60,14 +62,36 @@
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
         <p/>
+        <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
-
     </div>
-
-        <!--
-        <p><small><a id='json_cancer_studies' href="">Toggle Experimental JSON Results</a></small></p>
-        <div class="markdown" style="display:none;" id="cancer_results">
-        </div>
-        -->
-
 </div>
+
+<%!
+    private void conditionallyOutputTransposeMatrixOption(String localTabIndex,
+            String clientTranspose, JspWriter out)
+            throws IOException {
+        if (localTabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            outputTransposeMatrixOption(clientTranspose, out);
+        }
+    }
+
+    private void outputTransposeMatrixOption(String clientTranspose, JspWriter out) throws IOException {
+        String checked = hasUserSelectedTheTransposeOption(clientTranspose);
+        out.println ("&nbsp;Clicking submit will generate a tab-delimited file "
+            + " containing your requested data.");
+        out.println ("<p/>");
+        out.println ("<input id='client_transpose_matrix' type=\"checkbox\" "+ checked + " name=\""
+                + QueryBuilder.CLIENT_TRANSPOSE_MATRIX
+                + "\"/> Transpose data matrix.");
+        out.println ("<p/>");
+    }
+
+    private String hasUserSelectedTheTransposeOption(String clientTranspose) {
+        if (clientTranspose != null) {
+            return "checked";
+        } else {
+            return "";
+        }
+    }
+%>

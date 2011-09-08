@@ -201,8 +201,8 @@
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    if (isNaN(parsePValue(obj.aData[10])))
-                                        return "";
+                                    //if (isNaN(parsePValue(obj.aData[10])))
+                                    //    return "";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 12 ]

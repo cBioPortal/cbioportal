@@ -18,7 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- *
+ * Import protein array antibody information into database.
  * @author jj
  */
 public class ImportProteinArrayInfo {
@@ -30,6 +30,12 @@ public class ImportProteinArrayInfo {
         this.pMonitor = pMonitor;
     }
     
+    /**
+     * Import protein array antibody information. Antibodies that already exist 
+     * in the database (based on array id) will be skipped.
+     * @throws IOException
+     * @throws DaoException 
+     */
     public void importData() throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();

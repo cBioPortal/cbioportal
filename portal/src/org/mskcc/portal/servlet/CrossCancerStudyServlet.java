@@ -6,7 +6,8 @@ import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.util.GeneValidator;
+import org.mskcc.portal.validator.gene.GeneValidator;
+import org.mskcc.portal.validator.gene.GeneValidationException;
 import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
@@ -69,62 +70,18 @@ public class CrossCancerStudyServlet extends HttpServlet {
             String action = servletXssUtil.getCleanInput(httpServletRequest,
                     QueryBuilder.ACTION_NAME);
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
-                boolean errorsExist = validateGenes(geneList, httpServletRequest);
-                if (errorsExist) {
-                    dispatchToIndexJSP(httpServletRequest, httpServletResponse);
-                } else {
-                    dispatchToResultsJSP(httpServletRequest, httpServletResponse);
-                }
+                GeneValidator geneValidator = new GeneValidator(geneList);
+                dispatchToResultsJSP(httpServletRequest, httpServletResponse);
             } else {
                 dispatchToIndexJSP(httpServletRequest, httpServletResponse);
             }
+        } catch (GeneValidationException e) {
+            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG, e.getMessage());
+            dispatchToIndexJSP(httpServletRequest, httpServletResponse);
         } catch (DaoException e) {
             throw new ServletException(e);
         }
-    }
 
-    private boolean validateGenes(String geneList, HttpServletRequest httpServletRequest)
-            throws DaoException {
-        boolean errorsExist = false;
-        if (geneList == null || geneList.trim().length() == 0) {
-            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                    "Please enter at least one gene symbol below. ");
-            errorsExist = true;
-        }
-        if (geneList != null && geneList.trim().length() > 0) {
-            GeneValidator geneValidator = new GeneValidator(geneList);
-            int numGenes = geneValidator.getValidGeneList().size();
-            if (numGenes > QueryBuilder.MAX_NUM_GENES) {
-                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                        "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
-                                + " genes or less.");
-                errorsExist = true;
-            }
-
-            //  Validate the incoming gene list
-            ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
-            if (invalidGeneList.size() > 0) {
-                String errorMessage = extractInvalidGenes(invalidGeneList);
-                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG, errorMessage);
-                errorsExist = true;
-            }
-        }
-        return errorsExist;
-    }
-
-    private String extractInvalidGenes(ArrayList<String> invalidGeneList) {
-        StringBuffer errorMessage = new StringBuffer
-                ("Invalid or unrecognized gene(s):  ");
-        for (int i = 0; i < invalidGeneList.size(); i++) {
-            String invalidGeneId = invalidGeneList.get(i);
-            errorMessage.append(invalidGeneId);
-            if (i < invalidGeneList.size() - 1) {
-                errorMessage.append(", ");
-            } else {
-                errorMessage.append(".");
-            }
-        }
-        return errorMessage.toString();
     }
 
     private void dispatchToResultsJSP(HttpServletRequest httpServletRequest,

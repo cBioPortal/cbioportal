@@ -1,8 +1,6 @@
 package org.mskcc.cgds.scripts;
 
 import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.SecretKey;
-import org.mskcc.cgds.util.DatabaseProperties;
 
 /**
  * Empty the database.

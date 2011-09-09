@@ -35,11 +35,10 @@ public class CategorizedGeneticProfileSet {
      * It is sometimes useful, however to have a single "default" copy number profile.
      *
      * This default copy number profile is determined by the following order of precedence rules:
-     * <ul>
-     * <li>Any GISTIC profile.
-     * <li>Any RAE profile.
-     * <li>Any other CNA profile.
-     * </ul>
+     *
+     * - Any GISTIC profile.
+     * - Any RAE profile.
+     * - Any other CNA profile.
      *
      * @return GeneticProfile Object.
      */

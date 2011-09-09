@@ -18,7 +18,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Glioblastoma multiforme">GBM</td>
-<td style="text-align: right;">501</td>
+<td style="text-align: right;">546</td>
 </tr>
 <tr>
 <td class="Tips1" title="Head and Neck squamous cell carcinoma">HNSC</td>
@@ -42,7 +42,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">481</td>
+<td style="text-align: right;">538</td>
 </tr>
 <tr>
 <td class="Tips1" title="Rectum adenocarcinoma">READ</td>

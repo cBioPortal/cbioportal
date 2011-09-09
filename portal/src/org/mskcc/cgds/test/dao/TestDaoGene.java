@@ -6,8 +6,6 @@ import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
-import java.util.ArrayList;
-
 /**
  * JUnit Tests for DaoGene and DaoGeneOptimized.
  */
@@ -43,7 +41,7 @@ public class TestDaoGene extends TestCase {
      * @param gene Gene Object.
      */
     private void validateBrca1(CanonicalGene gene) {
-        assertEquals("BRCA1", gene.getHugoGeneSymbol());
+        assertEquals("BRCA1", gene.getHugoGeneSymbolAllCaps());
         assertEquals(672, gene.getEntrezGeneId());
     }
 
@@ -52,7 +50,7 @@ public class TestDaoGene extends TestCase {
      * @param gene Gene Object.
      */
     private void validateBrca2(CanonicalGene gene) {
-        assertEquals("BRCA2", gene.getHugoGeneSymbol());
+        assertEquals("BRCA2", gene.getHugoGeneSymbolAllCaps());
         assertEquals(675, gene.getEntrezGeneId());
     }
 

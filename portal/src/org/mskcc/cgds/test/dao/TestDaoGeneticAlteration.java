@@ -60,7 +60,7 @@ public class TestDaoGeneticAlteration extends TestCase {
         ArrayList <CanonicalGene> geneList = new ArrayList <CanonicalGene> (geneSet);
         assertEquals (1, geneList.size());
         CanonicalGene gene = geneList.get(0);
-        assertEquals ("BRCA1", gene.getHugoGeneSymbol());
+        assertEquals ("BRCA1", gene.getHugoGeneSymbolAllCaps());
         assertEquals (672, gene.getEntrezGeneId());
     }
 

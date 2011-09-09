@@ -93,7 +93,7 @@ public class GeneValidator {
      */
     private void validateGene(String currentGeneSymbol) throws DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        CanonicalGene dbGene = daoGeneOptimized.getGene(currentGeneSymbol.toUpperCase());
+        CanonicalGene dbGene = daoGeneOptimized.getGene(currentGeneSymbol);
         if (dbGene == null) {
             invalidGeneList.add(currentGeneSymbol);
         } else {

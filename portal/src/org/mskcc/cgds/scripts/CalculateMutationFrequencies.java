@@ -85,7 +85,7 @@ public class CalculateMutationFrequencies {
 
         for (int i=0; i< 10; i++) {
             CanonicalGene gene = geneList.get(i);
-            System.out.println (gene.getHugoGeneSymbol() + "\t"
+            System.out.println (gene.getHugoGeneSymbolAllCaps() + "\t"
                     + formatter.format(gene.getSomaticMutationFrequency()));
         }
 

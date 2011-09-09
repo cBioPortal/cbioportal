@@ -39,7 +39,7 @@ public class TestGetMutSig extends TestCase {
         CanonicalGene gene2 = new CanonicalGene(4921, "DDR2");
         daoGeneOptimized.addGene(gene);
         daoGeneOptimized.addGene(gene2);
-        assertEquals("EGFR", gene.getHugoGeneSymbol());
+        assertEquals("EGFR", gene.getHugoGeneSymbolAllCaps());
         assertEquals(4921, gene2.getEntrezGeneId());
 
         MutSig mutSig = new MutSig(1, gene, 1,502500, 20, 19, 1, 4, 13, 3, 0, "<1E-11", "<1E-8", 1E-8);

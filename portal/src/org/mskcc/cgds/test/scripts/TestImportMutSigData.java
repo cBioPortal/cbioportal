@@ -37,7 +37,7 @@ public class TestImportMutSigData extends TestCase {
         CanonicalGene gene2 = new CanonicalGene(4921, "DDR2");
         daoGeneOptimized.addGene(gene);
         daoGeneOptimized.addGene(gene2);
-        assertEquals("EGFR", gene.getHugoGeneSymbol());
+        assertEquals("EGFR", gene.getHugoGeneSymbolAllCaps());
         assertEquals(4921, gene2.getEntrezGeneId());
         //load testData file and properties file
         File file = new File("test_data/test_mut_sig_data.txt");
@@ -49,7 +49,7 @@ public class TestImportMutSigData extends TestCase {
         //Test if getMutSig works with a HugoGeneSymbol
         MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);
         CanonicalGene testGene = mutSig.getCanonicalGene();
-        assertEquals("EGFR", testGene.getHugoGeneSymbol());
+        assertEquals("EGFR", testGene.getHugoGeneSymbolAllCaps());
         assertEquals(19, mutSig.getnVal());
         assertEquals(1E-8,mutSig.getAdjustedQValue());
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();

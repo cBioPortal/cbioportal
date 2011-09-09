@@ -26,13 +26,13 @@ public class GetMutationFrequencies {
             }
             appendHeader(buf);
             canonicalGene = daoMutationFrequency.getSomaticMutationFrequency(canonicalGene.getEntrezGeneId());
-            buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbol() + TAB
+            buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbolAllCaps() + TAB
                 + formatter.format(canonicalGene.getSomaticMutationFrequency()) + "\n");
         } else {
             appendHeader(buf);
             ArrayList <CanonicalGene> geneList = daoMutationFrequency.getTop100SomaticMutatedGenes(cancerStudyId);
             for (CanonicalGene canonicalGene :  geneList) {
-                buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbol() + TAB
+                buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbolAllCaps() + TAB
                     + formatter.format(canonicalGene.getSomaticMutationFrequency()) + "\n");
             }
         }

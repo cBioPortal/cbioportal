@@ -25,7 +25,7 @@ public class ConvertGeneIds {
                 canonicalGene =  daoGene.getGene(line);
             }
             if (canonicalGene != null) {
-                System.out.println (canonicalGene.getHugoGeneSymbol() + " = " + goCategory);
+                System.out.println (canonicalGene.getHugoGeneSymbolAllCaps() + " = " + goCategory);
             }
             line = buf.readLine();
         }

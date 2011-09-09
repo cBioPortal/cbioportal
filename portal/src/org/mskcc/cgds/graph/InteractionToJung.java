@@ -59,13 +59,13 @@ public final class InteractionToJung {
             if (geneB == null) {
                 throw new NullPointerException ("Cannot identify gene for:  " + geneBId);
             }
-            g.addVertex(geneA.getHugoGeneSymbol());
-            g.addVertex(geneB.getHugoGeneSymbol());
+            g.addVertex(geneA.getHugoGeneSymbolAllCaps());
+            g.addVertex(geneB.getHugoGeneSymbolAllCaps());
             String edgeParams = interaction.getInteractionType() + DELIM + interaction.getSource()
                 + DELIM + interaction.getExperimentTypes() + DELIM + interaction.getPmids();
             String completeEdgeKey = createKey(edgeParams, geneA, geneB);
             if (!edgeSet.contains(completeEdgeKey)) {
-                g.addEdge(completeEdgeKey, geneA.getHugoGeneSymbol(), geneB.getHugoGeneSymbol());
+                g.addEdge(completeEdgeKey, geneA.getHugoGeneSymbolAllCaps(), geneB.getHugoGeneSymbolAllCaps());
                 edgeSet.add(completeEdgeKey);
             }
         }

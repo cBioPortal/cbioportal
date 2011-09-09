@@ -86,7 +86,8 @@ public class ShowData extends HttpServlet {
                 DownloadLink downloadLink = downloadLinkList.get(i);
                 PrintWriter writer = response.getWriter();
                 response.setContentType("text/plain");
-                String transposeStr = servletXssUtil.getCleanInput(request, "transpose");
+                String transposeStr = servletXssUtil.getCleanInput(request,
+                        QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
                 boolean transpose = false;
                 if (transposeStr != null) {
                     transpose = true;

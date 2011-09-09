@@ -181,9 +181,18 @@
                 out.println ("</div>");
             } else { %>
 
-            <a href="" id="toggle_query_form">
+             <script type="text/javascript">
+             $(document).ready(function(){
+
+                 // Init Tool Tips
+                 $("#toggle_query_form").tipTip();
+
+             });
+             </script>
+
+            <p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>Modify Query</a>
+            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
             <p/>
 
             <div style="margin-left:5px;display:none;" id="query_form_on_results_page">

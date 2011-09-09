@@ -61,10 +61,8 @@ public class CrossCancerStudyServlet extends HttpServlet {
                     QueryBuilder.GENE_LIST);
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 
-            if (cancerStudyList.size() > 0) {
-                httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
-                        cancerStudyList.get(0).getCancerStudyStableId());
-            }
+            httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
+                    GetCancerTypes.ALL_CANCER_STUDIES_ID);
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 

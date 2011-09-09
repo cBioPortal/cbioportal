@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- *
+ * Import protein array data into database
  * @author jj
  */
 public class ImportProteinArrayData {
@@ -40,6 +40,11 @@ public class ImportProteinArrayData {
         this.pMonitor = pMonitor;
     }
     
+    /**
+     * Import RPPA data. Profiles and a case list will also be added here.
+     * @throws IOException
+     * @throws DaoException 
+     */
     public void importData() throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         

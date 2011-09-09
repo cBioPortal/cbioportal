@@ -9,6 +9,10 @@
     String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String caseIds4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS);
     String zScoreThesholdStr4Network = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
+    String useXDebug = request.getParameter("xdebug");
+    if (useXDebug==null)
+        useXDebug = "0";
+    
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -120,14 +124,27 @@
                 vis.draw(draw_options);
             };
             
+            function showXDebug(graphml) {
+                if (<%=useXDebug%>) {
+                    var xdebugsbegin = "<!--xdebug messages begin:\n";
+                    var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
+                    var ix2 = graphml.indexOf("xdebug messages end-->");
+                    var xdebugmsgs = graphml.substring(ix1,ix2);
+                    $("div#cytoscapeweb").css('height','70%');
+                    $("td#vis_content").append("\n<div id='network_xdebug'>"+xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
+                }
+            }
+            
             window.onload = function() {
-                $.post("network.do", 
-                    {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
+                var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
                      <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
-                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>'
-                    },
+                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                     xdebug:'<%=useXDebug%>'
+                    };
+                $.post("network.do", 
+                    networkParams,
                     function(graphml){
                         if (typeof data !== "string") { 
                             if (window.ActiveXObject) { // IE 
@@ -135,15 +152,16 @@
                             } else { // Other browsers 
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
-                        } 
+                        }
                         send2cytoscapeweb(graphml);
+                        showXDebug(graphml);
                     }
                 );
             }
         </script>
 
 <div class="section" id="network">
-	<table>
+	<table id="network_wrapper">
 		<tr><td>
 			<div>
 				<jsp:include page="network_menu.jsp"/>

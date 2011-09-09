@@ -50,7 +50,7 @@ public class GetPathwayCommonsNetwork {
             try {
                 int statusCode = client.executeMethod(method);
                 if (statusCode == HttpStatus.SC_OK) {
-                    //xdebug.logMsg(this, "URL: "+sbUrl.toString());
+                    xdebug.logMsg("GetPathwayCommonsNetwork", "cPath2 URL: "+sbUrl.toString());
                     return NetworkIO.readNetworkFromCPath2(method.getResponseBodyAsStream(), true);
                 } else {
                     //  Otherwise, throw HTTP Exception Object

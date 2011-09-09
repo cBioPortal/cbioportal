@@ -1,10 +1,13 @@
 package org.mskcc.portal.servlet;
 
-import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.GeneValidator;
-import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.remote.GetCancerTypes;
+import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.util.GeneValidator;
+import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -26,8 +29,6 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
     /**
      * Initializes the servlet.
-     *
-     * @throws javax.servlet.ServletException Servlet Init Error.
      */
     public void init() throws ServletException {
         super.init();
@@ -40,11 +41,6 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
     /**
      * Handles HTTP GET Request.
-     *
-     * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servlet Response Object.
-     * @throws javax.servlet.ServletException Servlet Error.
-     * @throws java.io.IOException            IO Error.
      */
     protected void doGet(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse) throws ServletException,
@@ -54,11 +50,6 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
     /**
      * Handles HTTP POST Request.
-     *
-     * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servelt Response Object.
-     * @throws javax.servlet.ServletException Servlet Error.
-     * @throws java.io.IOException            IO Error.
      */
     protected void doPost(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse) throws ServletException,
@@ -66,69 +57,111 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
         try {
-            String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
+            String geneList = servletXssUtil.getCleanInput(httpServletRequest,
+                    QueryBuilder.GENE_LIST);
+            ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 
-            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
-
-            httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
-                    cancerStudyList.get(0).getCancerStudyStableId());
+            if (cancerStudyList.size() > 0) {
+                httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
+                        cancerStudyList.get(0).getCancerStudyStableId());
+            }
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-            boolean errorsExist = false;
-
-            String action = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.ACTION_NAME);
+            String action = servletXssUtil.getCleanInput(httpServletRequest,
+                    QueryBuilder.ACTION_NAME);
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
-                if (geneList == null || geneList.trim().length() == 0) {
-                    httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                            "Please enter at least one gene symbol below. ");
-                    errorsExist = true;
-                }
-                if (geneList != null && geneList.trim().length() > 0) {
-                    GeneValidator geneValidator = new GeneValidator(geneList);
-                    int numGenes = geneValidator.getValidGeneList().size();
-                    if (numGenes > QueryBuilder.MAX_NUM_GENES) {
-                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                                "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
-                                        + " genes or less.");
-                        errorsExist = true;
-                    }
-
-                    //  Validate the incoming gene list
-                    ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
-                    if (invalidGeneList.size() > 0) {
-                        StringBuffer errorMessage = new StringBuffer
-                                ("Invalid or unrecognized gene(s):  ");
-                        for (int i=0; i<invalidGeneList.size(); i++) {
-                            String invalidGeneId = invalidGeneList.get(i);
-                            errorMessage.append(invalidGeneId);
-                            if (i < invalidGeneList.size() -1) {
-                                errorMessage.append(", ");
-                            } else {
-                                errorMessage.append(".");
-                            }
-                        }
-                        httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
-                                errorMessage.toString());
-                        errorsExist = true;
-                    }
-                }
+                boolean errorsExist = validateGenes(geneList, httpServletRequest);
                 if (errorsExist) {
-                    RequestDispatcher dispatcher =
-                            getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                    dispatcher.forward(httpServletRequest, httpServletResponse);
+                    dispatchToIndexJSP(httpServletRequest, httpServletResponse);
                 } else {
-                    RequestDispatcher dispatcher =
-                            getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
-                    dispatcher.forward(httpServletRequest, httpServletResponse);
+                    dispatchToResultsJSP(httpServletRequest, httpServletResponse);
                 }
             } else {
-                RequestDispatcher dispatcher =
-                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                dispatcher.forward(httpServletRequest, httpServletResponse);
+                dispatchToIndexJSP(httpServletRequest, httpServletResponse);
             }
         } catch (DaoException e) {
-            throw new ServletException (e);
+            throw new ServletException(e);
         }
+    }
+
+    private boolean validateGenes(String geneList, HttpServletRequest httpServletRequest)
+            throws DaoException {
+        boolean errorsExist = false;
+        if (geneList == null || geneList.trim().length() == 0) {
+            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                    "Please enter at least one gene symbol below. ");
+            errorsExist = true;
+        }
+        if (geneList != null && geneList.trim().length() > 0) {
+            GeneValidator geneValidator = new GeneValidator(geneList);
+            int numGenes = geneValidator.getValidGeneList().size();
+            if (numGenes > QueryBuilder.MAX_NUM_GENES) {
+                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG,
+                        "Please restrict your request to " + QueryBuilder.MAX_NUM_GENES
+                                + " genes or less.");
+                errorsExist = true;
+            }
+
+            //  Validate the incoming gene list
+            ArrayList<String> invalidGeneList = geneValidator.getInvalidGeneList();
+            if (invalidGeneList.size() > 0) {
+                String errorMessage = extractInvalidGenes(invalidGeneList);
+                httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG, errorMessage);
+                errorsExist = true;
+            }
+        }
+        return errorsExist;
+    }
+
+    private String extractInvalidGenes(ArrayList<String> invalidGeneList) {
+        StringBuffer errorMessage = new StringBuffer
+                ("Invalid or unrecognized gene(s):  ");
+        for (int i = 0; i < invalidGeneList.size(); i++) {
+            String invalidGeneId = invalidGeneList.get(i);
+            errorMessage.append(invalidGeneId);
+            if (i < invalidGeneList.size() - 1) {
+                errorMessage.append(", ");
+            } else {
+                errorMessage.append(".");
+            }
+        }
+        return errorMessage.toString();
+    }
+
+    private void dispatchToResultsJSP(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        RequestDispatcher dispatcher =
+                getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_results.jsp");
+        dispatcher.forward(httpServletRequest, httpServletResponse);
+    }
+
+    private void dispatchToIndexJSP(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        RequestDispatcher dispatcher =
+                getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+        dispatcher.forward(httpServletRequest, httpServletResponse);
+    }
+
+    private ArrayList<CancerStudy> getCancerStudiesWithData() throws DaoException {
+        ArrayList<CancerStudy> candidateCancerStudyList = GetCancerTypes.getCancerStudies();
+        ArrayList<CancerStudy> finalCancerStudyList = new ArrayList<CancerStudy>();
+
+        //  Only include cancer studies that have default CNA and/or default mutation
+        for (CancerStudy currentCancerStudy : candidateCancerStudyList) {
+            if (hasDefaultCnaOrMutationProfiles(currentCancerStudy)) {
+                finalCancerStudyList.add(currentCancerStudy);
+            }
+        }
+        return finalCancerStudyList;
+    }
+
+    private boolean hasDefaultCnaOrMutationProfiles(CancerStudy currentCancerStudy)
+            throws DaoException {
+        ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles
+                (currentCancerStudy.getCancerStudyStableId());
+        CategorizedGeneticProfileSet categorizedSet =
+                new CategorizedGeneticProfileSet(geneticProfileList);
+        return categorizedSet.getNumDefaultMutationAndCopyNumberProfiles() > 0;
     }
 }

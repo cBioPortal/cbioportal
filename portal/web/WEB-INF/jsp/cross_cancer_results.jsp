@@ -50,7 +50,7 @@ $(document).ready(function(){
 
 <div class="ui-state-highlight ui-corner-all">
     <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em; margin-left: .3em"></span>
-    Results are available for <strong><%= (cancerStudies.size() - 1) %>
+    Results are available for <strong><%= (cancerStudies.size()) %>
     cancer studies</strong>.  Click each cancer study below to view a summary of results.
     </p>
 </div>

@@ -255,7 +255,7 @@ public class GetProfileData {
         if (gene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
             buf.append (canonicalGene.getEntrezGeneId() + WebApiUtil.TAB);
-            buf.append (canonicalGene.getHugoGeneSymbol());
+            buf.append (canonicalGene.getHugoGeneSymbolAllCaps());
         } else if (gene instanceof MicroRna) {
             MicroRna microRna = (MicroRna) gene;
             buf.append ("-999999" + WebApiUtil.TAB);

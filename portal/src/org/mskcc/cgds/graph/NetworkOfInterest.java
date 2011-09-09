@@ -37,7 +37,7 @@ public class NetworkOfInterest {
             //  Get all interactions involving current gene.
             ArrayList<Interaction> currentInteractionList = daoInteraction.getInteractions(gene);
             interactionList.addAll(currentInteractionList);
-            seedSet.add(gene.getHugoGeneSymbol());
+            seedSet.add(gene.getHugoGeneSymbolAllCaps());
         }
 
         //  Convert to JUNG to Graph

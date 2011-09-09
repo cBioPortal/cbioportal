@@ -40,7 +40,7 @@ public class ExtendedMutation {
     public ExtendedMutation(CanonicalGene gene, String validationStatus, String mutationStatus,
                             String mutationType) {
         this.entrezGeneId = gene.getEntrezGeneId();
-        this.geneSymbol = gene.getHugoGeneSymbol();
+        this.geneSymbol = gene.getHugoGeneSymbolAllCaps();
         this.mutationStatus = mutationStatus;
         this.validationStatus = validationStatus;
         this.mutationType = mutationType;

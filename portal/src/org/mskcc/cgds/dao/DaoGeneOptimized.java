@@ -4,7 +4,6 @@ import org.mskcc.cgds.model.CanonicalGene;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.IOException;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -27,7 +26,7 @@ public class DaoGeneOptimized {
         //  Automatically populate hashmap upon init
         ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
         for (CanonicalGene currentGene:  globalGeneList) {
-            geneSymbolMap.put(currentGene.getHugoGeneSymbol(), currentGene);
+            geneSymbolMap.put(currentGene.getHugoGeneSymbolAllCaps(), currentGene);
             entrezIdMap.put(currentGene.getEntrezGeneId(), currentGene);
         }
     }
@@ -39,7 +38,7 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     public int addGene(CanonicalGene gene) throws DaoException {
-        geneSymbolMap.put(gene.getHugoGeneSymbol(), gene);
+        geneSymbolMap.put(gene.getHugoGeneSymbolAllCaps(), gene);
         entrezIdMap.put(gene.getEntrezGeneId(), gene);
         DaoGene daoGene = DaoGene.getInstance();
         return daoGene.addGene(gene);
@@ -76,7 +75,7 @@ public class DaoGeneOptimized {
      * @return Canonical Gene Object.
      */
     public CanonicalGene getGene(String hugoGeneSymbol) {
-        return geneSymbolMap.get(hugoGeneSymbol);
+        return geneSymbolMap.get(hugoGeneSymbol.toUpperCase());
     }
 
     /**

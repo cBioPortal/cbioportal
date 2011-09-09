@@ -6,7 +6,6 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.model.CanonicalGene;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -63,7 +62,7 @@ public class TestDaoMutation extends TestCase {
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
         CanonicalGene gene = geneList.get(0);
         assertEquals (321, gene.getEntrezGeneId());
-        assertEquals ("BLAH", gene.getHugoGeneSymbol());
+        assertEquals ("BLAH", gene.getHugoGeneSymbolAllCaps());
 
     }
 

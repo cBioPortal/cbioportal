@@ -74,7 +74,7 @@ public class GetMutSig {
         toReturn += Integer.toString(mutSig.getCancerType()) + "\t";
         CanonicalGene gene = mutSig.getCanonicalGene();
         toReturn += Long.toString(gene.getEntrezGeneId()) + "\t";
-        toReturn += gene.getHugoGeneSymbol() + "\t";
+        toReturn += gene.getHugoGeneSymbolAllCaps() + "\t";
         toReturn += Integer.toString(mutSig.getRank()) + "\t";
         toReturn += Integer.toString(mutSig.getN()) + "\t";
         toReturn += Integer.toString(mutSig.getn()) + "\t";

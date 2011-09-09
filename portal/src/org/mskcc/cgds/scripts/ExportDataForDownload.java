@@ -117,7 +117,7 @@ public class ExportDataForDownload {
          // TODO: measure how much time this saves, if any
          HashMap<Long, String> geneSymbolMap = new HashMap<Long, String>();
          for( CanonicalGene aCanonicalGene : AllGenes ){
-            geneSymbolMap.put( aCanonicalGene.getEntrezGeneId(), aCanonicalGene.getHugoGeneSymbol() );
+            geneSymbolMap.put( aCanonicalGene.getEntrezGeneId(), aCanonicalGene.getHugoGeneSymbolAllCaps() );
          }
 
          ArrayList<CancerStudy> theCancerStudies = DaoCancerStudy.getAllCancerStudies();

@@ -64,7 +64,7 @@ public class GetMutationData {
                 String caseId = mutation.getCaseId();
                 if (targetCaseList.contains(caseId)) {
                     buf.append(canonicalGene.getEntrezGeneId() + TAB);
-                    buf.append(canonicalGene.getHugoGeneSymbol() + TAB);
+                    buf.append(canonicalGene.getHugoGeneSymbolAllCaps() + TAB);
                     buf.append(caseId + TAB);
                     buf.append(mutation.getCenter() + TAB);
                     buf.append(mutation.getMutationStatus() + TAB);

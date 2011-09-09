@@ -18,12 +18,12 @@ public class CanonicalGene extends Gene {
         this.entrezGeneId = entrezGeneId;
     }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
+    public String getHugoGeneSymbolAllCaps() {
+        return hugoGeneSymbol.toUpperCase();
     }
 
     public String getStandardSymbol() {
-        return hugoGeneSymbol;
+        return getHugoGeneSymbolAllCaps();
     }
 
     public void setHugoGeneSymbol(String hugoGeneSymbol) {
@@ -31,7 +31,7 @@ public class CanonicalGene extends Gene {
     }
 
     public String toString() {
-        return this.getHugoGeneSymbol();
+        return this.getHugoGeneSymbolAllCaps();
     }
 
     public boolean equals(Object obj0) {

@@ -245,7 +245,7 @@ public class DaoMutation {
         mutation.setEntrezGeneId(rs.getLong("ENTREZ_GENE_ID"));
         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
         CanonicalGene gene = aDaoGene.getGene(mutation.getEntrezGeneId());
-        mutation.setGeneSymbol(gene.getHugoGeneSymbol());
+        mutation.setGeneSymbol(gene.getHugoGeneSymbolAllCaps());
         mutation.setCenter(rs.getString("CENTER"));
         mutation.setSequencer(rs.getString("SEQUENCER"));
         mutation.setMutationStatus(rs.getString("MUTATION_STATUS"));

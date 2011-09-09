@@ -3,7 +3,6 @@ package org.mskcc.cgds.test.dao;
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 import org.mskcc.cgds.scripts.ResetDatabase;
@@ -40,7 +39,7 @@ public class TestDaoMutSig extends TestCase {
         //get tp53 from mutsig table using hugoGeneSymbol
         MutSig mutSig = DaoMutSig.getMutSig("TP53", 1);
         CanonicalGene testGene = mutSig.getCanonicalGene();
-        assertEquals("TP53", testGene.getHugoGeneSymbol());
+        assertEquals("TP53", testGene.getHugoGeneSymbolAllCaps());
         assertEquals(1, mutSig.getCancerType());
         //get pten from mutsig table using entrez ID
         long foo = 10298321;

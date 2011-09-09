@@ -67,7 +67,7 @@
         classname="org.apache.catalina.ant.RemoveTask"
         classpath="lib/ant/catalina-ant.jar"/>
     <taskdef resource="checkstyletask.properties"
-        classpath="lib/ant/checkstyle-all-5.0-beta01.jar"/>
+        classpath="lib/ant/checkstyle-5.4-all.jar"/>
 	<taskdef name="if"
 		 classname="net.sf.antcontrib.logic.IfTask"
 		 classpath="lib/ant/ant-contrib-1.0b3.jar"/>
@@ -344,7 +344,7 @@
     </target>
 
     <target name="check" description="Runs Checkstyle on all source code">
-        <checkstyle config="config/sun_checks.xml">
+        <checkstyle config="config/coding_standards.xml">
             <classpath refid="compile.classpath"/>
             <fileset dir="${src.dir}">
                 <include name="**/*.java"/>
@@ -352,7 +352,16 @@
         </checkstyle>
     </target>
 
-        <!-- Move Target -->
+    <target name="check-validator-code" description="Runs Checkstyle on Validator Package Only">
+        <checkstyle config="config/coding_standards.xml">
+            <classpath refid="compile.classpath"/>
+            <fileset dir="${src.dir}">
+                <include name="org/mskcc/portal/validator/gene/*.java"/>
+            </fileset>
+        </checkstyle>
+    </target>
+
+    <!-- Move Target -->
     <target name="move"
             description="Moves file to Tomcat Directory for Deployment">
         <copy file="${war.dir}/cgx.war"

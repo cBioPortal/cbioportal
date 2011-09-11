@@ -1,6 +1,5 @@
 package org.mskcc.portal.test.oncoPrintSpecLanguage;
 
-import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -67,16 +66,25 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
     @Test
     public void testGeneticTypeLevel() {
 
-        Assert.assertEquals(GeneticTypeLevel.Amplified, GeneticTypeLevel.convertCNAcode(2) );
-        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("HomozygouslyDeleted") );
-        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("Homdel") );
-        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("Hom") );
-        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("HemizygouslyDeleted") );
-        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("Hemi") );
-        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("Hetloss") );
-        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.findDataTypeLevel("HET") );
-        Assert.assertEquals(GeneticTypeLevel.Diploid, GeneticTypeLevel.findDataTypeLevel("Diploid") );
-        Assert.assertEquals(GeneticTypeLevel.Diploid, GeneticTypeLevel.findDataTypeLevel("di") );
+        Assert.assertEquals(GeneticTypeLevel.Amplified, GeneticTypeLevel.convertCNAcode(2));
+        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("HomozygouslyDeleted") );
+        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("Homdel") );
+        Assert.assertEquals(GeneticTypeLevel.HomozygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("Hom") );
+        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("HemizygouslyDeleted") );
+        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("Hemi") );
+        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("Hetloss") );
+        Assert.assertEquals(GeneticTypeLevel.HemizygouslyDeleted,
+                GeneticTypeLevel.findDataTypeLevel("HET") );
+        Assert.assertEquals(GeneticTypeLevel.Diploid,
+                GeneticTypeLevel.findDataTypeLevel("Diploid") );
+        Assert.assertEquals(GeneticTypeLevel.Diploid,
+                GeneticTypeLevel.findDataTypeLevel("di") );
 
     }
 
@@ -93,27 +101,38 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
     @Test
     public void testConcreteDataTypeSpec() {
         try {
-            Assert.assertEquals( GeneticDataTypes.Expression, ConcreteDataTypeSpec.findDataType("mrn") );
-            Assert.assertEquals( GeneticDataTypes.Expression, ConcreteDataTypeSpec.findDataType("EXP") );
-            Assert.assertEquals( GeneticDataTypes.CopyNumberAlteration, ConcreteDataTypeSpec.findDataType("cna") );
-            Assert.assertEquals( GeneticDataTypes.CopyNumberAlteration, ConcreteDataTypeSpec.findDataType("copy") );
-            Assert.assertEquals( GeneticDataTypes.Methylation, ConcreteDataTypeSpec.findDataType("Methylation") );
-            Assert.assertEquals( GeneticDataTypes.Methylation, ConcreteDataTypeSpec.findDataType("Methy") );
-            Assert.assertEquals( GeneticDataTypes.Methylation, ConcreteDataTypeSpec.findDataType("Met") );
-            Assert.assertEquals( GeneticDataTypes.Mutation, ConcreteDataTypeSpec.findDataType("Mutation") );
-            Assert.assertEquals( GeneticDataTypes.Mutation, ConcreteDataTypeSpec.findDataType("Mu") );
+            Assert.assertEquals( GeneticDataTypes.Expression,
+                    ConcreteDataTypeSpec.findDataType("mrn") );
+            Assert.assertEquals( GeneticDataTypes.Expression,
+                    ConcreteDataTypeSpec.findDataType("EXP") );
+            Assert.assertEquals( GeneticDataTypes.CopyNumberAlteration,
+                    ConcreteDataTypeSpec.findDataType("cna") );
+            Assert.assertEquals( GeneticDataTypes.CopyNumberAlteration,
+                    ConcreteDataTypeSpec.findDataType("copy") );
+            Assert.assertEquals( GeneticDataTypes.Methylation,
+                    ConcreteDataTypeSpec.findDataType("Methylation") );
+            Assert.assertEquals( GeneticDataTypes.Methylation,
+                    ConcreteDataTypeSpec.findDataType("Methy") );
+            Assert.assertEquals( GeneticDataTypes.Methylation,
+                    ConcreteDataTypeSpec.findDataType("Met") );
+            Assert.assertEquals( GeneticDataTypes.Mutation,
+                    ConcreteDataTypeSpec.findDataType("Mutation") );
+            Assert.assertEquals( GeneticDataTypes.Mutation,
+                    ConcreteDataTypeSpec.findDataType("Mu") );
 
         } catch (IllegalArgumentException e) {
 
             e.printStackTrace();
         }
         
-        ConcreteDataTypeSpec aConcreteDataTypeSpec = new ConcreteDataTypeSpec( GeneticDataTypes.Methylation);
+        ConcreteDataTypeSpec aConcreteDataTypeSpec = new ConcreteDataTypeSpec
+                (GeneticDataTypes.Methylation);
         Assert.assertTrue( aConcreteDataTypeSpec.satisfy(GeneticDataTypes.Methylation) );
         Assert.assertFalse( aConcreteDataTypeSpec.satisfy(GeneticDataTypes.Expression) );
         Assert.assertEquals( "Methylation", aConcreteDataTypeSpec.toString() );
         Assert.assertTrue( aConcreteDataTypeSpec.equals( aConcreteDataTypeSpec ));
-        Assert.assertTrue( aConcreteDataTypeSpec.equals( new ConcreteDataTypeSpec( GeneticDataTypes.Methylation) ));
+        Assert.assertTrue( aConcreteDataTypeSpec.equals
+                ( new ConcreteDataTypeSpec( GeneticDataTypes.Methylation) ));
         Assert.assertTrue( aConcreteDataTypeSpec.equals( new ConcreteDataTypeSpec( "Methyla") ));
         Assert.assertFalse( aConcreteDataTypeSpec.equals( new Object() ));
         Assert.assertEquals( null, ConcreteDataTypeSpec.concreteDataTypeSpecGenerator(null) );
@@ -148,7 +167,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
 
         // copy constructor and new Instance
         Assert.assertEquals( null, ContinuousDataTypeSpec.newInstance(null) );
-        Assert.assertEquals( aContinuousDataTypeSpec, ContinuousDataTypeSpec.newInstance( aContinuousDataTypeSpec ) );
+        Assert.assertEquals( aContinuousDataTypeSpec, ContinuousDataTypeSpec.newInstance
+                (aContinuousDataTypeSpec));
         Assert.assertNotSame( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                  ComparisonOp.convertCode("<"), 5.0f ), 
                  ContinuousDataTypeSpec.newInstance( aContinuousDataTypeSpec ));
@@ -172,13 +192,15 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
             aContinuousDataTypeSpec.combine(aContinuousDataTypeSpec2);
             Assert.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            Assert.assertEquals( "the ContinuousDataTypeSpecs must have ComparisonOps with the same direction", e.getMessage() );
+            Assert.assertEquals( "the ContinuousDataTypeSpecs must have ComparisonOps " +
+                    "with the same direction", e.getMessage() );
         }
         try {
             aContinuousDataTypeSpec2.combine(aContinuousDataTypeSpec);
             Assert.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            Assert.assertEquals( "the ContinuousDataTypeSpecs must have ComparisonOps with the same direction", e.getMessage() );
+            Assert.assertEquals( "the ContinuousDataTypeSpecs must have ComparisonOps " +
+                    "with the same direction", e.getMessage() );
         }
         
         aContinuousDataTypeSpec = 
@@ -270,13 +292,17 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         Assert.assertEquals( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                 ComparisonOp.convertCode("<"), 0.0f ), aContinuousDataTypeSpec );
         
-        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "foo", "bla", "xxx" ) );
+        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator(
+                "foo", "bla", "xxx" ) );
         Assert.assertEquals( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
               ComparisonOp.convertCode("<"), 0.3f ), 
               ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "Exp", "<", "0.3" ) );
-        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "foo", "<", "0" ) );
-        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "Exp", "<<", "0" ) );
-        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "Exp", "<", "x" ) );
+        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator
+                ("foo", "<", "0" ) );
+        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator
+                ("Exp", "<<", "0" ) );
+        Assert.assertEquals( null, ContinuousDataTypeSpec.continuousDataTypeSpecGenerator
+                ("Exp", "<", "x" ) );
 
     }
 
@@ -297,7 +323,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         Assert.assertTrue( aDiscreteDataTypeSetSpec.equals( 
                 new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
                 GeneticTypeLevel.Gained ) ));
-        Assert.assertTrue( aDiscreteDataTypeSetSpec.equals( new DiscreteDataTypeSetSpec( "CNA", 1 ) ));
+        Assert.assertTrue( aDiscreteDataTypeSetSpec.equals( new DiscreteDataTypeSetSpec
+                ( "CNA", 1 ) ));
         
         aDiscreteDataTypeSetSpec = 
             new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
@@ -322,13 +349,17 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         aDiscreteDataTypeSetSpec.addLevel( GeneticTypeLevel.Diploid );
         Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.Diploid ) );
         
-        aDiscreteDataTypeSetSpec.combine( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
-                        GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.Diploid  ));
+        aDiscreteDataTypeSetSpec.combine( new DiscreteDataTypeSetSpec
+                (GeneticDataTypes.CopyNumberAlteration,
+                        GeneticTypeLevel.HemizygouslyDeleted,
+                        GeneticTypeLevel.HemizygouslyDeleted, GeneticTypeLevel.Diploid  ));
         Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.Amplified ) );
         Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.Gained ) );
         Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.Diploid ) );
-        Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.HemizygouslyDeleted ) );
-        Assert.assertFalse( aDiscreteDataTypeSetSpec.satisfy( GeneticTypeLevel.HomozygouslyDeleted ) );
+        Assert.assertTrue( aDiscreteDataTypeSetSpec.satisfy
+                ( GeneticTypeLevel.HemizygouslyDeleted ) );
+        Assert.assertFalse( aDiscreteDataTypeSetSpec.satisfy
+                ( GeneticTypeLevel.HomozygouslyDeleted ) );
 
         try {
            new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
@@ -342,26 +373,37 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
           new DiscreteDataTypeSetSpec( "CNA", 10 );
           Assert.fail("Should throw IllegalArgumentException");
       } catch (IllegalArgumentException e) {
-          Assert.assertEquals( "10 is invalid code for levels in CopyNumberAlteration", e.getMessage() );
+          Assert.assertEquals( "10 is invalid code for levels in CopyNumberAlteration",
+                  e.getMessage() );
       }
       Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "foo" ) );
-      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained ), 
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "foo" ));
+      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.Gained ),
             DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "Gain") );
-      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated ), 
+      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.Mutation,
+              GeneticTypeLevel.Mutated ),
             DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "Mut") );
       
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( null, null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( null, "2" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "JUNK", "2" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "JUNK", "CRAP" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "CNA", null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "CNA", "XX" ) );
-      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ), 
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( null, null ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( null, "2" ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( "JUNK", "2" ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( "JUNK", "CRAP" ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( "CNA", null ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+              ( "CNA", "XX" ) );
+      Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.Amplified ),
             DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "CNA", "2" ) );
     }
     
-    private void findDiscreteDataTypeSetSpec( GeneticDataTypes expectedGeneticDataType, String name) {
+    private void findDiscreteDataTypeSetSpec( GeneticDataTypes expectedGeneticDataType,
+            String name) {
         Assert.assertEquals( expectedGeneticDataType, DiscreteDataTypeSetSpec.findDataType(name));
     }
     
@@ -380,10 +422,13 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         //System.out.println( aDiscreteDataTypeSpec.hashCode() );
         Assert.assertEquals( "CopyNumberAlteration<Gained", aDiscreteDataTypeSpec.toString() );
         
-        DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = aDiscreteDataTypeSpec.convertToDiscreteDataTypeSetSpec();
+        DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec =
+                aDiscreteDataTypeSpec.convertToDiscreteDataTypeSetSpec();
         for( GeneticTypeLevel aGeneticTypeLevel: GeneticTypeLevel.values()){
-            if( aGeneticTypeLevel.getTheGeneticDataType().equals(GeneticDataTypes.CopyNumberAlteration) ){
-                Assert.assertEquals( aGeneticTypeLevel.ordinal() < GeneticTypeLevel.Gained.ordinal(), 
+            if( aGeneticTypeLevel.getTheGeneticDataType().equals
+                    (GeneticDataTypes.CopyNumberAlteration) ){
+                Assert.assertEquals( aGeneticTypeLevel.ordinal()
+                        < GeneticTypeLevel.Gained.ordinal(),
                         aDiscreteDataTypeSetSpec.satisfy(aGeneticTypeLevel));
             }
         }
@@ -418,10 +463,14 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         findDiscreteDataType( GeneticDataTypes.CopyNumberAlteration, "cna" );
         findDiscreteDataType( GeneticDataTypes.Mutation, "mu" );
         
-        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator(null, null, null) );
-        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator(null, null, "foo") );
-        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator(null, "xx", null) );
-        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator("asd", null, null) );
+        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator
+                (null, null, null) );
+        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator
+                (null, null, "foo") );
+        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator
+                (null, "xx", null) );
+        Assert.assertEquals( null, DiscreteDataTypeSpec.discreteDataTypeSpecGenerator
+                ("asd", null, null) );
         Assert.assertEquals( new DiscreteDataTypeSpec(  GeneticDataTypes.CopyNumberAlteration,
               ComparisonOp.convertCode("<"), GeneticTypeLevel.Gained ), 
               DiscreteDataTypeSpec.discreteDataTypeSpecGenerator( "CNA", "<", "Gai") );
@@ -435,13 +484,16 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        
        GeneSet aGeneSet = new GeneSet();
        OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = new OncoPrintGeneDisplaySpec();
-       GeneWithSpec aGeneWithSpec = GeneWithSpec.geneWithSpecGenerator("foo", theResultFullDataTypeSpec, null );
+       GeneWithSpec aGeneWithSpec = GeneWithSpec.geneWithSpecGenerator("foo",
+               theResultFullDataTypeSpec, null );
        aGeneSet.addGeneWithSpec(aGeneWithSpec);
-       Assert.assertEquals( GeneWithSpec.geneWithSpecGenerator("foo", theResultFullDataTypeSpec, null ), 
+       Assert.assertEquals( GeneWithSpec.geneWithSpecGenerator("foo",
+               theResultFullDataTypeSpec, null ),
                 aGeneSet.getGene() );
        aGeneSet.addGeneWithSpec(aGeneWithSpec);
        Assert.assertEquals( null, aGeneSet.getGene() );
-       aGeneSet.addGeneWithSpec( GeneWithSpec.geneWithSpecGenerator("foo", theResultFullDataTypeSpec, null ) );
+       aGeneSet.addGeneWithSpec( GeneWithSpec.geneWithSpecGenerator("foo",
+               theResultFullDataTypeSpec, null ) );
        
        Assert.assertEquals( aGeneWithSpec, aGeneSet.getGeneWithSpec("foo") );
        Assert.assertEquals( aGeneWithSpec, aGeneSet.getGeneWithSpec("FOO") );
@@ -469,7 +521,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
 
         // take 'opposite' comparisonOp, and try Assert.assertFalse
         DiscreteDataTypeSpec oppositeDiscreteDataTypeSpec = 
-            new DiscreteDataTypeSpec( theGeneticDataType, comparisonOp.oppositeComparisonOp(), threshold );
+            new DiscreteDataTypeSpec( theGeneticDataType, comparisonOp.oppositeComparisonOp(),
+                    threshold );
         Assert.assertFalse( oppositeDiscreteDataTypeSpec.satisfy( (GeneticTypeLevel) satisfied ) );
     }
     
@@ -492,8 +545,10 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
                break;
             case Discrete:
                for( GeneticTypeLevel aGeneticTypeLevel: GeneticTypeLevel.values()){
-                  if( aGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory() == DataTypeCategory.Discrete ){
-                     Assert.assertFalse( theResultFullDataTypeSpec.satisfy( aGeneticDataType, aGeneticTypeLevel ));
+                  if( aGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory()
+                          == DataTypeCategory.Discrete ){
+                     Assert.assertFalse( theResultFullDataTypeSpec.satisfy( aGeneticDataType,
+                             aGeneticTypeLevel ));
                   }
                }
                break;
@@ -505,20 +560,33 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
        
        // Expression alteration definition is <= and >=, as per docs
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, -1.0f ) );
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 1.0f ) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 0.0f ) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, -0.9f ) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 0.9f ) );
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration ) );
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ) );
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Expression, -1.0f ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Expression, 1.0f ) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Expression, 0.0f ) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Expression, -0.9f ) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Expression, 0.9f ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid ) );
        
-       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated) );
-       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Mutation, GeneticTypeLevel.Normal ) );
+       Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated) );
+       Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+               ( GeneticDataTypes.Mutation, GeneticTypeLevel.Normal ) );
        
     }
     
@@ -543,13 +611,17 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        aParsedFullDataTypeSpec.addSpec( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                ComparisonOp.convertCode(">="), 3.4f ) );
 
-       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
+       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec
+               ( GeneticDataTypes.CopyNumberAlteration,
                GeneticTypeLevel.Gained) );
-       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
+       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec
+               ( GeneticDataTypes.CopyNumberAlteration,
                GeneticTypeLevel.Amplified) );
-       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
+       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec
+               ( GeneticDataTypes.CopyNumberAlteration,
                GeneticTypeLevel.Gained) );
-       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSpec(  GeneticDataTypes.CopyNumberAlteration,
+       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSpec
+               ( GeneticDataTypes.CopyNumberAlteration,
                ComparisonOp.convertCode("<"), GeneticTypeLevel.HemizygouslyDeleted ) );
        return aParsedFullDataTypeSpec.cleanUpInput();
     }
@@ -557,7 +629,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
     @Test
     public void testParsedFullDataTypeSpec() {        
        // make ResultFullDataTypeSpec that accepts nothing
-       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = (new ParsedFullDataTypeSpec( )).cleanUpInput();
+       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec =
+               (new ParsedFullDataTypeSpec( )).cleanUpInput();
        for( GeneticDataTypes aGeneticDataType : GeneticDataTypes.values()){
           Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( aGeneticDataType ));
        }
@@ -565,76 +638,75 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         theOncoPrintGeneDisplaySpec = createTestOncoPrintGeneDisplaySpec();
         //System.out.println( theResultFullDataTypeSpec );
         Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Methylation, 2f ));
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Methylation, -33f ));
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.Methylation, -33f ));
 
         Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Expression, -3f ));
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Expression, 1.99f ));
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.Expression, 1.99f ));
         Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Expression, 2f ));
         Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Expression, 3f ));
         Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Expression, 33f ));
         
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ));
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained ));
-        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid ));
-        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ));
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained ));
+        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid ));
+        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                (GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
         
         // all methylations
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Methylation, -3.0f, Direction.higher ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Methylation, -3.0f, Direction.lower ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Methylation, 3.0f, Direction.higher ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Methylation, 3.0f, Direction.lower ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Methylation, -3.0f, Direction.higher ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Methylation, -3.0f, Direction.lower ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Methylation, 3.0f, Direction.higher ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Methylation, 3.0f, Direction.lower ) );
 
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 3f, Direction.higher ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 3.5f, Direction.higher ) );
-        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 2.5f, Direction.higher ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, -1.0f, Direction.lower ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 1.0f, Direction.lower ) );
-        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 1.99f, Direction.lower) );
-        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy( GeneticDataTypes.Expression, 2.0f, Direction.lower ) );
-        
-        /*
-         * TODO: fix clone
-        ResultFullDataTypeSpec anotherResultFullDataTypeSpec = theResultFullDataTypeSpec.clone();
-        for( GeneticDataTypes aGeneticDataType:GeneticDataTypes.values()){
-            theResultFullDataTypeSpec.getResultDataTypeSpec(aGeneticDataType).setCombinedGreaterContinuousDataTypeSpec(null);
-            theResultFullDataTypeSpec.getResultDataTypeSpec(aGeneticDataType).setCombinedLesserContinuousDataTypeSpec(null);
-            theResultFullDataTypeSpec.getResultDataTypeSpec(aGeneticDataType).setTheDiscreteDataTypeSetSpec(null);
-        }
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Methylation, 2f ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Methylation, -33f ));
-
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, -3f ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 1.99f ));
-        Assert.assertFalse( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 2f ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 3f ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 33f ));
-        
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained ));
-        Assert.assertFalse( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid ));
-        Assert.assertFalse( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
-        Assert.assertTrue( anotherResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
-         */
-        
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 3f, Direction.higher ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 3.5f, Direction.higher ) );
+        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 2.5f, Direction.higher ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, -1.0f, Direction.lower ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 1.0f, Direction.lower ) );
+        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 1.99f, Direction.lower) );
+        Assert.assertFalse( theOncoPrintGeneDisplaySpec.satisfy
+                ( GeneticDataTypes.Expression, 2.0f, Direction.lower ) );
     }
 
     @Test
     public void testResultDataTypeSpec() {
-       ResultDataTypeSpec aResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Expression );
-       Assert.assertTrue( aResultDataTypeSpec.equals( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
+       ResultDataTypeSpec aResultDataTypeSpec = new ResultDataTypeSpec
+               ( GeneticDataTypes.Expression );
+       Assert.assertTrue( aResultDataTypeSpec.equals
+               ( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
        aResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec(
                 new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                          ComparisonOp.convertCode("<"), 1.0f ) );
-       Assert.assertTrue( aResultDataTypeSpec.equals( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
+       Assert.assertTrue( aResultDataTypeSpec.equals
+               ( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
        aResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec(
                 new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
                          ComparisonOp.convertCode(">="), 3.0f ) );
-       Assert.assertTrue( aResultDataTypeSpec.equals( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
+       Assert.assertTrue( aResultDataTypeSpec.equals
+               ( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
        aResultDataTypeSpec.setAcceptAll(true);
-       Assert.assertTrue( aResultDataTypeSpec.equals( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
+       Assert.assertTrue( aResultDataTypeSpec.equals
+               ( ResultDataTypeSpec.newInstance(aResultDataTypeSpec) )  );
        
-       Assert.assertFalse( aResultDataTypeSpec.equals( new ResultDataTypeSpec( GeneticDataTypes.Expression ) )  );
+       Assert.assertFalse( aResultDataTypeSpec.equals
+               ( new ResultDataTypeSpec( GeneticDataTypes.Expression ) )  );
        Assert.assertEquals( null, ResultDataTypeSpec.newInstance( null )  );
 
     }
@@ -645,25 +717,33 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        Assert.assertEquals( null, GeneWithSpec.geneWithSpecGenerator(null, null, null ));
        Assert.assertEquals( null, GeneWithSpec.geneWithSpecGenerator("name", null, null ));
        OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = new OncoPrintGeneDisplaySpec();
-       Assert.assertEquals( null, GeneWithSpec.geneWithSpecGenerator(null, theResultFullDataTypeSpec, null ));
+       Assert.assertEquals( null, GeneWithSpec.geneWithSpecGenerator
+               (null, theResultFullDataTypeSpec, null ));
        theResultFullDataTypeSpec.setDefault( 2.0 );
        GeneWithSpec aGeneWithSpec = new GeneWithSpec( "name", theResultFullDataTypeSpec );
-       Assert.assertEquals( aGeneWithSpec.toString(), GeneWithSpec.geneWithSpecGenerator("name", theResultFullDataTypeSpec, null ).toString());
-       Assert.assertEquals( aGeneWithSpec.toString(), GeneWithSpec.geneWithSpecGenerator("name", null, theResultFullDataTypeSpec ).toString());
-       // TODO: implement equals and hashCode for GeneWithSpec AND all its components, so this works
-       Assert.assertTrue( aGeneWithSpec.equals( GeneWithSpec.geneWithSpecGenerator("name", theResultFullDataTypeSpec, null )));
-       Assert.assertTrue( aGeneWithSpec.equals( GeneWithSpec.geneWithSpecGenerator("name", null, theResultFullDataTypeSpec )));
-
-       //GeneWithSpec.geneWithSpecGenerator(name, theResultFullDataTypeSpec, theDefaultResultFullDataTypeSpec)
+       Assert.assertEquals( aGeneWithSpec.toString(),
+               GeneWithSpec.geneWithSpecGenerator("name",
+               theResultFullDataTypeSpec, null ).toString());
+       Assert.assertEquals( aGeneWithSpec.toString(),
+               GeneWithSpec.geneWithSpecGenerator("name", null,
+                   theResultFullDataTypeSpec ).toString());
+       // TODO: impl equals and hashCode for GeneWithSpec AND all its components, so this works
+       Assert.assertTrue( aGeneWithSpec.equals( GeneWithSpec.geneWithSpecGenerator("name",
+               theResultFullDataTypeSpec, null )));
+       Assert.assertTrue( aGeneWithSpec.equals( GeneWithSpec.geneWithSpecGenerator("name",
+               null, theResultFullDataTypeSpec )));
     }
     
     private void checkAmazin(GeneWithSpec aGeneWithSpec){
        
         Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(
                 GeneticDataTypes.CopyNumberAlteration));
-        Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Mutation));
-        Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Expression, -2.01f));
-        Assert.assertFalse(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Expression, -2.0f));
+        Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                (GeneticDataTypes.Mutation));
+        Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                (GeneticDataTypes.Expression, -2.01f));
+        Assert.assertFalse(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                (GeneticDataTypes.Expression, -2.0f));
     }
 
     @Test
@@ -706,10 +786,12 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        }
        aOncoPrintSpecification.add(aGeneSet);
        Assert.assertEquals( null, aOncoPrintSpecification.getGeneWithSpec( "geneName" ) );
-       Assert.assertEquals( new ArrayList<String>( Arrays.asList( genes ) ), aOncoPrintSpecification.listOfGenes() );
+       Assert.assertEquals( new ArrayList<String>( Arrays.asList( genes ) ),
+               aOncoPrintSpecification.listOfGenes() );
 
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
+       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(),
+               aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
 
        aOncoPrintSpecification.add(aGeneSet);
        ArrayList<String> t = new ArrayList<String>( Arrays.asList( genes ) );
@@ -718,7 +800,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
 
        Assert.assertEquals( null, aOncoPrintSpecification.getGeneWithSpec( "GENENAME" ) );
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(), aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
+       Assert.assertEquals( new GeneWithSpec( "GENE2", theOncoPrintGeneDisplaySpec ).toString(),
+               aOncoPrintSpecification.getGeneWithSpec( "gene2" ).toString() );
        
     }
     
@@ -728,97 +811,53 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
        OncoPrintSpecification anOncoPrintSpecification = new OncoPrintSpecification(  );
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(), anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
+       Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(),
+               anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
        
        String[] genes = { "G1", "LAST" };
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
        theOncoPrintGeneDisplaySpec.setDefault( 2.5 );
        anOncoPrintSpecification = new OncoPrintSpecification( genes, theOncoPrintGeneDisplaySpec );
        // TODO: change to .equals, when implemented
-       Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(), anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
+       Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(),
+               anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
 
-       //      * HomozygouslyDeleted Gained Amplified   Expression<2.0 Expression>=3.0   Methylation ;
-       anOncoPrintSpecification = new OncoPrintSpecification( genes, createTestOncoPrintGeneDisplaySpec() );
-       Assert.assertEquals( createTestOncoPrintGeneDisplaySpec().toString(), anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
+       //  HomozygouslyDeleted Gained Amplified   Expression<2.0 Expression>=3.0   Methylation ;
+       anOncoPrintSpecification = new OncoPrintSpecification( genes,
+               createTestOncoPrintGeneDisplaySpec() );
+       Assert.assertEquals( createTestOncoPrintGeneDisplaySpec().toString(),
+               anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
        
-       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Expression );
+       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec
+               ( GeneticDataTypes.Expression );
        theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( 
-                ContinuousDataTypeSpec.continuousDataTypeSpecGenerator( "Expression", "<=", "2.5" ) );
+                ContinuousDataTypeSpec.continuousDataTypeSpecGenerator
+                        ( "Expression", "<=", "2.5" ) );
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       theOncoPrintGeneDisplaySpec.setResultDataTypeSpec( GeneticDataTypes.Expression, theResultDataTypeSpec );
+       theOncoPrintGeneDisplaySpec.setResultDataTypeSpec( GeneticDataTypes.Expression,
+               theResultDataTypeSpec );
        GeneSet aGeneSet = new GeneSet( );
        aGeneSet.addGeneWithSpec( new GeneWithSpec( "foo", theOncoPrintGeneDisplaySpec ) );
        anOncoPrintSpecification.add(aGeneSet);
        
        // a hack; should create the right OncoPrintGeneDisplaySpec for the expected
-       Assert.assertEquals( "HomozygouslyDeleted Gained Amplified   Expression<=2.5 Expression>=3.0   Methylation ;", 
+       Assert.assertEquals( "HomozygouslyDeleted Gained Amplified   Expression<=2.5 " +
+               "Expression>=3.0   Methylation ;",
                 anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );       
 
        theResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Mutation );
-       theResultDataTypeSpec.setTheDiscreteDataTypeSetSpec( new DiscreteDataTypeSetSpec( "Mutated") );
+       theResultDataTypeSpec.setTheDiscreteDataTypeSetSpec( new DiscreteDataTypeSetSpec
+               ( "Mutated") );
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       theOncoPrintGeneDisplaySpec.setResultDataTypeSpec( GeneticDataTypes.Mutation, theResultDataTypeSpec );       
+       theOncoPrintGeneDisplaySpec.setResultDataTypeSpec( GeneticDataTypes.Mutation,
+               theResultDataTypeSpec );
        aGeneSet = new GeneSet( );
        aGeneSet.addGeneWithSpec( new GeneWithSpec( "bar", theOncoPrintGeneDisplaySpec ) );       
        anOncoPrintSpecification.add(aGeneSet);
        // a hack; should create the right OncoPrintGeneDisplaySpec for the expected
-       Assert.assertEquals( "HomozygouslyDeleted Gained Amplified   Expression<=2.5 Expression>=3.0   Mutated   Methylation ;", 
+       Assert.assertEquals( "HomozygouslyDeleted Gained Amplified   Expression<=2.5 " +
+               "Expression>=3.0   Mutated   Methylation ;",
                 anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );
 
-    }
-
-    /*
-     * TODO: make work again; low priority; throws 
-java.lang.IllegalAccessException: Class org.mskcc.portal.oncoPrintSpecLanguage.UniqueEnumPrefix can not access a member of class org.mskcc.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary$TestDataTypes with modifiers "public"
-   at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:65)
-   at java.lang.reflect.Method.invoke(Method.java:588)
-   at org.mskcc.portal.oncoPrintSpecLanguage.UniqueEnumPrefix.findUniqueEnumWithNicknameMatchingPrefix(UniqueEnumPrefix.java:81)
-   at org.mskcc.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary.tryAnUniqueEnumNicknamePrefix(TestOncoPrintSpecificationLibrary.java:660)
-   at org.mskcc.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary.testUniqueEnumNicknamePrefix(TestOncoPrintSpecificationLibrary.java:626)
-
-    @Test
-    public void testUniqueEnumNicknamePrefix() {
-        tryAnUniqueEnumNicknamePrefix("C", TestDataTypes.class,
-                TestDataTypes.CopyNumberAlteration);
-        tryAnUniqueEnumNicknamePrefix("CopyNumber", TestDataTypes.class,
-                TestDataTypes.CopyNumberAlteration);
-        tryAnUniqueEnumNicknamePrefix("CNA", TestDataTypes.class,
-                TestDataTypes.CopyNumberAlteration);
-        tryAnUniqueEnumNicknamePrefix("mr", TestDataTypes.class,
-                TestDataTypes.Expression);
-        tryAnUniqueEnumNicknamePrefix("H", TestDataTypes.class,
-                TestDataTypes.Foo);
-        tryAnUniqueEnumNicknamePrefix("m", TestDataTypes.class,
-                null);
-    }
-
-    enum TestDataTypes {
-        CopyNumberAlteration("CNA CopyNumber"), Expression("MRNA"), Foo(
-                "moo horse");
-
-        private final String[] nicknames;
-
-        private TestDataTypes(String nicknames) {
-            this.nicknames = nicknames.split(" ");
-        }
-
-        public String[] getNicknames() {
-            return nicknames;
-        }
-    };
-
-     */
-
-    private void tryAnUniqueEnumNicknamePrefix(String testInput,
-            Class<?> enumClass, Object enumConstant) {
-
-        try {
-            Assert.assertEquals(enumConstant, UniqueEnumPrefix
-                    .findUniqueEnumWithNicknameMatchingPrefix(enumClass, testInput));
-        } catch (IllegalArgumentException e) {
-            System.out
-                    .println("testUniqueEnumPrefix: IllegalArgumentException: "
-                            + e.getMessage());
-        }
     }
 }

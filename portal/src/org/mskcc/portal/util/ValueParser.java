@@ -56,7 +56,8 @@ public class ValueParser {
       if (zScoreThreshold < 0.0) {
          throw new IllegalArgumentException("zScoreThreshold must be greater than 0");
       }
-      ParsedFullDataTypeSpec aParsedFullDataTypeSpec = createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
+      ParsedFullDataTypeSpec aParsedFullDataTypeSpec =
+              createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
 
       // add other data types
       aParsedFullDataTypeSpec.addSpec(new ConcreteDataTypeSpec("CNA"));
@@ -74,10 +75,10 @@ public class ValueParser {
     */
    private ParsedFullDataTypeSpec createParsedFullDataTypeSpecFromZscore(double zScoreThreshold) {
       ParsedFullDataTypeSpec aParsedFullDataTypeSpec = new ParsedFullDataTypeSpec();
-      aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression, ComparisonOp
-               .convertCode("<="), (float) -zScoreThreshold));
-      aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression, ComparisonOp
-               .convertCode(">="), (float) zScoreThreshold));
+      aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression,
+              ComparisonOp.convertCode("<="), (float) -zScoreThreshold));
+      aParsedFullDataTypeSpec.addSpec(new ContinuousDataTypeSpec(GeneticDataTypes.Expression,
+              ComparisonOp.convertCode(">="), (float) zScoreThreshold));
       return aParsedFullDataTypeSpec;
    }
 
@@ -120,7 +121,8 @@ public class ValueParser {
          // System.err.println( "Cannot find " + gene + " in theOncoPrintSpecification.");
          return null;
       }
-      return new ValueParser(value, zScoreThreshold, theGeneWithSpec.getTheOncoPrintGeneDisplaySpec());
+      return new ValueParser(value, zScoreThreshold,
+              theGeneWithSpec.getTheOncoPrintGeneDisplaySpec());
    }
 
    // TODO: create a constructor that doesn't take a zScoreThreshold, to be used
@@ -141,22 +143,26 @@ public class ValueParser {
     * @param zScoreThreshold
     * @param theOncoPrintGeneDisplaySpec
     */
-   public ValueParser(String value, double zScoreThreshold, OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
+   public ValueParser(String value, double zScoreThreshold,
+           OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
 
       // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
       // inequality on Expression ...
       // then use the zScore to determine Expression thresholds
       ResultDataTypeSpec theResultDataTypeSpec = theOncoPrintGeneDisplaySpec
                .getResultDataTypeSpec(GeneticDataTypes.Expression);
-      if (null != theResultDataTypeSpec && null == theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec()
+      if (null != theResultDataTypeSpec && null ==
+              theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec()
                && null == theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec()) {
 
-         ParsedFullDataTypeSpec aParsedFullDataTypeSpec = createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
+         ParsedFullDataTypeSpec aParsedFullDataTypeSpec =
+                 createParsedFullDataTypeSpecFromZscore(zScoreThreshold);
 
          // combine this with the given OncoPrintGeneDisplaySpec
          ResultDataTypeSpec expressionResultDataTypeSpec = aParsedFullDataTypeSpec.cleanUpInput()
                   .getResultDataTypeSpec(GeneticDataTypes.Expression);
-         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(GeneticDataTypes.Expression, expressionResultDataTypeSpec);
+         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(GeneticDataTypes.Expression,
+                 expressionResultDataTypeSpec);
       }
       this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
       parseValue(value);
@@ -167,8 +173,10 @@ public class ValueParser {
       datatypeToValueMap = new HashMap<String, String>();
       String fields[] = str.split( ProfileMerger.VALUE_SEPARATOR );
       for (String field : fields) {
-         String parts[] = field.split( ProfileMerger.TYPE_VALUE_SEPARATOR, 2 );  // just split on the 1st colon, so that colon(s) within the value remain intact
-         if (parts != null && parts.length == 2) {  // TODO: throw exception if this conditional isn't true
+         // just split on the 1st colon, so that colon(s) within the value remain intact
+         String parts[] = field.split( ProfileMerger.TYPE_VALUE_SEPARATOR, 2 );
+         // TODO: throw exception if this conditional isn't true
+         if (parts != null && parts.length == 2) {
             String name = parts[0];
             String value = parts[1];
             datatypeToValueMap.put(name, value);
@@ -204,7 +212,8 @@ public class ValueParser {
 
       // check that theDiscreteGeneticDataType is a discrete datatype
       if (!theDiscreteGeneticDataType.getTheDataTypeCategory().equals(DataTypeCategory.Discrete)) {
-         throw new IllegalArgumentException("theDiscreteGeneticDataType is not a discrete datatype");
+         throw new IllegalArgumentException("theDiscreteGeneticDataType is not a " +
+                 "discrete datatype");
       }
 
       // TODO: make sure getValue() returns the right kind of int code
@@ -225,7 +234,8 @@ public class ValueParser {
       if (!theMeasuredGeneticTypeLevel.equals(theGeneticTypeLevel)) {
          return false;
       }
-      return this.theOncoPrintGeneDisplaySpec.satisfy(theDiscreteGeneticDataType, theGeneticTypeLevel);
+      return this.theOncoPrintGeneDisplaySpec.satisfy(theDiscreteGeneticDataType,
+              theGeneticTypeLevel);
    }
 
    /**
@@ -258,7 +268,8 @@ public class ValueParser {
 
       // check that theDiscreteGeneticDataType is a discrete datatype
       if (!theDiscreteGeneticDataType.getTheDataTypeCategory().equals(DataTypeCategory.Discrete)) {
-         throw new IllegalArgumentException("theDiscreteGeneticDataType is not a discrete datatype");
+         throw new IllegalArgumentException("theDiscreteGeneticDataType is not a " +
+                 "discrete datatype");
       }
 
       // TODO: make sure getValue() returns the right kind of int code
@@ -276,7 +287,8 @@ public class ValueParser {
       } catch (IllegalArgumentException e) {
          return false;
       }
-      return this.theOncoPrintGeneDisplaySpec.satisfy(theDiscreteGeneticDataType, theMeasuredGeneticTypeLevel);
+      return this.theOncoPrintGeneDisplaySpec.satisfy(theDiscreteGeneticDataType,
+              theMeasuredGeneticTypeLevel);
    }
 
    /**
@@ -285,8 +297,10 @@ public class ValueParser {
     */
    public GeneticTypeLevel getCNAlevel() {
       for (GeneticTypeLevel theGeneticTypeLevel : GeneticTypeLevel.values()) {
-         if (theGeneticTypeLevel.getTheGeneticDataType().equals(GeneticDataTypes.CopyNumberAlteration)) {
-            if (isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, theGeneticTypeLevel)) {
+         if (theGeneticTypeLevel.getTheGeneticDataType().equals
+                 (GeneticDataTypes.CopyNumberAlteration)) {
+            if (isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+                    theGeneticTypeLevel)) {
                return theGeneticTypeLevel;
             }
          }
@@ -297,36 +311,43 @@ public class ValueParser {
    // I'd prefer to just export getCNAlevel(), etc., but I guess
    // these are helpful for some callers
    public boolean isCnaAmplified() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.Amplified);
    }
 
    public boolean isCnaGained() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.Gained);
    }
 
    public boolean isCnaDiploid() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.Diploid);
    }
 
    public boolean isCnaHemizygouslyDeleted() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.HemizygouslyDeleted);
    }
 
    public boolean isCnaHomozygouslyDeleted() {
-      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted);
+      return isDiscreteTypeThisLevel(GeneticDataTypes.CopyNumberAlteration,
+              GeneticTypeLevel.HomozygouslyDeleted);
    }
 
    // general case for continuous types
-   private boolean doesContinuousValueExceedThreshold(GeneticDataTypes theContinuousGeneticDataType,
-            Direction theDirection) {
+   private boolean doesContinuousValueExceedThreshold(GeneticDataTypes
+           theContinuousGeneticDataType, Direction theDirection) {
       /*
        * if the measurement is available and it passes through the filter (which
        * checks the threshold) then yes else no
        */
 
       // check that theContinuousGeneticDataType is a continuous datatype
-      if (!theContinuousGeneticDataType.getTheDataTypeCategory().equals(DataTypeCategory.Continuous)) {
-         throw new IllegalArgumentException("theContinuousGeneticDataType is not a continuous datatype");
+      if (!theContinuousGeneticDataType.getTheDataTypeCategory().equals(
+              DataTypeCategory.Continuous)) {
+         throw new IllegalArgumentException("theContinuousGeneticDataType is " +
+                 "not a continuous datatype");
       }
 
       String value = getValue(convertGeneticType(theContinuousGeneticDataType));
@@ -344,7 +365,8 @@ public class ValueParser {
       }
       // out.println( measuredValue );
 
-      return this.theOncoPrintGeneDisplaySpec.satisfy(theContinuousGeneticDataType, measuredValue, theDirection);
+      return this.theOncoPrintGeneDisplaySpec.satisfy(theContinuousGeneticDataType,
+              measuredValue, theDirection);
    }
 
    public boolean isMRNAWayUp() {
@@ -374,7 +396,8 @@ public class ValueParser {
                   || mutationValue.equals(GeneticAlterationType.ZERO)) {
             return false;
          } else {
-            return this.theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated);
+            return this.theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation,
+                    GeneticTypeLevel.Mutated);
          }
       }
       return false;
@@ -417,7 +440,8 @@ public class ValueParser {
 
    // TODO: combine the union of all genetic types into one, include all, like
    // GeneticAlterationType.METHYLATION_BINARY
-   private static GeneticAlterationType convertGeneticType(GeneticDataTypes theDiscreteGeneticDataType) {
+   private static GeneticAlterationType convertGeneticType(GeneticDataTypes
+           theDiscreteGeneticDataType) {
       switch (theDiscreteGeneticDataType) {
          case CopyNumberAlteration:
             return GeneticAlterationType.COPY_NUMBER_ALTERATION;

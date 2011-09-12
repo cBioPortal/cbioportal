@@ -1,4 +1,3 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%
     String step2ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP2_ERROR_MSG);
 %>

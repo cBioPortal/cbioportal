@@ -67,10 +67,7 @@
     ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
     Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);

@@ -1,11 +1,8 @@
 <%
     Config globalConfig = Config.getInstance();
     String dataSetsHtml = globalConfig.getProperty("data_sets");
-    String siteTitle = globalConfig.getProperty("skin.title");
+    String siteTitle = SkinUtil.getTitle();
 
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
     if (dataSetsHtml == null) {
         dataSetsHtml = "content/data_sets.html";
     } else {
@@ -16,6 +13,7 @@
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Data Sets"); %>

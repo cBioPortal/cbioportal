@@ -1,14 +1,10 @@
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
 %>
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::CGDS R Library"); %>

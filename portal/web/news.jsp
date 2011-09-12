@@ -1,11 +1,8 @@
 <%
     Config globalConfig = Config.getInstance();
     String newsHtml = globalConfig.getProperty("news");
-    String siteTitle = globalConfig.getProperty("skin.title");
 
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
     if (newsHtml == null) {
         newsHtml = "content/news.html";
     } else {
@@ -16,6 +13,7 @@
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::What's New"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />

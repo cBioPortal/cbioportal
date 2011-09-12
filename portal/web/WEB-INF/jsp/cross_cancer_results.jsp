@@ -1,18 +1,13 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.Config" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
-<%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
+<%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
@@ -25,127 +20,113 @@
     geneList = Utilities.appendSemis(geneList);
     geneList = geneList.replaceAll("\\s+", " ");
     geneList = URLEncoder.encode(geneList);
-
 %>
 
-<jsp:include page="global/header.jsp" flush="true" />
+<jsp:include page="global/header.jsp" flush="true"/>
 
 <script type="text/javascript">
-$(document).ready(function(){
-    <%
-    //  Iterate through each Cancer Study
-    //  For each cancer study, init AJAX
-    for (CancerStudy cancerStudy:  cancerStudies) {
-    %>
-    $("#study_<%= cancerStudy.getCancerStudyStableId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerStudy.getCancerStudyStableId() %>');
-    <% } %>
-});
+    $(document).ready(function() {
+        $("#toggle_query_form").tipTip();
+
+        <%
+        //  Iterate through each Cancer Study
+        //  For each cancer study, init AJAX
+        for (CancerStudy cancerStudy:  cancerStudies) {
+        %>
+            $("#study_<%= cancerStudy.getCancerStudyStableId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerStudy.getCancerStudyStableId() %>');
+        <% } %>
+    });
 </script>
 
-    <table>
-        <tr>
-            <td>
+<table>
+    <tr>
+        <td>
 
             <div id="results_container">
 
-<div class="ui-state-highlight ui-corner-all">
-    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em; margin-left: .3em"></span>
-    Results are available for <strong><%= (cancerStudies.size()) %>
-    cancer studies</strong>.  Click each cancer study below to view a summary of results.
-    </p>
+                <div class="ui-state-highlight ui-corner-all">
+                    <p><span class="ui-icon ui-icon-info"
+                             style="float: left; margin-right: .3em; margin-left: .3em"></span>
+                        Results are available for <strong><%= (cancerStudies.size()) %>
+                        cancer studies</strong>. Click each cancer study below to view a summary of
+                        results.
+                    </p>
+                </div>
+
+                <p><a href=""
+                      title="Modify your original query.  Recommended over hitting your browser's back button."
+                      id="toggle_query_form">
+                    <span class='query-toggle ui-icon ui-icon-triangle-1-e'
+                          style='float:left;'></span>
+                    <span class='query-toggle ui-icon ui-icon-triangle-1-s'
+                          style='float:left; display:none;'></span><b>Modify Query</b></a>
+
+                <p/>
+
+                <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+                    <%@ include file="query_form.jsp" %>
+                </div>
+
+                <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>
+
+                <script>
+                    jQuery(document).ready(function() {
+                        $('#accordion .head').click(function() {
+                            //  This toggles the next element, right after head,
+                            //  which is the accordion ajax panel
+                            $(this).next().toggle();
+                            //  This toggles the ui-icons within head
+                            jQuery(".ui-icon", this).toggle();
+                            return false;
+                        }).next().hide();
+                    });
+                </script>
+
+                <div id="accordion">
+                    <% outputCancerStudies(cancerStudies, out); %>
+                </div>
+
+            </div>
+            <!-- end results container -->
+        </td>
+    </tr>
+</table>
 </div>
-
-<script type="text/javascript">
-$(document).ready(function(){
-
-    // Init Tool Tips
-    $("#toggle_query_form").tipTip();
-
-});
-</script>
-
-<p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
-<span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-<span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
-<p/>
-
-<div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-<%@ include file="query_form.jsp" %>
-</div>
-
-<div class="accordion_panel">
-<img style="vertical-align:middle;" src='images/oncoPrint/amplified-notShown-normal.png' alt='amplified-notShown-normal.png' width='6' height='17'/>
-<span style="vertical-align:middle;">Amplification</span>
-<img style="vertical-align:middle;" src='images/oncoPrint/homoDeleted-notShown-normal.png' alt='homoDeleted-notShown-normal.png' width='6' height='17'/>
-<span style="vertical-align:middle;">Homozygous Deletion</span>
-<img style="vertical-align:middle;" src='images/oncoPrint/diploid-notShown-mutated.png' alt='diploid-notShown-mutated.png' width='6' height='17'/>
-<span style="vertical-align:middle;">Mutation</span>
-<div style="float:right;">Copy number alterations are putative.<br/></div>
-</div>
-
-<script>
-jQuery(document).ready(function(){
-	$('#accordion .head').click(function() {
-        //  This toggles the next element, right after head, which is the accordion ajax panel
-        $(this).next().toggle();
-        //  This toggles the ui-icons within head 
-        jQuery(".ui-icon", this).toggle();
-        return false;
-	}).next().hide();
-
-    //  If we have X or fewer panels, open them all;
-    //  Otherwise, just open the first one
-    var numAccordionPanels = $('#accordion .head').length;
-    if (numAccordionPanels <= 5) {
-        $("#accordion .head").next().show();
-        $("#accordion .head .ui-icon").toggle();
-    } else {
-        $("#accordion .head:first").next().show();
-        $("#accordion .head:first .ui-icon").toggle();
-    }
-});
-</script>
-
-<div id="accordion">
-    <%
-        for (CancerStudy cancerStudy:  cancerStudies) {
-            if (!cancerStudy.getCancerStudyStableId().equals("all")) {
-                out.println ("<div class='accordion_panel'>");
-                out.println ("<h1 class='head'>");
-                //  output triangle icons
-                //  the float:left style is required;  otherwise icons appear on their own line.
-                out.println ("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
-                out.println ("<span class='ui-icon ui-icon-triangle-1-s'"
-                    + " style='float:left;display:none;'></span>");
-                out.println (cancerStudy.getName() + "</h1>");
-                out.println ("<div class='accordion_ajax' id=\"study_" + cancerStudy.getCancerStudyStableId() + "\">");
-                out.println ("<img src='images/ajax-loader2.gif'>");
-                out.println ("</div>");
-                out.println ("</div>");
-            }
-        }
-    %>
-</div> <!-- end div accordion -->
-
-            </div>  <!-- end results container -->
-            </td>
-        </tr>
-    </table>
-    </div>
-    </td>
-   <!-- <td width="172">
-
-    </td>   -->
-  </tr>
-  <tr>
+</td>
+</tr>
+<tr>
     <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />
+        <jsp:include page="global/footer.jsp" flush="true"/>
     </td>
-  </tr>
+</tr>
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />    
+<jsp:include page="global/xdebug.jsp" flush="true"/>
 
 </body>
 </html>
+
+<%!
+    private void outputCancerStudies(ArrayList<CancerStudy> cancerStudies,
+            JspWriter out) throws IOException {
+        for (CancerStudy cancerStudy : cancerStudies) {
+            out.println("<div class='accordion_panel'>");
+            out.println("<h1 class='head'>");
+
+            //  output triangle icons
+            //  the float:left style is required;  otherwise icons appear on their own line.
+            out.println("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>");
+            out.println("<span class='ui-icon ui-icon-triangle-1-s'"
+                    + " style='float:left;display:none;'></span>");
+            out.println(cancerStudy.getName());
+            out.println("<span class='percent_altered' id='percent_altered_" + cancerStudy.getCancerStudyStableId()
+                    + "' style='float:right'><img src='images/ajax-loader2.gif'></span>");
+            out.println("</h1>");
+            out.println("<div class='accordion_ajax' id=\"study_"
+                    + cancerStudy.getCancerStudyStableId() + "\">");
+            out.println("</div>");
+            out.println("</div>");
+        }
+    }
+%>

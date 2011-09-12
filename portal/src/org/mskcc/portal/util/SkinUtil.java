@@ -6,6 +6,7 @@ package org.mskcc.portal.util;
  * @author Ethan Cerami.
  */
 public class SkinUtil {
+    public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
 
     /**
      * Gets the Site Title.
@@ -13,7 +14,12 @@ public class SkinUtil {
      */
     public static String getTitle() {
         Config config = Config.getInstance();
-        return config.getProperty("skin.title");
+        String skinTitle = config.getProperty("skin.title");
+        if (skinTitle == null) {
+            return DEFAULT_TITLE;
+        } else {
+            return skinTitle;
+        }
     }
 
     /**

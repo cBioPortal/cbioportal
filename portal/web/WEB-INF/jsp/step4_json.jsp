@@ -1,6 +1,4 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
-
 <%
     String step4ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP4_ERROR_MSG);
 %>
@@ -32,7 +30,7 @@ if (step4ErrorMsg != null) {
     <P/>
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
-        out.println(Utilities.appendSemis(localGeneList));
+        out.println(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
     }
 %>
 </textarea>

@@ -32,7 +32,7 @@ public class GetProteinArrayData {
      * @throws DaoException 
      */
     public static Map<String,ProteinArrayInfo> getProteinArrayInfo(List<String> geneList,
-                                      Collection<String> types, XDebug xdebug) throws DaoException {
+                                      Collection<String> types) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         List<ProteinArrayInfo> pais;
         
@@ -67,7 +67,7 @@ public class GetProteinArrayData {
      * @throws RemoteException 
      */
     public static Map<String,Map<String,Double>> getProteinArrayData(Collection<String> proteinArrayIds,
-            Collection<String> caseIds, XDebug xdebug) throws RemoteException, DaoException {
+            Collection<String> caseIds) throws RemoteException, DaoException {
         List<ProteinArrayData> pads = DaoProteinArrayData.getInstance().getProteinArrayData(proteinArrayIds, caseIds);
         
         Map<String,Map<String,Double>> ret = new HashMap<String,Map<String,Double>>();

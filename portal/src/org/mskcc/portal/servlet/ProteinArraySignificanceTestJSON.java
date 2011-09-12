@@ -3,7 +3,6 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.inference.TestUtils;
+import org.apache.log4j.Logger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -29,13 +29,15 @@ import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.ProteinArrayInfo;
 import org.mskcc.portal.remote.GetProteinArrayData;
-import org.mskcc.portal.util.XDebug;
+
+import org.owasp.validator.html.PolicyException;
 
 /**
  *
  * @author jj
  */
 public class ProteinArraySignificanceTestJSON extends HttpServlet {
+    private static Logger logger = Logger.getLogger(ProteinArraySignificanceTestJSON.class);
 
     public static final String HEAT_MAP = "heat_map";
     public static final String GENE = "gene";
@@ -43,6 +45,23 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     public static final String ANTIBODY_TYPE = "antibody";
     public static final String EXCLUDE_ANTIBODY_TYPE = "exclude_antibody";
     public static final String DATA_SCALE = "data_scale";
+
+    private static ServletXssUtil servletXssUtil;
+
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
+            servletXssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            throw new ServletException (e);
+        }
+    }
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -53,64 +72,67 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        XDebug xdebug = new XDebug(request);
-        JSONArray table = new JSONArray();
-        
-        // get heat map
-        String heatMap = request.getParameter(HEAT_MAP);
-        String gene = request.getParameter(GENE);
-        String alterationType = request.getParameter(ALTERATION_TYPE);
-        String antibodyType = request.getParameter(ANTIBODY_TYPE);
-        String excludeAntibodyType = request.getParameter(EXCLUDE_ANTIBODY_TYPE);
-        String strDataScale = request.getParameter(DATA_SCALE);
-        double dataScale = strDataScale==null?0:Double.parseDouble(strDataScale);
-        
-        Collection<String> antibodyTypes;
-        if (antibodyType==null) {
-            if (excludeAntibodyType == null) {
-                antibodyTypes = null; // include all
-            } else {
-                try {
-                    antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
-                    antibodyTypes.removeAll(Arrays.asList(excludeAntibodyType.split(" ")));
-                } catch (DaoException e) {
-                    throw new ServletException(e);
+        try {
+            JSONArray table = new JSONArray();
+
+            // get heat map
+            String heatMap = servletXssUtil.getCleanInput(request, HEAT_MAP);
+            String gene = servletXssUtil.getCleanInput(request, GENE);
+            String alterationType = servletXssUtil.getCleanInput(request, ALTERATION_TYPE);
+            String antibodyType = servletXssUtil.getCleanInput(request, ANTIBODY_TYPE);
+            String excludeAntibodyType = servletXssUtil.getCleanInput(request, EXCLUDE_ANTIBODY_TYPE);
+            String strDataScale = servletXssUtil.getCleanInput(request, DATA_SCALE);
+            double dataScale = strDataScale==null?0:Double.parseDouble(strDataScale);
+
+            Collection<String> antibodyTypes;
+            if (antibodyType==null) {
+                if (excludeAntibodyType == null) {
+                    antibodyTypes = null; // include all
+                } else {
+                    try {
+                        antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
+                        antibodyTypes.removeAll(Arrays.asList(excludeAntibodyType.split(" ")));
+                    } catch (DaoException e) {
+                        throw new ServletException(e);
+                    }
                 }
+            } else {
+                antibodyTypes = Arrays.asList(antibodyType.split(" "));
             }
-        } else {
-            antibodyTypes = Arrays.asList(antibodyType.split(" "));
-        }
-        
-        String[] heatMapLines = heatMap.split("\r?\n");
-        String[] genes = heatMapLines[0].split("\t");
-        genes[0] = "Any";
-        Set<String> allCases = getAllCases(heatMapLines);
-        Map<String,Set<String>>[] alteredCases = getAlteredCases(heatMapLines, genes, gene, alterationType);
-        
-        Map<String,ProteinArrayInfo> proteinArrays;
-        Map<String,Map<String,Double>> proteinArrayData;
-        try {
-            proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, antibodyTypes, xdebug);
-            proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases, xdebug);
-        } catch (DaoException e) {
-            throw new ServletException(e);
-        }
-        
-        if (gene==null) {        
-            for (int i=0; i<genes.length; i++) {
-                export(table, genes[i], alteredCases[i], proteinArrays, proteinArrayData, dataScale);
+
+            String[] heatMapLines = heatMap.split("\r?\n");
+            String[] genes = heatMapLines[0].split("\t");
+            genes[0] = "Any";
+            Set<String> allCases = getAllCases(heatMapLines);
+            Map<String,Set<String>>[] alteredCases = getAlteredCases(heatMapLines, genes, gene, alterationType);
+
+            Map<String,ProteinArrayInfo> proteinArrays;
+            Map<String,Map<String,Double>> proteinArrayData;
+            try {
+                proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, antibodyTypes);
+                proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases);
+            } catch (DaoException e) {
+                throw new ServletException(e);
             }
-        } else {
-            export(table, gene, alteredCases[0], proteinArrays, proteinArrayData, dataScale);
-        }
-                
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        try {
-            JSONValue.writeJSONString(table, out);
-            //out.print(JSONValue.toJSONString(table));
-        } finally {            
-            out.close();
+
+            if (gene==null) {        
+                for (int i=0; i<genes.length; i++) {
+                    export(table, genes[i], alteredCases[i], proteinArrays, proteinArrayData, dataScale);
+                }
+            } else {
+                export(table, gene, alteredCases[0], proteinArrays, proteinArrayData, dataScale);
+            }
+
+            response.setContentType("application/json");
+            PrintWriter out = response.getWriter();
+            try {
+                JSONValue.writeJSONString(table, out);
+                //out.print(JSONValue.toJSONString(table));
+            } finally {            
+                out.close();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
     }
     

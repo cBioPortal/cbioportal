@@ -7,14 +7,15 @@
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="java.text.DecimalFormat" %>
 
 <%
     ArrayList<GeneticProfile> geneticProfileList =
             (ArrayList<GeneticProfile>)
-            request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
+                    request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashMap<String, GeneticProfile> defaultGeneticProfileSet =
             (HashMap<String, GeneticProfile>)
-            request.getAttribute(CrossCancerSummaryServlet.DEFAULT_GENETIC_PROFILES);
+                    request.getAttribute(CrossCancerSummaryServlet.DEFAULT_GENETIC_PROFILES);
     ArrayList<CaseList> caseSetList = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String defaultCaseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
@@ -26,7 +27,10 @@
             (CrossCancerSummaryServlet.CANCER_STUDY_DETAILS_URL);
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
     ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
+    String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
     int fingerPrintPanelHeight = 120 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
+    DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
+    String percentCasesAffected = percentFormat.format(dataSummary.getPercentCasesAffected());
 %>
 
 <script type="text/javascript">
@@ -39,6 +43,9 @@ $(document).ready(function(){
     $(".hide_details").click(function(event) {
       event.preventDefault();
     });
+
+    var ajaxPercentAltered = "#percent_altered_<%= cancerStudyId %>";
+    $(ajaxPercentAltered).html("Altered in <%= percentCasesAffected %> of cases.");
 });
 </script>
 <%

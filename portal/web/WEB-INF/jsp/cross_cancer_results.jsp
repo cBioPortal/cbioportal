@@ -72,23 +72,13 @@
                 <script>
                     jQuery(document).ready(function() {
                         $('#accordion .head').click(function() {
-                            //  This toggles the next element, right after head, which is the accordion ajax panel
+                            //  This toggles the next element, right after head,
+                            //  which is the accordion ajax panel
                             $(this).next().toggle();
                             //  This toggles the ui-icons within head
                             jQuery(".ui-icon", this).toggle();
                             return false;
                         }).next().hide();
-
-                        //  If we have X or fewer panels, open them all;
-                        //  Otherwise, just open the first one
-                        var numAccordionPanels = $('#accordion .head').length;
-                        if (numAccordionPanels <= 5) {
-                            $("#accordion .head").next().show();
-                            $("#accordion .head .ui-icon").toggle();
-                        } else {
-                            $("#accordion .head:first").next().show();
-                            $("#accordion .head:first .ui-icon").toggle();
-                        }
                     });
                 </script>
 
@@ -130,10 +120,11 @@
             out.println("<span class='ui-icon ui-icon-triangle-1-s'"
                     + " style='float:left;display:none;'></span>");
             out.println(cancerStudy.getName());
+            out.println("<span class='percent_altered' id='percent_altered_" + cancerStudy.getCancerStudyStableId()
+                    + "' style='float:right'><img src='images/ajax-loader2.gif'></span>");
             out.println("</h1>");
             out.println("<div class='accordion_ajax' id=\"study_"
                     + cancerStudy.getCancerStudyStableId() + "\">");
-            out.println("<img src='images/ajax-loader2.gif'>");
             out.println("</div>");
             out.println("</div>");
         }

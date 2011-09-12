@@ -355,7 +355,7 @@ function geneSetSelected() {
     var gene_set = window.metaDataJson.gene_sets[geneSetId];
 
     //  Set the gene list text area
-    $("#gene_list").html(gene_set.gene_list);
+    $("#gene_list").val(gene_set.gene_list);
 }
 
 //  Adds Meta Data to the Page.

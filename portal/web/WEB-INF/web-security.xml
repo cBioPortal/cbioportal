@@ -102,6 +102,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>generatePlots</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
@@ -123,6 +128,11 @@
     <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -171,6 +181,16 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
     </servlet-mapping>
@@ -183,6 +203,11 @@
     <servlet-mapping>
         <servlet-name>network</servlet-name>
         <url-pattern>/network.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

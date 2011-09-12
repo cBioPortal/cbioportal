@@ -46,6 +46,7 @@
       <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/protein_exp.jsp" access="permitAll"/>
       <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
 	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
@@ -58,6 +59,9 @@
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="permitAll"/>
+	  <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 

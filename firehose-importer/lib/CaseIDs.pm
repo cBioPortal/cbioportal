@@ -19,7 +19,7 @@ use Data::Dumper;
 # pattern constants, so they're not duplicated
 # todo: convert these to lists of IDs and pattern transformations for each category
 my $tumorPatternStandard = '^(TCGA-\w\w-\w\w\w\w)\-01[A-Q].*$'; # A-Q recognizes all sample sequences up to R for recurrent
-my $tumorPatternJunky = '.*(\w\w\-\w\d\d\w)-Tumor$'; # junky Jan 2011 pattern
+my $tumorPatternJunky = '.*(\w\w\-\w\d\d\w)(-|-D-|-DN-|_DN-)Tumor$'; # junky Jan 2011 pattern
 my $tumorPatternOvMAF = '^(TCGA-\w\w-\w\w\w\w)\-01$'; # ov MAF pattern, at least in Jan 2011, e.g., TCGA-13-1481-01
 my $truncatedCaseID = '^(TCGA-\w\w-\w\w\w\w)$'; # a truncated case ID, as appeared in Dec 2010 maf files, we assume these are tumor IDs
 

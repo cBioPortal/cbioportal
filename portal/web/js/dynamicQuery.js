@@ -18,6 +18,10 @@ var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
 var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
 
+//  Create Log Function, if FireBug is now Installed.
+if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
+    var console = { log: function() { } };
+
 //  Triggered only when document is ready.
 $(document).ready(function(){
 
@@ -26,6 +30,7 @@ $(document).ready(function(){
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_cancer_type").change(function() {
+         console.log("#select_cancer_type change ( cancerStudySelected() )");
          cancerStudySelected();
      });
 
@@ -144,12 +149,35 @@ function crossCancerStudySelected() {
      $('#cancer_study_desc').hide();
 }
 
-//  Display extra steps and make default selections
-//  when an individual cancer study is selected
+//  Display extra steps when an individual cancer study is selected
 function singleCancerStudySelected() {
+    $("#step2").show();
+    $("#step3").show();
+    $("#step5").show();
+    $("#cancer_study_desc").show();
+}
 
-    if (window.tab_index != "tab_download"){ // download tab has no defaults
+//  Select default genomic profiles
+function makeDefaultSelections(){
 
+    $('.' + PROFILE_MUTATION_EXTENDED).attr('checked',true);
+    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':checkbox').attr('checked',true);
+    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':radio').first().attr('checked',true);
+
+}
+
+// Triggered after meta data is added to page in case page is
+// re-drawn after query error and also any time a new cancer
+// type is selected; Assesses the need for default selections
+// and sets the visibility of each step based on current selections
+function reviewCurrentSelections(){
+
+   console.log("reviewCurrentSelections()");
+
+   // Unless the download tab has been chosen or 'All Cancer Studies' is
+   // selected, iterate through checkboxes to see if any are selected; if not,
+   // make default selections
+   if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
         var setDefaults = true;
 
         // if no checkboxes are checked, make default selections
@@ -161,35 +189,21 @@ function singleCancerStudySelected() {
         });
 
         if (setDefaults){
+            console.log("reviewCurrentSelections ( makeDefaultSelections() )");
             makeDefaultSelections();
         }
-    }
+   } 
 
-    $("#step2").show();
-    $("#step3").show();
-    $("#step5").show();
-    $("#cancer_study_desc").show();
-}
-
-//  Select default genomic profiles
-function makeDefaultSelections(){
-     $('.' + PROFILE_MUTATION_EXTENDED).attr('checked',true);
-     $('.' + PROFILE_COPY_NUMBER_ALTERATION +':checkbox').attr('checked',true);
-     $('.' + PROFILE_COPY_NUMBER_ALTERATION +':radio').first().attr('checked',true);
-}
-
-//  Determine whether there are any sections that need to be
-//  shown/hidden based on current selections (for now, this
-//  really only applies to the modify query section on
-//  results page)
-function reviewCurrentSelections(){
-
+   // determine whether mRNA threshold field should be shown or hidden
+   // based on which, if any mRNA profiles are selected
    if ($("." + PROFILE_MRNA_EXPRESSION).length >= 1){
         $("." + PROFILE_MRNA_EXPRESSION).each(function(){
+            console.log("reviewCurrentSelections ( togglemRNAThresholdPanel() )");
             togglemRNAThresholdPanel($(this));
         });
    }
 
+   // determine whether optional arguments section should be shown or hidden
    if ($("#optional_args > input").length >= 1){
        $("#optional_args > input").each(function(){
            if ($(this).attr('checked')){
@@ -232,6 +246,13 @@ function profileGroupCheckBoxSelected(profileGroup) {
     $(radioSelector).attr('checked',false);
 }
 
+//  Print message and disable submit if use choosed a cancer type
+//  for which no genomic profiles are available
+function genomicProfilesUnavailable(){
+    $("#genomic_profiles").html("<strong>No Genomic Profiles available for this Cancer Study</strong>");
+    $('#main_submit').attr('disabled',true);
+}
+
 // Show or hide mRNA threshold field based on mRNA profile selected
 function togglemRNAThresholdPanel(profileClicked) {
     var selectedProfile = profileClicked.val();
@@ -262,6 +283,10 @@ function togglemRNAThresholdPanel(profileClicked) {
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
 function cancerStudySelected() {
+
+    //  make sure submit button is enabled unless determined otherwise by lack of data
+    $("#main_submit").attr("disabled",false);
+
     var cancerStudyId = $("#select_cancer_type").val();
     if (cancerStudyId=='all'){
         crossCancerStudySelected();
@@ -269,6 +294,7 @@ function cancerStudySelected() {
     }
 
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
+
 
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
@@ -286,7 +312,14 @@ function cancerStudySelected() {
     
     //  show protein level rppa data in the download tab
     if (window.tab_index == "tab_download") {
-        addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", "RPPA");;
+        addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", "RPPA");
+    }
+
+
+    //  if no genomic profiles available, set message and disable submit button
+    if ($("#genomic_profiles").html()==""){
+        console.log("cancerStudySelected ( genomicProfilesUnavailable() )");
+        genomicProfilesUnavailable();
     }
 
     //  Update the Case Set Pull-Down Menu
@@ -327,8 +360,10 @@ function cancerStudySelected() {
        togglemRNAThresholdPanel($(this));
     });
 
-    // Set default selections and make sure all steps are visible 
+    // Set default selections and make sure all steps are visible
+    console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
+    console.log("cancerStudySelected ( reviewCurrentSelections() )");
 }
 
 //  Triggered when a case set has been selected, either by the user
@@ -361,7 +396,7 @@ function geneSetSelected() {
 //  Adds Meta Data to the Page.
 //  Tiggered at the end of successful AJAX/JSON request.
 function addMetaDataToPage() {
-
+    console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
     //  Iterate through all cancer studies
@@ -375,6 +410,7 @@ function addMetaDataToPage() {
             addCancerStudy = false;
         }
         if (addCancerStudy) {
+            console.log("Adding Cancer Study:  " + cancer_study.name);
             $("#select_cancer_type").append("<option value='" + key + "'>" + cancer_study.name + "</option>");
         }
         
@@ -391,6 +427,7 @@ function addMetaDataToPage() {
         // Set Selected Cancer Type, Based on User Parameter
         if (key == window.cancer_study_id_selected) {
             $("#select_cancer_type").val(key);
+            console.log("addMetaDataToPage ( cancerStudySelected() )");
             cancerStudySelected();
         } 
     });  //  end 2nd for each cancer study loop
@@ -416,6 +453,7 @@ function addMetaDataToPage() {
 
         //  if the user has this stable ID already selected, mark it as checked
         if (window.genomic_profile_id_selected[currentValue] == 1) {
+            console.log("Checking " + $(this).attr('id') + "... (inside addMetaDataToPage())");
             $(this).attr('checked','checked');
             //  Select the surrounding checkbox
             genomicProfileRadioButtonSelected($(this));
@@ -454,6 +492,8 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
     if (numProfiles == 0) {
         return;
     } else if(numProfiles >1 && downloadTab == false) {
+        // enable submit button
+        $('#main_submit').attr('disabled', false);
         //  If we have more than 1 profile, output group checkbox
         //  assign a class to associate the checkbox with any subgroups (radio buttons)
         profileHtml += "<input type='checkbox' class='" + targetClass + "'>"

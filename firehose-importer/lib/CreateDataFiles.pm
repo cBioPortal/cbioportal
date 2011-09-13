@@ -269,7 +269,8 @@ sub create_data_mutations_extended{
     }
 
     # get amino_acid_change 
-    # MA:variant <- if( MA:link.MSA is available use that (or the renamed MA_MSA), else use Protein_Change )
+    # MA:variant <- if( MA:link.MSA is available use that (or the renamed MA_MSA), else use amino_acid_change_WU or AAChange or
+    # Protein_Change or amino_acid_change)
 
     # if an MA:variant col exists, delete it
     if( exists( $data->{'MA:variant'} ) ){
@@ -285,23 +286,56 @@ sub create_data_mutations_extended{
 	    ${MA:variant} = ''; 
 
         # all covered in testAAChangeSimple
-	    if( defined( ${'MA:link.MSA'} ) && ${'MA:link.MSA'} =~ m|var=(.+)$| ){
-	    	${MA:variant} = $1; 
-	    }else{
-            # Protein_Change examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
-            unless( defined( $Protein_Change ) ){
-            	return;
-            } 
-            if( $Protein_Change =~ m/^NULL$/ ){
-                return;
-            }
-            if( $Protein_Change =~ m/^p\.(.+)$/ ){
-                ${MA:variant} = $1; 
-                return;
-            }
-            ${MA:variant} = $Protein_Change;  
-	    };
-	}, undef, existingCols( $data, qw( MA:link.MSA MA:variant Protein_Change ) ) );
+	    if( defined( ${'MA:link.MSA'} )) {
+          if ( ${'MA:link.MSA'} =~ m|var=(.+)$| ){
+            ${MA:variant} = $1; 
+          }
+	    }
+        # amino_acid_change_WU examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
+        elsif(defined($amino_acid_change_WU)) {
+          if ($amino_acid_change_WU =~ m/^NULL$/ ){
+            return;
+          }
+          if( $amino_acid_change_WU =~ m/^p\.(.+)$/ ){
+            ${MA:variant} = $1; 
+            return;
+          }
+          ${MA:variant} = $amino_acid_change_WU;
+        }
+        # AAChange examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
+        elsif(defined($AAChange)) {
+          if ($AAChange =~ m/^NULL$/ ){
+            return;
+          }
+          if( $AAChange =~ m/^p\.(.+)$/ ){
+            ${MA:variant} = $1; 
+            return;
+          }
+          ${MA:variant} = $AAChange;
+        }
+        # Protein_Change examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
+        elsif( defined( $Protein_Change ) ){
+          if( $Protein_Change =~ m/^NULL$/ ){
+            return;
+          }
+          if( $Protein_Change =~ m/^p\.(.+)$/ ){
+            ${MA:variant} = $1; 
+            return;
+          }
+          ${MA:variant} = $Protein_Change;  
+        }
+        # amino_acid_change examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
+        elsif(defined($amino_acid_change)) {
+          if ($amino_acid_change =~ m/^NULL$/ ){
+            return;
+          }
+          if( $amino_acid_change =~ m/^p\.(.+)$/ ){
+            ${MA:variant} = $1; 
+            return;
+          }
+          ${MA:variant} = $amino_acid_change;
+        }
+	}, undef, existingCols( $data, qw( MA:link.MSA MA:variant amino_acid_change_WU AAChange Protein_Change amino_acid_change ) ) );
 
     # map MA:FImpact by { high => H, medium => 'M', low => 'L', neutral => 'N' }
     my %impactMap = ( high => 'H', medium => 'M', low => 'L', neutral => 'N' );

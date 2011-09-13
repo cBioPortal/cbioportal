@@ -1,14 +1,12 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <%
     Config globalConfig = Config.getInstance();
     String faqHtml = globalConfig.getProperty("faq");
-    String siteTitle = globalConfig.getProperty("skin.title");
+    String siteTitle = SkinUtil.getTitle();
 
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
     if (faqHtml == null) {
         faqHtml = "content/faq.html";
     } else {

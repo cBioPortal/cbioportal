@@ -1,4 +1,3 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%
     if (localTabIndex != null && localTabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
 %>

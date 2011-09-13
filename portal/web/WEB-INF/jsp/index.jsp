@@ -6,7 +6,7 @@
 <%
     org.mskcc.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
+    String siteTitle = SkinUtil.getTitle();
     String popeye = globalConfig.getProperty("popeye");
 
     if (popeye == null) {

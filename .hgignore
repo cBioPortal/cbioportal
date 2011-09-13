@@ -22,3 +22,6 @@ cgds/build
 cgds/data
 .idea/
 ^cgds/nbproject$
+cBioPortal.ipr
+cBioPortal.iws
+cbio-cancer-genomics-portal.iml

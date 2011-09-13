@@ -35,6 +35,7 @@ public class OmaLinkUtil {
      * @throws MalformedURLException Malformed URL Error.
      */
     public static String createOmaRedirectLink(String omaUrl) throws MalformedURLException {
+        omaUrl = conditionallyPrependHttp(omaUrl);
         URL url = new URL (omaUrl);
         String site = url.getHost();
         String path = url.getPath();
@@ -64,6 +65,13 @@ public class OmaLinkUtil {
 
         String queryString = createQueryString(keyList, paramMap);
         return "http://" + path + "?" + queryString;
+    }
+
+    private static String conditionallyPrependHttp(String omaUrl) {
+        if (!omaUrl.startsWith("http://")) {
+            omaUrl = "http://" + omaUrl;
+        }
+        return omaUrl;
     }
 
     private static String removePath(String omaQueryString) {

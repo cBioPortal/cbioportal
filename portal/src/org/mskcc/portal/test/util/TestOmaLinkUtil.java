@@ -41,4 +41,14 @@ public class TestOmaLinkUtil extends TestCase {
         String omaLink = OmaLinkUtil.createOmaLink(omaLinkOut);
         assertEquals (omaLinkIn, omaLink);
     }
+
+    public void testOmaLinkUtil4() throws MalformedURLException {
+        String omaLinkIn = "mutationassessor.org/?" + queryStringParams1;
+        String omaLinkOut = OmaLinkUtil.createOmaRedirectLink(omaLinkIn);
+        assertEquals("omaRedirect.do?site=mutationassessor.org/&" + queryStringParams1, omaLinkOut);
+
+        String omaLink = OmaLinkUtil.createOmaLink("site=mutationassessor.org/&"
+                + queryStringParams1);
+        assertEquals ("http://" + omaLinkIn, omaLink);
+    }
 }

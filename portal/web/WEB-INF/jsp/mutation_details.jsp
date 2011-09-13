@@ -8,6 +8,9 @@
 <%@ page import="org.mskcc.portal.mapback.MapBack" %>
 <%@ page import="org.mskcc.portal.mapback.Brca2" %>
 <%@ page import="org.mskcc.portal.util.OmaLinkUtil" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="java.net.MalformedURLException" %>
+<%@ page import="org.apache.log4j.Logger" %>
 <%
     int numGenesWithMutationDetails = 0;
     for (GeneWithScore geneWithScore : geneWithScoreList) {
@@ -157,57 +160,17 @@
                                     out.println(newCell + center + "</td>");
                             out.println(newCell + mutation.getAminoAcidChange() + "</td>");
 
-                            String faScore = mutation.getFunctionalImpactScore();
-
-                            String href = "";
-                            String xVarLink;
-                            if( !mutation.getLinkXVar().equalsIgnoreCase("na")){
-                               xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
-                               href = "<a href=\"" + xVarLink + "\">";
-                            }
-                            
+                            // Output OMA Links 
                             out.println(newCell);
-                            String impact = "";
-                            if (faScore.equalsIgnoreCase("H")) {
-                               impact = "<span class='high'>" + href + "High";
-                            } else if (faScore.equalsIgnoreCase("M")) {
-                                impact = "<span class='medium'>" + href + "Medium";
-                            } else if (faScore.equalsIgnoreCase("L")) {
-                                impact = "<span class='low'>" + href + "Low";
-                            } else if (faScore.equals("N")) {
-                                impact = "<span class='neutral'>" + href + "Neutral";
-                            } else {
-                                impact = "<span></span>";
-                            }
-                            if( !href.equals("") ){
-                               impact = impact + "</a>";
-                            }
-                            out.println( impact + "</span>" + "</td>");
-
-                            out.println(newCell);
-                            if (mutation.getLinkMsa() != null && mutation.getLinkMsa().length() > 0) {
-                               if (!mutation.getLinkMsa().equalsIgnoreCase("NA")) {
-                                    String urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
-                                    out.println("<a href=\"" + urlMsa + "\">Alignment</a>");
-                               } else {
-                                    out.println("&nbsp;");
-                               }
-                            } else {
-                                out.println("&nbsp;");
-                            }
-
+                            outputFiScore(out, mutation);
                             out.println("</td>");
+
                             out.println(newCell);
-                            if (mutation.getLinkPdb() != null && mutation.getLinkPdb().length() > 0) {
-                               if( !mutation.getLinkPdb().equalsIgnoreCase("NA") ){
-                                  String urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-                                  out.println("<a href=\"" + urlPdb + "\">Structure</a>");
-                               } else {
-                                    out.println("&nbsp;");
-                               }
-                            } else {
-                                out.println("&nbsp;");
-                            }
+                            outputMsaLink(out, mutation);
+                            out.println("</td>");
+
+                            out.println(newCell);
+                            outputPdbLink(out, mutation);
                             out.println("</td>");
                             
                             // TODO: remove gene-specific code and generalize 
@@ -261,3 +224,102 @@
     <% if (numGenesWithMutationDetails > 0) {
         out.println("</div></div>");      //end map div, end section div
     } %>
+<%!
+    private static Logger logger = Logger.getLogger("mutation_details.jsp");
+
+    private void outputPdbLink(JspWriter out, ExtendedMutation mutation) throws IOException {
+        if (linkIsValid(mutation.getLinkPdb())) {
+            try {
+                String urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+                out.println("<a href=\"" + urlPdb + "\">Structure</a>");
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL:  " + e.getMessage());
+                outputSpacer(out);
+            }
+        } else {
+            outputSpacer(out);
+        }
+    }
+
+    private void outputMsaLink(JspWriter out, ExtendedMutation mutation) throws IOException {
+        if (linkIsValid(mutation.getLinkMsa())) {
+            try {
+                String urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
+                out.println("<a href=\"" + urlMsa + "\">Alignment</a>");
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL:  " + e.getMessage());
+                outputSpacer(out);
+            }
+        } else {
+            outputSpacer(out);
+        }
+    }
+
+    private void outputFiScore(JspWriter out, ExtendedMutation mutation) throws IOException {
+        String faScore = mutation.getFunctionalImpactScore();
+        String impactStyle = getImpactStyle(faScore);
+        String impactKeyword = getImpactKeyword(faScore);
+        if (linkIsValid(mutation.getLinkXVar())) {
+            try {
+                String xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
+                out.println(createFiSpan(impactStyle, impactKeyword, xVarLink));
+            } catch (MalformedURLException e) {
+                logger.error("Could not parse OMA URL:  " + e.getMessage());
+                outputSpacer(out);
+            }
+        } else {
+            out.println(createFiSpan(impactStyle, impactKeyword, null));
+        }
+    }
+
+    private boolean linkIsValid(String link) {
+        if (link != null && link.length() > 0 && !link.equalsIgnoreCase("NA")){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void outputSpacer(JspWriter out) throws IOException {
+        out.println("&nbsp;");
+    }
+
+    private String getImpactStyle (String faScore) {
+        if (faScore.equalsIgnoreCase("H")) {
+           return "high";
+        } else if (faScore.equalsIgnoreCase("M")) {
+            return "medium";
+        } else if (faScore.equalsIgnoreCase("L")) {
+            return "low";
+        } else if (faScore.equals("N")) {
+            return "neutral";
+        } else {
+            return "";
+        }
+    }
+
+    private String getImpactKeyword (String faScore) {
+        if (faScore.equalsIgnoreCase("H")) {
+           return "High";
+        } else if (faScore.equalsIgnoreCase("M")) {
+           return "Medium";
+        } else if (faScore.equalsIgnoreCase("L")) {
+           return "Low";
+        } else if (faScore.equals("N")) {
+           return "Neutral";
+        } else {
+           return "";
+        }
+    }
+
+    private String createFiSpan (String impactStyle, String impactKeyword,
+            String href) {
+        String aLink = "";
+        if (href != null) {
+            aLink = "<a href='" + href + "'>" + impactKeyword + "</a>";
+        } else {
+            aLink = impactKeyword;
+        }
+        return "<span class='" + impactStyle + "'>" + aLink + "</span>";
+    }
+%>

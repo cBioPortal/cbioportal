@@ -32,6 +32,8 @@ $(document).ready(function(){
      $("#select_cancer_type").change(function() {
          console.log("#select_cancer_type change ( cancerStudySelected() )");
          cancerStudySelected();
+         console.log("#select_cancer_type change ( reviewCurrentSelections() )");
+         reviewCurrentSelections();
      });
 
     // Set up Event Handler for User Selecting a Case Set
@@ -171,8 +173,6 @@ function makeDefaultSelections(){
 // type is selected; Assesses the need for default selections
 // and sets the visibility of each step based on current selections
 function reviewCurrentSelections(){
-
-   console.log("reviewCurrentSelections()");
 
    // Unless the download tab has been chosen or 'All Cancer Studies' is
    // selected, iterate through checkboxes to see if any are selected; if not,
@@ -363,7 +363,6 @@ function cancerStudySelected() {
     // Set default selections and make sure all steps are visible
     console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
-    console.log("cancerStudySelected ( reviewCurrentSelections() )");
 }
 
 //  Triggered when a case set has been selected, either by the user
@@ -462,6 +461,7 @@ function addMetaDataToPage() {
 
     // determine whether any selections have already been made
     // to make sure all of the fields are shown/hidden as appropriate
+    console.log("addMetaDataToPage ( reviewCurrentSelections() )");
     reviewCurrentSelections();
 }
 
@@ -564,3 +564,4 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         + description + "'><br/>";
     return html;
 }
+

@@ -16,7 +16,7 @@
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
     //  Prepare gene list for URL.
-    //  Extra spaces must be removed.  Otherwise OMA Links will not work.
+    //  Extra spaces must be removed.  Otherwise AJAX Load will not work.
     geneList = Utilities.appendSemis(geneList);
     geneList = geneList.replaceAll("\\s+", " ");
     geneList = URLEncoder.encode(geneList);

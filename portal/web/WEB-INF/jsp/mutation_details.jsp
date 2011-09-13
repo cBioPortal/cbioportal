@@ -4,10 +4,10 @@
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.SequenceCenterUtil" %>
-<%@ page import="org.mskcc.portal.util.UrlFixer" %>
 <%@ page import="org.mskcc.portal.mapback.Brca1" %>
 <%@ page import="org.mskcc.portal.mapback.MapBack" %>
 <%@ page import="org.mskcc.portal.mapback.Brca2" %>
+<%@ page import="org.mskcc.portal.util.OmaLinkUtil" %>
 <%
     int numGenesWithMutationDetails = 0;
     for (GeneWithScore geneWithScore : geneWithScoreList) {
@@ -162,7 +162,7 @@
                             String href = "";
                             String xVarLink;
                             if( !mutation.getLinkXVar().equalsIgnoreCase("na")){
-                               xVarLink = UrlFixer.fixVarLink(mutation.getLinkXVar());
+                               xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
                                href = "<a href=\"" + xVarLink + "\">";
                             }
                             
@@ -187,7 +187,7 @@
                             out.println(newCell);
                             if (mutation.getLinkMsa() != null && mutation.getLinkMsa().length() > 0) {
                                if (!mutation.getLinkMsa().equalsIgnoreCase("NA")) {
-                                    String urlMsa = UrlFixer.fixVarLink(mutation.getLinkMsa());
+                                    String urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
                                     out.println("<a href=\"" + urlMsa + "\">Alignment</a>");
                                } else {
                                     out.println("&nbsp;");
@@ -200,7 +200,7 @@
                             out.println(newCell);
                             if (mutation.getLinkPdb() != null && mutation.getLinkPdb().length() > 0) {
                                if( !mutation.getLinkPdb().equalsIgnoreCase("NA") ){
-                                  String urlPdb = UrlFixer.fixVarLink(mutation.getLinkPdb());
+                                  String urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
                                   out.println("<a href=\"" + urlPdb + "\">Structure</a>");
                                } else {
                                     out.println("&nbsp;");

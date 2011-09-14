@@ -109,16 +109,20 @@ public class PlotServlet extends HttpServlet {
             }
 
             String currentUrl = req.getRequestURL().toString();
+            String localHost = "127.0.0.1";
             logger.debug("Current URL is:  " + currentUrl);
             // locate host name to replace
             int startOfHostname = currentUrl.indexOf("//") + 2;
             int endOfHostname = currentUrl.indexOf(":", startOfHostname);
+            // port not included in url
             if (endOfHostname == -1) {
                 endOfHostname = currentUrl.indexOf("/", startOfHostname);
+                // we need to append port number
+                localHost += ":38080";
             }
             String hostname = currentUrl.substring(startOfHostname, endOfHostname);
             String cgdsUrl = currentUrl.replaceAll("plot.(do|pdf)", "");
-            cgdsUrl = cgdsUrl.replace(hostname, "127.0.0.1:38080");
+            cgdsUrl = cgdsUrl.replace(hostname, localHost);
             logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");

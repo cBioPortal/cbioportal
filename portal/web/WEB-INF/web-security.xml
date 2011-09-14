@@ -135,9 +135,19 @@
         <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>oma_redirect</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
+    </servlet>    
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oma_redirect</servlet-name>
+        <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

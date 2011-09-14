@@ -18,6 +18,7 @@ public class OmaRedirectServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html");
         String omaQueryString = request.getQueryString();
         String omaUrl = OmaLinkUtil.createOmaLink(omaQueryString);
         PrintWriter writer = response.getWriter();

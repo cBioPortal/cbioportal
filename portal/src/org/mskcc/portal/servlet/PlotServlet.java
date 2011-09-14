@@ -114,11 +114,11 @@ public class PlotServlet extends HttpServlet {
             int startOfHostname = currentUrl.indexOf("//") + 2;
             int endOfHostname = currentUrl.indexOf(":", startOfHostname);
             if (endOfHostname == -1) {
-                endOfHostname = currentUrl.indexOf("/", startOfHostname) - 1;
+                endOfHostname = currentUrl.indexOf("/", startOfHostname);
             }
             String hostname = currentUrl.substring(startOfHostname, endOfHostname);
             String cgdsUrl = currentUrl.replaceAll("plot.(do|pdf)", "");
-            cgdsUrl = cgdsUrl.replace(hostname, "127.0.0.1");
+            cgdsUrl = cgdsUrl.replace(hostname, "127.0.0.1:38080");
             logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");

@@ -9,7 +9,7 @@ db.password=
 db.host=localhost
 
 # Location of log file
-log.file.path=gdac-portal.log
+log.file.path=/srv/www/sander-tomcat/tomcat6/logs/gdac-portal.log
 
 #TITLE 
 skin.title=cBio TCGA Cancer Genomics Portal

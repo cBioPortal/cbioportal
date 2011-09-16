@@ -1,0 +1,34 @@
+//  Styles for Online Mutation Assessor (OMA)
+
+.oma_link {
+  font-weight:bold;
+}
+
+.oma_high {
+  background: #FF9999;
+  padding-left:12px;
+  padding-right:18px;
+}
+
+.oma_medium {
+  background: #FFCCCC;
+  color:white;
+  padding-left:5px;
+  padding-right:8px;
+}
+
+.oma_low {
+  background: #EEEEEE;
+  padding-left:13px;
+  padding-right:17px;
+}
+
+.oma_neutral {
+  background: #DDDDDD;
+  padding-left:5px;
+  padding-right:5px;
+}
+
+.oma_high A:link {!important; text-decoration: underline !important;}
+.oma_high A:visited {!important; text-decoration: underline !important;}
+.oma_high A:active {!important; text-decoration: underline !important;}

@@ -352,40 +352,6 @@ table td {
     font-weight:bold;
 }
 
-.high {
-  background: #FF9999;
-  padding-left:12px;
-  padding-right:18px;
-  font-weight:bold;
-}
-
-.high A:link {!important; text-decoration: underline !important;}
-.high A:visited {!important; text-decoration: underline !important;}
-.high A:active {!important; text-decoration: underline !important;}
-
-.medium {
-  background: #FFCCCC;
-  color:white;
-  padding-left:5px;
-  padding-right:8px;
-  font-weight:bold;
-}
-
-
-.low {
-  background: #eeeeee;
-  padding-left:13px;
-  padding-right:17px;
-  font-weight:bold;
-}
-
-.neutral {
-  background: #DDDDDD;
-  padding-left:5px;
-  padding-right:5px;
-  font-weight:bold;
-}
-
 .map A:link {text-decoration: underline !important;}
 .map A:visited {text-decoration: underline !important;}
 .map A:active {text-decoration: underline !important;}

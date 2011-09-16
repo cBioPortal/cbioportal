@@ -11,6 +11,7 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.MalformedURLException" %>
 <%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="org.mskcc.portal.html.MutationAssessorHtmlUtil" %>
 <%
     int numGenesWithMutationDetails = 0;
     for (GeneWithScore geneWithScore : geneWithScoreList) {
@@ -25,8 +26,6 @@
 <% if (numGenesWithMutationDetails > 0) { %>
 <div class="section" id="mutation_details">
     <% if (numGenesWithMutationDetails > 0) {
-        //out.println ("* Details regarding germline mutations cannot be publicly displayed and are " +
-        //        "currently listed as [FILTERED].<BR>");
         out.println("** Predicted functional impact (via " +
          "<a href=\"http://mutationassessor.org\">Mutation Assessor</a>)" +
           " is provided for missense mutations only.  ");
@@ -71,7 +70,6 @@
                 out.println("<table width='100%' cellspacing='0px'>");
                 out.println("<tr>");
                 
-
                 out.println("<thead>");
                 out.println("<td>Case ID</td>");
                 out.println("<td>Mutation Status</td>");
@@ -160,20 +158,9 @@
                                     out.println(newCell + center + "</td>");
                             out.println(newCell + mutation.getAminoAcidChange() + "</td>");
 
-                            // Output OMA Links 
-                            out.println(newCell);
-                            outputFiScore(out, mutation);
-                            out.println("</td>");
-
-                            out.println(newCell);
-                            outputMsaLink(out, mutation);
-                            out.println("</td>");
-
-                            out.println(newCell);
-                            outputPdbLink(out, mutation);
-                            out.println("</td>");
+                            // Output OMA Links
+                            outputOmaData(out, newCell, mutation);
                             
-                            // TODO: remove gene-specific code and generalize 
                             if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")) {
                                 out.println(newCell);
                                 if (mutation.getChr() != null && mutation.getChr().length() > 0) {
@@ -204,7 +191,6 @@
                                 }
                                 out.println("</td>");
                             }
-                            //out.println("</td>");
 
                             out.println("</tr>");
                             rowCounter++;
@@ -224,102 +210,20 @@
     <% if (numGenesWithMutationDetails > 0) {
         out.println("</div></div>");      //end map div, end section div
     } %>
+
 <%!
-    private static Logger logger = Logger.getLogger("mutation_details.jsp");
+    private void outputOmaData(JspWriter out, String newCell, ExtendedMutation mutation) throws IOException {
+        MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
+        out.println(newCell);
+        out.println(omaUtil.getFunctionalImpactLink());
+        out.println("</td>");
 
-    private void outputPdbLink(JspWriter out, ExtendedMutation mutation) throws IOException {
-        if (linkIsValid(mutation.getLinkPdb())) {
-            try {
-                String urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-                out.println("<a href=\"" + urlPdb + "\">Structure</a>");
-            } catch (MalformedURLException e) {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
-                outputSpacer(out);
-            }
-        } else {
-            outputSpacer(out);
-        }
-    }
+        out.println(newCell);
+        out.println(omaUtil.getMultipleSequenceAlignmentLink());
+        out.println("</td>");
 
-    private void outputMsaLink(JspWriter out, ExtendedMutation mutation) throws IOException {
-        if (linkIsValid(mutation.getLinkMsa())) {
-            try {
-                String urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
-                out.println("<a href=\"" + urlMsa + "\">Alignment</a>");
-            } catch (MalformedURLException e) {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
-                outputSpacer(out);
-            }
-        } else {
-            outputSpacer(out);
-        }
-    }
-
-    private void outputFiScore(JspWriter out, ExtendedMutation mutation) throws IOException {
-        String faScore = mutation.getFunctionalImpactScore();
-        String impactStyle = getImpactStyle(faScore);
-        String impactKeyword = getImpactKeyword(faScore);
-        if (linkIsValid(mutation.getLinkXVar())) {
-            try {
-                String xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
-                out.println(createFiSpan(impactStyle, impactKeyword, xVarLink));
-            } catch (MalformedURLException e) {
-                logger.error("Could not parse OMA URL:  " + e.getMessage());
-                outputSpacer(out);
-            }
-        } else {
-            out.println(createFiSpan(impactStyle, impactKeyword, null));
-        }
-    }
-
-    private boolean linkIsValid(String link) {
-        if (link != null && link.length() > 0 && !link.equalsIgnoreCase("NA")){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void outputSpacer(JspWriter out) throws IOException {
-        out.println("&nbsp;");
-    }
-
-    private String getImpactStyle (String faScore) {
-        if (faScore.equalsIgnoreCase("H")) {
-           return "high";
-        } else if (faScore.equalsIgnoreCase("M")) {
-            return "medium";
-        } else if (faScore.equalsIgnoreCase("L")) {
-            return "low";
-        } else if (faScore.equals("N")) {
-            return "neutral";
-        } else {
-            return "";
-        }
-    }
-
-    private String getImpactKeyword (String faScore) {
-        if (faScore.equalsIgnoreCase("H")) {
-           return "High";
-        } else if (faScore.equalsIgnoreCase("M")) {
-           return "Medium";
-        } else if (faScore.equalsIgnoreCase("L")) {
-           return "Low";
-        } else if (faScore.equals("N")) {
-           return "Neutral";
-        } else {
-           return "";
-        }
-    }
-
-    private String createFiSpan (String impactStyle, String impactKeyword,
-            String href) {
-        String aLink = "";
-        if (href != null) {
-            aLink = "<a href='" + href + "'>" + impactKeyword + "</a>";
-        } else {
-            aLink = impactKeyword;
-        }
-        return "<span class='" + impactStyle + "'>" + aLink + "</span>";
+        out.println(newCell);
+        out.println(omaUtil.getPdbStructureLink());
+        out.println("</td>");
     }
 %>

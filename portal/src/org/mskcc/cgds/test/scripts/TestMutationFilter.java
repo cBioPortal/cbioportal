@@ -262,26 +262,27 @@ public class TestMutationFilter extends TestCase {
    
    }
 
-   private void nowTestAcceptMutation( 
+    private void nowTestAcceptMutation(
             MutationFilter myMutationFilter,
-            boolean expectedResult, 
-            long entrezGeneId, 
-            String validationStatus, 
+            boolean expectedResult,
+            long entrezGeneId,
+            String validationStatus,
             String mutationStatus,
             String mutationType
-            ){
-      ExtendedMutation anExtendedMutation = new ExtendedMutation(
-         entrezGeneId,           // entrezGeneId,
-         validationStatus,       // validationStatus,
-         mutationStatus,         // mutationStatus,
-         mutationType            // mutationType
-      );
-      if( expectedResult ){
-         assertTrue( myMutationFilter.acceptMutation( anExtendedMutation ) );         
-      }else{
-         assertFalse( myMutationFilter.acceptMutation( anExtendedMutation ) );         
-      }
-   }
+    ) {
+        CanonicalGene gene = new CanonicalGene(entrezGeneId, "XXX");
+        ExtendedMutation anExtendedMutation = new ExtendedMutation(
+                gene,                   // gene,
+                validationStatus,       // validationStatus,
+                mutationStatus,         // mutationStatus,
+                mutationType            // mutationType
+        );
+        if (expectedResult) {
+            assertTrue(myMutationFilter.acceptMutation(anExtendedMutation));
+        } else {
+            assertFalse(myMutationFilter.acceptMutation(anExtendedMutation));
+        }
+    }
    
    private void alwaysRejectTheseMutations(MutationFilter myMutationFilter){
 

@@ -23,7 +23,8 @@ public class TestDaoMutation extends TestCase {
     private void runTheTest() throws DaoException{
         //  Add a fake gene
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(new CanonicalGene(321, "BLAH"));
+        CanonicalGene blahGene = new CanonicalGene(321, "BLAH");
+        daoGene.addGene(blahGene);
         
         ResetDatabase.resetDatabase();
         DaoMutation dao = DaoMutation.getInstance();
@@ -31,14 +32,14 @@ public class TestDaoMutation extends TestCase {
         ExtendedMutation mutation = new ExtendedMutation();
         mutation.setGeneticProfileId(1);
         mutation.setCaseId("1234");
-        mutation.setEntrezGeneId(321);
+        mutation.setGene(blahGene);
         mutation.setValidationStatus("validated");
         mutation.setMutationStatus("somatic");
         mutation.setMutationType("missence");
         mutation.setChr("chr1");
         mutation.setStartPosition(10000);
         mutation.setEndPosition(20000);
-        mutation.setCenter("Broad");
+        mutation.setSequencingCenter("Broad");
         mutation.setSequencer("SOLiD");
         mutation.setAminoAcidChange("BRCA1_123");
         mutation.setFunctionalImpactScore("H");
@@ -76,7 +77,7 @@ public class TestDaoMutation extends TestCase {
         assertEquals ("chr1", mutation.getChr());
         assertEquals (10000, mutation.getStartPosition());
         assertEquals (20000, mutation.getEndPosition());
-        assertEquals ("Broad", mutation.getCenter());
+        assertEquals ("Broad", mutation.getSequencingCenter());
         assertEquals ("SOLiD", mutation.getSequencer());
         assertEquals ("BRCA1_123", mutation.getAminoAcidChange());
         assertEquals ("H", mutation.getFunctionalImpactScore());

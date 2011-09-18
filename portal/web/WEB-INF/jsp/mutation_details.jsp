@@ -129,7 +129,7 @@
                             out.println(mutation.getValidationStatus());
                             out.println("</span:></td>");
                             String center = SequenceCenterUtil.getSequencingCenterAbbrev
-                                    (mutation.getCenter());
+                                    (mutation.getSequencingCenter());
                                     out.println(newCell + center + "</td>");
                             out.println(newCell + mutation.getAminoAcidChange() + "</td>");
 

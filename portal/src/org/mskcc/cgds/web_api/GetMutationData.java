@@ -66,7 +66,7 @@ public class GetMutationData {
                     buf.append(canonicalGene.getEntrezGeneId() + TAB);
                     buf.append(canonicalGene.getHugoGeneSymbolAllCaps() + TAB);
                     buf.append(caseId + TAB);
-                    buf.append(mutation.getCenter() + TAB);
+                    buf.append(mutation.getSequencingCenter() + TAB);
                     buf.append(mutation.getMutationStatus() + TAB);
                     buf.append(mutation.getMutationType() + TAB);
                     buf.append(mutation.getValidationStatus() + TAB);

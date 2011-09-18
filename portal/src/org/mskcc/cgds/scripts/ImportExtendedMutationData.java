@@ -223,8 +223,8 @@ public class ImportExtendedMutationData{
                     ExtendedMutation mutation = new ExtendedMutation();
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);
-                    mutation.setEntrezGeneId(gene.getEntrezGeneId());
-                    mutation.setCenter(center);
+                    mutation.setGene(gene);
+                    mutation.setSequencingCenter(center);
                     mutation.setSequencer(sequencer);
                     mutation.setAminoAcidChange(aminoAcidChange);
                     mutation.setMutationType(mutationType);

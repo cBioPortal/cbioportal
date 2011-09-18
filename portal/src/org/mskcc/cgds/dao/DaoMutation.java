@@ -60,8 +60,8 @@ public class DaoMutation {
                     
                     Integer.toString( mutation.getGeneticProfileId() ),
                     mutation.getCaseId(), 
-                    Long.toString( mutation.getEntrezGeneId() ),
-                    mutation.getCenter(), 
+                    Long.toString( mutation.getGene().getEntrezGeneId()),
+                    mutation.getSequencingCenter(),
                     mutation.getSequencer(), 
                     mutation.getMutationStatus(), 
                     mutation.getValidationStatus(), 
@@ -93,8 +93,8 @@ public class DaoMutation {
                         + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             pstmt.setInt(1, mutation.getGeneticProfileId());
             pstmt.setString(2, mutation.getCaseId());
-            pstmt.setLong(3, mutation.getEntrezGeneId());
-            pstmt.setString(4, mutation.getCenter());
+            pstmt.setLong(3, mutation.getGene().getEntrezGeneId());
+            pstmt.setString(4, mutation.getSequencingCenter());
             pstmt.setString(5, mutation.getSequencer());
             pstmt.setString(6, mutation.getMutationStatus());
             pstmt.setString(7, mutation.getValidationStatus());
@@ -180,7 +180,7 @@ public class DaoMutation {
             rs = pstmt.executeQuery();
             while  (rs.next()) {
                 ExtendedMutation mutation = extractMutation(rs);
-                geneSet.add(daoGene.getGene(mutation.getEntrezGeneId()));
+                geneSet.add(daoGene.getGene(mutation.getGene().getEntrezGeneId()));
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -242,11 +242,11 @@ public class DaoMutation {
         ExtendedMutation mutation = new ExtendedMutation();
         mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         mutation.setCaseId(rs.getString("CASE_ID"));
-        mutation.setEntrezGeneId(rs.getLong("ENTREZ_GENE_ID"));
+        long entrezId = rs.getLong("ENTREZ_GENE_ID");
         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = aDaoGene.getGene(mutation.getEntrezGeneId());
-        mutation.setGeneSymbol(gene.getHugoGeneSymbolAllCaps());
-        mutation.setCenter(rs.getString("CENTER"));
+        CanonicalGene gene = aDaoGene.getGene(entrezId);
+        mutation.setGene(gene);
+        mutation.setSequencingCenter(rs.getString("CENTER"));
         mutation.setSequencer(rs.getString("SEQUENCER"));
         mutation.setMutationStatus(rs.getString("MUTATION_STATUS"));
         mutation.setValidationStatus(rs.getString("VALIDATION_STATUS"));

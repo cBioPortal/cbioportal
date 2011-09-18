@@ -15,7 +15,7 @@ public class OvarianMutationFilter {
         String validationStatus = mutation.getValidationStatus();
         String mutationType = mutation.getMutationType();
         String mutationStatus = mutation.getMutationStatus();
-        String center = mutation.getCenter();
+        String center = mutation.getSequencingCenter();
 
         //  Do *not* input Silent Mutations
         if (mutationType.equalsIgnoreCase("Silent")) {

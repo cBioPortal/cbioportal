@@ -2,6 +2,7 @@ package org.mskcc.portal.test.html;
 
 import junit.framework.TestCase;
 import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.portal.html.MutationAssessorHtmlUtil;
 
 /**
@@ -95,7 +96,8 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
     }
 
     private ExtendedMutation createMutation() {
-        return new ExtendedMutation (279, "Somatic", "Valid", "Missense_Mutation");
+        CanonicalGene canonicalGene = new CanonicalGene(279, "AMY2A");
+        return new ExtendedMutation (canonicalGene, "Somatic", "Valid", "Missense_Mutation");
     }
 
     private void setLinks(ExtendedMutation mutation) {

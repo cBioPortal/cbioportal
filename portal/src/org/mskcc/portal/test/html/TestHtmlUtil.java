@@ -3,6 +3,8 @@ package org.mskcc.portal.test.html;
 import junit.framework.TestCase;
 import org.mskcc.portal.html.HtmlUtil;
 
+import java.util.ArrayList;
+
 /**
  * Tests the HtmlUtil Class.
  *
@@ -45,6 +47,23 @@ public class TestHtmlUtil extends TestCase {
         assertEquals("<span class='box1 box2'><a href='http://www.google.com'>Google</a></span>",
                 html);
         html = HtmlUtil.createLinkWithinSpan(null, null, null);
+        assertEquals("", html);
+    }
+
+    public void test6() {
+        ArrayList<String> headerList = new ArrayList<String>();
+        headerList.add("First");
+        headerList.add("Last");
+        headerList.add("Zip Code");
+        String html = HtmlUtil.createTableHeaderRow(headerList);
+        assertEquals("<thead>\n" +
+                "<tr>\n" +
+                "<td>First</td>\n" +
+                "<td>Last</td>\n" +
+                "<td>Zip Code</td>\n" +
+                "</tr>\n" +
+                "</thead>\n", html);
+        html = HtmlUtil.createTableHeaderRow(null);
         assertEquals("", html);
     }
 

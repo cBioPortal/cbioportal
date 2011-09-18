@@ -2,16 +2,13 @@
 <%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.SequenceCenterUtil" %>
 <%@ page import="org.mskcc.portal.mapback.Brca1" %>
 <%@ page import="org.mskcc.portal.mapback.MapBack" %>
 <%@ page import="org.mskcc.portal.mapback.Brca2" %>
-<%@ page import="org.mskcc.portal.util.OmaLinkUtil" %>
 <%@ page import="java.io.IOException" %>
-<%@ page import="java.net.MalformedURLException" %>
-<%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="org.mskcc.portal.html.MutationAssessorHtmlUtil" %>
+<%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
 <%
     int numGenesWithMutationDetails = 0;
     for (GeneWithScore geneWithScore : geneWithScoreList) {
@@ -43,6 +40,8 @@
     <%
         numGenesWithMutationDetails = 0;
         for (GeneWithScore geneWithScore : geneWithScoreList) {
+            MutationTableUtil mutationTableUtil = new MutationTableUtil(geneWithScore.getGene());
+
             MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
                     mutationMap, mergedCaseList);
             if (mutationCounter.getMutationRate() > 0) {
@@ -68,31 +67,9 @@
                 out.print("]");
                 out.println("</h5>");
                 out.println("<table width='100%' cellspacing='0px'>");
-                out.println("<tr>");
-                
-                out.println("<thead>");
-                out.println("<td>Case ID</td>");
-                out.println("<td>Mutation Status</td>");
-                out.println("<td>Mutation Type</td>");
-                out.println("<td>Validation Status</td>");
-                out.println("<td>Sequencing Center</td>");
-                out.println("<td>Amino Acid Change</td>");
-                out.println("<td>Predicted Functional Impact**</td>");
-                out.println("<td>Alignment</td>");
-                out.println("<td>Structure</td>");
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")
-                    || geneWithScore.getGene().equalsIgnoreCase("BRCA2")) {
-                    out.println("<td>Nucleotide Position *</td>");
-                }
-                out.println("</thead>");
 
+                out.println (mutationTableUtil.getTableHeaderRow());
 
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")
-                    || (geneWithScore.getGene().equalsIgnoreCase("BRCA2"))) {
-                    out.println ("<th>Details</th>");
-                }
-
-                out.println("</tr>");
                 int masterRowCounter = 0;
                 for (String caseId : mergedCaseList) {
                     ArrayList<ExtendedMutation> mutationList =
@@ -103,11 +80,9 @@
                         String bgheadercolor = "#B9B9FC";
 
                         if (masterRowCounter % 2 == 0) {
-                            //bgcolor = "#bbbbbb";
                             bgcolor = "#eeeeee";
                             bgheadercolor = "#dddddd";
                         }
-
 
                         out.println("<tr bgcolor='" + bgcolor + "'>");
 
@@ -198,12 +173,7 @@
                     }
                 }
                 out.println("</table><P>");
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")) {
-                    out.println("* Known BRCA1 185/187DelAG and 5382/5385 insC founder mutations are shown in bold.");
-                }
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA2")) {
-                    out.println("* Known BRCA2 6174delT founder mutation are shown in bold.");
-                }
+                out.println (mutationTableUtil.getTableFooterMessage());
             }
         }
     %>

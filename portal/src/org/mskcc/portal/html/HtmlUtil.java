@@ -1,5 +1,7 @@
 package org.mskcc.portal.html;
 
+import java.util.ArrayList;
+
 /**
  * Misc. Public Static Methods for Creating HTML.
  *
@@ -44,4 +46,39 @@ public class HtmlUtil {
     public static String createSpacer() {
         return ("&nbsp;");
     }
+
+    //  Creates a Row of Headers within a Table
+    public static String createTableHeaderRow (ArrayList<String> headerList) {
+        HtmlWriter writer = new HtmlWriter();
+        if (headerList != null) {
+            writer.append("<thead>");
+            writer.append("<tr>");
+            outputHeaders(headerList, writer);
+            writer.append("</tr>");
+            writer.append("</thead>");
+            return writer.getHtml();
+        } else {
+            return EMPTY_STRING;
+        }
+    }
+
+    private static void outputHeaders(ArrayList<String> headerList, HtmlWriter writer) {
+        for (String header:  headerList) {
+            writer.append("<td>" + header + "</td>");
+        }
+    }
+}
+
+class HtmlWriter {
+    private static final String NEW_LINE = "\n";
+    StringBuffer writer = new StringBuffer();
+
+    void append(String html) {
+        writer.append(html + NEW_LINE);
+    }
+
+    String getHtml() {
+        return writer.toString();
+    }
+
 }

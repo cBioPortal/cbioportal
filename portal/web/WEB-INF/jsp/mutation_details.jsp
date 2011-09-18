@@ -9,11 +9,17 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.portal.html.MutationAssessorHtmlUtil" %>
 <%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.portal.model.ExtendedMutationMap" %>
 <%
+    ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
+            request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
+    ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
+        mergedProfile.getCaseIdList());
+
     int numGenesWithMutationDetails = 0;
     for (GeneWithScore geneWithScore : geneWithScoreList) {
-        MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
-                mutationMap, mergedCaseList);
+        MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(), mutationMap);
         if (mutationCounter.getMutationRate() > 0) {
             numGenesWithMutationDetails++;
         }
@@ -42,8 +48,7 @@
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             MutationTableUtil mutationTableUtil = new MutationTableUtil(geneWithScore.getGene());
 
-            MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
-                    mutationMap, mergedCaseList);
+            MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(), mutationMap);
             if (mutationCounter.getMutationRate() > 0) {
                 numGenesWithMutationDetails++;
                 out.print("<h5>" + geneWithScore.getGene().toUpperCase() + ": ");

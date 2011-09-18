@@ -28,7 +28,10 @@ public class TestExtendedMutationMap extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ExtendedMutationMap map = new ExtendedMutationMap(mutationList);
+        ArrayList<String> caseList = new ArrayList<String>();
+        caseList.add(CASE_A);
+
+        ExtendedMutationMap map = new ExtendedMutationMap(mutationList, caseList);
         ArrayList<ExtendedMutation> mutationReturnList = map.getMutations(BRCA1, CASE_A);
         assertEquals (2, mutationReturnList.size());
 

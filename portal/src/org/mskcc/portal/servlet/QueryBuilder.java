@@ -72,12 +72,12 @@ public class QueryBuilder extends HttpServlet {
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final String MUTATION_MAP = "MUTATION_MAP";
     public static final int MUTATION_DETAIL_LIMIT = 10;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
     public static final String INDEX_PAGE = "index.do";
+    public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
 
     private ServletXssUtil servletXssUtil;
 
@@ -360,8 +360,7 @@ public class QueryBuilder extends HttpServlet {
         }
         
         //  Store Extended Mutations
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList);
-        request.setAttribute(MUTATION_MAP, mutationMap);
+        request.setAttribute(INTERNAL_EXTENDED_MUTATION_LIST, mutationList);
 
         // Store download links in session (for possible future retrieval).
         request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);

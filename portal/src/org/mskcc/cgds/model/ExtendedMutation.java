@@ -8,6 +8,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Ethan Cerami.
  */
 public class ExtendedMutation {
+    private final static String GERMLINE = "germline";
+
     private int geneticProfileId;
     private String caseId;
     private CanonicalGene gene;
@@ -66,6 +68,10 @@ public class ExtendedMutation {
      */
     public String getMutationStatus() {
         return mutationStatus;
+    }
+
+    public boolean isGermlineMutation() {
+        return getMutationStatus() != null && getMutationStatus().equalsIgnoreCase(GERMLINE);
     }
 
     /**

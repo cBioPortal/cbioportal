@@ -76,8 +76,6 @@
         computeLogOddsRatio = true;
     }
 
-    ExtendedMutationMap mutationMap = (ExtendedMutationMap)
-            request.getAttribute(QueryBuilder.MUTATION_MAP);
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 

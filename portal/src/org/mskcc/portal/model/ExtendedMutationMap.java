@@ -11,10 +11,13 @@ import org.mskcc.cgds.model.ExtendedMutation;
  */
 public class ExtendedMutationMap {
     private static final String DELIMITER = ":";
-    HashMap <String, ArrayList<ExtendedMutation>> mutationMap =
+    private HashMap <String, ArrayList<ExtendedMutation>> mutationMap =
             new HashMap<String, ArrayList<ExtendedMutation>>();
+    private ArrayList<String> caseList;
 
-    public ExtendedMutationMap (ArrayList<ExtendedMutation> mutationList) {
+    public ExtendedMutationMap (ArrayList<ExtendedMutation> mutationList,
+            ArrayList<String> caseList) {
+        this.caseList = caseList;
         for (ExtendedMutation mutation:  mutationList) {
             String key = getKey(mutation.getGeneSymbol(), mutation.getCaseId());
             appendToMap(key, mutation);
@@ -32,6 +35,10 @@ public class ExtendedMutationMap {
         return mutationMap.get(key);
     }
 
+    public ArrayList<String> getCaseList() {
+        return caseList;
+    }
+
     private void appendToMap(String key, ExtendedMutation mutation) {
         if (mutationMap.containsKey(key)) {
             ArrayList<ExtendedMutation> currentList = mutationMap.get(key);
@@ -46,5 +53,4 @@ public class ExtendedMutationMap {
     private String getKey(String geneSymbol, String caseId) {
         return geneSymbol + DELIMITER + caseId;
     }
-
 }

@@ -39,13 +39,5 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_methylation.txt --meta $CGDS_DATA_HOME/ovarian/meta_methylation.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_brca1_binary_methylation.txt --meta $CGDS_DATA_HOME/ovarian/meta_brca1_binary_methylation.txt --dbmsAction clobber
 
-# import protein data
-# uncomment the comment below for SU2C portal
-# ./importProfileData.pl --data $CGDS_HOME/data/ovarian/data_protein.txt --meta $CGDS_HOME/data/ovarian/meta_protein.txt --dbmsAction clobber
-
-
-# Calculate Mutation Frequencies
-#./calculateMutationFrequencies.py ova_4way_complete
-
 # Import RPPA data
 #./importProteinArrayData.pl $CGDS_DATA_HOME/ovarian/OV412_212Ab_RPPA_Median_Centered.txt OV_portal

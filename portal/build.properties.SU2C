@@ -2,6 +2,12 @@
 app.name=su2c
 app.version=0.1
 
+# Database Settings
+db.name=cgds
+db.user=root
+db.password=
+db.host=localhost
+
 # Location of log file
 log.file.path=portal.log
 
@@ -29,4 +35,4 @@ special_css=su2c_portal.css
 step_image_suffix=_su2c
 
 # Authentication Props
-authenticate=T
+authenticate=true

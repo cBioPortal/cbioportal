@@ -12,8 +12,10 @@ public class Config {
         try {
             InputStream in = this.getClass().getResourceAsStream("build.properties");
             properties = new Properties();
-            properties.load(in);
-            in.close();
+            if (in != null) {
+                properties.load(in);
+                in.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

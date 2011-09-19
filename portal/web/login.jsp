@@ -61,9 +61,7 @@
                  </legend>
                  <p>
                      <span style="font-size:145%">
-                     Access to this portal is only available to authorized users who are involved in
-                     TCGA-funded work or are active participants of the TCGA Disease Working Groups
-                     or Analysis Working Groups.  [<a href="http://bit.ly/gdac-form">Request Access</a>].
+                     <%= SkinUtil.getAuthorizationMessage() %>
                      </span>
                  </p>
 	             <div id="openid_choice">

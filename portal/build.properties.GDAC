@@ -11,8 +11,8 @@ db.host=localhost
 # google settings
 google.id=
 google.pw=
-users.spreadsheet=Request Access to the cBio GDAC Cancer Genomics Portal
-users.worksheet=Sheet1
+users.spreadsheet=
+users.worksheet=
 
 # Location of log file
 log.file.path=gdac-portal.log

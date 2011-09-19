@@ -56,15 +56,19 @@
 					   	<a href="video.jsp">Tutorial</a>
 					</li>
 					-->
-					<li class="internal">
-					   	<a href="news.jsp">News</a>
-					</li>
-					<li class="internal">
+                    <% if (SkinUtil.showNewsTab()) { %>
+                        <li class="internal">
+                            <a href="news.jsp">News</a>
+                        </li>
+                    <% } %>
+                    <li class="internal">
 					  	<a href="faq.jsp">FAQ</a>
 					</li>
-                    <li class="internal">
-					   	<a href="data_sets.jsp">Data Sets</a>
-					</li>
+                    <% if (SkinUtil.showDataTab()) { %>
+                        <li class="internal">
+                            <a href="data_sets.jsp">Data Sets</a>
+                        </li>
+                    <% } %>
                     <li class="internal">
 					   	<a href="about_us.jsp">About</a>
 					</li>

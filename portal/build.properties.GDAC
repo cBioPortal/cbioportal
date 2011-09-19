@@ -8,6 +8,12 @@ db.user=
 db.password=
 db.host=localhost
 
+# google settings
+google.id=
+google.pw=
+users.spreadsheet=
+users.worksheet=
+
 # Location of log file
 log.file.path=gdac-portal.log
 

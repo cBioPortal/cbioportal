@@ -13,6 +13,15 @@
 # users.spreadsheet
 # users.worksheet
 #
+# The script considers all users in the google spreadsheet, currently found:
+#
+# https://docs.google.com/spreadsheet/ccc?key=0Ag6KD6MljCkYdDQwbEpVQTR6UWNCSjZfUE9NTnBDaXc&hl=en_US#gid=0
+#
+# that have an "APPROVED" value in the "Status (APPROVED or BLANK)" column.  If that
+# user does not exist in the user table of the cgds database, the user will be added
+# to both the user table and authority table (with ROLE_USER).  In addition, a
+# confirmation email will be sent to the user notifying them of their acct activation.
+#
 # ------------------------------------------------------------------------------
 # imports
 import os

@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash -l
 
 # Note, this script was intended to be run via cron.  Please ensure that the path to build.properties.GDAC
 # points to an unchanging location and version of the file.  The path below is only meant for illustrative purposes.

@@ -15,4 +15,14 @@ public class TestSkinUtil extends TestCase {
         assertEquals("<span class=\"mailme\" title=\"Contact us\">cancergenomics at " +
                 "cbio dot mskcc dot org</span>", contactEmail);
     }
+
+    public void test2() {
+        assertEquals(true, SkinUtil.showNewsTab());
+        assertEquals(true, SkinUtil.showDataTab());
+        assertEquals(true, SkinUtil.showRightNavDataSets());
+        assertEquals(true, SkinUtil.showRightNavExamples());
+        assertEquals("Access to this portal is only available to authorized users.",
+                SkinUtil.getAuthorizationMessage());
+    }
+
 }

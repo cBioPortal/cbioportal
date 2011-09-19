@@ -7,6 +7,8 @@ package org.mskcc.portal.util;
  */
 public class SkinUtil {
     public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
+    public static final String DEFAULT_EMAIL_CONTACT = "cancergenomics at cbio dot mskcc dot org";
+    private static final String PROPERTY_SKIN_EMAIL_CONTACT = "skin.email_contact";
 
     /**
      * Gets the Site Title.
@@ -68,7 +70,11 @@ public class SkinUtil {
      */
     public static String getEmailContact() {
         Config config = Config.getInstance();
-        String emailAddress = config.getProperty("skin.email_contact");
+        String emailAddress = config.getProperty(PROPERTY_SKIN_EMAIL_CONTACT);
+
+        if (emailAddress == null) {
+            emailAddress = DEFAULT_EMAIL_CONTACT;
+        }
 
         //  Return email address within mailme span, so that we can de-obfuscate with JQuery.
         return ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");

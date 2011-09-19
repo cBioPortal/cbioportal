@@ -118,7 +118,7 @@ public class PlotServlet extends HttpServlet {
             if (endOfHostname == -1) {
                 endOfHostname = currentUrl.indexOf("/", startOfHostname);
                 // we need to append port number
-                localHost += ":" + req.getServerPort();
+                localHost += ":38080";
             }
             String hostname = currentUrl.substring(startOfHostname, endOfHostname);
             String cgdsUrl = currentUrl.replaceAll("plot.(do|pdf)", "");

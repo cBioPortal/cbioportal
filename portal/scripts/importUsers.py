@@ -326,7 +326,7 @@ def manage_users(cursor, worksheet_feed):
 # displays program usage (invalid args)
 
 def usage():
-    print >> OUTPUT_FILE, 'manage-users.py --properties-file [properties file]'
+    print >> OUTPUT_FILE, 'importUsers.py --properties-file [properties file] --send-email-confirm [true or false]'
 
 # ------------------------------------------------------------------------------
 # the big deal main.
@@ -335,7 +335,7 @@ def main():
 
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'send-email-confirm='])
     except getopt.error, msg:
         print >> ERROR_FILE, msg
         usage()
@@ -343,10 +343,15 @@ def main():
 
     # process the options
     properties_filename = ''
+    send_email_confirm = ''
+
     for o, a in opts:
         if o == '--properties-file':
             properties_filename = a
-    if properties_filename == '':
+        elif o == '--send-email-confirm':
+            send_email_confirm = a
+    if (properties_filename == '' or send_email_confirm == '' or
+        (send_email_confirm != 'true' and send_email_confirm != 'false')):
         usage()
         sys.exit(2)
 
@@ -383,9 +388,10 @@ def main():
     cursor.close()
     if new_user_map is not None:
         connection.commit()
-        for new_user_key in new_user_map.keys():
-            print >> OUTPUT_FILE, 'Sending confirmation email to new user: %s at %s' % (new_user_map[new_user_key].name, new_user_key)
-            send_mail([new_user_key])
+        if send_email_confirm == 'true':
+            for new_user_key in new_user_map.keys():
+                print >> OUTPUT_FILE, 'Sending confirmation email to new user: %s at %s' % (new_user_map[new_user_key].name, new_user_key)
+                send_mail([new_user_key])
     connection.close()
 
 

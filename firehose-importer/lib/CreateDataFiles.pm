@@ -198,11 +198,13 @@ sub create_data_miRNA{
 # data transformation:
 # if these are available, map them:
 # MA:FImpact <- MA_Func.Impact
+# MA:link.var <- MA_VAR
 # MA:link.MSA <- MA_MSA
 # MA:link.PDB <- MA_PDB
 # discard bad links (like http://mutationassessor.org[sent]) from MA:link.MSA 
-# if MA:FImpact, MA:link.MSA or MA:link.PDB is empty or '--' convert to 'NA'
-# MA:variant <- if( MA:link.MSA is available use that (or the renamed MA_MSA), else use Protein_Change )
+# if MA:FImpact, MA:link.var, MA:link.MSA or MA:link.PDB is empty or '--' convert to 'NA'
+# MA:variant <- if( MA:link.MSA is available use that (or the renamed MA_MSA), else use amino_acid_change_WU or AAChange or
+# Protein_Change or amino_acid_change )
 # map MA:FImpact by { high => H, medium => 'M', low => 'L', neutral => 'N' }
 sub create_data_mutations_extended{
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
@@ -214,6 +216,7 @@ sub create_data_mutations_extended{
     # map these to standard column names
     my %fieldMap = ( 
         'MA_Func.Impact'    =>  'MA:FImpact',
+        'MA_VAR'            =>  'MA:link.var',
         'MA_MSA'            =>  'MA:link.MSA', 
         'MA_PDB'            =>  'MA:link.PDB' );
 
@@ -234,7 +237,7 @@ sub create_data_mutations_extended{
         }
     }
 
-    # if MA:FImpact, MA:link.MSA or MA:link.PDB is empty or '--' convert to 'NA'
+    # if MA:FImpact, MA:link.var MA:link.MSA or MA:link.PDB is empty or '--' convert to 'NA'
     $data->calc( sub{
         package main;
         no strict 'vars';
@@ -286,10 +289,8 @@ sub create_data_mutations_extended{
 	    ${MA:variant} = ''; 
 
         # all covered in testAAChangeSimple
-	    if( defined( ${'MA:link.MSA'} )) {
-          if ( ${'MA:link.MSA'} =~ m|var=(.+)$| ){
+	    if( defined( ${'MA:link.MSA'} ) && ${'MA:link.MSA'} =~ m|var=(.+)$| ){
             ${MA:variant} = $1; 
-          }
 	    }
         # amino_acid_change_WU examples: p.R219H, e7-2, R219H, p.811_812EE>D*, missense, NULL
         elsif(defined($amino_acid_change_WU)) {
@@ -369,7 +370,7 @@ sub create_data_mutations_extended{
     $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  
         Verification_Status Validation_Status Mutation_Status 
          Sequencer Chromosome Start_position End_position Variant_Classification
-        MA:variant MA:FImpact MA:link.MSA MA:link.PDB  ) ] );
+        MA:variant MA:FImpact MA:link.var MA:link.MSA MA:link.PDB  ) ] );
 
     my $ffm = FirehoseFileMetadata->new( '<CANCER>.maf.annotated', $firehoseFile, $data );    
 #    print $ffm->numCases(), " unique case(s) in $firehoseFile:\n";

@@ -341,8 +341,8 @@ sub callCGDSsub{
 # meta_* files contain, e.g. in meta_mRNA_median.txt; see $Utilities::metaFilePrefix
 # cancer_study_identifier: ova
 # stable_id: ova_mrna_median
-# profile_name: mRNA and microRNA expression (all genes)
-# profile_description: mRNA and microRNA expression values, median values from all 3 mRNA expression platforms, or value from the microRNA platform (log2 transformed, normalized using AgiMicroRna package in R)
+# profile_name: mRNA expression (microarray)
+# profile_description: mRNA expression values, median values from all 3 mRNA expression platforms
 # genetic_alteration_type: MRNA_EXPRESSION
 # show_profile_in_analysis_tab: true
 sub createMetaFile{
@@ -358,7 +358,7 @@ sub createMetaFile{
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'false',
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases',
-            'profile_name'                 => 'mRNA and microRNA expression (all genes)'
+            'profile_name'                 => 'mRNA expression (microarray)'
         },
         'mRNA_median_Zscores' => {
             'stable_id'                    => '<cancer>_mrna_median_Zscores',

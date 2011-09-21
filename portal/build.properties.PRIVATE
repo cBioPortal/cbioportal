@@ -3,10 +3,16 @@ app.name=private-portal
 app.version=0.1
 
 # Database Settings
-db.name=cgds
-db.user=root
+db.name=cgds_private
+db.user=
 db.password=
 db.host=localhost
+
+# google settings
+google.id=
+google.pw=
+users.spreadsheet=
+users.worksheet=
 
 # Location of log file
 log.file.path=private-portal.log
@@ -14,7 +20,7 @@ log.file.path=private-portal.log
 # Skin Configuration
 skin.title=cBio TCGA Cancer Genomics Internal MSKCC Portal
 skin.blurb=Welcome to the <b>private</b> instance of the cBio Portal.  Access to this instance is only available to authorized users.
-skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/gdac-form">Request Access (Under Construction</a>].
+skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/internal-form">Request Access (Under Construction</a>].
 skin.show_news_tab=false
 skin.show_data_tab=false
 skin.right_nav.show_data_sets=false

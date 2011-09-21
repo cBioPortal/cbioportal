@@ -153,7 +153,7 @@ def get_feed_id(feed, name):
     to_return = ''
 
     for entry in feed.entry:
-        if entry.title.text == name:
+        if entry.title.text.strip() == name:
             id_parts = entry.id.text.split('/')
             to_return = id_parts[len(id_parts) - 1]
 

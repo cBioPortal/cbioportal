@@ -1,11 +1,8 @@
-# Clears all data in the database
-./resetDb.pl
-
 # Delete all preprocessed files
-rm -v $CGDS_DATA_HOME/breast/processed_*
+#rm -v $CGDS_DATA_HOME/breast/processed_*
 
 # Load up the Breast Meta Data File
-./ImportCancerStudy.pl $CGDS_DATA_HOME/breast/breast.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/breast/breast.txt
 
 # Pre-process data for import
 # Runs:

@@ -18,7 +18,7 @@ users.worksheet=
 log.file.path=private-portal.log
 
 # Skin Configuration
-skin.title=cBio TCGA Cancer Genomics Internal MSKCC Portal
+skin.title=cBio Private Portal
 skin.blurb=Welcome to the <b>private</b> instance of the cBio Portal.  Access to this instance is only available to authorized users.
 skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/internal-form">Request Access (Under Construction</a>].
 skin.show_news_tab=false

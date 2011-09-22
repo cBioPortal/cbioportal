@@ -17,10 +17,9 @@ users.worksheet=
 # Location of log file
 log.file.path=gdac-portal.log
 
-skin.title=cBio TCGA Cancer Genomics Portal
+skin.title=cBio GDAC Portal
 skin.email_contact=cancergenomics at cbio dot mskcc dot org
 skin.blurb=<b>Data in this portal is based on the 28 July 2011 Broad Firehose run of TCGA data.  Additional mutation files have been added from each disease working group.</b>
-skin.header_image=site_name_beta.png
 skin.authorization_message=Access to this portal is only available to authorized users who are involved in TCGA-funded work or are active participants of the TCGA Disease Working Groups or Analysis Working Groups.  [<a href="http://bit.ly/gdac-form">Request Access</a>].
 
 # Manager webapp username and password

@@ -11,10 +11,9 @@ db.host=localhost
 # Location of log file
 log.file.path=portal.log
 
-skin.title=cBio Su2C Cancer Genomics Portal
+skin.title=cBio SU2C Portal
 skin.blurb=The cBio SU2C Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 skin.tag_line_image=su2c-logo.png
-skin.header_image=su2c_portal_name.png
 skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/gdac-form">Request Access (Under Construction</a>].
 
 # Manager webapp username and password

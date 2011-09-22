@@ -3,3 +3,9 @@
 
 # import ovarian protein data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_protein.txt --meta $CGDS_DATA_HOME/ovarian/meta_protein.txt --dbmsAction clobber
+
+# gdac-breast
+./all-breast-gdac.sh
+
+# gdac-endometrial
+./all-ucec-gdac.sh

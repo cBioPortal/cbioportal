@@ -26,3 +26,4 @@ cBioPortal.ipr
 cBioPortal.iws
 cbio-cancer-genomics-portal.iml
 my-properties-files/
+cron-job-properties-files/

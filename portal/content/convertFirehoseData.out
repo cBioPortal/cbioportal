@@ -1,5 +1,5 @@
 Cancers	cases_sequenced.txt	cases_CGH.txt	cases_complete.txt	cases_normal_mRNA.txt	cases_mRNA.txt	cases_all.txt
-brca	258	700	243	0	530	727
+brca	527	700	498	0	530	727
 coad	151	317	130	0	155	331
 coadread	225	437	197	0	224	453
 gbm	276	501	247	0	500	546

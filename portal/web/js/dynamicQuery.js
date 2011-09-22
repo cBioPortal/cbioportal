@@ -17,6 +17,7 @@ var PROFILE_MUTATION = "PROFILE_MUTATION";
 var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
 var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
+var PROFILE_PROTEIN = "PROFILE_PROTEIN";
 
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
@@ -308,6 +309,7 @@ function cancerStudySelected() {
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION", PROFILE_MUTATION, "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "MUTATION_EXTENDED", PROFILE_MUTATION_EXTENDED, "Mutation");
     addGenomicProfiles(cancer_study.genomic_profiles, "COPY_NUMBER_ALTERATION", PROFILE_COPY_NUMBER_ALTERATION, "Copy Number");
+    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
     addGenomicProfiles(cancer_study.genomic_profiles, "MRNA_EXPRESSION", PROFILE_MRNA_EXPRESSION, "mRNA Expression");
     
     //  show protein level rppa data in the download tab

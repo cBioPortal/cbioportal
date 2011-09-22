@@ -199,13 +199,6 @@ color: #000;
   text-align: left;
  }
 
-.map td {
-  border: 1px solid #03476F;
-  background: #4591AD;
-  padding-top:3px;
-  color: #FFFFFF;
-}
-
 .map .amp_1 {
     background: #DD8F8F;
 }

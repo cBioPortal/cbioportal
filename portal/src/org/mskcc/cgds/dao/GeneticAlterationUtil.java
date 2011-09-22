@@ -119,13 +119,13 @@ public class GeneticAlterationUtil {
         DaoMutation daoMutation = DaoMutation.getInstance();
 
         HashMap <String, String> mutationMap = new HashMap <String, String>();
-        for (String caseId:  targetCaseList) {
-            ArrayList <ExtendedMutation> mutationList =
-                    daoMutation.getMutations(geneticProfileId, caseId, entrezGeneId);
-            if (mutationList.size() > 0) {
-                ExtendedMutation mutation = mutationList.get(0);
+        ArrayList <ExtendedMutation> mutationList =
+                    daoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
+        
+        for (ExtendedMutation mutation : mutationList) {
+            String caseId = mutation.getCaseId();
+            if (!mutationMap.containsKey(caseId))
                 mutationMap.put(caseId, mutation.getAminoAcidChange());
-            }
         }
         return mutationMap;
     }

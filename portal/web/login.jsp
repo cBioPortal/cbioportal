@@ -48,7 +48,7 @@
         </div>
     <% } %>
        <br>
-       <table cellspacing="2px">
+       <table cellspacing="2px" width="100%">
 	     <tr>
 	       <td>
 	         <!-- Simple OpenID Selector -->

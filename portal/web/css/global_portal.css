@@ -1,12 +1,8 @@
 /* CSS THAT APPLIES TO ALLLLLL PORTALS */
 
-
 body {
-    font-family: verdana, arial, sans-serif;
-    table-layout:fixed;
-}
-
-body {
+  font-family: verdana, arial, sans-serif;
+  table-layout:fixed;
   text-align: center;
   margin-top:10px;
   margin-bottom:10px;
@@ -27,7 +23,6 @@ body {
   background: #fff ;
   margin:0px; padding:0px;
   width:860px;
-  height:120px;
 }
 
 #login_header_wrapper {
@@ -35,6 +30,13 @@ body {
   margin:0px; padding:0px;
   width:860px;
   height:50px;
+}
+
+#header_site_name{
+  font-size:230%;
+  font-weight:bold;
+  color:#1974b8;
+  background:red;
 }
 
 #header h1 {
@@ -62,27 +64,20 @@ body {
 }
 
 img {
-        border: 0px;
-}
-
-.logo {
-    padding: 5px;
-    padding-bottom: 10px;
-    /*border-bottom: 5px solid #8cbadc;*/
-    height:75px;
+  border: 0px;
 }
 
 A:link {
-	COLOR: #0000FF; text-decoration: none;
+  COLOR: #0000FF; text-decoration: none;
 }
 A:visited {
-	COLOR: #0000FF; text-decoration: none;
+  COLOR: #0000FF; text-decoration: none;
 }
 A:active {
-	COLOR: #0000FF; text-decoration: none;
+  COLOR: #0000FF; text-decoration: none;
 }
 A:hover {
-	COLOR: #FF0000; text-decoration: underline;
+  COLOR: #FF0000; text-decoration: underline;
 }
 
 #instructions {
@@ -188,21 +183,23 @@ color: #000;
   border-bottom: 1px solid #AEAEFF;
 }
 
-.map thead th, tfoot th {
+.map th {
   font: bold 11px verdana, arial, helvetica, sans-serif;
   border: 1px solid #03476F;;
   text-align: left;
   background: #CCCCFF;
   color: #FFFFFF;
   padding-top:3px;
+  vertical-align: top;
+  text-align: left;
   }
 
-.map tbody th, tbody td {
+.map td {
   vertical-align: top;
   text-align: left;
  }
 
-.map tfoot td {
+.map td {
   border: 1px solid #03476F;
   background: #4591AD;
   padding-top:3px;
@@ -746,10 +743,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   text-align:left;
 }
 
-table {
-	vertical-align: top;
-}
-
 .rowcolor { background: #DDDDDD; }
 
 
@@ -829,7 +822,6 @@ table {
   padding:5px 0px 0px 0px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   margin:0px;
-  height:120px;
 }
 
 #login_header_top {

@@ -1,5 +1,4 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <!DOCTYPE HTML>
 <html>
@@ -20,18 +19,8 @@
     <td colspan="3">
     <div id="login_header_wrapper">
     <div id="login_header_top">
-
-        <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
-    	<tr>
-	        <td class="logo" width="250px"><a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"/></a></td>
-            <td class="logo" width="330px"><a href="index.do"><img src="<%= SkinUtil.getHeaderImage() %>" alt="Main Logo"/></a></td>
-            <td class="logo" width="200px"><img src="<%= SkinUtil.getTagLineImage() %>"/></td>
-        </tr>
-        </table>
-    <!-- End DIV id="header" -->
+    <jsp:include page="header_bar.jsp" flush="true" />
     </div>
-
-    <!-- End DIV id="header_wrapper" -->    
     </div>
 	</td>
   </tr>

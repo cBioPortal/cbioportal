@@ -37,13 +37,13 @@
             <div class="welcome">
                 <table>
                 <tr>
-                   <td style="width: 350px">
+                   <td valign=top style="width: 350px">
                       <P><%= SkinUtil.getBlurb() %></p>
                       <p>The portal is developed and maintained by
                       the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
                       at <br><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
                    </td>
-                   <td style="width: 300px">
+                   <td valign=top style="width: 300px">
                        <jsp:include page="<%= popeye %>" flush="true" />
                    </td>
                 </tr>

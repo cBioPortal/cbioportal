@@ -3,11 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><!-- Include Global Style Sheets -->
 		<link rel="icon" href="http://cbio.mskcc.org/favicon.ico">
-		<link href="css/popeye/jquery.popeye.css" type="text/css" rel="stylesheet">
-		<link href="css/popeye/jquery.popeye.style.css" type="text/css" rel="stylesheet">
-		<link href="css/tipTip.css" type="text/css" rel="stylesheet">
 		<link href="css/global_portal.css" type="text/css" rel="stylesheet">
-		<link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"><!-- Include Global List of Javascript Files to Load -->
 
 		<script type="text/javascript" src="js/jquery.min.js">
 </script>
@@ -40,9 +36,10 @@
 							<div id="header_wrapper">
 								<div id="header">
 									
-									<? createHeader("HEADER"); ?>
-									<? createHeader("HEADER"); ?>
-									<? createHeader("HEADER"); ?>
+									<?php createHeader("cBio GDAC Portal", "middle", "tag_line.png"); ?>
+									<?php createHeader("cBio Cancer Genomics Portal", "middle", "tag_line.png"); ?>
+									<?php createHeader("cBio SU2C Portal", "middle", "su2c-logo.png"); ?>
+									<?php createHeader("cBio SU2C Cancer Genomics Portal", "middle", "su2c-logo.png"); ?>
 									
 									<table width="100%">
 										<tr>
@@ -103,21 +100,30 @@
 	</body>
 </html>
 
-<?
-	function createHeader($siteName) { 
+<?php
+	function createHeader($siteName, $valign, $logo) { 
 ?>
-<table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
-	<tr>
-		<td class="logo" width="250px">
+<table width="100%" cellspacing="0px" cellpadding="2px" border="1px">
+	<tr valign="<?php echo($valign); ?>">
+		<td valign="<?php echo($valign); ?>" width="25%">
 			<a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"></a>
 		</td>
-		<td class="logo" width="330px">
-			<a href="index.do"><$ siteName $></a>
+		<td valign="<?php echo($valign); ?>" width="50%">
+			<span id="header_site_name">
+				<center>
+				<?php echo($siteName); ?>
+				</center>
+			</span>
 		</td>
-		<td class="logo" width="200px">
-			<img src="images/tag_line.png" alt="Tag Line">
+		<td valign="<?php echo($valign); ?>" width="25%">
+			<img src="images/<?php echo($logo); ?>" alt="Tag Line">
+		</td>
+	</tr>
+	<tr>
+		<td colspan=3>
+			<nobr><span style="float:right;font-size:10px;">You are logged in as Ethan&#32;Cerami. <a href="j_spring_security_logout">Sign out</a>.</span></nobr>
 		</td>
 	</tr>
 </table>
-<?	}
+<?php	}
 ?>

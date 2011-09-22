@@ -28,19 +28,8 @@
 	 <div id="header_wrapper">
     <div id="header">
 
-        <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
-    	<tr>
-	        <td class="logo" width="250px"><a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"/></a></td>
-            <td class="logo" width="330px"><a href="index.do"><img src="<%= SkinUtil.getHeaderImage() %>" alt="Main Logo"/></a></td>
-            <td class="logo" width="200px"><img src="<%= SkinUtil.getTagLineImage() %>" alt="Tag Line"/>
-                <%
-                   if (SkinUtil.usersMustAuthenticate()) {
-                %>
-                <nobr><span style="float:right;font-size:10px;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span></nobr>
-                <% } %>
-            </td>
-        </tr>
-        </table>
+       <jsp:include page="header_bar.jsp" flush="true" />
+        
        <table width="100%">
         <tr>
             <td class="navigation">

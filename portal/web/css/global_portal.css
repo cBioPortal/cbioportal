@@ -144,19 +144,9 @@ A:hover {
 }
 
 .map table {
-  /*border-collapse: collapse;*/
   border: 1px solid #03476F;
-  font: normal 11px verdana, arial, helvetica, sans-serif;
   color: #363636;
   background: #CCCCFF;
-}
-
-.map thead td{
-
-color: #000;
-  font-weight: bold !important;
-    border: 0px;
-    border-bottom: 1px solid #AEAEFF;
 }
 
 .map caption {
@@ -168,36 +158,28 @@ color: #000;
   text-transform: uppercase;
 }
 
-.map td, th {
-  /*border: 1px solid #03476F;*/
+.map th {
   padding: .4em;
   color: #363636;
+  border-bottom: 1px solid #AEAEFF;
+  vertical-align: top;
+  text-align: left;
+  font-size:75%;
 }
 
-.map td {
-  font-size:95%;
-}
-
-.map th {
-  font-size:100%;
+.map thead td{
+  color: #000;
+  font-weight: bold !important;
   border-bottom: 1px solid #AEAEFF;
 }
 
-.map th {
-  font: bold 11px verdana, arial, helvetica, sans-serif;
-  border: 1px solid #03476F;;
-  text-align: left;
-  background: #CCCCFF;
-  color: #FFFFFF;
-  padding-top:3px;
-  vertical-align: top;
-  text-align: left;
-  }
-
 .map td {
+  padding: .4em;
+  color: #363636;
   vertical-align: top;
   text-align: left;
- }
+  font-size:65%;
+}
 
 .map .amp_1 {
     background: #DD8F8F;
@@ -206,6 +188,7 @@ color: #000;
 .map .amp_2 {
     background: red;
     color: #FFFFFF;
+    font-weight:bold;
 }
 
 .map .del_1 {
@@ -215,16 +198,19 @@ color: #000;
 .map .del_2 {
     color: #FFFFFF;
     background:  blue;
+    font-weight:bold;
 }
 
 .map .hetloss_2 {
     color: #000;
     background:  lightblue;
+    font-weight:bold;
 }
 
 .map .gained_2 {
     color: #000;
     background:  lightpink;
+    font-weight:bold;
 }
 
 .map .no_change {

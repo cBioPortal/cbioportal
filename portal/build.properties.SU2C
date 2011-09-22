@@ -1,20 +1,27 @@
 # Application Name and Version
-app.name=su2c
+app.name=su2c-portal
 app.version=0.1
 
 # Database Settings
-db.name=cgds
-db.user=root
+db.name=cgds_su2c
+db.user=
 db.password=
 db.host=localhost
 
+# google settings
+google.id=
+google.pw=
+users.spreadsheet=
+users.worksheet=
+
 # Location of log file
-log.file.path=portal.log
+log.file.path=/srv/www/sander-tomcat/tomcat6/logs/su2c-portal.log
 
 skin.title=cBio SU2C Portal
 skin.blurb=The cBio SU2C Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 skin.tag_line_image=su2c-logo.png
-skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/gdac-form">Request Access (Under Construction</a>].
+skin.header_image=su2c_portal_name.png
+skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/su2c-form">Request Access (Under Construction</a>].
 
 # Manager webapp username and password
 manager.username=tomcat

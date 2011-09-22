@@ -109,7 +109,7 @@
                         "bDestroy": true,
                         "aaData": aDataSet,
                         "aoColumnDefs":[
-                            { //"sTitle": "Gene",
+                            { //"sTitle": "RPPA ID",
                               "bVisible": false,
                               "aTargets": [ 0 ]
                             },
@@ -249,12 +249,21 @@
                         $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
                         var aData = oTable.fnGetData( nTr );
                         var data = aData[11];
-                        var xlabel = "";
-                        var param = 'xlabel='+xlabel+'&ylabel=Median-centered RPPA score&width=500&height=400&data='+data;
-                        var html = 'Boxplots of RPPA data (antibody:'+aData[4].replace(/<[^>]*>/g,"");
+                        var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
                         if (aData[5])
-                            html += '['+aData[5]+']';
-                        html += ') for altered and unaltered cases ';
+                            antibody += ' ['+aData[5]+']';
+                        var xlabel = "Gene list: ";
+                        if (aData[1] == "Any")
+                            xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
+                        else
+                            xlabel += aData[1];
+                        var pvalue = parsePValue(aData[10]);
+                        if (!isNaN(pvalue)) {
+                            xlabel += " (p-value: "+pvalue+")";
+                        }
+                        var ylabel = "RPPA score ("+antibody+")";
+                        var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
+                        var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
                         html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>' 
                                 + '<img src="boxplot.do?'+param+'">';
                         oTable.fnOpen( nTr, html, 'rppa-details' );

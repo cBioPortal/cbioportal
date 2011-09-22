@@ -132,6 +132,33 @@ public class DaoMutation {
         }
     }
 
+    public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, ArrayList<String> targetCaseList,
+            long entrezGeneId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM mutation WHERE CASE_ID IN ('" 
+                    +org.apache.commons.lang.StringUtils.join(targetCaseList, "','")+
+                            "') AND GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+            pstmt.setLong(2, entrezGeneId);
+            rs = pstmt.executeQuery();
+            while  (rs.next()) {
+                ExtendedMutation mutation = extractMutation(rs);
+                mutationList.add(mutation);
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+        return mutationList;
+    }
+
     public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, String caseId,
             long entrezGeneId) throws DaoException {
         Connection con = null;

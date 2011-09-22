@@ -10,7 +10,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">536</td>
+<td style="text-align: right;">489</td>
 </tr>
 <tr>
 <td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
@@ -18,4 +18,4 @@
 </tr>
 </table>
 
-Based on the Firehose run from 07/28/2011.</p>
+</p>

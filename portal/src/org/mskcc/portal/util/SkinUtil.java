@@ -59,21 +59,6 @@ public class SkinUtil {
     }
 
     /**
-     * Gets the Site Header Image.
-     * @return site header image.
-     */
-    public static String getHeaderImage() {
-        Config config = Config.getInstance();
-        String headerImage = config.getProperty("skin.header_image");
-        if (headerImage == null) {
-            headerImage = "images/site_name.png";
-        } else {
-            headerImage = "images/" + headerImage;
-        }
-        return headerImage;
-    }
-
-    /**
      * Gets the Site Email Contact.
      * Emails should be in the form of:  xxx AT yyy DOT com.
      * @return site email contact.

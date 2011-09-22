@@ -9,3 +9,6 @@
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_CNA.txt --meta $CGDS_DATA_HOME/bladder/meta_CNA.txt --dbmsAction clobber
+
+# Imports mRNA Data
+./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_expression.txt --meta $CGDS_DATA_HOME/bladder/meta_expression.txt --dbmsAction clobber

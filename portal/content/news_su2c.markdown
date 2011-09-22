@@ -1,4 +1,4 @@
-# September 3, 2011
+# September 23, 2011
 
 * Updated data for breast and endometrial cancer from TCGA, including 499 fully sequenced breast cancer samples.
 * You can now query across different cancer studies (feature available directly from the home page).

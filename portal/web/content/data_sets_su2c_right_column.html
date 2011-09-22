@@ -5,17 +5,17 @@
 </tr>
 
 <tr>
-<td class="Tips1" title="Breast carcinoma">BRCA</td>
-<td style="text-align: right;">346</td>
+<td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
+<td style="text-align: right;">727</td>
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
 <td style="text-align: right;">536</td>
 </tr>
 <tr>
-<td class="Tips1" title="Uterine corpus endometrial carcinoma">UCEC</td>
-<td style="text-align: right;">114</td>
+<td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
+<td style="text-align: right;">284</td>
 </tr>
 </table>
 
-<p>Last update: 3/22/2011.<br><a href="data_sets.jsp">More...</a></p>
+Based on the Firehose run from 07/28/2011.</p>

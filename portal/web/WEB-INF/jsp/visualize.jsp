@@ -110,8 +110,6 @@
 
 </script>
 
-<html>
-
 <jsp:include page="global/header.jsp" flush="true" />
 
 	<table>

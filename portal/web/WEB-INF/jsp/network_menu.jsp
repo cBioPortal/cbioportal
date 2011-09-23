@@ -90,6 +90,21 @@
 	    		</li>
 	    	</ul>
 	    </li>
+	    <li>
+	    	<a id="network_menu_legends">Legends</a>
+	    	<ul id="legends_menu">
+	    		<li>
+	    			<a id="show_node_legend" onclick="handleMenuEvent('node_legend')">
+	    				Node Legend
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">
+	    				Edge Legend
+	    			</a>
+	    		</li>
+	    	</ul>
+	    </li>
 	</ul>
 </div>
 

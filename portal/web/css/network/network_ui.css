@@ -110,6 +110,16 @@
 	width: 17em;
 }
 
+#legends_menu
+{
+	width: 15em;
+}
+
+#legends_menu a
+{
+	width: 12em;
+}
+
 /* 
  * Menu & Settings Panel
  */
@@ -374,4 +384,9 @@
 {
 	height: 575px;
 	width: 200px;
+}
+
+#relations_tab #edge_source_filter
+{
+	padding-top: 1em;
 }

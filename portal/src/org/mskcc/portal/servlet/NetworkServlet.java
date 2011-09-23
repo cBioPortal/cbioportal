@@ -87,7 +87,7 @@ public class NetworkServlet extends HttpServlet {
             }
             
             if (xd!=null && xd.equals("1")) {
-                xdebug.logMsg(this, "NetworkServlet URL: "+getNetworkServletUrl(req, xssUtil));
+                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, xssUtil)+"\" target=\"_blank\">NetworkServlet URL</a>");
             }
 
             //  Get User Defined Gene List

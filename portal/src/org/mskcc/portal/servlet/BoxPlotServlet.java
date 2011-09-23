@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 
 import org.owasp.validator.html.PolicyException;
@@ -69,6 +70,8 @@ public class BoxPlotServlet extends HttpServlet {
             String ylabel = servletXssUtil.getCleanInput(request, YLABEL);
             String width = servletXssUtil.getCleanInput(request, PLOT_WIDTH);
             String height = servletXssUtil.getCleanInput(request, PLOT_HEIGHT);
+            
+            xlabel = WordUtils.wrap(xlabel, 60, "\\n", false);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png

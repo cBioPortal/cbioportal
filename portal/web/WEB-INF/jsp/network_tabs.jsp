@@ -25,7 +25,7 @@
     </div>
     <div id="relations_tab">
 		<div>
-	        <table>
+	        <table id="edge_type_filter">
 	        	<tr class="edge-type-header">
 	        		<td>
 	        			<strong>Type:</strong>
@@ -73,28 +73,12 @@
 	        			<div class="percent-value"></div>
 	        		</td>
 	        	</tr>
+	        </table>
+	        <table id="edge_source_filter">
 	        	<tr class="edge-source-header">
 	        		<td>
 	        			<strong>Source:</strong>
 	        		</td>
-	        	</tr>
-	        	<tr class="reactome">
-	        		<td class="edge-source-checkbox">
-		        		<input type="checkbox" checked="checked">
-		        		<label>Reactome</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="nci">
-	        		<td class="edge-source-checkbox">
-		        		<input type="checkbox" checked="checked">
-		        		<label>NCI</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="unknown">
-	        		<td class="edge-source-checkbox">
-		        		<input type="checkbox" checked="checked">
-		        		<label>Unknown</label>
-		        	</td>
 	        	</tr>
 	        </table>
 	    </div>
@@ -116,9 +100,21 @@
 	</div>
 </div>
 
+<div id="node_legend" class="hidden-network-ui" title="Node Legend">
+	<div id="node_legend_content" class="content ui-widget-content">
+		Node Legend ...
+	</div>
+</div>
+
 <div id="edge_inspector" class="hidden-network-ui" title="Edge Inspector">
 	<div id="edge_inspector_content" class="content ui-widget-content">
 		<table class="data"></table>
 		<table class="xref"></table>
+	</div>
+</div>
+
+<div id="edge_legend" class="hidden-network-ui" title="Edge Legend">
+	<div id="edge_legend_content" class="content ui-widget-content">
+		Edge Legend ...
 	</div>
 </div>

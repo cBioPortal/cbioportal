@@ -105,7 +105,7 @@ public class Node {
         }
         
         // also add attribute
-        addAttribute("xref", type+":"+id);
+        //addAttribute("xref", type+":"+id);
         
         ids.add(id);
     }

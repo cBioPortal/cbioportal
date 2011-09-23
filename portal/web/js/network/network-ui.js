@@ -16,14 +16,9 @@ var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
 
-// edge source constants
-var REACTOME = "Reactome";
-var NCI = "NCI";
-
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
-
 var UNKNOWN = "Unknown";
 
 // class constants for css visualization
@@ -243,6 +238,7 @@ function showNodeInspector(evt)
 	$("#node_inspector").dialog("open").height("auto");
 }
 
+
 /**
  * Updates the content of the node inspector with respect to the provided data.
  * Data is assumed to be the data of a node.
@@ -271,15 +267,14 @@ function _updateNodeInspectorContent(data)
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
 	
-	// add id
-	
-	_addDataRow("node", "ID", data.id);
+		
+	//_addDataRow("node", "ID", data.id);
 	
 	if (data.type == PROTEIN)
 	{
 		_addDataRow("node", "Gene Symbol", data.label);
 		//_addDataRow("node", "Description", "TODO");
-		_addDataRow("node", "User-Specified", data.IN_QUERY);
+		//_addDataRow("node", "User-Specified", data.IN_QUERY);
 	
 		// add percentage information
 		_addPercentages(data);
@@ -484,10 +479,10 @@ function showEdgeInspector(evt)
 	
 	// clean xref & data rows
 	$("#edge_inspector_content .data .data-row").remove();
+	$("#edge_inspector_content .xref .xref-row").remove();
 	
 	// if the target is a merged edge, then add information of all edges
 	// between the source and target
-	
 	if (evt.target.merged)
 	{
 		// update title
@@ -515,6 +510,7 @@ function showEdgeInspector(evt)
 			
 			if (data["INTERACTION_PUBMED_ID"] == null)
 			{
+				// no PubMed ID, add only type information
 				_addDataRow("edge",
 					"Type",
 					data["type"],
@@ -522,14 +518,21 @@ function showEdgeInspector(evt)
 			}
 			else
 			{
+				// add type information
 				_addDataRow("edge",
 					"Type",
 					data["type"],
 					INNER_ROW_CLASS);
+		
+				// add pubmed id as a data row
+				// (adding as an xref row does not work here)
+				var link = _resolveXref(data["INTERACTION_PUBMED_ID"]);
+				var xref = '<a href="' + link.href + '" target="_blank">' +
+					link.pieces[1] + '</a>';
 				
 				_addDataRow("edge",
 					"PubMed ID",
-					data["INTERACTION_PUBMED_ID"],
+					xref,
 					BOTTOM_ROW_CLASS);
 			}
 		}
@@ -538,6 +541,7 @@ function showEdgeInspector(evt)
 		$("#edge_inspector_content .data").append(
 			'<tr align="left" class="empty-row data-row"><td> </td></tr>');
 	}
+	// target is a regular edge
 	else
 	{
 		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
@@ -545,7 +549,14 @@ function showEdgeInspector(evt)
 		
 		if (data["INTERACTION_PUBMED_ID"] != null)
 		{
-			_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+			// add PubMed ID as an xref row to the end of the inspector
+			
+			$("#edge_inspector_content .xref").append(
+				'<tr class="xref-row"><td><strong>PubMed ID: </strong></td></tr>');
+		
+			var link = _resolveXref(data["INTERACTION_PUBMED_ID"]);
+			_addXrefEntry('edge', link.href, link.pieces[1]);
+			
 		}
 	}
 	
@@ -574,10 +585,7 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	$("#node_inspector").dialog("option",
-		"height",
-		"auto");
-	
+	// open inspector
 	$("#node_inspector").dialog("open").height("auto");
 }
 
@@ -604,7 +612,7 @@ function updateGenesTab(evt)
 		// select options for selected nodes
 		for (var i=0; i < selected.length; i++)
 		{
-			$("#" +  _safeId(selected[i].data.id)).attr(
+			$("#" +  _safeProperty(selected[i].data.id)).attr(
 				"selected", "selected");
 		}
 	}
@@ -703,15 +711,16 @@ function updateEdges()
 	_edgeTypeVisibility[STATE_CHANGE] =
 		$("#relations_tab .state-change input").is(":checked");
 	
-	_edgeSourceVisibility[REACTOME] =
-		$("#relations_tab .reactome input").is(":checked");
-	
-	_edgeSourceVisibility[NCI] =
-		$("#relations_tab .nci input").is(":checked");
-	
+	for (var key in _edgeSourceVisibility)
+	{
+		_edgeSourceVisibility[key] =
+			$("#relations_tab ." + _safeProperty(key) +
+				" input").is(":checked");
+	}
+
 	_edgeSourceVisibility[UNKNOWN] =
-		$("#relations_tab .unknown input").is(":checked");
-	
+		$("#relations_tab .unknown input").is(":checked");	
+
 	// remove current edge filters
 	_vis.removeFilter("edges");
 	
@@ -737,6 +746,9 @@ function edgeVisibility(element)
 	var typeVisible = true;
 	var sourceVisible = true;
 	
+	// TODO currently we do not allow edge filtering by selection, so
+	// there should not be any edge in the array _alreadyFiltered
+	
 	// if an element is already filtered then it should remain invisible
 	if (_alreadyFiltered[element.data.id] != null)
 	{
@@ -754,21 +766,15 @@ function edgeVisibility(element)
 		typeVisible = _edgeTypeVisibility[element.data.type];
 	}
 	
-	// unknown source, check the unknown flag
-	if (element.data['INTERACTION_DATA_SOURCE'] == null)
+	var source = element.data['INTERACTION_DATA_SOURCE'];
+	
+	if (_edgeSourceVisibility[source] != null)
 	{
-		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+		sourceVisible = _edgeSourceVisibility[source];
 	}
-	// check the visibility of the known source
-	else if (element.data.INTERACTION_DATA_SOURCE == REACTOME ||
-		element.data.INTERACTION_DATA_SOURCE == NCI)
-	{
-		sourceVisible = 
-			_edgeSourceVisibility[element.data.INTERACTION_DATA_SOURCE];
-	}
-	// unknown source, check the unknown flag
 	else
 	{
+		// no source specified, check the unknown flag
 		sourceVisible = _edgeSourceVisibility[UNKNOWN];
 	}
 	
@@ -1099,6 +1105,18 @@ function _removeHighlights()
 	//$("#menu_neighbors_clear").addClass("ui-state-disabled");
 }
 
+function _showNodeLegend()
+{
+	// open legend panel
+	$("#node_legend").dialog("open").height("auto");
+}
+
+function _showEdgeLegend()
+{
+	// open legend panel
+	$("#edge_legend").dialog("open").height("auto");
+}
+
 /**
  * Adds a data row to the node or edge inspector.
  * 
@@ -1176,6 +1194,7 @@ function _resolveXref(xref)
 		}
 		
 		link.text = xref;
+		link.pieces = pieces;
 	}
 	
 	return link;
@@ -1212,6 +1231,8 @@ function _setVisibility(visible)
 			$("#network_tabs").removeClass("hidden-network-ui");
 			$("#node_inspector").removeClass("hidden-network-ui");
 			$("#edge_inspector").removeClass("hidden-network-ui");
+			$("#node_legend").removeClass("hidden-network-ui");
+			$("#edge_legend").removeClass("hidden-network-ui");
 			$("#settings_dialog").removeClass("hidden-network-ui");
 		}
 	}
@@ -1223,6 +1244,8 @@ function _setVisibility(visible)
 			$("#network_tabs").addClass("hidden-network-ui");
 			$("#node_inspector").addClass("hidden-network-ui");
 			$("#edge_inspector").addClass("hidden-network-ui");
+			$("#node_legend").addClass("hidden-network-ui");
+			$("#edge_legend").addClass("hidden-network-ui");
 			$("#settings_dialog").addClass("hidden-network-ui");
 		}
 	}
@@ -1262,13 +1285,15 @@ function _xrefArray()
 {
 	var linkMap = new Array();
 	
-	// TODO find missing links (RefSeq and Nucleotide Sequence Database)
-	linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
-	linkMap["nucleotide sequence database"] = "";
+	// TODO find missing links (Nucleotide Sequence Database)
+	//linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
+	linkMap["refseq"] = "http://www.ncbi.nlm.nih.gov/protein/";
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
 	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
+	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
+	linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;
 }
@@ -1299,9 +1324,24 @@ function _edgeSourceArray()
 {
 	var sourceArray = new Array();
 	
-	// by default every edge source is visible
-	sourceArray[REACTOME] = true;
-	sourceArray[NCI] = true;
+	// dynamically collect all sources
+	
+	var edges = _vis.edges();
+	var source;
+	
+	for (var i = 0; i < edges.length; i++)
+	{
+		source = edges[i].data.INTERACTION_DATA_SOURCE;
+		
+		if (source != null
+			&& source != "")
+		{
+			// by default every edge source is visible
+			sourceArray[source] = true;
+		}
+	}
+	
+	// also set a flag for unknown (undefined) sources
 	sourceArray[UNKNOWN] = true;
 	
 	return sourceArray;
@@ -1344,6 +1384,7 @@ function _initMainMenu()
 	$("#network_menu_topology").addClass(MENU_CLASS);
 	$("#network_menu_view").addClass(MENU_CLASS);
 	$("#network_menu_layout").addClass(MENU_CLASS);
+	$("#network_menu_legends").addClass(MENU_CLASS);
 	
 	$("#save_as_png").addClass(FIRST_CLASS);
 	$("#save_as_png").addClass(MENU_SEPARATOR_CLASS);
@@ -1364,6 +1405,10 @@ function _initMainMenu()
 	//$("#layout_properties").addClass(SUB_MENU_CLASS);
 	$("#auto_layout").addClass(MENU_SEPARATOR_CLASS);
 	$("#auto_layout").addClass(LAST_CLASS);
+	
+	$("#show_node_legend").addClass(FIRST_CLASS);
+	$("#show_node_legend").addClass(MENU_SEPARATOR_CLASS);	
+	$("#show_edge_legend").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
 	
@@ -1451,6 +1496,16 @@ function _initDialogs()
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 350});
+	
+	// adjust node legend
+	$("#node_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 300});
+	
+	// adjust edge legend
+	$("#edge_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 300});
 }
 
 /*
@@ -1505,7 +1560,7 @@ function _refreshGenesTab()
 	for (var i=0; i < geneList.length; i++)
 	{
 		// use the safe version of the gene id as an id of an HTML object
-		var safeId = _safeId(geneList[i].data.id);
+		var safeId = _safeProperty(geneList[i].data.id);
 		
 		var classContent;
 		
@@ -1629,7 +1684,29 @@ function _refreshRelationsTab()
 		"background-color", "#67C1A9");
 	
 	$("#relations_tab .state-change .percent-value").text(
-		percent.toFixed(1) + "%")
+		percent.toFixed(1) + "%");
+	
+	// TODO remove old source filters?
+	//$("#relations_tab #edge_source_filter tr").remove();
+	
+	// add source filtering options
+	
+	for (var key in _edgeSourceVisibility)
+	{
+		$("#relations_tab #edge_source_filter").append(
+			'<tr class="' + _safeProperty(key) + '">' +
+			'<td class="edge-source-checkbox">' +
+			'<input type="checkbox" checked="checked">' +
+			'<label>' + key + '</label>' +
+			'</td></tr>');
+	}
+	
+	// <tr class="unknown">
+	//		<td class="edge-source-checkbox">
+	//				<input type="checkbox" checked="checked">
+	//				<label> Unknown </label>
+	//		</td>
+	// </tr>
 }
 
 
@@ -1653,14 +1730,15 @@ function _initControlFunctions()
 	_controlFunctions["remove_disconnected"] = _toggleRemoveDisconnected;
 	_controlFunctions["show_profile_data"] = _toggleProfileData;
 	_controlFunctions["save_as_png"] = _saveAsPng;
-	_controlFunctions["save_as_svg"] = _saveAsSvg;
+	//_controlFunctions["save_as_svg"] = _saveAsSvg;
 	_controlFunctions["layout_properties"] = _openProperties;
 	_controlFunctions["highlight_neighbors"] = _highlightNeighbors;
 	_controlFunctions["remove_highlights"] = _removeHighlights;
 	_controlFunctions["hide_non_selected"] = filterNonSelected;
+	_controlFunctions["node_legend"] = _showNodeLegend;
+	_controlFunctions["edge_legend"] = _showEdgeLegend;
 	
-	// TODO temp test button, remove when done
-	//_controlFunctions["joker_button"] = jokerAction;
+	
 	
 	// add button listeners
 	
@@ -1693,6 +1771,9 @@ function _initControlFunctions()
 	_vis.addListener("deselect",
 		"nodes",
 		updateGenesTab);
+	
+	// TODO temp debug option, remove when done
+	//_vis.addContextMenuItem("node details", "nodes", jokerAction);
 }
 
 /**
@@ -1812,18 +1893,11 @@ function _performLayout()
 /**
  * Temporary function for debugging purposes
  */
-function jokerAction()
+function jokerAction(evt)
 {
-	var selectedElements = _vis.selected();
-	
-	var str;
-	
-	if (selectedElements.length > 0)
-	{
-		str = _nodeDetails(selectedElements[0]);
-	}
-	
-	alert(str);
+	var node = evt.target;		
+	str = _nodeDetails(node);		
+	alert(str);	
 }
 
 /**
@@ -1843,7 +1917,9 @@ function _nodeDetails(node)
 		}
 		
 		str += "\n";
+		//str += "data len: " + node.data.length " \n";
 		str += "data: \n";
+		
 		
 		for (var field in node.data)
 		{
@@ -1852,7 +1928,7 @@ function _nodeDetails(node)
 	}
 	
 	str += "short id: " + _shortId(node.data.id) + "\n";
-	str += "safe id: " + _safeId(node.data.id) + "\n";
+	str += "safe id: " + _safeProperty(node.data.id) + "\n";
 	
 	return str;
 }
@@ -2138,24 +2214,26 @@ function _shortId(id)
 
 /**
  * Replaces all occurrences of a problematic character with an under dash.
- * Those characters cause problems with the "id" property of an HTML object.
+ * Those characters cause problems with the properties of an HTML object.
  * 
- * @param id	id to be modified
- * @return		safe version of the given id
+ * @param str	string to be modified
+ * @return		safe version of the given string
  */
-function _safeId(id)
+function _safeProperty(str)
 {
-	var safeId = id;
+	var safeProperty = str;
 	
-	safeId = _replaceAll(safeId, "/", "_");
-	safeId = _replaceAll(safeId, "\\", "_");
-	safeId = _replaceAll(safeId, "#", "_");
-	safeId = _replaceAll(safeId, ".", "_");
-	safeId = _replaceAll(safeId, ":", "_");
-	safeId = _replaceAll(safeId, '"', "_");
-	safeId = _replaceAll(safeId, "'", "_");
+	safeProperty = _replaceAll(safeProperty, " ", "_");
+	safeProperty = _replaceAll(safeProperty, "/", "_");
+	safeProperty = _replaceAll(safeProperty, "\\", "_");
+	safeProperty = _replaceAll(safeProperty, "#", "_");
+	safeProperty = _replaceAll(safeProperty, ".", "_");
+	safeProperty = _replaceAll(safeProperty, ":", "_");
+	safeProperty = _replaceAll(safeProperty, ";", "_");
+	safeProperty = _replaceAll(safeProperty, '"', "_");
+	safeProperty = _replaceAll(safeProperty, "'", "_");
 	
-	return safeId;
+	return safeProperty;
 }
 
 /**

@@ -70,14 +70,14 @@ public class NetworkIO {
                 String interaction = strs[1];
                 Edge edge = new Edge(source, target, interaction);
                 for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")) {
-                        for (String pubmed : strs[i].split(";")) {
-                            if (pubmed.startsWith("PubMed:")) // fix wrong pubmed problem
-                                edge.addAttribute(edgeHeaders[i], pubmed);
-                        }
-                    } else {
+//                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")) {
+//                        for (String pubmed : strs[i].split(";")) {
+//                            if (pubmed.startsWith("PubMed:")) // fix wrong pubmed problem
+//                                edge.addAttribute(edgeHeaders[i], pubmed);
+//                        }
+//                    } else {
                         edge.addAttribute(edgeHeaders[i], strs[i]);
-                    }
+//                    }
                 }
                 network.addEdge(edge);
             }
@@ -104,20 +104,22 @@ public class NetworkIO {
                             type = "Unknown";
                         }
                         node.setType(type);
-                    } else if (nodeHeaders[i].equals("PARTICIPANT_NAME")) {
-                        for (String name : strs[i].split(";")) {
-                            node.addAttribute("name", name);
-                        }
-                    } else if (nodeHeaders[i].endsWith("_XREF")) {
-                        for (String xref : strs[i].split(";")) {
-                            String[] typeId = xref.split(":",2);
-                            if (typeId[0].equals("HGNC"))
-                                node.addXref(typeId[0], typeId[1].toUpperCase());
-                            else
-                                node.addXref(typeId[0], typeId[1]);
-                        }
                     } else {
                         node.addAttribute(nodeHeaders[i], strs[i]);
+//                        if (nodeHeaders[i].equals("PARTICIPANT_NAME")) {
+//                            for (String name : strs[i].split(";")) {
+//                                node.addAttribute("name", name);
+//                            }
+//                        } else 
+                        if (nodeHeaders[i].endsWith("_XREF")) {
+                            for (String xref : strs[i].split(";")) {
+                                String[] typeId = xref.split(":",2);
+                                if (typeId[0].equals("HGNC"))
+                                    node.addXref(typeId[0], typeId[1].toUpperCase());
+                                else
+                                    node.addXref(typeId[0], typeId[1]);
+                            }
+                        }
                     }
                 }
             }

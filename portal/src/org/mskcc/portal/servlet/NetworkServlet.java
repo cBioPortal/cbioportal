@@ -33,7 +33,6 @@ import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.OncoPrintSpecificationDriver;
 import org.mskcc.portal.util.ProfileMerger;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.ZScoreUtil;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
@@ -77,12 +76,18 @@ public class NetworkServlet extends HttpServlet {
         res.setContentType("text/xml");
         try {
             XDebug xdebug = new XDebug( req );
+            
+            String xd = req.getParameter("xdebug");
 
             ServletXssUtil xssUtil;
             try {
                 xssUtil = ServletXssUtil.getInstance();
             } catch (PolicyException e) {
                 throw new ServletException (e);
+            }
+            
+            if (xd!=null && xd.equals("1")) {
+                xdebug.logMsg(this, "NetworkServlet URL: "+getNetworkServletUrl(req, xssUtil));
             }
 
             //  Get User Defined Gene List
@@ -189,7 +194,7 @@ public class NetworkServlet extends HttpServlet {
                 ProfileData netMergedProfile = merger.getMergedProfile();
                 ArrayList<String> netGeneList = netMergedProfile.getGeneList();
 
-                double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, req);
+                double zScoreThreshold = Double.parseDouble(xssUtil.getCleanInput(req, QueryBuilder.Z_SCORE_THRESHOLD));
 
                 ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
                         StringUtils.join(netGeneList, " "), geneticProfileIdSet,
@@ -246,9 +251,9 @@ public class NetworkServlet extends HttpServlet {
                 }
             });
             
-            String xd = req.getParameter("xdebug");
-            if (xd!=null && xd.equals("1"))
+            if (xd!=null && xd.equals("1")) {
                 writeXDebug(xdebug,req,res);
+            }
             
             PrintWriter writer = res.getWriter();
             writer.write(graphml);
@@ -256,6 +261,20 @@ public class NetworkServlet extends HttpServlet {
         } catch (DaoException e) {
             throw new ServletException (e);
         }
+    }
+    
+    private String getNetworkServletUrl(HttpServletRequest req, ServletXssUtil xssUtil) {
+        String geneListStr = xssUtil.getCleanInput(req, QueryBuilder.GENE_LIST);
+        String geneticProfileIdsStr = xssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS);
+        String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
+        String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
+        String zscoreThreshold = xssUtil.getCleanInput(req, QueryBuilder.Z_SCORE_THRESHOLD);
+        
+        return "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
+                +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
+                +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
+                +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
+                +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletRequest req,

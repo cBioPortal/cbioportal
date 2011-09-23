@@ -393,6 +393,7 @@ public class QueryBuilder extends HttpServlet {
             String output = servletXssUtil.getCleanInput(request, OUTPUT);
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+            request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
 
             if (output != null) {
 

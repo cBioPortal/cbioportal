@@ -15,7 +15,7 @@ users.spreadsheet=
 users.worksheet=
 
 # Location of log file
-log.file.path=gdac-portal.log
+log.file.path=/srv/www/sander-tomcat/tomcat6/logs/gdac-portal.log
 
 skin.title=cBio GDAC Portal
 skin.email_contact=cancergenomics at cbio dot mskcc dot org

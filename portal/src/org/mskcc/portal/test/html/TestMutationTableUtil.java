@@ -75,13 +75,13 @@ public class TestMutationTableUtil extends TestCase {
         validateHeaderPlusValue(3, "Validation Status", "<span class='valid'>valid</span>",
                 headerList, dataFieldList);
         validateHeaderPlusValue(4, "Sequencing Center", "Broad", headerList, dataFieldList);
-        validateHeaderPlusValue(5, "Amino Acid Change", "A22C", headerList, dataFieldList);
-        validateHeaderPlusValue(6, "Predicted Functional Impact**",
+        validateHeaderPlusValue(5, "AA Change", "A22C", headerList, dataFieldList);
+        validateHeaderPlusValue(6, "Predicted Impact**",
                 "<span class='oma_high'>High</span>", headerList, dataFieldList);
         validateHeaderPlusValue(7, "Alignment", "&nbsp;", headerList, dataFieldList);
         validateHeaderPlusValue(8, "Structure", "&nbsp;", headerList, dataFieldList);
-        validateHeaderPlusValue(9, "Nucleotide Position *", "5385", headerList, dataFieldList);
-        validateHeaderPlusValue(10, "Notes", "Known BRCA1 5382/5385 insC Founder Mutation", 
+        validateHeaderPlusValue(9, "NT Position *", "5385", headerList, dataFieldList);
+        validateHeaderPlusValue(10, "Notes", "5382/5385 insC Founder Mutation", 
                 headerList, dataFieldList);
 
     }

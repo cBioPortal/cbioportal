@@ -17,7 +17,7 @@ class SpecialGeneBrca1 extends SpecialGene {
 
     public ArrayList<String> getDataFieldHeaders() {
         ArrayList<String> headerList = new ArrayList<String>();
-        headerList.add("Nucleotide Position *");
+        headerList.add("NT Position *");
         headerList.add("Notes");
         return headerList;
     }
@@ -39,9 +39,9 @@ class SpecialGeneBrca1 extends SpecialGene {
 
     private static String getAnnotationBrca1(long nt) {
         if (nt >= 185 && nt <= 188) {
-            return "Known BRCA1 185/187DelAG Founder Mutation";
+            return "185/187DelAG Founder Mutation";
         } else if (nt >= 5382 && nt <= 5385) {
-            return "Known BRCA1 5382/5385 insC Founder Mutation";
+            return "5382/5385 insC Founder Mutation";
         } else {
             return null;
         }

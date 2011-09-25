@@ -114,8 +114,8 @@ public class MutationTableUtil {
         headerList.add("Mutation Type");
         headerList.add("Validation Status");
         headerList.add("Sequencing Center");
-        headerList.add("Amino Acid Change");
-        headerList.add("Predicted Functional Impact**");
+        headerList.add("AA Change");
+        headerList.add("Predicted Impact**");
         headerList.add("Alignment");
         headerList.add("Structure");
 

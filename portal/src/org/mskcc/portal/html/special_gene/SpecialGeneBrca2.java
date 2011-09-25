@@ -18,7 +18,7 @@ class SpecialGeneBrca2 extends SpecialGene {
 
     public ArrayList<String> getDataFieldHeaders() {
         ArrayList<String> headerList = new ArrayList<String>();
-        headerList.add("Nucleotide Position *");
+        headerList.add("NT Position *");
         headerList.add("Notes");
         return headerList;
     }
@@ -39,7 +39,7 @@ class SpecialGeneBrca2 extends SpecialGene {
 
     private static String getAnnotationBrca2(long nt) {
         if (nt == 6174) {
-            return "Known BRCA2 6174delT founder mutation.";
+            return "6174delT founder mutation.";
         } else {
             return null;
         }

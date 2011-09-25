@@ -27,7 +27,7 @@ public class TestSpecialGene extends TestCase {
         ArrayList<String> dataFieldList = specialGene.getDataFields(mutation);
         assertEquals (2, dataFieldList.size());
         assertEquals ("187", dataFieldList.get(0));
-        assertEquals ("Known BRCA1 185/187DelAG Founder Mutation", dataFieldList.get(1));
+        assertEquals ("185/187DelAG Founder Mutation", dataFieldList.get(1));
         assertEquals ("* Known BRCA1 185/187DelAG and 5382/5385 insC " +
                 "founder mutations are noted.",
                 specialGene.getFooter());
@@ -43,7 +43,7 @@ public class TestSpecialGene extends TestCase {
         ArrayList<String> dataFieldList = specialGene.getDataFields(mutation);
         assertEquals (2, dataFieldList.size());
         assertEquals ("185", dataFieldList.get(0));
-        assertEquals ("Known BRCA1 185/187DelAG Founder Mutation", dataFieldList.get(1));
+        assertEquals ("185/187DelAG Founder Mutation", dataFieldList.get(1));
     }
 
     public void test3() {
@@ -77,7 +77,7 @@ public class TestSpecialGene extends TestCase {
         ArrayList<String> dataFieldList = specialGene.getDataFields(mutation);
         assertEquals (2, dataFieldList.size());
         assertEquals ("5385", dataFieldList.get(0));
-        assertEquals ("Known BRCA1 5382/5385 insC Founder Mutation", dataFieldList.get(1));
+        assertEquals ("5382/5385 insC Founder Mutation", dataFieldList.get(1));
     }
 
     public void test6() {
@@ -90,7 +90,7 @@ public class TestSpecialGene extends TestCase {
         ArrayList<String> dataFieldList = specialGene.getDataFields(mutation);
         assertEquals (2, dataFieldList.size());
         assertEquals ("6174", dataFieldList.get(0));
-        assertEquals ("Known BRCA2 6174delT founder mutation.", dataFieldList.get(1));
+        assertEquals ("6174delT founder mutation.", dataFieldList.get(1));
     }
 
     public void test7() {

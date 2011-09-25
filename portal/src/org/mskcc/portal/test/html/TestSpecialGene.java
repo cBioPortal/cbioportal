@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class TestSpecialMutationUtil extends TestCase {
+public class TestSpecialGene extends TestCase {
 
     public void test1() {
         //  From:  http://www.pharmgkb.org/search/annotatedGene/brca1/variant.jsp
@@ -91,6 +91,18 @@ public class TestSpecialMutationUtil extends TestCase {
         assertEquals (2, dataFieldList.size());
         assertEquals ("6174", dataFieldList.get(0));
         assertEquals ("Known BRCA2 6174delT founder mutation.", dataFieldList.get(1));
+    }
+
+    public void test7() {
+        CanonicalGene brca1 = createBrca1();
+        ExtendedMutation mutation = new ExtendedMutation(brca1, "XXX", "XXX", "XXX");
+        mutation.setEndPosition(35);
+        SpecialGene specialGene = SpecialGeneFactory.getInstance(brca1.getHugoGeneSymbolAllCaps());
+        ArrayList<String> headerList = specialGene.getDataFieldHeaders ();
+        assertEquals (2, headerList.size());
+        ArrayList<String> dataFieldList = specialGene.getDataFields(mutation);
+        assertEquals (2, dataFieldList.size());
+        assertEquals ("--", dataFieldList.get(0));
     }
 
     private CanonicalGene createBrca1() {

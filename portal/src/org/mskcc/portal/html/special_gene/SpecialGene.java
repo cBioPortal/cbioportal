@@ -9,19 +9,19 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
 */
-public interface SpecialGene {
+public abstract class SpecialGene {
 
     /**
      * Gets the extra annocation headers (if any), associated with the special gene.
      * @return ArrayList of annotation headers.
      */
-    public ArrayList<String> getDataFieldHeaders();
+    public abstract ArrayList<String> getDataFieldHeaders();
 
     /**
      * Gets Footer Annotation Describing Anything special about these mutations.
      * @return footer message.
      */
-    public String getFooter();
+    public abstract String getFooter();
 
     /**
      * Gets the extra annotation data fields (if any), associated with the specified
@@ -30,5 +30,13 @@ public interface SpecialGene {
      * @param mutation ExtentedMutation Object.
      * @return ArrayList of Data Field String objects.
      */
-    public ArrayList<String> getDataFields (ExtendedMutation mutation);
+    public abstract ArrayList<String> getDataFields (ExtendedMutation mutation);
+
+    protected void setNtPosition(long ntPosition, ArrayList<String> dataFields) {
+        if (ntPosition > 0) {
+            dataFields.add(Long.toString(ntPosition));
+        } else {
+            dataFields.add("--");
+        }
+    }
 }

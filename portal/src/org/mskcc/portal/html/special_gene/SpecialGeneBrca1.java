@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-class SpecialGeneBrca1 implements SpecialGene {
+class SpecialGeneBrca1 extends SpecialGene {
     public static final String BRCA1 = "BRCA1";
 
     public ArrayList<String> getDataFieldHeaders() {
@@ -32,7 +32,7 @@ class SpecialGeneBrca1 implements SpecialGene {
         MapBack mapBack = new MapBack(new Brca1(), mutation.getEndPosition());
         long ntPosition = mapBack.getNtPositionWhereMutationOccurs();
         String annotation = getAnnotationBrca1(ntPosition);
-        dataFields.add(Long.toString(ntPosition));
+        setNtPosition(ntPosition, dataFields);
         dataFields.add(HtmlUtil.getSafeWebValue(annotation));
         return dataFields;
     }

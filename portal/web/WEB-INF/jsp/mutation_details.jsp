@@ -6,6 +6,8 @@
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.io.IOException" %>
+
+
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
@@ -16,17 +18,31 @@
 
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
         outputOmaHeader(out);
-        out.println("<div class='map'>");
-
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
         }
-        out.println("</div>");
     } else {
         outputNoMutationDetails(out);
     }
     out.println("</div>");
 %>
+
+<script type="text/javascript">
+
+//  Place mutation_details_table in a JQuery DataTable
+$(document).ready(function(){
+    <%
+    for (GeneWithScore geneWithScore : geneWithScoreList) {
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
+          $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+              "bPaginate": false,
+              "bFilter": true
+          } );
+        <% } %>
+    <% } %>
+});
+</script>
+
 
 <%!
     private void outputGeneTable(GeneWithScore geneWithScore,
@@ -38,12 +54,18 @@
 
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
             outputHeader(out, geneWithScore, mutationCounter);
-            out.println("<table width='100%' cellspacing='0px'>");
+            out.println("<table cellpadding='0' cellspacing='0' border='0' " +
+                    "class='display mutation_details_table' " +
+                    "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
+                    +"'>");
 
             //  Table column headers
+            out.println("<thead>");
             out.println(mutationTableUtil.getTableHeaderHtml());
+            out.println("</thead>");
 
             //  Mutations are sorted by case
+            out.println("<tbody>");
             for (String caseId : mergedCaseList) {
                 ArrayList<ExtendedMutation> mutationList =
                         mutationMap.getExtendedMutations(geneWithScore.getGene(), caseId);
@@ -53,16 +75,24 @@
                     }
                 }
             }
+            out.println("</tbody>");
+
+            //  Table column footer
+            out.println("<tfoot>");
+            out.println(mutationTableUtil.getTableHeaderHtml());
+            out.println("</tfoot>");
+
             out.println("</table><p>");
             out.println(mutationTableUtil.getTableFooterMessage());
+            out.println("<br>");
         }
     }
 
     private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
             MutationCounter mutationCounter) throws IOException {
-        out.print("<h5>" + geneWithScore.getGene().toUpperCase() + ": ");
+        out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
-        out.println("</h5>");
+        out.println("</h4>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

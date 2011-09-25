@@ -23,3 +23,4 @@
     <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
 <% } %>
 <link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet" />
+<link href="css/data_table.css" type="text/css" rel="stylesheet" />

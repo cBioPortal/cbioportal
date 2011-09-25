@@ -44,10 +44,10 @@ public class MutationAssessorHtmlUtil {
                 return HtmlUtil.createLink(urlPdb, "Structure");
             } catch (MalformedURLException e) {
                 logger.error("Could not parse OMA URL:  " + e.getMessage());
-                return HtmlUtil.createSpacer();
+                return HtmlUtil.createEmptySpacer();
             }
         } else {
-            return HtmlUtil.createSpacer();
+            return HtmlUtil.createEmptySpacer();
         }
     }
 
@@ -60,10 +60,10 @@ public class MutationAssessorHtmlUtil {
                 return HtmlUtil.createLink(urlMsa, "Alignment");
             } catch (MalformedURLException e) {
                 logger.error("Could not parse OMA URL:  " + e.getMessage());
-                return HtmlUtil.createSpacer();
+                return HtmlUtil.createEmptySpacer();
             }
         } else {
-            return HtmlUtil.createSpacer();
+            return HtmlUtil.createEmptySpacer();
         }
     }
 
@@ -78,11 +78,11 @@ public class MutationAssessorHtmlUtil {
             } else {
                 logger.error("Could not parse OMA Functional Impact Score Keyword:  "
                         + functionalImpactScoreKeyword);
-                return HtmlUtil.createSpacer();
+                return HtmlUtil.createEmptySpacer();
             }
         } catch (MalformedURLException e) {
             logger.error("Could not parse OMA URL:  " + e.getMessage());
-            return HtmlUtil.createSpacer();
+            return HtmlUtil.createEmptySpacer();
         }
     }
 

@@ -1,5 +1,10 @@
 package org.mskcc.portal.html;
 
+import org.mskcc.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.portal.html.special_gene.SpecialGene;
+import org.mskcc.portal.util.SequenceCenterUtil;
+import org.mskcc.cgds.model.ExtendedMutation;
+
 import java.util.ArrayList;
 
 /**
@@ -9,12 +14,18 @@ import java.util.ArrayList;
  */
 public class MutationTableUtil {
     private ArrayList<String> headerList = new ArrayList<String>();
-    private String geneSymbol;
-    private static final String BRCA1 = "BRCA1";
-    private static final String BRCA2 = "BRCA2";
+    private SpecialGene specialGene;
+    private static final String VALID = "valid";
+    private static final String SOMATIC = "somatic";
+    private static final String GERMLINE = "germline";
+
+    //  CSS Style Sheet Classes
+    private static final String CSS_VALID = "valid";
+    private static final String CSS_SOMATIC = "somatic";
+    private static final String CSS_GERMLINE = "germline";
 
     public MutationTableUtil(String geneSymbol) {
-        this.geneSymbol = geneSymbol;
+        specialGene = SpecialGeneFactory.getInstance(geneSymbol);
         initHeaders();
     }
 
@@ -22,36 +33,79 @@ public class MutationTableUtil {
         return headerList;
     }
 
-    public String getTableHeaderRow() {
-        return HtmlUtil.createTableHeaderRow(headerList);
-    }
-
-    //  Gets the Table Footer Message (if any)
     public String getTableFooterMessage() {
-        if (isBrca1()) {
-            return getBrca1FooterMessage();
-        } else if (isBrca2()) {
-            return getBrca2FooterMessage();
+        if (specialGene != null) {
+            return specialGene.getFooter();
         } else {
             return HtmlUtil.EMPTY_STRING;
         }
     }
 
-    private boolean isBrca1() {
-        return geneSymbol.equalsIgnoreCase(BRCA1);
+    public String getTableHeaderHtml() {
+        return HtmlUtil.createTableHeaderRow(headerList);
     }
 
-    private boolean isBrca2() {
-        return geneSymbol.equalsIgnoreCase(BRCA2);
+    public ArrayList<String> getDataFields(ExtendedMutation mutation) {
+        ArrayList <String> dataFieldList = new ArrayList<String>();
+
+        //  Case ID.
+        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getCaseId()));
+
+        //  Basic Mutation Info.
+        dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationStatus(mutation)));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getMutationType()));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getAminoAcidChange()));
+
+        //  OMA Links
+        MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
+        dataFieldList.add(omaUtil.getFunctionalImpactLink());
+        dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
+        dataFieldList.add(omaUtil.getPdbStructureLink());
+
+        //  Fields for "Special" Genes
+        if (specialGene != null) {
+            dataFieldList.addAll(specialGene.getDataFields(mutation));
+        }
+        return dataFieldList;
     }
 
-    private String getBrca1FooterMessage() {
-        return ("* Known BRCA1 185/187DelAG and 5382/5385 insC founder mutations " +
-                "are shown in bold.");
+    public String getDataRowHtml(ExtendedMutation mutation) {
+        return HtmlUtil.createTableRow(getDataFields(mutation));
     }
 
-    private String getBrca2FooterMessage() {
-        return ("* Known BRCA2 6174delT founder mutation are shown in bold.");
+    private String getSequencingCenter(ExtendedMutation mutation) {
+        return SequenceCenterUtil.getSequencingCenterAbbrev
+                (mutation.getSequencingCenter());
+    }
+
+    private String getValidationStatus(ExtendedMutation mutation) {
+        String validationStatus = mutation.getValidationStatus();
+        if (validationStatus != null) {
+            if (mutation.getValidationStatus().equalsIgnoreCase(VALID)) {
+                return HtmlUtil.createTextWithinSpan(validationStatus, CSS_VALID);
+            } else {
+                return validationStatus;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private String getMutationStatus(ExtendedMutation mutation) {
+        String mutationStatus = mutation.getMutationStatus();
+        if (mutation.getMutationStatus() != null) {
+            if (mutation.getMutationStatus().equalsIgnoreCase(SOMATIC)) {
+                return HtmlUtil.createTextWithinSpan(mutationStatus, CSS_SOMATIC);
+            } else if (mutation.getMutationStatus().equalsIgnoreCase(GERMLINE)) {
+                return HtmlUtil.createTextWithinSpan(mutationStatus, CSS_GERMLINE);
+            } else {
+                return mutationStatus;
+            }
+        } else {
+            return null;
+        }
     }
 
     private void initHeaders() {
@@ -65,9 +119,9 @@ public class MutationTableUtil {
         headerList.add("Alignment");
         headerList.add("Structure");
 
-        //  Special Handling for BRCA1/2
-        if (isBrca1() || isBrca2()) {
-            headerList.add("Nucleotide Position *");
+        //  Add Any Gene-Specfic Headers
+        if (specialGene != null) {
+            headerList.addAll(specialGene.getDataFieldHeaders());
         }
     }
 }

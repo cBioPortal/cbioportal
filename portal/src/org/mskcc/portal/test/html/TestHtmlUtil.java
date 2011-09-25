@@ -37,7 +37,7 @@ public class TestHtmlUtil extends TestCase {
     }
 
     public void test4() {
-        String html = HtmlUtil.createSpacer();
+        String html = HtmlUtil.createEmptySpacer();
         assertEquals("&nbsp;", html);
     }
 
@@ -56,14 +56,32 @@ public class TestHtmlUtil extends TestCase {
         headerList.add("Last");
         headerList.add("Zip Code");
         String html = HtmlUtil.createTableHeaderRow(headerList);
-        assertEquals("<thead>\n" +
-                "<tr>\n" +
-                "<td>First</td>\n" +
-                "<td>Last</td>\n" +
-                "<td>Zip Code</td>\n" +
-                "</tr>\n" +
-                "</thead>\n", html);
+        assertEquals("<tr>\n" +
+                "<th>First</th>\n" +
+                "<th>Last</th>\n" +
+                "<th>Zip Code</th>\n" +
+                "</tr>\n", html);
         html = HtmlUtil.createTableHeaderRow(null);
+        assertEquals("", html);
+    }
+
+    public void test7() {
+        String html = HtmlUtil.createTextWithinSpan("hello", "bold");
+        assertEquals("<span class='bold'>hello</span>", html);
+    }
+
+    public void test8() {
+        ArrayList<String> dataFieldList = new ArrayList<String>();
+        dataFieldList.add("Ethan");
+        dataFieldList.add("Cerami");
+        dataFieldList.add("10021");
+        String html = HtmlUtil.createTableRow(dataFieldList);
+        assertEquals("<tr>\n" +
+                "<td>Ethan</td>\n" +
+                "<td>Cerami</td>\n" +
+                "<td>10021</td>\n" +
+                "</tr>\n", html);
+        html = HtmlUtil.createTableRow(null);
         assertEquals("", html);
     }
 

@@ -32,15 +32,21 @@ public class TestExtendedMutationMap extends TestCase {
         caseList.add(CASE_A);
 
         ExtendedMutationMap map = new ExtendedMutationMap(mutationList, caseList);
-        ArrayList<ExtendedMutation> mutationReturnList = map.getMutations(BRCA1, CASE_A);
+        ArrayList<ExtendedMutation> mutationReturnList = map.getExtendedMutations(BRCA1, CASE_A);
         assertEquals (2, mutationReturnList.size());
 
         // Try with mixed case
-        mutationReturnList = map.getMutations("brCA1", CASE_A);
+        mutationReturnList = map.getExtendedMutations("brCA1", CASE_A);
         assertEquals (2, mutationReturnList.size());
 
-        mutationReturnList = map.getMutations(BRCA2, CASE_A);
+        mutationReturnList = map.getExtendedMutations(BRCA2, CASE_A);
         assertEquals (1, mutationReturnList.size());
+
+        mutationReturnList = map.getExtendedMutations(BRCA1);
+        assertEquals(2, mutationReturnList.size());
+
+        assertEquals(2, map.getNumGenesWithExtendedMutations());
+        assertEquals(2, map.getNumExtendedMutations(BRCA1));
     }
 
     private ArrayList<ExtendedMutation> createMutationList(ExtendedMutation mutation1,

@@ -4,6 +4,7 @@ import org.mskcc.portal.model.ExtendedMutationMap;
 import org.mskcc.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
+import java.text.DecimalFormat;
 
 /**
  * Calculates Somatic and Germline Mutation Frequency.
@@ -32,6 +33,21 @@ public class MutationCounter {
         }
     }
 
+    public String getTextSummary() {
+        StringBuffer summary = new StringBuffer();
+        DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
+        summary.append("[");
+        if (getGermlineMutationRate() > 0) {
+            summary.append("Germline Mutation Rate:  ");
+            summary.append(percentFormat.format(getGermlineMutationRate()));
+            summary.append(", ");
+        }
+        summary.append("Somatic Mutation Rate:  ");
+        summary.append(percentFormat.format(getSomaticMutationRate()));
+        summary.append("]");
+        return summary.toString();
+    }
+
     public double getSomaticMutationRate() {
         return numCasesWithSomaticMutation / (float) totalNumCases;
     }
@@ -54,12 +70,12 @@ public class MutationCounter {
     }
 
     private boolean caseIsMutated(String caseId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getMutations(gene, caseId);
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, caseId);
         return mutationList != null && mutationList.size() > 0;
     }
 
     private MutationStatus getMutationStatus(String caseId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getMutations(gene, caseId);
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, caseId);
         MutationStatus mutationStatus = new MutationStatus();
         for (ExtendedMutation mutation:  mutationList) {
             setMutationStatus(mutation, mutationStatus);

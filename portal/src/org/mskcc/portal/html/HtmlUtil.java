@@ -36,6 +36,13 @@ public class HtmlUtil {
             + "'><a href='" + href + "'>" + text + "</a></span>");
     }
 
+    public static String createTextWithinSpan(String text, String cssClass) {
+        if (text == null || cssClass == null) {
+            return EMPTY_STRING;
+        }
+        return ("<span class='" + cssClass + "'>" + text + "</span>");
+    }
+
     public static String createLinkWithinSpan(String text, String cssClass) {
         if (text == null || cssClass == null) {
             return EMPTY_STRING;
@@ -43,7 +50,7 @@ public class HtmlUtil {
         return ("<span class='" + cssClass + "'>" + text + "</span>");
     }
 
-    public static String createSpacer() {
+    public static String createEmptySpacer() {
         return ("&nbsp;");
     }
 
@@ -51,19 +58,44 @@ public class HtmlUtil {
     public static String createTableHeaderRow (ArrayList<String> headerList) {
         HtmlWriter writer = new HtmlWriter();
         if (headerList != null) {
-            writer.append("<thead>");
             writer.append("<tr>");
             outputHeaders(headerList, writer);
             writer.append("</tr>");
-            writer.append("</thead>");
             return writer.getHtml();
         } else {
             return EMPTY_STRING;
         }
     }
 
+    //  Creates a Row of Data within a Table
+    public static String createTableRow (ArrayList<String> dataFieldList) {
+        HtmlWriter writer = new HtmlWriter();
+        if (dataFieldList != null) {
+            writer.append("<tr>");
+            outputDataFields(dataFieldList, writer);
+            writer.append("</tr>");
+            return writer.getHtml();
+        } else {
+            return EMPTY_STRING;
+        }
+    }
+
+    public static String getSafeWebValue(String value) {
+        if (value != null) {
+            return value;
+        } else {
+            return HtmlUtil.createEmptySpacer();
+        }
+    }
+
     private static void outputHeaders(ArrayList<String> headerList, HtmlWriter writer) {
         for (String header:  headerList) {
+            writer.append("<th>" + header + "</th>");
+        }
+    }
+
+    private static void outputDataFields(ArrayList<String> dataFieldList, HtmlWriter writer) {
+        for (String header:  dataFieldList) {
             writer.append("<td>" + header + "</td>");
         }
     }

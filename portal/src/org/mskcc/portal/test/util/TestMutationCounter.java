@@ -42,6 +42,8 @@ public class TestMutationCounter extends TestCase {
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
         assertEquals (0.0, mutationCounter.getGermlineMutationRate(), 0.01);
+
+        assertEquals ("[Somatic Mutation Rate:  50%]", mutationCounter.getTextSummary());
     }
 
     public void test2() {
@@ -66,6 +68,8 @@ public class TestMutationCounter extends TestCase {
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getGermlineMutationRate(), 0.01);
+        assertEquals ("[Germline Mutation Rate:  50%, Somatic Mutation Rate:  50%]",
+                mutationCounter.getTextSummary());
     }
 
     public void test3() {
@@ -91,13 +95,11 @@ public class TestMutationCounter extends TestCase {
         assertEquals (0.25, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.25, mutationCounter.getSomaticMutationRate(), 0.01);
         assertEquals (0.0, mutationCounter.getGermlineMutationRate(), 0.01);
+        assertEquals ("[Somatic Mutation Rate:  25%]", mutationCounter.getTextSummary());
     }
 
     private ArrayList<ExtendedMutation> createMutationList(ExtendedMutation
-            mutation1,
-            ExtendedMutation
-                    mutation2, ExtendedMutation
-            mutation3) {
+            mutation1, ExtendedMutation mutation2, ExtendedMutation mutation3) {
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
         mutationList.add(mutation1);
         mutationList.add(mutation2);

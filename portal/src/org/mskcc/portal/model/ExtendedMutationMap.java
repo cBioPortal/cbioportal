@@ -11,6 +11,8 @@ import org.mskcc.cgds.model.ExtendedMutation;
  */
 public class ExtendedMutationMap {
     private static final String DELIMITER = ":";
+    private HashMap <String, ArrayList<ExtendedMutation>> mutationCaseMap =
+            new HashMap<String, ArrayList<ExtendedMutation>>();
     private HashMap <String, ArrayList<ExtendedMutation>> mutationMap =
             new HashMap<String, ArrayList<ExtendedMutation>>();
     private ArrayList<String> caseList;
@@ -20,33 +22,57 @@ public class ExtendedMutationMap {
         this.caseList = caseList;
         for (ExtendedMutation mutation:  mutationList) {
             String key = getKey(mutation.getGeneSymbol(), mutation.getCaseId());
-            appendToMap(key, mutation);
+            appendToMap(key, mutation, mutationCaseMap);
+            appendToMap(mutation.getGeneSymbol(), mutation, mutationMap);
         }
     }
 
     /**
-     * Gets all Mutations, associated with the specified Gene / Case ID combination.
+     * Gets all Extended Mutations, associated with the specified Gene / Case ID combination.
      * @param geneSymbol    Gene Symbol.
      * @param caseId        Case ID.
      * @return ArrayList of ExtendedMutation Objects.
      */
-    public ArrayList <ExtendedMutation> getMutations (String geneSymbol, String caseId) {
+    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol, String caseId) {
         String key = getKey(geneSymbol.toUpperCase(), caseId);
-        return mutationMap.get(key);
+        return mutationCaseMap.get(key);
+    }
+
+    /**
+     * Gets all Extended Mutations, associated with the specified Gene.
+     * @param geneSymbol    Gene Symbol.
+     * @return ArrayList of ExtendedMutation Objects.
+     */
+    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol) {
+        return mutationMap.get(geneSymbol.toUpperCase());
+    }
+
+    public int getNumExtendedMutations(String geneSymbol) {
+        ArrayList<ExtendedMutation> mutationList = mutationMap.get(geneSymbol.toUpperCase());
+        if (mutationList == null) {
+            return 0;
+        } else {
+            return mutationList.size();
+        }
+    }
+
+    public int getNumGenesWithExtendedMutations() {
+        return mutationMap.keySet().size();
     }
 
     public ArrayList<String> getCaseList() {
         return caseList;
     }
 
-    private void appendToMap(String key, ExtendedMutation mutation) {
-        if (mutationMap.containsKey(key)) {
-            ArrayList<ExtendedMutation> currentList = mutationMap.get(key);
+    private void appendToMap(String key, ExtendedMutation mutation,
+            HashMap <String, ArrayList<ExtendedMutation>> map) {
+        if (map.containsKey(key)) {
+            ArrayList<ExtendedMutation> currentList = map.get(key);
             currentList.add(mutation);
         } else {
             ArrayList <ExtendedMutation> currentList = new ArrayList <ExtendedMutation> ();
             currentList.add(mutation);
-            mutationMap.put(key, currentList);
+            map.put(key, currentList);
         }
     }
 

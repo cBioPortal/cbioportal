@@ -3,12 +3,12 @@ package org.mskcc.portal.mapback;
 import java.util.ArrayList;
 
 /**
- * Encapsulates information regarding GenBank Record:  U43746
+ * Encapsulates information regarding GenBank Record:  U43746  for BRCA2.
  *
  * http://www.ncbi.nlm.nih.gov/nuccore/1161383
  *
  */
-public class Brca2 extends Gene {
+public class Brca2 extends MapBackGene {
     private ArrayList <Mapping> mappingList;
     private String dna;
 

@@ -4,11 +4,10 @@
  */
 package org.mskcc.portal.network;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,12 +17,12 @@ import java.util.Set;
  */
 public class Network {
     private Map<String,Node> nodes; // map of id to node
-    private List<Edge> edges;
+    private Set<Edge> edges;
     private Map<String,Map<String,Set<Node>>> nodesByXrefs;
 
     public Network() {
-        nodes = new HashMap<String,Node>();
-        edges = new ArrayList<Edge>();
+        nodes = new LinkedHashMap<String,Node>();
+        edges = new LinkedHashSet<Edge>();
         nodesByXrefs = null;
     }
 
@@ -31,7 +30,7 @@ public class Network {
      * 
      * @return all edges
      */
-    public List<Edge> getEdges() {
+    public Set<Edge> getEdges() {
         return edges;
     }
 
@@ -40,7 +39,7 @@ public class Network {
      * @return all nodes
      */
     public Set<Node> getNodes() {
-        return new HashSet<Node>(nodes.values());
+        return new LinkedHashSet<Node>(nodes.values());
     }
     
     /**
@@ -57,8 +56,22 @@ public class Network {
      * @param node a node
      */
     public void addNode(Node node) {
-        if (nodes.get(node.getId())==null)
+        if (nodes.get(node.getId())==null) {
             nodes.put(node.getId(),node);
+        }
+    }
+    
+    /**
+     * remove a node
+     * @param node a node
+     * @return true if node exists and removed
+     */
+    public boolean removeNode(Node node) {
+        boolean ret = nodes.remove(node.getId())!=null;
+        if (ret) {
+            nodesByXrefs = null;
+        }
+        return ret;
     }
     
     /**
@@ -72,34 +85,88 @@ public class Network {
     }
     
     /**
+     * 
+     * @param edge an edge
+     * @return true if exists and removed
+     */
+    public boolean removeEdge(Edge edge) {
+        return edges.remove(edge);
+    }
+    
+    /**
      * Get nodes with a particular cross-reference
      * @param type id type
      * @param id id
      * @return a set of nodes
      */
-    public Set<Node> getNodesByXref(String type, String id) {
-        if (nodesByXrefs==null) // lazy init
-            nodesByXrefs = new HashMap<String,Map<String,Set<Node>>>();
+    public Set<Node> getNodesByXref(String type, String identifier) {
+        if (nodesByXrefs==null) {// lazy init
+            nodesByXrefs = new LinkedHashMap<String,Map<String,Set<Node>>>();
+        }
         
         Map<String,Set<Node>> mapIdNodes = nodesByXrefs.get(type);
         if (mapIdNodes==null) { // cache for the query type
-            mapIdNodes = new HashMap<String,Set<Node>>();
+            mapIdNodes = new LinkedHashMap<String,Set<Node>>();
             nodesByXrefs.put(type, mapIdNodes);
             for (Node node : getNodes()) {
-                for (String i_d : node.getXref(type)) {
-                    Set<Node> ns = mapIdNodes.get(i_d);
+                for (String id : node.getXref(type)) {
+                    Set<Node> ns = mapIdNodes.get(id);
                     if (ns==null) {
-                        ns = new HashSet<Node>();
-                        mapIdNodes.put(i_d, ns);
+                        ns = new LinkedHashSet<Node>();
+                        mapIdNodes.put(id, ns);
                     }
                     ns.add(node);
                 }
             }
         }
         
-        Set<Node> ret = mapIdNodes.get(id);
-        if (ret==null)
+        Set<Node> ret = mapIdNodes.get(identifier);
+        if (ret==null) {
             return Collections.emptySet();
+        }
+        
         return ret;
+    }
+    
+    
+    
+    /**
+     * 
+     */
+    public static interface Filter {
+        /**
+         * 
+         * @param node
+         * @return true if filter the node
+         */
+        boolean filterNode(Node node);
+        
+        /**
+         * 
+         * @param node
+         * @return true if filter the edge
+         */
+        boolean filterEdge(Edge edge);
+    }
+    
+    /**
+     * Filter network
+     * @param net a network
+     * @param filter filter to apply
+     */
+    public void filter(Filter filter) {
+        // filter edges
+        for (Iterator<Edge> it = edges.iterator(); it.hasNext();) {
+            if (filter.filterEdge(it.next())) {
+                it.remove();
+            }
+        }
+        
+        // filter nodes
+        for (Iterator<Map.Entry<String,Node>> entry = nodes.entrySet().iterator(); entry.hasNext();) {
+            if (filter.filterNode(entry.next().getValue())) {
+                entry.remove();
+            }
+        }
     }
 }

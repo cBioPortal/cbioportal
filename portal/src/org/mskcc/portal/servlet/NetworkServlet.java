@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.mskcc.portal.network.Edge;
 import org.owasp.validator.html.PolicyException;
 
 import org.mskcc.portal.model.ProfileData;
@@ -56,6 +57,7 @@ public class NetworkServlet extends HttpServlet {
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
     
+    @Override
     public void doGet(HttpServletRequest req,
                       HttpServletResponse res) 
             throws ServletException, IOException {
@@ -70,6 +72,7 @@ public class NetworkServlet extends HttpServlet {
      * @throws ServletException Servlet Error.
      * @throws IOException IO Error.
      */
+    @Override
     public void doPost(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
@@ -107,7 +110,26 @@ public class NetworkServlet extends HttpServlet {
                 network = new Network(); // send an empty network instead
             }
 
+            // remove small molecules
+            xdebug.startTimer();
+            network.filter(new Network.Filter() {
+                public boolean filterNode(Node node) {
+                    if (node == null) {
+                        return true;
+                    }
+                    
+                    return !"Protein".equals(node.getType());
+                }
+
+                public boolean filterEdge(Edge edge) {
+                    return filterNode(edge.getSourceNode()) || filterNode(edge.getTargetNode());
+                }
+            });
+            xdebug.stopTimer();
+            xdebug.logMsg(this, "Removed non-protein nodes: took "+xdebug.getTimeElapsed()+"ms");
+
             if (!network.getNodes().isEmpty()) {
+                
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");

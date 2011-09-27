@@ -136,8 +136,7 @@ public class NetworkIO {
     public static String writeNetwork2Sif(Network network, NodeLabelHandler nlh) {
         StringBuilder sb = new StringBuilder();
         
-        List<Edge> edges = network.getEdges();
-        for (Edge edge : edges) {
+        for (Edge edge : network.getEdges()) {
             sb.append(nlh.getLabel(edge.getSourceNode()));
             sb.append("\t");
             sb.append(edge.getInteractionType());

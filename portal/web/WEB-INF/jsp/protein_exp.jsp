@@ -99,7 +99,25 @@
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
-                var aiExclude = [1,2,3,11];
+                if (aDataSet.length==0)
+                    return;
+                
+                var showPValueColumn = aDataSet[0][11]!="NaN";
+                var showAbsDiffColumn = !showPValueColumn && aDataSet[0][10]!="NaN";
+                
+                var sortingColumn;
+                if (showPValueColumn) {
+                    sortingColumn = [11,'asc'];
+                } else if (showAbsDiffColumn) {
+                    sortingColumn = [10, 'desc'];
+                } else if (aDataSet[0][8]!="NaN") {
+                    sortingColumn = [8, 'desc'];
+                } else {
+                    sortingColumn = [9, 'desc'];
+                }
+                
+                
+                var aiExclude = [1,2,3,12];
                 var oTable = $('table#protein_expr').dataTable( {
                         "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
@@ -166,7 +184,32 @@
                               "bSearchable": false,
                               "aTargets": [ 9 ]
                             },
+                            { //"sTitle": "abs diff",
+                              "bVisible": showAbsDiffColumn,
+                              "sType": "num-nan-col",
+                              "fnRender": function(obj) {
+                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                                    if (isNaN(value))
+                                        return "NaN";
+                                    
+                                    var ret = value.toFixed(3);
+                                    
+                                    var eps = 10e-5;
+                                    var abunUnaltered = parseFloat(obj.aData[8]);
+                                    var abunAltered = parseFloat(obj.aData[9]);
+                                    
+                                    if (value<eps)
+                                        return ret;
+                                    if (abunUnaltered < abunAltered)
+                                        return ret + "<img src=\"images/up1.png\"/>";
+                                    
+                                    return ret + "<img src=\"images/down1.png\"/>";                                    
+                              },
+                              "bSearchable": false,
+                              "aTargets": [ 10 ]
+                            },
                             { //"sTitle": "p-value",
+                              "bVisible": showPValueColumn,
                               "sType": "num-nan-col",
                               "fnRender": function(obj) {
                                     var value = parseFloat(obj.aData[ obj.iDataColumn ]);
@@ -189,33 +232,33 @@
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
                               },
                               "bSearchable": false,
-                              "aTargets": [ 10 ]
+                              "aTargets": [ 11 ]
                             },
                             { //"sTitle": "data",
                               "bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
-                              "aTargets": [ 11 ]
+                              "aTargets": [ 12 ]
                             },
                             { //"sTitle": "plot",
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    //if (isNaN(parsePValue(obj.aData[10])))
+                                    //if (isNaN(parsePValue(obj.aData[11])))
                                     //    return "";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
-                              "aTargets": [ 12 ]
+                              "aTargets": [ 13 ]
                                 
                             }
                         ],
-                        "aaSorting": [[10,'asc']],
+                        "aaSorting": [sortingColumn],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
                             "sLengthMenu": "Show _MENU_ per page"
                         },
-                        "iDisplayLength": -1,
+                        "iDisplayLength": 100,
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
 
@@ -248,7 +291,7 @@
                         this.src = "images/details_close.png";
                         $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
                         var aData = oTable.fnGetData( nTr );
-                        var data = aData[11];
+                        var data = aData[12];
                         var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
                         if (aData[5])
                             antibody += ' ['+aData[5]+']';
@@ -257,7 +300,7 @@
                             xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
                         else
                             xlabel += aData[1];
-                        var pvalue = parsePValue(aData[10]);
+                        var pvalue = parsePValue(aData[11]);
                         if (!isNaN(pvalue)) {
                             xlabel += " (p-value: "+pvalue+")";
                         }
@@ -270,8 +313,8 @@
                     }
                 } );
                 
-                $('table#protein_expr_wrapper').show();
                 $('div#protein_expr_wait').remove();
+                $('table#protein_expr_wrapper').show();
             }
             ,"json"
         );
@@ -318,7 +361,7 @@
                         <th colspan="2" class="ui-state-default">Target</th>
                         <th rowspan="2">Source Organism</th>
                         <th rowspan="2">Validated?</th>
-                        <th colspan="2" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
+                        <th colspan="3" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
                         <th rowspan="2" nowrap="nowrap">p-value<img class="datatable_help" src="images/help.png" title="Based on two-sided two sample student t-test."/></th>
                         <th rowspan="2">data</th>
                         <th rowspan="2">Plot</th>
@@ -328,6 +371,7 @@
                         <th>Residue</th>
                         <th>Unaltered</th>
                         <th>Altered</th>
+                        <th nowrap="nowrap">Abs. Diff.<!--img class="datatable_help" src="images/help.png" title="Absolute difference of average RPPA scores between altered and unaltered cases."/--></th>
                     </tr>
                 </thead>
                 <tfoot>
@@ -342,6 +386,7 @@
                         <th>Validated?</th>
                         <th>Unaltered</th>
                         <th>Altered</th>
+                        <th>Abs. Diff.</th>
                         <th>p-value</th>
                         <th>data</th>
                         <th>Plot</th>

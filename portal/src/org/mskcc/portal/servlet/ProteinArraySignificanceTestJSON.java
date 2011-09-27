@@ -100,7 +100,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                 antibodyTypes = Arrays.asList(antibodyType.split(" "));
             }
 
-            String[] heatMapLines = heatMap.split("\r?\n");
+            String[] heatMapLines = heatMap.split(System.getProperty("line.separator"));
             String[] genes = heatMapLines[0].split("\t");
             genes[0] = "Any";
             Set<String> allCases = getAllCases(heatMapLines);
@@ -165,16 +165,23 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                     row.add("NaN");
                     row.add("NaN");
                     row.add("NaN");
+                    row.add("NaN");
                     row.add("");
                 } else {
                     List<double[]> sepAbun = separateAbundance(altered, data);
+                    
+                    // add unaltered mean, altered mean, p-value & absolute diff
                     double[] values = ttest(sepAbun.get(0),sepAbun.get(1));
                     for (double d : values) {
-                        if (Double.isNaN(d))
+                        if (Double.isNaN(d)) {
                             row.add("NaN");
-                        else
+                        }
+                        else {
                             row.add(Double.toString(d));
+                        }
                     }
+                    
+                    // add data
                     row.add(groupData2String(sepAbun,dataScale));
                 }
                 row.add(""); // dumb row for plot
@@ -193,8 +200,9 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             alteredCases = getAlteredCases(heatMapLines, genes.length);
         } else {
             for (; ixGene<genes.length; ixGene++) {
-                if (genes[ixGene].equals(gene))
+                if (genes[ixGene].equals(gene)) {
                     break;
+                }
             }
             Set<String> set = getAlteredCases(heatMapLines, ixGene, alterationType);
             Map<String,Set<String>> map = Collections.singletonMap(gene, set);
@@ -332,8 +340,9 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     }
     
     static String encodingAbun(double[] abun,double scale) {
-        if (abun.length==0)
+        if (abun.length==0) {
             return "";
+        }
         
         StringBuilder sb = new StringBuilder(Double.toString(encodingAbun(abun[0],scale)));
         for (int i=1; i<abun.length; i++) {
@@ -345,8 +354,9 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     }
     
     static double encodingAbun(double abun,double scale) {
-        if (scale==0)
+        if (scale==0) {
             return abun;
+        }
         return ((int)(abun*scale))/scale;
     }
     
@@ -354,20 +364,23 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
      * 
      * @param alterationMap
      * @param data
-     * @return [unaltered mean, altered mean, p-value]
+     * @return [unaltered mean, altered mean, p-value, absolute difference]
      */
     private static double[] ttest(double[] unalteredArray, double[] alteredArray) {        
         double alteredMean = StatUtils.mean(alteredArray);
         double unalteredMean = StatUtils.mean(unalteredArray);
+        double sbsDiff = alteredArray.length==0 || unalteredArray.length==0 ? 
+                Double.NaN : Math.abs(alteredMean - unalteredMean);
         
-        if (alteredArray.length<2 || unalteredArray.length<2)
-            return new double[]{unalteredMean, alteredMean, Double.NaN};
-
+        if (alteredArray.length<2 || unalteredArray.length<2) {
+            return new double[]{unalteredMean, alteredMean, sbsDiff, Double.NaN};
+        }
+        
         try {
             double pvalue = TestUtils.tTest(alteredArray, unalteredArray);
-            return new double[]{unalteredMean, alteredMean, pvalue};
+            return new double[]{unalteredMean, alteredMean, sbsDiff, pvalue};
         } catch (Exception e) {
-            return new double[]{unalteredMean, alteredMean, Double.NaN};
+            return new double[]{unalteredMean, alteredMean, sbsDiff, Double.NaN};
         }
     }
 

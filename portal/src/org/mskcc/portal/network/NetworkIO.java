@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +17,12 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author jj
  */
-public class NetworkIO {
+public final class NetworkIO {
+    
+    /**
+     * private constructor for utility class.
+     */
+    private NetworkIO(){}
     
     /**
      * Interface for get label from a node
@@ -44,15 +48,17 @@ public class NetworkIO {
             
             // read edges
             String line = bufReader.readLine();
-            if (!line.startsWith("PARTICIPANT_A\tINTERACTION_TYPE\tPARTICIPANT_B")) // if empty
+            if (!line.startsWith("PARTICIPANT_A\tINTERACTION_TYPE\tPARTICIPANT_B")) {// if empty
                 return network;
+            }
             
-            String[] edgeHeaders = line.split("\t");            
-            while (!(line = bufReader.readLine()).isEmpty()) {
+            String[] edgeHeaders = line.split("\t"); 
+            for (line = bufReader.readLine(); !line.isEmpty(); line = bufReader.readLine()) {
                 String[] strs = line.split("\t");
                 
-                if (strs.length<3) // sth. is wrong
+                if (strs.length<3) {// sth. is wrong
                     continue;
+                }
                 
                 Node source = network.getNodeById(strs[0]);
                 if (source==null) {
@@ -61,36 +67,38 @@ public class NetworkIO {
                 }
                 
                 Node target = network.getNodeById(strs[2]);
-                if (target==null)
+                if (target==null) {
                     target = new Node(strs[2]);
+                }
                 
-                if (removeSelfEdge && target==source)
+                if (removeSelfEdge && target==source) {
                     continue;
+                }
                 
                 String interaction = strs[1];
                 Edge edge = new Edge(source, target, interaction);
                 for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-//                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")) {
-//                        for (String pubmed : strs[i].split(";")) {
-//                            if (pubmed.startsWith("PubMed:")) // fix wrong pubmed problem
-//                                edge.addAttribute(edgeHeaders[i], pubmed);
-//                        }
-//                    } else {
-                        edge.addAttribute(edgeHeaders[i], strs[i]);
-//                    }
+                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
+                            && !strs[i].startsWith("PubMed:")) {
+                        //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
+                        continue;
+                    }
+                        
+                    edge.addAttribute(edgeHeaders[i], strs[i]);
                 }
                 network.addEdge(edge);
             }
             
             // read nodes xrefs
             line = bufReader.readLine();
-            if (!line.startsWith("PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\tUNIFICATION_XREF\tRELATIONSHIP_XREF")) {
+            if (!line.startsWith("PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\t"
+                    + "UNIFICATION_XREF\tRELATIONSHIP_XREF")) {
                 System.err.print("cPath2 format changed.");
                 //return network;
             }
             
             String[] nodeHeaders = line.split("\t");
-            while ((line = bufReader.readLine())!=null && !line.isEmpty()) {
+            for (line = bufReader.readLine(); line!=null && !line.isEmpty(); line = bufReader.readLine()) {
                 String[] strs = line.split("\t");
                 Node node = network.getNodeById(strs[0]);
                 for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
@@ -114,10 +122,11 @@ public class NetworkIO {
                         if (nodeHeaders[i].endsWith("_XREF")) {
                             for (String xref : strs[i].split(";")) {
                                 String[] typeId = xref.split(":",2);
-                                if (typeId[0].equals("HGNC"))
+                                if (typeId[0].equals("HGNC")) {
                                     node.addXref(typeId[0], typeId[1].toUpperCase());
-                                else
+                                } else {
                                     node.addXref(typeId[0], typeId[1]);
+                                }
                             }
                         }
                     }

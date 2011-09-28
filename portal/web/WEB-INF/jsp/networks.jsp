@@ -82,6 +82,7 @@
                     edges: {
                         width: 1,
 						mergeWidth: 2,
+						mergedColor : "#858585",
 						color: {
 							discreteMapper: {
 								attrName: "type",

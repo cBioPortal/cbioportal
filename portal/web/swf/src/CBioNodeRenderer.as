@@ -108,25 +108,24 @@ package org.cytoscapeweb.view.render
 						drawDetails(d, size/2);
 					}
 					
-					// Bottom half of the genes is colored according to total alteration percentage
+					// Genes are colored according to total alteration percentage
 					var total:Number = Number(d.data.PERCENT_ALTERED) * 100;
 
-					g.beginFill(getNodeColorRW(total), 50);					
-					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
+					g.beginFill(getNodeColorRW(total), 50);
 					
-					// Top half of the genes is colored according to the IN_QUERY property
+					// Seeded genes (IN_QUERY = true) are drawn with thicker borders
 					var inQuery:String = d.data.IN_QUERY;
 					
 					if(inQuery == "false")
 					{
-						g.beginFill(0xDCDCDC, 50);
+						g.lineStyle(1, 0x000000, 1);
 					}
 					else
 					{
-						g.beginFill(0x111111, 50);
+						g.lineStyle(5, 0x000000, 1);
 					}
 
-					drawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
+					g.drawCircle(0, 0, size/2);
 			}
 		}
 		

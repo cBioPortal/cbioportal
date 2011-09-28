@@ -284,21 +284,20 @@ function _updateNodeInspectorContent(data)
 	
 	var links = new Array();
 	
-	for (var field in data)
+	// parse the xref data, and construct link and labels
+	
+	var xrefData = data["UNIFICATION_XREF"].split(";");
+	xrefData = xrefData.concat(data["RELATIONSHIP_XREF"].split(";"));
+		
+	var link, xref;
+			
+	for (var i = 0; i < xrefData.length; i++)
 	{
-		if (field == "xref")
-		{
-			// parse the xref data, and construct the link and its label
-			
-			var link;
-			
-			if (data[field] != null)
-			{
-				link = _resolveXref(data[field]);
-				links.push(link);
-			}
-		}
+		link = _resolveXref(xrefData[i]);
+		links.push(link);
 	}
+	
+	// add each link as an xref entry
 	
 	if (links.length > 0)
 	{
@@ -524,16 +523,7 @@ function showEdgeInspector(evt)
 					data["type"],
 					INNER_ROW_CLASS);
 		
-				// add pubmed id as a data row
-				// (adding as an xref row does not work here)
-				var link = _resolveXref(data["INTERACTION_PUBMED_ID"]);
-				var xref = '<a href="' + link.href + '" target="_blank">' +
-					link.pieces[1] + '</a>';
-				
-				_addDataRow("edge",
-					"PubMed ID",
-					xref,
-					BOTTOM_ROW_CLASS);
+				_addPubMedIds(data, true);
 			}
 		}
 		
@@ -549,14 +539,7 @@ function showEdgeInspector(evt)
 		
 		if (data["INTERACTION_PUBMED_ID"] != null)
 		{
-			// add PubMed ID as an xref row to the end of the inspector
-			
-			$("#edge_inspector_content .xref").append(
-				'<tr class="xref-row"><td><strong>PubMed ID: </strong></td></tr>');
-		
-			var link = _resolveXref(data["INTERACTION_PUBMED_ID"]);
-			_addXrefEntry('edge', link.href, link.pieces[1]);
-			
+			_addPubMedIds(data, false);
 		}
 	}
 	
@@ -567,6 +550,50 @@ function showEdgeInspector(evt)
 	
 	// open inspector panel
 	$("#edge_inspector").dialog("open").height("auto");
+}
+
+/**
+ * Adds PubMed ID's as new data rows to the edge inspector.
+ * 
+ * @param data			edge's data
+ * @param summaryEdge	indicated whether the given edge is a summary edge or
+ * 						a regular edge
+ */
+function _addPubMedIds(data, summaryEdge)
+{
+	var ids = data["INTERACTION_PUBMED_ID"].split(";");
+	var link, xref;
+	var rowClass = INNER_ROW_CLASS;
+	
+	// add each pubmed id as a data row
+	
+	for (var i = 0; i < ids.length; i++)
+	{
+		link = _resolveXref(ids[i]);
+		xref = '<a href="' + link.href + '" target="_blank">' +
+			link.pieces[1] + '</a>';
+		
+		if (summaryEdge)
+		{
+			// class of the last row should be different (this is needed
+			// to separate edges visually)
+			if (i == ids.length - 1)
+			{
+				rowClass = BOTTOM_ROW_CLASS;
+			}
+			
+			_addDataRow("edge",
+				"PubMed ID",
+				xref,
+				rowClass);
+		}
+		else
+		{
+			_addDataRow("edge",
+					"PubMed ID",
+					xref);
+		}
+	}
 }
 
 /**
@@ -1113,6 +1140,18 @@ function _showNodeLegend()
 
 function _showEdgeLegend()
 {
+	$("#edge_legend .in-same-component .color-bar").css(
+		"background-color", "#CD976B");
+	
+	$("#edge_legend .reacts-with .color-bar").css(
+		"background-color", "#7B7EF7");
+	
+	$("#edge_legend .state-change .color-bar").css(
+		"background-color", "#67C1A9");
+	
+	$("#edge_legend .merged-edge .color-bar").css(
+		"background-color", "#858585");
+	
 	// open legend panel
 	$("#edge_legend").dialog("open").height("auto");
 }
@@ -1500,12 +1539,12 @@ function _initDialogs()
 	// adjust node legend
 	$("#node_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 300});
+		width: 350});
 	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 300});
+		width: 350});
 }
 
 /*

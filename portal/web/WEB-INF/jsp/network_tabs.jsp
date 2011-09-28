@@ -115,6 +115,44 @@
 
 <div id="edge_legend" class="hidden-network-ui" title="Edge Legend">
 	<div id="edge_legend_content" class="content ui-widget-content">
-		Edge Legend ...
+		<table id="edge_type_legend">
+			<tr class="edge-type-header">
+	        	<td>
+	        		<strong>Edge Types:</strong>
+	        	</td>
+	        </tr>
+        	<tr class="in-same-component">
+        		<td class="label-cell">
+        			<div class="type-label">In Same Component</div>
+        		</td>
+        		<td class="color-cell">
+        			<div class="color-bar"></div>
+        		</td>
+        	</tr>
+        	<tr class="reacts-with">
+        		<td class="label-cell">
+        			<div class="type-label">Reacts With</div>
+        		</td>
+        		<td class="color-cell">
+        			<div class="color-bar"></div>
+        		</td>
+        	</tr>
+        	<tr class="state-change">
+        		<td class="label-cell">
+        			<div class="type-label">State Change</div>
+        		</td>
+        		<td class="color-cell">
+        			<div class="color-bar"></div>
+        		</td>
+        	</tr>
+        	<tr class="merged-edge">
+        		<td class="label-cell">
+        			<div class="type-label">Merged (with different types) </div>
+        		</td>
+        		<td class="color-cell">
+        			<div class="color-bar"></div>
+        		</td>
+        	</tr>
+        </table>
 	</div>
 </div>

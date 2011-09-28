@@ -317,7 +317,7 @@
 }
 
 /*
- * Tabs
+ * Tabs & Legends
  */
 #genes_tab .header
 {
@@ -366,6 +366,31 @@
 	height: 0.3em;
 	border-right: 0px solid #b0b0b0;
 	clear: both;
+}
+
+#edge_legend .color-bar
+{
+	width: 95%;
+	margin: 0.2em 0.5em 0 1.0em;
+	height: 0.3em;
+	border-right: 0px solid #b0b0b0;
+	clear: both;
+}
+
+#edge_legend .color-cell
+{
+	width: 100px;
+}
+
+#edge_legend .label-cell
+{
+	width: 165px;
+}
+
+#edge_legend .type-label
+{
+	align: left;
+	white-space: nowrap;
 }
 
 #relations_tab .percent-value

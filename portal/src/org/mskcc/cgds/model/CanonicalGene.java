@@ -1,13 +1,42 @@
 package org.mskcc.cgds.model;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class CanonicalGene extends Gene {
     private long entrezGeneId;
     private String hugoGeneSymbol;
+    private Set<String> aliases;
+    private String name;
     private double somaticMutationFrequency;
-
+    
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
+        this(entrezGeneId, hugoGeneSymbol, null, "");
+    }
+
+    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases, String name) {
         this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
+        this.aliases = aliases;
+        this.name = name;
+    }
+
+    public Set<String> getAliases() {
+        if (aliases==null)
+            return Collections.emptySet();
+        return aliases;
+    }
+
+    public void setAliases(Set<String> aliases) {
+        this.aliases = aliases;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getEntrezGeneId() {

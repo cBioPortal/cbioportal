@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.io.IOException;
 
 /**
@@ -17,7 +19,8 @@ import java.io.IOException;
  */
 class DaoGene {
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
+    private static MySQLbulkLoader geneMySQLbulkLoader = null;
+    private static MySQLbulkLoader aliasMySQLbulkLoader = null;
     private static DaoGene daoGene;
 
     /**
@@ -37,8 +40,9 @@ class DaoGene {
             daoGene = new DaoGene();
         }
 
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("gene");
+        if (geneMySQLbulkLoader == null) {
+            geneMySQLbulkLoader = new MySQLbulkLoader("gene");
+            aliasMySQLbulkLoader = new MySQLbulkLoader("gene_alias");
         }
         return daoGene;
     }
@@ -57,8 +61,9 @@ class DaoGene {
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
-                        gene.getHugoGeneSymbolAllCaps());
+                geneMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
+                        gene.getHugoGeneSymbolAllCaps(),gene.getName());
+                addGeneAliases(gene);
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
@@ -66,15 +71,62 @@ class DaoGene {
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection();
                     pstmt = con.prepareStatement
-                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`) "
-                                    + "VALUES (?,?)");
+                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`GENE_NAME`) "
+                                    + "VALUES (?,?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
+                    pstmt.setString(3, gene.getName());
                     int rows = pstmt.executeUpdate();
+                    
+                    rows += addGeneAliases(gene);
+                    
                     return rows;
                 } else {
                     return 0;
                 }
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    /**
+     * Add gene_alias records.
+     * @param gene Canonical Gene Object.
+     * @return number of records successfully added.
+     * @throws DaoException Database Error.
+     */
+    private int addGeneAliases(CanonicalGene gene)  throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            if (MySQLbulkLoader.isBulkLoad()) {
+                //  write to the temp file maintained by the MySQLbulkLoader
+                Set<String> aliases = gene.getAliases();
+                for (String alias : aliases) {
+                    aliasMySQLbulkLoader.insertRecord(
+                            Long.toString(gene.getEntrezGeneId()),
+                            alias);
+
+                }
+                // return 1 because normal insert will return 1 if no error occurs
+                return 1;
+            } else {
+                    con = JdbcUtil.getDbConnection();
+                    Set<String> aliases = gene.getAliases();
+                    int rows = 0;
+                    for (String alias : aliases) {
+                        pstmt = con.prepareStatement("INSERT INTO gene_alias "
+                                + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
+                        pstmt.setLong(1, gene.getEntrezGeneId());
+                        pstmt.setString(2, alias);
+                        rows += pstmt.executeUpdate();
+                    }
+                    
+                    return rows;
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -91,7 +143,8 @@ class DaoGene {
      */
     public int flushGenesToDatabase() throws DaoException {
         try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
+            return geneMySQLbulkLoader.loadDataFromTempFileIntoDBMS()
+                    + aliasMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
         } catch (IOException e) {
             System.err.println("Could not open temp file");
             e.printStackTrace();
@@ -118,12 +171,42 @@ class DaoGene {
             pstmt.setLong(1, entrezGeneId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
+                Set<String> aliases = getAliases(entrezGeneId);
                 CanonicalGene gene = new CanonicalGene(entrezGeneId,
-                        rs.getString("HUGO_GENE_SYMBOL"));
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
+                        rs.getString("GENE_NAME"));
                 return gene;
             } else {
                 return null;
             }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    /**
+     * Gets aliases for a gene.
+     * @param entrezGeneId Entrez Gene ID.
+     * @return a set of aliases.
+     * @throws DaoException Database Error.
+     */
+    private Set<String> getAliases(long entrezGeneId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null, rs1 = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM gene_alias WHERE ENTREZ_GENE_ID = ?");
+            pstmt.setLong(1, entrezGeneId);
+            rs = pstmt.executeQuery();
+            Set<String> aliases = new HashSet<String>();
+            while (rs.next()) {
+                aliases.add(rs.getString("GENE_ALIAS"));
+            }
+            return aliases;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -148,8 +231,11 @@ class DaoGene {
                     ("SELECT * FROM gene");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                CanonicalGene gene = new CanonicalGene(rs.getLong("ENTREZ_GENE_ID"),
-                        rs.getString("HUGO_GENE_SYMBOL"));
+                long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                Set<String> aliases = getAliases(entrezGeneId);
+                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
+                        rs.getString("GENE_NAME"));
                 geneList.add(gene);
             }
             return geneList;
@@ -179,7 +265,12 @@ class DaoGene {
             pstmt.setString(1, hugoGeneSymbol);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                return new CanonicalGene(rs.getInt("ENTREZ_GENE_ID"), hugoGeneSymbol);
+                long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+                Set<String> aliases = getAliases(entrezGeneId);
+                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
+                        rs.getString("GENE_NAME"));
+                return gene;
             } else {
                 return null;
             }

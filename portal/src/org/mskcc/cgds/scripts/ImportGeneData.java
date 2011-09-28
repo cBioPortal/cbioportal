@@ -13,6 +13,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ImportGeneData {
     private ProgressMonitor pMonitor;
     private File geneFile;
@@ -37,7 +42,16 @@ public class ImportGeneData {
                 String parts[] = line.split("\t");
                 int entrezGeneId = Integer.parseInt(parts[1]);
                 String geneSymbol = parts[2];
-                CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol);
+                Set<String> aliases;
+                if (parts[3].equals("-")) {
+                    aliases = Collections.emptySet();
+                } else {
+                    aliases = new HashSet<String>(Arrays.asList(parts[3].split("\\|")));
+                }
+                String name = parts[4];
+                
+                CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,
+                        aliases, name);
                 daoGene.addGene(gene);
             }
             line = buf.readLine();

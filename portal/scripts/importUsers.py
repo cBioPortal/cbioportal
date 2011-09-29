@@ -57,6 +57,11 @@ GOOGLE_PW = 'google.pw'
 CGDS_USERS_SPREADSHEET = 'users.spreadsheet'
 CGDS_USERS_WORKSHEET = 'users.worksheet'
 
+# database names - used as keys to email subjects/body below
+GDAC_DATABASE_NAME = 'cgds_gdac'
+PRIVATE_DATABASE_NAME = 'cgds_private'
+SU2C_DATABASE_NAME = 'cgds_su2c'
+
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 
@@ -73,11 +78,28 @@ STATUS_APPROVED = "APPROVED"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
 MESSAGE_BCC = ["cerami@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
-MESSAGE_SUBJECT = "cBio GDAC Cancer Genomics Portal Access"
-MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
+MESSAGE_SUBJECT = { GDAC_DATABASE_NAME : "cBio GDAC Cancer Genomics Portal Access",
+                    PRIVATE_DATABASE_NAME : "cBio Private Cancer Genomics Portal Access",
+                    SU2C_DATABASE_NAME : "cBio SU2C Cancer Genomics Portal Access" }
+GDAC_MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. The data are only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
 """
+
+PRIVATE_MESSAGE_BODY = """Thank you for your interest in the cBio Private Cancer Genomics Portal. We have granted you access. You can login at http://buri.cbio.mskcc.org:38080/private-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
+SU2C_MESSAGE_BODY = """Thank you for your interest in the cBio SU2C Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/su2c-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
+MESSAGE_BODY = { GDAC_DATABASE_NAME : GDAC_MESSAGE_BODY,
+                 PRIVATE_DATABASE_NAME : PRIVATE_MESSAGE_BODY,
+                 SU2C_DATABASE_NAME : SU2C_MESSAGE_BODY }
+
 
 # ------------------------------------------------------------------------------
 # class definitions
@@ -109,17 +131,17 @@ class User(object):
 #
 # Uses smtplib to send email.
 #
-def send_mail(to, server=SMTP_SERVER):
+def send_mail(to, subject, body, server=SMTP_SERVER):
 
 	assert type(to)==list
 
 	msg = MIMEMultipart()
-	msg['Subject'] = MESSAGE_SUBJECT
+	msg['Subject'] = subject
 	msg['From'] = MESSAGE_FROM
 	msg['To'] = COMMASPACE.join(to)
 	msg['Date'] = formatdate(localtime=True)
 
-	msg.attach(MIMEText(MESSAGE_BODY))
+	msg.attach(MIMEText(body))
 
 	# combine to and bcc lists for sending
 	combined_to_list = []
@@ -280,6 +302,13 @@ def get_build_properties(build_properties_filename):
         CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
         return None
+
+    # extra verification for database names
+    if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
+        properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
+        properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
+        print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
+        return None
     
     # return an instance of BuildProperties
     return BuildProperties(properties[CGDS_DATABASE_HOST],
@@ -390,8 +419,11 @@ def main():
         connection.commit()
         if send_email_confirm == 'true':
             for new_user_key in new_user_map.keys():
-                print >> OUTPUT_FILE, 'Sending confirmation email to new user: %s at %s' % (new_user_map[new_user_key].name, new_user_key)
-                send_mail([new_user_key])
+                print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
+                                       (new_user_map[new_user_key].name, new_user_key))
+                send_mail([new_user_key],
+                          MESSAGE_SUBJECT[build_properties.cgds_database_name],
+                          MESSAGE_BODY[build_properties.cgds_database_name])
     connection.close()
 
 

@@ -192,7 +192,7 @@
                                     if (isNaN(value))
                                         return "NaN";
                                     
-                                    var ret = value.toFixed(3);
+                                    var ret = value.toFixed(2);
                                     
                                     var eps = 10e-5;
                                     var abunUnaltered = parseFloat(obj.aData[8]);

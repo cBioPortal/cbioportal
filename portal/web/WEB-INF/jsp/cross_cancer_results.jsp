@@ -31,10 +31,25 @@
         <%
         //  Iterate through each Cancer Study
         //  For each cancer study, init AJAX
-        for (CancerStudy cancerStudy:  cancerStudies) {
+        //  Fix: Chain the AJAX calls not to make Chrome (14) crash
+        String studiesList = "";
+        assert(cancerStudies.size() > 0);
+        for (CancerStudy cancerStudy:  cancerStudies)
+            studiesList += "'" + cancerStudy.getCancerStudyStableId() + "',";
+        studiesList = studiesList.substring(0, studiesList.length()-1);
         %>
-            $("#study_<%= cancerStudy.getCancerStudyStableId() %>").load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=<%= cancerStudy.getCancerStudyStableId() %>');
-        <% } %>
+
+        var cancerStudies = [<%=studiesList%>];
+        loadStudiesWithIndex(0);
+
+        function loadStudiesWithIndex(bundleIndex) {
+            if(bundleIndex >= cancerStudies.length)
+                return;
+
+            var cancerID = cancerStudies[bundleIndex];
+            $("#study_" + cancerID).load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=' + cancerID,
+                                            function() { loadStudiesWithIndex(bundleIndex+1)});
+        }
     });
 </script>
 

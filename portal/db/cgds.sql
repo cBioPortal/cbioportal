@@ -19,6 +19,7 @@ drop table IF EXISTS cancer_type;
 drop table IF EXISTS case_list;
 drop table IF EXISTS case_list_list;
 drop table IF EXISTS gene;
+drop table IF EXISTS gene_alias;
 drop table IF EXISTS gene_in_profile;
 drop table IF EXISTS genetic_alteration;
 drop table IF EXISTS genetic_profile_cases;
@@ -128,8 +129,21 @@ CREATE TABLE IF NOT EXISTS `case_list_list` (
 CREATE TABLE IF NOT EXISTS `gene` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
+  `GENE_NAME` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gene_alias`
+--
+
+CREATE TABLE IF NOT EXISTS `gene_alias` (
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `GENE_ALIAS` varchar(255) NOT NULL,
+  PRIMARY KEY  (`ENTREZ_GENE_ID`,`GENE_ALIAS`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

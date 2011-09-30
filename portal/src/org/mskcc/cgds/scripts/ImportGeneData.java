@@ -48,10 +48,9 @@ public class ImportGeneData {
                 } else {
                     aliases = new HashSet<String>(Arrays.asList(parts[3].split("\\|")));
                 }
-                String name = parts[4];
                 
                 CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,
-                        aliases, name);
+                        aliases);
                 daoGene.addGene(gene);
             }
             line = buf.readLine();

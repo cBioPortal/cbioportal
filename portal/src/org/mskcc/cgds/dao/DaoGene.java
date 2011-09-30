@@ -62,7 +62,7 @@ class DaoGene {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 geneMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
-                        gene.getHugoGeneSymbolAllCaps(),gene.getName());
+                        gene.getHugoGeneSymbolAllCaps());
                 addGeneAliases(gene);
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
@@ -71,11 +71,10 @@ class DaoGene {
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection();
                     pstmt = con.prepareStatement
-                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`GENE_NAME`) "
-                                    + "VALUES (?,?,?)");
+                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`) "
+                                    + "VALUES (?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                    pstmt.setString(3, gene.getName());
                     int rows = pstmt.executeUpdate();
                     
                     rows += addGeneAliases(gene);
@@ -173,8 +172,7 @@ class DaoGene {
             if (rs.next()) {
                 Set<String> aliases = getAliases(entrezGeneId);
                 CanonicalGene gene = new CanonicalGene(entrezGeneId,
-                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
-                        rs.getString("GENE_NAME"));
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 return gene;
             } else {
                 return null;
@@ -234,8 +232,7 @@ class DaoGene {
                 long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
                 Set<String> aliases = getAliases(entrezGeneId);
                 CanonicalGene gene = new CanonicalGene(entrezGeneId,
-                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
-                        rs.getString("GENE_NAME"));
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 geneList.add(gene);
             }
             return geneList;
@@ -268,8 +265,7 @@ class DaoGene {
                 long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
                 Set<String> aliases = getAliases(entrezGeneId);
                 CanonicalGene gene = new CanonicalGene(entrezGeneId,
-                        rs.getString("HUGO_GENE_SYMBOL"), aliases,
-                        rs.getString("GENE_NAME"));
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 return gene;
             } else {
                 return null;

@@ -3,6 +3,9 @@ package org.mskcc.cgds.model;
 // imports
 import java.util.ArrayList;
 
+/**
+ * Class to store information of case list.
+ */
 public class CaseList {
    private String            stableId;
    private int               caseListId;
@@ -84,9 +87,9 @@ public class CaseList {
      * @return space-delimited list of case IDs.
      */
     public String getCaseListAsString() {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         for (String caseId : caseList) {
-            str.append(caseId + " ");
+            str.append(caseId).append(" ");
         }
         return str.toString();
     }

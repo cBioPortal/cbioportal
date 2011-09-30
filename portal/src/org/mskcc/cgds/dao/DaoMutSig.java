@@ -58,7 +58,7 @@ public class DaoMutSig {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 myMySQLbulkLoader.insertRecord(Integer.toString(mutSig.getCancerType()),
                         Long.toString(gene.getEntrezGeneId()), Integer.toString(mutSig.getRank()),
-                        Integer.toString(mutSig.getN()), Integer.toString(mutSig.getn()),
+                        Integer.toString(mutSig.getNumBasesCovered()), Integer.toString(mutSig.getNumMutations()),
                         Integer.toString(mutSig.getnVal()), Integer.toString(mutSig.getnVer()),
                         Integer.toString(mutSig.getCpG()), Integer.toString(mutSig.getCandG()),
                         Integer.toString(mutSig.getAandT()), Integer.toString(mutSig.getIndel()),
@@ -76,8 +76,8 @@ public class DaoMutSig {
                     pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
-                    pstmt.setInt(4, mutSig.getN());
-                    pstmt.setInt(5, mutSig.getn());
+                    pstmt.setInt(4, mutSig.getNumBasesCovered());
+                    pstmt.setInt(5, mutSig.getNumMutations());
                     pstmt.setInt(6, mutSig.getnVal());
                     pstmt.setInt(7, mutSig.getnVer());
                     pstmt.setInt(8, mutSig.getCpG());

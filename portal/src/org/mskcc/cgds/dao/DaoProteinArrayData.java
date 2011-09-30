@@ -9,9 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.io.IOException;
 
 import java.util.Collections;
@@ -52,7 +49,7 @@ public class DaoProteinArrayData {
     /**
      * Adds a new ProteinArrayData Record to the Database.
      *
-     * @param pai ProteinArrayData Object.
+     * @param pad ProteinArrayData Object.
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
@@ -103,18 +100,20 @@ public class DaoProteinArrayData {
         }
     }
     
-    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, Collection<String> caseIds) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, Collection<String> caseIds)
+            throws DaoException {
         return getProteinArrayData(Collections.singleton(arrayId), caseIds);
     }
 
     /**
      * Gets the ProteinArrayData with the Specified array ID.
      *
-     * @param arrayId protein array ID.
+     * @param arrayIds protein array ID.
      * @return map of array id to a list of protein array data.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, Collection<String> caseIds) throws DaoException {
+    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, Collection<String> caseIds)
+            throws DaoException {
         ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
         Connection con = null;
         PreparedStatement pstmt = null;

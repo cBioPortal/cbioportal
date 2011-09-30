@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import org.mskcc.cgds.model.Drug;
 import org.mskcc.cgds.model.CanonicalGene;
 
+/**
+ * Data access object for Drug table
+ */
 public class DaoDrug {
 
     public int addDrug(CanonicalGene gene,

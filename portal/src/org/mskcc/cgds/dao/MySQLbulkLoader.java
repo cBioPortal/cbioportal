@@ -16,7 +16,8 @@ import java.sql.Statement;
  * Intercept each record write in the normal load, buffer it in a temp file, and load the temp file when done.
  * NOT thread-safe.
  * @author arthur goldberg
- * In the future, would be cooler to implement this by overloading the JDBC Connection.prepareStatement and PreparedStatement.setX() calls.
+ * In the future, would be cooler to implement this by overloading the JDBC Connection.prepareStatement
+ * and PreparedStatement.setX() calls.
  */
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
@@ -28,7 +29,7 @@ public class MySQLbulkLoader {
    private final String tempTableSuffix = ".tempTable";
    private int rows;
    // TODO: make configurable
-   public static long numDebuggingRowsToPrint = 0;
+   private static long numDebuggingRowsToPrint = 0;
    
    MySQLbulkLoader( String tableName ){
       try {
@@ -47,7 +48,7 @@ public class MySQLbulkLoader {
     * @throws IOException
     * @throws IllegalArgumentException
     */
-   private void openTempFile(String tableName) throws FileNotFoundException, IOException, IllegalArgumentException {
+   private void openTempFile(String tableName) throws IOException {
 
       // TODO: create special directory for temp dbms load files; perhaps make OS portable
       File tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File("/tmp" ) );

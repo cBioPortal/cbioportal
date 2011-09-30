@@ -86,7 +86,7 @@ GDAC_MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genom
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. The data are only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
 """
 
-PRIVATE_MESSAGE_BODY = """Thank you for your interest in the cBio Private Cancer Genomics Portal. We have granted you access. You can login at http://buri.cbio.mskcc.org:38080/private-portal/. Please let us know if you have any problems logging in.
+PRIVATE_MESSAGE_BODY = """Thank you for your interest in the cBio Private Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/private-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """

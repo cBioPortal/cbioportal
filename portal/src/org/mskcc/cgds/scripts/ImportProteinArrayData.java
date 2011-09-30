@@ -75,9 +75,6 @@ public class ImportProteinArrayData {
             }
             
         }
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //daoPAD.flushProteinArrayInfoesToDatabase();
-        }
         
         // import profile
         addRPPAProfile();
@@ -88,11 +85,13 @@ public class ImportProteinArrayData {
     
     private void addRPPACaseList(ArrayList<String> cases) throws DaoException {
         DaoCaseList daoCaseList = new DaoCaseList();
-        if (daoCaseList.getCaseListByStableId(cancerStudyStableId+"_RPPA")!=null)
+        if (daoCaseList.getCaseListByStableId(cancerStudyStableId+"_RPPA")!=null) {
             return;
+        }
         
         CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"All tumors with RPPA data");
-        caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by reverse phase protein array.");
+        caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by " +
+                "reverse phase protein array.");
         caseList.setCaseList(cases);
         
         daoCaseList.addCaseList(caseList);

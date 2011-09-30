@@ -13,6 +13,9 @@ import java.util.Comparator;
 import java.util.Collections;
 import java.text.DecimalFormat;
 
+/**
+ * Calculates Mutation Frequencies.
+ */
 public class CalculateMutationFrequencies {
 
     public static void main(String[] args) throws Exception {
@@ -99,6 +102,9 @@ public class CalculateMutationFrequencies {
     }
 }
 
+/**
+ * Comparison Class for Canonical Genes.
+ */
 class SingleGeneComparator implements Comparator {
     public int compare(Object o1, Object o2) {
         CanonicalGene gene1 = (CanonicalGene) o1;

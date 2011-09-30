@@ -13,8 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Command Line to Import HPRD Interactions.

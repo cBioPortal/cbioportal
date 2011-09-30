@@ -9,6 +9,9 @@ import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Command Line Tool to Convert Gene IDs.
+ */
 public class ConvertGeneIds {
 
     public static void convertGeneIds(File file, String goCategory) throws IOException, DaoException {

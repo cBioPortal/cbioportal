@@ -6,6 +6,7 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,17 +23,18 @@ import java.util.ArrayList;
 public class ImportTabDelimData {
     private HashSet<Long> importedGeneSet = new HashSet<Long>();
     private HashSet<String> importedMicroRNASet = new HashSet<String>();
-    
+    private static Logger logger = Logger.getLogger(ImportTabDelimData.class);
+
     /**
      * Barry Target Line:  A constant currently used to indicate the RAE method.
      */
-    public final static String BARRY_TARGET = "Barry";
+    public static final String BARRY_TARGET = "Barry";
 
     /**
      * Consensus Target Line:  A constant currently used to indicate consensus of multiple
      * CNA calling algorithms.
      */
-    public final static String CONSENSUS_TARGET = "consensus";
+    public static final String CONSENSUS_TARGET = "consensus";
 
     private ProgressMonitor pMonitor;
     private File mutationFile;
@@ -151,6 +153,7 @@ public class ImportTabDelimData {
                         //  Also, ignore gene IDs that are specified as ---.  This indicates
                         //  the line contains information regarding an unknown gene, and
                         //  we cannot currently handle this.
+                        logger.debug("Ignoring gene ID:  " + geneId);
                     } else {
                         //  Assume we are dealing with Entrez Gene Ids or Symbols.
                         CanonicalGene gene = getGene(geneId, daoGene);

@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Command Line Tool to Import Background Gene Data.
+ */
 public class ImportGeneData {
     private ProgressMonitor pMonitor;
     private File geneFile;

@@ -5,8 +5,6 @@ import java.util.*;
 
 /**
  * 
- * @author Giovanni Ciriello
- *
  * The syntax is simple:
  * 
  * java ComputeZscoreUnit <copy_number_file> <expression_file> <output_file>
@@ -36,14 +34,15 @@ import java.util.*;
  *    get mean and s.d. of elements of diploids
  *    get zScore for each case
  * }
- * 
+ *
+ * @author Giovanni Ciriello
  * @author Arthur Goldberg  goldberg@cbio.mskcc.org
  */
 public class ComputeZScoreUnit{
 
-   static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
-   static int SAMPLES;
-   static String zScoresFile;
+   private static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
+   private static int samples;
+   private static String zScoresFile;
    
    public static void main (String[]args) throws Exception{
       // TODO: argument error checking; use command line parser
@@ -66,13 +65,14 @@ public class ComputeZScoreUnit{
       // Assume: case IDs contain TCGA 
       // TODO: generalize to other case ID formats
       search:
-      for(int i=0;i<values.length;i++)
+      for(int i=0;i<values.length;i++) {
          if(values[i].indexOf("TCGA") != -1){
             firstSamplePosition = i;
             break search;
          }
-      SAMPLES = values.length;// - firstSamplePosition;  
-      String[]samples = new String[SAMPLES];  // the names of all samples
+      }
+      samples = values.length;// - firstSamplePosition;
+      String[]samples = new String[ComputeZScoreUnit.samples];  // the names of all samples
       HashSet<String> normalSamples = new HashSet<String>();
       
       // make set of case IDs of normal samples 
@@ -85,12 +85,14 @@ public class ComputeZScoreUnit{
       
       // list normal samples (cases) at start of output
       out.print("GeneSymbol\t");
-      for(int i=firstSamplePosition;i<samples.length;i++)
-         if(!normalSamples.contains(samples[i]))
+      for(int i=firstSamplePosition;i<samples.length;i++) {
+         if(!normalSamples.contains(samples[i])) {
             out.print(samples[i]+"\t");
+         }
+      }
       out.println();
-      SAMPLES = SAMPLES-normalSamples.size()-firstSamplePosition;
-      System.out.println(file+")\t"+SAMPLES+" SAMPLES ("+normalSamples.size()+" normal)");
+      ComputeZScoreUnit.samples = ComputeZScoreUnit.samples -normalSamples.size()-firstSamplePosition;
+      System.out.println(file+")\t"+ ComputeZScoreUnit.samples +" samples ("+normalSamples.size()+" normal)");
       
       // discards second line from expr file: should be: "Composite Element REF  signal   ... "
       in.readLine();
@@ -110,7 +112,7 @@ public class ComputeZScoreUnit{
          String id = values[0];  // geneID in 1st column
          
          // ignore gene's data if its copy number status is unknown
-         // TODO: fix, as this really isn't right; if there are some normal samples, then we shouldn't need to know the gene's CN status 
+         // TODO: fix, as this really isn't right; if there are some normal samples, then we shouldn't need CN status 
          if(geneCopyNumberStatus.containsKey(id)){
             genesFound++;
 
@@ -131,27 +133,30 @@ public class ComputeZScoreUnit{
                rowsWithSomeDiploidCases++;
                out.print(id+"\t");
 
-               for(int k =0;k<zscores.length;k++)
+               for(int k =0;k<zscores.length;k++) {
                   // TODO: 9999 indicates an invalid exp value; make a constant
                   if(zscores[k] != 9999){
                      // limit precision
                      out.format( "%.4f\t", zscores[k] );
-                  }else{
+                  } else{
                      out.print("NA\t");
                   }
+               }
                out.println();
                genesWithValidScores++;
             }else{
                out.print(id+"\t");
-               for(int k =0;k<SAMPLES;k++)
+               for(int k =0;k< ComputeZScoreUnit.samples;k++) {
                   out.print("NA\t");
+               }
                out.println();
             }
             genes++;
          }else{
             out.print(id+"\t");
-            for(int k =0;k<SAMPLES;k++)
+            for(int k =0;k< ComputeZScoreUnit.samples;k++) {
                out.print("NA\t");
+            }
             out.println();
          }
       }
@@ -176,13 +181,14 @@ public class ComputeZScoreUnit{
     */
    private static double[] getZscore(ArrayList<String[]> xp, ArrayList<String[]> cn){
       double[]z = null;
-      double[]diploid = new double[SAMPLES];
+      double[]diploid = new double[samples];
       HashSet<String> diploidSamples = new HashSet<String>();
 
       for(int i=0;i<cn.size();i++){
          
-         if(cn.get(i)[1].equals("0"))  // CN value of 0 indicates diploid; todo, make a constant
+         if(cn.get(i)[1].equals("0")) { // CN value of 0 indicates diploid; todo, make a constant
             diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; todo, put in a named record (class)
+         }
       }
       int xPos = 0;
       int count = 0;
@@ -224,9 +230,9 @@ public class ComputeZScoreUnit{
                s = s - avg;
                s = s/std;  // todo: could div by 0
                z[i] = s;
-            }
-         else
-            z[i] = 9999;  
+         } else {
+            z[i] = 9999;
+         }
       }
       return z;
    }
@@ -257,12 +263,12 @@ public class ComputeZScoreUnit{
             break search;
          }
       }
-      SAMPLES = values.length; // - firstSamplePosition; 
-      String[]samples = new String[SAMPLES];
+      samples = values.length; // - firstSamplePosition;
+      String[]samples = new String[ComputeZScoreUnit.samples];
       for(int i=firstSamplePosition;i<values.length;i++){
          samples[i] = truncatedSampleName(values[i]);
       }
-      System.out.println(file+")\t"+(SAMPLES-firstSamplePosition)+" SAMPLES");
+      System.out.println(file+")\t"+(ComputeZScoreUnit.samples -firstSamplePosition)+" samples");
       
       int genes = 0;
       String line;
@@ -298,12 +304,14 @@ public class ComputeZScoreUnit{
       String truncatedName = "";
       int dash = 0;
       for(int i=0;i<name.length();i++){
-         if(name.charAt(i)=='-')
+         if(name.charAt(i)=='-') {
             dash++;
-         if(dash == 3)
+         }
+         if(dash == 3) {
             return truncatedName;
-         else
+         } else {
             truncatedName=truncatedName+name.charAt(i);
+         }
       }
       return truncatedName;
    }
@@ -326,31 +334,35 @@ public class ComputeZScoreUnit{
       int dash = 0;
       search:
       for(int i=0;i<name.length();i++){
-         if(name.charAt(i)=='-')
+         if(name.charAt(i)=='-') {
             dash++;
+         }
          if(dash == 3){
             suffix = name.substring(i,name.length());
             break search;
          }
       }
-      if(suffix.indexOf("-11") == 0 )
+      if(suffix.indexOf("-11") == 0 ) {
          return true;
+      }
       return false;
    }
    
    
    private static double avg(double[]v){
       double avg = 0;
-      for(int i=0;i<v.length;i++)
+      for(int i=0;i<v.length;i++) {
          avg=avg+v[i];
+      }
       avg=avg/(double)v.length;
       return avg;
    }
    
    private static double std(double[]v,double avg){
       double std = 0;
-      for(int i=0;i<v.length;i++)
+      for(int i=0;i<v.length;i++) {
          std=std+Math.pow((v[i]-avg),2);
+      }
       std=std/(double)(v.length-1);
       std=Math.sqrt(std);
       return std;
@@ -358,8 +370,9 @@ public class ComputeZScoreUnit{
    
    private static double[] resize(double[]v, int s){
       double[]tmp = new double[s];
-      for(int i=0;i<s;i++)
+      for(int i=0;i<s;i++) {
          tmp[i]=v[i];
+      }
       return tmp;
    }
 

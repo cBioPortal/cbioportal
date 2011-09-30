@@ -4,6 +4,9 @@ import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 
+/**
+ * Command Line Tool to Delete All Case Lists.
+ */
 public class DeleteAllCaseLists {
 
     public static void main(String[] args) throws Exception {

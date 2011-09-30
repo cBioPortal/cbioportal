@@ -53,8 +53,9 @@ public class ImportProteinArrayInfo {
             
             String[] strs = line.split("\t");
             String arrayId = strs[6];
-            if (daoPAI.getProteinArrayInfo(arrayId)!=null)
+            if (daoPAI.getProteinArrayInfo(arrayId)!=null) {
                 continue;
+            }
             
             String type = strs[7];
             String source = strs[5];
@@ -75,9 +76,6 @@ public class ImportProteinArrayInfo {
                 daoPAT.addProteinArrayTarget(arrayId, entrez);
             }
             
-        }
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //daoMutSig.flushGenesToDatabase();
         }
     }
     

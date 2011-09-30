@@ -12,6 +12,9 @@ import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.ArrayList;
 
+/**
+ * Command Line tool to Import Case Lists.
+ */
 public class ImportCaseList {
 
    public static void importCaseList(File dataFile, ProgressMonitor pMonitor) throws Exception {

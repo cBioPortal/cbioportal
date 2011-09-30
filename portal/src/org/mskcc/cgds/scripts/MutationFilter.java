@@ -21,12 +21,12 @@ import org.mskcc.cgds.model.ExtendedMutation;
 public class MutationFilter {
    
    // lists of Entrez gene IDs
-   private HashSet<Long> cancer_specific_germline_white_list = new HashSet<Long>(); 
-   private HashSet<Long> somatic_whitelist = new HashSet<Long>();
+   private HashSet<Long> cancerSpecificGermlineWhiteList = new HashSet<Long>();
+   private HashSet<Long> somaticWhiteList = new HashSet<Long>();
    
    // text lists of the gene lists, for reporting
-   private ArrayList<String> cancer_specific_germline_white_list_gene_names = new ArrayList<String>();
-   private ArrayList<ArrayList<String>> somatic_whitelists_gene_names = new ArrayList<ArrayList<String>>(); 
+   private ArrayList<String> cancerSpecificGermlineWhiteListGeneNames = new ArrayList<String>();
+   private ArrayList<ArrayList<String>> somaticWhitelistsGeneNames = new ArrayList<ArrayList<String>>();
    
    // default acceptance decision used by acceptMutation()
    private boolean defaultDecision = false;
@@ -47,7 +47,7 @@ public class MutationFilter {
     */
    public MutationFilter( ) {
       defaultDecision = true;
-      __internalConstructor( (String)null );
+      internalConstructor( (String)null );
    }
    
    /**
@@ -68,38 +68,39 @@ public class MutationFilter {
     * KEEP all other mutations if acceptRemainingMutationsBool is true, otherwise REJECT them. 
     * <p>
     * @param acceptRemainingMutationsBool whether to accept mutations not processed by earlier rules
-    * @param germline_white_list_file filename for the germline whitelist; null if not provided
-    * @param somatic_gene_list_files filenames for the somatic whitelist files; null if not provided
+    * @param germlineWhiteListFile filename for the germline whitelist; null if not provided
+    * @param somaticGeneListFiles filenames for the somatic whitelist files; null if not provided
     */
    public MutationFilter( boolean acceptRemainingMutationsBool, 
-            String germline_white_list_file, String... somatic_gene_list_files ) {
+            String germlineWhiteListFile, String... somaticGeneListFiles ) {
       
       this.defaultDecision = acceptRemainingMutationsBool;
-      __internalConstructor( germline_white_list_file, somatic_gene_list_files );
+      internalConstructor( germlineWhiteListFile, somaticGeneListFiles );
    }
    
-   private void __internalConstructor( 
-            String germline_white_list_file,
-            String... somatic_gene_list_files ) throws IllegalArgumentException{
+   private void internalConstructor( 
+            String germlineWhiteListFile,
+            String... somaticGeneListFiles) {
 
-      // read germline_white_list_file (e.g., ova: BRCA1 BRCA2)
-      if( null != germline_white_list_file ){
-         cancer_specific_germline_white_list = getContents( germline_white_list_file, this.cancer_specific_germline_white_list_gene_names );
+      // read germlineWhiteListFile (e.g., ova: BRCA1 BRCA2)
+      if( null != germlineWhiteListFile){
+         cancerSpecificGermlineWhiteList = getContents(germlineWhiteListFile,
+                 this.cancerSpecificGermlineWhiteListGeneNames);
       }
 
-      // read somatic_gene_list_files
+      // read somaticGeneListFiles
       // typically, one global oncogene whitelist and one cancer specific somatic gene whitelist determined
       // from gdac.broadinstitute.org_<cancer>.Mutation_Significance.Level_4.<date><version>/sig_genes.txt
-      if( null != somatic_gene_list_files ){
+      if( null != somaticGeneListFiles){
 
          HashSet<Long> tmp = new HashSet<Long>();         
-         for( String file : somatic_gene_list_files ){
-            ArrayList<String> somatic_list = new ArrayList<String>();
-            HashSet<Long> hs = getContents( file, somatic_list );
-            this.somatic_whitelists_gene_names.add(somatic_list);
+         for( String file : somaticGeneListFiles){
+            ArrayList<String> somaticList = new ArrayList<String>();
+            HashSet<Long> hs = getContents( file, somaticList );
+            this.somaticWhitelistsGeneNames.add(somaticList);
             tmp.addAll(hs);
          }
-         somatic_whitelist = tmp;
+         somaticWhiteList = tmp;
       }
    }
    
@@ -113,8 +114,6 @@ public class MutationFilter {
     * @return true if the mutation should be imported into the dbms
     */
    public boolean acceptMutation(ExtendedMutation mutation) {
-
-      // out.println("Filter out Mutations: " + mutation.toString());
       this.decisions++;
       
       /*
@@ -167,7 +166,7 @@ public class MutationFilter {
          if( safeStringTest( mutation.getMutationType(), "Missense" ) ){
             return false;
          }
-         if( cancer_specific_germline_white_list.contains( 
+         if( cancerSpecificGermlineWhiteList.contains(
                   new Long( mutation.getEntrezGeneId() ) ) ){
             this.accepts++;
             this.germlineWhitelistAccepts++;
@@ -177,7 +176,7 @@ public class MutationFilter {
       
       // KEEP: Somatic mutations on the somatic whitelist
       if( safeStringTest( mutation.getMutationStatus(), "Somatic" ) ){
-         if( somatic_whitelist.contains( new Long( mutation.getEntrezGeneId() ) ) ){
+         if( somaticWhiteList.contains( new Long( mutation.getEntrezGeneId() ) ) ){
             this.accepts++;
             this.somaticWhitelistAccepts++;
             return true;
@@ -186,7 +185,7 @@ public class MutationFilter {
       
       // KEEP: Unknown mutations on the somatic whitelist
       if( safeStringTest( mutation.getMutationStatus(), "Unknown" ) ){
-         if( somatic_whitelist.contains( new Long( mutation.getEntrezGeneId() ) ) ){
+         if( somaticWhiteList.contains( new Long( mutation.getEntrezGeneId() ) ) ){
             this.accepts++;
             this.unknownAccepts++;
             return true;
@@ -263,7 +262,7 @@ public class MutationFilter {
    *
    * @param filename  is a file which already exists and can be read.
    */
-   private HashSet<Long> getContents( String filename, ArrayList <String> geneNames ) throws IllegalArgumentException{
+   private HashSet<Long> getContents( String filename, ArrayList <String> geneNames ) {
 
       //...checks on filename are elided
       HashSet<Long> contents = new HashSet<Long>();
@@ -282,10 +281,8 @@ public class MutationFilter {
          * it returns null only for the END of the stream.
          * it returns an empty String if two newlines appear in a row.
          */
-         // out.println( aFile.getName() + " contains: ");
          DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
-         //DaoGene aDaoGene = new DaoGene();
-         
+
          while (( line = input.readLine()) != null){
 
             // convert Hugo symbol to Entrez ID
@@ -300,17 +297,14 @@ public class MutationFilter {
       } catch (DaoException e) {
          System.err.println( "dbms access problem.");
          e.printStackTrace();
-      }
-       finally {
+      } finally {
          input.close();
        }
-     }
-     catch (FileNotFoundException e){
+     } catch (FileNotFoundException e){
         throw new IllegalArgumentException( "Gene list '" + filename + "' not found.");
-      }
-     catch (IOException ex){
+     } catch (IOException ex){
         ex.printStackTrace();
-      }
+     }
      return contents;
    }
    
@@ -332,12 +326,11 @@ public class MutationFilter {
    public String toString(){
       StringBuffer sb = new StringBuffer();
       sb.append( "Default decision: " + this.defaultDecision + "\n" );
-      sb.append( "Germline whitelist: " + this.cancer_specific_germline_white_list_gene_names.toString() + "\n" );
+      sb.append( "Germline whitelist: " + this.cancerSpecificGermlineWhiteListGeneNames.toString() + "\n" );
       int i=1;
-      for( ArrayList<String> somatic_whitelist :  this.somatic_whitelists_gene_names){
-         sb.append( "Somatic whitelist " + i++ + ": " + somatic_whitelist.toString() + "\n" );
+      for( ArrayList<String> somaticWhiteList :  this.somaticWhitelistsGeneNames){
+         sb.append( "Somatic whitelist " + i++ + ": " + somaticWhiteList.toString() + "\n" );
       }
       return( sb.toString() );
    }
-
 }

@@ -1,7 +1,5 @@
 package org.mskcc.cgds.scripts;
 
-// CREATED BY P. MANKOO, 27 JULY, 2009
-
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ConsoleUtil;
@@ -15,10 +13,13 @@ import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
+/**
+ * Command Line tool to import background drug information.
+ */
 public class ImportDrugs {
     private ProgressMonitor pMonitor;
     private File file;
-    private final static String NA = "N/A";
+    private static final String NA = "N/A";
 
     public ImportDrugs(File file, ProgressMonitor pMonitor) {
         this.file = file;

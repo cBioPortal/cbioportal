@@ -7,6 +7,9 @@ import org.mskcc.cgds.util.CancerStudyReader;
 
 import java.io.File;
 
+/**
+ * Command Line Tool to Import a Single Cancer Study.
+ */
 public class ImportCancerStudy {
 
     public static void main(String[] args) throws Exception {

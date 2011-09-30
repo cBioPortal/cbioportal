@@ -119,8 +119,9 @@ class BuildProperties(object):
         self.google_worksheet = google_worksheet
 
 class User(object):
-    def __init__(self, email, name, enabled):
-        self.email = email
+    def __init__(self, inst_email, openid_email, name, enabled):
+        self.inst_email = inst_email
+        self.openid_email = openid_email
         self.name = name
         self.enabled = enabled
         self.role = 'ROLE_USER'
@@ -198,10 +199,10 @@ def insert_new_users(cursor, new_user_list):
 
     try:
         cursor.executemany("insert into users values(%s, %s, %s)",
-                           [(user.email, user.name, user.enabled) for user in new_user_list])
+                           [(user.openid_email, user.name, user.enabled) for user in new_user_list])
         
         cursor.executemany("insert into authorities values(%s, %s)",
-                           [(user.email, user.role) for user in new_user_list])
+                           [(user.openid_email, user.role) for user in new_user_list])
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return False
@@ -222,7 +223,7 @@ def get_current_user_map(cursor):
     try:
         cursor.execute('select * from users')
         for row in cursor.fetchall():
-            to_return[row[0]] = User(row[0], row[1], row[2])
+            to_return[row[0]] = User('not_used_here', row[0], row[1], row[2])
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -235,7 +236,7 @@ def get_current_user_map(cursor):
 def get_new_user_map(worksheet_feed, current_user_map):
 
     # map that we are returning
-    # key is the institutional email address
+    # key is the institutional email address + openid (in case 1 use wants multiple openids)
     # of the user and value is a User object
     to_return = {}
 
@@ -248,7 +249,7 @@ def get_new_user_map(worksheet_feed, current_user_map):
             name = entry.custom[FULLNAME_KEY].text.strip()
             # do not add entry if this entry is a current user
             if openid_email not in current_user_map:
-                to_return[inst_email] = User(openid_email, name, 1)
+                to_return[inst_email+openid_email] = User(inst_email, openid_email, name, 1)
 
     return to_return
     
@@ -419,9 +420,10 @@ def main():
         connection.commit()
         if send_email_confirm == 'true':
             for new_user_key in new_user_map.keys():
+                new_user = new_user_map[new_user_key]
                 print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
-                                       (new_user_map[new_user_key].name, new_user_key))
-                send_mail([new_user_key],
+                                       (new_user.name, new_user.inst_email))
+                send_mail([new_user.inst_email],
                           MESSAGE_SUBJECT[build_properties.cgds_database_name],
                           MESSAGE_BODY[build_properties.cgds_database_name])
     connection.close()

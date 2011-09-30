@@ -23,17 +23,13 @@ public class TestDaoGene extends TestCase {
 
         //  Add BRCA1 and BRCA2 Genes
         CanonicalGene gene = new CanonicalGene(672, "BRCA1",
-                new HashSet<String>(Arrays.asList("BRCAI|BRCC1|BROVCA1|IRIS|PNCA4|PSCP|RNF53".split("\\|"))),
-                "breast cancer 1, early onset");
+                new HashSet<String>(Arrays.asList("BRCAI|BRCC1|BROVCA1|IRIS|PNCA4|PSCP|RNF53".split("\\|"))));
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int num = daoGeneOptimized.addGene(gene);
         assertEquals(8, num);
 
         gene = new CanonicalGene(675, "BRCA2",
-                new HashSet<String>(
-                        Arrays.asList("BRCC2|BROVCA2|FACD|FAD|FAD1|FANCB|FANCD|FANCD1|GLM3|PNCA2".split("\\|"))
-                ),
-                "breast cancer 2, early onset");
+                new HashSet<String>(Arrays.asList("BRCC2|BROVCA2|FACD|FAD|FAD1|FANCB|FANCD|FANCD1|GLM3|PNCA2".split("\\|"))));
         num = daoGeneOptimized.addGene(gene);
         assertEquals(11, num);
 

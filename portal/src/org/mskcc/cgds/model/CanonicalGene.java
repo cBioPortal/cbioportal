@@ -10,18 +10,16 @@ public class CanonicalGene extends Gene {
     private long entrezGeneId;
     private String hugoGeneSymbol;
     private Set<String> aliases;
-    private String name;
     private double somaticMutationFrequency;
     
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
-        this(entrezGeneId, hugoGeneSymbol, null, "");
+        this(entrezGeneId, hugoGeneSymbol, null);
     }
 
-    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases, String name) {
+    public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
         this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
         this.aliases = aliases;
-        this.name = name;
     }
 
     public Set<String> getAliases() {
@@ -33,14 +31,6 @@ public class CanonicalGene extends Gene {
 
     public void setAliases(Set<String> aliases) {
         this.aliases = aliases;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public long getEntrezGeneId() {

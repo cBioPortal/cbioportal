@@ -1,5 +1,9 @@
 package org.mskcc.cgds.util;
 
+/**
+ * Stores db props (name, id, pw, host) from build.properties
+ * and makes them accessible.
+ */
 public class DatabaseProperties {
     private String dbHost;
     private String dbUser;

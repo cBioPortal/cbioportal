@@ -1,5 +1,8 @@
 package org.mskcc.cgds.web_api;
 
+/**
+ * Wrapper exception class
+ */
 public class ProtocolException extends Exception {
     private String msg;
 

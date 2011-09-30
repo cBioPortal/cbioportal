@@ -15,8 +15,8 @@ import java.io.IOException;
  * @author Ethan Cerami.
  */
 public class GetProfileData {
-    public static int ID_ENTREZ_GENE = 1;
-    public static int GENE_SYMBOL = 0;
+    public static final int ID_ENTREZ_GENE = 1;
+    public static final int GENE_SYMBOL = 0;
     private String rawContent;
     private String[][] matrix;
     private ProfileData profileData;
@@ -32,9 +32,9 @@ public class GetProfileData {
      * @throws IOException IO Error.
      */
     public GetProfileData (ArrayList<String> targetGeneticProfileIdList,
-										ArrayList<String> targetGeneList,
-										ArrayList<String> targetCaseList,
-										Boolean suppressMondrianHeader)
+            ArrayList<String> targetGeneList,
+            ArrayList<String> targetCaseList,
+            Boolean suppressMondrianHeader)
             throws DaoException, IOException {
         execute(targetGeneticProfileIdList, targetGeneList, targetCaseList, suppressMondrianHeader);
     }
@@ -124,9 +124,9 @@ public class GetProfileData {
      * @throws DaoException Database Error.
      */
     private String getProfileData(ArrayList<String> targetGeneticProfileIdList,
-										ArrayList<String> targetGeneList, 
-										ArrayList<String> targetCaseList,
-										Boolean suppressMondrianHeader) throws DaoException {
+            ArrayList<String> targetGeneList, 
+            ArrayList<String> targetCaseList,
+            Boolean suppressMondrianHeader) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
 
@@ -136,9 +136,8 @@ public class GetProfileData {
             GeneticProfile geneticProfile =
                     daoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
             if (geneticProfile == null) {
-                buf.append ("No genetic profile available for "
-                        + WebService.GENETIC_PROFILE_ID + ":  "
-                        + geneticProfileId + "." + WebApiUtil.NEW_LINE);
+                buf.append("No genetic profile available for " + WebService.GENETIC_PROFILE_ID + ":  ")
+                        .append(geneticProfileId).append(".").append (WebApiUtil.NEW_LINE);
                 return buf.toString();
             }
         }
@@ -156,9 +155,9 @@ public class GetProfileData {
             
             //  Output DATA_TYPE and COLOR_GRADIENT_SETTINGS (Used by Mondrian Cytoscape PlugIn)
             if (!suppressMondrianHeader) {
-                buf.append ("# DATA_TYPE\t " + geneticProfile.getProfileName() +"\n");
-                buf.append ("# COLOR_GRADIENT_SETTINGS\t "
-                            + geneticProfile.getGeneticAlterationType() + "\n");
+                buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append ("\n");
+                buf.append("# COLOR_GRADIENT_SETTINGS\t ").append(geneticProfile.getGeneticAlterationType())
+                        .append ("\n");
             }
 
             //  Ouput Column Headings
@@ -181,8 +180,9 @@ public class GetProfileData {
             for (String gId:  targetGeneticProfileIdList) {
                 GeneticProfile profile = daoGeneticProfile.getGeneticProfileByStableId(gId);
                 profiles.add(profile);
-                if (profile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL)
+                if (profile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
                     includeRPPAProteinLevel = true;
+                }
             }
 
             // for rppa protein level, choose the best correlated one
@@ -203,8 +203,8 @@ public class GetProfileData {
                 
                 if (geneList.size() > 0) {
                     Gene gene = geneList.get(0);
-                    buf.append (gp1.getStableId() + WebApiUtil.TAB
-                            + gp1.getGeneticAlterationType() + WebApiUtil.TAB);   
+                    buf.append(gp1.getStableId()).append(WebApiUtil.TAB).append(gp1.getGeneticAlterationType())
+                            .append (WebApiUtil.TAB);   
                     dataRow1 = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
                             targetCaseList, gp1);
                     outputGeneRow(dataRow1, gene, buf);
@@ -216,8 +216,8 @@ public class GetProfileData {
                 
                 if (geneList.size() > 0) {
                     Gene gene = geneList.get(0);
-                    buf.append (gp2.getStableId() + WebApiUtil.TAB
-                            + gp2.getGeneticAlterationType() + WebApiUtil.TAB);   
+                    buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType())
+                            .append (WebApiUtil.TAB);   
                     ArrayList<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
                             (CanonicalGene)gene, targetCaseList, dataRow1);
                     outputGeneRow(dataRow, gene, buf);
@@ -231,8 +231,8 @@ public class GetProfileData {
 
                     if (geneList.size() > 0) {
                         Gene gene = geneList.get(0);
-                        buf.append (geneticProfile.getStableId() + WebApiUtil.TAB
-                                + geneticProfile.getGeneticAlterationType() + WebApiUtil.TAB);   
+                        buf.append(geneticProfile.getStableId()).append(WebApiUtil.TAB)
+                                .append(geneticProfile.getGeneticAlterationType()).append (WebApiUtil.TAB);   
                         ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
                                 targetCaseList, geneticProfile);
                         outputGeneRow(dataRow, gene, buf);
@@ -245,7 +245,7 @@ public class GetProfileData {
 
     private static void outputRow(ArrayList<String> dataValues, StringBuffer buf) {
         for (String value:  dataValues) {
-            buf.append (WebApiUtil.TAB + value);
+            buf.append(WebApiUtil.TAB).append (value);
         }
         buf.append (WebApiUtil.NEW_LINE);
     }
@@ -254,11 +254,11 @@ public class GetProfileData {
             throws DaoException {
         if (gene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
-            buf.append (canonicalGene.getEntrezGeneId() + WebApiUtil.TAB);
+            buf.append(canonicalGene.getEntrezGeneId()).append (WebApiUtil.TAB);
             buf.append (canonicalGene.getHugoGeneSymbolAllCaps());
         } else if (gene instanceof MicroRna) {
             MicroRna microRna = (MicroRna) gene;
-            buf.append ("-999999" + WebApiUtil.TAB);
+            buf.append("-999999").append (WebApiUtil.TAB);
             buf.append (microRna.getMicroRnaId());
         }
         outputRow (dataRow, buf);

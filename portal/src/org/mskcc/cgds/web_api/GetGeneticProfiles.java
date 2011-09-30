@@ -24,7 +24,7 @@ public class GetGeneticProfiles {
      */
     public static String getGeneticProfiles(String cancerStudyStableId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
             DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -36,16 +36,16 @@ public class GetGeneticProfiles {
                         "cancer_study_id\t" +
                         "genetic_alteration_type\tshow_profile_in_analysis_tab\n");
                 for (GeneticProfile geneticProfile : list) {
-                    buf.append(geneticProfile.getStableId() + "\t");
-                    buf.append(geneticProfile.getProfileName() + "\t");
-                    buf.append(geneticProfile.getProfileDescription() + "\t");
-                    buf.append(geneticProfile.getCancerStudyId() + "\t");
-                    buf.append(geneticProfile.getGeneticAlterationType() + "\t");
-                    buf.append(geneticProfile.showProfileInAnalysisTab() + "\n");
+                    buf.append(geneticProfile.getStableId()).append("\t");
+                    buf.append(geneticProfile.getProfileName()).append("\t");
+                    buf.append(geneticProfile.getProfileDescription()).append("\t");
+                    buf.append(geneticProfile.getCancerStudyId()).append("\t");
+                    buf.append(geneticProfile.getGeneticAlterationType()).append("\t");
+                    buf.append(geneticProfile.showProfileInAnalysisTab()).append("\n");
                 }
             } else {
-                buf.append("Error:  No genetic profiles available for: "
-                    + cancerStudyStableId + ".\n");
+                buf.append("Error:  No genetic profiles available for: ")
+                        .append(cancerStudyStableId).append(".\n");
                 return buf.toString();
             }
         }

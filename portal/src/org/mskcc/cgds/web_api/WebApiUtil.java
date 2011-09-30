@@ -13,13 +13,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
+/**
+ * Utility class for web api
+ */
 public class WebApiUtil {
     private static HashSet <String> microRnaIdSet;
     private static HashSet <String> variantMicroRnaIdSet;
-    public static String WEP_API_HEADER = "# CGDS Kernel:  Data served up fresh at:  "
+    public static final String WEP_API_HEADER = "# CGDS Kernel:  Data served up fresh at:  "
             + new Date() +"\n";
-    public static String TAB = "\t";
-    public static String NEW_LINE = "\n";
+    public static final String TAB = "\t";
+    public static final String NEW_LINE = "\n";
 
 
     public static void outputWebApiHeader(StringBuffer buf) {
@@ -75,12 +78,12 @@ public class WebApiUtil {
                         }
                     } else {
                         String msg = "# Warning:  Unknown microRNA:  " + geneId;
-                        warningBuffer.append (msg + "\n");
+                        warningBuffer.append(msg).append ("\n");
                         warningList.add(msg);
                     }
                 } else {
                     String msg = "# Warning:  Unknown gene:  " + geneId;
-                    warningBuffer.append (msg + "\n");
+                    warningBuffer.append(msg).append ("\n");
                     warningList.add(msg);
                 }
             } else {

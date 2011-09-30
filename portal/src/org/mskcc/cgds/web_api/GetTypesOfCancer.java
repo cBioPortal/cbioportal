@@ -27,14 +27,14 @@ public class GetTypesOfCancer {
      */
     public static String getTypesOfCancer() throws DaoException, ProtocolException {
         ArrayList<TypeOfCancer> typeOfCancerList = DaoTypeOfCancer.getAllTypesOfCancer();
-        StringBuffer buf = new StringBuffer();
-        if (typeOfCancerList == null || typeOfCancerList.size() == 0) {
+        StringBuilder buf = new StringBuilder();
+        if (typeOfCancerList == null || typeOfCancerList.isEmpty()) {
             throw new ProtocolException ("No Types of Cancer Available.");
         } else {
             buf.append("type_of_cancer_id\tname\n");
             for (TypeOfCancer typeOfCancer : typeOfCancerList) {
-                buf.append(typeOfCancer.getTypeOfCancerId() + WebApiUtil.TAB);
-                buf.append(typeOfCancer.getName() +  WebApiUtil.NEW_LINE);
+                buf.append(typeOfCancer.getTypeOfCancerId()).append(WebApiUtil.TAB);
+                buf.append(typeOfCancer.getName()).append(WebApiUtil.NEW_LINE);
             }
             return buf.toString();
         }
@@ -50,20 +50,20 @@ public class GetTypesOfCancer {
     public static String getCancerStudies() throws DaoException, ProtocolException {
         ArrayList<CancerStudy> cancerStudyList = DaoCancerStudy.getAllCancerStudies();
 
-        if (cancerStudyList == null || cancerStudyList.size() ==0) {
+        if (cancerStudyList == null || cancerStudyList.isEmpty()) {
             throw new ProtocolException ("No Cancer Studies Available.");
         } else {
             //  Before returning the list, sort it alphabetically
             Collections.sort(cancerStudyList, new CancerStudiesComparator());
 
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append("cancer_study_id\tname\tdescription\n");
 
             //  Iterate through all cancer studies
             for (CancerStudy cancerStudy : cancerStudyList) {
-                buf.append(cancerStudy.getCancerStudyStableId() +  WebApiUtil.TAB);
-                buf.append(cancerStudy.getName() +  WebApiUtil.TAB);
-                buf.append(cancerStudy.getDescription() + WebApiUtil.NEW_LINE);
+                buf.append(cancerStudy.getCancerStudyStableId()).append(WebApiUtil.TAB);
+                buf.append(cancerStudy.getName()).append(WebApiUtil.TAB);
+                buf.append(cancerStudy.getDescription()).append(WebApiUtil.NEW_LINE);
             }
             return buf.toString();
         }

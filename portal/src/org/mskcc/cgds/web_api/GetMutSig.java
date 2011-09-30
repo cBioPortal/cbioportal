@@ -25,7 +25,7 @@ public class GetMutSig {
     * @returns StringBuffer - MutSig Table
     */
 
-    public static StringBuffer GetAMutSig(int cancerStudy)
+    public static StringBuffer getMutSig(int cancerStudy)
             throws DaoException {
         StringBuffer toReturn = header(new StringBuffer());
         DaoMutSig daoMutSig = DaoMutSig.getInstance();
@@ -41,23 +41,25 @@ public class GetMutSig {
     * to retrieve only a specific number of Genes.
     */
 
-    public static StringBuffer GetAMutSig(int cancerStudy, String q_Value_or_Gene_List, Boolean qOrGene)
-            throws DaoException, NumberFormatException {
+    public static StringBuffer getMutSig(int cancerStudy, String qValueOrGeneList, Boolean qOrGene)
+            throws DaoException {
         StringBuffer toReturn = header(new StringBuffer());
         //code for Q Value Threshold
         if (qOrGene) {
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
-            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy, Double.parseDouble(q_Value_or_Gene_List));
+            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy, Double.parseDouble(qValueOrGeneList));
             for (int i = 0; i < mutSigList.size(); i++) {
             toReturn.append(parseMutSig(mutSigList.get(i)));
             }
             //code for Gene List
         } else if (!qOrGene) {
             Pattern p = Pattern.compile("[,\\s]+");
-            String genes[] = p.split(q_Value_or_Gene_List);
+            String genes[] = p.split(qValueOrGeneList);
             for (String gene : genes) {
                 gene = gene.trim();
-                if (gene.length() == 0) continue;
+                if (gene.length() == 0) {
+                    continue;
+                }
                 MutSig mutSig = DaoMutSig.getMutSig(gene, cancerStudy);
                 toReturn.append(parseMutSig(mutSig));
             }

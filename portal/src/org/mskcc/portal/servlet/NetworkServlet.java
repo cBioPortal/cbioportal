@@ -138,13 +138,13 @@ public class NetworkServlet extends HttpServlet {
                 for (Node node : network.getNodes()) {
                     Set<String> ngnc = node.getXref(HGNC);
 
-                    boolean in_query = false;
+                    boolean inQuery = false;
                     if (!ngnc.isEmpty()) {
                         String sym = ngnc.iterator().next();
-                        in_query = queryGenes.contains(sym);
+                        inQuery = queryGenes.contains(sym);
                         netGenes.add(sym);
                     }
-                    node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(in_query));
+                    node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(inQuery));
                 }
 
                 //  Get User Selected Genetic Profiles
@@ -262,13 +262,18 @@ public class NetworkServlet extends HttpServlet {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
                     Set<String> ngnc = node.getXref(HGNC);
-                    if (!ngnc.isEmpty())
+                    if (!ngnc.isEmpty()) {
                         return ngnc.iterator().next();
-
-                    Set<Object> names = node.getAttributes().get("name");
-                    if (names!=null && !names.isEmpty())
-                        return names.iterator().next().toString();
-
+                    }
+                    
+                    Set<Object> strNames = node.getAttributes().get("PARTICIPANT_NAME");
+                    if (strNames!=null && !strNames.isEmpty()) {
+                        String[] names = strNames.iterator().next().toString().split(";");
+                        if (names.length>0) {
+                            return names[0];
+                        }
+                    }
+                    
                     return node.getId();
                 }
             });

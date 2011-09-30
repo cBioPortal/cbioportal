@@ -2,12 +2,9 @@ package org.mskcc.cgds.test.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
-import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.dao.DaoGeneticProfileCases;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 
 /**

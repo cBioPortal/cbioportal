@@ -12,6 +12,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 
+/**
+ * JUnit test for ImportMutSigData class.
+ */
 public class TestImportMutSigData extends TestCase {
 
     /**

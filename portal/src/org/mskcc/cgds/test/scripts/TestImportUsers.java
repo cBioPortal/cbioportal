@@ -7,11 +7,13 @@ import org.mskcc.cgds.dao.DaoUser;
 import org.mskcc.cgds.model.UserAuthorities;
 import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.scripts.ImportUsers;
 
 import junit.framework.TestCase;
 
+/**
+ * JUnit test for ImportUsers class.
+ */
 public class TestImportUsers extends TestCase {
    
    public void testImportUsers() throws Exception{

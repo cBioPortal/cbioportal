@@ -14,6 +14,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * JUnit test for GeneticProfileReader class.
+ */
 public class TestGeneticProfileReader extends TestCase {
 
     public void testGeneticProfileReader() throws Exception {

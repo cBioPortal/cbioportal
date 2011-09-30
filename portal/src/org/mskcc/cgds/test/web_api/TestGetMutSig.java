@@ -63,24 +63,42 @@ public class TestGetMutSig extends TestCase {
      * this is taken directly from the WebService class, and minimally changed to function without
      * a writer, and HttpServletRequest, as to better suit it for a Test Class.
      */
-    private void getMutSig(String cancerStudyID, String q_value_threshold, String gene_list)
+    private void getMutSig(String cancerStudyID, String qValueThreshold, String geneList)
             throws DaoException {
         int cancerID = Integer.parseInt(cancerStudyID);
+<<<<<<< local
+        if ((qValueThreshold == null || qValueThreshold.length() == 0)
+                && (geneList == null || geneList.length() == 0)) {
+            StringBuffer output = GetMutSig.GetAMutSig(cancerID);
+=======
         if ((q_value_threshold == null || q_value_threshold.length() == 0)
                 && (gene_list == null || gene_list.length() == 0)) {
             StringBuffer output = GetMutSig.getMutSig(cancerID);
+>>>>>>> other
             System.err.println(output);
             System.err.println("exit code 0\n");
             //if client enters a q_value_threshold
+<<<<<<< local
+        } else if ((qValueThreshold != null || qValueThreshold.length() != 0)
+                && (geneList == null || geneList.length() == 0)) {
+            StringBuffer output = GetMutSig.GetAMutSig(cancerID, qValueThreshold, true);
+=======
         } else if ((q_value_threshold != null || q_value_threshold.length() != 0)
                 && (gene_list == null || gene_list.length() == 0)) {
             StringBuffer output = GetMutSig.getMutSig(cancerID, q_value_threshold, true);
+>>>>>>> other
             System.err.println(output);
             System.err.println("exit code 1\n");
             //if client enters a gene_list
+<<<<<<< local
+        } else if ((qValueThreshold == null || qValueThreshold.length() == 0)
+                && (geneList != null || geneList.length() != 0)) {
+            StringBuffer output = GetMutSig.GetAMutSig(cancerID, geneList, false);
+=======
         } else if ((q_value_threshold == null || q_value_threshold.length() == 0)
                 && (gene_list != null || gene_list.length() != 0)) {
             StringBuffer output = GetMutSig.getMutSig(cancerID, gene_list, false);
+>>>>>>> other
             System.err.println(output);
             System.err.println("exit code 2\n");
         } else {

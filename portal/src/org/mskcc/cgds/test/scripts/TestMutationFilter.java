@@ -10,6 +10,9 @@ import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.scripts.MutationFilter;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
+/**
+ * JUnit tests for MutationFilter class.
+ */
 public class TestMutationFilter extends TestCase {
    
    protected void setUp(){
@@ -114,7 +117,7 @@ public class TestMutationFilter extends TestCase {
 
    }
 
-   public void testAcceptMutation_germline_white_list() throws DaoException {
+   public void testAcceptMutationGermlineWhiteList() throws DaoException {
       
       // load genes
       loadGene( "FOO", 3L  );
@@ -165,7 +168,7 @@ public class TestMutationFilter extends TestCase {
 
    }
 
-   public void testAcceptMutation_germline_and_somatic_white_lists() throws DaoException {
+   public void testAcceptMutationGermlineAndSomaticWhiteLists() throws DaoException {
       
       // load genes
       loadGene( "FOO", 3L  );
@@ -326,8 +329,8 @@ public class TestMutationFilter extends TestCase {
       
    }
    
-   private void loadGene( String GeneSymbol, long GeneID ) throws DaoException {
+   private void loadGene( String geneSymbol, long geneID ) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(new CanonicalGene( GeneID, GeneSymbol ));
+        daoGene.addGene(new CanonicalGene( geneID, geneSymbol ));
     }
 }

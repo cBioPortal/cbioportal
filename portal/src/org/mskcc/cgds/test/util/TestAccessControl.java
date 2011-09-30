@@ -1,30 +1,23 @@
 package org.mskcc.cgds.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.internal.AccessControlImpl;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.web_api.ProtocolException;
 
 import java.io.IOException;
-import java.io.File;
 
+/**
+ * JUnit test for AccessControl class.
+ */
 public class TestAccessControl extends TestCase {
 
-    CancerStudy publicCancerStudy;
-    CancerStudy privateCancerStudy1;
-    CancerStudy privateCancerStudy2;
-    User user1;
-    User user2;
-    String clearTextKey;
+    private CancerStudy publicCancerStudy;
+    private CancerStudy privateCancerStudy1;
+    private CancerStudy privateCancerStudy2;
+    private User user1;
+    private User user2;
+    private String clearTextKey;
 
     public void testVariousUtilities() throws Exception {
         /* TBD: Recoded when we provide granualar access
@@ -44,12 +37,17 @@ public class TestAccessControl extends TestCase {
         assertTrue(accessControl.checkAccess("", "", publicCancerStudy.getCancerStudyStableId()));
         assertTrue(accessControl.checkAccess(null, null, publicCancerStudy.getCancerStudyStableId()));
         assertTrue(accessControl.checkAccess("blah", "blah", publicCancerStudy.getCancerStudyStableId()));
-        assertFalse(accessControl.checkAccess("", clearTextKey + "_NOT_KEY", privateCancerStudy1.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess("", clearTextKey + "_NOT_KEY",
+                        privateCancerStudy1.getCancerStudyStableId()));
 
-        assertTrue(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyStableId()));
-        assertTrue(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyStableId()));
-        assertFalse(accessControl.checkAccess(user2.getEmail(), clearTextKey, privateCancerStudy1.getCancerStudyStableId()));
-        assertFalse(accessControl.checkAccess(user1.getEmail(), clearTextKey, privateCancerStudy2.getCancerStudyStableId()));
+        assertTrue(accessControl.checkAccess(user1.getEmail(), clearTextKey,
+                                        privateCancerStudy1.getCancerStudyStableId()));
+        assertTrue(accessControl.checkAccess(user2.getEmail(), clearTextKey,
+                        privateCancerStudy2.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess(user2.getEmail(), clearTextKey,
+                        privateCancerStudy1.getCancerStudyStableId()));
+        assertFalse(accessControl.checkAccess(user1.getEmail(), clearTextKey,
+                        privateCancerStudy2.getCancerStudyStableId()));
 
         // test accessControl.getCancerStudies
         // just public studies

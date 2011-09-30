@@ -37,7 +37,8 @@ public class TestImportExtendedMutationData extends TestCase {
             }
 
             try {
-                parser = new ImportExtendedMutationData(file, 1, pMonitor, true, "test_data/test_germline_white_list_file2.txt",
+                parser = new ImportExtendedMutationData(file, 1, pMonitor, true,
+                        "test_data/test_germline_white_list_file2.txt",
                         "no_such_somatic_whitelists");
                 Assert.fail("Should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
@@ -55,7 +56,8 @@ public class TestImportExtendedMutationData extends TestCase {
             validateMutationAminoAcid (1, "TCGA-AA-3664", 89, "S116R"); // Unknown  Somatic
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, false, "test_data/test_germline_white_list_file2.txt"); // put on: CLEC7A
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, false,
+                    "test_data/test_germline_white_list_file2.txt"); // put on: CLEC7A
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();
@@ -63,7 +65,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, false, "test_data/test_germline_white_list_file2.txt",
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, false,
+                    "test_data/test_germline_white_list_file2.txt",
                     "test_data/somatic_whitelist1.txt");  // put on: SLC38A2
             parser.importData();
             checkBasicFilteringRules();
@@ -73,14 +76,18 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, false, "test_data/test_germline_white_list_file2.txt",
-                    "test_data/somatic_whitelist1.txt", "test_data/somatic_whitelist2.txt"); // put on somatic_whitelist2.txt: SP1
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, false,
+                    "test_data/test_germline_white_list_file2.txt",
+                    "test_data/somatic_whitelist1.txt",
+                    "test_data/somatic_whitelist2.txt"); // put on somatic_whitelist2.txt: SP1
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();
             rejectEverythingElse();
-            validateMutationAminoAcid(1, "TCGA-AA-3664", 54407, "T433A"); // Unknown  Somatic mutations on somatic whitelist
-            validateMutationAminoAcid(1, "TCGA-AA-3664", 6667, "A513V"); // Unknown  Somatic mutations on somatic whitelist2
+            // Unknown  Somatic mutations on somatic whitelist
+            validateMutationAminoAcid(1, "TCGA-AA-3664", 54407, "T433A");
+            // Unknown  Somatic mutations on somatic whitelist2
+            validateMutationAminoAcid(1, "TCGA-AA-3664", 6667, "A513V");
 
         } catch (DaoException e) {
             e.printStackTrace();
@@ -97,7 +104,7 @@ public class TestImportExtendedMutationData extends TestCase {
     }
 
     private void checkBasicFilteringRules() throws DaoException {
-        rejectSilent_LOH_Intron_Wildtype();
+        rejectSilentLOHIntronWildtype();
         acceptValidSomaticMutations();
     }
 
@@ -120,7 +127,7 @@ public class TestImportExtendedMutationData extends TestCase {
         validateMutationAminoAcid (1, "TCGA-AA-3664", 51259, "G61G");
     }
 
-    private void rejectSilent_LOH_Intron_Wildtype() throws DaoException {
+    private void rejectSilentLOHIntronWildtype() throws DaoException {
         DaoMutation daoMutation = DaoMutation.getInstance();
         assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
         assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
@@ -132,11 +139,13 @@ public class TestImportExtendedMutationData extends TestCase {
 
     private void checkGermlineMutations() throws DaoException {
         DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 64581).size()); // missense, Germline mutation on germline whitelist
+        // missense, Germline mutation on germline whitelist
+        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
 
         // Germline mutation on germline whitelist
         validateMutationAminoAcid (1, "TCGA-AA-3664", 2842, "L113P");
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 50839).size()); // Germline mutations NOT on germline whitelist
+        // Germline mutations NOT on germline whitelist
+        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
     }
 
     private void loadGenes() throws DaoException {

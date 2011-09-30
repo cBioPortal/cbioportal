@@ -11,6 +11,9 @@ import org.mskcc.cgds.model.TypeOfCancer;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.web_api.GetGeneticProfiles;
 
+/**
+ * JUnit test for GeneticProfile class.
+ */
 public class TestGetGeneticProfiles extends TestCase {
 
     public void testDaoGeneticProfile() throws DaoException {

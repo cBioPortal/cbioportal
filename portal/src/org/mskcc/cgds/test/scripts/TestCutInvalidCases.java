@@ -6,6 +6,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 
+/**
+ * JUnit test for CutInvalidCases class.
+ */
 public class TestCutInvalidCases extends TestCase {
 
     public void testCutInvalidCases() throws Exception {

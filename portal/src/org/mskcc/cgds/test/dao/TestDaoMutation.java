@@ -9,10 +9,12 @@ import org.mskcc.cgds.model.CanonicalGene;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * JUnit tests for DaoMutation class.
+ */
 public class TestDaoMutation extends TestCase {
 
     public void testDaoMutation() throws DaoException {
-        
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();

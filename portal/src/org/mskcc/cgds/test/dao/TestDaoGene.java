@@ -30,7 +30,9 @@ public class TestDaoGene extends TestCase {
         assertEquals(8, num);
 
         gene = new CanonicalGene(675, "BRCA2",
-                new HashSet<String>(Arrays.asList("BRCC2|BROVCA2|FACD|FAD|FAD1|FANCB|FANCD|FANCD1|GLM3|PNCA2".split("\\|"))),
+                new HashSet<String>(
+                        Arrays.asList("BRCC2|BROVCA2|FACD|FAD|FAD1|FANCB|FANCD|FANCD1|GLM3|PNCA2".split("\\|"))
+                ),
                 "breast cancer 2, early onset");
         num = daoGeneOptimized.addGene(gene);
         assertEquals(11, num);

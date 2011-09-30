@@ -76,8 +76,8 @@ public class GetMutSig {
         toReturn += Long.toString(gene.getEntrezGeneId()) + "\t";
         toReturn += gene.getHugoGeneSymbolAllCaps() + "\t";
         toReturn += Integer.toString(mutSig.getRank()) + "\t";
-        toReturn += Integer.toString(mutSig.getN()) + "\t";
-        toReturn += Integer.toString(mutSig.getn()) + "\t";
+        toReturn += Integer.toString(mutSig.getNumBasesCovered()) + "\t";
+        toReturn += Integer.toString(mutSig.getNumMutations()) + "\t";
         toReturn += Integer.toString(mutSig.getnVal()) + "\t";
         toReturn += Integer.toString(mutSig.getnVer()) + "\t";
         toReturn += Integer.toString(mutSig.getCpG()) + "\t";

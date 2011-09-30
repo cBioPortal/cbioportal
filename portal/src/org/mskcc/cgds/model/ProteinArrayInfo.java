@@ -2,7 +2,7 @@
 package org.mskcc.cgds.model;
 
 /**
- *
+ * Class for protein array information
  * @author jj
  */
 public class ProteinArrayInfo {

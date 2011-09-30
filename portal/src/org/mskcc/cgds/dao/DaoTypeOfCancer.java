@@ -18,15 +18,15 @@ import org.mskcc.cgds.model.TypeOfCancer;
 public class DaoTypeOfCancer {
 
    // these methods should be static, as this object has no state
-   public static int addTypeOfCancer(TypeOfCancer TypeOfCancer) throws DaoException {
+   public static int addTypeOfCancer(TypeOfCancer typeOfCancer) throws DaoException {
       Connection con = null;
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection();
          pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, " + "`NAME` ) VALUES (?,?)");
-         pstmt.setString(1, TypeOfCancer.getTypeOfCancerId());
-         pstmt.setString(2, TypeOfCancer.getName());
+         pstmt.setString(1, typeOfCancer.getTypeOfCancerId());
+         pstmt.setString(2, typeOfCancer.getName());
          int rows = pstmt.executeUpdate();
          return rows;
       } catch (SQLException e) {
@@ -36,18 +36,18 @@ public class DaoTypeOfCancer {
       }
    }
 
-   public static TypeOfCancer getTypeOfCancerById(String TypeOfCancerId) throws DaoException {
+   public static TypeOfCancer getTypeOfCancerById(String typeOfCancerId) throws DaoException {
       Connection con = null;
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection();
          pstmt = con.prepareStatement("SELECT * FROM type_of_cancer WHERE TYPE_OF_CANCER_ID=?");
-         pstmt.setString(1, TypeOfCancerId);
+         pstmt.setString(1, typeOfCancerId);
          rs = pstmt.executeQuery();
          if (rs.next()) {
-            TypeOfCancer TypeOfCancer = extractTypeOfCancer(rs);
-            return TypeOfCancer;
+            TypeOfCancer typeOfCancer = extractTypeOfCancer(rs);
+            return typeOfCancer;
          }
          return null;
       } catch (SQLException e) {
@@ -67,8 +67,8 @@ public class DaoTypeOfCancer {
          rs = pstmt.executeQuery();
          ArrayList<TypeOfCancer> list = new ArrayList<TypeOfCancer>();
          while (rs.next()) {
-            TypeOfCancer TypeOfCancer = extractTypeOfCancer(rs);
-            list.add(TypeOfCancer);
+            TypeOfCancer typeOfCancer = extractTypeOfCancer(rs);
+            list.add(typeOfCancer);
          }
          return list;
       } catch (SQLException e) {
@@ -112,14 +112,14 @@ public class DaoTypeOfCancer {
       }
    }
 
-   public static void deleteTypeOfCancer(String TypeOfCancerId) throws DaoException {
+   public static void deleteTypeOfCancer(String typeOfCancerId) throws DaoException {
       Connection con = null;
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection();
          pstmt = con.prepareStatement("DELETE from " + "type_of_cancer WHERE TYPE_OF_CANCER_ID=?");
-         pstmt.setString(1, TypeOfCancerId);
+         pstmt.setString(1, typeOfCancerId);
          pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
@@ -129,10 +129,10 @@ public class DaoTypeOfCancer {
    }
 
    private static TypeOfCancer extractTypeOfCancer(ResultSet rs) throws SQLException {
-      TypeOfCancer TypeOfCancer = new TypeOfCancer();
+      TypeOfCancer typeOfCancer = new TypeOfCancer();
 
-      TypeOfCancer.setTypeOfCancerId(rs.getString("TYPE_OF_CANCER_ID"));
-      TypeOfCancer.setName(rs.getString("NAME"));
-      return TypeOfCancer;
+      typeOfCancer.setTypeOfCancerId(rs.getString("TYPE_OF_CANCER_ID"));
+      typeOfCancer.setName(rs.getString("NAME"));
+      return typeOfCancer;
    }
 }

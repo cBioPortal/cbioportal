@@ -13,7 +13,7 @@ public class User {
 	private String name;
     private boolean enabled;
 
-	public User(String email, String name, boolean enabled) throws IllegalArgumentException {
+	public User(String email, String name, boolean enabled) {
 		if (null == email) {
 			throw new IllegalArgumentException ("email is null.");
 		}
@@ -51,12 +51,24 @@ public class User {
 
 	@Override
 	public boolean equals(Object otherUser) {
-		if (this == otherUser)
+		if (this == otherUser) {
 			return true;
-		if (!(otherUser instanceof User))
+                }
+                
+		if (!(otherUser instanceof User)) {
 			return false;
+                }
+                
 		User that = (User) otherUser;
 		return EqualsUtil.areEqual(this.email, that.email) 
 			&& EqualsUtil.areEqual(this.name, that.name);
 	}
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + (this.email != null ? this.email.hashCode() : 0);
+        hash = 67 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
+    }
 }

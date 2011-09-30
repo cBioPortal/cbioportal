@@ -63,8 +63,8 @@ public class DaoCancerStudy {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                int auto_id = rs.getInt(1);
-                cancerStudy.setInternalId(auto_id);
+                int autoId = rs.getInt(1);
+                cancerStudy.setInternalId(autoId);
             }
 
         } catch (SQLException e) {

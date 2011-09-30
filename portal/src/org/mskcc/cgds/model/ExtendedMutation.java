@@ -8,7 +8,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Ethan Cerami.
  */
 public class ExtendedMutation {
-    private final static String GERMLINE = "germline";
+    private static final String GERMLINE = "germline";
 
     private int geneticProfileId;
     private String caseId;
@@ -218,6 +218,7 @@ public class ExtendedMutation {
         return gene.getHugoGeneSymbolAllCaps();
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

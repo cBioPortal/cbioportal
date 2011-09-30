@@ -132,9 +132,16 @@ public class CancerStudy {
      * @param otherCancerStudy Other Cancer Study.
      * @return true of false.
      */
+    @Override
     public boolean equals(Object otherCancerStudy) {
-        if (this == otherCancerStudy) return true;
-        if (!(otherCancerStudy instanceof CancerStudy)) return false;
+        if (this == otherCancerStudy) {
+            return true;
+        }
+        
+        if (!(otherCancerStudy instanceof CancerStudy)) {
+            return false;
+        }
+        
         CancerStudy that = (CancerStudy) otherCancerStudy;
         return
                 EqualsUtil.areEqual(this.publicStudy, that.publicStudy) &&
@@ -146,10 +153,23 @@ public class CancerStudy {
                         EqualsUtil.areEqual(this.studyID, that.studyID);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 11 * hash + this.studyID;
+        hash = 11 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 11 * hash + (this.description != null ? this.description.hashCode() : 0);
+        hash = 11 * hash + (this.cancerStudyIdentifier != null ? this.cancerStudyIdentifier.hashCode() : 0);
+        hash = 11 * hash + (this.typeOfCancerId != null ? this.typeOfCancerId.hashCode() : 0);
+        hash = 11 * hash + (this.publicStudy ? 1 : 0);
+        return hash;
+    }
+
     /**
      * toString() Override.
      * @return string summary of cancer study.
      */
+    @Override
     public String toString() {
         return "CancerStudy [studyID=" + studyID + ", name=" + name + ", description="
                 + description + ", cancerStudyIdentifier=" + cancerStudyIdentifier

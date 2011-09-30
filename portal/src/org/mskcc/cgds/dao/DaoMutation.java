@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * Data access object for Mutation table
+ */
 public class DaoMutation {
     public static final String NAN = "NaN";
     private static DaoMutation daoMutation = null;

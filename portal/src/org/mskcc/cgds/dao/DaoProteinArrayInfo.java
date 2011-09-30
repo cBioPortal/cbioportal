@@ -68,9 +68,9 @@ public class DaoProteinArrayInfo {
                 return 1;
             } else {
                 con = JdbcUtil.getDbConnection();
-                pstmt = con.prepareStatement
-                        ("INSERT INTO protein_array_info (`PROTEIN_ARRAY_ID`,`TYPE`,`SOURCE_ORGANISM`,`GENE_SYMBOL`,`TARGET_RESIDUE`,`VALIDATED`) "
-                                + "VALUES (?,?,?,?,?,?)");
+                pstmt = con.prepareStatement("INSERT INTO protein_array_info "
+                           + "(`PROTEIN_ARRAY_ID`,`TYPE`,`SOURCE_ORGANISM`,`GENE_SYMBOL`,`TARGET_RESIDUE`,`VALIDATED`) "
+                           + "VALUES (?,?,?,?,?,?)");
                 pstmt.setString(1, pai.getId());
                 pstmt.setString(2, pai.getType());
                 pstmt.setString(3, pai.getSource());
@@ -112,13 +112,15 @@ public class DaoProteinArrayInfo {
      */
     public ProteinArrayInfo getProteinArrayInfo(String arrayId) throws DaoException {
         ArrayList<ProteinArrayInfo> pais = getProteinArrayInfo(Collections.singleton(arrayId), null);
-        if (pais.isEmpty())
+        if (pais.isEmpty()) {
             return null;
+        }
         
         return pais.get(0);
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, Collection<String> types) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, Collection<String> types)
+            throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -194,12 +196,15 @@ public class DaoProteinArrayInfo {
         }
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezId(long entrezId, Collection<String> types) throws DaoException {
-        Collection<String> arrayIds = DaoProteinArrayTarget.getInstance().getProteinArrayIds(Collections.singleton(entrezId));
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezId(long entrezId, Collection<String> types)
+            throws DaoException {
+        Collection<String> arrayIds =
+                DaoProteinArrayTarget.getInstance().getProteinArrayIds(Collections.singleton(entrezId));
         return getProteinArrayInfo(arrayIds, types);
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezIds(Collection<Long> entrezIds, Collection<String> types) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfoForEntrezIds(Collection<Long> entrezIds,
+                                                                       Collection<String> types) throws DaoException {
         Collection<String> arrayIds = DaoProteinArrayTarget.getInstance().getProteinArrayIds(entrezIds);
         return getProteinArrayInfo(arrayIds, types);
     }

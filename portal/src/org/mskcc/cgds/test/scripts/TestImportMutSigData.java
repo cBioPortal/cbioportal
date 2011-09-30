@@ -58,7 +58,7 @@ public class TestImportMutSigData extends TestCase {
         //test if getMutSig also works by passing an EntrezGeneID
         MutSig mutSig2 = DaoMutSig.getMutSig(testGene2.getEntrezGeneId(), 1);
         assertEquals("0.0014", mutSig2.getpValue());
-        assertEquals(273743 , mutSig2.getN());
+        assertEquals(273743 , mutSig2.getNumBasesCovered());
 
         //daoMutSig.getAllMutSig();
     }

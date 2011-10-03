@@ -30,8 +30,6 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.ProteinArrayInfo;
 import org.mskcc.portal.remote.GetProteinArrayData;
 
-import org.owasp.validator.html.PolicyException;
-
 /**
  *
  * @author jj
@@ -367,7 +365,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             return new double[]{unalteredMean, alteredMean, sbsDiff, Double.NaN};
         }
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
      * Handles the HTTP <code>GET</code> method.

@@ -7,8 +7,9 @@ import org.mskcc.portal.util.*;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cgds.model.AnnotatedCaseSets;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
@@ -93,11 +94,15 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
 
             //  Get the default case set
-            CaseList defaultCaseSet = getDefaultCaseSet(caseSetList);
+            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
+            CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
             httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getStableId());
 
             //  Get the default genomic profiles
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
+            CategorizedGeneticProfileSet categorizedGeneticProfileSet =
+                    new CategorizedGeneticProfileSet(geneticProfileList);
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet =
+                    categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
             httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
             //  Create URL for Cancer Study Details
@@ -219,74 +224,5 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
         request.setAttribute(QueryBuilder.PROFILE_DATA_SUMMARY, dataSummary);
         request.setAttribute(QueryBuilder.ONCO_PRINT_HTML, oncoPrintHtml);
-    }
-
-    /**
-     * This code makes an attempts at selecting the "best" default case set.
-     *
-     * @param caseSetList List of all Case Sets.
-     * @return the "best" default case set.
-     */
-    private CaseList getDefaultCaseSet(ArrayList<CaseList> caseSetList) {
-        for (CaseList caseSet : caseSetList) {
-            String name = caseSet.getName();
-            if (name.startsWith("All Complete Tumors")) {
-                return caseSet;
-            } else if (name.startsWith("All Tumors")) {
-                return caseSet;
-            }
-        }
-
-        // If there are no matches, return the 0th in the list.
-        return caseSetList.get(0);
-    }
-
-    /**
-     * This code makes an attempt at selecting the "best" default genomic profiles.
-     *
-     * @param geneticProfileList List of Genomic Profiles.
-     * @return list of "best" default genomic profiles.
-     */
-    private HashMap<String, GeneticProfile> getDefaultGeneticProfiles(ArrayList<GeneticProfile> geneticProfileList) {
-        HashMap<String, GeneticProfile> defaultSet = new HashMap<String, GeneticProfile>();
-        boolean mutationChosen = false;
-        GeneticProfile gisticProfile = null;
-        GeneticProfile raeProfile = null;
-        GeneticProfile otherCnaProfile = null;
-
-        //  Iterate through all profiles
-        for (GeneticProfile currentProfile : geneticProfileList) {
-            GeneticAlterationType geneticAlterationType = currentProfile.getGeneticAlterationType();
-            String name = currentProfile.getProfileName();
-
-            // Picks the first mutation profile
-            if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)
-                    && !mutationChosen) {
-                defaultSet.put(currentProfile.getStableId(), currentProfile);
-                mutationChosen = true;
-            }
-
-            //  Store the CNA Profiles
-            if (geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
-                if (name.contains("GISTIC") && gisticProfile == null) {
-                    gisticProfile = currentProfile;
-                } else if (name.contains("RAE") && raeProfile == null) {
-                    raeProfile = currentProfile;
-                } else if (otherCnaProfile == null) {
-                    otherCnaProfile = currentProfile;
-                }
-            }
-        }
-
-        //  Priority Rules for CNA: GISTIC is chosen first;  followed by RAE
-        if (gisticProfile != null) {
-            defaultSet.put(gisticProfile.getStableId(), gisticProfile);
-        } else if (raeProfile != null) {
-            defaultSet.put(raeProfile.getStableId(), raeProfile);
-        } else if (otherCnaProfile != null) {
-            defaultSet.put(otherCnaProfile.getStableId(), otherCnaProfile);
-        }
-
-        return defaultSet;
     }
 }

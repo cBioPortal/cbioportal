@@ -30,8 +30,6 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.ProteinArrayInfo;
 import org.mskcc.portal.remote.GetProteinArrayData;
 
-import org.owasp.validator.html.PolicyException;
-
 /**
  *
  * @author jj
@@ -45,23 +43,6 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
     public static final String ANTIBODY_TYPE = "antibody";
     public static final String EXCLUDE_ANTIBODY_TYPE = "exclude_antibody";
     public static final String DATA_SCALE = "data_scale";
-
-    private static ServletXssUtil servletXssUtil;
-
-    /**
-     * Initializes the servlet.
-     *
-     * @throws ServletException Serlvet Init Error.
-     */
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
-    }
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -72,16 +53,16 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
+//        try {
             JSONArray table = new JSONArray();
 
             // get heat map
-            String heatMap = servletXssUtil.getCleanInput(request, HEAT_MAP);
-            String gene = servletXssUtil.getCleanInput(request, GENE);
-            String alterationType = servletXssUtil.getCleanInput(request, ALTERATION_TYPE);
-            String antibodyType = servletXssUtil.getCleanInput(request, ANTIBODY_TYPE);
-            String excludeAntibodyType = servletXssUtil.getCleanInput(request, EXCLUDE_ANTIBODY_TYPE);
-            String strDataScale = servletXssUtil.getCleanInput(request, DATA_SCALE);
+            String heatMap = request.getParameter(HEAT_MAP);
+            String gene = request.getParameter(GENE);
+            String alterationType = request.getParameter(ALTERATION_TYPE);
+            String antibodyType = request.getParameter(ANTIBODY_TYPE);
+            String excludeAntibodyType = request.getParameter(EXCLUDE_ANTIBODY_TYPE);
+            String strDataScale = request.getParameter(DATA_SCALE);
             double dataScale = strDataScale==null?0:Double.parseDouble(strDataScale);
 
             Collection<String> antibodyTypes;
@@ -100,7 +81,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                 antibodyTypes = Arrays.asList(antibodyType.split(" "));
             }
 
-            String[] heatMapLines = heatMap.split(System.getProperty("line.separator"));
+            String[] heatMapLines = heatMap.split("\r?\n");
             String[] genes = heatMapLines[0].split("\t");
             genes[0] = "Any";
             Set<String> allCases = getAllCases(heatMapLines);
@@ -131,9 +112,10 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             } finally {            
                 out.close();
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            response.getWriter().write(e.getMessage());
+//        }
     }
     
     private void export(JSONArray table,
@@ -383,7 +365,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             return new double[]{unalteredMean, alteredMean, sbsDiff, Double.NaN};
         }
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
      * Handles the HTTP <code>GET</code> method.

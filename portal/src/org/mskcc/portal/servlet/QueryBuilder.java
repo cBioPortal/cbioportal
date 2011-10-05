@@ -204,13 +204,11 @@ public class QueryBuilder extends HttpServlet {
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "The Cancer Genomics Data Server is not currently "
-                               + "available. <br/><br/>Please check back later.", xdebug);
+                               "An error occurred while trying to connect to the database.", xdebug);
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "The Cancer Genomics Data Server is not currently "
-                               + "available. <br/><br/>Please check back later.", xdebug);
+                               "An error occurred while trying to connect to the database.", xdebug);
         }
     }
 

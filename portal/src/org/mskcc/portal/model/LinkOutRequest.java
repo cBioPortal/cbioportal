@@ -80,8 +80,7 @@ public class LinkOutRequest {
         }
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy == null) {
-            throw new ProtocolException(LinkOutRequest.STABLE_PARAM_CANCER_STUDY_ID
-                    + " is not a recognized cancer study ID.");
+            throw new ProtocolException(cancerStudyId + " is not a recognized cancer study ID.");
         }
     }
 

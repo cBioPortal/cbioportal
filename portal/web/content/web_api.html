@@ -58,6 +58,7 @@
 <li><a href="#example_5">Example</a></li>
 </ul>
 </li>
+<li><a href="#linking-to-us">Linking to Us</a></li>
 </ul>
 </li>
 </ul>
@@ -274,3 +275,14 @@
 <h3 id="example_5">Example</h3>
 <p>Get Clinical Data for All TCGA Ovarian Cases:</p>
 <p><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<h1 id="linking-to-us">Linking to Us</h1>
+<p>Once you have a cancer_study_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:</p>
+<ul>
+<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
+<li><strong>gene_list</strong>=[a comma separated list of HUGO gene symbols] (required)</li>
+<li><strong>report</strong>=[report to display;  can be one of:  full (default), oncoprint_html]</li>
+</ul>
+<p>For example, the following links to the TCGA GBM data for EGFR and NF1:</p>
+<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1</a></p>
+<p>This link displays the same data as an Oncoprint only:</p>
+<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html</a></p>

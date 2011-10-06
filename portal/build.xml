@@ -295,6 +295,8 @@
 
   <target name="check" description="Runs Checkstyle on all source code">
     <checkstyle config="config/coding_standards.xml" failOnViolation="false">
+      <formatter type="plain"/>
+	  <formatter type="xml" tofile="checkstyle_report.xml"/>
       <classpath refid="compile.classpath" />
       <fileset dir="${src.dir}">
         <include name="**/*.java" />

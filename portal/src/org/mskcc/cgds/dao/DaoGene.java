@@ -321,5 +321,22 @@ class DaoGene {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+        deleteAllAliasRecords();
     }
+    
+    private void deleteAllAliasRecords() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("TRUNCATE TABLE gene_alias");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
 }

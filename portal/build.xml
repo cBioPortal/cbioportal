@@ -284,8 +284,17 @@
     <fail if="junit_test_failed" message="One or more JUnit  tests failed" />
   </target>
 
+  <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">
+     <exec dir="db" executable="mysql">
+        <arg value='-u ${db.user}'/>
+        <arg value='-p "${db.password}"'/>
+        <arg value='${db.name}'/>
+        <arg value="&lt; cgds.sql"/>
+     </exec>
+  </target>
+
   <target name="check" description="Runs Checkstyle on all source code">
-    <checkstyle config="config/coding_standards.xml">
+    <checkstyle config="config/coding_standards.xml" failOnViolation="false">
       <classpath refid="compile.classpath" />
       <fileset dir="${src.dir}">
         <include name="**/*.java" />

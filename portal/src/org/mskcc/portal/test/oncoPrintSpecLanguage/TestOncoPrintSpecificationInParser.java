@@ -1,7 +1,5 @@
 package org.mskcc.portal.test.oncoPrintSpecLanguage;
 
-import static java.lang.System.out;
-
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,10 +25,8 @@ import org.mskcc.portal.oncoPrintSpecLanguage.GeneSet;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.ListOfOncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTLexer;
 import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTParser;
@@ -99,7 +95,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                 (ContinuousDataTypeSpec) parseMethod( "continuousDataTypeInequality", testLangFragment) );
 
       } catch (RecognitionException e) {
-
           System.out.println("testcontinuousDataTypeInequality: RecognitionException: " + e.getMessage());
           e.printStackTrace();
       } catch (Throwable e) {
@@ -154,9 +149,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                     .equals((DiscreteDataTypeSpec) parseMethod( "discreteDataType", testLangFragment) ));
             
         } catch (RecognitionException e) {
-            System.out
-                    .println("testDiscreteDataType: RecognitionException: "
-                            + e.getMessage());
+            System.out.println("testDiscreteDataType: RecognitionException: " + e.getMessage());
             e.printStackTrace();
         } catch (Throwable e) {
          e.printStackTrace();
@@ -174,9 +167,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                     .equals((DiscreteDataTypeSetSpec) parseMethod( "discreteDataType", testLangFragment) ));
             
         } catch (RecognitionException e) {
-            System.out
-                    .println("testDiscreteDataType: RecognitionException: "
-                            + e.getMessage());
+            System.out.println("testDiscreteDataType: RecognitionException: " + e.getMessage());
             e.printStackTrace();
         } catch (Throwable e) {
          e.printStackTrace();
@@ -301,8 +292,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
            OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod
                    ( "fullDataTypeSpec", ": Mutation Mut Meth  HetLoss Exp<-1   " +
                     "HetLoss Exp>=1.5  Exp <= -1.5   C -2 Expression<-2; " ); 
-
-            //System.out.println( theResultFullDataTypeSpec );
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Mutation, null ));
 
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Methylation, 2f ));
@@ -424,7 +413,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             String[] names = inputNames.split(" ");
             
             GeneSet theGeneSet = (GeneSet) parseMethod( "userGeneList", nInQuotes + " {  " + inputNames + " } ");
-            //System.out.println(theGeneSet);
             Assert.assertEquals( n, theGeneSet.getName() );
             ArrayList<GeneWithSpec> theGenes = theGeneSet.getGenes();
             int i=0;
@@ -433,7 +421,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             }
 
             theGeneSet = (GeneSet) parseMethod( "userGeneList", " {  " + inputNames + " } ");
-            // System.out.println(theGeneSet);
             theGenes = theGeneSet.getGenes();
             i=0;
             for( GeneWithSpec aGeneWithSpec : theGenes ){
@@ -529,12 +516,12 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             {
                   "discreteDataType",
                   "g2:Foo <= blah; DATATYPES: CNA ;  { X }",
-                  "Error at char 4 of line 1: 'Foo <= blah' is not a valid discrete genetic data" +
+                  "Error at char 4 of line 1: 'Foo <= blah' is not a valid discrete genetic data " +
                           "type and discrete genetic data level." },
             {
                   "discreteDataType",
                   "g3:Exp <= blah;  DATATYPES: CNA ;  ",
-                  "Error at char 4 of line 1: 'Exp <= blah' is not a valid discrete genetic data" +
+                  "Error at char 4 of line 1: 'Exp <= blah' is not a valid discrete genetic data " +
                           "type and discrete genetic data level." },
             { "discreteDataType", "g4: CNA 5;  DATATYPES: CNA ; { X }",
                   "Error at char 5 of line 1: 'CNA 5' is not a valid genetic data type and GISTIC code." },
@@ -582,7 +569,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
           parseMethod( production, testLangFragment);
        } catch (Throwable e) {
           if( !(e instanceof OncoPrintLangException)){
-             out.println( e.getClass().getName() );
+             System.out.println( e.getClass().getName() );
              e.printStackTrace();
           }
           Assert.assertTrue(e instanceof OncoPrintLangException);

@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
@@ -407,7 +409,7 @@ public class QueryBuilder extends HttpServlet {
                 } else if (output.equalsIgnoreCase("html")) {
                     outputOncoprintHtml(response, geneListStr, mergedProfile, caseSetList,
                             caseSetId, zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList);
+                            profileList,request);
                 } else if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold);
@@ -465,7 +467,8 @@ public class QueryBuilder extends HttpServlet {
     private void outputOncoprintHtml(HttpServletResponse response, String geneListStr,
             ProfileData mergedProfile, ArrayList<CaseList> caseSetList, String caseSetId,
             double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
+            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList,
+            HttpServletRequest request)
             throws IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
@@ -483,6 +486,17 @@ public class QueryBuilder extends HttpServlet {
                 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 geneticProfileIdSet, profileList, true, true);
         writer.write(out);
+        
+        // TODO: hacky way for su2c
+        String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
+        if (cancerStudyId.equals("su2c_gray_brca_cell")) {
+            writer.write("<br/><div style=\"text-align:left\"><b><a target=\"_blank\" href=\"");
+            writer.write("https://genome-cancer.soe.ucsc.edu/hgHeatmap/#?dataset="
+                    + "grayBreastCellLineSNPSeg&displayas=geneset&genes=");
+            writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
+            writer.write("\">UCSC Cancer Genomics Browser</a></b></div>\n");
+        }
+        
         writer.write ("</body>\n");
         writer.write ("</html>\n");
         writer.flush();

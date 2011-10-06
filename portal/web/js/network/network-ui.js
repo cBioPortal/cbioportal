@@ -15,6 +15,7 @@ var _controlFunctions;
 var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
+var OTHER = "OTHER";
 
 // node type constants
 var PROTEIN = "Protein";
@@ -63,6 +64,7 @@ var _linkMap;
 
 // CytoscapeWeb.Visualization instance
 var _vis;
+
 
 /**
  * Initializes all necessary components. This function should be invoked, before
@@ -236,6 +238,15 @@ function showNodeInspector(evt)
 	
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#node_inspector").height() >
+		$("#node_inspector").dialog("option", "maxHeight"))
+	{
+		$("#node_inspector").dialog("open").height(
+			$("#node_inspector").dialog("option", "maxHeight"));
+	}
 }
 
 
@@ -450,7 +461,7 @@ function _addPercentRow(section, label, percent, color)
 	$("#node_inspector .profile ." + section + " .percent-label").text(label);
 
 	$("#node_inspector .profile ." + section + " .percent-bar").css(
-		"width", (parseInt(percent) + 1) + "%");
+		"width", Math.ceil(percent) + "%");
 	
 	$("#node_inspector .profile ." + section + " .percent-bar").css(
 		"background-color", color);
@@ -512,7 +523,7 @@ function showEdgeInspector(evt)
 				// no PubMed ID, add only type information
 				_addDataRow("edge",
 					"Type",
-					data["type"],
+					_toTitleCase(data["type"]),
 					BOTTOM_ROW_CLASS);
 			}
 			else
@@ -520,7 +531,7 @@ function showEdgeInspector(evt)
 				// add type information
 				_addDataRow("edge",
 					"Type",
-					data["type"],
+					_toTitleCase(data["type"]),
 					INNER_ROW_CLASS);
 		
 				_addPubMedIds(data, true);
@@ -535,7 +546,7 @@ function showEdgeInspector(evt)
 	else
 	{
 		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
-		_addDataRow("edge", "Type", data["type"]);
+		_addDataRow("edge", "Type", _toTitleCase(data["type"]));
 		
 		if (data["INTERACTION_PUBMED_ID"] != null)
 		{
@@ -550,6 +561,15 @@ function showEdgeInspector(evt)
 	
 	// open inspector panel
 	$("#edge_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#edge_inspector").height() >
+		$("#edge_inspector").dialog("option", "maxHeight"))
+	{
+		$("#edge_inspector").dialog("open").height(
+			$("#edge_inspector").dialog("option", "maxHeight"));
+	}
 }
 
 /**
@@ -563,9 +583,9 @@ function _addPubMedIds(data, summaryEdge)
 {
 	var ids = data["INTERACTION_PUBMED_ID"].split(";");
 	var link, xref;
-	var rowClass = INNER_ROW_CLASS;
+	var links = new Array();
 	
-	// add each pubmed id as a data row
+	// collect pubmed id(s) into an array
 	
 	for (var i = 0; i < ids.length; i++)
 	{
@@ -573,26 +593,31 @@ function _addPubMedIds(data, summaryEdge)
 		xref = '<a href="' + link.href + '" target="_blank">' +
 			link.pieces[1] + '</a>';
 		
-		if (summaryEdge)
-		{
-			// class of the last row should be different (this is needed
-			// to separate edges visually)
-			if (i == ids.length - 1)
-			{
-				rowClass = BOTTOM_ROW_CLASS;
-			}
-			
-			_addDataRow("edge",
-				"PubMed ID",
-				xref,
-				rowClass);
-		}
-		else
-		{
-			_addDataRow("edge",
-					"PubMed ID",
-					xref);
-		}
+		links.push(xref);
+	}
+	
+	xrefList = links[0];
+	
+	for (var i = 1; i < links.length; i++)
+	{
+		xrefList += ", " + links[i];
+	}
+	
+	if (summaryEdge)
+	{
+		// class of this row should be BOTTOM_ROW_CLASS (this is needed
+		// to separate edges visually)
+		
+		_addDataRow("edge",
+			"PubMed ID(s)",
+			xrefList,
+			BOTTOM_ROW_CLASS);
+	}
+	else
+	{
+		_addDataRow("edge",
+			"PubMed ID(s)",
+			xrefList);
 	}
 }
 
@@ -612,8 +637,17 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	// open inspector
+	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#node_inspector").height() >
+		$("#node_inspector").dialog("option", "maxHeight"))
+	{
+		$("#node_inspector").dialog("open").height(
+			$("#node_inspector").dialog("option", "maxHeight"));
+	}
 }
 
 /**
@@ -738,6 +772,9 @@ function updateEdges()
 	_edgeTypeVisibility[STATE_CHANGE] =
 		$("#relations_tab .state-change input").is(":checked");
 	
+	_edgeTypeVisibility[OTHER] =
+		$("#relations_tab .other input").is(":checked");
+	
 	for (var key in _edgeSourceVisibility)
 	{
 		_edgeSourceVisibility[key] =
@@ -745,8 +782,8 @@ function updateEdges()
 				" input").is(":checked");
 	}
 
-	_edgeSourceVisibility[UNKNOWN] =
-		$("#relations_tab .unknown input").is(":checked");	
+	//_edgeSourceVisibility[UNKNOWN] =
+	//	$("#relations_tab .unknown input").is(":checked");
 
 	// remove current edge filters
 	_vis.removeFilter("edges");
@@ -782,10 +819,10 @@ function edgeVisibility(element)
 		visible = false;
 	}
 	
-	// unknown edge type, do not filter
+	// unknown edge type, check for the OTHER flag
 	if (_edgeTypeVisibility[element.data.type] == null)
 	{
-		typeVisible = true;
+		typeVisible = _edgeTypeVisibility[OTHER];
 	}
 	// check the visibility of the edge type
 	else
@@ -1149,8 +1186,11 @@ function _showEdgeLegend()
 	$("#edge_legend .state-change .color-bar").css(
 		"background-color", "#67C1A9");
 	
+	$("#edge_legend .other .color-bar").css(
+			"background-color", "#A583AB");
+	
 	$("#edge_legend .merged-edge .color-bar").css(
-		"background-color", "#858585");
+		"background-color", "#000000");
 	
 	// open legend panel
 	$("#edge_legend").dialog("open").height("auto");
@@ -1175,6 +1215,13 @@ function _addDataRow(type, label, value /*, section*/)
 	else
 	{
 		section += " ";
+	}
+	
+	// replace null string with a predefined string
+	
+	if (value == null)
+	{
+		value = UNKNOWN;
 	}
 	
 	$("#" + type + "_inspector_content .data").append(
@@ -1255,7 +1302,7 @@ function _resetFlags()
 }
 
 /**
- * Set visibility of the UI.
+ * Sets the visibility of the complete UI.
  * 
  * @param visible	a boolean to set the visibility.
  */
@@ -1286,6 +1333,32 @@ function _setVisibility(visible)
 			$("#node_legend").addClass("hidden-network-ui");
 			$("#edge_legend").addClass("hidden-network-ui");
 			$("#settings_dialog").addClass("hidden-network-ui");
+		}
+	}
+}
+
+/**
+ * Sets visibility of the given UI component.
+ * 
+ * @param component	an html UI component
+ * @param visible	a boolean to set the visibility.
+ */
+function _setComponentVis(component, visible)
+{
+	// set visible
+	if (visible)
+	{
+		if (component.hasClass("hidden-network-ui"))
+		{
+			component.removeClass("hidden-network-ui");
+		}
+	}
+	// set invisible
+	else
+	{
+		if (!component.hasClass("hidden-network-ui"))
+		{
+			component.addClass("hidden-network-ui");
 		}
 	}
 }
@@ -1350,6 +1423,7 @@ function _edgeTypeArray()
 	typeArray[IN_SAME_COMPONENT] = true;
 	typeArray[REACTS_WITH] = true;
 	typeArray[STATE_CHANGE] = true;
+	typeArray[OTHER] = true;
 	
 	return typeArray;
 }
@@ -1529,22 +1603,24 @@ function _initDialogs()
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 366});
+		width: 366,
+		maxHeight: 300});
 	
 	// adjust edge inspector
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 350});
+		width: 366,
+		maxHeight: 300});
 	
 	// adjust node legend
 	$("#node_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 350});
+		width: 366});
 	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 350});
+		width: 366});
 }
 
 /*
@@ -1680,12 +1756,31 @@ function _refreshRelationsTab()
 	
 	percentages[IN_SAME_COMPONENT] = 0;
 	percentages[REACTS_WITH] = 0;
-	percentages[STATE_CHANGE] = 0;
+	percentages[STATE_CHANGE] = 0;	
 	
 	// for each edge increment count of the correct edge type 
 	for (var i=0; i < edges.length; i++)
 	{
 		percentages[edges[i].data.type] += 1;
+	}
+	
+	percentages[OTHER] = edges.length -
+		(percentages[IN_SAME_COMPONENT] +
+		percentages[REACTS_WITH] +
+		percentages[STATE_CHANGE]);
+	
+	// do not display OTHER if its percentage is zero
+	// TODO also do not display it in the edge legend
+	
+	if (percentages[OTHER] == 0)
+	{
+		_setComponentVis($("#relations_tab .other"), false);
+		_setComponentVis($("#edge_legend .other"), false);
+	}
+	else
+	{
+		_setComponentVis($("#relations_tab .other"), true);
+		_setComponentVis($("#edge_legend .other"), true);
 	}
 	
 	// calculate percentages and add content to the tab 
@@ -1695,7 +1790,7 @@ function _refreshRelationsTab()
 	percent = (percentages[IN_SAME_COMPONENT] * 100 / edges.length);
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
 		"background-color", "#CD976B");
@@ -1706,7 +1801,7 @@ function _refreshRelationsTab()
 	percent = (percentages[REACTS_WITH] * 100 / edges.length);
 	
 	$("#relations_tab .reacts-with .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .reacts-with .percent-bar").css(
 		"background-color", "#7B7EF7");
@@ -1717,12 +1812,23 @@ function _refreshRelationsTab()
 	percent = (percentages[STATE_CHANGE] * 100 / edges.length);
 	
 	$("#relations_tab .state-change .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 		
 	$("#relations_tab .state-change .percent-bar").css(
 		"background-color", "#67C1A9");
 	
 	$("#relations_tab .state-change .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[OTHER] * 100 / edges.length);
+	
+	$("#relations_tab .other .percent-bar").css(
+		"width", Math.ceil(percent * 0.85) + "%");
+		
+	$("#relations_tab .other .percent-bar").css(
+		"background-color", "#A583AB");
+	
+	$("#relations_tab .other .percent-value").text(
 		percent.toFixed(1) + "%");
 	
 	// TODO remove old source filters?
@@ -2312,6 +2418,51 @@ function _isIE()
 	}
 	
 	return result;
+}
+
+/**
+ * Converts the given string to title case format. Also replaces each
+ * underdash with a space.
+ * 
+ * @param source	source string to be converted to title case
+ */
+function _toTitleCase(source)
+{
+	var str;
+	
+	if (source == null)
+	{
+		return source;
+	}
+	
+	// first, trim the string
+	str = source.replace(/\s+$/, "");
+	
+	// replace each underdash with a space
+	str = _replaceAll(str, "_", " ");
+	
+	// change to lower case
+	str = str.toLowerCase();
+	
+	// capitalize starting character of each word
+	
+	var titleCase = new Array();
+	
+	titleCase.push(str.charAt(0).toUpperCase());
+	
+	for (var i = 1; i < str.length; i++)
+	{
+		if (str.charAt(i-1) == ' ')
+		{
+			titleCase.push(str.charAt(i).toUpperCase());
+		}
+		else
+		{
+			titleCase.push(str.charAt(i));
+		}
+	}
+	
+	return titleCase.join("");
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

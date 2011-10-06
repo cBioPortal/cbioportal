@@ -73,6 +73,20 @@
 	        			<div class="percent-value"></div>
 	        		</td>
 	        	</tr>
+	        	<tr class="other">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Other</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="other">
+	        		<td>
+	        			<div class="percent-bar"></div>	        			
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
 	        </table>
 	        <table id="edge_source_filter">
 	        	<tr class="edge-source-header">
@@ -140,6 +154,14 @@
         	<tr class="state-change">
         		<td class="label-cell">
         			<div class="type-label">State Change</div>
+        		</td>
+        		<td class="color-cell">
+        			<div class="color-bar"></div>
+        		</td>
+        	</tr>
+        	<tr class="other">
+        		<td class="label-cell">
+        			<div class="type-label">Other</div>
         		</td>
         		<td class="color-cell">
         			<div class="color-bar"></div>

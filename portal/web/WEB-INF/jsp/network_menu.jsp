@@ -95,12 +95,12 @@
 	    	<ul id="legends_menu">
 	    		<li>
 	    			<a id="show_node_legend" onclick="handleMenuEvent('node_legend')">
-	    				Node Legend
+	    				Gene Legend
 	    			</a>
 	    		</li>
 	    		<li>
 	    			<a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">
-	    				Edge Legend
+	    				Interaction Legend
 	    			</a>
 	    		</li>
 	    	</ul>

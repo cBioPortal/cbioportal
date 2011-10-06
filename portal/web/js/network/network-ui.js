@@ -297,8 +297,17 @@ function _updateNodeInspectorContent(data)
 	
 	// parse the xref data, and construct link and labels
 	
-	var xrefData = data["UNIFICATION_XREF"].split(";");
-	xrefData = xrefData.concat(data["RELATIONSHIP_XREF"].split(";"));
+	var xrefData = new Array();
+	
+	if (data["UNIFICATION_XREF"] != null)
+	{
+		xrefData = data["UNIFICATION_XREF"].split(";");
+	}
+	
+	if (data["RELATIONSHIP_XREF"] != null)
+	{
+		xrefData = xrefData.concat(data["RELATIONSHIP_XREF"].split(";"));
+	}
 		
 	var link, xref;
 			
@@ -350,18 +359,18 @@ function _addPercentages(data)
 		available['CNA'].push("cna-amplified");
 	}	
 	
-	if (data["PERCENT_CNA_GAINED"] != null)
-	{
-		percent = (data["PERCENT_CNA_GAINED"] * 100);
-		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
-		available['CNA'].push("cna-gained");
-	}
-	
 	if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] != null)
 	{
 		percent = (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100);
 		_addPercentRow("cna-homozygously-deleted", "Homozygous Deletion", percent, "#0332FF");
 		available['CNA'].push("cna-homozygously-deleted");
+	}
+	
+	if (data["PERCENT_CNA_GAINED"] != null)
+	{
+		percent = (data["PERCENT_CNA_GAINED"] * 100);
+		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
+		available['CNA'].push("cna-gained");
 	}
 	
 	if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
@@ -500,11 +509,16 @@ function showEdgeInspector(evt)
 		
 		var edges = evt.target.edges;
 		
-		
 		// add information for each edge
 		
 		for (var i = 0; i < edges.length; i++)
 		{
+			// skip filtered-out edges
+			if (!edgeVisibility(edges[i]))
+			{
+				continue;
+			}
+			
 			data = edges[i].data;
 			
 			// add an empty row for better edge separation
@@ -1190,7 +1204,7 @@ function _showEdgeLegend()
 			"background-color", "#A583AB");
 	
 	$("#edge_legend .merged-edge .color-bar").css(
-		"background-color", "#000000");
+		"background-color", "#666666");
 	
 	// open legend panel
 	$("#edge_legend").dialog("open").height("auto");
@@ -1615,7 +1629,7 @@ function _initDialogs()
 	// adjust node legend
 	$("#node_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 366});
+		width: 400});
 	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 

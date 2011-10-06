@@ -114,9 +114,9 @@
 	</div>
 </div>
 
-<div id="node_legend" class="hidden-network-ui" title="Node Legend">
+<div id="node_legend" class="hidden-network-ui" title="Gene Legend">
 	<div id="node_legend_content" class="content ui-widget-content">
-		Node Legend ...
+		<img src="images/network/gene_legend.png"/>
 	</div>
 </div>
 
@@ -127,7 +127,7 @@
 	</div>
 </div>
 
-<div id="edge_legend" class="hidden-network-ui" title="Edge Legend">
+<div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
 	<div id="edge_legend_content" class="content ui-widget-content">
 		<table id="edge_type_legend">
 			<tr class="edge-type-header">

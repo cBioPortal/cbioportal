@@ -259,22 +259,22 @@ package org.cytoscapeweb.view.render
 
 				g.lineStyle(0, 0xFFFFFF, 0);
 
-				var hemizygousDeletionArc:int = hemizygousDeletion;
-				g.beginFill(0x9EDFE0, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360, (hemizygousDeletionArc/360), smoothness, g);
-				
-				var gainArc:int = gain;
-				g.beginFill(0xFFC5CC, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
-				
 				var amplificationArc:int = amplification;
 				g.beginFill(0xFF2500, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360, (amplificationArc/360), smoothness, g);
 				
 				var homozygousDeletionArc:int = homozygousDeletion;
 				g.beginFill(0x0332FF, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + (amplificationArc/360), (homozygousDeletionArc/360), smoothness,g);			
 				
+				var gainArc:int = gain;
+				g.beginFill(0xFFC5CC, 50);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((amplificationArc+homozygousDeletionArc)/360), (gainArc/360), smoothness,g);
+				
+				var hemizygousDeletionArc:int = hemizygousDeletion;
+				g.beginFill(0x9EDFE0, 50);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((amplificationArc+homozygousDeletionArc+gainArc)/360), (hemizygousDeletionArc/360), smoothness,g);
+
 				g.lineStyle(1, 0x000000, 1);
 			}	
 			else

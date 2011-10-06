@@ -112,12 +112,12 @@
 
 #legends_menu
 {
-	width: 15em;
+	width: 17em;
 }
 
 #legends_menu a
 {
-	width: 12em;
+	width: 14em;
 }
 
 /* 
@@ -366,6 +366,11 @@
 	height: 0.3em;
 	border-right: 0px solid #b0b0b0;
 	clear: both;
+}
+
+#node_legend img
+{
+	margin: 0.3em;
 }
 
 #edge_legend .color-bar

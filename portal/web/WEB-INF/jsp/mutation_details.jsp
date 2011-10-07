@@ -82,7 +82,7 @@ $(document).ready(function(){
             out.println(mutationTableUtil.getTableHeaderHtml());
             out.println("</tfoot>");
 
-            out.println("</table><p>");
+            out.println("</table><p><br>");
             out.println(mutationTableUtil.getTableFooterMessage());
             out.println("<br>");
         }

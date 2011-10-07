@@ -18,7 +18,7 @@ class SpecialGeneBrca2 extends SpecialGene {
 
     public ArrayList<String> getDataFieldHeaders() {
         ArrayList<String> headerList = new ArrayList<String>();
-        headerList.add("NT Position *");
+        headerList.add("NT Position*");
         headerList.add("Notes");
         return headerList;
     }

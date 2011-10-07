@@ -15,13 +15,14 @@ import org.mskcc.portal.model.GeneticEventImpl.mutations;
  */
 public class GeneticEventComparator implements Comparator<Object>{
 
-   ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>(); 
-   ArrayList<EnumSet<MRNA>> MRNAsortOrder  = new ArrayList<EnumSet<MRNA>>();
-   ArrayList<EnumSet<mutations>> mutationsSortOrder = new ArrayList<EnumSet<mutations>>();
+   private ArrayList<EnumSet<CNA>> cnaSortOrder = new ArrayList<EnumSet<CNA>>();
+   private ArrayList<EnumSet<MRNA>> mRnaSortOrder = new ArrayList<EnumSet<MRNA>>();
+   private ArrayList<EnumSet<mutations>> mutationsSortOrder = new ArrayList<EnumSet<mutations>>();
    
-   HashMap<CNA,Integer> CNAsortOrderHash = new HashMap<CNA,Integer>();  // load this from CNAsortOrder
-   HashMap<MRNA, Integer> MRNAsortOrderHash = new HashMap<MRNA,Integer>();  // load this from MRNAsortOrder
-   HashMap<mutations,Integer> mutationsSortOrderHash = new HashMap<mutations,Integer>();  // load this from mutationsSortOrder
+   private HashMap<CNA,Integer> cnaSortOrderHash = new HashMap<CNA,Integer>();  // load this from cnaSortOrder
+   private HashMap<MRNA, Integer> mrnaSortOrderHash = new HashMap<MRNA,Integer>();  // load this from mRnaSortOrder
+   private HashMap<mutations,Integer> mutationsSortOrderHash =
+        new HashMap<mutations,Integer>();  // load this from mutationsSortOrder
    
    /*
     * default sort order
@@ -30,44 +31,10 @@ public class GeneticEventComparator implements Comparator<Object>{
       defaultSortOrder();
    }
    
-   /*
-    * custom sort order
-    * 
-    * equal and compare both use a set of HashMaps that map from cancer genomic data type to a rank integer that
-    * identifies the order of importance of values within each type.
-    * for now, the importance of data types is CNA, expression, mutation, but this could be made general too.
-    * 
-    * for each data type, caller provides a list in the constructor with the sort order, from least to greatest, with equivalent values in an EnumSet
-    * for example, a caller could indicate that 
-    * CNA has the sort order is Amplified, then HomozygouslyDeleted, then any of (PartlyAmplified, Diploid, HemizygouslyDeleted)
-    * and that MRNA and mutations have the default order:  
-
-      ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
-      ArrayList<EnumSet<MRNA>> MRNAsortOrder = new ArrayList<EnumSet<MRNA>>();
-      ArrayList<EnumSet<mutations>> mutationsSortOrder = new ArrayList<EnumSet<mutations>>();
-
-      CNAsortOrder.add(EnumSet.of(CNA.Amplified));
-      CNAsortOrder.add(EnumSet.of(CNA.HomozygouslyDeleted));
-      CNAsortOrder.add(EnumSet.of(CNA.PartlyAmplified, CNA.Diploid, CNA.HemizygouslyDeleted));
-      
-      // all MRNAs
-      for (MRNA aMRNA : MRNA.values()){
-         MRNAsortOrder.add(EnumSet.of(aMRNA));
-      }
-      
-      // all mutations
-      for (mutations aMutations : mutations.values()){
-         mutationsSortOrder.add(EnumSet.of( aMutations ));
-      }
-
-      GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator( 
-            CNAsortOrder, MRNAsortOrder, mutationsSortOrder);
-
-    */
-   public GeneticEventComparator( ArrayList<EnumSet<CNA>> CNAsortOrder, 
+   public GeneticEventComparator( ArrayList<EnumSet<CNA>> CNAsortOrder,
          ArrayList<EnumSet<MRNA>> MRNAsortOrder, ArrayList<EnumSet<mutations>> mutationsSortOrder ){
-      this.CNAsortOrder = CNAsortOrder; 
-      this.MRNAsortOrder = MRNAsortOrder; 
+      this.cnaSortOrder = CNAsortOrder;
+      this.mRnaSortOrder = MRNAsortOrder;
       this.mutationsSortOrder = mutationsSortOrder; 
       initSortOrder();
    }
@@ -78,13 +45,13 @@ public class GeneticEventComparator implements Comparator<Object>{
       // all CNAs
       for (CNA aCNA : CNA.values()){
          //System.out.println( aCNA + ": " + val );
-         CNAsortOrderHash.put(aCNA, new Integer( val++ ) );
+         cnaSortOrderHash.put(aCNA, new Integer( val++ ) );
       }
 
       // all MRNAs
       val = 1;
       for (MRNA aMRNA : MRNA.values()){
-         MRNAsortOrderHash.put(aMRNA, new Integer( val++ ) );
+         mrnaSortOrderHash.put(aMRNA, new Integer( val++ ) );
       }
       
       // all mutations
@@ -123,14 +90,12 @@ public class GeneticEventComparator implements Comparator<Object>{
    }   
    
    private void initSortOrder(){
-      // TODO: MAKE MORE COMPACT, with reflection or generics
-      
       // verify that all elements of each enumeration are provided; otherwise compare() or equals() will die
       // CNA
       int val = 1;
-      for( EnumSet<CNA> aCNAset: CNAsortOrder){
+      for( EnumSet<CNA> aCNAset: cnaSortOrder){
          for( CNA aCNA : aCNAset){
-            CNAsortOrderHash.put(aCNA, new Integer(val) );
+            cnaSortOrderHash.put(aCNA, new Integer(val) );
             //System.out.println( aCNA + ": " + val );
          }
          val++;
@@ -138,23 +103,23 @@ public class GeneticEventComparator implements Comparator<Object>{
 
       // verify all CNAs
       for (CNA aCNA : CNA.values()){
-         if( !CNAsortOrderHash.containsKey(aCNA) ){
+         if( !cnaSortOrderHash.containsKey(aCNA) ){
             throw new IllegalArgumentException("CNA sets missing: " + aCNA );
          }
       }
 
       // MRNA
       val = 1;
-      for( EnumSet<MRNA> aMRNAset: MRNAsortOrder){
+      for( EnumSet<MRNA> aMRNAset: mRnaSortOrder){
          for( MRNA aMRNA : aMRNAset){
-            MRNAsortOrderHash.put(aMRNA, new Integer(val) );
+            mrnaSortOrderHash.put(aMRNA, new Integer(val) );
             //System.out.println( aMRNA + ": " + val );
          }
          val++;
       }
       // verify all MRNAs
       for (MRNA aMRNA : MRNA.values()){
-         if( !MRNAsortOrderHash.containsKey(aMRNA) ){
+         if( !mrnaSortOrderHash.containsKey(aMRNA) ){
             throw new IllegalArgumentException("MRNA sets missing: " + aMRNA );
          }
       }
@@ -186,26 +151,30 @@ public class GeneticEventComparator implements Comparator<Object>{
       
       // for now, significance of data types is CNA, expression, mutation
       // CNA
-      if( CNAsortOrderHash.get( ge1.getCnaValue() ).intValue() < CNAsortOrderHash.get( ge2.getCnaValue() ).intValue() ){
+      if( cnaSortOrderHash.get( ge1.getCnaValue() ).intValue() < cnaSortOrderHash.get( ge2.getCnaValue() ).intValue() ){
          return -1;
       }
-      if( CNAsortOrderHash.get( ge1.getCnaValue() ).intValue() > CNAsortOrderHash.get( ge2.getCnaValue() ).intValue() ){
+      if( cnaSortOrderHash.get( ge1.getCnaValue() ).intValue() > cnaSortOrderHash.get( ge2.getCnaValue() ).intValue() ){
          return 1;
       }
       
       // MRNA
-      if( MRNAsortOrderHash.get( ge1.getMrnaValue() ).intValue() < MRNAsortOrderHash.get( ge2.getMrnaValue() ).intValue() ){
+      if( mrnaSortOrderHash.get( ge1.getMrnaValue() ).intValue() < mrnaSortOrderHash.get
+              ( ge2.getMrnaValue() ).intValue() ){
          return -1;
       }
-      if( MRNAsortOrderHash.get( ge1.getMrnaValue() ).intValue() > MRNAsortOrderHash.get( ge2.getMrnaValue() ).intValue() ){
+      if( mrnaSortOrderHash.get( ge1.getMrnaValue() ).intValue() > mrnaSortOrderHash.get
+              ( ge2.getMrnaValue() ).intValue() ){
          return 1;
       }
       
       // mutations
-      if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() < mutationsSortOrderHash.get( ge2.getMutationValue() ).intValue() ){
+      if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() < mutationsSortOrderHash.get
+              ( ge2.getMutationValue() ).intValue() ){
          return -1;
       }
-      if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() > mutationsSortOrderHash.get( ge2.getMutationValue() ).intValue() ){
+      if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() > mutationsSortOrderHash.get
+              ( ge2.getMutationValue() ).intValue() ){
          return 1;
       }
       
@@ -218,22 +187,24 @@ public class GeneticEventComparator implements Comparator<Object>{
          GeneticEvent ge2 = (GeneticEvent) obj1;
          
          // CNA
-         if( CNAsortOrderHash.get( ge1.getCnaValue() ).intValue() != CNAsortOrderHash.get( ge2.getCnaValue() ).intValue() ){
+         if( cnaSortOrderHash.get( ge1.getCnaValue() ).intValue() != cnaSortOrderHash.get
+                 ( ge2.getCnaValue() ).intValue() ){
             return false;
          }
          
          // MRNA
-         if( MRNAsortOrderHash.get( ge1.getMrnaValue() ).intValue() != MRNAsortOrderHash.get( ge2.getMrnaValue() ).intValue() ){
+         if( mrnaSortOrderHash.get( ge1.getMrnaValue() ).intValue() != mrnaSortOrderHash.get
+                 ( ge2.getMrnaValue() ).intValue() ){
             return false;
          }
          
          // mutations
-         if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() != mutationsSortOrderHash.get( ge2.getMutationValue() ).intValue() ){
+         if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() != mutationsSortOrderHash.get
+                 ( ge2.getMutationValue() ).intValue() ){
             return false;
          }
          return true;
       }
       return false;
    }
-   
 }

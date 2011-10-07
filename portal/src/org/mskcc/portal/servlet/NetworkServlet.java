@@ -112,21 +112,21 @@ public class NetworkServlet extends HttpServlet {
 
             // remove small molecules
             xdebug.startTimer();
-            network.filter(new Network.Filter() {
-                public boolean filterNode(Node node) {
-                    if (node == null) {
-                        return true;
-                    }
-                    
-                    return !"Protein".equals(node.getType());
-                }
-
-                public boolean filterEdge(Edge edge) {
-                    return filterNode(edge.getSourceNode()) || filterNode(edge.getTargetNode());
-                }
-            });
-            xdebug.stopTimer();
-            xdebug.logMsg(this, "Removed non-protein nodes: took "+xdebug.getTimeElapsed()+"ms");
+//            network.filter(new Network.Filter() {
+//                public boolean filterNode(Node node) {
+//                    if (node == null) {
+//                        return true;
+//                    }
+//
+//                    return !"Protein".equals(node.getType());
+//                }
+//
+//                public boolean filterEdge(Edge edge) {
+//                    return filterNode(edge.getSourceNode()) || filterNode(edge.getTargetNode());
+//                }
+//            });
+//            xdebug.stopTimer();
+//            xdebug.logMsg(this, "Removed non-protein nodes: took "+xdebug.getTimeElapsed()+"ms");
 
             if (!network.getNodes().isEmpty()) {
                 

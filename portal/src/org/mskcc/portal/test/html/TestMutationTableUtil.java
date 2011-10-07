@@ -80,7 +80,7 @@ public class TestMutationTableUtil extends TestCase {
                 "<span class='oma_high'>High</span>", headerList, dataFieldList);
         validateHeaderPlusValue(7, "Alignment", "&nbsp;", headerList, dataFieldList);
         validateHeaderPlusValue(8, "Structure", "&nbsp;", headerList, dataFieldList);
-        validateHeaderPlusValue(9, "NT Position *", "5385", headerList, dataFieldList);
+        validateHeaderPlusValue(9, "NT Position*", "5385", headerList, dataFieldList);
         validateHeaderPlusValue(10, "Notes", "5382/5385 insC Founder Mutation", 
                 headerList, dataFieldList);
 

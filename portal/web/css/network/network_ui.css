@@ -210,7 +210,7 @@
  */
 #vis_content
 {
-	width: 580px;
+    width: 100%;
 	height: 666px;
 	border: 1px solid #aaaaaa;
 	-moz-border-radius: 5px;

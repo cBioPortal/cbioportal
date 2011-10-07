@@ -13,7 +13,8 @@ body {
 #page_wrapper {
   margin-left: auto;
   margin-right: auto;
-  width: 880px;
+  min-width: 780px;
+  max-width: 1260px;
   text-align: left;
   background: #FFFFFF;
   border: 8px solid #FFFFFF;
@@ -22,13 +23,11 @@ body {
 #header_wrapper {
   background: #fff ;
   margin:0px; padding:0px;
-  width:860px;
 }
 
 #login_header_wrapper {
   background: #fff ;
   margin:0px; padding:0px;
-  width:860px;
   height:50px;
 }
 
@@ -59,7 +58,6 @@ body {
 #content {
   margin-top: 10px;
   margin-bottom: 0px;
-  width: 680px;
 }
 
 img {
@@ -82,7 +80,6 @@ A:hover {
 #instructions {
   margin-left: auto;
   margin-right: auto;
-  width: 700px;
   text-align: left;
   background: #FFFFFF;
   border: 8px solid #FFFFFF;
@@ -115,7 +112,6 @@ A:hover {
 
 
 #results_container {
-    width:860px;
     padding: 0px;
     margin: 0px;
 }
@@ -124,22 +120,11 @@ A:hover {
     margin: 0px;
     padding: 0px;
     background: #ffffff;
-    width: 820px;
     font-size: 12px;
 }
 
 #network {
     height: 700px;
-}
-
-#frequency_plot {
-    width: 820px;
-}
-
-.map {
-    width: 820px;
-    overflow-x:auto;
-    overflow-y:hidden;
 }
 
 .map table {
@@ -332,7 +317,6 @@ table td {
 .map A:active {text-decoration: underline !important;}
 
 .markdown {
-    width:668px;
     word-wrap:break-word;
     margin: 5px;
     overflow:hidden;
@@ -398,10 +382,6 @@ table td {
   color:black;
 }
 
-blockquote {
-    width: 600px;
-}
-
 .oncoprint {
     font-family: verdana, arial, sans-serif;
     font-size:12px !important;
@@ -417,7 +397,6 @@ blockquote {
     border:  gray 1px solid;
     margin-top:6px;
     border: 1px solid #cccccc;
-    width: 810px;
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
@@ -430,7 +409,6 @@ blockquote {
     border:  gray 1px solid;
     margin-top:6px;
     border: 1px solid #cccccc;
-    width: 810px;
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
@@ -479,7 +457,7 @@ td.op_data_cell{
 
 #tabs {
     display: none;
-    margin-top:10px;    
+    margin-top:10px;
 }
 
 #tabs li {
@@ -505,7 +483,6 @@ td.op_data_cell{
   border: 1px solid #03476F;
   font: normal 11px verdana, arial, helvetica, sans-serif;
   color: #363636;
-  width: 600px;
 }
 
 .markdown td, th {
@@ -843,7 +820,6 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
     -webkit-border-radius:  10px;
     padding: 3px;
     height: 200px;
-    width: 660px;
 }
 
 #left_side {
@@ -974,7 +950,10 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 /* The Cytoscape Web container must have its dimensions set. */
-#cytoscapeweb { width: 100%; height: 100%; }
+#cytoscapeweb {
+    width: 100%;
+    height: 100%;
+}
 #note { width: 100%; text-align: center; padding-top: 1em; }
 /*.link { text-decoration: underline; color: #0b94b1; cursor: pointer; } */
 
@@ -1041,7 +1020,6 @@ cursor: default;
     padding:10px;
     margin-top:6px;
     padding-top:10px;
-    /*width: 650px;  */
 }
 
 /* Main Query Form */

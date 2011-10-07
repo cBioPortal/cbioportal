@@ -110,12 +110,6 @@
 
 <jsp:include page="global/header.jsp" flush="true" />
 
-	<table>
-        <tr>
-            <td>
-
-            <div id="results_container">
-            
              <%   String smry = "";
                       
                     out.println ("<p><div class='gene_set_summary'>Gene Set / Pathway is altered in "
@@ -331,16 +325,9 @@
             <% } %>
             
             </div> <!-- end tabs div -->
-            </div>  <!-- end results container -->
             <% } %>
-            </td>
-        </tr>
-    </table>
     </div>
     </td>
-   <!-- <td width="172">
-    
-    </td>   -->
   </tr>
   <tr>
     <td colspan="3">

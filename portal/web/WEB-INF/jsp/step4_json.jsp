@@ -28,7 +28,7 @@ if (step4ErrorMsg != null) {
 %>
 
     <P/>
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
+<textarea rows='5' cols='40' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
         out.println(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
     }

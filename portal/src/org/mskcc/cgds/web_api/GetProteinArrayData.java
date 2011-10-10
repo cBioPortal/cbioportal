@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
@@ -24,7 +25,14 @@ import org.mskcc.cgds.model.ProteinArrayInfo;
  */
 public class GetProteinArrayData {
     
-    public static String getProteinArrayInfo(ArrayList<String> targetGeneList, String type) 
+    
+    public static String getProteinArrayInfo(String cancerStudyStableId, ArrayList<String> targetGeneList, String type) 
+            throws DaoException {
+        return getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId(),
+                targetGeneList, type);
+    }
+    
+    public static String getProteinArrayInfo(int cancerStudyId, ArrayList<String> targetGeneList, String type) 
             throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
@@ -35,7 +43,7 @@ public class GetProteinArrayData {
         
         Set<String> types = Collections.singleton(type);
         if (targetGeneList==null) {
-            pais = daoPAI.getProteinArrayInfoForType(types);
+            pais = daoPAI.getProteinArrayInfoForType(cancerStudyId,types);
         } else {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             Set<Long> entrezIds = new HashSet<Long>();
@@ -44,7 +52,7 @@ public class GetProteinArrayData {
                 if (gene!=null)
                     entrezIds.add(gene.getEntrezGeneId());
             }
-            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, types);
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(cancerStudyId, entrezIds, types);
         }
         
         for (ProteinArrayInfo pai : pais) {

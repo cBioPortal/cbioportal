@@ -219,7 +219,7 @@ public class GetProfileData {
                     buf.append (gp2.getStableId() + WebApiUtil.TAB
                             + gp2.getGeneticAlterationType() + WebApiUtil.TAB);   
                     ArrayList<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
-                            (CanonicalGene)gene, targetCaseList, dataRow1);
+                            gp2.getCancerStudyId(),(CanonicalGene)gene, targetCaseList, dataRow1);
                     outputGeneRow(dataRow, gene, buf);
                 }
             } else {            

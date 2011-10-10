@@ -1,8 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON" %>
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.remote.GetProteinArrayData" %>
 <%@ page import="java.util.Set" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
+    String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 %>
 
 <style type="text/css" title="currentStyle"> 
@@ -86,7 +88,8 @@
     
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
-        var params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+        var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
+            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
@@ -319,7 +322,8 @@
             ,"json"
         );
         
-        params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+        params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
+            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.EXCLUDE_ANTIBODY_TYPE%>:'phosphorylation'

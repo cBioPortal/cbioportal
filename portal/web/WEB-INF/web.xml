@@ -112,6 +112,11 @@
         <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>link_out</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -190,6 +195,11 @@
     <servlet-mapping>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

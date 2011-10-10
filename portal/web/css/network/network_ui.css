@@ -352,12 +352,33 @@
 #genes_tab select
 {
 	width: 200px;
-	height: 500px;
+	height: 420px;
 }
 
 #genes_tab .selected-gene
 {
 	background: #aaaaaa;
+}
+
+#slider_values .slider-max
+{
+    text-align: right;
+}
+
+#slider_values .slider-min
+{
+    text-align: left;
+    width: 95%;
+}
+
+#genes_tab #weight_coeff
+{
+	width: 80px;
+}
+
+#genes_tab #control_area
+{
+	padding-top: 1.35em;
 }
 
 #relations_tab .percent-bar

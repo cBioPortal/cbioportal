@@ -6,21 +6,41 @@
     </ul>
     <div id="genes_tab">
 	    <div class="header">
-			<table>
-				<tr>
-					<td>
-						<input type="button" id="filter_genes" value="Hide"/>
-						<input type="button" id="crop_genes" value="Crop"/>
-						<input type="button" id="unhide_genes" value="Unhide"/>						
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="text" id="search" value=""/>
-						<input type="button" id="search_genes" value="Search"/>
-					</td>
-				</tr>
-			</table>
+	    	<div id="slider_area">
+	    		<label>Filter by Total Alteration (%)</label>
+	    		<div id="slider_bar"></div>
+	    		<table id="slider_values">
+	    			<tr>
+	    				<td class="slider-min">0</td>
+	    				<td class="slider-max">100</td>
+	    			</tr>
+	    		</table>
+	    		<table id="slider_input">
+	    			<tr>
+						<td>
+							<input type="text" id="weight_coeff" value="1.0"/>
+							<input type="button" id="calculate_weight" value="Calculate"/>
+						</td>
+					</tr>
+	    		</table>
+    		</div>
+    		<div id="control_area">
+				<table>
+					<tr>
+						<td>
+							<input type="button" id="filter_genes" value="Hide"/>
+							<input type="button" id="crop_genes" value="Crop"/>
+							<input type="button" id="unhide_genes" value="Unhide"/>						
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="text" id="search" value=""/>
+							<input type="button" id="search_genes" value="Search"/>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
     </div>
     <div id="relations_tab">

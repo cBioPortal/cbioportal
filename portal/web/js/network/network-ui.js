@@ -22,6 +22,9 @@ var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
 var UNKNOWN = "Unknown";
 
+// weight coefficient (initialized with a default value)
+var WEIGHT_COEFF = 1.0;
+
 // class constants for css visualization
 var CHECKED_CLASS = "checked-menu-item";
 var MENU_SEPARATOR_CLASS = "separator-menu-item";
@@ -53,6 +56,12 @@ var _connectedNodes;
 // array of previously filtered elements
 var _alreadyFiltered;
 
+// array of genes filtered due to slider
+var _filteredBySlider;
+
+// array of nodes filtered due to disconnection
+var _filteredByIsolation;
+
 // array of filtered edge types
 var _edgeTypeVisibility;
 
@@ -61,6 +70,9 @@ var _edgeSourceVisibility;
 
 // map used to resolve cross-references
 var _linkMap;
+
+// map used to filter genes by weight slider
+var _geneWeightMap;
 
 // CytoscapeWeb.Visualization instance
 var _vis;
@@ -77,8 +89,13 @@ function initNetworkUI(vis)
 	_vis = vis;
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
+	_filteredBySlider = new Array();
+	_filteredByIsolation = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
+	// TODO expose coeff?
+	_geneWeightMap = _geneWeightArray(WEIGHT_COEFF);
+	
 	_resetFlags();
 	
 	_initControlFunctions();
@@ -86,7 +103,8 @@ function initNetworkUI(vis)
 
 	_initMainMenu();
 	_initDialogs();
-
+	_initSliders();
+	
 	// init tabs
 	$("#network_tabs").tabs();
 	_refreshGenesTab();
@@ -895,6 +913,58 @@ function geneVisibility(element)
 }
 
 /**
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter genes by the slider value.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function sliderVisibility(element)
+{
+	var value = $("#slider_bar").slider("option", "value");
+	var visible = false;
+	var weight;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	else
+	{	
+		// get the weight of the node
+		weight = _geneWeightMap[element.data.id];
+		
+		// if the weight of the current node is below the slider value
+		// then it should be filtered
+		
+		if (weight != null)
+		{
+			if (weight >= value)
+			{
+				visible = true;
+			}
+		}
+		else
+		{
+			// no weight value, filter not applicable
+			visible = true;
+		}
+		
+		if (!visible)
+		{
+			// if the element should be filtered,
+			// then add it to the required maps
+			
+			_alreadyFiltered[element.data.id] = element;
+			_filteredBySlider[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+/**
  * Determines the visibility of a node for filtering purposes. This function is
  * designed to filter disconnected nodes.
  * 
@@ -923,6 +993,7 @@ function isolation(element)
 		{
 			// if the node should be filtered, then add it to the map
 			_alreadyFiltered[element.data.id] = element;
+			_filteredByIsolation[element.data.id] = element;
 		}
 	}
 	
@@ -1475,6 +1546,70 @@ function _edgeSourceArray()
 }
 
 /**
+ * Weight = [(Total Alteration of a node) * coeff +
+ *    Average(Total Alteration of its neighbors) * (1 - coeff)] * 100
+ * 
+ * 
+ * @param coeff
+ * @returns {Array}
+ */
+function _geneWeightArray(coeff)
+{
+	var weightArray = new Array();
+	
+	if (coeff > 1)
+	{
+		coeff = 1;
+	}
+	else if (coeff < 0)
+	{
+		coeff = 0;
+	}
+	
+	// calculate weight values for each gene
+	
+	var nodes = _vis.nodes();
+	var sum, weight, neighbors;
+	
+	for (var i = 0; i < nodes.length; i++)
+	{
+		// add the total alteration of current node to the weight
+		
+		if (nodes[i].data["PERCENT_ALTERED"] != null)
+		{
+			weight = nodes[i].data["PERCENT_ALTERED"] * coeff;
+		}
+		else
+		{
+			weight = 0;
+		}
+		
+		// get first neighbors of the current node
+		
+		neighbors = _vis.firstNeighbors([nodes[i]]).neighbors;
+		sum = 0;
+		
+		// calculate the sum of the total alteration of its neighbors
+		
+		for (var j = 0; j < neighbors.length; j++)
+		{
+			if (neighbors[j].data["PERCENT_ALTERED"] != null)
+			{
+				sum += neighbors[j].data["PERCENT_ALTERED"];
+			}
+		}
+		
+		// calculate the average and add the value to the weight		
+		weight += (sum / neighbors.length) * (1 - coeff);
+		
+		// add the weight value to the map
+		weightArray[nodes[i].data.id] = weight * 100;
+	}
+	
+	return weightArray;
+}
+
+/**
  * Initializes the main menu by adjusting its style. Also, initializes the
  * inspector panels and tabs.
  */
@@ -1637,6 +1772,54 @@ function _initDialogs()
 		width: 366});
 }
 
+/**
+ * Initializes the gene filter slider.
+ */
+function _initSliders()
+{
+	// show gene filtering slider
+	$("#slider_bar").slider(
+		{change: _sliderListener});
+}
+
+function _sliderListener(event, ui)
+{	
+	// TODO display current value?
+	// $("#slider_bar").slider("option", "value"));
+	
+	// remove previous filters due to slider
+	
+	for (var key in _filteredBySlider)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// remove previos filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// reset required filter arrays
+	_filteredBySlider = new Array();
+	_filteredByIsolation = new Array();
+	
+	// remove filters
+	_vis.removeFilter("nodes");
+	
+	// filter with new slider value
+	_vis.filter("nodes", sliderVisibility, true);
+	
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
+    
+    // refresh genes tab
+    _refreshGenesTab();
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+}
+
 /*
  * Alternative version with checkboxes..
  *
@@ -1783,12 +1966,12 @@ function _refreshRelationsTab()
 		percentages[REACTS_WITH] +
 		percentages[STATE_CHANGE]);
 	
-	// do not display OTHER if its percentage is zero
-	// TODO also do not display it in the edge legend
-	
 	if (percentages[OTHER] == 0)
 	{
+		// do not display OTHER if its percentage is zero
 		_setComponentVis($("#relations_tab .other"), false);
+		
+		// also do not display it in the edge legend
 		_setComponentVis($("#edge_legend .other"), false);
 	}
 	else
@@ -1903,6 +2086,12 @@ function _initControlFunctions()
 	
 	$("#save_layout_settings").click(saveSettings);
 	$("#default_layout_settings").click(defaultSettings);
+	
+	// TODO temporary button for debug purposes
+	$("#calculate_weight").click(function(){
+			var coeff = $("#genes_tab #weight_coeff").val();
+			_geneWeightMap = _geneWeightArray(coeff);
+		});
 	
 	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);

@@ -9,3 +9,6 @@
 
 # gdac-endometrial
 ./all-ucec-gdac.sh
+
+# Gray cell line
+./all-Gray-cell-line.sh

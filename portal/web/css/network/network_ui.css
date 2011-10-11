@@ -360,15 +360,33 @@
 	background: #aaaaaa;
 }
 
-#slider_values .slider-max
+#genes_tab #slider_bar
+{
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+#genes_tab #slider_values .slider-max
 {
     text-align: right;
 }
 
-#slider_values .slider-min
+#genes_tab #slider_values .slider-min
 {
     text-align: left;
-    width: 95%;
+    width: 99%;
+}
+
+#genes_tab #slider_values .slider-second
+{
+    text-align: left;
+    width: 22%;
+}
+
+#genes_tab #slider_values .slider-third
+{
+    text-align: left;
+    width: 22%;
 }
 
 #genes_tab #weight_coeff

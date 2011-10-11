@@ -940,6 +940,10 @@ function sliderVisibility(element)
 		
 		if (weight != null)
 		{
+			// apply transformation before checking, this prevents filtering of 
+			// low values with a small change in the position of the cursor.
+			value = _transformValue(value);
+			
 			if (weight >= value)
 			{
 				visible = true;
@@ -1254,12 +1258,18 @@ function _removeHighlights()
 	//$("#menu_neighbors_clear").addClass("ui-state-disabled");
 }
 
+/**
+ * Displays the node legend in a separate panel.
+ */
 function _showNodeLegend()
 {
 	// open legend panel
 	$("#node_legend").dialog("open").height("auto");
 }
 
+/**
+ * Displays the edge legend in a separate panel.
+ */
 function _showEdgeLegend()
 {
 	$("#edge_legend .in-same-component .color-bar").css(
@@ -1372,7 +1382,7 @@ function _resolveXref(xref)
 }
 
 /**
- * Set default values of the control flags.
+ * Sets the default values of the control flags.
  */
 function _resetFlags()
 {
@@ -1546,12 +1556,13 @@ function _edgeSourceArray()
 }
 
 /**
- * Weight = [(Total Alteration of a node) * coeff +
+ * Calculates weight values for each gene by using the formula:
+ * 
+ * weight = [(Total Alteration of a node) * coeff +
  *    Average(Total Alteration of its neighbors) * (1 - coeff)] * 100
  * 
- * 
- * @param coeff
- * @returns {Array}
+ * @param coeff	coefficient value used in the weight function
+ * @returns		a map (array) containing weight values for each gene
  */
 function _geneWeightArray(coeff)
 {
@@ -1779,13 +1790,36 @@ function _initSliders()
 {
 	// show gene filtering slider
 	$("#slider_bar").slider(
-		{change: _sliderListener});
+		{change: _sliderChange,
+		slide: _sliderMove});
 }
 
-function _sliderListener(event, ui)
-{	
-	// TODO display current value?
-	// $("#slider_bar").slider("option", "value"));
+/**
+ * Listener for slider movement. Updates slider tooltip after each mouse move.
+ */
+function _sliderMove(event, ui)
+{
+	// update tooltip value
+	var sliderVal = $("#slider_bar").slider("option", "value");
+	
+	$("#slider_bar").prop("title",
+		Math.round(_transformValue(sliderVal)));
+	
+	// TODO may use qtip or jquery tooltip instead of default html tooltip
+	// or display value as a text on top? 
+}
+
+/**
+ * Listener for slider value change. Updates filters with respect to the
+ * new slider value.
+ */
+function _sliderChange(event, ui)
+{
+	var sliderVal = $("#slider_bar").slider("option", "value");
+	
+	// TODO may use qtip or jquery tooltip instead
+	$("#slider_bar").prop("title",
+		Math.round(_transformValue(sliderVal)));
 	
 	// remove previous filters due to slider
 	
@@ -1819,6 +1853,35 @@ function _sliderListener(event, ui)
     // visualization changed, perform layout if necessary
 	_visChanged();
 }
+
+/*
+function _getSliderValue()
+{
+	var value = $("#slider_bar").slider("option", "value");
+	var sourceInterval, targetInterval;
+	
+	// transform values between 0-50 on the bar to 0-20
+	if (value <= 50)
+	{
+		sourceInterval = {start: 0, end: 50};
+		targetInterval = {start: 0, end: 20};
+	}
+	// transform values between 50-75 on the bar to 20-50
+	else if (value <= 75)
+	{
+		sourceInterval = {start: 50, end: 75};
+		targetInterval = {start: 20, end: 50};
+	}
+	// transform values between 75-100 on the bar to 50-100
+	else
+	{
+		sourceInterval = {start: 75, end: 100};
+		targetInterval = {start: 50, end: 100};
+	}
+	
+	return _transformValue(value, sourceInterval, targetInterval);
+}
+*/
 
 /*
  * Alternative version with checkboxes..
@@ -2666,6 +2729,46 @@ function _toTitleCase(source)
 	}
 	
 	return titleCase.join("");
+}
+
+/*
+function _transformIntervalValue(value, sourceInterval, targetInterval)
+{ 
+	var sourceRange = sourceInterval.end - sourceInterval.start;
+	var targetRange = targetInterval.end - targetInterval.start;
+	
+	var transformed = targetInterval.start + 
+		(value - sourceInterval.start) * (targetRange / sourceRange);
+	
+	return transformed;
+}
+*/
+
+/**
+ * Transforms the input value by using the function: 
+ * y = (0.000166377)x^3 - (0.0118428)x^2 + (0.520007)x
+ * 
+ * This function is designed to transform slider input, which is between
+ * 0 and 100, to provide a better filtering.
+ * 
+ * @param value		input value to be transformed
+ */
+function _transformValue(value)
+{
+	var transformed = 0.000166377 * Math.pow(value, 3) -
+		0.0118428 * Math.pow(value, 2) +
+		0.520007 * value;
+	
+	if (transformed < 0)
+	{
+		transformed = 0;
+	}
+	else if (transformed > 100)
+	{
+		transformed = 100;
+	}
+	
+	return transformed;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

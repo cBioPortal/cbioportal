@@ -8,7 +8,9 @@
 	    <div class="header">
 	    	<div id="slider_area">
 	    		<label>Filter by Total Alteration (%)</label>
-	    		<div id="slider_bar"></div>
+	    		<div id="tooltip_area">
+	    			<div id="slider_bar" title="0"></div>
+	    		</div>
 	    		<table id="slider_values">
 	    			<tr>
 	    				<td class="slider-min">0</td>

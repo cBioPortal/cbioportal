@@ -42,6 +42,7 @@ public class ImportHprd {
      * @throws org.mskcc.cgds.dao.DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         int numInteractionsSaved = 0;
         int numInteractionsNotSaved = 0;
@@ -65,8 +66,8 @@ public class ImportHprd {
                 String expTypes = parts[6];
                 String pmids = parts[7];
 
-                CanonicalGene geneA = getGene(geneAId);
-                CanonicalGene geneB = getGene(geneBId);
+                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
@@ -94,23 +95,6 @@ public class ImportHprd {
         pMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
         pMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
                 "invalid gene IDs:  " + numInteractionsNotSaved);
-    }
-
-    /**
-     * Gets Gene by Entrez Gene ID or Gene Symbol.
-     * @param geneId Gene ID:  Entrez Gene ID or Gene Symbol.
-     * @return Canonical Gene.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
-     */
-    CanonicalGene getGene (String geneId) throws DaoException {
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-
-        try {
-            long entrezGeneId = Long.parseLong(geneId);
-            return daoGene.getGene(entrezGeneId);
-        } catch (NumberFormatException e) {
-            return daoGene.getGene(geneId);
-        }
     }
 
     /**

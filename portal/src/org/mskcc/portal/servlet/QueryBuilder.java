@@ -487,11 +487,12 @@ public class QueryBuilder extends HttpServlet {
         // TODO: hacky way for su2c
         String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
         if (cancerStudyId.equals("grayBreastCellLine")) {
-            writer.write("<br/><div style=\"text-align:left\"><b><a target=\"_blank\" href=\"");
+            writer.write("<br/><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
             writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
-                    + "grayBreastCellLineSNPSeg&displayas=geneset&genes=");
+                    + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
             writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
-            writer.write("\">UCSC Cancer Genomics Browser</a></b></div>\n");
+            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser<font/>"
+                    + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
         }
         
         writer.write ("</body>\n");

@@ -176,6 +176,7 @@ sub CreateCancersCGDSinput{
         [ qw( 
             all_thresholded.by_genes.txt
             <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+            <CANCER>.maf.annotated
          ) ],
         'union',
         {

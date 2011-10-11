@@ -38,6 +38,3 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 # Import Methylation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_methylation.txt --meta $CGDS_DATA_HOME/ovarian/meta_methylation.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_brca1_binary_methylation.txt --meta $CGDS_DATA_HOME/ovarian/meta_brca1_binary_methylation.txt --dbmsAction clobber
-
-# Import RPPA data
-#./importProteinArrayData.pl $CGDS_DATA_HOME/ovarian/OV412_212Ab_RPPA_Median_Centered.txt OV_portal

@@ -1,6 +1,8 @@
 
 package org.mskcc.cgds.model;
 
+import java.util.Set;
+
 /**
  *
  * @author jj
@@ -12,14 +14,17 @@ public class ProteinArrayInfo {
     private String gene;
     private String residue;
     private boolean validated;
+    private Set<Integer> cancerStudies; 
 
-    public ProteinArrayInfo(String id, String type, String source, String gene, String residue, boolean validated) {
+    public ProteinArrayInfo(String id, String type, String source, String gene, 
+            String residue, boolean validated, Set<Integer> cancerStudies) {
         this.id = id;
         this.type = type;
         this.source = source;
         this.gene = gene;
         this.residue = residue;
         this.validated = validated;
+        this.cancerStudies = cancerStudies;
     }
 
     public String getGene() {
@@ -69,6 +74,12 @@ public class ProteinArrayInfo {
     public void setValidated(boolean validated) {
         this.validated = validated;
     }
-    
-    
+
+    public Set<Integer> getCancerStudies() {
+        return cancerStudies;
+    }
+
+    public void setCancerStudies(Set<Integer> cancerStudies) {
+        this.cancerStudies = cancerStudies;
+    }
 }

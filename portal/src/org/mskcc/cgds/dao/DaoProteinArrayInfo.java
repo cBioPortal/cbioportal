@@ -274,7 +274,8 @@ public class DaoProteinArrayInfo {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT CANCER_STUDY_ID FROM protein_array_cancer_study WHERE PROTEIN_ARRAY_ID='"+arrayId+"'");
+                    ("SELECT CANCER_STUDY_ID FROM protein_array_cancer_study WHERE PROTEIN_ARRAY_ID=?");
+            pstmt.setString(1, arrayId);
             
             Set<Integer> set = new HashSet<Integer>();
             rs = pstmt.executeQuery();
@@ -297,7 +298,8 @@ public class DaoProteinArrayInfo {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT PROTEIN_ARRAY_ID FROM protein_array_cancer_study WHERE CANCER_STUDY_ID='"+cancerTypeId+"'");
+                    ("SELECT PROTEIN_ARRAY_ID FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1, cancerTypeId);
             
             Set<String> set = new HashSet<String>();
             rs = pstmt.executeQuery();

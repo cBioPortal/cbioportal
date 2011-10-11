@@ -488,7 +488,7 @@ public class QueryBuilder extends HttpServlet {
         String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
         if (cancerStudyId.equals("gray_brca_cell")) {
             writer.write("<br/><div style=\"text-align:left\"><b><a target=\"_blank\" href=\"");
-            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"/#?dataset="
+            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
                     + "grayBreastCellLineSNPSeg&displayas=geneset&genes=");
             writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
             writer.write("\">UCSC Cancer Genomics Browser</a></b></div>\n");

@@ -38,7 +38,6 @@ import org.owasp.validator.html.PolicyException;
  */
 public class QueryBuilder extends HttpServlet {
     public static final String CLIENT_TRANSPOSE_MATRIX = "transpose_matrix";
-    public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
@@ -90,8 +89,6 @@ public class QueryBuilder extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
-        GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
@@ -489,9 +486,9 @@ public class QueryBuilder extends HttpServlet {
         
         // TODO: hacky way for su2c
         String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
-        if (cancerStudyId.equals("su2c_gray_brca_cell")) {
+        if (cancerStudyId.equals("gray_brca_cell")) {
             writer.write("<br/><div style=\"text-align:left\"><b><a target=\"_blank\" href=\"");
-            writer.write("https://genome-cancer.soe.ucsc.edu/hgHeatmap/#?dataset="
+            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"/#?dataset="
                     + "grayBreastCellLineSNPSeg&displayas=geneset&genes=");
             writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
             writer.write("\">UCSC Cancer Genomics Browser</a></b></div>\n");

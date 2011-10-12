@@ -6,23 +6,23 @@
 
 <tr>
 <td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
-<td style="text-align: right;">727</td>
+<td style="text-align: right;">731</td>
 </tr>
 <tr>
 <td class="Tips1" title="Colon adenocarcinoma">COAD</td>
-<td style="text-align: right;">331</td>
+<td style="text-align: right;">155</td>
 </tr>
 <tr>
 <td class="Tips1" title="Colon and Rectum adenocarcinoma">COADREAD</td>
-<td style="text-align: right;">453</td>
+<td style="text-align: right;">526</td>
 </tr>
 <tr>
 <td class="Tips1" title="Glioblastoma multiforme">GBM</td>
-<td style="text-align: right;">546</td>
+<td style="text-align: right;">541</td>
 </tr>
 <tr>
 <td class="Tips1" title="Head and Neck squamous cell carcinoma">HNSC</td>
-<td style="text-align: right;">95</td>
+<td style="text-align: right;">124</td>
 </tr>
 <tr>
 <td class="Tips1" title="Kidney renal clear cell carcinoma">KIRC</td>
@@ -30,31 +30,31 @@
 </tr>
 <tr>
 <td class="Tips1" title="Kidney renal papillary cell carcinoma">KIRP</td>
-<td style="text-align: right;">16</td>
+<td style="text-align: right;">21</td>
 </tr>
 <tr>
 <td class="Tips1" title="Lung adenocarcinoma">LUAD</td>
-<td style="text-align: right;">136</td>
+<td style="text-align: right;">216</td>
 </tr>
 <tr>
 <td class="Tips1" title="Lung squamous cell carcinoma">LUSC</td>
-<td style="text-align: right;">184</td>
+<td style="text-align: right;">213</td>
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">538</td>
+<td style="text-align: right;">558</td>
 </tr>
 <tr>
 <td class="Tips1" title="Rectum adenocarcinoma">READ</td>
-<td style="text-align: right;">122</td>
+<td style="text-align: right;">69</td>
 </tr>
 <tr>
 <td class="Tips1" title="Stomach adenocarcinoma">STAD</td>
-<td style="text-align: right;">109</td>
+<td style="text-align: right;">143</td>
 </tr>
 <tr>
 <td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
-<td style="text-align: right;">284</td>
+<td style="text-align: right;">321</td>
 </tr>
 </table>
-Based on the Firehose run from 07/28/2011.</p>
+Based on the Firehose run from 09/21/2011.</p>

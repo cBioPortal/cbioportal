@@ -351,6 +351,7 @@
 
 #genes_tab select
 {
+	/* dimensions of the select box */
 	width: 200px;
 	height: 420px;
 }
@@ -409,7 +410,14 @@
 
 #node_legend img
 {
-	margin: 0.3em;
+	margin: 0.4em;
+}
+
+#edge_legend #edge_type_legend
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #edge_legend .color-bar

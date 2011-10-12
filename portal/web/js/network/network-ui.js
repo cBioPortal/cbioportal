@@ -104,6 +104,7 @@ function initNetworkUI(vis)
 	_initMainMenu();
 	_initDialogs();
 	_initSliders();
+	_initTooltipStyle();
 	
 	// init tabs
 	$("#network_tabs").tabs();
@@ -1793,6 +1794,41 @@ function _initSliders()
 		{change: _sliderChange,
 		slide: _sliderMove});
 }
+
+/**
+ * Initializes tooltip style for genes.
+ */
+function _initTooltipStyle()
+{	
+	// create a function and add it to the Visualization object
+	_vis["customTooltip"] = function (data) {
+		var text;
+		
+		if (data["PERCENT_ALTERED"] == null)
+		{
+			text = "n/a";
+		}
+		else
+		{
+			text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+		}
+		
+		return "<b>" + text + "</b>";
+		//return text;
+	};
+
+	// register the custom mapper to the tooltipText
+	
+	var style = _vis.visualStyle();
+	style.nodes.tooltipText = { customMapper: { functionName: "customTooltip" } };
+
+	// set the visual style again
+	_vis.visualStyle(style);
+	
+	// enable node tooltips
+	_vis.nodeTooltipsEnabled(true);
+}
+
 
 /**
  * Listener for slider movement. Updates slider tooltip after each mouse move.

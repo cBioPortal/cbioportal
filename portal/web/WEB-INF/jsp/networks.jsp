@@ -77,7 +77,12 @@
 						selectionGlowOpacity: 0.8,
 						hoverGlowColor: "#cbcbcb", //#ffff33
 						hoverGlowOpacity: 1.0,
-						hoverGlowStrength: 8
+						hoverGlowStrength: 8,
+						tooltipFont: "Verdana",
+	                    tooltipFontSize: 12,
+	                    tooltipFontColor: "#EE0505",
+	                    tooltipBackgroundColor: "#000000",
+	                    tooltipBorderColor: "#000000"
                     },
                     edges: {
                         width: 1,

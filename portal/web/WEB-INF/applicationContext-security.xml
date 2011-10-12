@@ -64,6 +64,7 @@
       <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 
       <!-- everything else locked down by default -->

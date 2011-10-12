@@ -1,5 +1,6 @@
 package org.mskcc.portal.remote;
 
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
@@ -7,7 +8,6 @@ import org.mskcc.cgds.dao.DaoProteinArrayInfo;
 import org.mskcc.cgds.model.ProteinArrayData;
 import org.mskcc.cgds.model.ProteinArrayInfo;
 import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.portal.util.XDebug;
 
 import java.rmi.RemoteException;
 import java.util.Collection;
@@ -22,6 +22,13 @@ public class GetProteinArrayData {
     public static Set<String> getProteinArrayTypes() throws DaoException {
         return DaoProteinArrayInfo.getInstance().getAllAntibodyTypes();
     }
+    
+    
+    public static Map<String,ProteinArrayInfo> getProteinArrayInfo(
+            String cancerStudyStableId, List<String> geneList, Collection<String> types) throws DaoException {
+        return getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId(),
+                geneList, types);
+    }
 
     /**
      * 
@@ -31,13 +38,13 @@ public class GetProteinArrayData {
      * @return key: array id; value: array info
      * @throws DaoException 
      */
-    public static Map<String,ProteinArrayInfo> getProteinArrayInfo(List<String> geneList,
-                                      Collection<String> types) throws DaoException {
+    public static Map<String,ProteinArrayInfo> getProteinArrayInfo(
+            int cancerStudyId, List<String> geneList, Collection<String> types) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         List<ProteinArrayInfo> pais;
         
         if (geneList==null) {
-            pais = daoPAI.getProteinArrayInfoForType(types);
+            pais = daoPAI.getProteinArrayInfoForType(cancerStudyId, types);
         } else {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             Set<Long> entrezIds = new HashSet();
@@ -47,7 +54,7 @@ public class GetProteinArrayData {
                     entrezIds.add(cGene.getEntrezGeneId());
                 }
             }
-            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, types);
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(cancerStudyId, entrezIds, types);
         }
         
         Map<String,ProteinArrayInfo> ret = new HashMap<String,ProteinArrayInfo>();

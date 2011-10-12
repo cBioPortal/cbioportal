@@ -61,19 +61,17 @@ public class DaoProteinArrayData {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 myMySQLbulkLoader.insertRecord(pad.getArrayId(),
-                        pad.getCaseId(), Integer.toString(pad.getCancerStudyId()),
-                        Double.toString(pad.getAbundance()));
+                        pad.getCaseId(), Double.toString(pad.getAbundance()));
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
                 con = JdbcUtil.getDbConnection();
                 pstmt = con.prepareStatement
-                        ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`CANCER_STUDY_ID`,`ABUNDANCE`) "
-                                + "VALUES (?,?,?,?)");
+                        ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`ABUNDANCE`) "
+                                + "VALUES (?,?,?)");
                 pstmt.setString(1, pad.getArrayId());
                 pstmt.setString(2, pad.getCaseId());
-                pstmt.setInt(3, pad.getCancerStudyId());
-                pstmt.setDouble(4, pad.getAbundance());
+                pstmt.setDouble(3, pad.getAbundance());
                 int rows = pstmt.executeUpdate();
                 return rows;
             }
@@ -135,7 +133,6 @@ public class DaoProteinArrayData {
                 ProteinArrayData pad = new ProteinArrayData(
                         rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
-                        rs.getInt("CANCER_STUDY_ID"),
                         rs.getDouble("ABUNDANCE"));
                 list.add(pad);
             }
@@ -167,7 +164,6 @@ public class DaoProteinArrayData {
             while (rs.next()) {
                 ProteinArrayData pai = new ProteinArrayData(rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
-                        rs.getInt("CANCER_STUDY_ID"),
                         rs.getDouble("ABUNDANCE"));
                 list.add(pai);
             }
@@ -197,21 +193,5 @@ public class DaoProteinArrayData {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
-    }
-    
-    public void deleteRecordsOfOneStudy(int cancerStudyId) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement("DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
-        }        
     }
 }

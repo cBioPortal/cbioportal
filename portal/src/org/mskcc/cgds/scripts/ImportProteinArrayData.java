@@ -50,7 +50,6 @@ public class ImportProteinArrayData {
         
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-        daoPAD.deleteRecordsOfOneStudy(cancerStudyId);
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
@@ -70,7 +69,7 @@ public class ImportProteinArrayData {
             cases.add(caseId);
             for (int i=1; i<strs.length; i++) {
                 double data = Double.parseDouble(strs[i]);
-                ProteinArrayData pad = new ProteinArrayData(arrayIds[i], caseId, cancerStudyId, data);
+                ProteinArrayData pad = new ProteinArrayData(arrayIds[i], caseId, data);
                 daoPAD.addProteinArrayData(pad);
             }
             

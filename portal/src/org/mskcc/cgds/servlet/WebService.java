@@ -263,6 +263,12 @@ public class WebService extends HttpServlet {
 
     private void getProteinArrayInfo(HttpServletRequest httpServletRequest,
                                      PrintWriter writer) throws DaoException, ProtocolException {
+        String cancerStudyId = getCancerStudyId(httpServletRequest);
+        if (cancerStudyId == null) {
+            outputMissingParameterError(writer, CANCER_STUDY_ID);
+            return;
+        }
+        
         String geneList = httpServletRequest.getParameter(GENE_LIST);
         ArrayList<String> targetGeneList;
         if (geneList == null || geneList.length() == 0) {
@@ -272,7 +278,7 @@ public class WebService extends HttpServlet {
         }
 
         String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
-        writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList, type));
+        writer.print(GetProteinArrayData.getProteinArrayInfo(cancerStudyId, targetGeneList, type));
     }
 
     private void getProteinArrayData(HttpServletRequest httpServletRequest,

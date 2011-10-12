@@ -51,11 +51,13 @@ public class GeneticAlterationUtil {
                         canonicalGene.getEntrezGeneId());
             } else if (targetGeneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
-                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(),
+                caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
+                        targetCaseList, canonicalGene.getEntrezGeneId(),
                         GeneticAlterationType.PROTEIN_LEVEL.toString(),null)[0];
             } else if (targetGeneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
-                caseMap = getProteinArrayDataMap (targetCaseList, canonicalGene.getEntrezGeneId(),
+                caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
+                        targetCaseList, canonicalGene.getEntrezGeneId(),
                         GeneticAlterationType.PHOSPHORYLATION.toString(),null)[0];
             } else {
                 //  Handle All Other Data Types another way
@@ -91,11 +93,12 @@ public class GeneticAlterationUtil {
         return dataRow;
     }
     
-    public static ArrayList<String> getBestCorrelatedProteinArrayDataRow(CanonicalGene targetGene,
+    public static ArrayList<String> getBestCorrelatedProteinArrayDataRow(
+            int cancerStudyId, CanonicalGene targetGene,
             ArrayList<String> targetCaseList, ArrayList<String> correlatedToData)
             throws DaoException {
         ArrayList<String> dataRow = new ArrayList<String>();
-        Map<String, String>[] caseMaps = getProteinArrayDataMap (targetCaseList, targetGene.getEntrezGeneId(),
+        Map<String, String>[] caseMaps = getProteinArrayDataMap(cancerStudyId, targetCaseList, targetGene.getEntrezGeneId(),
                         GeneticAlterationType.PROTEIN_LEVEL.toString(),null);
         
         Map<String, String> caseMap = getBestCorrelatedCaseMap(caseMaps, targetCaseList, correlatedToData);
@@ -135,15 +138,15 @@ public class GeneticAlterationUtil {
      * Gets a Map of Protein Array Data.
      */
     private static Map <String, String>[] getProteinArrayDataMap
-            (ArrayList<String> targetCaseList, long entrezGeneId, String type,
+            (int cancerStudyId, ArrayList<String> targetCaseList, long entrezGeneId, String type,
             ArrayList<String> correlatedToData) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         
         Map <String, String>[] ret;
 
-        ArrayList<ProteinArrayInfo> pais =
-                daoPAI.getProteinArrayInfoForEntrezId(entrezGeneId, Collections.singleton(type));
+        ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(
+                cancerStudyId, entrezGeneId, Collections.singleton(type));
         if (pais.isEmpty()) {
             ret = new Map[1];
             Map <String, String> map = Collections.emptyMap();

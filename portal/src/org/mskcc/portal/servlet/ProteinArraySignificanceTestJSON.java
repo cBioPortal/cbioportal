@@ -37,6 +37,7 @@ import org.mskcc.portal.remote.GetProteinArrayData;
 public class ProteinArraySignificanceTestJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(ProteinArraySignificanceTestJSON.class);
 
+    public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String HEAT_MAP = "heat_map";
     public static final String GENE = "gene";
     public static final String ALTERATION_TYPE = "alteration";
@@ -57,6 +58,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             JSONArray table = new JSONArray();
 
             // get heat map
+            String cancerStudyStableId = request.getParameter(CANCER_STUDY_ID);
             String heatMap = request.getParameter(HEAT_MAP);
             String gene = request.getParameter(GENE);
             String alterationType = request.getParameter(ALTERATION_TYPE);
@@ -90,7 +92,7 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             Map<String,ProteinArrayInfo> proteinArrays;
             Map<String,Map<String,Double>> proteinArrayData;
             try {
-                proteinArrays = GetProteinArrayData.getProteinArrayInfo(null, antibodyTypes);
+                proteinArrays = GetProteinArrayData.getProteinArrayInfo(cancerStudyStableId, null, antibodyTypes);
                 proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases);
             } catch (DaoException e) {
                 throw new ServletException(e);

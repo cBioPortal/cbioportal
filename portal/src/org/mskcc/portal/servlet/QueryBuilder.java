@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
@@ -36,7 +38,6 @@ import org.owasp.validator.html.PolicyException;
  */
 public class QueryBuilder extends HttpServlet {
     public static final String CLIENT_TRANSPOSE_MATRIX = "transpose_matrix";
-    public static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons_url";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
@@ -88,8 +89,6 @@ public class QueryBuilder extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-		String pathwayCommonsUrl = getInitParameter(PATHWAY_COMMONS_URL_PARAM);
-        GlobalProperties.setPathwayCommonsUrl(pathwayCommonsUrl);
         try {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
@@ -407,7 +406,7 @@ public class QueryBuilder extends HttpServlet {
                 } else if (output.equalsIgnoreCase("html")) {
                     outputOncoprintHtml(response, geneListStr, mergedProfile, caseSetList,
                             caseSetId, zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList);
+                            profileList,request);
                 } else if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold);
@@ -465,7 +464,8 @@ public class QueryBuilder extends HttpServlet {
     private void outputOncoprintHtml(HttpServletResponse response, String geneListStr,
             ProfileData mergedProfile, ArrayList<CaseList> caseSetList, String caseSetId,
             double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
+            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList,
+            HttpServletRequest request)
             throws IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
@@ -483,6 +483,18 @@ public class QueryBuilder extends HttpServlet {
                 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
                 geneticProfileIdSet, profileList, true, true);
         writer.write(out);
+        
+        // TODO: hacky way for su2c
+        String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
+        if (cancerStudyId.equals("grayBreastCellLine")) {
+            writer.write("<br/><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
+                    + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
+            writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
+            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser<font/>"
+                    + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
+        }
+        
         writer.write ("</body>\n");
         writer.write ("</html>\n");
         writer.flush();

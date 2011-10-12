@@ -8,6 +8,12 @@
 <td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
 <td style="text-align: right;">727</td>
 </tr>
+
+<tr>
+<td class="Tips1" title="SU2C Breast cancer cell lines (Gray Lab)">BRCA Cell Lines</td>
+<td style="text-align: right;">55</td>
+</tr>
+
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
 <td style="text-align: right;">489</td>

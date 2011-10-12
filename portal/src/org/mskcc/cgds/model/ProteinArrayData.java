@@ -8,13 +8,11 @@ package org.mskcc.cgds.model;
 public class ProteinArrayData {
     private String arrayId;
     private String caseId;
-    private int cancerStudyId;
     private double abundance;
 
-    public ProteinArrayData(String arrayId, String caseId, int cancerStudyId, double abundance) {
+    public ProteinArrayData(String arrayId, String caseId, double abundance) {
         this.arrayId = arrayId;
         this.caseId = caseId;
-        this.cancerStudyId = cancerStudyId;
         this.abundance = abundance;
     }
 
@@ -32,14 +30,6 @@ public class ProteinArrayData {
 
     public void setArrayId(String arrayId) {
         this.arrayId = arrayId;
-    }
-
-    public int getCancerStudyId() {
-        return cancerStudyId;
-    }
-
-    public void setCancerStudyId(int cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
     }
 
     public String getCaseId() {

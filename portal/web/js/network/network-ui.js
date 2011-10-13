@@ -2190,6 +2190,7 @@ function _initControlFunctions()
 	$("#calculate_weight").click(function(){
 			var coeff = $("#genes_tab #weight_coeff").val();
 			_geneWeightMap = _geneWeightArray(coeff);
+			_sliderChange();
 		});
 	
 	$("#search_genes").click(searchGene);

@@ -174,24 +174,25 @@ function saveSettings()
 	
 	for (var i=0; i < (_layoutOptions).length; i++)
 	{
-		if (_layoutOptions[i].id == "weightNorm")
-		{
-			// find the selected option and update the corresponding value
-			
-			if ($("#norm_linear").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_linear").val(); 
-			}
-			else if ($("#norm_invlinear").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_invlinear").val(); 
-			}
-			else if ($("#norm_log").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_log").val(); 
-			}
-		}
-		else if (_layoutOptions[i].id == "autoStabilize")
+//		if (_layoutOptions[i].id == "weightNorm")
+//		{
+//			// find the selected option and update the corresponding value
+//			
+//			if ($("#norm_linear").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_linear").val(); 
+//			}
+//			else if ($("#norm_invlinear").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_invlinear").val(); 
+//			}
+//			else if ($("#norm_log").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_log").val(); 
+//			}
+//		}
+		
+		if (_layoutOptions[i].id == "autoStabilize")
 		{
 			// check if the auto stabilize box is checked
 			
@@ -1468,18 +1469,16 @@ function _setComponentVis(component, visible)
 function _defaultOptsArray()
 {
 	var defaultOpts = 
-		[ { id: "gravitation", label: "Gravitation",       value: -500,   tip: "The gravitational constant. Negative values produce a repulsive force." },
+		[ { id: "gravitation", label: "Gravitation",       value: -350,   tip: "The gravitational constant. Negative values produce a repulsive force." },
 		  { id: "mass",        label: "Node mass",         value: 3,      tip: "The default mass value for nodes." },
 		  { id: "tension",     label: "Edge tension",      value: 0.1,    tip: "The default spring tension for edges." },
 		  { id: "restLength",  label: "Edge rest length",  value: "auto", tip: "The default spring rest length for edges." },
 		  { id: "drag",        label: "Drag co-efficient", value: 0.4,    tip: "The co-efficient for frictional drag forces." },
 		  { id: "minDistance", label: "Minimum distance",  value: 1,      tip: "The minimum effective distance over which forces are exerted." },
 		  { id: "maxDistance", label: "Maximum distance",  value: 10000,  tip: "The maximum distance over which forces are exerted." },
-		  { id: "weightAttr",  label: "Weight Attribute",  value: "",  tip: "The name of the edge attribute that contains the weights." },
-		  { id: "weightNorm",  label: "Weight Normalization", value: "linear",  tip: "How to interpret weight values." },
 		  { id: "iterations",  label: "Iterations",        value: 400,    tip: "The number of iterations to run the simulation." },
 		  { id: "maxTime",     label: "Maximum time",      value: 30000,  tip: "The maximum time to run the simulation, in milliseconds." },
-		  { id: "autoStabilize", label: "Auto stabilize",  value: true,   tip: "If checked, Cytoscape Web automatically tries to stabilize results that seems unstable after running the regular iterations." } ];
+		  { id: "autoStabilize", label: "Auto stabilize",  value: true,   tip: "If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations." } ];
 	
 	return defaultOpts;
 }
@@ -2586,18 +2585,19 @@ function _updatePropsUI()
 	
 	for (var i=0; i < _layoutOptions.length; i++)
 	{
-		if (_layoutOptions[i].id == "weightNorm")
-		{
-			// clean all selections
-			$("#norm_linear").removeAttr("selected");
-			$("#norm_invlinear").removeAttr("selected");
-			$("#norm_log").removeAttr("selected");
-			
-			// set the correct option as selected
-			
-			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
-		}
-		else if (_layoutOptions[i].id == "autoStabilize")
+//		if (_layoutOptions[i].id == "weightNorm")
+//		{
+//			// clean all selections
+//			$("#norm_linear").removeAttr("selected");
+//			$("#norm_invlinear").removeAttr("selected");
+//			$("#norm_log").removeAttr("selected");
+//			
+//			// set the correct option as selected
+//			
+//			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
+//		}
+		
+		if (_layoutOptions[i].id == "autoStabilize")
 		{
 			if (_layoutOptions[i].value == true)
 			{

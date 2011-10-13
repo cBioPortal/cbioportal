@@ -29,17 +29,7 @@ public class DaoGeneOptimized {
         //  Automatically populate hashmap upon init
         ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
         for (CanonicalGene currentGene:  globalGeneList) {
-            geneSymbolMap.put(currentGene.getHugoGeneSymbolAllCaps(), currentGene);
-            entrezIdMap.put(currentGene.getEntrezGeneId(), currentGene);
-            
-            for (String alias : currentGene.getAliases()) {
-                List<CanonicalGene> genes = geneAliasMap.get(alias);
-                if (genes==null) {
-                    genes = new ArrayList<CanonicalGene>();
-                    geneAliasMap.put(alias, genes);
-                }
-                genes.add(currentGene);
-            }
+            cacheGene(currentGene);
         }
     }
 
@@ -50,10 +40,25 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     public int addGene(CanonicalGene gene) throws DaoException {
+        DaoGene daoGene = DaoGene.getInstance();
+        int ret = daoGene.addGene(gene);
+        cacheGene(gene);
+        return ret;
+    }
+    
+    private void cacheGene(CanonicalGene gene) {
         geneSymbolMap.put(gene.getHugoGeneSymbolAllCaps(), gene);
         entrezIdMap.put(gene.getEntrezGeneId(), gene);
-        DaoGene daoGene = DaoGene.getInstance();
-        return daoGene.addGene(gene);
+
+        for (String alias : gene.getAliases()) {
+            String aliasUp = alias.toUpperCase();
+            List<CanonicalGene> genes = geneAliasMap.get(aliasUp);
+            if (genes==null) {
+                genes = new ArrayList<CanonicalGene>();
+                geneAliasMap.put(aliasUp, genes);
+            }
+            genes.add(gene);
+        }
     }
 
     /**
@@ -123,7 +128,7 @@ public class DaoGeneOptimized {
             return Collections.singletonList(gene);
         }
         
-        List<CanonicalGene> genes = geneAliasMap.get(geneId);
+        List<CanonicalGene> genes = geneAliasMap.get(geneId.toUpperCase());
         if (genes!=null) {
             return Collections.unmodifiableList(genes);
         }

@@ -639,7 +639,7 @@ sub createCancerTypeNameFile{
 		# see create_many_to_one_case_lists()
 		my $methylationlessMetadata_objects = [];
 		for my $object (@{$FirehoseFileMetadata_objects}) {
-		  if ($object !~ m/methylation/) {
+		  if ($object->getFilename() !~ m/methylation/) {
 			push @{$methylationlessMetadata_objects}, $object;
 		  }
 		}

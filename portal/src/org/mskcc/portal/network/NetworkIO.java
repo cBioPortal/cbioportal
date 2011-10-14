@@ -169,7 +169,6 @@ public final class NetworkIO {
         
         StringBuilder sbNodeEdge = new StringBuilder();
         
-        Set<String> nodeTypes = new HashSet<String>();
         for (Node node : network.getNodes()) {
             sbNodeEdge.append("  <node id=\"");
             sbNodeEdge.append(node.getId());
@@ -178,7 +177,6 @@ public final class NetworkIO {
             sbNodeEdge.append(nlh.getLabel(node));
             sbNodeEdge.append("</data>\n");
             
-            nodeTypes.add(node.getType().toString());
             sbNodeEdge.append("   <data key=\"type\">");
             sbNodeEdge.append(node.getType().toString());
             sbNodeEdge.append("</data>\n");
@@ -187,7 +185,6 @@ public final class NetworkIO {
             sbNodeEdge.append("  </node>\n");
         }
         
-        Set<String> edgeTypes = new HashSet<String>();
         for (Edge edge : network.getEdges()) {
             Node[] nodes = network.getNodes(edge);
             sbNodeEdge.append("  <edge source=\"");
@@ -198,7 +195,6 @@ public final class NetworkIO {
             sbNodeEdge.append(Boolean.toString(network.isEdgeDirected(edge)));
             sbNodeEdge.append("\">\n");
             
-            edgeTypes.add(edge.getInteractionType());
             sbNodeEdge.append("   <data key=\"type\">");
             sbNodeEdge.append(edge.getInteractionType());
             sbNodeEdge.append("</data>\n");
@@ -232,11 +228,7 @@ public final class NetworkIO {
               .append("\"/>\n");
         }
         
-        sb.append(" <graph edgedefault=\"undirected\"\n   parse.edgetypes=\"");
-        sb.append(StringUtils.join(edgeTypes,";"));
-        sb.append("\"\n   parse.nodetypes=\"");
-        sb.append(StringUtils.join(nodeTypes,";"));
-        sb.append("\">\n");        
+        sb.append(" <graph edgedefault=\"undirected\">\n");        
         sb.append(sbNodeEdge);
         sb.append(" </graph>\n");
         

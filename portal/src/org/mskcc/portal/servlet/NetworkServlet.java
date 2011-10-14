@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.mskcc.portal.network.Edge;
 import org.owasp.validator.html.PolicyException;
 
 import org.mskcc.portal.model.ProfileData;
@@ -47,7 +46,6 @@ import org.mskcc.cgds.web_api.GetProfileData;
 public class NetworkServlet extends HttpServlet {    
     private static final String HGNC = "HGNC";
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
-    private static final String NODE_ATTR_IN_PORTAL = "IN_PORTAL";
     private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
     private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
     private static final String NODE_ATTR_PERCENT_CNA_AMPLIFIED = "PERCENT_CNA_AMPLIFIED";
@@ -110,24 +108,6 @@ public class NetworkServlet extends HttpServlet {
                 network = new Network(); // send an empty network instead
             }
 
-            // remove small molecules
-//            xdebug.startTimer();
-//            network.filter(new Network.Filter() {
-//                public boolean filterNode(Node node) {
-//                    if (node == null) {
-//                        return true;
-//                    }
-//
-//                    return !"Protein".equals(node.getType());
-//                }
-//
-//                public boolean filterEdge(Edge edge) {
-//                    return filterNode(edge.getSourceNode()) || filterNode(edge.getTargetNode());
-//                }
-//            });
-//            xdebug.stopTimer();
-//            xdebug.logMsg(this, "Removed non-protein nodes: took "+xdebug.getTimeElapsed()+"ms");
-
             if (!network.getNodes().isEmpty()) {
                 
                 // add attribute is_query to indicate if a node is in query genes
@@ -136,13 +116,12 @@ public class NetworkServlet extends HttpServlet {
                 
                 ArrayList<String> netGenes = new ArrayList<String>();
                 for (Node node : network.getNodes()) {
-                    Set<String> ngnc = node.getXref(HGNC);
+                    String ngnc = (String)node.getAttribute(HGNC);
 
                     boolean inQuery = false;
-                    if (!ngnc.isEmpty()) {
-                        String sym = ngnc.iterator().next();
-                        inQuery = queryGenes.contains(sym);
-                        netGenes.add(sym);
+                    if (ngnc!=null) {
+                        inQuery = queryGenes.contains(ngnc);
+                        netGenes.add(ngnc);
                     }
                     node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(inQuery));
                 }
@@ -187,10 +166,10 @@ public class NetworkServlet extends HttpServlet {
                 for (String profileId : geneticProfileIdSet) {
                     xdebug.startTimer();
                     GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-                    alterationTypes.add(profile.getGeneticAlterationType());
                     if( null == profile ){
                        continue;
                     }
+                    alterationTypes.add(profile.getGeneticAlterationType());
 
                     GetProfileData remoteCall = new GetProfileData(profile, netGenes, caseIds);
                     ProfileData pData = remoteCall.getProfileData();
@@ -232,36 +211,7 @@ public class NetworkServlet extends HttpServlet {
 
                 // add attributes
                 xdebug.startTimer();
-                for (String gene : netGeneList) {
-                    for (Node node : network.getNodesByXref(HGNC, gene.toUpperCase())) {
-                        node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
-                                .getPercentCasesWhereGeneIsAltered(gene));
-                        if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
-                                alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
-                            node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
-                                    .getPercentCasesWhereGeneIsMutated(gene));
-                        }
-
-                        if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
-                                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
-                                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
-                                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                            node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
-                                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
-                        }
-
-                        if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
-                                    .getPercentCasesWhereMRNAIsUpRegulated(gene));
-                            node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
-                                    .getPercentCasesWhereMRNAIsDownRegulated(gene));
-                        }
-                    }
-                }
-                
+                addCGDSDataAsNodeAttribute(network, netDataSummary, alterationTypes);
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Added node attributes. Took "+xdebug.getTimeElapsed()+"ms");
             }
@@ -270,14 +220,14 @@ public class NetworkServlet extends HttpServlet {
             String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
-                    Set<String> ngnc = node.getXref(HGNC);
-                    if (!ngnc.isEmpty()) {
-                        return ngnc.iterator().next();
+                    String ngnc = (String)node.getAttribute(HGNC);
+                    if (ngnc!=null) {
+                        return ngnc;
                     }
                     
-                    Set<Object> strNames = node.getAttributes().get("PARTICIPANT_NAME");
-                    if (strNames!=null && !strNames.isEmpty()) {
-                        String[] names = strNames.iterator().next().toString().split(";");
+                    Object strNames = node.getAttributes().get("PARTICIPANT_NAME");
+                    if (strNames!=null) {
+                        String[] names = strNames.toString().split(";");
                         if (names.length>0) {
                             return names[0];
                         }
@@ -297,6 +247,43 @@ public class NetworkServlet extends HttpServlet {
         } catch (DaoException e) {
             throw new ServletException (e);
         }
+    }
+    
+    private void addCGDSDataAsNodeAttribute(Network network, ProfileDataSummary netDataSummary,
+            Set<GeneticAlterationType> alterationTypes) {
+        for (Node node : network.getNodes()) {
+            String gene = (String)node.getAttribute(HGNC);
+            if (gene==null) {
+                continue;
+            }
+            
+            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
+                    .getPercentCasesWhereGeneIsAltered(gene));
+            if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
+                    alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
+                node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
+                        .getPercentCasesWhereGeneIsMutated(gene));
+            }
+
+            if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
+                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+                node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
+                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+                node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
+                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+                node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
+                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
+            }
+
+            if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
+                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
+                        .getPercentCasesWhereMRNAIsUpRegulated(gene));
+                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
+                        .getPercentCasesWhereMRNAIsDownRegulated(gene));
+            }
+        }
+        
     }
     
     private String getNetworkServletUrl(HttpServletRequest req, ServletXssUtil xssUtil) {

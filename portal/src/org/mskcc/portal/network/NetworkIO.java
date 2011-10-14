@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,44 +53,13 @@ public final class NetworkIO {
                 return network;
             }
             
-            String[] edgeHeaders = line.split("\t"); 
+            String[] edgeHeaders = line.split("\t");
+            ArrayList<String> edgeLines = new ArrayList<String>();
             for (line = bufReader.readLine(); !line.isEmpty(); line = bufReader.readLine()) {
-                String[] strs = line.split("\t");
-                
-                if (strs.length<3) {// sth. is wrong
-                    continue;
-                }
-                
-                Node source = network.getNodeById(strs[0]);
-                if (source==null) {
-                    source = new Node(strs[0]);
-                    network.addNode(source);
-                }
-                
-                Node target = network.getNodeById(strs[2]);
-                if (target==null) {
-                    target = new Node(strs[2]);
-                }
-                
-                if (removeSelfEdge && target==source) {
-                    continue;
-                }
-                
-                String interaction = strs[1];
-                Edge edge = new Edge(source, target, interaction);
-                for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
-                            && !strs[i].startsWith("PubMed:")) {
-                        //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
-                        continue;
-                    }
-                        
-                    edge.addAttribute(edgeHeaders[i], strs[i]);
-                }
-                network.addEdge(edge);
+                edgeLines.add(line);
             }
             
-            // read nodes xrefs
+            // read nodes
             line = bufReader.readLine();
             if (!line.startsWith("PARTICIPANT\tPARTICIPANT_TYPE\tPARTICIPANT_NAME\t"
                     + "UNIFICATION_XREF\tRELATIONSHIP_XREF")) {
@@ -100,16 +70,16 @@ public final class NetworkIO {
             String[] nodeHeaders = line.split("\t");
             for (line = bufReader.readLine(); line!=null && !line.isEmpty(); line = bufReader.readLine()) {
                 String[] strs = line.split("\t");
-                Node node = network.getNodeById(strs[0]);
+                Node node = new Node(strs[0]);
                 for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
                     if (nodeHeaders[i].equals("PARTICIPANT_TYPE")) {
-                        String type;
+                        NodeType type;
                         if (strs[i].equals("ProteinReference")) {
-                            type = "Protein";
+                            type = NodeType.PROTEIN;
                         } else if (strs[i].equals("SmallMoleculeReference")) {
-                            type = "SmallMolecule";
+                            type = NodeType.SMALL_MOLECULE;
                         } else {
-                            type = "Unknown";
+                            type = NodeType.UNKNOWN;
                         }
                         node.setType(type);
                     } else {
@@ -123,14 +93,43 @@ public final class NetworkIO {
                             for (String xref : strs[i].split(";")) {
                                 String[] typeId = xref.split(":",2);
                                 if (typeId[0].equals("HGNC")) {
-                                    node.addXref(typeId[0], typeId[1].toUpperCase());
-                                } else {
-                                    node.addXref(typeId[0], typeId[1]);
-                                }
+                                    node.addAttribute("HGNC", typeId[1].toUpperCase());
+                                } 
                             }
                         }
                     }
                 }
+                
+                network.addNode(node);
+            }
+            
+            // add edges
+            for (String edgeLine : edgeLines) {
+                String[] strs = edgeLine.split("\t");
+                
+                if (strs.length<3) {// sth. is wrong
+                    continue;
+                }
+                
+                if (removeSelfEdge && strs[0].equals(strs[2])) {
+                    continue;
+                }
+                
+                String interaction = strs[1];
+                Edge edge = new Edge(interaction);
+                
+                boolean isDirect = false; //TODO: determine directness
+                
+                for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
+                    if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
+                            && !strs[i].startsWith("PubMed:")) {
+                        //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
+                        continue;
+                    }
+                        
+                    edge.addAttribute(edgeHeaders[i], strs[i]);
+                }
+                network.addEdge(edge, strs[0], strs[2], isDirect);
             }
             
             return network;
@@ -146,11 +145,12 @@ public final class NetworkIO {
         StringBuilder sb = new StringBuilder();
         
         for (Edge edge : network.getEdges()) {
-            sb.append(nlh.getLabel(edge.getSourceNode()));
+            Node[] nodes = network.getNodes(edge);
+            sb.append(nlh.getLabel(nodes[0]));
             sb.append("\t");
             sb.append(edge.getInteractionType());
             sb.append("\t");
-            sb.append(nlh.getLabel(edge.getTargetNode()));
+            sb.append(nlh.getLabel(nodes[1]));
             sb.append("\n");
         }
         
@@ -178,9 +178,9 @@ public final class NetworkIO {
             sbNodeEdge.append(nlh.getLabel(node));
             sbNodeEdge.append("</data>\n");
             
-            nodeTypes.add(node.getType());
+            nodeTypes.add(node.getType().toString());
             sbNodeEdge.append("   <data key=\"type\">");
-            sbNodeEdge.append(node.getType());
+            sbNodeEdge.append(node.getType().toString());
             sbNodeEdge.append("</data>\n");
             
             exportAttributes(node.getAttributes(),sbNodeEdge,mapNodeAttrNameType);
@@ -189,10 +189,13 @@ public final class NetworkIO {
         
         Set<String> edgeTypes = new HashSet<String>();
         for (Edge edge : network.getEdges()) {
+            Node[] nodes = network.getNodes(edge);
             sbNodeEdge.append("  <edge source=\"");
-            sbNodeEdge.append(edge.getSourceNode().getId());
+            sbNodeEdge.append(nodes[0].getId());
             sbNodeEdge.append("\" target=\"");
-            sbNodeEdge.append(edge.getTargetNode().getId());
+            sbNodeEdge.append(nodes[1].getId());
+            sbNodeEdge.append("\" directed=\"");
+            sbNodeEdge.append(Boolean.toString(network.isEdgeDirected(edge)));
             sbNodeEdge.append("\">\n");
             
             edgeTypes.add(edge.getInteractionType());
@@ -242,38 +245,43 @@ public final class NetworkIO {
         return sb.toString();
     }
     
-    private static void exportAttributes(Map<String,Set<Object>> attrs, 
+    private static void exportAttributes(Map<String,Object> attrs, 
             StringBuilder to, Map<String,String> mapAttrNameType) {
-        for (Map.Entry<String,Set<Object>> entry : attrs.entrySet()) {
+        for (Map.Entry<String,Object> entry : attrs.entrySet()) {
             String attr = entry.getKey();
+            Object value = entry.getValue();
+            
+            to.append("   <data key=\"");
+            to.append(attr);
+            to.append("\">");
+            to.append(value);
+            to.append("</data>\n");
 
-            for (Object value : entry.getValue()) {
-                to.append("   <data key=\"");
-                to.append(attr);
-                to.append("\">");
-                to.append(value);
-                to.append("</data>\n");
+            String type = getAttrType(value);
 
-                String type = getAttrType(value);
-
-                String pre = mapAttrNameType.get(attr);
-                if (pre!=null) {
-                    if (!pre.equals(type))
-                        mapAttrNameType.put(attr, "string");
-                } else {
-                    mapAttrNameType.put(attr, type);
+            String pre = mapAttrNameType.get(attr);
+            if (pre!=null) {
+                if (!pre.equals(type)) {
+                    mapAttrNameType.put(attr, "string");
                 }
+            } else {
+                mapAttrNameType.put(attr, type);
             }
         }
     }
     
     private static String getAttrType(Object obj) {
-        if (obj instanceof Integer)
+        if (obj instanceof Integer) {
             return "integer";
-        if (obj instanceof Float || obj instanceof Double)
+        }
+        
+        if (obj instanceof Float || obj instanceof Double) {
             return "double";
-        if (obj instanceof Boolean)
+        }
+        
+        if (obj instanceof Boolean) {
             return "boolean";
+        }
         
         return "string";
     }

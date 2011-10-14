@@ -7,7 +7,7 @@ hnsc : Head and Neck squamous cell carcinoma
 kirc : Kidney renal clear cell carcinoma
 kirp : Kidney renal papillary cell carcinoma
 laml : Acute Myeloid Leukemia
-lgg: Brain Lower Grade Glioma
+lgg : Brain Lower Grade Glioma
 lihc : Liver hepatocellular carcinoma
 luad : Lung adenocarcinoma
 lusc : Lung squamous cell carcinoma

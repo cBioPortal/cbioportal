@@ -9,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Data Access Object to Interaction Table.
@@ -125,6 +128,37 @@ public class DaoInteraction {
                 ("SELECT * FROM interaction where GENE_A=? or GENE_B=?");
             pstmt.setLong(1, gene.getEntrezGeneId());
             pstmt.setLong(2, gene.getEntrezGeneId());
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Interaction interaction = extractInteraction(rs);
+                interactionList.add(interaction);
+            }
+            return interactionList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Gets all Interactions involving the Specified Gene.
+     * @param gene Gene
+     * @return ArrayList of Interaction Objects.
+     * @throws DaoException Database Error.
+     */
+    public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds)
+        throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
+        try {
+            con = JdbcUtil.getDbConnection();
+            String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
+            pstmt = con.prepareStatement
+                ("SELECT * FROM interaction where GENE_A IN "
+                    + idStr + " OR GENE_B IN "+idStr);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 Interaction interaction = extractInteraction(rs);

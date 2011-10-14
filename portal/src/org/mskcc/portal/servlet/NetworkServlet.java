@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -100,7 +102,8 @@ public class NetworkServlet extends HttpServlet {
             Network network;
             try {
                 xdebug.startTimer();
-                network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+                //network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+                network = NetworkIO.readNetworkFromCGDS(queryGenes);
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Successfully retrieved networks from cPath2: took "+xdebug.getTimeElapsed()+"ms");
             } catch (Exception e) {
@@ -220,14 +223,18 @@ public class NetworkServlet extends HttpServlet {
             String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
-                    String ngnc = (String)node.getAttribute(HGNC);
-                    if (ngnc!=null) {
-                        return ngnc;
+                    String strXrefs = (String)node.getAttribute("RELATIONSHIP_XREF");
+                    if (strXrefs!=null) {
+                        Pattern pattern = Pattern.compile("HGNC:([^;]+)");
+                        Matcher matcher = pattern.matcher(strXrefs);
+                        if (matcher.find()) {
+                            return matcher.group(1).toUpperCase();
+                        }
                     }
                     
                     Object strNames = node.getAttributes().get("PARTICIPANT_NAME");
                     if (strNames!=null) {
-                        String[] names = strNames.toString().split(";");
+                        String[] names = strNames.toString().split(";",2);
                         if (names.length>0) {
                             return names[0];
                         }

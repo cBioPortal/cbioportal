@@ -1580,15 +1580,15 @@ function _geneWeightArray(coeff)
 	// calculate weight values for each gene
 	
 	var nodes = _vis.nodes();
-	var sum, weight, neighbors;
+	var max, weight, neighbors;
 	
 	for (var i = 0; i < nodes.length; i++)
 	{
-		// add the total alteration of current node to the weight
+		// get the total alteration of the current node
 		
 		if (nodes[i].data["PERCENT_ALTERED"] != null)
 		{
-			weight = nodes[i].data["PERCENT_ALTERED"] * coeff;
+			weight = nodes[i].data["PERCENT_ALTERED"];
 		}
 		else
 		{
@@ -1598,20 +1598,33 @@ function _geneWeightArray(coeff)
 		// get first neighbors of the current node
 		
 		neighbors = _vis.firstNeighbors([nodes[i]]).neighbors;
-		sum = 0;
+		max = 0;
 		
-		// calculate the sum of the total alteration of its neighbors
-		
-		for (var j = 0; j < neighbors.length; j++)
+		// find the max of the total alteration of its neighbors,
+		// if coeff is not 1.0
+		if (coeff < 1.0)
 		{
-			if (neighbors[j].data["PERCENT_ALTERED"] != null)
+			for (var j = 0; j < neighbors.length; j++)
 			{
-				sum += neighbors[j].data["PERCENT_ALTERED"];
+				if (neighbors[j].data["PERCENT_ALTERED"] != null)
+				{
+					if (neighbors[j].data["PERCENT_ALTERED"] > max)
+					{
+						max = neighbors[j].data["PERCENT_ALTERED"];
+					}
+				}
+			}
+			
+			// calculate the weight of the max value by using the coeff 
+			max = max * (1 - coeff);
+			
+			// if maximum weight due to the total alteration of its neighbors
+			// is greater than its own weight, then use max instead
+			if (max > weight)
+			{
+				weight = max;
 			}
 		}
-		
-		// calculate the average and add the value to the weight		
-		weight += (sum / neighbors.length) * (1 - coeff);
 		
 		// add the weight value to the map
 		weightArray[nodes[i].data.id] = weight * 100;
@@ -2783,7 +2796,7 @@ function _transformIntervalValue(value, sourceInterval, targetInterval)
 
 /**
  * Transforms the input value by using the function: 
- * y = (0.000166377)x^3 - (0.0118428)x^2 + (0.520007)x
+ * y = (0.000230926)x^3 - (0.0182175)x^2 + (0.511788)x
  * 
  * This function is designed to transform slider input, which is between
  * 0 and 100, to provide a better filtering.
@@ -2792,9 +2805,11 @@ function _transformIntervalValue(value, sourceInterval, targetInterval)
  */
 function _transformValue(value)
 {
-	var transformed = 0.000166377 * Math.pow(value, 3) -
-		0.0118428 * Math.pow(value, 2) +
-		0.520007 * value;
+	// previous function: y = (0.000166377)x^3 - (0.0118428)x^2 + (0.520007)x
+	
+	var transformed = 0.000230926 * Math.pow(value, 3) -
+		0.0182175 * Math.pow(value, 2) +
+		0.511788 * value;
 	
 	if (transformed < 0)
 	{

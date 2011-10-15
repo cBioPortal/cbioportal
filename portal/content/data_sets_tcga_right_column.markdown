@@ -33,10 +33,6 @@
 <td style="text-align: right;">492</td>
 </tr>
 <tr>
-<td class="Tips1" title="Kidney renal papillary cell carcinoma">KIRP</td>
-<td style="text-align: right;">21</td>
-</tr>
-<tr>
 <td class="Tips1" title="Brain Lower Grade Glioma">LGG</td>
 <td style="text-align: right;">55</td>
 </tr>

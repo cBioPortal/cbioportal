@@ -99,11 +99,16 @@ public class NetworkServlet extends HttpServlet {
 
             //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
 
+            String netSrc = req.getParameter("netsrc");
+            
             Network network;
             try {
                 xdebug.startTimer();
-                //network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
-                network = NetworkIO.readNetworkFromCGDS(queryGenes);
+                if (netSrc.toUpperCase().equals("CGDS")) {
+                    network = NetworkIO.readNetworkFromCGDS(queryGenes);
+                } else {
+                    network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+                }
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Successfully retrieved networks from cPath2: took "+xdebug.getTimeElapsed()+"ms");
             } catch (Exception e) {

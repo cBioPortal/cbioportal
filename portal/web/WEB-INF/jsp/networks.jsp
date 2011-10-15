@@ -13,7 +13,9 @@
     String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
-    
+    String netSrc = request.getParameter("netsrc");
+    if (netSrc==null)
+        netSrc = "cpath2";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -150,7 +152,8 @@
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
-                     xdebug:'<%=useXDebug%>'
+                     xdebug:'<%=useXDebug%>',
+                     netsrc:'<%=netSrc%>'
                     };
                 $.post("network.do", 
                     networkParams,

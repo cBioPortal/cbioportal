@@ -107,9 +107,8 @@ public final class NetworkIO {
             }
 
             String interaction = strs[1];
-            Edge edge = new Edge(interaction);
-
-            boolean isDirect = false; //TODO: determine directness
+            boolean isDirect = isEdgeDirected(interaction);
+            Edge edge = new Edge(isDirect, interaction);
 
             for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
                 if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
@@ -120,10 +119,50 @@ public final class NetworkIO {
 
                 edge.addAttribute(edgeHeaders[i], strs[i]);
             }
-            network.addEdge(edge, strs[0], strs[2], isDirect);
+            network.addEdge(edge, strs[0], strs[2]);
         }
 
         return network;
+    }
+    
+    private static boolean isEdgeDirected(String interaction) {
+        if (interaction==null) {
+            return false;
+        }
+        
+        if (interaction.equals("COMPONENT_OF")) {
+            return true;
+        }
+        
+        if (interaction.equals("CO_CONTROL")) {
+            return false;
+        }
+        
+        if (interaction.equals("INTERACTS_WITH")) {
+            return false;
+        }
+        
+        if (interaction.equals("IN_SAME_COMPONENT")) {
+            return false;
+        }
+        
+        if (interaction.equals("METABOLIC_CATALYSIS")) {
+            return true;
+        }
+        
+        if (interaction.equals("METABOLIC_CATALYSIS")) {
+            return false;
+        }
+        
+        if (interaction.equals("SEQUENTIAL_CATALYSIS")) {
+            return true;
+        }
+        
+        if (interaction.equals("STATE_CHANGE")) {
+            return true;
+        }
+        
+        return false;        
     }
     
     /**
@@ -156,7 +195,8 @@ public final class NetworkIO {
             String pubmed = interaction.getPmids();
             String source = interaction.getSource();
             String exp = interaction.getExperimentTypes();
-            Edge edge = new Edge(interactionType);
+            boolean isDirected = isEdgeDirected(interactionType); //TODO: how about HPRD
+            Edge edge = new Edge(isDirected, interactionType);
             if (pubmed!=null) {
                 edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
             }
@@ -166,8 +206,7 @@ public final class NetworkIO {
             if (exp!=null) {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
-            boolean isDirected = false; //TODO: determine directness
-            net.addEdge(edge, geneAID, geneBID, isDirected);
+            net.addEdge(edge, geneAID, geneBID);
         }
         if (prune) {
             pruneCGDSNetwork(net, seedGenes);
@@ -295,7 +334,7 @@ public final class NetworkIO {
             sbNodeEdge.append("\" target=\"");
             sbNodeEdge.append(nodes[1].getId());
             sbNodeEdge.append("\" directed=\"");
-            sbNodeEdge.append(Boolean.toString(network.isEdgeDirected(edge)));
+            sbNodeEdge.append(Boolean.toString(edge.isDirected()));
             sbNodeEdge.append("\">\n");
             
             sbNodeEdge.append("   <data key=\"type\">");

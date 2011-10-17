@@ -323,12 +323,16 @@ public class NetworkServlet extends HttpServlet {
         String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
         String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
         String zscoreThreshold = xssUtil.getCleanInput(req, QueryBuilder.Z_SCORE_THRESHOLD);
+        String netSrc = req.getParameter("netsrc");
+        String pruneNetwork = req.getParameter("prunenet");
         
         return "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
-                +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold;
+                +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
+                +"&netsrc="+netSrc
+                +"&prunenet="+pruneNetwork;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletRequest req,

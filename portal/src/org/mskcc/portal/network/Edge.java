@@ -9,6 +9,7 @@ import java.util.Map;
  * @author jj
  */
 public class Edge {
+    private boolean directed;
     private String interactionType;
     private Map<String,Object> attrs;
     
@@ -16,7 +17,8 @@ public class Edge {
      * 
      * @param interactionType 
      */
-    public Edge(String interactionType) {
+    public Edge(boolean directed, String interactionType) {
+        this.directed = directed;
         this.interactionType = interactionType;
         attrs = new LinkedHashMap<String,Object>();
     }
@@ -44,5 +46,13 @@ public class Edge {
      */
     public void addAttribute(String attr, Object value) {
         attrs.put(attr, value);
-    }   
+    }
+
+    public boolean isDirected() {
+        return directed;
+    }
+
+    public void setDirected(boolean directed) {
+        this.directed = directed;
+    }
 }

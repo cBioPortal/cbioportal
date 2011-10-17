@@ -78,14 +78,14 @@ public class Network {
      * add an edge
      * @param edge an edge 
      */
-    public void addEdge(Edge edge, String idOfNode1, String idOfNode2, boolean isDirect) {
+    public void addEdge(Edge edge, String idOfNode1, String idOfNode2) {
         Node node1 = nodesByIds.get(idOfNode1);
         Node node2 = nodesByIds.get(idOfNode2);
         if (node1==null || node2==null) {
             throw new java.lang.UnsupportedOperationException("Add nodes before adding an edge");
         }
         
-        graph.addEdge(edge, node1, node2, isDirect ? EdgeType.DIRECTED : EdgeType.UNDIRECTED);
+        graph.addEdge(edge, node1, node2);
     }
     
     /**
@@ -107,10 +107,9 @@ public class Network {
         return new Node[] {nodes.getFirst(), nodes.getSecond()};
     }
     
-    public boolean isEdgeDirected(Edge edge) {
-        return graph.getEdgeType(edge) == EdgeType.DIRECTED;
-    }
-    
+    /**
+     * 
+     */
     public Collection<Node> getNeighbors(Node node) {
         return graph.getNeighbors(node);
     }

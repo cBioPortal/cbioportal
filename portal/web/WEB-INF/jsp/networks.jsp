@@ -16,6 +16,9 @@
     String netSrc = request.getParameter("netsrc");
     if (netSrc==null)
         netSrc = "cpath2";
+    String pruneNet = request.getParameter("prunenet");
+    if (pruneNet==null)
+        pruneNet = "on";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -153,7 +156,8 @@
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      xdebug:'<%=useXDebug%>',
-                     netsrc:'<%=netSrc%>'
+                     netsrc:'<%=netSrc%>',
+                     prunenet:'<%=pruneNet%>'
                     };
                 $.post("network.do", 
                     networkParams,

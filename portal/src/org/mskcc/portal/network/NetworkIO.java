@@ -132,17 +132,25 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes) throws Exception {
+    public static Network readNetworkFromCGDS(Set<String> genes, boolean prune, 
+            boolean removeSelfEdge) throws Exception {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
+        Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
         List<Interaction> interactionList = daoInteraction.getInteractions(entrezHugoMap.keySet());
         Network net = new Network();
         for (Interaction interaction : interactionList) {
-            String geneA = Long.toString(interaction.getGeneA());
-            String geneB = Long.toString(interaction.getGeneB());
+            long geneA = interaction.getGeneA();
+            long geneB = interaction.getGeneB();
+            if (removeSelfEdge && geneA == geneB) {
+                continue;
+            }
             
-            addNode(net, geneA, entrezToHugo(entrezHugoMap,interaction.getGeneA()));
-            addNode(net, geneB, entrezToHugo(entrezHugoMap,interaction.getGeneB()));
+            String geneAID = Long.toString(geneA);
+            String geneBID = Long.toString(geneB);
+            
+            addNode(net, geneAID, entrezToHugo(entrezHugoMap,geneA));
+            addNode(net, geneBID, entrezToHugo(entrezHugoMap,geneB));
             
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPmids();
@@ -159,9 +167,42 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
             boolean isDirected = false; //TODO: determine directness
-            net.addEdge(edge, geneA, geneB, isDirected);
+            net.addEdge(edge, geneAID, geneBID, isDirected);
+        }
+        if (prune) {
+            pruneCGDSNetwork(net, seedGenes);
         }
         return net;
+    }
+    
+    private static void pruneCGDSNetwork(Network net, Set<Long> seedGenes) {
+        if (seedGenes.size()<2) {
+            return;
+        }
+        
+        //  For now, mark all nodes that have degree = 1, and mark for removal
+        List<Node> deleteList = new ArrayList<Node>();
+        for (Node node:  net.getNodes()) {
+            if (seedGenes.contains(Long.valueOf(node.getId()))) {
+                continue;
+            }
+            
+            int seedDegree = 0;
+            for (Node neighbor : net.getNeighbors(node)) {
+                if (seedGenes.contains(Long.valueOf(neighbor.getId()))) {
+                    seedDegree++;
+                }
+            }
+            
+            if (seedDegree <= 1) {
+                deleteList.add(node);
+            }
+        }
+
+        //  Remove marked genes
+        for (Node node:  deleteList) {
+            net.removeNode(node);
+        }
     }
     
     private static void addNode(Network net, String entrez, String hugo) {

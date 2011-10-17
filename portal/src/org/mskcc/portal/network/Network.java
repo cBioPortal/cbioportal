@@ -110,4 +110,8 @@ public class Network {
     public boolean isEdgeDirected(Edge edge) {
         return graph.getEdgeType(edge) == EdgeType.DIRECTED;
     }
+    
+    public Collection<Node> getNeighbors(Node node) {
+        return graph.getNeighbors(node);
+    }
 }

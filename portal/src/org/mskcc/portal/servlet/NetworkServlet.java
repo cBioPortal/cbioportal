@@ -6,7 +6,9 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,8 +47,7 @@ import org.mskcc.cgds.web_api.GetProfileData;
  * Retrieving 
  * @author jj
  */
-public class NetworkServlet extends HttpServlet {    
-    private static final String HGNC = "HGNC";
+public class NetworkServlet extends HttpServlet {   
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
     private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
     private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
@@ -104,8 +105,9 @@ public class NetworkServlet extends HttpServlet {
             Network network;
             try {
                 xdebug.startTimer();
+                String pruneNetwork = req.getParameter("prunenet");
                 if (netSrc.toUpperCase().equals("CGDS")) {
-                    network = NetworkIO.readNetworkFromCGDS(queryGenes);
+                    network = NetworkIO.readNetworkFromCGDS(queryGenes, "on".equals(pruneNetwork), true);
                 } else {
                     network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
                 }
@@ -118,13 +120,15 @@ public class NetworkServlet extends HttpServlet {
 
             if (!network.getNodes().isEmpty()) {
                 
+                Map<String, String> mapNodeIDSymbol = getMapNodeIDSymbol(network);
+                
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
                 
                 ArrayList<String> netGenes = new ArrayList<String>();
                 for (Node node : network.getNodes()) {
-                    String ngnc = (String)node.getAttribute(HGNC);
+                    String ngnc = mapNodeIDSymbol.get(node.getId());
 
                     boolean inQuery = false;
                     if (ngnc!=null) {
@@ -219,7 +223,7 @@ public class NetworkServlet extends HttpServlet {
 
                 // add attributes
                 xdebug.startTimer();
-                addCGDSDataAsNodeAttribute(network, netDataSummary, alterationTypes);
+                addCGDSDataAsNodeAttribute(network, netDataSummary, alterationTypes, mapNodeIDSymbol);
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Added node attributes. Took "+xdebug.getTimeElapsed()+"ms");
             }
@@ -261,10 +265,25 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private void addCGDSDataAsNodeAttribute(Network network, ProfileDataSummary netDataSummary,
-            Set<GeneticAlterationType> alterationTypes) {
+    private Map<String, String> getMapNodeIDSymbol(Network network) {
+        Map<String, String> map = new HashMap<String, String>();
         for (Node node : network.getNodes()) {
-            String gene = (String)node.getAttribute(HGNC);
+            String strXrefs = (String)node.getAttribute("RELATIONSHIP_XREF");
+            if (strXrefs!=null) {
+                Pattern pattern = Pattern.compile("HGNC:([^;]+)");
+                Matcher matcher = pattern.matcher(strXrefs);
+                if (matcher.find()) {
+                    map.put(node.getId(), matcher.group(1).toUpperCase());
+                }
+            }
+        }
+        return map;
+    }
+    
+    private void addCGDSDataAsNodeAttribute(Network network, ProfileDataSummary netDataSummary,
+            Set<GeneticAlterationType> alterationTypes, Map<String, String> mapNodeIDSymbol) {
+        for (Node node : network.getNodes()) {
+            String gene = mapNodeIDSymbol.get(node.getId());
             if (gene==null) {
                 continue;
             }

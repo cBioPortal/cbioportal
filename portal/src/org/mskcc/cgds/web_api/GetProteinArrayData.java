@@ -41,7 +41,7 @@ public class GetProteinArrayData {
         
         ArrayList<ProteinArrayInfo> pais;
         
-        Set<String> types = Collections.singleton(type);
+        Set<String> types = type==null?null:Collections.singleton(type);
         if (targetGeneList==null) {
             pais = daoPAI.getProteinArrayInfoForType(cancerStudyId,types);
         } else {
@@ -57,9 +57,9 @@ public class GetProteinArrayData {
         }
         
         for (ProteinArrayInfo pai : pais) {
-            sb.append(pai.getGene()); sb.append('\t');
             sb.append(pai.getId()); sb.append('\t');
             sb.append(pai.getType()); sb.append('\t');
+            sb.append(pai.getGene()); sb.append('\t');
             sb.append(pai.getResidue()); sb.append('\t');
             sb.append(pai.getSource()); sb.append('\t');
             sb.append(Boolean.toString(pai.isValidated()));

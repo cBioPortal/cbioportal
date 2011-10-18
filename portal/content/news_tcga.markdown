@@ -1,9 +1,11 @@
 # October 18, 2011
 
 This release adds the following new data:
-* September Firehose run with new tumor types (Bladder, Liver, Low grade glioma)
+
+* Based on the September Firehose run with new tumor types (Bladder, Liver, Low grade glioma)
 * Latest MAF files from the COADREAD and LUSC analysis working groups
 * Mutation Assessor links for all missense mutations
+* RPPA data for kidney clear cell and endometrial cancer
 * GBM case lists for transcriptional subtypes and CIMP
 
 # September 12, 2011

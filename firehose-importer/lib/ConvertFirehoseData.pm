@@ -633,8 +633,17 @@ sub createCancerTypeNameFile{
     if( defined( $name ) ){
         $fileContent .= $name . "\n"; 
         
-        # TCGA<full cancer name here>.<# of samples>   samples. 
-        my @cases = FirehoseFileMetadata::union_of_case_lists( @{$FirehoseFileMetadata_objects});
+        # TCGA<full cancer name here>.<# of samples>   samples.
+		# remove methylation data from array before getting union
+		# otherwise this union will not agree with union computed for casses_all.txt
+		# see create_many_to_one_case_lists()
+		my $methylationlessMetadata_objects = [];
+		for my $object (@{$FirehoseFileMetadata_objects}) {
+		  if ($object->getFilename() !~ m/methylation/) {
+			push @{$methylationlessMetadata_objects}, $object;
+		  }
+		}
+        my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
         my $url = "\"http://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";

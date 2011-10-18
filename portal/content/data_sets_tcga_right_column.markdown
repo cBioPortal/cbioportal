@@ -5,12 +5,16 @@
 </tr>
 
 <tr>
+<td class="Tips1" title="Bladder Urothelial Carcinoma">BLCA</td>
+<td style="text-align: right;">34</td>
+</tr>
+<tr>
 <td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
 <td style="text-align: right;">731</td>
 </tr>
 <tr>
-<td class="Tips1" title="Colon adenocarcinoma">COAD</td>
-<td style="text-align: right;">155</td>
+<td class="Tips1" title="Cervical Squamous Cell Carcinoma">CESC</td>
+<td style="text-align: right;">31</td>
 </tr>
 <tr>
 <td class="Tips1" title="Colon and Rectum adenocarcinoma">COADREAD</td>
@@ -29,8 +33,12 @@
 <td style="text-align: right;">492</td>
 </tr>
 <tr>
-<td class="Tips1" title="Kidney renal papillary cell carcinoma">KIRP</td>
-<td style="text-align: right;">21</td>
+<td class="Tips1" title="Brain Lower Grade Glioma">LGG</td>
+<td style="text-align: right;">55</td>
+</tr>
+<tr>
+<td class="Tips1" title="Liver hepatocellular carcinoma">LIHC</td>
+<td style="text-align: right;">49</td>
 </tr>
 <tr>
 <td class="Tips1" title="Lung adenocarcinoma">LUAD</td>
@@ -43,10 +51,6 @@
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
 <td style="text-align: right;">558</td>
-</tr>
-<tr>
-<td class="Tips1" title="Rectum adenocarcinoma">READ</td>
-<td style="text-align: right;">69</td>
 </tr>
 <tr>
 <td class="Tips1" title="Stomach adenocarcinoma">STAD</td>

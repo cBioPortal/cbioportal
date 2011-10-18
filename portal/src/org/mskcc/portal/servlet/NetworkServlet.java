@@ -112,7 +112,8 @@ public class NetworkServlet extends HttpServlet {
                     network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
                 }
                 xdebug.stopTimer();
-                xdebug.logMsg(this, "Successfully retrieved networks from cPath2: took "+xdebug.getTimeElapsed()+"ms");
+                xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
+                        + ": took "+xdebug.getTimeElapsed()+"ms");
             } catch (Exception e) {
                 xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
                 network = new Network(); // send an empty network instead
@@ -254,7 +255,7 @@ public class NetworkServlet extends HttpServlet {
             });
             
             if (xd!=null && xd.equals("1")) {
-                writeXDebug(xdebug,req,res);
+                writeXDebug(xdebug, res);
             }
             
             PrintWriter writer = res.getWriter();
@@ -335,8 +336,7 @@ public class NetworkServlet extends HttpServlet {
                 +"&prunenet="+pruneNetwork;
     }
     
-    private void writeXDebug(XDebug xdebug, HttpServletRequest req,
-                      HttpServletResponse res) 
+    private void writeXDebug(XDebug xdebug, HttpServletResponse res) 
             throws ServletException, IOException {
         PrintWriter writer = res.getWriter();
         writer.write("<!--xdebug messages begin:\n");

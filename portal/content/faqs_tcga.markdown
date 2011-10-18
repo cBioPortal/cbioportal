@@ -1,10 +1,10 @@
  [TOC]
 
-# What is the cBio TCGA Cancer Genomics Portal?
+# What is the cBio GDAC Cancer Genomics Portal?
 
-The cBio TCGA Cancer Genomics Portal contains data from all completed and ongoing TCGA projects and is exclusively available to TCGA researchers. All data is automatically imported from the output of the Broad Firehose. The portal has all the same features as the public [cBio Cancer Genomics Portal](http://cbioportal.org/).
+The cBio GDAC Cancer Genomics Portal contains data from all completed and ongoing TCGA projects and is exclusively available to TCGA researchers. All data is automatically imported from the output of the Broad Firehose. The portal has all the same features as the public [cBio Cancer Genomics Portal](http://cbioportal.org/).
 
-# What are the main functionalities of the cBio TCGA Cancer Genomics Portal?
+# What are the main functionalities of the cBio GDAC Cancer Genomics Portal?
 
 The portal stores genomic data from large scale, integrated cancer genomic data sets. It allows explorative data analysis (e.g.: Is my gene of interest altered in a specific cancer type? How frequently is EGFR amplified in glioblastoma? Do mutations of BRCA1 and BRCA2 in ovarian cancer co-occur?) and provides simple download of small data slices (user-defined gene and sample sets, no need to download entire data sets).
 
@@ -14,7 +14,7 @@ The portal currently stores DNA copy-number data (putative, discrete values per 
 
 # What kind of clinical data is stored in the portal?
 
-The TCGA Cancer Genomics Portal does currently not store any clinical data.
+The cBio GDAC Cancer Genomics Portal does currently not store any clinical data.
 
 # Does the portal contain methylation data?
 

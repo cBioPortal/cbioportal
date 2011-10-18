@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,8 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-
-import org.owasp.validator.html.PolicyException;
 
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
@@ -32,7 +28,6 @@ import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetPathwayCommonsNetwork;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.OncoPrintSpecificationDriver;
 import org.mskcc.portal.util.ProfileMerger;
@@ -42,12 +37,13 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
+import org.mskcc.portal.network.NetworkUtils;
 
 /**
  * Retrieving 
  * @author jj
  */
-public class NetworkServlet extends HttpServlet {   
+public class NetworkServlet extends HttpServlet {
     private static final String NODE_ATTR_IN_QUERY = "IN_QUERY";
     private static final String NODE_ATTR_PERCENT_ALTERED = "PERCENT_ALTERED";
     private static final String NODE_ATTR_PERCENT_MUTATED = "PERCENT_MUTATED";
@@ -82,20 +78,14 @@ public class NetworkServlet extends HttpServlet {
             XDebug xdebug = new XDebug( req );
             
             String xd = req.getParameter("xdebug");
-
-            ServletXssUtil xssUtil;
-            try {
-                xssUtil = ServletXssUtil.getInstance();
-            } catch (PolicyException e) {
-                throw new ServletException (e);
-            }
+            boolean logXDebug = xd!=null && xd.equals("1");
             
-            if (xd!=null && xd.equals("1")) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, xssUtil)+"\" target=\"_blank\">NetworkServlet URL</a>");
+            if (logXDebug) {
+                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req)+"\" target=\"_blank\">NetworkServlet URL</a>");
             }
 
             //  Get User Defined Gene List
-            String geneListStr = xssUtil.getCleanInput(req, QueryBuilder.GENE_LIST);
+            String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
             Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
 
             //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
@@ -105,11 +95,14 @@ public class NetworkServlet extends HttpServlet {
             Network network;
             try {
                 xdebug.startTimer();
-                String pruneNetwork = req.getParameter("prunenet");
                 if (netSrc.toUpperCase().equals("CGDS")) {
-                    network = NetworkIO.readNetworkFromCGDS(queryGenes, "on".equals(pruneNetwork), true);
+                    network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
                 } else {
-                    network = GetPathwayCommonsNetwork.getNetwork(queryGenes, xdebug);
+                    network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
+                    if (logXDebug) {
+                        xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
+                                +"\" target=\"_blank\">cPath2 URL</a>");
+                    }
                 }
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
@@ -131,12 +124,9 @@ public class NetworkServlet extends HttpServlet {
                 for (Node node : network.getNodes()) {
                     String ngnc = mapNodeIDSymbol.get(node.getId());
 
-                    boolean inQuery = false;
                     if (ngnc!=null) {
-                        inQuery = queryGenes.contains(ngnc);
                         netGenes.add(ngnc);
                     }
-                    node.addAttribute(NODE_ATTR_IN_QUERY, Boolean.toString(inQuery));
                 }
 
                 //  Get User Selected Genetic Profiles
@@ -147,7 +137,7 @@ public class NetworkServlet extends HttpServlet {
                     geneticProfileIdSet.addAll(Arrays.asList(geneticProfileIdsStr.split(" ")));
                 }
 
-                String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
+                String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
                 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Got User Selected Genetic Profiles. Took "+xdebug.getTimeElapsed()+"ms");
@@ -156,10 +146,10 @@ public class NetworkServlet extends HttpServlet {
                 xdebug.startTimer();
                 ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
 
-                String caseIds = xssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
+                String caseIds = req.getParameter(QueryBuilder.CASE_IDS);
 
                 if (caseIds==null || caseIds.isEmpty()) {
-                    String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
+                    String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                         //  Get Case Sets for Selected Cancer Type
                         ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
                         for (CaseList cs : caseSets) {
@@ -209,7 +199,7 @@ public class NetworkServlet extends HttpServlet {
                 ProfileData netMergedProfile = merger.getMergedProfile();
                 ArrayList<String> netGeneList = netMergedProfile.getGeneList();
 
-                double zScoreThreshold = Double.parseDouble(xssUtil.getCleanInput(req, QueryBuilder.Z_SCORE_THRESHOLD));
+                double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
 
                 ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
                         StringUtils.join(netGeneList, " "), geneticProfileIdSet,
@@ -233,13 +223,9 @@ public class NetworkServlet extends HttpServlet {
             String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
-                    String strXrefs = (String)node.getAttribute("RELATIONSHIP_XREF");
-                    if (strXrefs!=null) {
-                        Pattern pattern = Pattern.compile("HGNC:([^;]+)");
-                        Matcher matcher = pattern.matcher(strXrefs);
-                        if (matcher.find()) {
-                            return matcher.group(1).toUpperCase();
-                        }
+                    String symbol = NetworkUtils.getSymbol(node);
+                    if (symbol!=null) {
+                        return symbol;
                     }
                     
                     Object strNames = node.getAttributes().get("PARTICIPANT_NAME");
@@ -254,7 +240,7 @@ public class NetworkServlet extends HttpServlet {
                 }
             });
             
-            if (xd!=null && xd.equals("1")) {
+            if (logXDebug) {
                 writeXDebug(xdebug, res);
             }
             
@@ -269,13 +255,9 @@ public class NetworkServlet extends HttpServlet {
     private Map<String, String> getMapNodeIDSymbol(Network network) {
         Map<String, String> map = new HashMap<String, String>();
         for (Node node : network.getNodes()) {
-            String strXrefs = (String)node.getAttribute("RELATIONSHIP_XREF");
-            if (strXrefs!=null) {
-                Pattern pattern = Pattern.compile("HGNC:([^;]+)");
-                Matcher matcher = pattern.matcher(strXrefs);
-                if (matcher.find()) {
-                    map.put(node.getId(), matcher.group(1).toUpperCase());
-                }
+            String symbol = NetworkUtils.getSymbol(node);
+            if (symbol!=null) {
+                map.put(node.getId(), symbol);
             }
         }
         return map;
@@ -318,12 +300,12 @@ public class NetworkServlet extends HttpServlet {
         
     }
     
-    private String getNetworkServletUrl(HttpServletRequest req, ServletXssUtil xssUtil) {
-        String geneListStr = xssUtil.getCleanInput(req, QueryBuilder.GENE_LIST);
-        String geneticProfileIdsStr = xssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS);
-        String cancerTypeId = xssUtil.getCleanInput(req, QueryBuilder.CANCER_STUDY_ID);
-        String caseSetId = xssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
-        String zscoreThreshold = xssUtil.getCleanInput(req, QueryBuilder.Z_SCORE_THRESHOLD);
+    private String getNetworkServletUrl(HttpServletRequest req) {
+        String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
+        String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
+        String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
+        String zscoreThreshold = req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
         String netSrc = req.getParameter("netsrc");
         String pruneNetwork = req.getParameter("prunenet");
         
@@ -332,8 +314,7 @@ public class NetworkServlet extends HttpServlet {
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
-                +"&netsrc="+netSrc
-                +"&prunenet="+pruneNetwork;
+                +"&netsrc="+netSrc;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletResponse res) 

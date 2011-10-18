@@ -5,6 +5,14 @@ import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoInteraction;
 import org.mskcc.cgds.model.Interaction;
 import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.portal.remote.ConnectionManager;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -39,6 +47,44 @@ public final class NetworkIO {
          * @return label for the node
          */
         String getLabel(Node node);
+    }
+    
+    public static String getCPath2URL(Set<String> genes) {
+        StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
+			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
+        for (String gene : genes) {
+            sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
+            sbUrl.append(gene.toUpperCase());
+        }
+        
+        return sbUrl.toString();
+    }
+    
+    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge) throws Exception {
+        String cPath2Url = getCPath2URL(genes);
+        
+        MultiThreadedHttpConnectionManager connectionManager =
+                ConnectionManager.getConnectionManager();
+        HttpClient client = new HttpClient(connectionManager);
+
+        GetMethod method = new GetMethod(cPath2Url.toString());
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode == HttpStatus.SC_OK) {
+                Network network = readNetworkFromCPath2(method.getResponseBodyAsStream(), true);
+                Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(network, genes);
+                classifyNodes(network, seedNodes);
+                return network;
+            } else {
+                //  Otherwise, throw HTTP Exception Object
+                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                        + " Base URL:  " + cPath2Url);
+            }            
+
+        } finally {
+            //  Must release connection back to Apache Commons Connection Pool
+            method.releaseConnection();
+        }
     }
     
     /**
@@ -171,8 +217,7 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes, boolean prune, 
-            boolean removeSelfEdge) throws Exception {
+    public static Network readNetworkFromCGDS(Set<String> genes, boolean removeSelfEdge) throws Exception {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
@@ -208,52 +253,77 @@ public final class NetworkIO {
             }
             net.addEdge(edge, geneAID, geneBID);
         }
-        if (prune) {
-            pruneCGDSNetwork(net, seedGenes);
-        }
+        
+        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
+        classifyNodes(net, seedNodes);
+        
         return net;
     }
     
-    private static void pruneCGDSNetwork(Network net, Set<Long> seedGenes) {
-        if (seedGenes.size()<2) {
-            return;
+    private static Set<Node> addMissingGenesAndReturnSeedNodes(Network net, Set<String> seedGenes)
+            throws Exception {
+        Set<Node> seedNodes = new HashSet<Node>(seedGenes.size());
+        Set<String> missingGenes = new HashSet<String>(seedGenes);
+        for (Node node : net.getNodes()) {
+            String symbol = NetworkUtils.getSymbol(node);
+            if (missingGenes.remove(symbol)) {
+                seedNodes.add(node);
+            }
         }
         
-        //  For now, mark all nodes that have degree = 1, and mark for removal
-        List<Node> deleteList = new ArrayList<Node>();
+        Map<Long,String> entrezHugoMap = getEntrezHugoMap(missingGenes);
+        for (Map.Entry<Long,String> entry : entrezHugoMap.entrySet()) {
+            Node node = addNode(net, entry.getKey().toString(), entry.getValue());
+            seedNodes.add(node);
+        }
+        
+        return seedNodes;
+    }
+    
+    private static void classifyNodes(Network net, Set<Node> seedNodes) {
+        for (Node seed : seedNodes) {
+            seed.addAttribute("IN_QUERY", "true");
+            seed.addAttribute("IN_MEDIUM", "true");
+        }
+        
         for (Node node:  net.getNodes()) {
-            if (seedGenes.contains(Long.valueOf(node.getId()))) {
+            if (seedNodes.contains(node)) {
                 continue;
             }
-            
-            int seedDegree = 0;
-            for (Node neighbor : net.getNeighbors(node)) {
-                if (seedGenes.contains(Long.valueOf(neighbor.getId()))) {
-                    seedDegree++;
+
+            node.addAttribute("IN_QUERY", "false"); //TODO: remove this
+
+            if (seedNodes.size()==1) {
+                // mark linker nodes that has degree of 2 or more
+                if (net.getDegree(node)>=2) {
+                    node.addAttribute("IN_MEDIUM", "true");
+                }
+            } else {
+                //  mark linker nodes that links to at least 2 seed genes
+                int seedDegree = 0;
+                for (Node neighbor : net.getNeighbors(node)) {
+                    if (seedNodes.contains(neighbor)) {
+                        if (++seedDegree >= 2) {
+                            node.addAttribute("IN_MEDIUM", "true");
+                            break;
+                        }
+                    }
                 }
             }
-            
-            if (seedDegree <= 1) {
-                deleteList.add(node);
-            }
-        }
-
-        //  Remove marked genes
-        for (Node node:  deleteList) {
-            net.removeNode(node);
         }
     }
     
-    private static void addNode(Network net, String entrez, String hugo) {
+    private static Node addNode(Network net, String entrez, String hugo) {
         Node node = net.getNodeById(entrez);
         if (node != null) {
-            return;
+            return node;
         }
 
         node = new Node(entrez);
         node.setType(NodeType.PROTEIN);
         node.addAttribute("RELATIONSHIP_XREF", "HGNC:"+hugo+";Entrez Gene:"+entrez);
         net.addNode(node);
+        return node;
     }
     
     private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws Exception {

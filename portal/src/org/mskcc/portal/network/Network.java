@@ -5,7 +5,6 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-import edu.uci.ics.jung.graph.util.EdgeType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,5 +111,14 @@ public class Network {
      */
     public Collection<Node> getNeighbors(Node node) {
         return graph.getNeighbors(node);
+    }
+    
+    /**
+     * 
+     * @param node
+     * @return 
+     */
+    public int getDegree(Node node) {
+        return graph.degree(node);
     }
 }

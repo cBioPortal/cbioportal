@@ -200,10 +200,9 @@ sub getFirehoseDirectoriesAndFiles{
 # may output files of type <CANCER>.seg
 sub getOutputFile{
     my($self, $sub, $cancer) = @_;
-    my $cancerUC = uc( $cancer );
 	my $outputFile = $self->_getField( $sub, 'OUTPUT_FILE' );
-    # substitute <CANCER> with this cancer, uppercased 
-	$outputFile =~ s/<CANCER>/$cancerUC/g;
+    # substitute <CANCER> with this cancer
+	$outputFile =~ s/<CANCER>/$cancer/g;
     return $outputFile;
 }
 

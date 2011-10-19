@@ -216,8 +216,8 @@ my $correct_dump_good_config = File::Spec->catfile( File::Spec->curdir(), qw( da
 is_deeply( FirehoseTransformationWorkflow->_test_parse_workflow_new( $good_config ), 
     eval( $fileUtil->load_file( $correct_dump_good_config ) ), 'test good config');
 my $good_FTW = FirehoseTransformationWorkflow->_test_parse_workflow_new( $good_config );
-is( $good_FTW->getOutputFile( 'subC' ), 'out_for_C', 'test getOutputFile' );
-is( $good_FTW->getOutputFile( 'no such sub' ), undef, 'test getOutputFile 2' );
+is( $good_FTW->getOutputFile( 'subC', 'Generic_Cancer' ), 'out_for_C', 'test getOutputFile' );
+is( $good_FTW->getOutputFile( 'no such sub', 'Generic_Cancer' ), undef, 'test getOutputFile 2' );
 
 # - subB requires subA
 # - subC precluded_by subB

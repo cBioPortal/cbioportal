@@ -285,7 +285,7 @@ sub create_data_and_meta_files{
             # union and intersection of cases will need each case list;
             # make input file meta data objects which cache file metadata -- such as 1) case lists, and 2) gene lists -- for cgds files prefixed with $Utilities::dataFilePrefix 
             my $ffmHandle;
-            if( $FirehoseXformWorkflow->getOutputFile($sub) =~ /^$Utilities::dataFilePrefix/ ){
+            if( $FirehoseXformWorkflow->getOutputFile($sub, $cancer) =~ /^$Utilities::dataFilePrefix/ ){
 
                 # get a FirehoseFileMetadata object, which provides the set of genes and cases for the Firehose file
                 $ffmHandle = FirehoseFileMetadata->new( $firehoseFile, $FullFirehoseFile, $cTable );
@@ -305,8 +305,8 @@ sub create_data_and_meta_files{
         
         my $FirehoseDirAndFiles =  englishList( @explicitFiles );            
 
-        print "create_data_and_meta_files: creating ", $FirehoseXformWorkflow->getOutputFile($sub), " from ", $FirehoseDirAndFiles, ".\n";
-        my $cgdsFile = File::Spec->catfile( $CancersCGDSinputDir, $FirehoseXformWorkflow->getOutputFile($sub) ); 
+        print "create_data_and_meta_files: creating ", $FirehoseXformWorkflow->getOutputFile($sub, $cancer), " from ", $FirehoseDirAndFiles, ".\n";
+        my $cgdsFile = File::Spec->catfile( $CancersCGDSinputDir, $FirehoseXformWorkflow->getOutputFile($sub, $cancer) ); 
 
         # $codeForCGDS passed because create_data_mRNA_median_Zscores is a java program, and needs to get the CGDS libs
         # $argForMakingWhiteList contains argument from Firehose Transformation Workflow table (q-value, percent threshold)
@@ -320,8 +320,8 @@ sub create_data_and_meta_files{
         
         # create meta file to describe each 'data' file
         # TODO: pass more information; needs ffm object for (each) file
-        if( $FirehoseXformWorkflow->getOutputFile($sub) =~ /^$Utilities::dataFilePrefix/ ){
-            createMetaFile( $cancer, $CancersCGDSinputDir, $FirehoseXformWorkflow->getOutputFile($sub), $numCases, $numGenes );
+        if( $FirehoseXformWorkflow->getOutputFile($sub, $cancer) =~ /^$Utilities::dataFilePrefix/ ){
+            createMetaFile( $cancer, $CancersCGDSinputDir, $FirehoseXformWorkflow->getOutputFile($sub, $cancer), $numCases, $numGenes );
         }
     }
     return $FirehoseFileMetadata_objects;

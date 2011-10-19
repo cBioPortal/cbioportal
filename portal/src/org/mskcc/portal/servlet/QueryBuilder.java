@@ -469,6 +469,7 @@ public class QueryBuilder extends HttpServlet {
             throws IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
+		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
         writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -480,20 +481,34 @@ public class QueryBuilder extends HttpServlet {
         writer.write ("<body style=\"background-color:#FFFFFF\">\n");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                geneticProfileIdSet, profileList, true, true);
+												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+												 geneticProfileIdSet, profileList, true, true,
+												 true, cancerStudyIdentifier);
         writer.write(out);
         
         // TODO: hacky way for su2c
-        String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
-        if (cancerStudyId.equals("grayBreastCellLine")) {
-            writer.write("<br/><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+        if (cancerStudyIdentifier.equals("grayBreastCellLine")) {
+            writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
             writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
                     + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
             writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
-            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser<font/>"
+            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser</font>"
                     + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-        }
+		}
+
+		// links to igv
+		String igvURL = GlobalProperties.getIGVUrl();
+		if (igvURL != null) {
+			igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg");
+			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
+			if (geneList != null && geneList.size() > 0) {
+				igvURL += StringUtils.join(geneList,"%20");
+				writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+				writer.write(igvURL);
+				writer.write("\"><font color=\"#1974b8\" size=\"1\">Integrative Genomics Viewer</font>" +
+							 "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
+			}
+		}
         
         writer.write ("</body>\n");
         writer.write ("</html>\n");
@@ -509,9 +524,9 @@ public class QueryBuilder extends HttpServlet {
         response.setContentType("image/svg+xml");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseSetList, caseSetId,
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                geneticProfileIdSet, profileList, true, true);
+												 caseSetList, caseSetId,
+												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+												 geneticProfileIdSet, profileList, true, true, false, "");
         PrintWriter writer = response.getWriter();
         writer.write(out);
         writer.flush();

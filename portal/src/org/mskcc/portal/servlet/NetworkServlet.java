@@ -22,6 +22,7 @@ import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.portal.network.Network;
 import org.mskcc.portal.network.NetworkIO;
+import org.mskcc.portal.network.NetworkUtils;
 import org.mskcc.portal.network.Node;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
@@ -37,7 +38,6 @@ import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
-import org.mskcc.portal.network.NetworkUtils;
 
 /**
  * Retrieving 
@@ -102,6 +102,24 @@ public class NetworkServlet extends HttpServlet {
                     if (logXDebug) {
                         xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
                                 +"\" target=\"_blank\">cPath2 URL</a>");
+                    }
+                }
+                final String netSize = req.getParameter("netsize");
+                if (netSize!=null) {
+                    if (netSize.equals("small")) {
+                        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                            public boolean select(Node node) {
+                                String inQuery = (String)node.getAttribute("IN_QUERY");
+                                return inQuery==null || !inQuery.equals("true");
+                            }
+                        });
+                    } else if (netSize.equals("medium")) {
+                        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                            public boolean select(Node node) {
+                                String inMedium = (String)node.getAttribute("IN_MEDIUM");
+                                return inMedium==null || !inMedium.equals("true");
+                            }
+                        });
                     }
                 }
                 xdebug.stopTimer();
@@ -307,14 +325,15 @@ public class NetworkServlet extends HttpServlet {
         String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
         String zscoreThreshold = req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
         String netSrc = req.getParameter("netsrc");
-        String pruneNetwork = req.getParameter("prunenet");
+        String netSize = req.getParameter("netsize");
         
         return "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
-                +"&netsrc="+netSrc;
+                +"&netsrc="+netSrc
+                +"&netsize="+netSize;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletResponse res) 

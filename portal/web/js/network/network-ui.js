@@ -22,8 +22,9 @@ var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
 var UNKNOWN = "Unknown";
 
-// weight coefficient (initialized with a default value)
-var WEIGHT_COEFF = 1.0;
+// default values for sliders
+var WEIGHT_COEFF = 0.8;
+var ALTERATION_PERCENT = 0;
 
 // class constants for css visualization
 var CHECKED_CLASS = "checked-menu-item";
@@ -40,6 +41,7 @@ var INNER_ROW_CLASS = "inner-row";
 
 // string constants
 var ID_PLACE_HOLDER = "REPLACE_WITH_ID";
+var ENTER_KEYCODE = "13";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -74,6 +76,9 @@ var _linkMap;
 // map used to filter genes by weight slider
 var _geneWeightMap;
 
+// threshold value used to filter genes by weight slider
+var _geneWeightThreshold;
+
 // CytoscapeWeb.Visualization instance
 var _vis;
 
@@ -93,8 +98,9 @@ function initNetworkUI(vis)
 	_filteredByIsolation = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
-	// TODO expose coeff?
+	
 	_geneWeightMap = _geneWeightArray(WEIGHT_COEFF);
+	_geneWeightThreshold = ALTERATION_PERCENT;
 	
 	_resetFlags();
 	
@@ -923,7 +929,6 @@ function geneVisibility(element)
  */
 function sliderVisibility(element)
 {
-	var value = $("#slider_bar").slider("option", "value");
 	var visible = false;
 	var weight;
 	
@@ -937,16 +942,12 @@ function sliderVisibility(element)
 		// get the weight of the node
 		weight = _geneWeightMap[element.data.id];
 		
-		// if the weight of the current node is below the slider value
+		// if the weight of the current node is below the threshold value
 		// then it should be filtered
 		
 		if (weight != null)
 		{
-			// apply transformation before checking, this prevents filtering of 
-			// low values with a small change in the position of the cursor.
-			value = _transformValue(value);
-			
-			if (weight >= value)
+			if (weight >= _geneWeightThreshold)
 			{
 				visible = true;
 			}
@@ -1274,23 +1275,25 @@ function _showNodeLegend()
  */
 function _showEdgeLegend()
 {
-	$("#edge_legend .in-same-component .color-bar").css(
-		"background-color", "#CD976B");
-	
-	$("#edge_legend .reacts-with .color-bar").css(
-		"background-color", "#7B7EF7");
-	
-	$("#edge_legend .state-change .color-bar").css(
-		"background-color", "#67C1A9");
-	
-	$("#edge_legend .other .color-bar").css(
-			"background-color", "#A583AB");
-	
-	$("#edge_legend .merged-edge .color-bar").css(
-		"background-color", "#666666");
+
+//	$("#edge_legend .in-same-component .color-bar").css(
+//		"background-color", "#CD976B");
+//	
+//	$("#edge_legend .reacts-with .color-bar").css(
+//		"background-color", "#7B7EF7");
+//	
+//	$("#edge_legend .state-change .color-bar").css(
+//		"background-color", "#67C1A9");
+//	
+//	$("#edge_legend .other .color-bar").css(
+//			"background-color", "#A583AB");
+//	
+//	$("#edge_legend .merged-edge .color-bar").css(
+//		"background-color", "#666666");
 	
 	// open legend panel
-	$("#edge_legend").dialog("open").height("auto");
+	//$("#edge_legend").dialog("open").height("auto");
+	$("#edge_legend").dialog("open");
 }
 
 /**
@@ -1601,8 +1604,8 @@ function _geneWeightArray(coeff)
 		max = 0;
 		
 		// find the max of the total alteration of its neighbors,
-		// if coeff is not 1.0
-		if (coeff < 1.0)
+		// if coeff is not 0
+		if (coeff > 0)
 		{
 			for (var j = 0; j < neighbors.length; j++)
 			{
@@ -1616,7 +1619,7 @@ function _geneWeightArray(coeff)
 			}
 			
 			// calculate the weight of the max value by using the coeff 
-			max = max * (1 - coeff);
+			max = max * (coeff);
 			
 			// if maximum weight due to the total alteration of its neighbors
 			// is greater than its own weight, then use max instead
@@ -1638,7 +1641,7 @@ function _geneWeightArray(coeff)
  * inspector panels and tabs.
  */
 function _initMainMenu()
-{	
+{
 	// Opera fix
 	$("#network_menu ul").css({display: "none"});
 	
@@ -1788,23 +1791,35 @@ function _initDialogs()
 	// adjust node legend
 	$("#node_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 400});
+		width: 420});
 	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 366});
+		width: 320,
+		height: 120});
 }
 
 /**
- * Initializes the gene filter slider.
+ * Initializes the gene filter sliders.
  */
 function _initSliders()
 {
-	// show gene filtering slider
-	$("#slider_bar").slider(
-		{change: _sliderChange,
-		slide: _sliderMove});
+	// add key listeners for input fields
+	$("#weight_slider_field").keypress(_keyPressedForSlider);
+	$("#affinity_slider_field").keypress(_keyPressedForSlider);
+	
+	// show gene filtering slider	
+	$("#weight_slider_bar").slider(
+		{value: ALTERATION_PERCENT,
+		stop: _weightSliderStop,
+		slide: _weightSliderMove});
+	
+	// show affinity slider
+	$("#affinity_slider_bar").slider(
+		{value: WEIGHT_COEFF * 100,
+		change: _affinitySliderChange,
+		slide: _affinitySliderMove});
 }
 
 /**
@@ -1843,32 +1858,47 @@ function _initTooltipStyle()
 
 
 /**
- * Listener for slider movement. Updates slider tooltip after each mouse move.
+ * Listener for weight slider movement. Updates current value of the slider
+ * after each mouse move.
  */
-function _sliderMove(event, ui)
+function _weightSliderMove(event, ui)
 {
-	// update tooltip value
-	var sliderVal = $("#slider_bar").slider("option", "value");
+	// get slider value
+	var sliderVal = ui.value;
 	
-	$("#slider_bar").prop("title",
-		Math.round(_transformValue(sliderVal)));
-	
-	// TODO may use qtip or jquery tooltip instead of default html tooltip
-	// or display value as a text on top? 
+	// update current value field
+	$("#weight_slider_field").val(_transformValue(sliderVal).toFixed(1));
 }
 
 /**
- * Listener for slider value change. Updates filters with respect to the
- * new slider value.
+ * Listener for weight slider value change. Updates filters with respect to
+ * the new slider value.
  */
-function _sliderChange(event, ui)
+function _weightSliderStop(event, ui)
 {
-	var sliderVal = $("#slider_bar").slider("option", "value");
+	// get slider value
+	var sliderVal = ui.value;
+		
+	// apply transformation to prevent filtering of low values 
+	// with a small change in the position of the cursor.
+	sliderVal = _transformValue(sliderVal);
 	
-	// TODO may use qtip or jquery tooltip instead
-	$("#slider_bar").prop("title",
-		Math.round(_transformValue(sliderVal)));
+	// update threshold
+	_geneWeightThreshold = sliderVal;
 	
+	// update current value field
+	$("#weight_slider_field").val(sliderVal.toFixed(1));
+	
+	// update filters
+	_filterBySlider();
+}
+
+/**
+ * Filters genes by the current gene weight threshold value determined by
+ * the weight slider.
+ */
+function _filterBySlider()
+{
 	// remove previous filters due to slider
 	
 	for (var key in _filteredBySlider)
@@ -1900,6 +1930,113 @@ function _sliderChange(event, ui)
     
     // visualization changed, perform layout if necessary
 	_visChanged();
+}
+
+/**
+ * Listener for affinity slider movement. Updates current value of the slider
+ * after each mouse move.
+ */
+function _affinitySliderMove(event, ui)
+{
+	// get slider value
+	var sliderVal = ui.value;
+	
+	// update current value field
+	$("#affinity_slider_field").val((sliderVal / 100).toFixed(2));
+}
+
+/**
+ * Listener for affinity slider value change. Updates filters with respect to
+ * the new slider value.
+ */
+function _affinitySliderChange(event, ui)
+{
+	var sliderVal = ui.value;
+	
+	// update current value field
+	$("#affinity_slider_field").val((sliderVal / 100).toFixed(2));
+	
+	// re-calculate gene weights
+	_geneWeightMap = _geneWeightArray(sliderVal / 100);
+	
+	// update filters
+	_filterBySlider();
+}
+
+/**
+ * Key listener for input fields next to sliders.
+ * Updates the slider values (and filters if necessary), if the input
+ * value is valid.
+ * 
+ * @param event		event triggered the action
+ */
+function _keyPressedForSlider(event)
+{
+	var input;
+	
+	// check for the ENTER key first 
+	if (event.keyCode == ENTER_KEYCODE)
+	{
+		if (event.target.id == "weight_slider_field")
+		{
+			input = $("#weight_slider_field").val();
+			
+			// update weight slider position if input is valid
+			
+			if (isNaN(input))
+			{
+				// not a numeric value, update with defaults
+				input = ALTERATION_PERCENT;
+			}
+			else if (input < 0)
+			{
+				// set values below zero to zero
+				input = 0;
+			}
+			else if (input > 100)
+			{
+				// set values above 100 to 100
+				input = 100;
+			}
+			
+			$("#weight_slider_bar").slider("option",
+				"value",
+				_reverseTransformValue(input));
+			
+			// update threshold value
+			_geneWeightThreshold = input;
+			
+			// also update filters
+			_filterBySlider();
+		}
+		else if (event.target.id == "affinity_slider_field")
+		{
+			input = $("#affinity_slider_field").val();
+			
+			// update affinity slider position if input is valid
+			// (this will also update filters if necessary)
+			
+			if (isNaN(input))
+			{
+				// not a numeric value, update with defaults
+				value = WEIGHT_COEFF;
+			}
+			else if (input < 0)
+			{
+				// set values below zero to zero
+				value = 0;
+			}
+			else if (input > 1)
+			{
+				// set values above 1 to 1
+				value = 1;
+			}
+			
+			$("#affinity_slider_bar").slider("option",
+				"value",
+				Math.round(input * 100));
+		}
+	}
 }
 
 /*
@@ -2083,12 +2220,12 @@ function _refreshRelationsTab()
 		_setComponentVis($("#relations_tab .other"), false);
 		
 		// also do not display it in the edge legend
-		_setComponentVis($("#edge_legend .other"), false);
+		//_setComponentVis($("#edge_legend .other"), false);
 	}
 	else
 	{
 		_setComponentVis($("#relations_tab .other"), true);
-		_setComponentVis($("#edge_legend .other"), true);
+		//_setComponentVis($("#edge_legend .other"), true);
 	}
 	
 	// calculate percentages and add content to the tab 
@@ -2197,13 +2334,6 @@ function _initControlFunctions()
 	
 	$("#save_layout_settings").click(saveSettings);
 	$("#default_layout_settings").click(defaultSettings);
-	
-	// TODO temporary button for debug purposes
-	$("#calculate_weight").click(function(){
-			var coeff = $("#genes_tab #weight_coeff").val();
-			_geneWeightMap = _geneWeightArray(coeff);
-			_sliderChange();
-		});
 	
 	$("#search_genes").click(searchGene);
 	$("#filter_genes").click(filterSelectedGenes);
@@ -2643,11 +2773,19 @@ function _updateLayoutOptions()
 	
 	for (var i=0; i < _layoutOptions.length; i++)
 	{
-		options[_layoutOptions[i].id] = _layoutOptions[i].value; 
+		options[_layoutOptions[i].id] = _layoutOptions[i].value;
 	}
 	
 	_graphLayout.options = options;
 }
+
+
+
+/*
+ * ##################################################################
+ * ##################### Utility Functions ##########################
+ * ##################################################################
+ */
 
 /**
  * Generates a shortened version of the given node id.
@@ -2821,6 +2959,88 @@ function _transformValue(value)
 	}
 	
 	return transformed;
+}
+
+/**
+ * Transforms the given value by solving the equation
+ * 
+ *   y = (0.000230926)x^3 - (0.0182175)x^2 + (0.511788)x
+ * 
+ * where y = value
+ * 
+ * @param value	value to be reverse transformed
+ * @returns		reverse transformed value
+ */
+function _reverseTransformValue(value)
+{
+	// find x, where y = value
+	
+	var reverse = _solveCubic(0.000230926,
+		-0.0182175,
+		0.511788,
+		-value);
+	
+	return reverse;
+}
+
+/**
+ * Solves the cubic function
+ * 
+ *   a(x^3) + b(x^2) + c(x) + d = 0
+ *    
+ * by using the following formula
+ * 
+ *   x = {q + [q^2 + (r-p^2)^3]^(1/2)}^(1/3) + {q - [q^2 + (r-p^2)^3]^(1/2)}^(1/3) + p
+ *   
+ * where
+ * 
+ *   p = -b/(3a), q = p^3 + (bc-3ad)/(6a^2), r = c/(3a)
+ * 
+ * @param a	coefficient of the term x^3
+ * @param b	coefficient of the term x^2
+ * @param c coefficient of the term x^1
+ * @param d coefficient of the term x^0
+ * 
+ * @returns one of the roots of the cubic function
+ */
+function _solveCubic(a, b, c, d)
+{
+	var p = (-b) / (3*a);
+	var q = Math.pow(p, 3) + (b*c - 3*a*d) / (6 * Math.pow(a,2));
+	var r = c / (3*a);
+	
+	//alert(q*q + Math.pow(r - p*p, 3));
+	
+	var sqrt = Math.pow(q*q + Math.pow(r - p*p, 3), 1/2);
+	
+	//var root = Math.pow(q + sqrt, 1/3) +
+	//	Math.pow(q - sqrt, 1/3) +
+	//	p;
+	
+	var x = _cubeRoot(q + sqrt) +
+		_cubeRoot(q - sqrt) +
+		p;
+	
+	return x;
+}
+
+/**
+ * Evaluates the cube root of the given value. This function also handles
+ * negative values unlike the built-in Math.pow() function.
+ * 
+ * @param value	source value
+ * @returns		cube root of the source value
+ */
+function _cubeRoot(value)
+{
+	var root = Math.pow(Math.abs(value), 1/3);
+	
+	if (value < 0)
+	{
+		root = -root;
+	}
+	
+	return root;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

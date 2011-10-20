@@ -8,23 +8,23 @@
 	    <div class="header">
 	    	<div id="slider_area">
 	    		<label>Filter by Total Alteration (%)</label>
-	    		<div id="tooltip_area">
-	    			<div id="slider_bar" title="0"></div>
+	    		<div id="weight_slider_area">
+		    		<span class="slider-value">
+		    			<input id="weight_slider_field" type="text" value="0"/>
+		    		</span>
+		    		<span class="slider-min">0</span>
+		    		<span class="slider-max">100</span>
+		    		<div id="weight_slider_bar"></div>
 	    		</div>
-	    		<table id="slider_values">
-	    			<tr>
-	    				<td class="slider-min">0</td>
-	    				<td class="slider-max">100</td>
-	    			</tr>
-	    		</table>
-	    		<table id="slider_input">
-	    			<tr>
-						<td>
-							<input type="text" id="weight_coeff" value="1.0"/>
-							<input type="button" id="calculate_weight" value="Calculate"/>
-						</td>
-					</tr>
-	    		</table>
+	    		<label>Affinity</label>
+	    		<div id="affinity_slider_area">
+	    			<span class="slider-value">
+	    				<input id="affinity_slider_field" type="text" value="0.80"/>
+	    			</span>
+	    			<span class="slider-min">0</span>
+		    		<span class="slider-max">1.0</span>
+		    		<div id="affinity_slider_bar"></div>
+	    		</div>
     		</div>
     		<div id="control_area">
 				<table>
@@ -151,6 +151,13 @@
 
 <div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
 	<div id="edge_legend_content" class="content ui-widget-content">
+		<img src="images/network/interaction_legend.png"/>
+	</div>
+</div>
+
+<% /*
+<div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
+	<div id="edge_legend_content" class="content ui-widget-content">
 		<table id="edge_type_legend">
 			<tr class="edge-type-header">
 	        	<td>
@@ -200,3 +207,4 @@
         </table>
 	</div>
 </div>
+*/ %>

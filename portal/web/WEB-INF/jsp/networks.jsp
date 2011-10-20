@@ -37,7 +37,8 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#fefefe" //#F7F6C9 //#F3F7FE
+                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
+                        tooltipDelay: 250
                     },
                     nodes: {
 						shape: {

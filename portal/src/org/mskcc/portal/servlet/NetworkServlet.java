@@ -93,7 +93,7 @@ public class NetworkServlet extends HttpServlet {
             String netSrc = req.getParameter("netsrc");
             
             Network network;
-            try {
+//            try {
                 xdebug.startTimer();
                 if (netSrc.toUpperCase().equals("CGDS")) {
                     network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
@@ -125,10 +125,10 @@ public class NetworkServlet extends HttpServlet {
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                         + ": took "+xdebug.getTimeElapsed()+"ms");
-            } catch (Exception e) {
-                xdebug.logMsg(this, "Failed retrieving networks from cPath2\n"+e.getMessage());
-                network = new Network(); // send an empty network instead
-            }
+//            } catch (Exception e) {
+//                xdebug.logMsg(this, "Failed retrieving networks from "+netSrc+"\n"+e.toString());
+//                network = new Network(); // send an empty network instead
+//            }
 
             if (!network.getNodes().isEmpty()) {
                 
@@ -289,29 +289,29 @@ public class NetworkServlet extends HttpServlet {
                 continue;
             }
             
-            node.addAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
+            node.setAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
                     .getPercentCasesWhereGeneIsAltered(gene));
             if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
                     alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
-                node.addAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
                         .getPercentCasesWhereGeneIsMutated(gene));
             }
 
             if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
                         .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
                         .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
                         .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                node.addAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
                         .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
             }
 
             if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
-                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
                         .getPercentCasesWhereMRNAIsUpRegulated(gene));
-                node.addAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
                         .getPercentCasesWhereMRNAIsDownRegulated(gene));
             }
         }

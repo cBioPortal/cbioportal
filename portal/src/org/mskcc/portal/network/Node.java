@@ -59,7 +59,7 @@ public class Node {
      * @param attr attribute name
      * @param value attribute value
      */
-    public void addAttribute(String attr, Object value) {
+    public void setAttribute(String attr, Object value) {
         attrs.put(attr, value);
     }
     

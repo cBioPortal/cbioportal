@@ -2,8 +2,7 @@
 package org.mskcc.portal.network;
 
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ public class Network {
     private Map<String,Node> nodesByIds;
 
     public Network() {
-        graph = new UndirectedSparseMultigraph<Node,Edge>();
+        graph = new DirectedSparseMultigraph<Node,Edge>();
         nodesByIds = new HashMap<String,Node>();
     }
 
@@ -28,6 +27,25 @@ public class Network {
      */
     public Collection<Edge> getEdges() {
         return graph.getEdges();
+    }
+    
+    /**
+     * Returns the collection of nodes in this network which are connected to edge.
+     * @param node
+     * @return the collection of nodes which are connected to edge, could be empty.
+     */
+    public Collection<Edge> getIncidentEdges(Node node) {
+        return graph.getIncidentEdges(node);
+    }
+    
+    /**
+     * 
+     * @param node
+     * @param edge
+     * @return 
+     */
+    public Node getOpposite(Node node, Edge edge) {
+        return graph.getOpposite(node, edge);
     }
 
     /**
@@ -102,8 +120,7 @@ public class Network {
      * @return an array of 2 nodes
      */
     public Node[] getNodes(Edge edge) {
-        Pair<Node> nodes = graph.getEndpoints(edge);
-        return new Node[] {nodes.getFirst(), nodes.getSecond()};
+        return new Node[] {graph.getSource(edge), graph.getDest(edge)};
     }
     
     /**

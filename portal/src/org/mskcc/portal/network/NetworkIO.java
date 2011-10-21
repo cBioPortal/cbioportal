@@ -1,6 +1,7 @@
 
 package org.mskcc.portal.network;
 
+import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoInteraction;
 import org.mskcc.cgds.model.Interaction;
@@ -60,7 +61,8 @@ public final class NetworkIO {
         return sbUrl.toString();
     }
     
-    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge) throws Exception {
+    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge) 
+            throws DaoException, IOException {
         String cPath2Url = getCPath2URL(genes);
         
         MultiThreadedHttpConnectionManager connectionManager =
@@ -133,7 +135,7 @@ public final class NetworkIO {
                     }
                     node.setType(type);
                 } else {
-                    node.addAttribute(nodeHeaders[i], strs[i]);
+                    node.setAttribute(nodeHeaders[i], strs[i]);
                 }
             }
 
@@ -167,6 +169,8 @@ public final class NetworkIO {
             }
             network.addEdge(edge, strs[0], strs[2]);
         }
+        
+        NetworkUtils.mergeNodesWithSameSymbol(network);
 
         return network;
     }
@@ -217,7 +221,7 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes, boolean removeSelfEdge) throws Exception {
+    public static Network readNetworkFromCGDS(Set<String> genes, boolean removeSelfEdge) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
@@ -261,7 +265,7 @@ public final class NetworkIO {
     }
     
     private static Set<Node> addMissingGenesAndReturnSeedNodes(Network net, Set<String> seedGenes)
-            throws Exception {
+            throws DaoException {
         Set<Node> seedNodes = new HashSet<Node>(seedGenes.size());
         Set<String> missingGenes = new HashSet<String>(seedGenes);
         for (Node node : net.getNodes()) {
@@ -282,8 +286,8 @@ public final class NetworkIO {
     
     private static void classifyNodes(Network net, Set<Node> seedNodes) {
         for (Node seed : seedNodes) {
-            seed.addAttribute("IN_QUERY", "true");
-            seed.addAttribute("IN_MEDIUM", "true");
+            seed.setAttribute("IN_QUERY", "true");
+            seed.setAttribute("IN_MEDIUM", "true");
         }
         
         for (Node node:  net.getNodes()) {
@@ -291,7 +295,7 @@ public final class NetworkIO {
                 continue;
             }
 
-            node.addAttribute("IN_QUERY", "false"); //TODO: remove this
+            node.setAttribute("IN_QUERY", "false"); //TODO: remove this
 
 //            if (seedNodes.size()==1) {
 //                // mark linker nodes that has degree of 2 or more
@@ -304,7 +308,7 @@ public final class NetworkIO {
                 for (Node neighbor : net.getNeighbors(node)) {
                     if (seedNodes.contains(neighbor)) {
                         if (++seedDegree >= 2) {
-                            node.addAttribute("IN_MEDIUM", "true");
+                            node.setAttribute("IN_MEDIUM", "true");
                             break;
                         }
                     }
@@ -321,12 +325,12 @@ public final class NetworkIO {
 
         node = new Node(entrez);
         node.setType(NodeType.PROTEIN);
-        node.addAttribute("RELATIONSHIP_XREF", "HGNC:"+hugo+";Entrez Gene:"+entrez);
+        node.setAttribute("RELATIONSHIP_XREF", "HGNC:"+hugo+";Entrez Gene:"+entrez);
         net.addNode(node);
         return node;
     }
     
-    private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws Exception {
+    private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws DaoException {
         Map<Long,String> map = new HashMap<Long,String>(genes.size());
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (String gene : genes) {
@@ -338,7 +342,7 @@ public final class NetworkIO {
         return map;
     }
     
-    private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez) throws Exception {
+    private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez) throws DaoException {
         String hugo = mapEntrezHugo.get(entrez);
         if (hugo==null) {
             hugo = DaoGeneOptimized.getInstance().getGene(entrez).getHugoGeneSymbolAllCaps();

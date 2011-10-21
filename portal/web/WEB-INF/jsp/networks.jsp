@@ -94,6 +94,14 @@
                         width: 1,
 						mergeWidth: 2,
 						mergeColor: "#666666",
+ 						targetArrowShape: {
+                     		defaultValue: "NONE",
+ 							discreteMapper: {
+ 								attrName: "type",
+ 								entries: [
+ 									{ attrValue: "STATE_CHANGE", value: "DELTA" } ]
+         					}
+                     	},
 						color: {
 							defaultValue: "#A583AB", // color of all other types
 							discreteMapper: {
@@ -103,7 +111,7 @@
 									{ attrValue: "REACTS_WITH", value: "#7B7EF7" },
 									{ attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
         					}
-        				}
+        				}                    	
 					}
 				};
 

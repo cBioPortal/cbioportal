@@ -1796,8 +1796,8 @@ function _initDialogs()
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 320,
-		height: 120});
+		width: 280,
+		height: 135});
 }
 
 /**

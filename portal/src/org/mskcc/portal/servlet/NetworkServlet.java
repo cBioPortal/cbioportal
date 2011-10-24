@@ -95,14 +95,14 @@ public class NetworkServlet extends HttpServlet {
             
             Network network;
             xdebug.startTimer();
-            if (netSrc.toUpperCase().equals("CGDS")) {
-                network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
-            } else {
+            if (netSrc.toUpperCase().equals("cpath2")) {
                 network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
                 if (logXDebug) {
                     xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
                             +"\" target=\"_blank\">cPath2 URL</a>");
                 }
+            } else {
+                network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
             }
             final String netSize = req.getParameter("netsize");
             if (netSize!=null) {

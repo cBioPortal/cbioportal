@@ -1,11 +1,14 @@
 package org.mskcc.portal.mutation.diagram;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Domain service.
  */
-public interface DomainService {
+public interface DomainService extends Serializable {
+    // todo:  Serializable really shouldn't be here, it should be on
+    //    an implementation class.  Mocks currently fail without it.
 
     /**
      * Return an immutable list of zero or more protein domains for the specified UniProt id.  The list will not be null.

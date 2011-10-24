@@ -1,11 +1,12 @@
 package org.mskcc.portal.mutation.diagram;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Mutation service.
  */
-public interface MutationService {
+public interface MutationService extends Serializable {
 
     /**
      * Return an immutable list of zero or more mutations for the specified HUGO gene symbol.  The list will not be null.

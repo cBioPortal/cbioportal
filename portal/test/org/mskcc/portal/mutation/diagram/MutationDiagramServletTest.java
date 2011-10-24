@@ -1,7 +1,6 @@
 package org.mskcc.portal.mutation.diagram;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

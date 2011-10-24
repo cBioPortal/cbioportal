@@ -2,6 +2,11 @@ package org.mskcc.portal.mutation.diagram;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +44,14 @@ public class MutationDiagramServletTest {
 
     @Test
     public void testSerializable() throws Exception {
-        // empty
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(buffer);
+        out.writeObject(mutationDiagramServlet);
+        out.close();
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+        Object dest = in.readObject();
+        in.close();
+        assertNotNull((MutationDiagramServlet) dest);
     }
 }
 

@@ -49,6 +49,6 @@ public final class MutationTest {
 
     @Test
     public void testToJSONString() {
-        // empty
+        assertEquals("{\"count\":42,\"location\":0,\"label\":\"label\"}", mutation.toJSONString());
     }
 }

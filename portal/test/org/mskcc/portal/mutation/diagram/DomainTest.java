@@ -44,6 +44,6 @@ public final class DomainTest {
 
     @Test
     public void testToJSONString() {
-        // empty
+        assertEquals("{\"start\":0,\"label\":\"label\",\"end\":42}", domain.toJSONString());
     }
 }

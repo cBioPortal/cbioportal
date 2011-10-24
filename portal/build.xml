@@ -97,10 +97,12 @@
 
     <!-- Copy over all third-party libs -->
     <!-- Exclude servlet.jar See Servlet Spec 2.3, section 9.7.2 -->
+    <!-- Exclude mockito-*.jar, required only for unit tests -->
     <copy todir="${build.dir}/WEB-INF/lib">
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
         <exclude name="servlet.jar" />
+        <exclude name="mockito-all-1.8.5.jar" />
       </fileset>
       <fileset dir="${spring.lib.dir}">
         <include name="*.jar" />

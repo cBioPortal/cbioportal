@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,77 +94,56 @@ public class NetworkServlet extends HttpServlet {
             String netSrc = req.getParameter("netsrc");
             
             Network network;
-//            try {
-                xdebug.startTimer();
-                if (netSrc.toUpperCase().equals("CGDS")) {
-                    network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
-                } else {
-                    network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
-                    if (logXDebug) {
-                        xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
-                                +"\" target=\"_blank\">cPath2 URL</a>");
-                    }
+            xdebug.startTimer();
+            if (netSrc.toUpperCase().equals("CGDS")) {
+                network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
+            } else {
+                network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
+                if (logXDebug) {
+                    xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
+                            +"\" target=\"_blank\">cPath2 URL</a>");
                 }
-                final String netSize = req.getParameter("netsize");
-                if (netSize!=null) {
-                    if (netSize.equals("small")) {
-                        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                            public boolean select(Node node) {
-                                String inQuery = (String)node.getAttribute("IN_QUERY");
-                                return inQuery==null || !inQuery.equals("true");
-                            }
-                        });
-                    } else if (netSize.equals("medium")) {
-                        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                            public boolean select(Node node) {
-                                String inMedium = (String)node.getAttribute("IN_MEDIUM");
-                                return inMedium==null || !inMedium.equals("true");
-                            }
-                        });
-                    }
+            }
+            final String netSize = req.getParameter("netsize");
+            if (netSize!=null) {
+                if (netSize.equals("small")) {
+                    NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                        public boolean select(Node node) {
+                            String inQuery = (String)node.getAttribute("IN_QUERY");
+                            return inQuery==null || !inQuery.equals("true");
+                        }
+                    });
+                } else if (netSize.equals("medium")) {
+                    NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                        public boolean select(Node node) {
+                            String inMedium = (String)node.getAttribute("IN_MEDIUM");
+                            return inMedium==null || !inMedium.equals("true");
+                        }
+                    });
                 }
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
-                        + ": took "+xdebug.getTimeElapsed()+"ms");
-//            } catch (Exception e) {
-//                xdebug.logMsg(this, "Failed retrieving networks from "+netSrc+"\n"+e.toString());
-//                network = new Network(); // send an empty network instead
-//            }
+            }
+            xdebug.stopTimer();
+            xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
+                    + ": took "+xdebug.getTimeElapsed()+"ms");
 
-            if (!network.getNodes().isEmpty()) {
-                
-                Map<String, String> mapNodeIDSymbol = getMapNodeIDSymbol(network);
-                
+            if (!network.getNodes().isEmpty()) {                
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
                 
-                ArrayList<String> netGenes = new ArrayList<String>();
+                ArrayList<Node> netGenes = new ArrayList<Node>();
                 for (Node node : network.getNodes()) {
-                    String ngnc = mapNodeIDSymbol.get(node.getId());
+                    String ngnc = NetworkUtils.getSymbol(node);
 
                     if (ngnc!=null) {
-                        netGenes.add(ngnc);
+                        netGenes.add(node);
                     }
                 }
-
-                //  Get User Selected Genetic Profiles
-                xdebug.startTimer();
-                HashSet<String> geneticProfileIdSet = new HashSet<String>();
-
-                for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
-                    geneticProfileIdSet.addAll(Arrays.asList(geneticProfileIdsStr.split(" ")));
-                }
-
+                
+                // get cancer study id
                 String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
                 
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Got User Selected Genetic Profiles. Took "+xdebug.getTimeElapsed()+"ms");
-                
-                //  Get Genetic Profiles for Selected Cancer Type
-                xdebug.startTimer();
-                ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
-
+                // Get case ids
                 String caseIds = req.getParameter(QueryBuilder.CASE_IDS);
 
                 if (caseIds==null || caseIds.isEmpty()) {
@@ -178,63 +158,66 @@ public class NetworkServlet extends HttpServlet {
                         }
                 }
                 
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Got Genetic Profiles for Selected Cancer Type. Took "+xdebug.getTimeElapsed()+"ms");
+                //  Get Genetic Profiles for Selected Cancer Type
+                ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancerTypeId);
 
-                // retrieve profile data from CGDS for new genes
+                //  Get User Selected Genetic Profiles
+                HashSet<GeneticProfile> geneticProfileSet = new HashSet<GeneticProfile>();
                 Set<GeneticAlterationType> alterationTypes = new HashSet();
-                ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
-                for (String profileId : geneticProfileIdSet) {
-                    xdebug.startTimer();
-                    GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
-                    if( null == profile ){
-                       continue;
+                HashSet<String> geneticProfileIdSet = new HashSet<String>();
+                for (String geneticProfileIdsStr : req.getParameterValues(QueryBuilder.GENETIC_PROFILE_IDS)) {
+                    for (String profileId : geneticProfileIdsStr.split(" ")) {
+                        GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+                        if( null != profile ){
+                            geneticProfileIdSet.add(profileId);
+                            geneticProfileSet.add(profile);
+                            alterationTypes.add(profile.getGeneticAlterationType());
+                        }
                     }
-                    alterationTypes.add(profile.getGeneticAlterationType());
-
-                    GetProfileData remoteCall = new GetProfileData(profile, netGenes, caseIds);
-                    ProfileData pData = remoteCall.getProfileData();
-                    if( pData == null ){
-                       System.err.println( "pData == null" );
-                    }else{
-                       if( pData.getGeneList() == null ){
-                          System.err.println( "pData.getValidGeneList() == null" );
-                       }
-                    }
-                    profileDataList.add(pData);
-                
-                    xdebug.stopTimer();
-                    xdebug.logMsg(this, "Got profile data from CGDS for new genes for "
-                            +profile.getProfileName()+". Took "+xdebug.getTimeElapsed()+"ms");
                 }
 
                 xdebug.startTimer();
-                ProfileMerger merger = new ProfileMerger(profileDataList);
+                for (Node netGene : netGenes) {
+                    String symbol = NetworkUtils.getSymbol(netGene);
+                    // retrieve profile data from CGDS for new genes
+                    ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
+                    for (GeneticProfile profile : geneticProfileSet) {
+                        GetProfileData remoteCall = new GetProfileData(profile, 
+                                new ArrayList(Collections.singleton(symbol)), caseIds);
+                        ProfileData pData = remoteCall.getProfileData();
+                        if( pData == null ){
+                           System.err.println( "pData == null" );
+                        }else{
+                           if( pData.getGeneList() == null ){
+                              System.err.println( "pData.getValidGeneList() == null" );
+                           }
+                        }
+                        profileDataList.add(pData);
+                    }
+
+                    ProfileMerger merger = new ProfileMerger(profileDataList);
+
+                    ProfileData netMergedProfile = merger.getMergedProfile();
+                    ArrayList<String> netGeneList = netMergedProfile.getGeneList();
+
+                    double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
+
+                    ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver
+                            .callOncoPrintSpecParserDriver(
+                            StringUtils.join(netGeneList, " "), geneticProfileIdSet,
+                            profileList, zScoreThreshold);
+
+                    OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput
+                            .getTheOncoPrintSpecification();
+                    ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
+                            netOncoPrintSpec, zScoreThreshold );
+
+                    // add attributes
+                    addCGDSDataAsNodeAttribute(netGene, symbol, netDataSummary, alterationTypes);
+                }
+
                 xdebug.stopTimer();
-                xdebug.logMsg(this, "Merged profiles. Took "+xdebug.getTimeElapsed()+"ms");
-                
-                xdebug.startTimer();
-                ProfileData netMergedProfile = merger.getMergedProfile();
-                ArrayList<String> netGeneList = netMergedProfile.getGeneList();
-
-                double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
-
-                ParserOutput netOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(
-                        StringUtils.join(netGeneList, " "), geneticProfileIdSet,
-                        profileList, zScoreThreshold);
-
-                OncoPrintSpecification netOncoPrintSpec = netOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-                ProfileDataSummary netDataSummary = new ProfileDataSummary(netMergedProfile,
-                        netOncoPrintSpec, zScoreThreshold );
-                
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Got profile data summary. Took "+xdebug.getTimeElapsed()+"ms");
-
-                // add attributes
-                xdebug.startTimer();
-                addCGDSDataAsNodeAttribute(network, netDataSummary, alterationTypes, mapNodeIDSymbol);
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Added node attributes. Took "+xdebug.getTimeElapsed()+"ms");
+                xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
             }
 
 
@@ -270,50 +253,33 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private Map<String, String> getMapNodeIDSymbol(Network network) {
-        Map<String, String> map = new HashMap<String, String>();
-        for (Node node : network.getNodes()) {
-            String symbol = NetworkUtils.getSymbol(node);
-            if (symbol!=null) {
-                map.put(node.getId(), symbol);
-            }
+    private void addCGDSDataAsNodeAttribute(Node node, String gene, ProfileDataSummary netDataSummary,
+        Set<GeneticAlterationType> alterationTypes) {
+
+        node.setAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
+                .getPercentCasesWhereGeneIsAltered(gene));
+        if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
+                alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
+            node.setAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
+                    .getPercentCasesWhereGeneIsMutated(gene));
         }
-        return map;
-    }
-    
-    private void addCGDSDataAsNodeAttribute(Network network, ProfileDataSummary netDataSummary,
-            Set<GeneticAlterationType> alterationTypes, Map<String, String> mapNodeIDSymbol) {
-        for (Node node : network.getNodes()) {
-            String gene = mapNodeIDSymbol.get(node.getId());
-            if (gene==null) {
-                continue;
-            }
-            
-            node.setAttribute(NODE_ATTR_PERCENT_ALTERED, netDataSummary
-                    .getPercentCasesWhereGeneIsAltered(gene));
-            if (alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED) ||
-                    alterationTypes.contains(GeneticAlterationType.MUTATION_EXTENDED)) {
-                node.setAttribute(NODE_ATTR_PERCENT_MUTATED, netDataSummary
-                        .getPercentCasesWhereGeneIsMutated(gene));
-            }
 
-            if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
-                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
-                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
-                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
-                        .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
-            }
+        if (alterationTypes.contains(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+            node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, netDataSummary
+                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Amplified));
+            node.setAttribute(NODE_ATTR_PERCENT_CNA_GAINED, netDataSummary
+                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.Gained));
+            node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, netDataSummary
+                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HomozygouslyDeleted));
+            node.setAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, netDataSummary
+                    .getPercentCasesWhereGeneIsAtCNALevel(gene, GeneticTypeLevel.HemizygouslyDeleted));
+        }
 
-            if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
-                        .getPercentCasesWhereMRNAIsUpRegulated(gene));
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
-                        .getPercentCasesWhereMRNAIsDownRegulated(gene));
-            }
+        if (alterationTypes.contains(GeneticAlterationType.MRNA_EXPRESSION)) {
+            node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, netDataSummary
+                    .getPercentCasesWhereMRNAIsUpRegulated(gene));
+            node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, netDataSummary
+                    .getPercentCasesWhereMRNAIsDownRegulated(gene));
         }
         
     }

@@ -13,20 +13,13 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 ./ovarian/preprocess-all.py
 
 # Imports All Case Lists except cases_protein.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_all.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_CGH.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_complete.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_expression_cluster1.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_expression_cluster2.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_expression_cluster3.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_expression_cluster4.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_methylation_cluster1.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_methylation_cluster2.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_methylation_cluster3.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_methylation_cluster4.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_mRNA.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_normal_mRNA.txt
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists/cases_sequenced.txt
+for case in $CGDS_DATA_HOME/ovarian/case_lists/*.txt
+do
+  if [ "$case" != "$CGDS_DATA_HOME/ovarian/case_lists/cases_protein.txt" ]
+	  then
+	  ./importCaseList.pl $case
+  fi
+done
 
 # Imports Clinical Data
 ./importClinicalData.pl $CGDS_DATA_HOME/ovarian/ova_clinical_20110211.txt

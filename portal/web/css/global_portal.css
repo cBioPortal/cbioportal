@@ -513,6 +513,10 @@ td.op_data_cell{
   margin:10px;
 }
 
+#right_side td {
+  font-size:125%;
+}
+
 #left_side, #right_side li {
   margin-left:0px;
   font-family: verdana, arial, sans-serif;
@@ -811,32 +815,17 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 .welcome {
-    background-color:#E8F1F8;
-    background: -moz-linear-gradient(top, #D6E9F9 0%, #FFF 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D6E9F9), color-stop(100%,#FFF)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D6E9F9', endColorstr='#FFFFFF',GradientType=0 ); /* ie */
-    -moz-border-radius:     10px;
-    -khtml-border-radius:   10px;
-    -webkit-border-radius:  10px;
     padding: 3px;
     height: 200px;
-}
 
-#left_side {
-  margin-top: 0px;
-  float: left;
-  width: 160px;
-  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
-  text-align: center;
 }
 
 #right_side {
   margin-top: 10px;
-  float: right;
-  align: right;
-  width: 160px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;
+  margin-left:60px;
+  font-size:80%;
 }
 
 #login_header {
@@ -985,6 +974,8 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
+    min-width: 780px;
+    max-width: 1000px;
 }
 
 /* Accordion Panel H1 */
@@ -1070,6 +1061,10 @@ cursor: default;
 /* This is the gene_list input text area */
 #gene_list {
   background-color:#eeeeee;
+  width:75%;
+  font-weight:bold;
+  font-size:15px;
+  font-family: verdana, arial, sans-serif;
 }
 
 /* This refers to a subgroup of profiles that all share the same alteration type,

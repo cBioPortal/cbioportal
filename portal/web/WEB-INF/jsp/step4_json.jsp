@@ -14,9 +14,7 @@
         return false;
     }
     </script>
-    <span style="float:right">
-        <a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a>
-    </span>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a>
 
 <%
 // Output step 4 form validation error

@@ -10,7 +10,7 @@
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::CGDS R Library"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
    <div id="main">
-    <table cellspacing="2px">
+       <table cellspacing="2px">
         <tr>
             <td>
             <h1>R/MATLAB Packages</h1>

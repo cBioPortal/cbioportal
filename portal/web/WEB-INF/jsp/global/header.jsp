@@ -96,5 +96,5 @@
   </tr>
 
   <tr valign="top">
-    <td>
+    <td width="70%">
         <div id="content">

@@ -23,7 +23,7 @@ public class ProfileDataSummary {
     private HashMap<String, double[]> geneMRNAUpDownMap = new HashMap<String, double[]>();
     private HashMap<String, Integer> numCasesAlteredMap = new HashMap<String, Integer>();
     private ArrayList<GeneWithScore> geneAlteredList = new ArrayList<GeneWithScore>();
-    private HashMap<String, Boolean> caseAlteredMap = new HashMap<String, Boolean>();
+    private HashMap<String, Boolean> caseAlteredMap = null; //lazy init
     private HashMap<String,HashMap<String,ValueParser>> mapGeneCaseParser = 
             new HashMap<String,HashMap<String,ValueParser>>();
     private double percentOfCasesWithAlteredPathway;
@@ -50,9 +50,6 @@ public class ProfileDataSummary {
         ArrayList<String> geneList = data.getGeneList();
         ArrayList<String> caseList = data.getCaseIdList();
         geneAlteredList = determineFrequencyOfGeneAlteration(geneList, caseList);
-        numCasesAffected = determineFrequencyOfCaseAlteration(geneList, caseList);
-        this.percentOfCasesWithAlteredPathway = numCasesAffected
-                / (double) caseList.size();
     }
 
     /**
@@ -100,6 +97,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isCaseAltered(String caseId) {
+        determineFrequencyOfCaseAlteration();
         return caseAlteredMap.get(caseId);
     }
 
@@ -109,6 +107,7 @@ public class ProfileDataSummary {
      * @return percent value.
      */
     public double getPercentCasesAffected() {
+        determineFrequencyOfCaseAlteration();
         return this.percentOfCasesWithAlteredPathway;
     }
 
@@ -118,6 +117,7 @@ public class ProfileDataSummary {
      * @return number of cases.
      */
     public int getNumCasesAffected() {
+        determineFrequencyOfCaseAlteration();
         return this.numCasesAffected;
     }
     
@@ -371,10 +371,18 @@ public class ProfileDataSummary {
      * Determines frequency with which each case contains an alteration in at
      * least one member of the gene set.
      */
-    private int determineFrequencyOfCaseAlteration(ArrayList<String> geneList,
-                                                   ArrayList<String> caseList) {
-        int numCasesAffected = 0;
+    private void determineFrequencyOfCaseAlteration() {
+        if (caseAlteredMap != null) {
+            return;
+        }
+        
+        caseAlteredMap = new HashMap<String, Boolean>();
+        
+        numCasesAffected = 0;
 
+        ArrayList<String> caseList = profileData.getCaseIdList();
+        ArrayList<String> geneList = profileData.getGeneList();
+        
         //  Iterate through all cases
         for (String caseId : caseList) {
             boolean caseIsAltered = false;
@@ -391,7 +399,9 @@ public class ProfileDataSummary {
             }
             caseAlteredMap.put(caseId, caseIsAltered);
         }
-        return numCasesAffected;
+        
+        percentOfCasesWithAlteredPathway = numCasesAffected
+                / (double) caseList.size();
     }
 }
 

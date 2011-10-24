@@ -310,7 +310,6 @@ function _updateNodeInspectorContent(data)
 	if (data.type == PROTEIN)
 	{
 		_addDataRow("node", "Gene Symbol", data.label);
-		//_addDataRow("node", "Description", "TODO");
 		//_addDataRow("node", "User-Specified", data.IN_QUERY);
 	
 		// add percentage information
@@ -936,6 +935,13 @@ function sliderVisibility(element)
 	if (_alreadyFiltered[element.data.id] != null)
 	{
 		visible = false;
+	}
+	// if an element is a seed node, then it should be visible
+	// (if it is not filtered manually)
+	else if (element.data["IN_QUERY"] != null &&
+			element.data["IN_QUERY"].toLowerCase() == "true")
+	{
+		visible = true;
 	}
 	else
 	{	

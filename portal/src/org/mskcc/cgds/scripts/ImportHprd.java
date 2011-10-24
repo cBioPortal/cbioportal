@@ -58,7 +58,7 @@ public class ImportHprd {
 
                 String geneAId = parts[0];
                 String geneBId = parts[3];
-                String interactionType = "pp";
+                String interactionType = "INTERACTS_WITH";
                 String dataSource = "HPRD";
                 String expTypes = parts[6];
                 String pmids = parts[7];

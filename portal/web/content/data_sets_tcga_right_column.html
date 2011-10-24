@@ -50,7 +50,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">558</td>
+<td style="text-align: right;">562</td>
 </tr>
 <tr>
 <td class="Tips1" title="Stomach adenocarcinoma">STAD</td>

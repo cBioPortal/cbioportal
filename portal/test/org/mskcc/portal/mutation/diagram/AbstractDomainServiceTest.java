@@ -19,7 +19,7 @@ public abstract class AbstractDomainServiceTest {
     protected abstract DomainService createDomainService();
 
     @Before
-    public final void setUp() {
+    public void setUp() {
         domainService = createDomainService();
     }
 

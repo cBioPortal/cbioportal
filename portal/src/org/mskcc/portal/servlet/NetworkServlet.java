@@ -104,24 +104,28 @@ public class NetworkServlet extends HttpServlet {
             } else {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
             }
-            final String netSize = req.getParameter("netsize");
-            if (netSize!=null) {
-                if (netSize.equals("small")) {
-                    NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                        public boolean select(Node node) {
-                            String inQuery = (String)node.getAttribute("IN_QUERY");
-                            return inQuery==null || !inQuery.equals("true");
-                        }
-                    });
-                } else if (netSize.equals("medium")) {
-                    NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                        public boolean select(Node node) {
-                            String inMedium = (String)node.getAttribute("IN_MEDIUM");
-                            return inMedium==null || !inMedium.equals("true");
-                        }
-                    });
-                }
+            
+            String netSize = req.getParameter("netsize").toLowerCase();
+            if (netSize==null || netSize.equals("default")) {
+                netSize = queryGenes.size()==1 ? "large" : "medium";
             }
+            
+            if (netSize.equals("small")) {
+                NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                    public boolean select(Node node) {
+                        String inQuery = (String)node.getAttribute("IN_QUERY");
+                        return inQuery==null || !inQuery.equals("true");
+                    }
+                });
+            } else if (netSize.equals("medium")) {
+                NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+                    public boolean select(Node node) {
+                        String inMedium = (String)node.getAttribute("IN_MEDIUM");
+                        return inMedium==null || !inMedium.equals("true");
+                    }
+                });
+            }
+            
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");

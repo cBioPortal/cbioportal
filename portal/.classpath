@@ -65,5 +65,6 @@
 	<classpathentry kind="lib" path="lib/spring/spring-security-web-3.1.0.RC2.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-tx-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-web-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/jdas-1.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

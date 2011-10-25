@@ -22,20 +22,19 @@ public class MutationFilter {
    
    // lists of Entrez gene IDs
    private HashSet<Long> cancerSpecificGermlineWhiteList = new HashSet<Long>();
-   private HashSet<Long> somaticWhiteList = new HashSet<Long>();
-   
+
    // text lists of the gene lists, for reporting
    private ArrayList<String> cancerSpecificGermlineWhiteListGeneNames = new ArrayList<String>();
-   private ArrayList<ArrayList<String>> somaticWhitelistsGeneNames = new ArrayList<ArrayList<String>>();
-   
-   // default acceptance decision used by acceptMutation()
-   private boolean defaultDecision = false;
-   
+
    private int accepts=0;
    private int germlineWhitelistAccepts=0;
    private int somaticWhitelistAccepts=0;
    private int unknownAccepts=0;
    private int decisions=0;
+   private int silentOrIntronRejects=0;
+   private int lohOrWildTypeRejects=0;
+   private int emptyAnnotationRejects=0;
+   private int missenseGermlineRejects=0;
 
    /**
     * Construct a MutationFilter with no white lists. 
@@ -46,61 +45,26 @@ public class MutationFilter {
     * KEEP all other mutations.
     */
    public MutationFilter( ) {
-      defaultDecision = true;
-      internalConstructor( (String)null );
+      __internalConstructor(null);
    }
    
    /**
-    * Construct a MutationFilter with a germline whitelist and, perhaps, some somatic whitelists.
+    * Construct a MutationFilter with a germline whitelist.
     * Whitelists contain Gene symbols.
     * <p>
-    * This filter will 
-    * <br>
-    * REJECT Silent, LOH, Intron and Wildtype mutations,
-    * <br>
-    * KEEP valid, somatic mutations,
-    * <br>
-    * KEEP Germline, non-missense mutations on the germline whitelist,
-    * <br>
-    * KEEP Somatic mutations on any of the somatic whitelists, which typically contain widely known oncogenes 
-    * and genes highly mutated in the cancer, and 
-    * <br>
-    * KEEP all other mutations if acceptRemainingMutationsBool is true, otherwise REJECT them. 
     * <p>
-    * @param acceptRemainingMutationsBool whether to accept mutations not processed by earlier rules
     * @param germlineWhiteListFile filename for the germline whitelist; null if not provided
-    * @param somaticGeneListFiles filenames for the somatic whitelist files; null if not provided
     */
-   public MutationFilter( boolean acceptRemainingMutationsBool, 
-            String germlineWhiteListFile, String... somaticGeneListFiles ) {
-      
-      this.defaultDecision = acceptRemainingMutationsBool;
-      internalConstructor( germlineWhiteListFile, somaticGeneListFiles );
+   public MutationFilter(String germlineWhiteListFile) {
+      __internalConstructor(germlineWhiteListFile);
    }
    
-   private void internalConstructor( 
-            String germlineWhiteListFile,
-            String... somaticGeneListFiles) {
+   private void __internalConstructor(String germlineWhiteListFile) throws IllegalArgumentException{
 
       // read germlineWhiteListFile (e.g., ova: BRCA1 BRCA2)
       if( null != germlineWhiteListFile){
-         cancerSpecificGermlineWhiteList = getContents(germlineWhiteListFile,
-                 this.cancerSpecificGermlineWhiteListGeneNames);
-      }
-
-      // read somaticGeneListFiles
-      // typically, one global oncogene whitelist and one cancer specific somatic gene whitelist determined
-      // from gdac.broadinstitute.org_<cancer>.Mutation_Significance.Level_4.<date><version>/sig_genes.txt
-      if( null != somaticGeneListFiles){
-
-         HashSet<Long> tmp = new HashSet<Long>();         
-         for( String file : somaticGeneListFiles){
-            ArrayList<String> somaticList = new ArrayList<String>();
-            HashSet<Long> hs = getContents( file, somaticList );
-            this.somaticWhitelistsGeneNames.add(somaticList);
-            tmp.addAll(hs);
-         }
-         somaticWhiteList = tmp;
+         cancerSpecificGermlineWhiteList = getContents(
+                 germlineWhiteListFile, this.cancerSpecificGermlineWhiteListGeneNames );
       }
    }
    
@@ -134,69 +98,37 @@ public class MutationFilter {
          | Translation_Start_Site | 
          +------------------------+
        */
-      
-      // Don't accept an empty mutation
-      if( mutation.getMutationStatus() == null ||
-               mutation.getMutationType() == null ||
-               mutation.getValidationStatus() == null ){
-         return false;
-      }
-      
+            
       // Do not accept Silent or Intronic Mutations
       if( safeStringTest( mutation.getMutationType(), "Silent" ) ||
                safeStringTest( mutation.getMutationType(), "Intron" ) ){
+         silentOrIntronRejects++;
          return false;
       }
 
       // Do not accept LOH or Wildtype Mutations
       if( safeStringTest( mutation.getMutationStatus(), "LOH" ) ||
                safeStringTest( mutation.getMutationStatus(), "Wildtype" ) ){
+         lohOrWildTypeRejects++;
          return false;
       }
 
-      // KEEP: valid, somatic mutations
-      if( safeStringTest( mutation.getValidationStatus(), "Valid" ) &&
-               safeStringTest( mutation.getMutationStatus(), "Somatic" ) ){
-         this.accepts++;
-         return true;
-      }
-      
-      // KEEP: Germline, non-missense mutations on a germline whitelist
+      // Do not accept Germline Missense Mutations or Germline Mutations that are not on the white list
       if( safeStringTest( mutation.getMutationStatus(), "Germline" ) ){
          if( safeStringTest( mutation.getMutationType(), "Missense" ) ){
+            missenseGermlineRejects++;
             return false;
          }
-         if( cancerSpecificGermlineWhiteList.contains(
+         if(cancerSpecificGermlineWhiteList != null && cancerSpecificGermlineWhiteList.size() > 0) {
+             if (!cancerSpecificGermlineWhiteList.contains(
                   new Long( mutation.getEntrezGeneId() ) ) ){
-            this.accepts++;
-            this.germlineWhitelistAccepts++;
-            return true;
+                return false;
+             }
          }         
       }
-      
-      // KEEP: Somatic mutations on the somatic whitelist
-      if( safeStringTest( mutation.getMutationStatus(), "Somatic" ) ){
-         if( somaticWhiteList.contains( new Long( mutation.getEntrezGeneId() ) ) ){
-            this.accepts++;
-            this.somaticWhitelistAccepts++;
-            return true;
-         }         
-      }
-      
-      // KEEP: Unknown mutations on the somatic whitelist
-      if( safeStringTest( mutation.getMutationStatus(), "Unknown" ) ){
-         if( somaticWhiteList.contains( new Long( mutation.getEntrezGeneId() ) ) ){
-            this.accepts++;
-            this.unknownAccepts++;
-            return true;
-         }         
-      }
-      
-      // everything else
-      if( this.defaultDecision ){
-         this.accepts++;         
-      }
-      return defaultDecision;
+
+     this.accepts++;
+     return true;
    }
    
    /**
@@ -213,6 +145,38 @@ public class MutationFilter {
     */
    public int getAccepts(){
       return this.accepts;
+   }
+
+    /**
+     * Provide number of REJECT decisions for Silent or Intron Mutations.
+     * @return number of REJECT decisions for Silent or Intron Mutations.
+     */
+   public int getSilentOrIntronRejects() {
+       return this.silentOrIntronRejects;
+   }
+
+    /**
+     * Provide number of REJECT decisions for LOH or Wild Type Mutations.
+     * @return number of REJECT decisions for LOH or Wild Type Mutations.
+     */
+   public int getLohOrWildTypeRejects() {
+       return this.lohOrWildTypeRejects;
+   }
+
+    /**
+     * Provide number of REJECT decisions for Emtpy Annotation Mutations.
+     * @return number of REJECT decisions for Empty Annotation Mutations.
+     */
+   public int getEmptyAnnotationRejects() {
+       return this.emptyAnnotationRejects;
+   }
+
+    /**
+     * Provide number of REJECT decisions for Missense Germline Mutations.
+     * @return number of REJECT decisions for Missense Germline Mutations.
+     */
+   public int getMissenseGermlineRejects() {
+       return this.missenseGermlineRejects;
    }
 
    /**
@@ -250,10 +214,10 @@ public class MutationFilter {
    public String getStatistics(){
       return "Mutation filter decisions: " + this.getDecisions() +
             "\nRejects: " + this.getRejects() +
-            "\nAccepts: " + this.getAccepts() + 
-            "\nGermline whitelist accepts: " + this.getGermlineWhitelistAccepts() +
-            "\nSomatic whitelist accepts: " + this.getSomaticWhitelistAccepts() +
-            "\nUnknown accepts: " + this.getUnknownAccepts();
+            "\nSilent or Intron Rejects:  " + this.getSilentOrIntronRejects() +
+            "\nLOH or Wild Type Rejects:  " + this.getLohOrWildTypeRejects() +
+            "\nEmpty Annotation Rejects:  " + this.getEmptyAnnotationRejects() +
+            "\nMissense Germline Rejects:  " + this.getMissenseGermlineRejects();
    }
 
    /**
@@ -325,12 +289,7 @@ public class MutationFilter {
    @Override
    public String toString(){
       StringBuffer sb = new StringBuffer();
-      sb.append( "Default decision: " + this.defaultDecision + "\n" );
       sb.append( "Germline whitelist: " + this.cancerSpecificGermlineWhiteListGeneNames.toString() + "\n" );
-      int i=1;
-      for( ArrayList<String> somaticWhiteList :  this.somaticWhitelistsGeneNames){
-         sb.append( "Somatic whitelist " + i++ + ": " + somaticWhiteList.toString() + "\n" );
-      }
       return( sb.toString() );
    }
 }

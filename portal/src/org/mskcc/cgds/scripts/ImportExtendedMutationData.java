@@ -46,37 +46,19 @@ public class ImportExtendedMutationData{
    }
     
     /**
-     * Construct an ImportExtendedMutationData with a germline whitelist.
-     * Filter mutations according to the 2 argument MutationFilter().
-     */
-    public ImportExtendedMutationData( File mutationFile, 
-             int geneticProfileId, 
-             ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germlineWhiteListFile ) {
-       this( mutationFile, geneticProfileId, pMonitor,
-                acceptRemainingMutationsBool, germlineWhiteListFile, (String[]) null );
-   }
-
-    /**
      * Construct an ImportExtendedMutationData with germline and somatic whitelists.
      * Filter mutations according to the 2 argument MutationFilter().
      */
     public ImportExtendedMutationData( File mutationFile, 
              int geneticProfileId, 
              ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germlineWhiteListFile,
-             String... listOfSomaticWhitelists ) {
+             String germline_white_list_file) throws IllegalArgumentException {
        this.mutationFile = mutationFile;
        this.geneticProfileId = geneticProfileId;
        this.pMonitor = pMonitor;
 
        // create MutationFilter
-       myMutationFilter = new MutationFilter(
-                acceptRemainingMutationsBool,
-                germlineWhiteListFile,
-                listOfSomaticWhitelists );
+       myMutationFilter = new MutationFilter(germline_white_list_file);
    }
 
     public void importData() throws IOException, DaoException {
@@ -196,7 +178,8 @@ public class ImportExtendedMutationData{
                             + entrezGeneIdStr + "]. Ignoring it "
                             + "and all mutation data associated with it!");
                     }
-   				} else {
+   				}
+                if (gene != null) {
                     ExtendedMutation mutation = new ExtendedMutation();
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);

@@ -79,11 +79,13 @@ $(document).ready(function(){
     });
 
     //  set toggle Step 5: Optional arguments
-    $("#optional_args").hide();
+    //$("#optional_args").hide();
     /*$("#step5_toggle").click(function(event) {
         event.preventDefault();
         $("#optional_args").toggle( "blind" );
     });*/
+    
+    $('.netsize_help').tipTip();
 
     $('#step5 > .step_header').click(function(){
          $(".ui-icon", this).toggle();

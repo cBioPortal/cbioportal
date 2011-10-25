@@ -105,7 +105,7 @@ public class NetworkServlet extends HttpServlet {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
             }
             
-            String netSize = req.getParameter("netsize").toLowerCase();
+            String netSize = req.getParameter("netsize");
             if (netSize==null || netSize.equals("default")) {
                 netSize = queryGenes.size()==1 ? "large" : "medium";
             }

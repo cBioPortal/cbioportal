@@ -17,6 +17,9 @@
       if (computeLogOddsRatioLocal != null) {
          logOddsOptionChecked = " checked ";
      }
+      
+      String netSize = request.getParameter("netsize");
+      if (netSize==null) netSize = "default";
     %>
         <li>
         <input class="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>" type="checkbox" <%= logOddsOptionChecked %>
@@ -27,14 +30,25 @@
        
             <br/>
         <li>
-            Select network size: 
-            <select class="select-net-size" name="netsize">
-                <option value="small">Small network: including query genes only</option>
-                <option value="medium">Medium network: including query genes and neighbor genes that interact with two or more query genes</option>
-                <option value="large">Large network: including query genes and all neighbor genes</option>
-                <option value="default" selected="selected">Default: medium network (if at least two query genes) or large network (if only one query gene) </option>
-            </select>
-        </li>
+            Network size: 
+            <input type="radio" name="netsize" value="default" 
+                   <%if(netSize.equals("default")){%>checked="checked"<%}%>
+                   >Default <img class="netsize_help" src="images/help.png" 
+                   title="medium network (if at least two query genes) or large network 
+                   (if only one query gene)"/>&nbsp;&nbsp;
+            <input type="radio" name="netsize" value="small"
+                   <%if(netSize.equals("small")){%>checked="checked"<%}%>
+                   >Small network <img class="netsize_help" src="images/help.png" 
+                   title="including query genes only."/>&nbsp;&nbsp;
+            <input type="radio" name="netsize" value="medium"
+                   <%if(netSize.equals("medium")){%>checked="checked"<%}%>
+                   >Medium network <img class="netsize_help" src="images/help.png" 
+                   title="including query genes and neighbor genes that interact with two or more query genes."/>&nbsp;&nbsp;
+            <input type="radio" name="netsize" value="large"
+                   <%if(netSize.equals("large")){%>checked="checked"<%}%>
+                   >Large network <img class="netsize_help" src="images/help.png" 
+                   title="including query genes and all neighbor genes"/>&nbsp;&nbsp;
+            </li>
         </ul>
         </div>
     </div>

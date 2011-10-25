@@ -25,7 +25,6 @@ public final class CacheDomainService implements DomainService {
      * @param cacheLoader cache loader, must not be null
      */
     public CacheDomainService(final CacheLoader<String, List<Domain>> cacheLoader) {
-        checkNotNull(cacheLoader, "cacheLoader must not be null");
         cache = CacheBuilder.newBuilder().build(cacheLoader);
     }
 

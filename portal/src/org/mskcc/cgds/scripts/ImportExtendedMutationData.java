@@ -51,25 +51,6 @@ public class ImportExtendedMutationData{
    }
     
     /**
-     * Construct an ImportExtendedMutationData with a germline whitelist.
-     * Filter mutations according to the 2 argument MutationFilter().
-     * <p>
-     * 
-     * @param mutationFile
-     * @param geneticProfileId
-     * @param pMonitor
-     * @param germline_white_list_file  Optional germline whitelist containing Gene symbols; null if not provided.
-     */
-    public ImportExtendedMutationData( File mutationFile, 
-             int geneticProfileId, 
-             ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germline_white_list_file ) throws IllegalArgumentException {
-       this( mutationFile, geneticProfileId, pMonitor,
-                acceptRemainingMutationsBool, germline_white_list_file, (String[]) null );
-   }
-
-    /**
      * Construct an ImportExtendedMutationData with germline and somatic whitelists.
      * Filter mutations according to the 2 argument MutationFilter().
      * <p>
@@ -78,23 +59,17 @@ public class ImportExtendedMutationData{
      * @param geneticProfileId
      * @param pMonitor
      * @param germline_white_list_file  Optional germline whitelist containing Gene symbols; null if not provided.
-     * @param listOfSomaticWhitelists   Zero or more somatic whitelists, containing Gene symbols.
      */
     public ImportExtendedMutationData( File mutationFile, 
              int geneticProfileId, 
              ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germline_white_list_file,
-             String... listOfSomaticWhitelists ) throws IllegalArgumentException {
+             String germline_white_list_file) throws IllegalArgumentException {
        this.mutationFile = mutationFile;
        this.geneticProfileId = geneticProfileId;
        this.pMonitor = pMonitor;
 
        // create MutationFilter
-       myMutationFilter = new MutationFilter(
-                acceptRemainingMutationsBool,
-                germline_white_list_file,
-                listOfSomaticWhitelists );
+       myMutationFilter = new MutationFilter(germline_white_list_file);
    }
 
     public void importData() throws IOException, DaoException {
@@ -219,7 +194,8 @@ public class ImportExtendedMutationData{
                             + entrezGeneIdStr + "]. Ignoring it "
                             + "and all mutation data associated with it!");
                     }
-   				} else {
+   				}
+                if (gene != null) {
                     ExtendedMutation mutation = new ExtendedMutation();
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);

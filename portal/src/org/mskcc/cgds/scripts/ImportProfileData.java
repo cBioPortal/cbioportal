@@ -65,10 +65,6 @@ public class ImportProfileData{
           .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
        OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList", "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
           .withRequiredArg().describedAs( "filename" ).ofType( String.class );
-       OptionSpec<String> somaticWhiteLists = parser.accepts( "somaticWhiteList", "list of genes whose somatic mutations should be loaded into the dbms; optional" +
-       		"may be used multiple times to specify multiple lists" )
-          .withRequiredArg().describedAs( "filename" ).ofType( String.class );
-       OptionSpec<Void> acceptRemainingMutations = parser.accepts( "acceptRemainingMutations", "if set, when loading mutations load mutations not rejected by other criteria" );
        OptionSet options = null;
       try {
          options = parser.parse( args );
@@ -141,17 +137,9 @@ public class ImportProfileData{
                germlineWhitelistFilename = options.valueOf( germlineWhiteList );
             }
    
-            String[] somaticWhitelistFilenames = null;
-            if( options.has( somaticWhiteLists ) ){
-               List<String> listOptions = options.valuesOf( somaticWhiteLists );
-               somaticWhitelistFilenames = (String[])listOptions.toArray(new String[ listOptions.size() ]);
-            }
-            
-            boolean acceptRemainingMutationsBool = options.has( acceptRemainingMutations );
-            
             ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
                   geneticProfile.getGeneticProfileId(), pMonitor, 
-                  acceptRemainingMutationsBool, germlineWhitelistFilename, somaticWhitelistFilenames );
+                  germlineWhitelistFilename);
             System.out.println( importer.toString() );
             importer.importData();
         } else {

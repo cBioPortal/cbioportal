@@ -20,7 +20,7 @@ final class UniProtDasCacheLoader extends CacheLoader<String, List<Domain>> {
     /** {@inheritDoc} */
     public List<Domain> load(final String uniProtId) throws Exception {
         List<Domain> domains = new LinkedList<Domain>();
-        List<String> segments = ImmutableList.of(uniProtId + ";type=SO:0000417");
+        List<String> segments = ImmutableList.of(uniProtId);
 
         FeaturesClient featuresClient = new FeaturesClient();
         // todo: four null arguments, ick

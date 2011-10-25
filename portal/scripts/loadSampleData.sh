@@ -22,7 +22,7 @@
 ./importClinicalData.pl ../sample_data/gbm/GBM_clinical_portal_20110210.txt
 
 # Load Mutation Data
-./importProfileData.pl --data ../sample_data/gbm/data_mutations_MAF.txt --meta ../sample_data/gbm/meta_mutations_MAF.txt --dbmsAction clobber  --somaticWhiteList ../sample_data/genes/universalSomaticGeneWhitelist.txt --somaticWhiteList ../sample_data/genes/universalSomaticGeneWhitelist.txt
+./importProfileData.pl --data ../sample_data/gbm/data_mutations_MAF.txt --meta ../sample_data/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
 
 # Load CNA Data
 ./importProfileData.pl --data ../sample_data/gbm/data_CNA_consensus.txt --meta ../sample_data/gbm/meta_CNA_consensus.txt --dbmsAction clobber

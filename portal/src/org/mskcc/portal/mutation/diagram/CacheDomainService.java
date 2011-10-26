@@ -16,6 +16,7 @@ import com.google.common.cache.CacheLoader;
  */
 public final class CacheDomainService implements DomainService {
     private static final long serialVersionUID = 1L;
+    private static final List<Domain> EMPTY = Collections.emptyList();
     private static final Logger logger = Logger.getLogger(CacheDomainService.class);
     private final Cache<String, List<Domain>> cache;
 
@@ -25,6 +26,7 @@ public final class CacheDomainService implements DomainService {
      * @param cacheLoader cache loader, must not be null
      */
     public CacheDomainService(final CacheLoader<String, List<Domain>> cacheLoader) {
+        checkNotNull(cacheLoader, "cacheLoader must not be null");
         cache = CacheBuilder.newBuilder().build(cacheLoader);
     }
 
@@ -36,7 +38,7 @@ public final class CacheDomainService implements DomainService {
         }
         catch (Exception e) {
             logger.error("could not load domains from cache for " + uniProtId, e);
-            return Collections.emptyList();
+            return EMPTY;
         }
     }
 }

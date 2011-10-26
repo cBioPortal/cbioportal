@@ -34,6 +34,11 @@ public class CacheDomainServiceTest extends AbstractDomainServiceTest {
         return new CacheDomainService(cacheLoader);
     }
 
+    @Test(expected=NullPointerException.class)
+    public void testConstructorNullCacheLoader() {
+        new CacheDomainService(null);
+    }
+
     @Test
     public void testGetDomains() throws Exception {
         Domain domain = new Domain("FOO", 0, 42);

@@ -326,25 +326,58 @@
 
 /*
  * ######################################################## 
+ * ############## Network Tabs (general) ##################
+ * ########################################################
+ */
+
+#network_tabs
+{
+	width: 240px;
+	height: 666px;
+}
+
+#network_tabs .image-button
+{
+	width: 27px;
+	height: 27px;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#network_tabs .heading
+{
+	font-weight: bold;
+	font-size: 13px;
+}
+
+#network_tabs label
+{
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 12px;
+}
+
+
+/*
+ * ######################################################## 
  * ##################### Genes Tab ########################
  * ########################################################
  */
- 
+
 #genes_tab .header
 {
 	padding-bottom: 0.5em;
 	text-align: center;
-	font-size: 9pt;
 	width: 200px;
 }
 
 #genes_tab .header #search
 {
-	width: 111px;
-	/* TODO image-buttons
+	/*width: 111px;*/
 	width: 66px;
 	margin-left: 4px;
-	*/
+	margin-top: 8px;
+	vertical-align: bottom;
 }
 
 #genes_tab .in-query
@@ -402,7 +435,7 @@
 
 #genes_tab #slider_area .slider-value input
 {
-	font-size: 9pt;
+	font-size: 11px;
 	width: 3em;
 }
 
@@ -419,7 +452,6 @@
     text-align: left;
 }
 
-/* TODO image-buttons
 #genes_tab #filter_genes
 {
 	background-image: url("images/hide.png");
@@ -440,16 +472,6 @@
 	background-image: url("images/search.png");
 }
 
-#genes_tab #control_area .image-button
-{
-	width: 22px;
-	height: 22px;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: 18px 18px;
-}
-*/
-
 /*
  * ######################################################## 
  * ########## Interactions (Relations) Tab ################
@@ -468,12 +490,11 @@
 {
 	padding-top: 0.5em;
 	text-align: center;
-	font-size: 9pt;
 }
 
 #relations_tab .percent-value
 {
-	font-size: 8pt;
+	font-size: 10px;
 	text-align: right;
 }
 
@@ -492,6 +513,102 @@
 #relations_tab #edge_source_filter
 {
 	padding-top: 1em;
+}
+
+/* label of the update button */
+#relations_tab .footer label
+{
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+#relations_tab #update_edges
+{
+	background-image: url("images/update.png");
+}
+
+/*
+ * ######################################################## 
+ * ####################### Help Tab #######################
+ * ########################################################
+ */
+ 
+#help_tab
+{
+	overflow-y: auto;
+}
+
+#help_tab p
+{
+	margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: left;
+}
+
+#help_tab .seed_node_img
+{
+	/* actual [width,height] : [96px,139px] */	
+	width: auto;
+	height: 72px;
+}
+
+#help_tab .linker_node_img
+{
+	/* actual [width,height] : [93px,121px] */
+	width: auto;
+	height: 64px;
+}
+
+#help_tab .altered_node_img
+{
+	/* actual [width,height] : [111px,125px] */
+	width: auto;
+	height: 90px;
+}
+
+#help_tab .not_altered_node_img
+{
+	/* actual [width,height] : [108px,124px] */
+	width: auto;
+	height: 90px;
+}
+
+#help_tab img
+{
+	display: block;
+	
+	/* centering images */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#help_tab ul, #help_tab p
+{
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 11px;
+}
+
+#help_tab ul li
+{
+	margin-left: -15px;
+	text-align: left;
+}
+
+#help_tab a
+{
+	cursor:pointer;
+	color:#1974B8;
+}
+
+#help_tab .italic
+{
+	font-style: italic;
+}
+
+#help_tab .bold
+{
+	font-weight: bold;
 }
 
 /*

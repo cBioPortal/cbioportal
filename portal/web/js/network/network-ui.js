@@ -117,6 +117,9 @@ function initNetworkUI(vis)
 	_refreshGenesTab();
 	_refreshRelationsTab();
 
+	// adjust things for IE
+	_adjustIE();
+	
 	// make UI visible
 	_setVisibility(true);
 }
@@ -1797,7 +1800,7 @@ function _initDialogs()
 	// adjust node legend
 	$("#node_legend").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 420});
+		width: 440});
 	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
@@ -1862,6 +1865,15 @@ function _initTooltipStyle()
 	_vis.nodeTooltipsEnabled(true);
 }
 
+function _adjustIE()
+{
+	if (_isIE())
+	{
+		// this is required to position scrollbar on IE
+		var width = $("#help_tab").width();
+		$("#help_tab").width(width * 1.15);
+	}
+}
 
 /**
  * Listener for weight slider movement. Updates current value of the slider

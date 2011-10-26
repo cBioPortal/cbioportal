@@ -12,8 +12,8 @@
 		    		<span class="slider-value">
 		    			<input id="weight_slider_field" type="text" value="0"/>
 		    		</span>
-		    		<span class="slider-min">0</span>
-		    		<span class="slider-max">100</span>
+		    		<span class="slider-min"><label>0</label></span>
+		    		<span class="slider-max"><label>100</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
 	    		<label>Affinity</label>
@@ -21,27 +21,19 @@
 	    			<span class="slider-value">
 	    				<input id="affinity_slider_field" type="text" value="0.80"/>
 	    			</span>
-	    			<span class="slider-min">0</span>
-		    		<span class="slider-max">1.0</span>
+	    			<span class="slider-min"><label>0</label></span>
+		    		<span class="slider-max"><label>1.0</label></span>
 		    		<div id="affinity_slider_bar"></div>
 	    		</div>
     		</div>
     		<div id="control_area">
-				<table>
-					<tr>
-						<td>
-							<input type="button" id="filter_genes" value="Hide"/>
-							<input type="button" id="crop_genes" value="Crop"/>
-							<input type="button" id="unhide_genes" value="Unhide"/>						
-						</td>
-					</tr>
-					<tr>
-						<td>
+				
+							<input type="button" id="filter_genes" class="image-button" value="" title="Hide Selected"/>
+							<input type="button" id="crop_genes" class="image-button" value="" title="Crop Selected"/>
+							<input type="button" id="unhide_genes" class="image-button" value="" title="Unhide All"/>
 							<input type="text" id="search" value=""/>
-							<input type="button" id="search_genes" value="Search"/>
-						</td>
-					</tr>
-				</table>
+							<input type="button" id="search_genes" class="image-button" value="" title="Search"/>
+				
 			</div>
 		</div>
     </div>
@@ -50,7 +42,7 @@
 	        <table id="edge_type_filter">
 	        	<tr class="edge-type-header">
 	        		<td>
-	        			<strong>Type:</strong>
+	        			<label class="heading">Type:</label>
 	        		</td>
 	        	</tr>
 	        	<tr class="in-same-component">
@@ -113,17 +105,18 @@
 	        <table id="edge_source_filter">
 	        	<tr class="edge-source-header">
 	        		<td>
-	        			<strong>Source:</strong>
+	        			<label class="heading">Source:</label>
 	        		</td>
 	        	</tr>
 	        </table>
 	    </div>
         <div class="footer">
-			<input type="button" id="update_edges" value="Update"/>
+        	<label class="heading">Update</label>
+			<input type="button" id="update_edges" class="image-button" value="" title="Update"/>
 		</div>
     </div>
     <div id="help_tab">
-        Help!
+        <jsp:include page="network_help.jsp"></jsp:include>
     </div>
 </div>
 

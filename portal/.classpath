@@ -66,5 +66,9 @@
 	<classpathentry kind="lib" path="lib/spring/spring-tx-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-web-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/jdas-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/powermock-mockito-1.4.10-full.jar"/>
+	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.15.0-GA.jar"/>
+	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

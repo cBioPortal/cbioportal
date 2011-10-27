@@ -701,9 +701,15 @@ function showGeneDetails(evt)
  */
 function updateGenesTab(evt)
 {
+	// do not perform any action if the selection is due to the genes tab
 	if(!_selectFromTab)
 	{
 		var selected = _vis.selected("nodes");
+		
+		if (_isIE())
+		{
+			_setComponentVis($("#genes_tab select"), false);
+		}
 		
 		// deselect all options
 		$("#genes_tab select option").each(
@@ -717,6 +723,11 @@ function updateGenesTab(evt)
 		{
 			$("#" +  _safeProperty(selected[i].data.id)).attr(
 				"selected", "selected");
+		}
+		
+		if (_isIE())
+		{
+			_setComponentVis($("#genes_tab select"), true);
 		}
 	}
 }

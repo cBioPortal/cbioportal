@@ -19,7 +19,7 @@ public abstract class AbstractMutationServiceTest {
     protected abstract MutationService createMutationService();
 
     @Before
-    public final void setUp() {
+    public void setUp() {
         mutationService = createMutationService();
     }
 

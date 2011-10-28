@@ -217,7 +217,9 @@ public class NetworkServlet extends HttpServlet {
             writer.write(graphml);
             writer.flush();
         } catch (DaoException e) {
-            throw new ServletException (e);
+            //throw new ServletException (e);
+            writeMsg("Error loading network. Please report this to cancergenomics@cbio.mskcc.org!\n"+e.toString(), res);
+            res.getWriter().write("<graphml></graphml>");
         }
     }
     

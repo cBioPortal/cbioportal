@@ -6,8 +6,11 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,7 +106,7 @@ public class NetworkServlet extends HttpServlet {
             if (netSize==null || netSize.equals("default")) {
                 netSize = queryGenes.size()==1 ? "large" : "medium";
             }
-            //pruneNetwork(network,netSize);
+            pruneNetwork(network,netSize);
             
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
@@ -150,10 +153,13 @@ public class NetworkServlet extends HttpServlet {
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
                 
-                xdebug.startTimer();
-                pruneNetworkByAlteration(network);
-                xdebug.stopTimer();
-                xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
+                String nLinker = req.getParameter("linkers");
+                if (nLinker!=null && nLinker.matches("[0-9]+")) {
+                    xdebug.startTimer();
+                    pruneNetworkByAlteration(network, Integer.parseInt(nLinker), queryGenes.size());
+                    xdebug.stopTimer();
+                    xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
+                }
             }
 
 
@@ -193,8 +199,7 @@ public class NetworkServlet extends HttpServlet {
         if (netSize.equals("small")) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
-                    String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
-                    return inQuery==null || !inQuery.equals("true");
+                    return !isInQuery(node);
                 }
             });
         } else if (netSize.equals("medium")) {
@@ -209,19 +214,66 @@ public class NetworkServlet extends HttpServlet {
     
     /**
      * @param network 
+     * @param nKeep keep the top altered
      */
-    private void pruneNetworkByAlteration(Network network) {
-        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-            public boolean select(Node node) {
-                String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
-                if(inQuery==null && !inQuery.equals("true")) {
-                    return true;
-                }
-                    
-                Double alterPerc = (Double)node.getAttribute(NODE_ATTR_PERCENT_ALTERED);
-                return alterPerc==null && alterPerc==0;
+    private void pruneNetworkByAlteration(Network network, int nKeep, int nQuery) {
+        if (network.countNodes() <= nKeep + nQuery) {
+            return;
+        }
+        
+        List<Node> nodesToRemove = getNodesToRemove(network, nKeep);
+        
+        for (Node node : nodesToRemove) {
+            network.removeNode(node);
+        }
+    }
+    
+    /**
+     * 
+     * @param network
+     * @param n
+     * @return 
+     */
+    private List<Node> getNodesToRemove(Network network, int n) {
+        // keep track of the top nKeep
+        PriorityQueue<Node> topAlteredNodes = new PriorityQueue<Node>(n,
+                new Comparator<Node>() {
+                    public int compare(Node n1, Node n2) {
+                        return Double.compare(getTotalAlteredPercentage(n1),
+                                getTotalAlteredPercentage(n2));
+                    }
+                });
+        
+        List<Node> nodesToRemove = new ArrayList<Node>();
+        for (Node node : network.getNodes()) {
+            if (isInQuery(node)) {
+                continue;
             }
-        });
+            
+            if (topAlteredNodes.size()<n) {
+                topAlteredNodes.add(node);
+            } else {
+                double alterPerc = getTotalAlteredPercentage(node);
+                if (alterPerc > getTotalAlteredPercentage(topAlteredNodes.peek())) {
+                    nodesToRemove.add(topAlteredNodes.poll());
+                    topAlteredNodes.add(node);
+                } else {
+                    nodesToRemove.add(node);
+                }
+            }
+        }
+        
+        return nodesToRemove;
+    }
+    
+    private boolean isInQuery(Node node) {
+        String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
+        return inQuery!=null && inQuery.equals("true");
+    }
+    
+    private double getTotalAlteredPercentage(Node node) {
+        Double alterPerc = (Double)node.getAttribute(NODE_ATTR_PERCENT_ALTERED);
+        return alterPerc == null ? 0.0 : alterPerc;
     }
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
@@ -394,6 +446,7 @@ public class NetworkServlet extends HttpServlet {
         String zscoreThreshold = req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
         String netSrc = req.getParameter("netsrc");
         String netSize = req.getParameter("netsize");
+        String nLinker = req.getParameter("linkers");
         
         return "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
@@ -401,7 +454,8 @@ public class NetworkServlet extends HttpServlet {
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
                 +"&netsrc="+netSrc
-                +"&netsize="+netSize;
+                +"&netsize="+netSize
+                +"&linkers="+nLinker;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletResponse res) 

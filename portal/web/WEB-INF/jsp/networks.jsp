@@ -19,6 +19,9 @@
     String netSize = request.getParameter("netsize");
     if (netSrc==null)
         netSrc = "large";
+    String nLinker = request.getParameter("linkers");
+    if (nLinker==null)
+        nLinker = "50";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -166,6 +169,7 @@
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
+                     linkers:'<%=nLinker%>',
                      netsize:'<%=netSize%>'
                     };
                 $.post("network.do", 

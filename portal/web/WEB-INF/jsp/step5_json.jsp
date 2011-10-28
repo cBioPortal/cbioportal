@@ -19,7 +19,7 @@
      }
       
       String netSize = request.getParameter("netsize");
-      if (netSize==null) netSize = "default";
+      if (netSize==null) netSize = "large";
     %>
         <li>
         <input class="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>" type="checkbox" <%= logOddsOptionChecked %>
@@ -31,11 +31,6 @@
             <br/>
         <li>
             Network size: 
-            <input type="radio" name="netsize" value="default" 
-                   <%if(netSize.equals("default")){%>checked="checked"<%}%>
-                   >Default <img class="netsize_help" src="images/help.png" 
-                   title="medium network (if at least two query genes) or large network 
-                   (if only one query gene)"/>&nbsp;&nbsp;
             <input type="radio" name="netsize" value="small"
                    <%if(netSize.equals("small")){%>checked="checked"<%}%>
                    >Small network <img class="netsize_help" src="images/help.png" 

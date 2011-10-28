@@ -103,9 +103,6 @@ public class NetworkServlet extends HttpServlet {
             }
             
             String netSize = req.getParameter("netsize");
-            if (netSize==null || netSize.equals("default")) {
-                netSize = queryGenes.size()==1 ? "large" : "medium";
-            }
             pruneNetwork(network,netSize);
             
             xdebug.stopTimer();
@@ -196,13 +193,13 @@ public class NetworkServlet extends HttpServlet {
     }
     
     private void pruneNetwork(Network network, String netSize) {
-        if (netSize.equals("small")) {
+        if ("small".equals(netSize)) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
                     return !isInQuery(node);
                 }
             });
-        } else if (netSize.equals("medium")) {
+        } else if ("medium".equals(netSize)) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
                     String inMedium = (String)node.getAttribute("IN_MEDIUM");

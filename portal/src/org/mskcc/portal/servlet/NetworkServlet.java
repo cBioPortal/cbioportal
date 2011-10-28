@@ -103,7 +103,7 @@ public class NetworkServlet extends HttpServlet {
             if (netSize==null || netSize.equals("default")) {
                 netSize = queryGenes.size()==1 ? "large" : "medium";
             }
-            pruneNetwork(network,netSize);
+            //pruneNetwork(network,netSize);
             
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
@@ -149,6 +149,11 @@ public class NetworkServlet extends HttpServlet {
 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
+                
+                xdebug.startTimer();
+                pruneNetworkByAlteration(network);
+                xdebug.stopTimer();
+                xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
             }
 
 
@@ -188,7 +193,7 @@ public class NetworkServlet extends HttpServlet {
         if (netSize.equals("small")) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
-                    String inQuery = (String)node.getAttribute("IN_QUERY");
+                    String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
                     return inQuery==null || !inQuery.equals("true");
                 }
             });
@@ -200,7 +205,23 @@ public class NetworkServlet extends HttpServlet {
                 }
             });
         }
-        
+    }
+    
+    /**
+     * @param network 
+     */
+    private void pruneNetworkByAlteration(Network network) {
+        NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
+            public boolean select(Node node) {
+                String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
+                if(inQuery==null && !inQuery.equals("true")) {
+                    return true;
+                }
+                    
+                Double alterPerc = (Double)node.getAttribute(NODE_ATTR_PERCENT_ALTERED);
+                return alterPerc==null && alterPerc==0;
+            }
+        });
     }
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
@@ -281,7 +302,6 @@ public class NetworkServlet extends HttpServlet {
                 alteredCases.addAll(cases[1]);
                 node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, 1.0*cases[0].size()/targetCaseList.size());
                 node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, 1.0*cases[1].size()/targetCaseList.size());
-                
             }
         }
 

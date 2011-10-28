@@ -156,8 +156,22 @@
                     var ix2 = graphml.indexOf("xdebug messages end-->");
                     var xdebugmsgs = graphml.substring(ix1,ix2);
                     $("div#cytoscapeweb").css('height','70%');
-                    $("td#vis_content").append("\n<div id='network_xdebug'>"+xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
+                    $("td#vis_content").append("\n<div id='network_xdebug'>"
+                        +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
                 }
+            }
+            
+            function showMessage(graphml) {
+                var msgbegin = "<!--messages begin:";
+                var ix1 = graphml.indexOf(msgbegin);
+                if (ix1==-1) {
+                    $("div#netmsg").hide();
+                } else {
+                    ix1 += msgbegin.length;
+                    var ix2 = graphml.indexOf("messages end-->",ix1);
+                    var msgs = graphml.substring(ix1,ix2);
+                    $("div#netmsg").append(msgs.replace(/\n/g,"<br/>\n"));
+                }    
             }
             
             window.onload = function() {
@@ -184,12 +198,14 @@
                         }
                         send2cytoscapeweb(graphml);
                         showXDebug(graphml);
+                        showMessage(graphml);
                     }
                 );
             }
         </script>
 
 <div class="section" id="network">
+    <div id="netmsg" style="margin-bottom: 12px"></div>
 	<table id="network_wrapper">
 		<tr><td>
 			<div>

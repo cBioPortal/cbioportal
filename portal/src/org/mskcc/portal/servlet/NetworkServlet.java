@@ -73,6 +73,8 @@ public class NetworkServlet extends HttpServlet {
             throws ServletException, IOException {
         res.setContentType("text/xml");
         try {
+            StringBuilder messages = new StringBuilder();
+            
             XDebug xdebug = new XDebug( req );
             
             String xd = req.getParameter("xdebug");
@@ -153,7 +155,30 @@ public class NetworkServlet extends HttpServlet {
                 String nLinker = req.getParameter("linkers");
                 if (nLinker!=null && nLinker.matches("[0-9]+")) {
                     xdebug.startTimer();
-                    pruneNetworkByAlteration(network, Integer.parseInt(nLinker), queryGenes.size());
+                    int nBefore = network.countNodes();
+                    int querySize = queryGenes.size();
+                    pruneNetworkByAlteration(network, Integer.parseInt(nLinker), querySize);
+                    int nAfter = network.countNodes();
+                    if (nBefore!=nAfter) {
+                        messages.append("The network below contains ");
+                        messages.append(nAfter);
+                        messages.append(" nodes, including ");
+                        messages.append(querySize);
+                        messages.append(" query gene");
+                        if (querySize>1) {
+                            messages.append("s");
+                        }
+                        messages.append(" and ");
+                        messages.append(nAfter-querySize);
+                        messages.append(" genes with highest alteration ");
+                        messages.append("frequencies out of ");
+                        messages.append(nBefore-querySize);
+                        messages.append(" genes that interact with the query gene");
+                        if (querySize>1) {
+                            messages.append("s");
+                        }
+                        messages.append(".");
+                    }
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
                 }
@@ -182,6 +207,10 @@ public class NetworkServlet extends HttpServlet {
             
             if (logXDebug) {
                 writeXDebug(xdebug, res);
+            }
+            
+            if (messages.length()>0) {
+                writeMsg(messages.toString(), res);
             }
             
             PrintWriter writer = res.getWriter();
@@ -465,4 +494,14 @@ public class NetworkServlet extends HttpServlet {
         }
         writer.write("xdebug messages end-->\n");
     }
+    
+    private void writeMsg(String msg, HttpServletResponse res) 
+            throws ServletException, IOException {
+        PrintWriter writer = res.getWriter();
+        writer.write("<!--messages begin:\n");
+        writer.write(msg);
+        writer.write("messages end-->\n");
+    }
+    
+    
 }

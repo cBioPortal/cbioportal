@@ -105,7 +105,7 @@ public class NetworkServlet extends HttpServlet {
             }
             
             String netSize = req.getParameter("netsize");
-            pruneNetwork(network,netSize);
+            boolean topologyPruned = pruneNetwork(network,netSize);
             
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
@@ -153,7 +153,7 @@ public class NetworkServlet extends HttpServlet {
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
                 
                 String nLinker = req.getParameter("linkers");
-                if (nLinker!=null && nLinker.matches("[0-9]+")) {
+                if (!topologyPruned && nLinker!=null && nLinker.matches("[0-9]+")) {
                     xdebug.startTimer();
                     int nBefore = network.countNodes();
                     int querySize = queryGenes.size();
@@ -162,7 +162,7 @@ public class NetworkServlet extends HttpServlet {
                     if (nBefore!=nAfter) {
                         messages.append("The network below contains ");
                         messages.append(nAfter);
-                        messages.append(" nodes, including ");
+                        messages.append(" nodes, including your ");
                         messages.append(querySize);
                         messages.append(" query gene");
                         if (querySize>1) {
@@ -170,14 +170,9 @@ public class NetworkServlet extends HttpServlet {
                         }
                         messages.append(" and ");
                         messages.append(nAfter-querySize);
-                        messages.append(" genes with highest alteration ");
-                        messages.append("frequencies out of ");
+                        messages.append(" (out of ");
                         messages.append(nBefore-querySize);
-                        messages.append(" genes that interact with the query gene");
-                        if (querySize>1) {
-                            messages.append("s");
-                        }
-                        messages.append(".");
+                        messages.append(") linker genes (genes that interact with at least one query gene).");
                     }
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
@@ -223,13 +218,14 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private void pruneNetwork(Network network, String netSize) {
+    private boolean pruneNetwork(Network network, String netSize) {
         if ("small".equals(netSize)) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
                     return !isInQuery(node);
                 }
             });
+            return true;
         } else if ("medium".equals(netSize)) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
@@ -237,7 +233,9 @@ public class NetworkServlet extends HttpServlet {
                     return inMedium==null || !inMedium.equals("true");
                 }
             });
+            return true;
         }
+        return false;
     }
     
     /**
@@ -281,12 +279,16 @@ public class NetworkServlet extends HttpServlet {
             if (topAlteredNodes.size()<n) {
                 topAlteredNodes.add(node);
             } else {
-                double alterPerc = getTotalAlteredPercentage(node);
-                if (alterPerc > getTotalAlteredPercentage(topAlteredNodes.peek())) {
-                    nodesToRemove.add(topAlteredNodes.poll());
-                    topAlteredNodes.add(node);
-                } else {
+                if (n==0) {
                     nodesToRemove.add(node);
+                } else {
+                    double alterPerc = getTotalAlteredPercentage(node);
+                    if (alterPerc > getTotalAlteredPercentage(topAlteredNodes.peek())) {
+                        nodesToRemove.add(topAlteredNodes.poll());
+                        topAlteredNodes.add(node);
+                    } else {
+                        nodesToRemove.add(node);
+                    }
                 }
             }
         }

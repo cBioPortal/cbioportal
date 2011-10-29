@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * Unit test for UniProtDasEhcacheLoader.
  */
-public class UniProtDasEhcacheLoaderTest {
+public final class UniProtDasEhcacheLoaderTest {
     private UniProtDasEhcacheLoader cacheLoader;
 
     @Before

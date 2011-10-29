@@ -29,7 +29,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DaoGeneOptimized.class, DaoMutation.class })
-public class CgdsMutationServiceTest extends AbstractMutationServiceTest {
+public final class CgdsMutationServiceTest extends AbstractMutationServiceTest {
     @Mock
     private CanonicalGene gene;
     @Mock

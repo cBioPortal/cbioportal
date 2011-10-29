@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * Unit test for CacheDomainService.
  */
-public class CacheDomainServiceTest extends AbstractDomainServiceTest {
+public final class CacheDomainServiceTest extends AbstractDomainServiceTest {
     @Mock
     private CacheLoader<String, List<Domain>> cacheLoader;
 

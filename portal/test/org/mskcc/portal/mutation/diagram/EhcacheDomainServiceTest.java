@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * Unit test for EhcacheDomainService.
  */
-public class EhcacheDomainServiceTest extends AbstractDomainServiceTest {
+public final class EhcacheDomainServiceTest extends AbstractDomainServiceTest {
     @Mock
     private CacheLoader cacheLoader;
     @Mock

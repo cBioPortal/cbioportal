@@ -18,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * Unit test for MutationDiagramServlet.
  */
-public class MutationDiagramServletTest {
+public final class MutationDiagramServletTest {
     private MutationDiagramServlet mutationDiagramServlet;
 
     @Mock

@@ -16,37 +16,13 @@ public class TestMutationFilter extends TestCase {
       try {
          ResetDatabase.resetDatabase();
       } catch (DaoException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      
-      /*
-       * test_germline_white_list_file.txt contains
-         FOO -3-
-         BAR -234-
-         BIG -234234-
-
-       * test_data/test_somatic_white_list_file1.txt contains
-         ONE 1
-         FOUR 4
-         FOO 3
-         TWELVE 12
-
-       * test_data/test_somatic_white_list_file2.txt contains
-         FOUR 4
-         FOO 3
-         SEVENSEVENSEVEN 777         
-
-       */
    }
    
    public void testBadWhiteLists( ){
       try {
-         new MutationFilter( 
-                  false,
-                  "no_such_file",
-                  "no_such_file_either"
-         );
+         new MutationFilter("no_such_file");
          Assert.fail( "Should throw IllegalArgumentException");
       } catch (IllegalArgumentException e) {
          assertEquals( "Gene list 'no_such_file' not found.", e.getMessage() );
@@ -54,10 +30,8 @@ public class TestMutationFilter extends TestCase {
    }
    
    public void testNoWhitelists( ){
-
       MutationFilter myMutationFilter = new MutationFilter( );
-
-      alwaysRejectTheseMutations( myMutationFilter );      
+      alwaysRejectTheseMutations( myMutationFilter );
       
       // accept all of these, because a MutationFilter without whitelists
       // accepts all mutations other than Silent, LOH, Intron and Wildtype mutations
@@ -123,9 +97,7 @@ public class TestMutationFilter extends TestCase {
                  
       // create MutationFilter
       MutationFilter myMutationFilter = new MutationFilter( 
-               false,
-               "test_data/test_germline_white_list_file.txt"
-         );
+               "test_data/test_germline_white_list_file.txt");
 
       alwaysRejectTheseMutations( myMutationFilter );      
       tryGermlineMutations( myMutationFilter );      
@@ -165,103 +137,6 @@ public class TestMutationFilter extends TestCase {
 
    }
 
-   public void testAcceptMutation_germline_and_somatic_white_lists() throws DaoException {
-      
-      // load genes
-      loadGene( "FOO", 3L  );
-      loadGene( "BAR", 234L  );
-      loadGene( "BIG", 234234L  );
-      
-      //                "test_data/test_somatic_white_list_file1.txt",
-      loadGene( "ONE", 1L  );
-      loadGene( "FOUR", 4L  );
-      loadGene( "FOO", 3L  );
-      
-      //                "test_data/test_somatic_white_list_file2.txt"
-      loadGene( "TWELVE", 12L  );
-      loadGene( "FOUR", 4L  );
-      loadGene( "FOO", 3L  );
-      loadGene( "SEVENSEVENSEVEN", 777L  );
-      
-      // create MutationFilter
-      MutationFilter myMutationFilter = new MutationFilter( 
-               false,
-               "test_data/test_germline_white_list_file.txt",
-               "test_data/test_somatic_white_list_file1.txt",
-               "test_data/test_somatic_white_list_file2.txt"
-         );
-
-      alwaysRejectTheseMutations( myMutationFilter );      
-      tryGermlineMutations( myMutationFilter );
-
-      // somatic mutation on first whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            4L, 
-            "Unknown",        // validationStatus,
-            "somatic",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-      // somatic mutation on 2nd whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            12L, 
-            "Unknown",        // validationStatus,
-            "somatic",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-      // somatic mutation on both whitelists
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            4L, 
-            "Unknown",        // validationStatus,
-            "somatic",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-      // somatic mutation on neither whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            false, 
-            1234L, 
-            "Unknown",        // validationStatus,
-            "somatic",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-   
-      // Unknown mutation on both whitelists
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            true, 
-            4L, 
-            "Unknown",        // validationStatus,
-            "Unknown",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-
-      // Unknown mutation on neither whitelist
-      nowTestAcceptMutation( 
-            myMutationFilter,
-            false, 
-            1234L, 
-            "Unknown",        // validationStatus,
-            "Unknown",        // mutationStatus,
-            "Unknown"         // mutationType
-         );
-      
-      Assert.assertEquals(9, myMutationFilter.getRejects() );
-      Assert.assertEquals(5, myMutationFilter.getAccepts() );
-      Assert.assertEquals(1, myMutationFilter.getGermlineWhitelistAccepts() );
-      Assert.assertEquals(3, myMutationFilter.getSomaticWhitelistAccepts() );
-      Assert.assertEquals(1, myMutationFilter.getUnknownAccepts() );
-   
-   }
-
    private void nowTestAcceptMutation( 
             MutationFilter myMutationFilter,
             boolean expectedResult, 
@@ -285,10 +160,6 @@ public class TestMutationFilter extends TestCase {
    
    private void alwaysRejectTheseMutations(MutationFilter myMutationFilter){
 
-      // always reject an empty mutation
-      ExtendedMutation anEmptyExtendedMutation = new ExtendedMutation();
-      assertFalse( myMutationFilter.acceptMutation( anEmptyExtendedMutation ) );
-      
       // REJECT: Silent, LOH, Intron and Wildtype mutations
       nowTestAcceptMutation( 
                myMutationFilter,

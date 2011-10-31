@@ -1,5 +1,5 @@
 ./init.sh
-./all-ovarian.sh
+./all-ovarian-su2c.sh
 
 # import ovarian protein data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_protein.txt --meta $CGDS_DATA_HOME/ovarian/meta_protein.txt --dbmsAction clobber
@@ -9,3 +9,6 @@
 
 # gdac-endometrial
 ./all-ucec-gdac.sh
+
+# Gray cell line
+./all-Gray-cell-line.sh

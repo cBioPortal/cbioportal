@@ -4,8 +4,17 @@ package org.mskcc.portal.util;
  * Utility class for getting / setting global properties.
  */
 public class GlobalProperties {
-    //  the default Pathway Commons URL.
-    private static String pathwayCommonsUrl = "http://www.pathwaycommons.org/pc2";
+    private static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons.url";
+    private static final String UCSC_CANCER_GENOMICS_URL_PARAM = "ucsc_cancer_genomics.url";
+    
+    private static final String PATHWAY_COMMANS_URL;
+    private static final String UCSC_CANCER_GENOMICS_URL;
+    
+    static {
+        Config config = Config.getInstance();
+        PATHWAY_COMMANS_URL = config.getProperty(PATHWAY_COMMONS_URL_PARAM);
+        UCSC_CANCER_GENOMICS_URL = config.getProperty(UCSC_CANCER_GENOMICS_URL_PARAM);
+    }
 
     /**
      * Gets the Global Pathway Commons URL.
@@ -13,15 +22,17 @@ public class GlobalProperties {
      * @return Pathway Commons URL.
      */
     public static String getPathwayCommonsUrl() {
-        return pathwayCommonsUrl;
+        return PATHWAY_COMMANS_URL;
     }
+    
 
     /**
-     * Sets the Global Pathway Commons URL.
+     * Gets the Global UCSC Cancer Genomics URL.
      *
-     * @param url Pathway Commons URL.
+     * @return Pathway Commons URL.
      */
-    public static void setPathwayCommonsUrl(String url) {
-        pathwayCommonsUrl = url;
+    public static String getUcscCancerGenomicsUrl() {
+        return UCSC_CANCER_GENOMICS_URL;
     }
+    
 }

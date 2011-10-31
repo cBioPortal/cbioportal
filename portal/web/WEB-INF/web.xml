@@ -117,6 +117,16 @@
         <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>mutation_diagram</servlet-name>
+        <servlet-class>org.mskcc.portal.mutation.diagram.MutationDiagramServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>mutation_diagram_data</servlet-name>
+        <servlet-class>org.mskcc.portal.mutation.diagram.MutationDiagramDataServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -140,6 +150,16 @@
     <servlet-mapping>
         <servlet-name>portal_meta_data_json</servlet-name>
         <url-pattern>/portal_meta_data.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>mutation_diagram</servlet-name>
+        <url-pattern>/mutation_diagram.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
+        <url-pattern>/mutation_diagram_data.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

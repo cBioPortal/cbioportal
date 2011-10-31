@@ -80,7 +80,7 @@ public class NetworkServlet extends HttpServlet {
             boolean logXDebug = xd!=null && xd.equals("1");
             
             if (logXDebug) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, false)
+                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, false, false)
                         +"\" target=\"_blank\">NetworkServlet URL</a>");
             }
 
@@ -196,28 +196,30 @@ public class NetworkServlet extends HttpServlet {
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
                 }
                 
-                messages.append("Download the <a href=\"");
-                messages.append(getNetworkServletUrl(req, true, true));
-                messages.append("\">complete</a>");
-                if (nBefore != nAfter) {
-                    messages.append(" or <a href=\"");
-                    messages.append(getNetworkServletUrl(req, false, true));
-                    messages.append("\">pruned</a>");
-                }
-                messages.append(" network in GraphML");
+                messages.append("Download the complete network in ");
+                messages.append("<a href=\"");
+                messages.append(getNetworkServletUrl(req, true, true, false));
+                messages.append("\">GraphML</a> ");
+                messages.append("or <a href=\"");
+                messages.append(getNetworkServletUrl(req, true, true, true));
+                messages.append("\">SIF</a>");
                 messages.append(" for import into <a href=\"http://cytoscape.org\" target=\"_blank\">Cytoscape</a>");
-                messages.append(" (GraphMLReader plugin required).");
+                messages.append(" (GraphMLReader plugin is required for importing GraphML).");
             }
+            
+            String format = req.getParameter("format");
+            boolean sif = format!=null && format.equalsIgnoreCase("sif");
 
             String download = req.getParameter("download");
             if (download!=null && download.equalsIgnoreCase("on")) {
                 res.setContentType("application/octet-stream");
-                res.addHeader("content-disposition","attachment; filename=cbioportal.graphml");
+                res.addHeader("content-disposition","attachment; filename=cbioportal."+(sif?"sif":"graphml"));
                 messages.append("In order to open this file in Cytoscape, please install GraphMLReader plugin.");
             } else {
-                res.setContentType("text/xml");
+                res.setContentType("text/"+(sif?"plain":"xml"));
             }
-            String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
+            
+            NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
                     String symbol = NetworkUtils.getSymbol(node);
@@ -235,7 +237,14 @@ public class NetworkServlet extends HttpServlet {
                     
                     return node.getId();
                 }
-            });
+            };
+            
+            String graph;
+            if (sif) {
+                graph = NetworkIO.writeNetwork2Sif(network, nodeLabelHandler);
+            } else {
+                graph = NetworkIO.writeNetwork2GraphML(network,nodeLabelHandler);
+            }
             
             if (logXDebug) {
                 writeXDebug(xdebug, res);
@@ -247,7 +256,7 @@ public class NetworkServlet extends HttpServlet {
             }
             
             PrintWriter writer = res.getWriter();
-            writer.write(graphml);
+            writer.write(graph);
             writer.flush();
         } catch (DaoException e) {
             //throw new ServletException (e);
@@ -506,7 +515,8 @@ public class NetworkServlet extends HttpServlet {
         return cases;
     }
     
-    private String getNetworkServletUrl(HttpServletRequest req, boolean complete, boolean download) {
+    private String getNetworkServletUrl(HttpServletRequest req, boolean complete, 
+            boolean download, boolean sif) {
         String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
         String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
@@ -529,10 +539,14 @@ public class NetworkServlet extends HttpServlet {
         }
         
         if (download) {
-            return ret + "&download=on";
-        } else {
-            return ret;
+            ret += "&download=on";
         }
+        
+        if (sif) {
+            ret += "&format=sif";
+        }
+         
+        return ret;
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletResponse res) 

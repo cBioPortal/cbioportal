@@ -2,11 +2,6 @@ package org.mskcc.portal.mutation.diagram;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Collection;
-
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-
 /**
  * Implementation of IdMappingService that reads from the CGDS data source.
  */

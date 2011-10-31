@@ -2,6 +2,8 @@ package org.mskcc.portal.mutation.diagram;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,8 @@ public final class MutationDiagramServlet extends HttpServlet {
 
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-        // empty
+        // todo:  check and sanitize hugoGeneSymbol if necessary; allow more than one
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/mutation_diagram.jsp");
+        dispatcher.forward(request, response);
     }
 }

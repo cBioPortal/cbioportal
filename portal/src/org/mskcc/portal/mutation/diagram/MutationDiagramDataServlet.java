@@ -30,6 +30,7 @@ public final class MutationDiagramDataServlet extends HttpServlet {
 
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+        // todo:  check and sanitize hugoGeneSymbol if necessary
         String hugoGeneSymbol = request.getParameter("hugoGeneSymbol");
         int length = 0;  // uh oh
         String uniProtId = idMappingService.getUniProtId(hugoGeneSymbol);

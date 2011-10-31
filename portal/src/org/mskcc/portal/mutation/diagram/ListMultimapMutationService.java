@@ -7,6 +7,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import com.google.inject.Inject;
+
 /**
  * Implementation of MutationService backed by a ListMultimap.
  */
@@ -20,6 +22,7 @@ public final class ListMultimapMutationService implements MutationService {
      *
      * @param mutations mutations, must not be null
      */
+    @Inject
     public ListMultimapMutationService(final ListMultimap<String, Mutation> mutations) {
         this.mutations = ImmutableListMultimap.copyOf(mutations);
     }

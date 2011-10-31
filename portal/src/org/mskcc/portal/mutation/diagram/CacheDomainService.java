@@ -11,6 +11,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 
+import com.google.inject.Inject;
+
 /**
  * Implementation of DomainService based on CacheBuilder.
  */
@@ -25,6 +27,7 @@ public final class CacheDomainService implements DomainService {
      *
      * @param cacheLoader cache loader, must not be null
      */
+    @Inject
     public CacheDomainService(final CacheLoader<String, List<Domain>> cacheLoader) {
         checkNotNull(cacheLoader, "cacheLoader must not be null");
         cache = CacheBuilder.newBuilder().build(cacheLoader);

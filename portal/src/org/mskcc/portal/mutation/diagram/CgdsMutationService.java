@@ -16,6 +16,8 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 
+import com.google.inject.Inject;
+
 /**
  * Implementation of MutationService that reads from the CGDS data source.
  */
@@ -25,6 +27,13 @@ public final class CgdsMutationService implements MutationService {
     private final DaoGeneOptimized geneDao;
     private final DaoMutation mutationDao;
 
+    /**
+     * Create a new CGDS mutation service with the specified gene DAO and mutation DAO.
+     *
+     * @param geneDao gene data access object (DAO), must not be null
+     * @param mutationDao mutation data access object (DAO), must not be null
+     */
+    @Inject
     public CgdsMutationService(final DaoGeneOptimized geneDao, final DaoMutation mutationDao) {
         checkNotNull(geneDao);
         checkNotNull(mutationDao);

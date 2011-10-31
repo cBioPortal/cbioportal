@@ -7,6 +7,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import com.google.inject.Inject;
+
 /**
  * Implementation of DomainService backed by a ListMultimap.
  */
@@ -20,6 +22,7 @@ public final class ListMultimapDomainService implements DomainService {
      *
      * @param domains domains, must not be null
      */
+    @Inject
     public ListMultimapDomainService(final ListMultimap<String, Domain> domains) {
         this.domains = ImmutableListMultimap.copyOf(domains);
     }

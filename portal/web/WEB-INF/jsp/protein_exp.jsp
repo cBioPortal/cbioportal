@@ -91,8 +91,7 @@
         var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
             <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
         if ($.browser.msie) //TODO: this is a temporary fix for bug #74
             params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
@@ -316,24 +315,6 @@
                     }
                 } );
                 
-                $('div#protein_expr_wait').remove();
-                $('table#protein_expr_wrapper').show();
-            }
-            ,"json"
-        );
-        
-        params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
-            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
-            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.EXCLUDE_ANTIBODY_TYPE%>:'phosphorylation'
-        };
-        $.post("ProteinArraySignificanceTest.json", 
-            params,
-            function(aDataSet){
-                var oTable = $('table#protein_expr').dataTable();
-                oTable.fnAddData(aDataSet, false);
-                
                 // filter for antibody type
                 oTable.fnFilter("phosphorylation",3);
                 $('div.datatable-filter-custom').html("Antibody Type: "+
@@ -342,8 +323,11 @@
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 3);
                 } );
-            },
-            "json"
+                
+                $('div#protein_expr_wait').remove();
+                $('table#protein_expr_wrapper').show();
+            }
+            ,"json"
         );
     });
 </script>

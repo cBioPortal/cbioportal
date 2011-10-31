@@ -71,7 +71,6 @@ public class NetworkServlet extends HttpServlet {
     public void doPost(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
-        res.setContentType("text/xml");
         try {
             StringBuilder messages = new StringBuilder();
             
@@ -81,7 +80,8 @@ public class NetworkServlet extends HttpServlet {
             boolean logXDebug = xd!=null && xd.equals("1");
             
             if (logXDebug) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req)+"\" target=\"_blank\">NetworkServlet URL</a>");
+                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, false)
+                        +"\" target=\"_blank\">NetworkServlet URL</a>");
             }
 
             //  Get User Defined Gene List
@@ -104,8 +104,28 @@ public class NetworkServlet extends HttpServlet {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, true);
             }
             
+            int nBefore = network.countNodes();
+            int querySize = queryGenes.size();
+            
             String netSize = req.getParameter("netsize");
             boolean topologyPruned = pruneNetwork(network,netSize);
+            
+            int nAfter = network.countNodes();
+            if (nBefore!=nAfter) {
+                messages.append("The network below contains ");
+                messages.append(nAfter);
+                messages.append(" nodes, including your ");
+                messages.append(querySize);
+                messages.append(" query gene");
+                if (querySize>1) {
+                    messages.append("s");
+                }
+                messages.append(" and ");
+                messages.append(nAfter-querySize);
+                messages.append(" (out of ");
+                messages.append(nBefore-querySize);
+                messages.append(") neighbor genes that interact with at least two query genes.\n");
+            }
             
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
@@ -155,10 +175,8 @@ public class NetworkServlet extends HttpServlet {
                 String nLinker = req.getParameter("linkers");
                 if (!topologyPruned && nLinker!=null && nLinker.matches("[0-9]+")) {
                     xdebug.startTimer();
-                    int nBefore = network.countNodes();
-                    int querySize = queryGenes.size();
                     pruneNetworkByAlteration(network, Integer.parseInt(nLinker), querySize);
-                    int nAfter = network.countNodes();
+                    nAfter = network.countNodes();
                     if (nBefore!=nAfter) {
                         messages.append("The network below contains ");
                         messages.append(nAfter);
@@ -172,14 +190,33 @@ public class NetworkServlet extends HttpServlet {
                         messages.append(nAfter-querySize);
                         messages.append(" (out of ");
                         messages.append(nBefore-querySize);
-                        messages.append(") linker genes (genes that interact with at least one query gene).");
+                        messages.append(") neighbor genes.\n");
                     }
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
                 }
+                
+                messages.append("Download the <a href=\"");
+                messages.append(getNetworkServletUrl(req, true, true));
+                messages.append("\">complete</a>");
+                if (nBefore != nAfter) {
+                    messages.append(" or <a href=\"");
+                    messages.append(getNetworkServletUrl(req, false, true));
+                    messages.append("\">pruned</a>");
+                }
+                messages.append(" network in GraphML");
+                messages.append(" for import into <a href=\"http://cytoscape.org\" target=\"_blank\">Cytoscape</a>");
+                messages.append(" (GraphMLReader plugin required).");
             }
 
-
+            String download = req.getParameter("download");
+            if (download!=null && download.equalsIgnoreCase("on")) {
+                res.setContentType("application/octet-stream");
+                res.addHeader("content-disposition","attachment; filename=cbioportal.graphml");
+                messages.append("In order to open this file in Cytoscape, please install GraphMLReader plugin.");
+            } else {
+                res.setContentType("text/xml");
+            }
             String graphml = NetworkIO.writeNetwork2GraphML(network, new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
@@ -204,7 +241,8 @@ public class NetworkServlet extends HttpServlet {
                 writeXDebug(xdebug, res);
             }
             
-            if (messages.length()>0) {
+            String msgoff = req.getParameter("msgoff");
+            if ((msgoff==null || !msgoff.equals("t")) && messages.length()>0) {
                 writeMsg(messages.toString(), res);
             }
             
@@ -468,7 +506,7 @@ public class NetworkServlet extends HttpServlet {
         return cases;
     }
     
-    private String getNetworkServletUrl(HttpServletRequest req) {
+    private String getNetworkServletUrl(HttpServletRequest req, boolean complete, boolean download) {
         String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
         String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
@@ -478,14 +516,23 @@ public class NetworkServlet extends HttpServlet {
         String netSize = req.getParameter("netsize");
         String nLinker = req.getParameter("linkers");
         
-        return "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
+        String ret = "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
                 +"&netsrc="+netSrc
-                +"&netsize="+netSize
-                +"&linkers="+nLinker;
+                +"&msgoff=t";
+        
+        if (!complete) {
+            ret += "&netsize=" + netSize + "&linkers=" + nLinker;
+        }
+        
+        if (download) {
+            return ret + "&download=on";
+        } else {
+            return ret;
+        }
     }
     
     private void writeXDebug(XDebug xdebug, HttpServletResponse res) 
@@ -504,7 +551,7 @@ public class NetworkServlet extends HttpServlet {
         PrintWriter writer = res.getWriter();
         writer.write("<!--messages begin:\n");
         writer.write(msg);
-        writer.write("messages end-->\n");
+        writer.write("\nmessages end-->\n");
     }
     
     

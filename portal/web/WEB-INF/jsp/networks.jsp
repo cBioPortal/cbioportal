@@ -162,13 +162,13 @@
             }
             
             function showMessage(graphml) {
-                var msgbegin = "<!--messages begin:";
+                var msgbegin = "<!--messages begin:\n";
                 var ix1 = graphml.indexOf(msgbegin);
                 if (ix1==-1) {
                     $("div#netmsg").hide();
                 } else {
                     ix1 += msgbegin.length;
-                    var ix2 = graphml.indexOf("messages end-->",ix1);
+                    var ix2 = graphml.indexOf("\nmessages end-->",ix1);
                     var msgs = graphml.substring(ix1,ix2);
                     $("div#netmsg").append(msgs.replace(/\n/g,"<br/>\n"));
                 }    

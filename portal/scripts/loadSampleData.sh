@@ -26,3 +26,7 @@
 
 # Load CNA Data
 ./importProfileData.pl --data ../sample_data/gbm/data_CNA_consensus.txt --meta ../sample_data/gbm/meta_CNA_consensus.txt --dbmsAction clobber
+
+# Load network data
+./importSif.pl ../sample_data/network/cell-map.sif CELLMAP
+./importSif.pl ../sample_data/network/nci-nature.sif NCI_NATURE

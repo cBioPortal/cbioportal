@@ -15,7 +15,7 @@
         useXDebug = "0";
     String netSrc = request.getParameter("netsrc");
     if (netSrc==null)
-        netSrc = "cpath2";
+        netSrc = "cgds";
     String netSize = request.getParameter("netsize");
     if (netSize==null)
         netSize = "large";
@@ -24,7 +24,7 @@
         nLinker = "50";
     String diffusion = request.getParameter("diffusion");
     if (diffusion==null)
-        nLinker = "0.2";
+        diffusion = "0.2";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>

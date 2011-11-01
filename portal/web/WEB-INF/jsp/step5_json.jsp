@@ -9,7 +9,6 @@
     <br/>
     <div class="toggler">
         <div id="optional_args">
-        <ul>
 
     <%
        String computeLogOddsRatioLocal = request.getParameter(org.mskcc.portal.servlet.QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
@@ -19,12 +18,10 @@
      }
       
     %>
-        <li>
         <input class="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>" type="checkbox" <%= logOddsOptionChecked %>
            name="<%= QueryBuilder.COMPUTE_LOG_ODDS_RATIO%>"
            value="<%= Boolean.TRUE%>">Compute <B>Mutual Exclusivity / Co-occurence</B> between all pairs of genes.
            <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Not recommended for more than 10 genes.)
-        </li>
         </div>
     </div>
 </div>

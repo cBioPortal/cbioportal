@@ -7,7 +7,7 @@
     <div id="genes_tab">
 	    <div class="header">
 	    	<div id="slider_area">
-	    		<label>Filter by Total Alteration (%)</label>
+	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">
 		    		<span class="slider-value">
 		    			<input id="weight_slider_field" type="text" value="0"/>
@@ -16,8 +16,8 @@
 		    		<span class="slider-max"><label>100</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
-	    		<label>Affinity</label>
-	    		<div id="affinity_slider_area">
+	    		
+	    		<div id="affinity_slider_area" class="hidden-network-ui">
 	    			<span class="slider-value">
 	    				<input id="affinity_slider_field" type="text" value="0.80"/>
 	    			</span>
@@ -27,13 +27,11 @@
 	    		</div>
     		</div>
     		<div id="control_area">
-				
-							<input type="button" id="filter_genes" class="image-button" value="" title="Hide Selected"/>
-							<input type="button" id="crop_genes" class="image-button" value="" title="Crop Selected"/>
-							<input type="button" id="unhide_genes" class="image-button" value="" title="Unhide All"/>
-							<input type="text" id="search" value=""/>
-							<input type="button" id="search_genes" class="image-button" value="" title="Search"/>
-				
+				<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
+				<button id="crop_genes" class="tabs-button" title="Crop Selected"></button>
+				<button id="unhide_genes" class="tabs-button" title="Unhide All"></button>					
+				<input type="text" id="search" value=""/>
+				<button id="search_genes" class="tabs-button" title="Search"></button>
 			</div>
 		</div>
     </div>
@@ -111,8 +109,16 @@
 	        </table>
 	    </div>
         <div class="footer">
-        	<label class="heading">Update</label>
-			<input type="button" id="update_edges" class="image-button" value="" title="Update"/>
+        	<table>
+        		<tr>
+        			<td>
+        				<label class="heading">Update</label>
+        			</td>
+        			<td> 
+        				<button id="update_edges" class="tabs-button" title="Update"></button>
+        			</td>
+        		</tr>
+        	</table>
 		</div>
     </div>
     <div id="help_tab">

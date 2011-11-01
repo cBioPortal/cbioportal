@@ -15,6 +15,7 @@ The cBio Cancer Genomics Portal is developed and maintained by the [Computationa
  * Ugur Dogrusoz, Bilkent University
  * Chris Sander, MSKCC
  
-Funding for the cBio Cancer Genomics Portal is provided in part from
+Funding for the cBio Cancer Genomics Portal is provided in part from:
+
  * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 
  * The NCRR as the [National Resource for Network Biology (NRNB)](http://nrnb.org/) Research Resource (RR 031228-02).

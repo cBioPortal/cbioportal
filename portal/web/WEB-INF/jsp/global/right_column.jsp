@@ -26,5 +26,10 @@
 <% if (SkinUtil.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
     <jsp:include page="<%= examplesHtml %>" flush="true" />
+
+    <h3>What's New</h3>
+
+    <P>Check out our new network visualization
+    options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
 </div>

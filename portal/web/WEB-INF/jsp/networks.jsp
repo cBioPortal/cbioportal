@@ -17,11 +17,14 @@
     if (netSrc==null)
         netSrc = "cpath2";
     String netSize = request.getParameter("netsize");
-    if (netSrc==null)
-        netSrc = "large";
+    if (netSize==null)
+        netSize = "large";
     String nLinker = request.getParameter("linkers");
     if (nLinker==null)
         nLinker = "50";
+    String diffusion = request.getParameter("diffusion");
+    if (diffusion==null)
+        nLinker = "0.2";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -184,7 +187,8 @@
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
                      linkers:'<%=nLinker%>',
-                     netsize:'<%=netSize%>'
+                     netsize:'<%=netSize%>',
+                     diffusion:'<%=diffusion%>'
                     };
                 $.post("network.do", 
                     networkParams,

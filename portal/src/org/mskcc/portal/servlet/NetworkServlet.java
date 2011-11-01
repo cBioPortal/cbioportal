@@ -174,8 +174,16 @@ public class NetworkServlet extends HttpServlet {
                 
                 String nLinker = req.getParameter("linkers");
                 if (!topologyPruned && nLinker!=null && nLinker.matches("[0-9]+")) {
+                    String strDiffusion = req.getParameter("diffusion");
+                    double diffusion;
+                    try {
+                        diffusion = Double.parseDouble(strDiffusion);
+                    } catch (Exception ex) {
+                        diffusion = 0.2;
+                    }
+                    
                     xdebug.startTimer();
-                    pruneNetworkByAlteration(network, Integer.parseInt(nLinker), querySize);
+                    pruneNetworkByAlteration(network, diffusion, Integer.parseInt(nLinker), querySize);
                     nAfter = network.countNodes();
                     if (nBefore!=nAfter) {
                         messages.append("The network below contains ");
@@ -289,12 +297,12 @@ public class NetworkServlet extends HttpServlet {
      * @param network 
      * @param nKeep keep the top altered
      */
-    private void pruneNetworkByAlteration(Network network, int nKeep, int nQuery) {
+    private void pruneNetworkByAlteration(Network network, double diffusion, int nKeep, int nQuery) {
         if (network.countNodes() <= nKeep + nQuery) {
             return;
         }
         
-        List<Node> nodesToRemove = getNodesToRemove(network, nKeep);
+        List<Node> nodesToRemove = getNodesToRemove(network, diffusion, nKeep);
         
         for (Node node : nodesToRemove) {
             network.removeNode(node);
@@ -307,13 +315,14 @@ public class NetworkServlet extends HttpServlet {
      * @param n
      * @return 
      */
-    private List<Node> getNodesToRemove(Network network, int n) {
+    private List<Node> getNodesToRemove(Network network, double diffusion, int n) {
+        final Map<Node,Double> mapDiffusion = getMapDiffusedTotalAlteredPercentage(network, diffusion);
+        
         // keep track of the top nKeep
         PriorityQueue<Node> topAlteredNodes = new PriorityQueue<Node>(n,
                 new Comparator<Node>() {
                     public int compare(Node n1, Node n2) {
-                        return Double.compare(getTotalAlteredPercentage(n1),
-                                getTotalAlteredPercentage(n2));
+                        return mapDiffusion.get(n1).compareTo(mapDiffusion.get(n2));
                     }
                 });
         
@@ -329,8 +338,7 @@ public class NetworkServlet extends HttpServlet {
                 if (n==0) {
                     nodesToRemove.add(node);
                 } else {
-                    double alterPerc = getTotalAlteredPercentage(node);
-                    if (alterPerc > getTotalAlteredPercentage(topAlteredNodes.peek())) {
+                    if (mapDiffusion.get(node) > mapDiffusion.get(topAlteredNodes.peek())) {
                         nodesToRemove.add(topAlteredNodes.poll());
                         topAlteredNodes.add(node);
                     } else {
@@ -346,6 +354,30 @@ public class NetworkServlet extends HttpServlet {
     private boolean isInQuery(Node node) {
         String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
         return inQuery!=null && inQuery.equals("true");
+    }
+    
+    private Map<Node,Double> getMapDiffusedTotalAlteredPercentage(Network network, double diffusion) {
+        Map<Node,Double> map = new HashMap<Node,Double>();
+        for (Node node : network.getNodes()) {
+            map.put(node, getDiffusedTotalAlteredPercentage(network,node,diffusion));
+        }
+        return map;
+    }
+    
+    private double getDiffusedTotalAlteredPercentage(Network network, Node node, double diffusion) {
+        double alterPerc = getTotalAlteredPercentage(node);
+        if (diffusion==0) {
+            return alterPerc;
+        }
+        
+        for (Node neighbor : network.getNeighbors(node)) {
+            double diffused = diffusion * getTotalAlteredPercentage(neighbor);
+            if (diffused > alterPerc) {
+                alterPerc = diffused;
+            }
+        }
+        
+        return alterPerc;
     }
     
     private double getTotalAlteredPercentage(Node node) {
@@ -525,6 +557,7 @@ public class NetworkServlet extends HttpServlet {
         String netSrc = req.getParameter("netsrc");
         String netSize = req.getParameter("netsize");
         String nLinker = req.getParameter("linkers");
+        String strDiffusion = req.getParameter("diffusion");
         
         String ret = "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
@@ -535,7 +568,9 @@ public class NetworkServlet extends HttpServlet {
                 +"&msgoff=t";
         
         if (!complete) {
-            ret += "&netsize=" + netSize + "&linkers=" + nLinker;
+            ret += "&netsize=" + netSize 
+                + "&linkers=" + nLinker
+                +"&diffusion"+strDiffusion;
         }
         
         if (download) {

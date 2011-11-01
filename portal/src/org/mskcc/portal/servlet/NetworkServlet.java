@@ -535,7 +535,12 @@ public class NetworkServlet extends HttpServlet {
         
         for (Map.Entry<String,String> entry : caseMap.entrySet()) {
             String caseId = entry.getKey();
-            double mrna = Double.parseDouble(entry.getValue());
+            double mrna;
+            try {
+                mrna = Double.parseDouble(entry.getValue());
+            } catch (Exception e) {
+                continue;
+            }
             
             if (mrna>=zScoreThreshold) {
                 cases[0].add(caseId);

@@ -336,12 +336,12 @@
 	height: 666px;
 }
 
-#network_tabs .image-button
+#network_tabs .tabs-button
 {
-	width: 27px;
-	height: 27px;
-	background-position: center;
-	background-repeat: no-repeat;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	width: 26px;
+	margin-right: 2px;
 }
 
 #network_tabs .heading
@@ -376,7 +376,6 @@
 	/*width: 111px;*/
 	width: 66px;
 	margin-left: 4px;
-	margin-top: 8px;
 	vertical-align: bottom;
 }
 
@@ -404,7 +403,8 @@
 
 #genes_tab #control_area
 {
-	padding-top: 1.35em;
+	margin-top: 1.35em;
+	margin-bottom: 0.35em;
 }
 
 #genes_tab #weight_slider_area
@@ -452,24 +452,9 @@
     text-align: left;
 }
 
-#genes_tab #filter_genes
+#genes_tab .ui-icon-crop
 {
-	background-image: url("images/hide.png");
-}
-
-#genes_tab #crop_genes
-{
-	background-image: url("images/crop.png");
-}
-
-#genes_tab #unhide_genes
-{
-	background-image: url("images/unhide.png");
-}
-
-#genes_tab #search_genes
-{
-	background-image: url("images/search.png");
+	background-image: url(images/crop.png); 
 }
 
 /*
@@ -490,6 +475,13 @@
 {
 	padding-top: 0.5em;
 	text-align: center;
+}
+
+#relations_tab .footer table
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #relations_tab .percent-value
@@ -518,13 +510,9 @@
 /* label of the update button */
 #relations_tab .footer label
 {
-	vertical-align: middle;
+	text-align: center;
 	font-weight: bold;
-}
-
-#relations_tab #update_edges
-{
-	background-image: url("images/update.png");
+	margin-right: 2px;
 }
 
 /*

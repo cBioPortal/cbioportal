@@ -124,7 +124,7 @@ A:hover {
 }
 
 #network {
-    height: 700px;
+    height: 750px;
 }
 
 .map table {
@@ -560,10 +560,9 @@ td.op_data_cell{
 }
 
 #optional_args {
-  background:  #dddddd;
   margin:5px;
   padding:3px;
-  font-size:11px;
+  font-size:12px;
 }
 
 #step5 .step_header{
@@ -618,7 +617,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 #content ul {
-  margin-top:15px; margin-bottom: 15px;
+  margin-top:5px; margin-bottom: 5px;
   font-family: verdana, arial, sans-serif;
   font-size: 12px;
   line-height: 18px;
@@ -1106,4 +1105,9 @@ padding:4px;
 
 .percent_altered {
     color:green;
+}
+
+#netmsg {
+  padding-bottom:10px;
+  padding-left:5px;
 }

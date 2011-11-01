@@ -7,6 +7,7 @@ require Exporter;
     checkError compareFiles listCancers ); 
 
 # put before use strict;/ use warnings; so they're in the Utilities package symbol table
+$clinicalFileSuffix = '_clinical.txt'; # suffix for all clinical data files
 $dataFilePrefix = 'data_';  # prefix for all data files that are 1) created from TCGA Firehose data, and 2) loaded via importProfileData into the CGDS dbms
 $metaFilePrefix = 'meta_';  # prefix for all metadata files that are paired 1-to-1 with data files
 

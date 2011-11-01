@@ -23,7 +23,7 @@ var SMALL_MOLECULE = "SmallMolecule";
 var UNKNOWN = "Unknown";
 
 // default values for sliders
-var WEIGHT_COEFF = 0.8;
+var WEIGHT_COEFF = 0;
 var ALTERATION_PERCENT = 0;
 
 // class constants for css visualization
@@ -114,6 +114,7 @@ function initNetworkUI(vis)
 	
 	// init tabs
 	$("#network_tabs").tabs();
+	_initGenesTab();
 	_refreshGenesTab();
 	_refreshRelationsTab();
 
@@ -1581,8 +1582,8 @@ function _edgeSourceArray()
 /**
  * Calculates weight values for each gene by using the formula:
  * 
- * weight = [(Total Alteration of a node) * coeff +
- *    Average(Total Alteration of its neighbors) * (1 - coeff)] * 100
+ * weight = Max[(Total Alteration of a node), 
+ *    Max(Total Alteration of its neighbors) * coeff] * 100
  * 
  * @param coeff	coefficient value used in the weight function
  * @returns		a map (array) containing weight values for each gene
@@ -1835,11 +1836,11 @@ function _initSliders()
 		stop: _weightSliderStop,
 		slide: _weightSliderMove});
 	
-	// show affinity slider
-	$("#affinity_slider_bar").slider(
-		{value: WEIGHT_COEFF * 100,
-		change: _affinitySliderChange,
-		slide: _affinitySliderMove});
+	// show affinity slider (currently disabled)
+//	$("#affinity_slider_bar").slider(
+//		{value: WEIGHT_COEFF * 100,
+//		change: _affinitySliderChange,
+//		slide: _affinitySliderMove});
 }
 
 /**
@@ -1954,8 +1955,9 @@ function _filterBySlider()
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
     
-    // refresh genes tab
+    // refresh & update genes tab
     _refreshGenesTab();
+    updateGenesTab();
     
     // visualization changed, perform layout if necessary
 	_visChanged();
@@ -2129,6 +2131,26 @@ function _refreshGenesTab()
 	}
 }
 */
+
+function _initGenesTab()
+{
+	// init buttons
+	$("#filter_genes").button({icons: {primary: 'ui-icon-circle-minus'},
+		text: false});
+	
+	$("#crop_genes").button({icons: {primary: 'ui-icon-crop'},
+		text: false});
+	
+	$("#unhide_genes").button({icons: {primary: 'ui-icon-circle-plus'},
+		text: false});
+	
+	$("#search_genes").button({icons: {primary: 'ui-icon-search'},
+		text: false});
+	
+	$("#update_edges").button({icons: {primary: 'ui-icon-refresh'},
+		text: false});
+}
+
 
 /**
  * Refreshes the content of the genes tab, by populating the list with visible

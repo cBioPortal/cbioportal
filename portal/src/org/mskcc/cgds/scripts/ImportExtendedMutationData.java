@@ -168,18 +168,19 @@ public class ImportExtendedMutationData{
                     long entrezGeneId = Long.parseLong(entrezGeneIdStr);
                     gene = daoGene.getGene(entrezGeneId);
                 } catch(NumberFormatException e) {
-                   pMonitor.logWarning("Entrez Gene ID not an integer: " + entrezGeneIdStr );
+                    pMonitor.logWarning("Entrez Gene ID not an integer: " + entrezGeneIdStr );
                 }
-   				if(gene == null) {
+                
+                if(gene == null) {
                     // If Entrez Gene ID Fails, try Symbol.
-                    gene = daoGene.getGene(geneSymbol);
-                    if(gene == null) {
-                        pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol);
+                }
+                    
+                if(gene == null) {
+                    pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
                             + entrezGeneIdStr + "]. Ignoring it "
                             + "and all mutation data associated with it!");
-                    }
-   				}
-                if (gene != null) {
+                } else {
                     ExtendedMutation mutation = new ExtendedMutation();
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);

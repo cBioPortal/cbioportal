@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.io.IOException;
 
@@ -211,6 +213,38 @@ class DaoGene {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
+    
+    /**
+     * 
+     * @return
+     * @throws DaoException 
+     */
+    private Map<Long,Set<String>> getAliases()  throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null, rs1 = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM gene_alias");
+            rs = pstmt.executeQuery();
+            Map<Long,Set<String>> map = new HashMap<Long,Set<String>>();
+            while (rs.next()) {
+                long entrez = rs.getLong("ENTREZ_GENE_ID");
+                Set<String> aliases = map.get(entrez);
+                if (aliases==null) {
+                    aliases = new HashSet<String>();
+                    map.put(entrez, aliases);
+                }
+                aliases.add(rs.getString("GENE_ALIAS"));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 
     /**
      * Gets all Genes in the Database.
@@ -220,6 +254,7 @@ class DaoGene {
      */
     public ArrayList<CanonicalGene> getAllGenes() throws DaoException {
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
+        Map<Long,Set<String>> mapEntrezAliases = getAliases();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -230,7 +265,7 @@ class DaoGene {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
-                Set<String> aliases = getAliases(entrezGeneId);
+                Set<String> aliases = mapEntrezAliases.get(entrezGeneId);
                 CanonicalGene gene = new CanonicalGene(entrezGeneId,
                         rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 geneList.add(gene);

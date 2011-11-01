@@ -17,8 +17,14 @@
     if (netSrc==null)
         netSrc = "cpath2";
     String netSize = request.getParameter("netsize");
-    if (netSrc==null)
-        netSrc = "large";
+    if (netSize==null)
+        netSize = "large";
+    String nLinker = request.getParameter("linkers");
+    if (nLinker==null)
+        nLinker = "50";
+    String diffusion = request.getParameter("diffusion");
+    if (diffusion==null)
+        nLinker = "0.2";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -153,8 +159,22 @@
                     var ix2 = graphml.indexOf("xdebug messages end-->");
                     var xdebugmsgs = graphml.substring(ix1,ix2);
                     $("div#cytoscapeweb").css('height','70%');
-                    $("td#vis_content").append("\n<div id='network_xdebug'>"+xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
+                    $("td#vis_content").append("\n<div id='network_xdebug'>"
+                        +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
                 }
+            }
+            
+            function showMessage(graphml) {
+                var msgbegin = "<!--messages begin:\n";
+                var ix1 = graphml.indexOf(msgbegin);
+                if (ix1==-1) {
+                    $("div#netmsg").hide();
+                } else {
+                    ix1 += msgbegin.length;
+                    var ix2 = graphml.indexOf("\nmessages end-->",ix1);
+                    var msgs = graphml.substring(ix1,ix2);
+                    $("div#netmsg").append(msgs.replace(/\n/g,"<br/>\n"));
+                }    
             }
             
             window.onload = function() {
@@ -166,7 +186,9 @@
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
-                     netsize:'<%=netSize%>'
+                     linkers:'<%=nLinker%>',
+                     netsize:'<%=netSize%>',
+                     diffusion:'<%=diffusion%>'
                     };
                 $.post("network.do", 
                     networkParams,
@@ -180,12 +202,14 @@
                         }
                         send2cytoscapeweb(graphml);
                         showXDebug(graphml);
+                        showMessage(graphml);
                     }
                 );
             }
         </script>
 
 <div class="section" id="network">
+    <div id="netmsg" style="margin-bottom: 12px"></div>
 	<table id="network_wrapper">
 		<tr><td>
 			<div>

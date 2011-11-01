@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -156,7 +157,7 @@ public class ImportTabDelimData {
                         logger.debug("Ignoring gene ID:  " + geneId);
                     } else {
                         //  Assume we are dealing with Entrez Gene Ids or Symbols.
-                        CanonicalGene gene = getGene(geneId, daoGene);
+                        CanonicalGene gene = daoGene.getNonAmbiguousGene(geneId);
 
                         //  If no target line is specified or we match the target, process.
                         if (targetLine == null || method.equals(targetLine)) {
@@ -228,18 +229,5 @@ public class ImportTabDelimData {
         startIndex = 1;
     }
         return startIndex;
-    }
-
-    private CanonicalGene getGene(String geneId, DaoGeneOptimized daoGene) throws DaoException {
-        CanonicalGene gene;
-        try {
-            //  First, try Entrez Gene ID.
-            long entrezGeneId = Long.parseLong(geneId);
-            gene = daoGene.getGene(entrezGeneId);
-        } catch (NumberFormatException e) {
-            //  If that fails, try gene symbol
-            gene = daoGene.getGene(geneId);
-        }
-        return gene;
     }
 }

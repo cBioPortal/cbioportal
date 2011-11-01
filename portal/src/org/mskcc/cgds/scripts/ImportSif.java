@@ -46,6 +46,7 @@ public class ImportSif {
      */
     public void importData() throws IOException, DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int numInteractionsSaved = 0;
         int numInteractionsNotSaved = 0;
         int numRedundantInteractionsSkipped = 0;
@@ -67,8 +68,8 @@ public class ImportSif {
                 String interactionType = parts[1];
                 String geneBId = parts[2];
 
-                CanonicalGene geneA = getGene(geneAId);
-                CanonicalGene geneB = getGene(geneBId);
+                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId);
+                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {
@@ -107,23 +108,6 @@ public class ImportSif {
                 "invalid gene IDs:  " + numInteractionsNotSaved);
         pMonitor.setCurrentMessage("Total number of redundant interactions skipped:  "
                 + numRedundantInteractionsSkipped);
-    }
-
-    /**
-     * Gets Gene by Entrez Gene ID or Gene Symbol.
-     * @param geneId Gene ID:  Entrez Gene ID or Gene Symbol.
-     * @return Canonical Gene.
-     * @throws DaoException Database Error.
-     */
-    CanonicalGene getGene (String geneId) throws DaoException {
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-
-        try {
-            long entrezGeneId = Long.parseLong(geneId);
-            return daoGene.getGene(entrezGeneId);
-        } catch (NumberFormatException e) {
-            return daoGene.getGene(geneId);
-        }
     }
 
     /**

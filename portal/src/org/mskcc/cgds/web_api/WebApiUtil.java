@@ -41,17 +41,10 @@ public class WebApiUtil {
 
         //  Iterate through all the genes specified by the client
         //  Genes might be specified as Integers, e.g. Entrez Gene Ids or Strings, e.g. HUGO
-        //  Symbols or microRNA Ids.
+        //  Symbols or microRNA Ids or aliases.
         ArrayList <Gene> geneList = new ArrayList<Gene>();
         for (String geneId:  targetGeneList) {
-            Gene gene = null;
-            try {
-                //  First, try as Entrez Gene Id
-                gene = daoGene.getGene(Integer.parseInt(geneId));
-            } catch (NumberFormatException e) {
-                //  If that fails, try HUGO Gene Symbol
-                gene = daoGene.getGene(geneId);
-            }
+            Gene gene = daoGene.getNonAmbiguousGene(geneId);
             if (gene == null) {
                 //  If that fails, try as micro RNA ID.
                 if (geneId.startsWith("hsa")) {

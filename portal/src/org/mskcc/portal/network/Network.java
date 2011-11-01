@@ -20,6 +20,22 @@ public class Network {
         graph = new DirectedSparseMultigraph<Node,Edge>();
         nodesByIds = new HashMap<String,Node>();
     }
+    
+    /**
+     * 
+     * @return the number of nodes
+     */
+    public int countNodes() {
+        return graph.getVertexCount();
+    }
+    
+    /**
+     * 
+     * @return the number of edges
+     */
+    public int coundEdges() {
+        return graph.getEdgeCount();
+    }
 
     /**
      * 

@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -135,7 +136,7 @@ public class DaoMutation {
         }
     }
 
-    public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, ArrayList<String> targetCaseList,
+    public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<String> targetCaseList,
             long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -10,8 +10,10 @@
 	Source of Pathway Data
 <p>
 <p class="regular">
-	Pathway and interaction data is derived from <a href="http://www.reactome.org" target="_blank">Reactome</a> 
-	and the <a href="http://pid.nci.nih.gov/" target="_blank">NCI-Nature Pathway Interaction Database</a>, 
+	Pathway and interaction data is derived from <a href="http://www.hprd.org/" target="_blank">HPRD</a>, 
+	<a href="http://www.reactome.org/" target="_blank">Reactome</a>, 
+	<a href="http://pid.nci.nih.gov/" target="_blank">NCI-Nature Pathway Interaction Database</a>, 
+	and the <a href="http://cancer.cellmap.org/cellmap/" target="_blank">MSKCC Cancer Call Map</a>, 
 	as derived from <a href="http://pathwaycommons.org" target="_blank">Pathway Commons</a>.
 </p>
 
@@ -29,10 +31,6 @@
 <p class="regular">
 	<span class="italic">Linker nodes</span> are represented with a thin border:<br></br>
 	<img class="linker_node_img" src="images/network/linker_node.png"></img>
-</p>
-<p class="regular">
-	In addition, any <span class="italic">small molecules</span> are represented as diamonds, 
-	whereas <span class="italic">unknown nodes</span> are represented as triangles.
 </p>
 
 <p class="heading">

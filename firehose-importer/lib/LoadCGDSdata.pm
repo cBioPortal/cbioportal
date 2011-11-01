@@ -144,6 +144,13 @@ sub load_cancer_data{
 	        importCaseLists( $cgdsHome, $theCGDSinputFiles, $cancerDataDir, $cmdLineCP );
 	        
 	        # TODO: import clinical data
+			my @pathToClinicalDataFile = ( $theCGDSinputFiles, $cancerDataDir );
+			my $clinicalDataFile = $cancerDataDir . $Utilities::clinicalFileSuffix;
+			my $fullCanonicalClinicalDataFile = File::Spec->catfile( @pathToClinicalDataFile, $clinicalDataFile );
+			if ( $fileUtil->existent($fullCanonicalClinicalDataFile) ) {
+			  print "importingClinicalData: $fullCanonicalClinicalDataFile\n";
+			  system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportClinicalData " . $fullCanonicalClinicalDataFile ); 
+			}
 	        
 	        # import a cancer's data
 	        importCancersData( $cgdsHome, $theCGDSinputFiles, File::Spec->catfile( $theCGDSinputFiles, $cancerDataDir ),

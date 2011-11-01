@@ -115,6 +115,10 @@ public class DaoGeneOptimized {
      * @return A list of genes that match, an empty list if no match.
      */
     public List<CanonicalGene> guessGene(String geneId) {
+        if (geneId==null) {
+            return Collections.emptyList();
+        }
+        
         CanonicalGene gene;
         if (geneId.matches("[0-9]+")) { // likely to be a entrez gene id
             gene = getGene(Integer.parseInt(geneId));

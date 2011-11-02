@@ -776,7 +776,7 @@ function filterSelectedGenes()
 	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out selected elements
-    _vis.filter("nodes", visibility, true);
+    _vis.filter("nodes", selectionVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -797,7 +797,7 @@ function filterNonSelected()
 	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out non-selected elements
-    _vis.filter('nodes', geneVisibility, true);
+    _vis.filter('nodes', geneVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -835,21 +835,64 @@ function updateEdges()
 			$("#relations_tab ." + _safeProperty(key) +
 				" input").is(":checked");
 	}
-
-	//_edgeSourceVisibility[UNKNOWN] =
-	//	$("#relations_tab .unknown input").is(":checked");
-
+	
+	// remove previous node filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// clear isolation filter array
+	_filteredByIsolation = new Array();
+	
+	// re-apply filter to update nodes
+	_vis.removeFilter("nodes", false);
+	_vis.filter("nodes", currentVisibility);
+	
 	// remove current edge filters
-	_vis.removeFilter("edges");
+	_vis.removeFilter("edges", false);
 	
 	// filter selected types
-	_vis.filter("edges", edgeVisibility, true);
+	_vis.filter("edges", edgeVisibility);
 	
-    // "filter disconnected" option might be confusing for edge filtering...
-    //_filterDisconnected();
+	// remove previous filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+    // filter disconnected nodes if necessary
+    _filterDisconnected();
 	
 	// visualization changed, perform layout if necessary
 	_visChanged();
+}
+
+/**
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter only the genes which are in the array
+ * _alreadyFiltered.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function currentVisibility(element)
+{
+	var visible;
+	
+	// if the node is in the array of already filtered elements,
+	// then it should be invisibile
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	// any other node should be visible
+	else
+	{
+		visible = true;
+	}
+	
+	return visible;
 }
 
 /**
@@ -1036,7 +1079,7 @@ function isolation(element)
  * @param element	element to be checked
  * @return			false if selected, true otherwise
  */
-function visibility(element)
+function selectionVisibility(element)
 {
 	// if an element is already filtered then it should remain invisible
 	// until the filters are reset
@@ -1149,14 +1192,13 @@ function _visChanged()
 function _filterDisconnected()
 {
 	// filter disconnected nodes if the flag is set
-	
 	if (_removeDisconnected)
 	{
 		// update connected nodes map
 		_connectedNodes = _connectedNodesMap();
 		
 		// filter disconnected
-		_vis.filter('nodes', isolation, true);
+		_vis.filter('nodes', isolation);
 	}
 }
 
@@ -1930,13 +1972,12 @@ function _weightSliderStop(event, ui)
 function _filterBySlider()
 {
 	// remove previous filters due to slider
-	
 	for (var key in _filteredBySlider)
 	{
 		_alreadyFiltered[key] = null;
 	}
 	
-	// remove previos filters due to disconnection
+	// remove previous filters due to disconnection
 	for (var key in _filteredByIsolation)
 	{
 		_alreadyFiltered[key] = null;
@@ -1947,10 +1988,10 @@ function _filterBySlider()
 	_filteredByIsolation = new Array();
 	
 	// remove filters
-	_vis.removeFilter("nodes");
+	_vis.removeFilter("nodes", false);
 	
 	// filter with new slider value
-	_vis.filter("nodes", sliderVisibility, true);
+	_vis.filter("nodes", sliderVisibility);
 	
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -2436,7 +2477,7 @@ function _hideSelected()
 	_selectedElements = _selectedElementsMap("all");
 	
 	// filter out selected elements
-    _vis.filter('all', visibility, true);
+    _vis.filter('all', selectionVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -2459,6 +2500,11 @@ function _unhideAll()
 	
 	// reset array of already filtered elements
 	_alreadyFiltered = new Array();
+	
+	// reset slider UI
+	$("#weight_slider_field").val(0.0);
+	$("#weight_slider_bar").slider("option",
+		"value", 0);
 	
 	// re-apply filtering based on edge types
 	updateEdges();

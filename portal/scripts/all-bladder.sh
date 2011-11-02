@@ -4,6 +4,9 @@
 # Imports All Case Lists
 ./importCaseList.pl $CGDS_DATA_HOME/bladder/case_lists
 
+# Imports Clinical Data
+./importClinicalData.pl $CGDS_DATA_HOME/bladder/data_clinical.txt
+
 # Imports Mutation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_mutations.txt --meta $CGDS_DATA_HOME/bladder/meta_mutations.txt --dbmsAction clobber
 

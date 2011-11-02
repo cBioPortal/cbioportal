@@ -5,6 +5,8 @@ import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cgds.dao.DaoGeneticProfileCases;
+import org.mskcc.cgds.dao.DaoProteinArrayInfo;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.model.ProteinArrayData;
@@ -21,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Import protein array data into database
@@ -50,11 +53,19 @@ public class ImportProteinArrayData {
         
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
+        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] arrayIds = line.split("\t");
+        for (int i=1; i<arrayIds.length; i++) {
+            if (daoPAI.getProteinArrayInfo(arrayIds[i])==null) {
+                System.err.println("missing protein array information of " + arrayIds[i]
+                        + ". Please load antibody annotation.");
+            }
+            daoPAI.addProteinArrayCancerStudy(arrayIds[i], Collections.singleton(cancerStudyId));
+        }
         
         ArrayList<String> cases = new ArrayList<String>();
         
@@ -74,12 +85,9 @@ public class ImportProteinArrayData {
             }
             
         }
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //daoPAD.flushProteinArrayInfoesToDatabase();
-        }
         
         // import profile
-        addRPPAProfile();
+        addRPPAProfile(cases);
         
         // import case list
         addRPPACaseList(cases);
@@ -97,22 +105,28 @@ public class ImportProteinArrayData {
         daoCaseList.addCaseList(caseList);
     }
     
-    private void addRPPAProfile() throws DaoException {
+    private void addRPPAProfile(ArrayList<String> cases) throws DaoException {
         // add profile
         DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "RPPA protein level",
                     "Reverse phase protein array data (protein level)", true);
             daoGeneticProfile.addGeneticProfile(gpPro);
+            daoGeneticProfileCases.addGeneticProfileCases(
+                    daoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), cases);
         }
+        
         String idProfPhos = cancerStudyStableId+"_RPPA_phosphorylation";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
             GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
                     GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "RPPA phosphorylation",
                     "Reverse phase protein array data (phosphorylation)", false);
             daoGeneticProfile.addGeneticProfile(gpPhos);
+            daoGeneticProfileCases.addGeneticProfileCases(
+                    daoGeneticProfile.getGeneticProfileByStableId(idProfPhos).getGeneticProfileId(), cases);
         }
     }
     

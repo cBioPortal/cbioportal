@@ -27,11 +27,23 @@
 	    		</div>
     		</div>
     		<div id="control_area">
-				<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
-				<button id="crop_genes" class="tabs-button" title="Crop Selected"></button>
-				<button id="unhide_genes" class="tabs-button" title="Unhide All"></button>					
-				<input type="text" id="search" value=""/>
-				<button id="search_genes" class="tabs-button" title="Search"></button>
+    			<table><tr>
+    				<td>
+						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
+					</td>
+					<td>
+						<button id="crop_genes" class="tabs-button" title="Crop Selected"></button>
+					</td>
+					<td>
+						<button id="unhide_genes" class="tabs-button" title="Unhide All"></button>
+					</td>
+					<td>					
+						<input type="text" id="search" value=""/>
+					</td>
+					<td>
+						<button id="search_genes" class="tabs-button" title="Search"></button>
+					</td>
+				</tr></table>
 			</div>
 		</div>
     </div>

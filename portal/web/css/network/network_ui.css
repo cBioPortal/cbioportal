@@ -341,7 +341,6 @@
 	padding-top: 7px;
 	padding-bottom: 7px;
 	width: 26px;
-	margin-right: 2px;
 }
 
 #network_tabs .heading
@@ -374,8 +373,9 @@
 #genes_tab .header #search
 {
 	/*width: 111px;*/
-	width: 66px;
+	width: 64px;
 	margin-left: 4px;
+	margin-right: 2px;
 	vertical-align: bottom;
 }
 
@@ -393,7 +393,7 @@
 {
 	/* dimensions of the select box */
 	width: 200px;
-	height: 420px;
+	height: 460px;
 }
 
 #genes_tab .selected-gene
@@ -422,7 +422,7 @@
 #genes_tab #weight_slider_bar, #genes_tab #affinity_slider_bar
 {
 	margin-left: 20px;
-	margin-right: 75px;
+	margin-right: 70px;
 }
 
 #genes_tab #slider_area .slider-value
@@ -443,7 +443,7 @@
 {
     float: right;
     text-align: left;
-    padding-left: 15px;
+    /*padding-left: 15px;*/
 }
 
 #genes_tab #slider_area .slider-min
@@ -452,9 +452,20 @@
     text-align: left;
 }
 
+#genes_tab #slider_area label
+{
+	font-size: 11px;
+}
+
 #genes_tab .ui-icon-crop
 {
-	background-image: url(images/crop.png); 
+	background-image: url(images/crop_disabled.png); 
+}
+
+#genes_tab .ui-state-hover .ui-icon-crop,
+#genes_tab .ui-icon-crop .ui-state-focus
+{
+	background-image: url(images/crop_enabled.png);
 }
 
 /*

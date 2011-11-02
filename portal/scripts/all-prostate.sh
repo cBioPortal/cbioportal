@@ -16,7 +16,7 @@ rm -v $CGDS_DATA_HOME/prostate/processed_*
 ./importCaseList.pl $CGDS_DATA_HOME/prostate/case_lists
 
 # Imports Mutation Data
-./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_mutations.txt --meta $CGDS_DATA_HOME/prostate/meta_mutations.txt  --dbmsAction clobber --acceptRemainingMutations
+./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_mutations.txt --meta $CGDS_DATA_HOME/prostate/meta_mutations.txt  --dbmsAction clobber
 
 # Imports Processed RAE Copy Number Data
 # We have to import the processed RAE Data file, because the original RAE file using RefSeq IDs,

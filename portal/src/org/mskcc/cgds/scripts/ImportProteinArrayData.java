@@ -58,16 +58,11 @@ public class ImportProteinArrayData {
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        String[] arrayIds = line.split("\t");
-        for (int i=1; i<arrayIds.length; i++) {
-            if (daoPAI.getProteinArrayInfo(arrayIds[i])==null) {
-                System.err.println("missing protein array information of " + arrayIds[i]
-                        + ". Please load antibody annotation.");
-            }
-            daoPAI.addProteinArrayCancerStudy(arrayIds[i], Collections.singleton(cancerStudyId));
-        }
-        
+        String[] caseIds = line.split("\t");
         ArrayList<String> cases = new ArrayList<String>();
+        for (int i=1; i<caseIds.length; i++) {
+            cases.add(caseIds[i]);
+        }
         
         while ((line=buf.readLine()) != null) {
             if (pMonitor != null) {
@@ -76,11 +71,16 @@ public class ImportProteinArrayData {
             }
             
             String[] strs = line.split("\t");
-            String caseId = strs[0];
-            cases.add(caseId);
+            String arrayId = strs[0];
+            if (daoPAI.getProteinArrayInfo(arrayId)==null) {
+                System.err.println("missing protein array information of " + arrayId
+                        + ". Please load antibody annotation.");
+            }
+            daoPAI.addProteinArrayCancerStudy(arrayId, Collections.singleton(cancerStudyId));
+            
             for (int i=1; i<strs.length; i++) {
                 double data = Double.parseDouble(strs[i]);
-                ProteinArrayData pad = new ProteinArrayData(arrayIds[i], caseId, data);
+                ProteinArrayData pad = new ProteinArrayData(arrayId, caseIds[i], data);
                 daoPAD.addProteinArrayData(pad);
             }
             

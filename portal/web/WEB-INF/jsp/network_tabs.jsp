@@ -13,7 +13,7 @@
 		    			<input id="weight_slider_field" type="text" value="0"/>
 		    		</span>
 		    		<span class="slider-min"><label>0</label></span>
-		    		<span class="slider-max"><label>100</label></span>
+		    		<span class="slider-max"><label>MAX</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
 	    		

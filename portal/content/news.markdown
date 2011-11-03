@@ -3,7 +3,7 @@
 * New and improved mutation details, with sorting and filtering capabilities.
 * In collaboration with Bilkent University, we have added a new *network* tab to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
 
-![GBM Network](images/previews/gbm_network.png)
+![GBM Network](images/previews/ova_network.png)
 
 # September 3, 2011
 

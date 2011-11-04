@@ -21,6 +21,10 @@
 
 	<!-- SPRING SECURITY SETTINGS END -->
 
+        <listener>
+          <listener-class>org.mskcc.portal.mutation.diagram.MutationDiagramServletConfig</listener-class>
+        </listener>
+
     <servlet>
         <servlet-name>query_builder</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>

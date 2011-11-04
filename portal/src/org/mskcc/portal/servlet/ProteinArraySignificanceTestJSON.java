@@ -141,8 +141,8 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
                 row.add(pai.getType());
                 row.add(pai.getGene());
                 row.add(pai.getResidue());
-                row.add(pai.getSource());
-                row.add(pai.isValidated());
+                //row.add(pai.getSource());
+                //row.add(pai.isValidated());
 
                 Map<String,Double> data = proteinArrayData.get(pai.getId());
                 if (data==null) {

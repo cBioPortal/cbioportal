@@ -91,8 +91,7 @@
         var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
             <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
         if ($.browser.msie) //TODO: this is a temporary fix for bug #74
             params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
@@ -110,17 +109,17 @@
                 
                 var sortingColumn;
                 if (showPValueColumn) {
-                    sortingColumn = [11,'asc'];
+                    sortingColumn = [9,'asc'];
                 } else if (showAbsDiffColumn) {
-                    sortingColumn = [10, 'desc'];
-                } else if (aDataSet[0][8]!="NaN") {
                     sortingColumn = [8, 'desc'];
+                } else if (aDataSet[0][6]!="NaN") {
+                    sortingColumn = [6, 'desc'];
                 } else {
-                    sortingColumn = [9, 'desc'];
+                    sortingColumn = [7, 'desc'];
                 }
                 
                 
-                var aiExclude = [1,2,3,12];
+                var aiExclude = [1,2,3,10];
                 var oTable = $('table#protein_expr').dataTable( {
                         "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
@@ -155,14 +154,14 @@
                             { //"sTitle": "Target Residue",
                               "aTargets": [ 5 ] 
                             },
-                            { //"sTitle": "Source organism",
-                              "bVisible": false, 
-                              "aTargets": [ 6 ] 
-                            },
-                            { //"sTitle": "Validated?",
-                              "bVisible": false,
-                              "aTargets": [ 7 ]
-                            },
+//                            { //"sTitle": "Source organism",
+//                              "bVisible": false, 
+//                              "aTargets": [ 6 ] 
+//                            },
+//                            { //"sTitle": "Validated?",
+//                              "bVisible": false,
+//                              "aTargets": [ 7 ]
+//                            },
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
@@ -173,7 +172,7 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
-                              "aTargets": [ 8 ]
+                              "aTargets": [ 6 ]
                             },
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -185,7 +184,7 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
-                              "aTargets": [ 9 ]
+                              "aTargets": [ 7 ]
                             },
                             { //"sTitle": "abs diff",
                               "bVisible": showAbsDiffColumn,
@@ -198,8 +197,8 @@
                                     var ret = value.toFixed(2);
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[8]);
-                                    var abunAltered = parseFloat(obj.aData[9]);
+                                    var abunUnaltered = parseFloat(obj.aData[6]);
+                                    var abunAltered = parseFloat(obj.aData[7]);
                                     
                                     if (value<eps)
                                         return ret;
@@ -209,7 +208,7 @@
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
                               },
                               "bSearchable": false,
-                              "aTargets": [ 10 ]
+                              "aTargets": [ 8 ]
                             },
                             { //"sTitle": "p-value",
                               "bVisible": showPValueColumn,
@@ -235,23 +234,21 @@
                                     return ret + "<img src=\"images/down1.png\"/>";                                    
                               },
                               "bSearchable": false,
-                              "aTargets": [ 11 ]
+                              "aTargets": [ 9 ]
                             },
                             { //"sTitle": "data",
                               "bVisible": false,
                               "bSearchable": false,
                               "bSortable": false,
-                              "aTargets": [ 12 ]
+                              "aTargets": [ 10 ]
                             },
                             { //"sTitle": "plot",
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    //if (isNaN(parsePValue(obj.aData[11])))
-                                    //    return "";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
-                              "aTargets": [ 13 ]
+                              "aTargets": [ 11 ]
                                 
                             }
                         ],
@@ -294,7 +291,7 @@
                         this.src = "images/details_close.png";
                         $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
                         var aData = oTable.fnGetData( nTr );
-                        var data = aData[12];
+                        var data = aData[10];
                         var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
                         if (aData[5])
                             antibody += ' ['+aData[5]+']';
@@ -303,7 +300,7 @@
                             xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
                         else
                             xlabel += aData[1];
-                        var pvalue = parsePValue(aData[11]);
+                        var pvalue = parsePValue(aData[9]);
                         if (!isNaN(pvalue)) {
                             xlabel += " (p-value: "+pvalue+")";
                         }
@@ -316,24 +313,6 @@
                     }
                 } );
                 
-                $('div#protein_expr_wait').remove();
-                $('table#protein_expr_wrapper').show();
-            }
-            ,"json"
-        );
-        
-        params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
-            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
-            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.EXCLUDE_ANTIBODY_TYPE%>:'phosphorylation'
-        };
-        $.post("ProteinArraySignificanceTest.json", 
-            params,
-            function(aDataSet){
-                var oTable = $('table#protein_expr').dataTable();
-                oTable.fnAddData(aDataSet, false);
-                
                 // filter for antibody type
                 oTable.fnFilter("phosphorylation",3);
                 $('div.datatable-filter-custom').html("Antibody Type: "+
@@ -342,8 +321,11 @@
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 3);
                 } );
-            },
-            "json"
+                
+                $('div#protein_expr_wait').remove();
+                $('table#protein_expr_wrapper').show();
+            }
+            ,"json"
         );
     });
 </script>
@@ -363,8 +345,6 @@
                         <th rowspan="2">Alteration</th>
                         <th rowspan="2">Type</th>
                         <th colspan="2" class="ui-state-default">Target</th>
-                        <th rowspan="2">Source Organism</th>
-                        <th rowspan="2">Validated?</th>
                         <th colspan="3" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
                         <th rowspan="2" nowrap="nowrap">p-value<img class="datatable_help" src="images/help.png" title="Based on two-sided two sample student t-test."/></th>
                         <th rowspan="2">data</th>
@@ -386,8 +366,6 @@
                         <th>Type</th>
                         <th>Protein</th>
                         <th>Residue</th>
-                        <th>Source Organism</th>
-                        <th>Validated?</th>
                         <th>Unaltered</th>
                         <th>Altered</th>
                         <th>Abs. Diff.</th>

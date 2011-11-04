@@ -70,5 +70,6 @@
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.15.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/guice-servlet-3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

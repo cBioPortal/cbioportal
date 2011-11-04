@@ -199,7 +199,7 @@ public class NetworkServlet extends HttpServlet {
                     try {
                         diffusion = Double.parseDouble(strDiffusion);
                     } catch (Exception ex) {
-                        diffusion = 0.2;
+                        diffusion = 0;
                     }
                     
                     xdebug.startTimer();
@@ -732,7 +732,7 @@ public class NetworkServlet extends HttpServlet {
         if (!complete) {
             ret += "&netsize=" + netSize 
                 + "&linkers=" + nLinker
-                +"&diffusion"+strDiffusion;
+                +"&diffusion="+strDiffusion;
         }
         
         if (download) {

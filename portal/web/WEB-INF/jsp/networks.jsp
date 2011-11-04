@@ -24,7 +24,7 @@
         nLinker = "50";
     String diffusion = request.getParameter("diffusion");
     if (diffusion==null)
-        diffusion = "0.2";
+        diffusion = "0";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>

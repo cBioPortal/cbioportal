@@ -13,9 +13,7 @@
     <h1><%= hugoGeneSymbol %></h1>
     <script type="text/javascript">
 $(document).ready(function () {
-  // todo:  convert HTTP GET into POST
-  //   $.ajax({ url: url, dataType: 'json', data: data, success: callback, type: "POST"});
-  $.getJSON("/mutation_diagram_data.json?hugoGeneSymbol=" + "<%= hugoGeneSymbol %>", drawMutationDiagram);
+  $.ajax({ url: "/mutation_diagram_data.json", dataType: "json", data: { hugoGeneSymbol: "<%= hugoGeneSymbol %>" }, success: drawMutationDiagram, type: "POST"});
 });
 
 function drawMutationDiagram(mutationDiagram)

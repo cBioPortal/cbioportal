@@ -2,7 +2,9 @@ package org.mskcc.portal.mutation.diagram;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,19 +29,20 @@ public final class MutationDiagramDataServletTest {
     private MutationDiagramDataServlet dataServlet;
 
     @Mock
-    private DomainService domainService;
-    @Mock
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
-    @Mock
+
+    private DomainService domainService;
     private IdMappingService idMappingService;
-    @Mock
     private MutationService mutationService;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        domainService = mock(DomainService.class, withSettings().serializable());
+        idMappingService = mock(IdMappingService.class, withSettings().serializable());
+        mutationService = mock(MutationService.class, withSettings().serializable());
         dataServlet = new MutationDiagramDataServlet(domainService, idMappingService, mutationService);
     }
 

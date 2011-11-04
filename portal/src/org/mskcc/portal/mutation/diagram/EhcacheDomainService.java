@@ -14,7 +14,6 @@ import net.sf.ehcache.loader.CacheLoader;
  * Implementation of DomainService based on Ehcache.
  */
 public final class EhcacheDomainService implements DomainService {
-    private static final long serialVersionUID = 1L;
     private static final int EIGHT_HOURS = 28800;
     private static final List<Domain> EMPTY = Collections.emptyList();
     private final Cache cache;

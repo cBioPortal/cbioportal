@@ -1,11 +1,9 @@
 package org.mskcc.portal.mutation.diagram;
 
-import java.io.Serializable;
-
 /**
  * Id mapping service.
  */
-public interface IdMappingService extends Serializable {
+public interface IdMappingService {
 
     /**
      * Return the UniProt id for the specified HUGO gene symbol, or <code>null</code> if no such id exists

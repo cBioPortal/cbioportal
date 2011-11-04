@@ -17,7 +17,6 @@ import com.google.inject.Inject;
  * Implementation of DomainService based on CacheBuilder.
  */
 public final class CacheDomainService implements DomainService {
-    private static final long serialVersionUID = 1L;
     private static final List<Domain> EMPTY = Collections.emptyList();
     private static final Logger logger = Logger.getLogger(CacheDomainService.class);
     private final Cache<String, List<Domain>> cache;

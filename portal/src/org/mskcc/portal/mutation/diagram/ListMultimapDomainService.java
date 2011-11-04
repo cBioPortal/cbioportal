@@ -13,7 +13,6 @@ import com.google.inject.Inject;
  * Implementation of DomainService backed by a ListMultimap.
  */
 public final class ListMultimapDomainService implements DomainService {
-    private static final long serialVersionUID = 1L;
     private final ListMultimap<String, Domain> domains;
 
     /**

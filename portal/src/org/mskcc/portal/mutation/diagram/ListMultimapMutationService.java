@@ -13,7 +13,6 @@ import com.google.inject.Inject;
  * Implementation of MutationService backed by a ListMultimap.
  */
 public final class ListMultimapMutationService implements MutationService {
-    private static final long serialVersionUID = 1L;
     private final ListMultimap<String, Mutation> mutations;
 
     /**

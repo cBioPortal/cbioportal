@@ -22,7 +22,6 @@ import com.google.inject.Inject;
  * Implementation of MutationService that reads from the CGDS data source.
  */
 public final class CgdsMutationService implements MutationService {
-    private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(CacheDomainService.class);
     private final DaoGeneOptimized geneDao;
     private final DaoMutation mutationDao;

@@ -13,7 +13,6 @@ import com.google.inject.Inject;
  * Implementation of IdMappingService backed by a multimap of UniProt ids keyed by HUGO gene symbols.
  */
 public final class MultimapIdMappingService implements IdMappingService {
-    private static final long serialVersionUID = 1L;
     private final Multimap<String, String> uniProtIds;
 
     /**

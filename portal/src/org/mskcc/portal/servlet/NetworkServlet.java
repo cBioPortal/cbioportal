@@ -131,7 +131,7 @@ public class NetworkServlet extends HttpServlet {
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
 
-            if (!network.getNodes().isEmpty()) {                
+            if (network.countNodes()!=0) {                
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
@@ -151,11 +151,24 @@ public class NetworkServlet extends HttpServlet {
                 xdebug.startTimer();
                 
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+                
+                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                        = getMapQueryGeneAlterationCaseNumber(req);
+                
+                Set<Node> queryNodes = new HashSet<Node>();
                 for (Node node : network.getNodes()) {
                     String ngnc = NetworkUtils.getSymbol(node);
                     if (ngnc==null) {
                         continue;
                     }
+                    
+                    if (mapQueryGeneAlterationCaseNumber!=null) {
+                        if (queryGenes.contains(ngnc)) {
+                            queryNodes.add(node);
+                            continue;
+                        }
+                    }
+                    
                     
                     CanonicalGene canonicalGene = daoGeneOptimized.getGene(ngnc);
                     if (canonicalGene==null) {
@@ -171,6 +184,10 @@ public class NetworkServlet extends HttpServlet {
 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
+                
+                if (mapQueryGeneAlterationCaseNumber!=null) {
+                    addAttributesForQueryGenes(queryNodes, targetCaseIds.size(), mapQueryGeneAlterationCaseNumber);
+                }
                 
                 String nLinker = req.getParameter("linkers");
                 if (!topologyPruned && nLinker!=null && nLinker.matches("[0-9]+")) {
@@ -322,7 +339,12 @@ public class NetworkServlet extends HttpServlet {
         PriorityQueue<Node> topAlteredNodes = new PriorityQueue<Node>(n,
                 new Comparator<Node>() {
                     public int compare(Node n1, Node n2) {
-                        return mapDiffusion.get(n1).compareTo(mapDiffusion.get(n2));
+                        int ret = mapDiffusion.get(n1).compareTo(mapDiffusion.get(n2));
+                        if (ret==0) { // if the same diffused perc, use own perc
+                            ret = Double.compare(getTotalAlteredPercentage(n1),
+                                    getTotalAlteredPercentage(n2));
+                        }
+                        return ret;
                     }
                 });
         
@@ -422,6 +444,76 @@ public class NetworkServlet extends HttpServlet {
         return geneticProfileSet;
     }
     
+    private void addAttributesForQueryGenes(Set<Node> nodes, int nCases,
+            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber) {
+        for (Node node : nodes) {
+            String symbol = NetworkUtils.getSymbol(node);
+            Map<String,Integer> mapAltrationCaseNumber = mapQueryGeneAlterationCaseNumber.get(symbol);
+            for (Map.Entry<String,Integer> entry : mapAltrationCaseNumber.entrySet()) {
+                node.setAttribute(mapHeatMapKeyToAttrName.get(entry.getKey()), 1.0*entry.getValue()/nCases);
+            }
+        }
+    }
+    
+    private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req) {
+        Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                = new HashMap<String,Map<String,Integer>>();
+        String geneAlt = req.getParameter("query_gene_alt");
+        if (geneAlt!=null) {
+            
+            return mapQueryGeneAlterationCaseNumber;
+        }
+        
+        String heatMap = req.getParameter("heat_map");
+        if (heatMap!=null) {            
+            String[] heatMapLines = heatMap.split("\r?\n");
+            String[] genes = heatMapLines[0].split("\t");
+
+            for (int i=1; i<genes.length; i++) {
+                Map<String,Integer> map = new HashMap<String,Integer>();
+                map.put("Any", 0);
+                mapQueryGeneAlterationCaseNumber.put(genes[i], map);
+            }
+
+            for (int i=1; i<heatMapLines.length; i++) {
+                String[] strs = heatMapLines[i].split("\t");
+                for (int j=1; j<strs.length; j++) {
+                    Map<String,Integer> map = mapQueryGeneAlterationCaseNumber.get(genes[j]);
+                    if (!strs[j].isEmpty()) {
+                        map.put("Any", map.get("Any")+1);
+                    }
+
+                    for (String type : strs[j].split(";")) {
+                        // add to specific type
+                        Integer num = map.get(type);
+                        if (num==null) {
+                            map.put(type, 1);
+                        } else {
+                            map.put(type, num+1);
+                        }
+                    }
+                }
+            }
+            
+            return mapQueryGeneAlterationCaseNumber;
+        }
+        
+        return null;
+    }
+    
+    private static final Map<String,String> mapHeatMapKeyToAttrName;
+    static {
+        mapHeatMapKeyToAttrName = new HashMap<String,String>();
+        mapHeatMapKeyToAttrName.put("Any", NetworkServlet.NODE_ATTR_PERCENT_ALTERED);
+        mapHeatMapKeyToAttrName.put("AMP", NetworkServlet.NODE_ATTR_PERCENT_CNA_AMPLIFIED);
+        mapHeatMapKeyToAttrName.put("GAIN", NetworkServlet.NODE_ATTR_PERCENT_CNA_GAINED);
+        mapHeatMapKeyToAttrName.put("HETLOSS", NetworkServlet.NODE_ATTR_PERCENT_CNA_HET_LOSS);
+        mapHeatMapKeyToAttrName.put("HOMDEL", NetworkServlet.NODE_ATTR_PERCENT_CNA_HOM_DEL);
+        mapHeatMapKeyToAttrName.put("DOWN", NetworkServlet.NODE_ATTR_PERCENT_MRNA_WAY_DOWN);
+        mapHeatMapKeyToAttrName.put("UP", NetworkServlet.NODE_ATTR_PERCENT_MRNA_WAY_UP);
+        mapHeatMapKeyToAttrName.put("MUT", NetworkServlet.NODE_ATTR_PERCENT_MUTATED);
+    }
+    
     private void addCGDSDataAsNodeAttribute(Node node, long entrezGeneId,
         Set<GeneticProfile> profiles, Set<String> targetCaseList, double zScoreThreshold) throws DaoException {
         Set<String> alteredCases = new HashSet<String>();
@@ -438,23 +530,31 @@ public class NetworkServlet extends HttpServlet {
                 
                 //AMP
                 Set<String> cases = cnaCases.get("2");
-                alteredCases.addAll(cases);
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, 1.0*cases.size()/targetCaseList.size());
+                if (!cases.isEmpty()) {
+                    alteredCases.addAll(cases);
+                    node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, 1.0*cases.size()/targetCaseList.size());
+                }
                 
 //                //GAINED
 //                cases = cnaCases.get("1");
+//                if (!cases.isEmpty()) {
 //                alteredCases.addAll(cases);
 //                node.setAttribute(NODE_ATTR_PERCENT_CNA_GAINED, 1.0*cases.size()/targetCaseList.size());
+//                }
 //                
 //                //HETLOSS
 //                cases = cnaCases.get("-1");
+//                if (!cases.isEmpty()) {
 //                alteredCases.addAll(cases);
 //                node.setAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, 1.0*cases.size()/targetCaseList.size());
+//                }
                 
                 //HOMDEL
                 cases = cnaCases.get("-2");
-                alteredCases.addAll(cases);
-                node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, 1.0*cases.size()/targetCaseList.size());
+                if (!cases.isEmpty()) {
+                    alteredCases.addAll(cases);
+                    node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, 1.0*cases.size()/targetCaseList.size());
+                }
                 
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
                 Set<String>[] cases = getMRnaAlteredCases(profile.getGeneticProfileId(),

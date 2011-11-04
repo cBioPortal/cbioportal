@@ -184,6 +184,7 @@
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                     heat_map:$("textarea#heat_map").html(),
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
                      linkers:'<%=nLinker%>',

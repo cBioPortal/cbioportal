@@ -232,7 +232,9 @@ public class NetworkServlet extends HttpServlet {
                 messages.append(getNetworkServletUrl(req, true, true, true, encodedQueryAlteration));
                 messages.append("\">SIF</a>");
                 messages.append(" for import into <a href=\"http://cytoscape.org\" target=\"_blank\">Cytoscape</a>");
-                messages.append(" (GraphMLReader plugin is required for importing GraphML).");
+                messages.append(" (<a href=\"http://chianti.ucsd.edu/cyto_web/plugins/displayplugininfo.php?");
+                messages.append("name=GraphMLReader\" target=\"_blank\">GraphMLReader plugin</a>");
+                messages.append(" is required for importing GraphML).");
             }
             
             String format = req.getParameter("format");

@@ -81,13 +81,8 @@
                         } else {
                             out.println("<td class='" + style + "' bgcolor=white><nobr><font>");
                         }
-                        outputFormattedDouble (out, util.getOddsRatio());
-                        if (util.getCumulativeP() <= 0.05) {
-                            out.println (" [" + pValueCounter + "]");
-                            pValues.append("<tr><td>[" + pValueCounter + "] p-value:  "
-                                    + decimalFormat.format(util.getCumulativeP()) + "</td></tr>");
-                            pValueCounter++;
-                        }
+                        //outputFormattedDouble (out, util.getOddsRatio());
+                        outputFormattedDouble (out, util.getCumulativeP());
                         out.println ("</nobr></font></td>");
                         testMap.add(key);
                     } else {
@@ -104,18 +99,18 @@
     }
     if (geneWithScoreList.size() > 1) {
         out.println("<table >");
-        out.println("<tr><th>Value Range</th><th>Meaning</th></tr>");
-        out.println("<tr bgcolor=#6666FF><td width='40%'><font color='white'>0.0 to 0.1</font></td>");
+        out.println("<tr><th>Color Legend</th></tr>");
+        out.println("<tr bgcolor=#6666FF>");
         out.println("<td><font color='white'>strong tendency toward mutual exclusivity</font></td></tr>");
-        out.println("<tr bgcolor=#9999FF><td width='40%'>0.1 to 0.5</td>");
+        out.println("<tr bgcolor=#9999FF>");
         out.println("<td>some tendency toward mutual exclusivity</td></tr>");
-        out.println("<tr bgcolor=white><td>0.5 to 1.5</td>");
-        out.println("<td>1 indicates no association of gene alterations given the number present for each of the two genes</td></tr>");
-        out.println("<tr bgcolor=#FFFF99><td>1.5 to 100</td>");
+        out.println("<tr bgcolor=white>");
+        out.println("<td>no association</td></tr>");
+        out.println("<tr bgcolor=#FFFF99>");
         out.println("<td>tendency toward co-occurrence</td></tr>");
-        out.println("<tr bgcolor=#FF9933><td>100 to INF</td>");
-        out.println("<td>(INF = infinity;  note: INF implies perfect correspondence or that samples with one aberration are a subset of those with the other.)</td></tr>");
-        out.println("<tr bgcolor=white><td>NA</td>");
+        out.println("<tr bgcolor=#FF9933>");
+        out.println("<td>strong tendendency towards co-occurrence</td></tr>");
+        out.println("<tr bgcolor=white>");
         out.println("<td>Zero events recorded for one or both genes</td></tr>");
         out.println("</table>");
     }

@@ -83,13 +83,15 @@ public class CalculateMutationFrequencies {
         }
         Collections.sort(geneList, new SingleGeneComparator());
 
-        pMonitor.setCurrentMessage("Here are the top 10 most frequency mutated genes:");
+        pMonitor.setCurrentMessage("Here are all genes mutated > 4%:");
         DecimalFormat formatter = new DecimalFormat("#,###,###.###");
 
-        for (int i=0; i< 10; i++) {
+        for (int i=0; i< geneList.size(); i++) {
             CanonicalGene gene = geneList.get(i);
-            System.out.println (gene.getHugoGeneSymbolAllCaps() + "\t"
-                    + formatter.format(gene.getSomaticMutationFrequency()));
+            if (gene.getSomaticMutationFrequency() > .01) {
+                System.out.println (gene.getHugoGeneSymbolAllCaps() + "\t"
+                        + formatter.format(gene.getSomaticMutationFrequency()));
+            }
         }
 
         pMonitor.setCurrentMessage("Storing results to database.");

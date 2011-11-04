@@ -19,7 +19,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.util.Collections;
-import java.util.Set;
 
 /**
  * Import protein array antibody information into database.
@@ -27,12 +26,10 @@ import java.util.Set;
  */
 public class ImportProteinArrayInfo {
     private ProgressMonitor pMonitor;
-    private int cancerStudyId;
     private File arrayInfoFile;
     
-    public ImportProteinArrayInfo(File arrayInfoFile, int cancerStudyId, ProgressMonitor pMonitor) {
+    public ImportProteinArrayInfo(File arrayInfoFile, ProgressMonitor pMonitor) {
         this.arrayInfoFile = arrayInfoFile;
-        this.cancerStudyId = cancerStudyId;
         this.pMonitor = pMonitor;
     }
     
@@ -58,35 +55,35 @@ public class ImportProteinArrayInfo {
             }
             
             String[] strs = line.split("\t");
-            if (strs.length<8) {
+            if (strs.length<5) {
                 System.err.println("wrong format: "+line);
             }
             
-            String arrayId = strs[6];
-            String type = strs[7];
-            String source = strs[5];
-            String symbols = strs[2];
-            String position = strs[3];
-            boolean validated = strs[4].equals("V");
-            
-            ProteinArrayInfo pai = new ProteinArrayInfo(arrayId, type, source, 
-                    symbols, position, validated, Collections.singleton(cancerStudyId));
-            if (daoPAI.getProteinArrayInfo(arrayId)!=null) {
-                daoPAI.addProteinArrayCancerStudy(pai);
-                continue;
-            }
-            
-            daoPAI.addProteinArrayInfo(pai);
-            
-            for (String symbol : symbols.split("/")) {
-                CanonicalGene gene = daoGene.getGene(symbol);
-                if (gene==null) {
-                    System.err.println(symbol+" not exist");
+            for (String arrayId : strs[0].split("/")) {
+                if (daoPAI.getProteinArrayInfo(arrayId)!=null) {
                     continue;
                 }
-                    
-                long entrez = gene.getEntrezGeneId();
-                daoPAT.addProteinArrayTarget(arrayId, entrez);
+
+                String type = strs[4];
+                String source = null;
+                String symbols = strs[2];
+                String position = strs[3];
+                boolean validated = true;
+                ProteinArrayInfo pai = new ProteinArrayInfo(arrayId, type, source, 
+                        symbols, position, validated, null);
+
+                daoPAI.addProteinArrayInfo(pai);
+
+                for (String symbol : symbols.split("/")) {
+                    CanonicalGene gene = daoGene.getGene(symbol);
+                    if (gene==null) {
+                        System.err.println(symbol+" not exist");
+                        continue;
+                    }
+
+                    long entrez = gene.getEntrezGeneId();
+                    daoPAT.addProteinArrayTarget(arrayId, entrez);
+                }
             }
             
         }
@@ -94,20 +91,20 @@ public class ImportProteinArrayInfo {
     
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.println("command line usage:  importProteinArrayInfo.pl <RPPT_antibody_list.txt> <Cancer study identifier>");
+            System.out.println("command line usage:  importProteinArrayInfo.pl <RPPT_antibody_list.txt>");
             System.exit(1);
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
         
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
+        //int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
-        ImportProteinArrayInfo parser = new ImportProteinArrayInfo(file, cancerStudyId, pMonitor);
+        ImportProteinArrayInfo parser = new ImportProteinArrayInfo(file, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");

@@ -21,8 +21,6 @@ import org.apache.commons.lang.StringUtils;
  * @author jj
  */
 public class DaoProteinArrayInfo {
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoProteinArrayInfo daoProteinArrayInfo;
 
     /**
@@ -41,10 +39,7 @@ public class DaoProteinArrayInfo {
         if (daoProteinArrayInfo == null) {
             daoProteinArrayInfo = new DaoProteinArrayInfo();
         }
-
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("protein_array_info");
-        }
+        
         return daoProteinArrayInfo;
     }
 
@@ -60,26 +55,16 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(pai.getId(),
-                        pai.getType(), pai.getSource(), Boolean.toString(pai.isValidated()));
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection();
-                pstmt = con.prepareStatement("INSERT INTO protein_array_info "
-                           + "(`PROTEIN_ARRAY_ID`,`TYPE`,`SOURCE_ORGANISM`,`GENE_SYMBOL`,`TARGET_RESIDUE`,`VALIDATED`) "
-                           + "VALUES (?,?,?,?,?,?)");
-                pstmt.setString(1, pai.getId());
-                pstmt.setString(2, pai.getType());
-                pstmt.setString(3, pai.getSource());
-                pstmt.setString(4, pai.getGene());
-                pstmt.setString(5, pai.getResidue());
-                pstmt.setBoolean(6, pai.isValidated());
-                int rows = pstmt.executeUpdate() + addProteinArrayCancerStudy(pai);
-                return rows;
-            }
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("INSERT INTO protein_array_info (`PROTEIN_ARRAY_ID`,`TYPE`,`GENE_SYMBOL`,`TARGET_RESIDUE`) "
+                            + "VALUES (?,?,?,?)");
+            pstmt.setString(1, pai.getId());
+            pstmt.setString(2, pai.getType());
+            pstmt.setString(3, pai.getGene());
+            pstmt.setString(4, pai.getResidue());
+            int rows = pstmt.executeUpdate() + addProteinArrayCancerStudy(pai.getId(), pai.getCancerStudies());
+            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -87,50 +72,26 @@ public class DaoProteinArrayInfo {
         }
     }
     
-    public int addProteinArrayCancerStudy(ProteinArrayInfo pai) throws DaoException {
+    public int addProteinArrayCancerStudy(String arrayId, Set<Integer> cancerStudyIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(pai.getId(),
-                        pai.getType(), pai.getSource(), Boolean.toString(pai.isValidated()));
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection();
-                int rows = 0;
-                for (int cancerStudyId : pai.getCancerStudies()) {
-                    pstmt = con.prepareStatement
-                            ("INSERT INTO protein_array_cancer_study (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`) "
-                                    + "VALUES (?,?)");
-                    pstmt.setString(1, pai.getId());
-                    pstmt.setInt(2, cancerStudyId);
-                    rows += pstmt.executeUpdate();
-                }
-                return rows;
+            con = JdbcUtil.getDbConnection();
+            int rows = 0;
+            for (int cancerStudyId : cancerStudyIds) {
+                pstmt = con.prepareStatement
+                        ("INSERT INTO protein_array_cancer_study (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`) "
+                                + "VALUES (?,?)");
+                pstmt.setString(1, arrayId);
+                pstmt.setInt(2, cancerStudyId);
+                rows += pstmt.executeUpdate();
             }
+            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushProteinArrayInfoesToDatabase() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 

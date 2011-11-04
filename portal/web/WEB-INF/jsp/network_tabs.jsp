@@ -29,13 +29,13 @@
     		<div id="control_area">
     			<table><tr>
     				<td>
-						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
+						<button id="filter_genes" class="tabs-button" title="Hide"></button>
 					</td>
 					<td>
-						<button id="crop_genes" class="tabs-button" title="Crop Selected"></button>
+						<button id="crop_genes" class="tabs-button" title="Crop"></button>
 					</td>
 					<td>
-						<button id="unhide_genes" class="tabs-button" title="Unhide All"></button>
+						<button id="unhide_genes" class="tabs-button" title="Unhide"></button>
 					</td>
 					<td>					
 						<input type="text" id="search" value=""/>

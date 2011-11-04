@@ -372,10 +372,8 @@
 
 #genes_tab .header #search
 {
-	/*width: 111px;*/
 	width: 64px;
-	margin-left: 4px;
-	margin-right: 2px;
+	margin-left: 2px;
 	vertical-align: bottom;
 }
 

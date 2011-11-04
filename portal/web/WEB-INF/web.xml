@@ -21,6 +21,16 @@
 
 	<!-- SPRING SECURITY SETTINGS END -->
 
+        <filter>
+          <filter-name>guiceFilter</filter-name>
+          <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+        </filter>
+
+        <filter-mapping>
+          <filter-name>guiceFilter</filter-name>
+          <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
         <listener>
           <listener-class>org.mskcc.portal.mutation.diagram.MutationDiagramServletConfig</listener-class>
         </listener>
@@ -121,15 +131,17 @@
         <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
     </servlet>
 
+    <!--
     <servlet>
         <servlet-name>mutation_diagram</servlet-name>
         <servlet-class>org.mskcc.portal.mutation.diagram.MutationDiagramServlet</servlet-class>
     </servlet>
 
     <servlet>
-        <servlet-name>mutation_diagram_data</servlet-name>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
         <servlet-class>org.mskcc.portal.mutation.diagram.MutationDiagramDataServlet</servlet-class>
     </servlet>
+    -->
 
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
@@ -156,6 +168,7 @@
         <url-pattern>/portal_meta_data.json</url-pattern>
     </servlet-mapping>
 
+    <!--
     <servlet-mapping>
         <servlet-name>mutation_diagram</servlet-name>
         <url-pattern>/mutation_diagram.do</url-pattern>
@@ -165,6 +178,7 @@
         <servlet-name>mutation_diagram_data_json</servlet-name>
         <url-pattern>/mutation_diagram_data.json</url-pattern>
     </servlet-mapping>
+    -->
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>

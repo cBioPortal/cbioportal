@@ -5,7 +5,7 @@
 <html>
 <head>
   <title>mutation diagram :: <%= hugoGeneSymbol %></title>
-  <script type="text/javascript" src="js/d3.js"></script>
+  <script type="text/javascript" src="js/d3/d3.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 </head>
 <body>
@@ -13,7 +13,7 @@
     <h1><%= hugoGeneSymbol %></h1>
     <script type="text/javascript">
 $(document).ready(function () {
-  $.ajax({ url: "/mutation_diagram_data.json", dataType: "json", data: { hugoGeneSymbol: "<%= hugoGeneSymbol %>" }, success: drawMutationDiagram, type: "POST"});
+  $.ajax({ url: "mutation_diagram_data.json", dataType: "json", data: { hugoGeneSymbol: "<%= hugoGeneSymbol %>" }, success: drawMutationDiagram, type: "POST"});
 });
 
 function drawMutationDiagram(mutationDiagram)

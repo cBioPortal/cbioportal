@@ -29,5 +29,6 @@ public final class MutationDiagramServletConfigTest {
         assertNotNull(injector.getBinding(DomainService.class));
         assertNotNull(injector.getBinding(IdMappingService.class));
         assertNotNull(injector.getBinding(MutationService.class));
+        // todo:  assert servlet bindings are present
     }
 }

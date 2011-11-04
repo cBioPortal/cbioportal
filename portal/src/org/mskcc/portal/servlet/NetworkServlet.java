@@ -78,9 +78,15 @@ public class NetworkServlet extends HttpServlet {
             
             String xd = req.getParameter("xdebug");
             boolean logXDebug = xd!=null && xd.equals("1");
+                
+            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                    = getMapQueryGeneAlterationCaseNumber(req);
+            
+            String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
             
             if (logXDebug) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, false, false)
+                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
+                        false, false, encodedQueryAlteration)
                         +"\" target=\"_blank\">NetworkServlet URL</a>");
             }
 
@@ -152,9 +158,6 @@ public class NetworkServlet extends HttpServlet {
                 
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
                 
-                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
-                        = getMapQueryGeneAlterationCaseNumber(req);
-                
                 Set<Node> queryNodes = new HashSet<Node>();
                 for (Node node : network.getNodes()) {
                     String ngnc = NetworkUtils.getSymbol(node);
@@ -223,10 +226,10 @@ public class NetworkServlet extends HttpServlet {
                 
                 messages.append("Download the complete network in ");
                 messages.append("<a href=\"");
-                messages.append(getNetworkServletUrl(req, true, true, false));
+                messages.append(getNetworkServletUrl(req, true, true, false, encodedQueryAlteration));
                 messages.append("\">GraphML</a> ");
                 messages.append("or <a href=\"");
-                messages.append(getNetworkServletUrl(req, true, true, true));
+                messages.append(getNetworkServletUrl(req, true, true, true, encodedQueryAlteration));
                 messages.append("\">SIF</a>");
                 messages.append(" for import into <a href=\"http://cytoscape.org\" target=\"_blank\">Cytoscape</a>");
                 messages.append(" (GraphMLReader plugin is required for importing GraphML).");
@@ -456,16 +459,15 @@ public class NetworkServlet extends HttpServlet {
     }
     
     private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req) {
-        Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
-                = new HashMap<String,Map<String,Integer>>();
-        String geneAlt = req.getParameter("query_gene_alt");
+        String geneAlt = req.getParameter("query_alt");
         if (geneAlt!=null) {
-            
-            return mapQueryGeneAlterationCaseNumber;
+            return decodeQueryAlteration(geneAlt);
         }
         
         String heatMap = req.getParameter("heat_map");
-        if (heatMap!=null) {            
+        if (heatMap!=null) {
+            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                    = new HashMap<String,Map<String,Integer>>();
             String[] heatMapLines = heatMap.split("\r?\n");
             String[] genes = heatMapLines[0].split("\t");
 
@@ -652,8 +654,56 @@ public class NetworkServlet extends HttpServlet {
         return cases;
     }
     
+    private Map<String,Map<String,Integer>> decodeQueryAlteration(String strQueryAlteration) {
+        if (strQueryAlteration==null || strQueryAlteration.isEmpty()) {
+            return null;
+        }
+        
+        Map<String,Map<String,Integer>> ret = new HashMap<String,Map<String,Integer>>();
+        try {
+            String[] genes = strQueryAlteration.split(";");
+            for (String perGene : genes) {
+                int ix = perGene.indexOf(":");
+                String gene = perGene.substring(0, ix);
+                Map<String,Integer> map = new HashMap<String,Integer>();
+                ret.put(gene, map);
+                
+                String[] alters = perGene.substring(ix+1).split(",");
+                for (String alter : alters) {
+                    String[] parts = alter.split(":");
+                    map.put(parts[0], Integer.valueOf(parts[1]));
+                }
+            }
+            return ret;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    private String encodeQueryAlteration(Map<String,Map<String,Integer>> queryAlteration) {
+        if (queryAlteration==null) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String,Map<String,Integer>> entry1 : queryAlteration.entrySet()) {
+            sb.append(entry1.getKey());
+            sb.append(':');
+            for (Map.Entry<String,Integer> entry2 : entry1.getValue().entrySet()) {
+                sb.append(entry2.getKey());
+                sb.append(':');
+                sb.append(entry2.getValue());
+                sb.append(',');
+            }
+            sb.setCharAt(sb.length()-1, ';');
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
+    
     private String getNetworkServletUrl(HttpServletRequest req, boolean complete, 
-            boolean download, boolean sif) {
+            boolean download, boolean sif, String strQueryAlteration) {
         String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
         String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
@@ -671,6 +721,11 @@ public class NetworkServlet extends HttpServlet {
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
                 +"&netsrc="+netSrc
                 +"&msgoff=t";
+        
+        if (strQueryAlteration!=null) {
+            
+            ret += "&query_alt="+strQueryAlteration;
+        }
         
         if (!complete) {
             ret += "&netsize=" + netSize 

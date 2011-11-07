@@ -1,6 +1,8 @@
-BRCA.maf  brca
-COADREAD.maf  coadread
-GBM.maf  gbm
-LUSC.maf  lusc
-OV.maf ov
-UCEC.maf  ucec
+BRCA.maf.annotated  brca
+COADREAD.maf.annotated  coadread
+GBM.maf.annotated  gbm
+KIRC.maf.annotated kirc
+LAML.maf.annotated  laml
+LUSC.maf.annotated  lusc
+OV.maf.annotated ov
+UCEC.maf.annotated  ucec

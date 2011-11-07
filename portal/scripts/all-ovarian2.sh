@@ -12,3 +12,6 @@
 
 # Import Methylation Data
 ./importProfileData.pl --data $CBIO_BRCA_HOME/data/genomic/data_brca1_binary_methylation.txt --meta $CBIO_BRCA_HOME/data/genomic/meta_brca1_binary_methylation.txt --dbmsAction clobber
+
+# Imports MRNA Expression Data Files
+./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_mRNA_median_Zscores.txt --meta $CGDS_DATA_HOME/ovarian/meta_mRNA_median_Zscores.txt --dbmsAction clobber

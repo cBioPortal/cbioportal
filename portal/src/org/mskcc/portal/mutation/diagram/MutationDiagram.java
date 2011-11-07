@@ -13,21 +13,33 @@ import com.google.common.collect.ImmutableList;
  * Mutation diagram.
  */
 final class MutationDiagram implements JSONAware {
+    private final String id;
     private final String label;
     private final int length;
     private final List<Domain> domains;
     private final List<Mutation> mutations;
     private final String json;
 
-    MutationDiagram(final String label, final int length, final List<Domain> domains, final List<Mutation> mutations) {
+    MutationDiagram(final String id, final String label, final int length, final List<Domain> domains, final List<Mutation> mutations) {
+        checkNotNull(id, "id must not be null");
         checkNotNull(label, "label must not be null");
         checkNotNull(domains, "domains must not be null");
         checkNotNull(mutations, "mutations must not be null");
+        this.id = id;
         this.label = label;
         this.length = length;
         this.domains = ImmutableList.copyOf(domains);
         this.mutations = ImmutableList.copyOf(mutations);
         this.json = asJson();
+    }
+
+    /**
+     * Return the id for this mutation diagram.  The id will not be null.
+     *
+     * @return the id for this mutation diagram
+     */
+    public String getId() {
+        return id;
     }
 
     /**
@@ -74,6 +86,7 @@ final class MutationDiagram implements JSONAware {
     @SuppressWarnings("unchecked")
     private String asJson() {
         JSONObject mutationDiagram = new JSONObject();
+        mutationDiagram.put("id", id);
         mutationDiagram.put("label", label);
         mutationDiagram.put("length", length);
         if (!domains.isEmpty()) {

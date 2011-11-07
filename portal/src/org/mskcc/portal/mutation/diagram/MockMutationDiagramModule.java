@@ -32,6 +32,18 @@ public final class MockMutationDiagramModule extends AbstractModule {
         domains.put("DVL1_HUMAN", new Domain("DVL1", 144, 215));
         domains.put("DVL1_HUMAN", new Domain("PDZ", 251, 336));
         domains.put("DVL1_HUMAN", new Domain("DEP", 428, 497));
+        domains.put("P04637", new Domain("FOO", 1, 100));
+        domains.put("P04637", new Domain("BAR", 200, 250));
+        domains.put("P04637", new Domain("BAZ", 350, 400));
+        domains.put("P04637", new Domain("QUX", 500, 700));
+        domains.put("Q00987", new Domain("FOO", 1, 50));
+        domains.put("Q00987", new Domain("BAR", 190, 270));
+        domains.put("Q00987", new Domain("BAZ", 300, 470));
+        domains.put("Q00987", new Domain("QUX", 530, 700));
+        domains.put("O15151", new Domain("FOO", 1, 90));
+        domains.put("O15151", new Domain("BAR", 200, 290));
+        domains.put("O15151", new Domain("BAZ", 300, 425));
+        domains.put("O15151", new Domain("QUX", 475, 700));
         return domains;
     }
 
@@ -40,6 +52,9 @@ public final class MockMutationDiagramModule extends AbstractModule {
         Multimap<String, String> uniProtIds = HashMultimap.create();
         uniProtIds.put("DVL1", "DVL1_HUMAN");
         uniProtIds.put("DVL1", "O14640");
+        uniProtIds.put("TP53", "P04637");
+        uniProtIds.put("MDM2", "Q00987");
+        uniProtIds.put("MDM4", "O15151");
         return uniProtIds;
     }
 
@@ -51,6 +66,21 @@ public final class MockMutationDiagramModule extends AbstractModule {
         mutations.put("DVL1", new Mutation(233, 1));
         mutations.put("DVL1", new Mutation("Y335V", 335, 2));
         mutations.put("DVL1", new Mutation("K429G", 430, 8));
+        mutations.put("TP53", new Mutation(24, 4));
+        mutations.put("TP53", new Mutation(218, 3));
+        mutations.put("TP53", new Mutation(330, 1));
+        mutations.put("TP53", new Mutation("Y398V", 398, 2));
+        mutations.put("TP53", new Mutation("K512G", 512, 8));
+        mutations.put("MDM2", new Mutation(69, 4));
+        mutations.put("MDM2", new Mutation(213, 3));
+        mutations.put("MDM2", new Mutation(311, 1));
+        mutations.put("MDM2", new Mutation("Y331V", 331, 2));
+        mutations.put("MDM2", new Mutation("K550G", 550, 8));
+        mutations.put("MDM4", new Mutation(18, 4));
+        mutations.put("MDM4", new Mutation(125, 3));
+        mutations.put("MDM4", new Mutation(135, 1));
+        mutations.put("MDM4", new Mutation("Y330V", 330, 2));
+        mutations.put("MDM4", new Mutation("K499G", 499, 8));
         return mutations;
     }
 }

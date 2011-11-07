@@ -34,12 +34,12 @@ public final class MutationDiagramDataServlet extends HttpServlet {
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         // todo:  check and sanitize hugoGeneSymbol if necessary
         String hugoGeneSymbol = request.getParameter("hugoGeneSymbol");
-        int length = 695;  // uh oh
+        int length = 800;  // uh oh
         String uniProtId = idMappingService.getUniProtId(hugoGeneSymbol);
         List<Domain> domains = domainService.getDomains(uniProtId);
         List<Mutation> mutations = mutationService.getMutations(hugoGeneSymbol);
         String label = hugoGeneSymbol + "/" + uniProtId;
-        MutationDiagram mutationDiagram = new MutationDiagram(label, length, domains, mutations);
+        MutationDiagram mutationDiagram = new MutationDiagram(hugoGeneSymbol, label, length, domains, mutations);
         response.setContentType("application/json");
         response.getWriter().append(mutationDiagram.toJSONString());
     }

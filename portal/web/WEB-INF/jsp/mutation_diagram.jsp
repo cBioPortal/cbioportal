@@ -43,7 +43,7 @@ function drawMutationDiagram(mutationDiagram)
     .attr("text-anchor", "start")
     .style("font-size", "16px")
     .style("font-family", "sans-serif")
-    .text("PIK3CA");
+    .text("<%= hugoGeneSymbol %>");
 
   // sequence
   svg.append("svg:rect")

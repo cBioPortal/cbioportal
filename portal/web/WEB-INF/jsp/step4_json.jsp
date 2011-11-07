@@ -96,57 +96,47 @@ if (step4ErrorMsg != null) {
                               else
                                 allValid = false;
 
-                              var state = $("<li>").addClass("ui-state-default ui-corner-all");
-                              if(!found) {
-                                    state.click(function(){
+                              if(multiple) {
+                                  for(var k=0; k < symbols.length; k++) {
+                                     var aSymbol = symbols[k];
+                                     var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                                     state.click(function(){
+                                           $(this).toggleClass('ui-state-active');
+                                           geneName = $(this).attr("name");
+                                           $("#gene_list").val($("#gene_list").val().replace(geneName, aSymbol));
+                                           setTimeout(validateGenes, 500);
+                                     });
+
+                                     var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
+                                     var stateText = $("<span>").addClass("text");
+                                     stateText.html("<b>" + genes[i] + "</b>: " + aSymbol);
+                                     stateSpan.appendTo(state);
+                                     stateText.insertAfter(stateSpan);
+                                     state.attr("title",
+                                         "Ambiguous gene symbol. Click on one of the alternatives to replace it."
+                                     );
+                                     state.attr("name", genes[i]);
+                                     state.appendTo(stateList);
+                                  }
+                              } else {
+                                     var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                                     state.click(function(){
                                           $(this).toggleClass('ui-state-active');
                                           geneName = $(this).attr("name");
-                                          $("#gene_list").val($("#gene_list").val().replace(" " + geneName, ""));
-                                          $("#gene_list").val($("#gene_list").val().replace(geneName + " ", ""));
                                           $("#gene_list").val($("#gene_list").val().replace(geneName, ""));
-                                          validateGenes();
-                                      });
+                                          setTimeout(validateGenes, 500);
+                                     });
+                                     var stateSpan = $("<span>").addClass("ui-icon ui-icon-circle-close");
+                                     var stateText = $("<span>").addClass("text");
+                                     stateText.html(genes[i]);
+                                     stateSpan.appendTo(state);
+                                     stateText.insertAfter(stateSpan);
+                                     state.attr("title",
+                                        "Could not find gene symbol. Click to remove it from the gene list."
+                                     );
+                                     state.attr("name", genes[i]);
+                                     state.appendTo(stateList);
                               }
-
-                              var stateSpan = $("<span>")
-                                  .addClass("ui-icon " + (found ? "ui-icon-help": "ui-icon-circle-close"));
-                              var stateText = $("<span>").addClass("text");
-
-                              if(multiple) {
-                                  stateText.html("<b>" + genes[i] + "</b>");
-                                  stateText.html(stateText.html() + ": ");
-
-                                  for(var k=0; k < symbols.length; k++) {
-                                    var altLink = $("<a>").attr("name", symbols[k]);
-                                    altLink.html(symbols[k]);
-                                    altLink.appendTo(stateText);
-                                    altLink.click(function() {
-                                       alert("OK" + genes[i] + "/" + symbols[k]);
-                                       $("#gene_list").val($("#gene_list").val().replace(" " + genes[i], symbols[k]));
-                                       $("#gene_list").val($("#gene_list").val().replace(genes[i] + " ", symbols[k]));
-                                       $("#gene_list").val($("#gene_list").val().replace(genes[i], symbols[k]));
-                                       validateGenes();
-                                    });
-                                    stateText.html(stateText.html() + " ");
-                                  }
-
-                              } else {
-                                  stateText.html(genes[i]);
-                              }
-
-                              stateSpan.appendTo(state);
-                              stateText.insertAfter(stateSpan);
-                              state.attr("title",
-                                (found
-                                       ? "Ambiguous gene symbol. Click on one of the alternate symbols to replace it."
-                                       : "Could not find gene symbol. Click to remove it from the gene list."
-                                )
-                              );
-                              state.attr("name", genes[i]);
-                              if(found) {
-                                  state.addClass("ui-state-active");
-                              }
-                              state.appendTo(stateList);
                           }
 
                           stateList.appendTo("#genestatus");
@@ -172,12 +162,14 @@ if (step4ErrorMsg != null) {
                                 validText.insertAfter(validSpan);
                                 validState.addClass("ui-state-active");
                                 validState.appendTo(stateList);
+                                validState.attr("title", "You can now submit the list").tipTip();
                           } else {
                                 $("#main_submit")
                                     .attr("title", "Gene symbols are not valid. Please edit the gene list.")
                                     .tipTip();
                           }
 
+                          $("<br>").appendTo(stateList);
                           $("<br>").appendTo(stateList);
                   },
                   'json'

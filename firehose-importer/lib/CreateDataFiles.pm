@@ -764,6 +764,16 @@ sub create_data_mRNA_median_Zscores{
     runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.ComputeZScoreUnit " . $files );
 }
 
+# create <CANCER>.seg
+# source tarball: gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version>
+# source file: <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
+# data transformation:
+# None.  Simply rename the file
+sub create_igv_seg {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+	$data->write($CGDSfile);
+}
+
 # Given a Gene symbol column, and a gene ID column (which might contain data), 
 # obtain GeneID for all entries in a column in a CTable.
 #

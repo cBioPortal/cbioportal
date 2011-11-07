@@ -13,7 +13,7 @@
 		    			<input id="weight_slider_field" type="text" value="0"/>
 		    		</span>
 		    		<span class="slider-min"><label>0</label></span>
-		    		<span class="slider-max"><label>100</label></span>
+		    		<span class="slider-max"><label>MAX</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
 	    		
@@ -29,13 +29,13 @@
     		<div id="control_area">
     			<table><tr>
     				<td>
-						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
+						<button id="filter_genes" class="tabs-button" title="Hide"></button>
 					</td>
 					<td>
-						<button id="crop_genes" class="tabs-button" title="Crop Selected"></button>
+						<button id="crop_genes" class="tabs-button" title="Crop"></button>
 					</td>
 					<td>
-						<button id="unhide_genes" class="tabs-button" title="Unhide All"></button>
+						<button id="unhide_genes" class="tabs-button" title="Unhide"></button>
 					</td>
 					<td>					
 						<input type="text" id="search" value=""/>

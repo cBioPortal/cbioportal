@@ -79,6 +79,9 @@ var _geneWeightMap;
 // threshold value used to filter genes by weight slider
 var _geneWeightThreshold;
 
+// maximum alteration value among the non-seed genes in the network
+var _maxAlterationPercent;
+
 // CytoscapeWeb.Visualization instance
 var _vis;
 
@@ -101,6 +104,7 @@ function initNetworkUI(vis)
 	
 	_geneWeightMap = _geneWeightArray(WEIGHT_COEFF);
 	_geneWeightThreshold = ALTERATION_PERCENT;
+	_maxAlterationPercent = _maxAlterValNonSeed(_geneWeightMap);
 	
 	_resetFlags();
 	
@@ -1700,6 +1704,39 @@ function _geneWeightArray(coeff)
 }
 
 /**
+ * Finds the non-seed gene having the maximum alteration percent in
+ * the network, and returns the maximum alteration percent value.
+ * 
+ * @param map	weight map for the genes in the network
+ * @return		max alteration percent of non-seed genes
+ */
+function _maxAlterValNonSeed(map)
+{
+	var max = 0.0;
+	
+	for (var key in map)
+	{
+		// skip seed genes
+		
+		var node = _vis.node(key);
+		
+		if (node != null &&
+			node.data["IN_QUERY"] == "true")
+		{
+			continue;
+		}
+		
+		// update max value if necessary
+		if (map[key] > max)
+		{
+			max = map[key];
+		}
+	}
+	
+	return max;
+}
+
+/**
  * Initializes the main menu by adjusting its style. Also, initializes the
  * inspector panels and tabs.
  */
@@ -1878,6 +1915,10 @@ function _initSliders()
 		stop: _weightSliderStop,
 		slide: _weightSliderMove});
 	
+	// set max alteration value label
+	//$("#weight_slider_area .slider-max label").text(
+	//	_maxAlterationPercent.toFixed(1));
+	
 	// show affinity slider (currently disabled)
 //	$("#affinity_slider_bar").slider(
 //		{value: WEIGHT_COEFF * 100,
@@ -1939,7 +1980,8 @@ function _weightSliderMove(event, ui)
 	var sliderVal = ui.value;
 	
 	// update current value field
-	$("#weight_slider_field").val(_transformValue(sliderVal).toFixed(1));
+	$("#weight_slider_field").val(
+		(_transformValue(sliderVal) * (_maxAlterationPercent / 100)).toFixed(1));
 }
 
 /**
@@ -1953,7 +1995,7 @@ function _weightSliderStop(event, ui)
 		
 	// apply transformation to prevent filtering of low values 
 	// with a small change in the position of the cursor.
-	sliderVal = _transformValue(sliderVal);
+	sliderVal = _transformValue(sliderVal) * (_maxAlterationPercent / 100);
 	
 	// update threshold
 	_geneWeightThreshold = sliderVal;
@@ -2071,9 +2113,8 @@ function _keyPressedForSlider(event)
 				input = 100;
 			}
 			
-			$("#weight_slider_bar").slider("option",
-				"value",
-				_reverseTransformValue(input));
+			$("#weight_slider_bar").slider("option", "value",
+				_reverseTransformValue(input / (_maxAlterationPercent / 100)));
 			
 			// update threshold value
 			_geneWeightThreshold = input;
@@ -3028,6 +3069,26 @@ function _transformIntervalValue(value, sourceInterval, targetInterval)
 	return transformed;
 }
 */
+
+/**
+ * Finds and returns the maximum value in a given map.
+ * 
+ * @param map	map that contains real numbers
+ */
+function _getMaxValue(map)
+{
+	var max = 0.0;
+	
+	for (var key in map)
+	{
+		if (map[key] > max)
+		{
+			max = map[key];
+		}
+	}
+	
+	return max;
+}
 
 /**
  * Transforms the input value by using the function: 

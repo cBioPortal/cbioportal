@@ -1,6 +1,7 @@
 
 package org.mskcc.cgds.model;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -76,6 +77,9 @@ public class ProteinArrayInfo {
     }
 
     public Set<Integer> getCancerStudies() {
+        if (cancerStudies==null) {
+            return Collections.emptySet();
+        }
         return cancerStudies;
     }
 

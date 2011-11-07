@@ -24,7 +24,7 @@
         nLinker = "50";
     String diffusion = request.getParameter("diffusion");
     if (diffusion==null)
-        diffusion = "0.2";
+        diffusion = "0";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -184,6 +184,7 @@
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                     heat_map:$("textarea#heat_map").html(),
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
                      linkers:'<%=nLinker%>',

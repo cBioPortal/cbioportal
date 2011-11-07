@@ -88,16 +88,17 @@ sub getNextVersionOfFile{
     my $latestVersion = getLastestVersionOfFile( $CancersFirehoseDataDir, $directoryNamePattern, $fileNamePattern, $cancer, $runDate );
     my($volume, $latestDir, $latestFile ) = File::Spec->splitpath( $latestVersion );
     my $nextDir = $latestDir;
-	#unless ( -d $nextDir) {
-	  #my $mafDir = File::Spec->catfile($CancersFirehoseDataDir, $directoryNamePattern);
-	  #my $cancer_UC = uc( $cancer );
-	  #$mafDir =~ s/<CANCER>/$cancer_UC/;
-	  #$mafDir =~ s/<date><version>/$runDate.0.0/;
-	  #print "cannot find dir to put maf file, making: $mafDir\n";
-	  #$nextDir = File::Util->new->makde_dir($mafDir);
-    #}
+	unless ( -d $nextDir) {
+	  my $mafDir = File::Spec->catfile($CancersFirehoseDataDir, $directoryNamePattern);
+	  my $cancer_UC = uc( $cancer );
+	  $mafDir =~ s/<CANCER>/$cancer_UC/;
+	  my $dateVersion = $runDate . "00.0.0";
+	  $mafDir =~ s/<date><version>/$dateVersion/;
+	  print "cannot find dir to put maf file, making: $mafDir\n";
+	  $nextDir = File::Util->new->make_dir($mafDir);
+	}
     # pattern is '.digit.digit/'
-    $nextDir =~ /(\d)\.(\d)\/$/;
+    $nextDir =~ /(\d)\.(\d)\/?$/;
     unless( defined($1) and defined($2)){
 	  die "Did not match directory pattern correctly on $nextDir.";
     }   

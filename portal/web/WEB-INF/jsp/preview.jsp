@@ -5,7 +5,7 @@
                 <img src="images/previews/thumb_ova_network.png" alt="" />
             </a>
             <span class="ppy-extcaption">
-                <strong>Network of genomic alterations in ? cancer</strong><br /><br />Network of BRCA1, BRCA2 and all altered neighbors, as identified in the TCGA ovarian cancer data set. Pink shading indicates frequency
+                <strong>Network of genomic alterations in Serous Ovarian Cancer.</strong><br /><br />Network of BRCA1, BRCA2 and all altered neighbors, as identified in the TCGA ovarian cancer data set. Pink shading indicates frequency
                 of alteration across all patients (white = low frequency of alteration; red = high frequency of alteration); Green discs indicate rate of mutation across all patients.<br />
                 <br />Data source: TCGA Serous Ovarian Cancer Data Set.
             </span>

@@ -30,7 +30,7 @@ public class ConvertGeneSymbols {
         while (line != null) {
             String geneId = line.trim();
             List<CanonicalGene> geneList = daoGene.guessGene(geneId);
-            if (geneList != null || geneList.size() == 1) {
+            if (geneList != null && geneList.size() == 1) {
                 CanonicalGene gene = geneList.get(0);
                 System.out.println(gene.getHugoGeneSymbolAllCaps());
             }

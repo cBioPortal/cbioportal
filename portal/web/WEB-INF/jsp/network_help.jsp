@@ -120,11 +120,8 @@
 		<li>
 			<span class="bold">Filter by Total Alteration:</span> 
 			Networks can be filtered based on alteration frequencies of individual nodes using a slider under the "Genes" tab. 
-			You can specify a minimum total alteration frequency - all genes with lower alteration frequencies be filtered out, 
-			but seed nodes are kept in the network. In order to facilitate smooth transitions between different threshold values and 
-			to keep the network connected, we use some kind of a diffusion method. 
-			The idea is to diffuse a gene's alteration frequency by reflecting a pre-determined ratio of its alteration frequency to its neighbor. 
-			Thus, genes with no alterations or low alteration frequency will not be filtered out if their neighbors have high alteration frequencies.
+			You can specify a threshold of total alteration frequency - nodes with alteration frequencies below the threshold will be filtered out, 
+			but seed nodes are always kept in the network.
 		</li>
 	</ul>	
 </p>

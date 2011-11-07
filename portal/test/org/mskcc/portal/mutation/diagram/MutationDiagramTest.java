@@ -27,7 +27,7 @@ public final class MutationDiagramTest {
     public void setUp() {
         domain = new Domain("label", 0, 42);
         mutation = new Mutation(42, 2);
-        mutationDiagram = new MutationDiagram("label", 42, EMPTY_DOMAINS, EMPTY_MUTATIONS);
+        mutationDiagram = new MutationDiagram("id", "label", 42, EMPTY_DOMAINS, EMPTY_MUTATIONS);
     }
 
     @Test
@@ -36,18 +36,29 @@ public final class MutationDiagramTest {
     }
 
     @Test(expected=NullPointerException.class)
+    public void testConstructorNullId() {
+        new MutationDiagram(null, "label", 42, EMPTY_DOMAINS, EMPTY_MUTATIONS);
+    }
+
+
+    @Test(expected=NullPointerException.class)
     public void testConstructorNullLabel() {
-        new MutationDiagram(null, 42, EMPTY_DOMAINS, EMPTY_MUTATIONS);
+        new MutationDiagram("id", null, 42, EMPTY_DOMAINS, EMPTY_MUTATIONS);
     }
 
     @Test(expected=NullPointerException.class)
     public void testConstructorNullDomains() {
-        new MutationDiagram("label", 42, null, EMPTY_MUTATIONS);
+        new MutationDiagram("id", "label", 42, null, EMPTY_MUTATIONS);
     }
 
     @Test(expected=NullPointerException.class)
     public void testConstructorNullMutations() {
-        new MutationDiagram("label", 42, EMPTY_DOMAINS, null);
+        new MutationDiagram("id", "label", 42, EMPTY_DOMAINS, null);
+    }
+
+    @Test
+    public void testId() {
+        assertEquals("id", mutationDiagram.getId());
     }
 
     @Test
@@ -68,7 +79,7 @@ public final class MutationDiagramTest {
 
     @Test
     public void testDomains() {
-        mutationDiagram = new MutationDiagram("label", 42, ImmutableList.of(domain), EMPTY_MUTATIONS);
+        mutationDiagram = new MutationDiagram("id", "label", 42, ImmutableList.of(domain), EMPTY_MUTATIONS);
         assertNotNull(mutationDiagram.getDomains());
         assertFalse(mutationDiagram.getDomains().isEmpty());
         assertTrue(mutationDiagram.getDomains().contains(domain));
@@ -87,7 +98,7 @@ public final class MutationDiagramTest {
 
     @Test
     public void testMutations() {
-        mutationDiagram = new MutationDiagram("label", 42, EMPTY_DOMAINS, ImmutableList.of(mutation));
+        mutationDiagram = new MutationDiagram("id", "label", 42, EMPTY_DOMAINS, ImmutableList.of(mutation));
         assertNotNull(mutationDiagram.getMutations());
         assertFalse(mutationDiagram.getMutations().isEmpty());
         assertTrue(mutationDiagram.getMutations().contains(mutation));
@@ -100,13 +111,13 @@ public final class MutationDiagramTest {
 
     @Test
     public void testToJSONStringEmpty() {
-        assertEquals("{\"length\":42,\"label\":\"label\"}", mutationDiagram.toJSONString());
+        assertEquals("{\"id\":\"id\",\"length\":42,\"label\":\"label\"}", mutationDiagram.toJSONString());
     }
 
     @Test
     public void testToJSONString() {
-        mutationDiagram = new MutationDiagram("label", 42, ImmutableList.of(domain), ImmutableList.of(mutation));
-        assertEquals("{\"mutations\":[{\"count\":2,\"location\":42}],\"domains\":[{\"start\":0,\"label\":\"label\",\"end\":42}],\"length\":42,\"label\":\"label\"}", mutationDiagram.toJSONString());
+        mutationDiagram = new MutationDiagram("id", "label", 42, ImmutableList.of(domain), ImmutableList.of(mutation));
+        assertEquals("{\"id\":\"id\",\"mutations\":[{\"count\":2,\"location\":42}],\"domains\":[{\"start\":0,\"label\":\"label\",\"end\":42}],\"length\":42,\"label\":\"label\"}", mutationDiagram.toJSONString());
     }
 }
 

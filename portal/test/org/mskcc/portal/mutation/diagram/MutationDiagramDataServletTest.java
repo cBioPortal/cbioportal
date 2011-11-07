@@ -63,7 +63,7 @@ public final class MutationDiagramDataServletTest {
 
         dataServlet.doPost(request, response);
         verify(response).setContentType("application/json");
-        assertEquals("{\"length\":0,\"label\":\"PIK3CA\\/P42336\"}", stringWriter.toString());
+        assertEquals("{\"id\":\"PIK3CA\",\"length\":800,\"label\":\"PIK3CA\\/P42336\"}", stringWriter.toString());
     }
 
     @Test

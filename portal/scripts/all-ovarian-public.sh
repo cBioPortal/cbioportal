@@ -12,14 +12,20 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 # -->  this script also converts RefSeq IDs to Entrez Gene Ids.
 ./ovarian/preprocess-all.py
 
-# Imports All Case Lists
-./importCaseList.pl $CGDS_DATA_HOME/ovarian/case_lists
+# Imports All Case Lists except cases_protein.txt
+for case in $CGDS_DATA_HOME/ovarian/case_lists/*.txt
+do
+  if [ "$case" != "$CGDS_DATA_HOME/ovarian/case_lists/cases_protein.txt" ]
+	  then
+	  ./importCaseList.pl $case
+  fi
+done
 
 # Imports Clinical Data
 ./importClinicalData.pl $CGDS_DATA_HOME/ovarian/ova_clinical_20110211.txt
 
 # Imports Mutation Data
-./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/3-center_OV.Exome_DNASeq.1.Somatic_and_Germline_WU-Annotation.05jan2011a.filtered.maf --meta $CGDS_DATA_HOME/ovarian/meta_mutations_extended.txt --dbmsAction clobber --germlineWhiteList $CGDS_DATA_HOME/ovarian/ovarianGermlineWhiteList.txt
+./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/3-center_OV.Exome_DNASeq.1.Somatic_and_Germline_WU-Annotation.05jan2011a.filtered.maf --meta $CGDS_DATA_HOME/ovarian/meta_mutations_extended.txt --dbmsAction clobber  --germlineWhiteList $CGDS_DATA_HOME/ovarian/ovarianGermlineWhiteList.txt
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_CNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_CNA.txt --dbmsAction clobber

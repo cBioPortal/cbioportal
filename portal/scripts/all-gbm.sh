@@ -9,7 +9,7 @@ rm -v $CGDS_DATA_HOME/gbm/processed_*
 ./importClinicalData.pl $CGDS_DATA_HOME/gbm/GBM_clinical_portal_20110210.txt
 
 # Load Mutation Data
-./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_mutations_MAF.txt --meta $CGDS_DATA_HOME/gbm/meta_mutations_MAF.txt --dbmsAction clobber  --somaticWhiteList $CGDS_DATA_HOME/universalSomaticGeneWhitelist.txt --somaticWhiteList $CGDS_DATA_HOME/universalSomaticGeneWhitelist.txt
+./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_mutations_MAF.txt --meta $CGDS_DATA_HOME/gbm/meta_mutations_MAF.txt --dbmsAction clobber
 
 # Load CNA Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_CNA_consensus.txt --meta $CGDS_DATA_HOME/gbm/meta_CNA_consensus.txt --dbmsAction clobber

@@ -22,7 +22,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Glioblastoma multiforme">GBM</td>
-<td style="text-align: right;">541</td>
+<td style="text-align: right;">526</td>
 </tr>
 <tr>
 <td class="Tips1" title="Head and Neck squamous cell carcinoma">HNSC</td>
@@ -30,7 +30,11 @@
 </tr>
 <tr>
 <td class="Tips1" title="Kidney renal clear cell carcinoma">KIRC</td>
-<td style="text-align: right;">492</td>
+<td style="text-align: right;">496</td>
+</tr>
+<tr>
+<td class="Tips1" title="Acute Myeloid Leukemia">LAML</td>
+<td style="text-align: right;">131</td>
 </tr>
 <tr>
 <td class="Tips1" title="Brain Lower Grade Glioma">LGG</td>
@@ -50,7 +54,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">562</td>
+<td style="text-align: right;">561</td>
 </tr>
 <tr>
 <td class="Tips1" title="Stomach adenocarcinoma">STAD</td>
@@ -58,7 +62,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
-<td style="text-align: right;">321</td>
+<td style="text-align: right;">322</td>
 </tr>
 </table>
 Based on the Firehose run from 09/21/2011.</p>

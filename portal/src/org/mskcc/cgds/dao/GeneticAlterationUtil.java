@@ -127,7 +127,12 @@ public class GeneticAlterationUtil {
         
         for (ExtendedMutation mutation : mutationList) {
             String caseId = mutation.getCaseId();
-            if (!mutationMap.containsKey(caseId)) {
+            //  Handle the possibility of multiple mutations in the same gene / patient
+            //  Handles issue:  165
+            if (mutationMap.containsKey(caseId)) {
+                String existingStr = mutationMap.get(caseId);
+                mutationMap.put(caseId, existingStr + ";" + mutation.getAminoAcidChange());
+            } else {
                 mutationMap.put(caseId, mutation.getAminoAcidChange());
             }
         }

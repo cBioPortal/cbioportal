@@ -27,6 +27,7 @@ manager.username=tomcat
 manager.password=tomcat
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
+igv.url=http://www.broadinstitute.org/igv/projects/current/launch.php?newSession=True&sessionURL=http://cbio.mskcc.org/cancergenomics/gdac-portal/<SEG_FILE>&genome=hg18&locus=
 
 r_installed=true
 authenticate=true

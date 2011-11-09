@@ -215,10 +215,11 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseList, defaultCaseSet.getStableId(),
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), false, false);
+														   caseList, defaultCaseSet.getStableId(),
+														   zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+														   new HashSet<String>(defaultGeneticProfileSet.keySet()),
+														   new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
+														   false, false, false, "");
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);

@@ -338,7 +338,7 @@ public class NetworkServlet extends HttpServlet {
      * @param n
      * @return 
      */
-    private List<Node> getNodesToRemove(Network network, double diffusion, int n) {
+    private List<Node> getNodesToRemove(final Network network, final double diffusion, final int n) {
         final Map<Node,Double> mapDiffusion = getMapDiffusedTotalAlteredPercentage(network, diffusion);
         
         // keep track of the top nKeep
@@ -346,10 +346,15 @@ public class NetworkServlet extends HttpServlet {
                 new Comparator<Node>() {
                     public int compare(Node n1, Node n2) {
                         int ret = mapDiffusion.get(n1).compareTo(mapDiffusion.get(n2));
-                        if (ret==0) { // if the same diffused perc, use own perc
+                        if (diffusion!=0 && ret==0) { // if the same diffused perc, use own perc
                             ret = Double.compare(getTotalAlteredPercentage(n1),
                                     getTotalAlteredPercentage(n2));
                         }
+                            
+                        if (ret==0) { // if the same, rank according to degree
+                            ret = network.getDegree(n1) - network.getDegree(n2);
+                        }
+                        
                         return ret;
                     }
                 });

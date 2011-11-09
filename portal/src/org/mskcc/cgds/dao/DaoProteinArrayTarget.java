@@ -92,6 +92,31 @@ public class DaoProteinArrayTarget {
             return -1;
         }
     }
+    
+    public Collection<Long> getEntrezGeneIdOfArray(String arrayId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT ENTREZ_GENE_ID FROM protein_array_target "
+                    + "WHERE PROTEIN_ARRAY_ID = ?");
+            pstmt.setString(1, arrayId);
+            
+            Collection<Long> set = new HashSet<Long>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                set.add(rs.getLong(1));
+            }
+            
+            return set;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 
     /**
      * Gets the list of protein array target with the Specified entrez gene ID.

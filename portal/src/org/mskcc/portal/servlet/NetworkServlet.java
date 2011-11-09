@@ -214,11 +214,12 @@ public class NetworkServlet extends HttpServlet {
                         if (querySize>1) {
                             messages.append("s");
                         }
-                        messages.append(" and ");
+                        messages.append(" and the ");
                         messages.append(nAfter-querySize);
-                        messages.append(" (out of ");
+                        messages.append(" most frequently altered neighbor genes ");
+                        messages.append(" (out of a total of ");
                         messages.append(nBefore-querySize);
-                        messages.append(") neighbor genes.\n");
+                        messages.append(").\n");
                     }
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");

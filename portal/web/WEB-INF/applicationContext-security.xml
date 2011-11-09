@@ -63,6 +63,8 @@
       <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
+      <intercept-url pattern="/scatterplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>

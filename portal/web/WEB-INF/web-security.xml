@@ -107,6 +107,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>scatterplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ScatterPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>generatePlots</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
@@ -203,6 +208,16 @@
     <servlet-mapping>
         <servlet-name>boxplot</servlet-name>
         <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.pdf</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -289,7 +289,7 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         //if user specifies cases, add these to hashset, and send to GetMutationData
-            else {
+        else {
             String[] caseIdSplit = caseIds.split("\\s+");
             setOfCaseIds = new HashSet<String>();
             for (String caseID : caseIdSplit){
@@ -371,7 +371,7 @@ public class QueryBuilder extends HttpServlet {
             //  Get Clinical Data
             xdebug.logMsg(this, "Getting Clinical Data:");
             ArrayList <ClinicalData> clinicalDataList =
-                    GetClinicalData.getClinicalData(caseIds, xdebug);
+                    GetClinicalData.getClinicalData(setOfCaseIds);
             xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
                 +  " cases.");
             request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);

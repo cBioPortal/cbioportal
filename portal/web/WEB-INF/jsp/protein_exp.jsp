@@ -223,8 +223,8 @@
                                         ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[8]);
-                                    var abunAltered = parseFloat(obj.aData[9]);
+                                    var abunUnaltered = parseFloat(obj.aData[6]);
+                                    var abunAltered = parseFloat(obj.aData[7]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;

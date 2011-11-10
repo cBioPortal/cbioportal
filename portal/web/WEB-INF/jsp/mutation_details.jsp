@@ -28,8 +28,6 @@
 %>
 
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
         .mutation_datatables_filter {
                 width: 50%;
                 float: right

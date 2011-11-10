@@ -104,13 +104,15 @@ public class DaoProteinArrayInfo {
      */
     public ProteinArrayInfo getProteinArrayInfo(String arrayId) throws DaoException {
         ArrayList<ProteinArrayInfo> pais = getProteinArrayInfo(Collections.singleton(arrayId), null);
-        if (pais.isEmpty())
+        if (pais.isEmpty()) {
             return null;
+        }
         
         return pais.get(0);
     }
     
-    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, Collection<String> types) throws DaoException {
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(Collection<String> arrayIds, Collection<String> types)
+            throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -148,6 +150,10 @@ public class DaoProteinArrayInfo {
         
         return pais;
     }
+    
+    public ArrayList<ProteinArrayInfo> getProteinArrayInfo(int cancerStudyId) throws DaoException {
+        return getProteinArrayInfoForType(cancerStudyId, null);
+    }
 
     /**
      * Gets all Protein array information in the Database.
@@ -176,6 +182,42 @@ public class DaoProteinArrayInfo {
                         +StringUtils.join(types, "','")+"') AND PROTEIN_ARRAY_ID in ('"
                             +StringUtils.join(arrayIds, "','")+"')");
             }
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String arrayId = rs.getString("PROTEIN_ARRAY_ID");
+                ProteinArrayInfo pai = new ProteinArrayInfo(arrayId,
+                        rs.getString("TYPE"),
+                        rs.getString("SOURCE_ORGANISM"),
+                        rs.getString("GENE_SYMBOL"),
+                        rs.getString("TARGET_RESIDUE"),
+                        rs.getBoolean("VALIDATED"),
+                        getCancerTypesOfArray(arrayId));
+                list.add(pai);
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Gets all Protein array information in the Database.
+     *
+     * @return ArrayList of ProteinArrayInfoes.
+     * @throws DaoException Database Error.
+     */
+    public ArrayList<ProteinArrayInfo> getAllProteinArrayInfo() throws DaoException {
+        ArrayList<ProteinArrayInfo> list = new ArrayList<ProteinArrayInfo>();
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM protein_array_info");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String arrayId = rs.getString("PROTEIN_ARRAY_ID");

@@ -99,7 +99,7 @@ public class HtmlUtil {
             String header = dataFieldList.get(i);
             //  Do not allow breaking of 0th column
             if (i==0) {
-                header = "<nobr>" + header + "<nobr>";
+                header = "<nobr>" + header + "</nobr>";
             }
             writer.append("<td>" + header + "</td>");
         }

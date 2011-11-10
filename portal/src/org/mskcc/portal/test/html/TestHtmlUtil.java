@@ -77,7 +77,7 @@ public class TestHtmlUtil extends TestCase {
         dataFieldList.add("10021");
         String html = HtmlUtil.createTableRow(dataFieldList);
         assertEquals("<tr>\n" +
-                "<td>Ethan</td>\n" +
+                "<td><nobr>Ethan</nobr></td>\n" +
                 "<td>Cerami</td>\n" +
                 "<td>10021</td>\n" +
                 "</tr>\n", html);

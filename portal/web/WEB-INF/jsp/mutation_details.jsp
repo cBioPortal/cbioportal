@@ -29,12 +29,18 @@
 
 <style type="text/css" title="currentStyle"> 
         .mutation_datatables_filter {
-                width: 50%;
-                float: right
+                width: 40%;
+                float: right;
+                padding-top:5px;
+                padding-bottom:5px;
+                padding-right:5px;
         }
         .mutation_datatables_info {
-                width: auto;
+                width: 55%;
                 float: left;
+                padding-left:5px;
+                padding-top:7px;
+                font-size:90%;
         }
 </style>
 
@@ -73,7 +79,7 @@ $(document).ready(function(){
 
             //  Table column headers
             out.println("<thead>");
-            out.println(mutationTableUtil.getTableHeaderHtml());
+            out.println(mutationTableUtil.getTableHeaderHtml() + "<BR>");
             out.println("</thead>");
 
             //  Mutations are sorted by case

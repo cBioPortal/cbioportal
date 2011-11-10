@@ -116,17 +116,42 @@ function initNetworkUI(vis)
 	_initSliders();
 	_initTooltipStyle();
 	
-	// init tabs
+	// add listener for the main tabs to hide dialogs when user selects
+	// a tab other than the Network tab
+	$("#tabs").bind("tabsshow", hideDialogs);
+	
+	// this is required to prevent hideDialogs function to be invoked
+	// when clicked on a network tab
+	$("#network_tabs").bind("tabsshow", false);
+	
+	// init tabs	
 	$("#network_tabs").tabs();
+	
 	_initGenesTab();
 	_refreshGenesTab();
 	_refreshRelationsTab();
-
+	
 	// adjust things for IE
 	_adjustIE();
 	
 	// make UI visible
 	_setVisibility(true);
+}
+
+/**
+ * Hides all dialogs upon selecting a tab other than the network tab.
+ */
+function hideDialogs(evt, ui)
+{
+	// get the index of the tab that is currently selected
+	// var selectIdx = $("#tabs").tabs("option", "selected");
+	
+	// close all dialogs
+	$("#settings_dialog").dialog("close");
+	$("#node_inspector").dialog("close");
+	$("#edge_inspector").dialog("close");
+	$("#node_legend").dialog("close");
+	$("#edge_legend").dialog("close");
 }
 
 /**
@@ -637,6 +662,13 @@ function _addPubMedIds(data, summaryEdge)
 	for (var i = 0; i < ids.length; i++)
 	{
 		link = _resolveXref(ids[i]);
+		
+		if (link.href == "#")
+		{
+			// skip unknown sources
+			continue;
+		}
+		
 		xref = '<a href="' + link.href + '" target="_blank">' +
 			link.pieces[1] + '</a>';
 		
@@ -867,7 +899,7 @@ function updateEdges()
 	
     // filter disconnected nodes if necessary
     _filterDisconnected();
-	
+    
 	// visualization changed, perform layout if necessary
 	_visChanged();
 }

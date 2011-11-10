@@ -291,7 +291,14 @@
  * ################### Edge inspector #####################
  * ########################################################
  */
- 
+
+#edge_inspector .data, #edge_inspector .xref
+{
+	/* centering the tables */
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #edge_inspector .top-row td
 {
 	border-top: 1px solid #aaaaaa;

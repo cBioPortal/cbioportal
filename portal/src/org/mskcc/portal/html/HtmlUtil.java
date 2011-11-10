@@ -95,7 +95,12 @@ public class HtmlUtil {
     }
 
     private static void outputDataFields(ArrayList<String> dataFieldList, HtmlWriter writer) {
-        for (String header:  dataFieldList) {
+        for (int i=0; i<dataFieldList.size(); i++) {
+            String header = dataFieldList.get(i);
+            //  Do not allow breaking of 0th column
+            if (i==0) {
+                header = "<nobr>" + header + "<nobr>";
+            }
             writer.append("<td>" + header + "</td>");
         }
     }

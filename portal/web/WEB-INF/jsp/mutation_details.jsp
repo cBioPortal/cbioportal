@@ -27,6 +27,19 @@
     out.println("</div>");
 %>
 
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .mutation_datatables_filter {
+                width: 50%;
+                float: right
+        }
+        .mutation_datatables_info {
+                width: auto;
+                float: left;
+        }
+</style>
+
 <script type="text/javascript">
 
 //  Place mutation_details_table in a JQuery DataTable
@@ -35,6 +48,7 @@ $(document).ready(function(){
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
           $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+              "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
               "bPaginate": false,
               "bFilter": true
           } );

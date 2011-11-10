@@ -36,6 +36,7 @@ import org.mskcc.cgds.web_api.GetProfileData;
 import org.mskcc.cgds.web_api.GetProteinArrayData;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
+import org.mskcc.cgds.util.WebserviceParserUtils;
 
 /**
  * Core Web Service.
@@ -289,9 +290,8 @@ public class WebService extends HttpServlet {
         }
         ArrayList<String> targetCaseIds = null;
         if (null != httpServletRequest.getParameter(CASE_LIST)
-                || null != httpServletRequest.getParameter(CASE_SET_ID)) {
-            targetCaseIds = getCaseList(httpServletRequest);
-        }
+                || null != httpServletRequest.getParameter(CASE_SET_ID))
+            targetCaseIds = WebserviceParserUtils.getCaseList(httpServletRequest);
         writer.print(GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayId.split(" ")), targetCaseIds));
     }
 
@@ -350,7 +350,7 @@ public class WebService extends HttpServlet {
 
     private void getProfileData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
-        ArrayList<String> caseList = getCaseList(request);
+        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = getGeneticProfileId(request);
         ArrayList<String> targetGeneList = getGeneList(request);
@@ -370,7 +370,7 @@ public class WebService extends HttpServlet {
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        HashSet<String> caseSet = new HashSet<String>(getCaseList(request));
+        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
         String out = GetClinicalData.getClinicalData(caseSet);
         writer.print(out);
     }
@@ -406,7 +406,7 @@ public class WebService extends HttpServlet {
 
     private void getMutationData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        ArrayList<String> caseList = getCaseList(request);
+        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = getGeneticProfileId(request);
         String geneticProfileId = geneticProfileIdList.get(0);
@@ -457,33 +457,6 @@ public class WebService extends HttpServlet {
             geneticProfileIdList.add(geneticProfileId);
         }
         return geneticProfileIdList;
-    }
-
-    private ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
-            DaoException {
-        String cases = request.getParameter(CASE_LIST);
-        String caseSetId = request.getParameter(CASE_SET_ID);
-
-        ArrayList<String> caseList = new ArrayList<String>();
-        if (caseSetId != null) {
-            DaoCaseList dao = new DaoCaseList();
-            CaseList selectedCaseList = dao.getCaseListByStableId(caseSetId);
-            if (selectedCaseList == null) {
-                throw new ProtocolException("Invalid " + CASE_SET_ID + ":  " + caseSetId + ".");
-            }
-            caseList = selectedCaseList.getCaseList();
-        } else if (cases != null) {
-            for (String aCase : cases.split("[\\s,]+")) {
-                aCase = aCase.trim();
-                if (aCase.length() == 0) {
-                    continue;
-                }
-                caseList.add(aCase);
-            }
-        } else {
-            throw new ProtocolException(CASE_SET_ID + " or " + CASE_LIST + " must be specified.");
-        }
-        return caseList;
     }
 
     private void outputMissingParameterError(PrintWriter writer, String missingParameter) {

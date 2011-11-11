@@ -73,12 +73,12 @@ public class QueryBuilder extends HttpServlet {
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final String MUTATION_MAP = "MUTATION_MAP";
     public static final int MUTATION_DETAIL_LIMIT = 10;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
     public static final String INDEX_PAGE = "index.do";
+    public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
 
     private ServletXssUtil servletXssUtil;
 
@@ -289,7 +289,7 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         //if user specifies cases, add these to hashset, and send to GetMutationData
-            else {
+        else {
             String[] caseIdSplit = caseIds.split("\\s+");
             setOfCaseIds = new HashSet<String>();
             for (String caseID : caseIdSplit){
@@ -357,8 +357,7 @@ public class QueryBuilder extends HttpServlet {
         }
         
         //  Store Extended Mutations
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList);
-        request.setAttribute(MUTATION_MAP, mutationMap);
+        request.setAttribute(INTERNAL_EXTENDED_MUTATION_LIST, mutationList);
 
         // Store download links in session (for possible future retrieval).
         request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
@@ -372,7 +371,7 @@ public class QueryBuilder extends HttpServlet {
             //  Get Clinical Data
             xdebug.logMsg(this, "Getting Clinical Data:");
             ArrayList <ClinicalData> clinicalDataList =
-                    GetClinicalData.getClinicalData(caseIds, xdebug);
+                    GetClinicalData.getClinicalData(setOfCaseIds);
             xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
                 +  " cases.");
             request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);
@@ -391,6 +390,7 @@ public class QueryBuilder extends HttpServlet {
             String output = servletXssUtil.getCleanInput(request, OUTPUT);
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+            request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
 
             if (output != null) {
 
@@ -469,6 +469,7 @@ public class QueryBuilder extends HttpServlet {
             throws IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
+		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
         writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -480,20 +481,34 @@ public class QueryBuilder extends HttpServlet {
         writer.write ("<body style=\"background-color:#FFFFFF\">\n");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                geneticProfileIdSet, profileList, true, true);
+												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+												 geneticProfileIdSet, profileList, true, true,
+												 true, cancerStudyIdentifier);
         writer.write(out);
         
         // TODO: hacky way for su2c
-        String cancerStudyId = (String)request.getAttribute(CANCER_STUDY_ID);
-        if (cancerStudyId.equals("grayBreastCellLine")) {
-            writer.write("<br/><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+        if (cancerStudyIdentifier.equals("grayBreastCellLine")) {
+            writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
             writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
                     + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
             writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
-            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser<font/>"
+            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser</font>"
                     + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-        }
+		}
+
+		// links to igv
+		String igvURL = GlobalProperties.getIGVUrl();
+		if (igvURL != null) {
+			igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg");
+			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
+			if (geneList != null && geneList.size() > 0) {
+				igvURL += StringUtils.join(geneList,"%20");
+				writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+				writer.write(igvURL);
+				writer.write("\"><font color=\"#1974b8\" size=\"1\">Integrative Genomics Viewer</font>" +
+							 "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
+			}
+		}
         
         writer.write ("</body>\n");
         writer.write ("</html>\n");
@@ -509,9 +524,9 @@ public class QueryBuilder extends HttpServlet {
         response.setContentType("image/svg+xml");
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseSetList, caseSetId,
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                geneticProfileIdSet, profileList, true, true);
+												 caseSetList, caseSetId,
+												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+												 geneticProfileIdSet, profileList, true, true, false, "");
         PrintWriter writer = response.getWriter();
         writer.write(out);
         writer.flush();

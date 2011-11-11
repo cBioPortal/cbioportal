@@ -8,6 +8,9 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 
+/**
+ * JUnit tests for DaoMicroRna class.
+ */
 public class TestDaoMicroRna extends TestCase {
 
     public void testDaoMicroRna() throws DaoException {

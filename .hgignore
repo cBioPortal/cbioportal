@@ -8,6 +8,7 @@ portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
+portal/checkstyle_report.xml
 \.orig\..*$
 \.orig$
 \.chg\..*$

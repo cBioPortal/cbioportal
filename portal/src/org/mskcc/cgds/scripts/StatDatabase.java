@@ -3,6 +3,10 @@ package org.mskcc.cgds.scripts;
 import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.util.DatabaseProperties;
 
+/**
+ * Command Line Tool to Output Basic Database Stats, including Host Name, DB Name, and User Name / Password.
+ * 
+ */
 public class StatDatabase {
 
     public static void main(String[] args) throws DaoException {

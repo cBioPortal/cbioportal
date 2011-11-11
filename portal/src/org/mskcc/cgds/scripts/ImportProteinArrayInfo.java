@@ -87,9 +87,6 @@ public class ImportProteinArrayInfo {
             }
             
         }
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //daoMutSig.flushGenesToDatabase();
-        }
     }
     
     public static void main(String[] args) throws Exception {

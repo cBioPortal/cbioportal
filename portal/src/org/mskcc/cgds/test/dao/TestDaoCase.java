@@ -7,6 +7,9 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 
+/**
+ * JUnit test for DaoCase class
+ */
 public class TestDaoCase extends TestCase {
 
     public void testDaoCase() throws DaoException {

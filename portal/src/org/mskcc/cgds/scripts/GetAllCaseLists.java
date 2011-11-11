@@ -6,6 +6,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.util.ArrayList;
 
+/**
+ * Command Line Tool to Export All Case Lists to the Console.
+ */
 public class GetAllCaseLists {
 
     public static void main(String[] args) throws Exception {

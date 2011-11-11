@@ -7,17 +7,20 @@ import junit.framework.TestCase;
 
 import org.mskcc.cgds.scripts.ComputeZScoreUnit;
 
+/**
+ * JUnit test for ComputeZScoreUnit class.
+ */
 public class TestComputeZScoreUnit extends TestCase {
    
    public void testComputeZScoreUnit(){
       
-      String Args[] = { "test_data/test_all_thresholded.by_genes.txt", "test_data/test_PR_GDAC_CANCER.medianexp.txt",
+      String args[] = { "test_data/test_all_thresholded.by_genes.txt", "test_data/test_PR_GDAC_CANCER.medianexp.txt",
                "test_data/data_mRNA_ZbyNorm.txt" };
       try {
-         ComputeZScoreUnit.main(Args);
+         ComputeZScoreUnit.main(args);
          // compare with correct
          String line;
-         Process p = Runtime.getRuntime().exec("diff "+ "test_data/correct_data_mRNA_ZbyNorm.txt " + Args[2] );
+         Process p = Runtime.getRuntime().exec("diff "+ "test_data/correct_data_mRNA_ZbyNorm.txt " + args[2] );
          BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()) );
          while ((line = input.readLine()) != null) {
             assertEquals ( "", line );

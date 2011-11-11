@@ -5,8 +5,6 @@ package org.mskcc.cgds.util;
 import org.mskcc.cgds.model.CancerStudy;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.access.PermissionEvaluator;
 
@@ -33,7 +31,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	 * We do not support this method call.
 	 */
 	public boolean hasPermission(Authentication authentication, Serializable targetId,
-								 String targetType, Object permission) throws UnsupportedOperationException {
+								 String targetType, Object permission) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -47,8 +45,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		if (log.isDebugEnabled()) {
 			if (cancerStudy == null) {
 				log.debug("hasPermission(), cancer study is null.");
-			}
-			else {
+			} else {
 				log.debug("hasPermission(), cancer study id (internal ID): " + cancerStudy.getInternalId());
 			}
             if (authentication == null) {
@@ -73,9 +70,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         // bypass granted authorities check
         if (publicStudy || (publicStudy && authentication == null)) {
             return true;
-        }
         // private study and anonymous user does not get permission
-        else if (!publicStudy && authentication == null) {
+        } else if (!publicStudy && authentication == null) {
             return false;
         }
 

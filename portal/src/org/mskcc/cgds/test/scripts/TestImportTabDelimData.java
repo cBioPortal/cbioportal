@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * JUnit tests for ImportTabDelimData class.
+ */
 public class TestImportTabDelimData extends TestCase {
 
     /**

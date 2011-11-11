@@ -100,10 +100,10 @@ public final class HashCodeUtil {
     }
 
     // / PRIVATE ///
-    private static final int fODD_PRIME_NUMBER = 37;
+    private static final int FODD_PRIME_NUMBER = 37;
 
     private static int firstTerm(int aSeed) {
-        return fODD_PRIME_NUMBER * aSeed;
+        return FODD_PRIME_NUMBER * aSeed;
     }
 
     private static boolean isArray(Object aObject) {

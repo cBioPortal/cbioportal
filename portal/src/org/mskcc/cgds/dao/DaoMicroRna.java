@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/**
+ * Data access object for MicroRna table
+ */
 public class DaoMicroRna {
 
    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table

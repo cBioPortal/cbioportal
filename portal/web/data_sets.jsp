@@ -21,7 +21,7 @@
 <div id="main">
     <table cellspacing="2px">
         <tr>
-            <td width="608">
+            <td width="100%">
                 <h1>Data Sets</h1>
            <div class="markdown">
 

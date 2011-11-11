@@ -59,8 +59,7 @@ public class AccessControlImpl implements AccessControl {
             finalCancerStudiesList.addAll(accessibleCancerStudies);
             
             return finalCancerStudiesList;
-        }
-        else {
+        } else {
             throw new ProtocolException("No cancer studies accessible; "+
                                         "either provide credentials to access private studies, " +
                                         "or ask administrator to load public ones.\n");
@@ -99,8 +98,7 @@ public class AccessControlImpl implements AccessControl {
                 buf.append(cancerStudy.getDescription() + "\n");
             }
             return buf.toString();
-        }
-        else {
+        } else {
             throw new ProtocolException("No cancer studies accessible; " + 
                                         "either provide credentials to access private studies, " +
                                         "or ask administrator to load public ones.\n");

@@ -9,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Data access object for Genetic Profile table
+ */
 public class DaoGeneticProfile {
    
    // TODO: these methods should be static, as this object has no state

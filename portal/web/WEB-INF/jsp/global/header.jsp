@@ -22,7 +22,7 @@
 
 <center>
 <div id="page_wrapper">
-<table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
+<table width=100% cellpadding="0px" cellspacing="5px" border="0px">
   <tr valign="top">
     <td colspan="3">
 	 <div id="header_wrapper">
@@ -96,5 +96,5 @@
   </tr>
 
   <tr valign="top">
-    <td>
+    <td width="70%">
         <div id="content">

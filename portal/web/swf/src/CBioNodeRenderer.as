@@ -108,25 +108,24 @@ package org.cytoscapeweb.view.render
 						drawDetails(d, size/2);
 					}
 					
-					// Bottom half of the genes is colored according to total alteration percentage
+					// Genes are colored according to total alteration percentage
 					var total:Number = Number(d.data.PERCENT_ALTERED) * 100;
 
-					g.beginFill(getNodeColorRW(total), 50);					
-					drawSolidArc(0, 0, size/2, 0, 0/360, 180/360, 90,g);
+					g.beginFill(getNodeColorRW(total), 50);
 					
-					// Top half of the genes is colored according to the IN_QUERY property
+					// Seeded genes (IN_QUERY = true) are drawn with thicker borders
 					var inQuery:String = d.data.IN_QUERY;
 					
-					if(inQuery == "false")
+					if (inQuery == "false")
 					{
-						g.beginFill(0xDCDCDC, 50);
+						g.lineStyle(1, 0x000000, 1);
 					}
 					else
 					{
-						g.beginFill(0x111111, 50);
+						g.lineStyle(5, 0x000000, 1);
 					}
 
-					drawSolidArc(0, 0, size/2, 0, 0/360, -180/360, 90,g);
+					g.drawCircle(0, 0, size/2);
 			}
 		}
 		
@@ -260,22 +259,22 @@ package org.cytoscapeweb.view.render
 
 				g.lineStyle(0, 0xFFFFFF, 0);
 
-				var hemizygousDeletionArc:int = hemizygousDeletion;
-				g.beginFill(0x9EDFE0, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360, (hemizygousDeletionArc/360), smoothness, g);
-				
-				var gainArc:int = gain;
-				g.beginFill(0xFFC5CC, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + (hemizygousDeletionArc/360), (gainArc/360), smoothness,g);			
-				
 				var amplificationArc:int = amplification;
 				g.beginFill(0xFF2500, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc)/360), (amplificationArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360, (amplificationArc/360), smoothness, g);
 				
 				var homozygousDeletionArc:int = homozygousDeletion;
 				g.beginFill(0x0332FF, 50);
-				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((hemizygousDeletionArc+gainArc+amplificationArc)/360), (homozygousDeletionArc/360), smoothness,g);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + (amplificationArc/360), (homozygousDeletionArc/360), smoothness,g);			
 				
+				var gainArc:int = gain;
+				g.beginFill(0xFFC5CC, 50);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((amplificationArc+homozygousDeletionArc)/360), (gainArc/360), smoothness,g);
+				
+				var hemizygousDeletionArc:int = hemizygousDeletion;
+				g.beginFill(0x9EDFE0, 50);
+				drawSolidArc (0, 0, innerRadius, outerRadius, 220/360 + ((amplificationArc+homozygousDeletionArc+gainArc)/360), (hemizygousDeletionArc/360), smoothness,g);
+
 				g.lineStyle(1, 0x000000, 1);
 			}	
 			else
@@ -408,14 +407,32 @@ package org.cytoscapeweb.view.render
 			var high:int = 100;
 			var low:int = 0;
 			
-			var highCRed:int = 230;
+			var highCRed:int = 255;
 			var highCGreen:int = 0;
 			var highCBlue:int = 0;
 			
 			var lowCRed:int = 255;
 			var lowCGreen:int = 255;
 			var lowCBlue:int = 255;
-						
+			
+			// transform percentage value by using the formula:
+			// y = 0.000166377 x^3  +  -0.0380704 x^2  +  3.14277x
+			// instead of linear scaling, we use polynomial scaling to better
+			// emphasize lower alteration frequencies
+			value = (0.000166377 * value * value * value) -
+				(0.0380704 * value * value) +
+				(3.14277 * value);
+			
+			// check boundary values
+			if (value > 100)
+			{
+				value = 100;
+			}
+			else if (value < 0)
+			{
+				value = 0;
+			}
+			
 			if (value >= high)
 			{
 				return rgb2hex(highCRed, highCGreen, highCBlue);

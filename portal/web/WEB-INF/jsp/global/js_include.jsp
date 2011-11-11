@@ -8,6 +8,7 @@
 <script type="text/javascript" src="js/global-tabs.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
 <script type="text/javascript" src="js/mailme.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 
 <!-- Google Analytics -->
 <script type="text/javascript">

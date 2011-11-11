@@ -20,7 +20,7 @@ public class ConsoleUtil {
      *
      * @param pMonitor ProgressMonitor Object.
      */
-    public synchronized static void showProgress(ProgressMonitor pMonitor) {
+    public static synchronized void showProgress(ProgressMonitor pMonitor) {
         if (pMonitor.isConsoleMode()) {
             int currentValue = pMonitor.getCurValue();
             if (currentValue % 100 == 0) {

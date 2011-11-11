@@ -121,9 +121,9 @@ public class GenerateMutationData {
 		ArrayList<CanonicalGene> geneList = daoGene.getAllGenes();
 
 		for (CanonicalGene canonicalGene : geneList) {
-			for (String _case : allCasesList) {
+			for (String caseId : allCasesList) {
 				toReturn.put(Long.toString(canonicalGene.getEntrezGeneId())
-                        + GenerateMutationData.MAP_KEY_DELIMETER + _case, "NaN");
+                        + GenerateMutationData.MAP_KEY_DELIMETER + caseId, "NaN");
 			}
 		}
 

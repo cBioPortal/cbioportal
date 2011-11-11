@@ -94,7 +94,7 @@ foreach my $sub ( $FirehoseTransformationWorkflow->get_subroutine_sequence() ) {
             push @fullFiles, $fullFn;
 			push @cTables, Data::CTable->new( { _CacheOnRead => 0 }, $fullFn );
 
-            if( $FirehoseTransformationWorkflow->getOutputFile($sub) =~ /^$Utilities::dataFilePrefix/ ){
+            if( $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer') =~ /^$Utilities::dataFilePrefix/ ){
 	            my $ffm = FirehoseFileMetadata->new( $file, $fullFn );
 	            if( defined( $ffm ) ){
 	                push @ffms, $ffm;
@@ -102,7 +102,7 @@ foreach my $sub ( $FirehoseTransformationWorkflow->get_subroutine_sequence() ) {
             }
 		}
 
-		my $CGDSfile = File::Spec->catfile( $CGDSdir, $FirehoseTransformationWorkflow->getOutputFile($sub) );
+		my $CGDSfile = File::Spec->catfile( $CGDSdir, $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer') );
 
         ###############
         # TEST calling sub declared in $FirehoseTransformationWorkflow
@@ -116,7 +116,7 @@ foreach my $sub ( $FirehoseTransformationWorkflow->get_subroutine_sequence() ) {
 
         my $correctOutputFile =
           File::Spec->catfile( $subsTestRootDir, $dir,
-            'correct_out_' . $FirehoseTransformationWorkflow->getOutputFile($sub) );
+            'correct_out_' . $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer') );
 
         my $extraArg = $FirehoseTransformationWorkflow->getArgs( $sub );
         unless( defined( $extraArg )){
@@ -124,7 +124,7 @@ foreach my $sub ( $FirehoseTransformationWorkflow->get_subroutine_sequence() ) {
         }
         my $testName =
           "testing in directory $dir: $sub( globalHash, [firehoseFiles], [cTables], "
-          . $FirehoseTransformationWorkflow->getOutputFile($sub) . ', [CGDS code dir], '
+          . $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer') . ', [CGDS code dir], '
           . $extraArg . ' )'; 
 
         # test that correct error is produced
@@ -176,14 +176,14 @@ foreach my $sub ( $FirehoseTransformationWorkflow->get_subroutine_sequence() ) {
         	
         }
 
-        if( $FirehoseTransformationWorkflow->getOutputFile($sub) =~ /^$Utilities::dataFilePrefix/ ){
+        if( $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer') =~ /^$Utilities::dataFilePrefix/ ){
 
 	    createMetaFile( 'GENERIC_CANCER', $CGDSdir, 
-	       $FirehoseTransformationWorkflow->getOutputFile($sub), $cases, $genes );
+	       $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer'), $cases, $genes );
         }
 
         # get correct meta file
-        my $metaFilename = $FirehoseTransformationWorkflow->getOutputFile($sub);
+        my $metaFilename = $FirehoseTransformationWorkflow->getOutputFile($sub, 'Generic_Cancer');
         $metaFilename =~ s/$Utilities::dataFilePrefix/$Utilities::metaFilePrefix/; 
         my $metaFile = File::Spec->catfile( $CGDSdir, $metaFilename );
 

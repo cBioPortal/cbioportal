@@ -3,12 +3,12 @@ package org.mskcc.portal.mapback;
 import java.util.ArrayList;
 
 /**
- * Encapsulates information regarding GenBank Record:  U14680
+ * Encapsulates information regarding GenBank Record:  U14680 for BRCA1.
  *
  * http://www.ncbi.nlm.nih.gov/nuccore/555931?report=genbank
  *
  */
-public class Brca1 extends Gene {
+public class Brca1 extends MapBackGene {
     private ArrayList <Mapping> mappingList;
     private String dna;
 

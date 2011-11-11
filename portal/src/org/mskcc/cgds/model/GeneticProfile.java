@@ -2,6 +2,9 @@ package org.mskcc.cgds.model;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+/**
+ * Class for genetic profile
+ */
 public class GeneticProfile {
     private int geneticProfileId;
     private String stableId;
@@ -91,6 +94,7 @@ public class GeneticProfile {
         this.showProfileInAnalysisTab = showProfileInAnalysisTab;
     }
     
+    @Override
     public String toString() {
        return ToStringBuilder.reflectionToString(this);
     }

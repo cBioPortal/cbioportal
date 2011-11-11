@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Data access object for Case table
+ */
 public class DaoCase {
    
    public static final int NO_SUCH_PROFILE_ID = -1;

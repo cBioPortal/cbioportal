@@ -11,7 +11,7 @@
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 
     <div id="main">
-    <table cellspacing="2px">
+        <table cellspacing="2px">
         <tr>
             <td>
                 <h1>Video Tutorial</h1>

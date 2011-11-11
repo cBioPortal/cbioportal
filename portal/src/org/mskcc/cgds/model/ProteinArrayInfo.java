@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- *
+ * Class for protein array information
  * @author jj
  */
 public class ProteinArrayInfo {

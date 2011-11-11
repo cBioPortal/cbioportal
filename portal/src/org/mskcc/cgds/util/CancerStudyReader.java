@@ -59,8 +59,7 @@ public class CancerStudyReader {
       return cancerStudy;
    }
    
-   private static boolean publicStudy( Properties properties )
-   throws IllegalArgumentException{
+   private static boolean publicStudy( Properties properties ) {
       String studyAccess = properties.getProperty("study_access");
       if ( studyAccess != null) {
          if( studyAccess.equals("public") ){

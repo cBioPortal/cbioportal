@@ -4,6 +4,9 @@ import org.mskcc.cgds.model.CanonicalGene;
 
 import java.util.Comparator;
 
+/**
+ * Compares two genes by their HUGO Symbols--ignores case
+ */
 class GeneComparator implements Comparator {
 
     public int compare(Object o, Object o1) {

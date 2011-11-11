@@ -3,9 +3,12 @@ package org.mskcc.portal.util;
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
 import org.mskcc.portal.model.*;
+import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,25 +30,31 @@ public class MakeOncoPrint {
 
     /**
      * Generate the OncoPrint in HTML or SVG.
-     * @param geneList              List of Genes.
-     * @param mergedProfile         Merged Data Profile.
-     * @param caseSets              All Case Sets for this Cancer Study.
-     * @param caseSetId             Selected Case Set ID.
-     * @param zScoreThreshold       Z-Score Threshhold
-     * @param theOncoPrintType      OncoPrint Type.
-     * @param showAlteredColumns    Show only the altered columns.
-     * @param geneticProfileIdSet   IDs for all Genomic Profiles.
-     * @param profileList           List of all Genomic Profiles.
+     * @param geneList                  List of Genes.
+     * @param mergedProfile             Merged Data Profile.
+     * @param caseSets                  All Case Sets for this Cancer Study.
+     * @param caseSetId                 Selected Case Set ID.
+     * @param zScoreThreshold           Z-Score Threshhold
+     * @param theOncoPrintType          OncoPrint Type.
+     * @param showAlteredColumns        Show only the altered columns.
+     * @param geneticProfileIdSet       IDs for all Genomic Profiles.
+     * @param profileList               List of all Genomic Profiles.
+	 * @param includeCaseSetDescription Include case set description boolean.
+	 * @param includeLegend             Include legend boolean.
+	 * @param includeIGVLinks           Include IGV links boolean.
+	 * @param cancerStudy               Cancer Study Identifier - used for IGV links.
      * @throws IOException IO Error.
      */
     public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
-            ArrayList<CaseList> caseSets, String caseSetId, double zScoreThreshold,
-            OncoPrintType theOncoPrintType,
-            boolean showAlteredColumns,
-            HashSet<String> geneticProfileIdSet,
-            ArrayList<GeneticProfile> profileList,
-            boolean includeCaseSetDescription,
-            boolean includeLegend
+									   ArrayList<CaseList> caseSets, String caseSetId, double zScoreThreshold,
+									   OncoPrintType theOncoPrintType,
+									   boolean showAlteredColumns,
+									   HashSet<String> geneticProfileIdSet,
+									   ArrayList<GeneticProfile> profileList,
+									   boolean includeCaseSetDescription,
+									   boolean includeLegend,
+									   boolean includeIGVLinks,
+									   String cancerStudyIdentifier
     ) throws IOException {
         StringBuffer out = new StringBuffer();
 
@@ -147,9 +156,9 @@ public class MakeOncoPrint {
                 int height = 17;
 
                 writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
-                        theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-                        out, spacing, padding, width, height, includeCaseSetDescription,
-                        includeLegend);
+								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
+								   out, spacing, padding, width, height, includeCaseSetDescription,
+								   includeLegend, includeIGVLinks, cancerStudyIdentifier);
                 break;          // exit the switch
         }
         return out.toString();
@@ -220,16 +229,22 @@ public class MakeOncoPrint {
      * @param cellpadding               Cellpadding.
      * @param width                     Width.
      * @param height                    Height.
+	 * @param includeCaseSetDescription Include case set description boolean.
+	 * @param includeLegend             Include legend boolean.
+	 * @param includeIGVLinks           Include IGV links boolean.
+	 * @param cancerStudy               Cancer Study Identifier - used for IGV links.
      */
     static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
-            GeneticEvent matrix[][],
-            int numColumnsToShow, boolean showAlteredColumns,
-            OncoPrintSpecification theOncoPrintSpecification,
-            ProfileDataSummary dataSummary,
-            StringBuffer out,
-            int cellspacing, int cellpadding, int width, int height,
-            boolean includeCaseSetDescription,
-            boolean includeLegend) {
+								   GeneticEvent matrix[][],
+								   int numColumnsToShow, boolean showAlteredColumns,
+								   OncoPrintSpecification theOncoPrintSpecification,
+								   ProfileDataSummary dataSummary,
+								   StringBuffer out,
+								   int cellspacing, int cellpadding, int width, int height,
+								   boolean includeCaseSetDescription,
+								   boolean includeLegend,
+								   boolean includeIGVLinks, String cancerStudyIdentifier
+		) {
 
         out.append("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n" +
                 "<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>") ;
@@ -284,17 +299,29 @@ public class MakeOncoPrint {
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
+			String gene = rowEvent.getGene().toUpperCase();
+
+			if (includeIGVLinks) {
+				String igvURL = GlobalProperties.getIGVUrl();
+				if (igvURL != null) {
+					igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg") + gene;
+					StringBuilder igvLinkBuilder = new StringBuilder();
+					igvLinkBuilder.append("<div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+					igvLinkBuilder.append(igvURL);
+					igvLinkBuilder.append("\"><font color=\"#1974b8\" size=\"1\">" + gene + "</font></a><div>");
+					gene = igvLinkBuilder.toString();
+				}
+			}
 
             // new row
             out.append("<tr>");
 
             // output cell with gene name, CSS does left justified
-            out.append("<td>" + rowEvent.getGene().toUpperCase() + "</td>\n");
+            out.append("<td>" + gene + "</td>\n");
 
             // output total % altered, right justified
             out.append("<td style=\" text-align: right\">");
-            out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered
-                    (rowEvent.getGene())));
+            out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene())));
             out.append("</td>\n");
 
             // for each case

@@ -7,11 +7,9 @@ import org.mskcc.cgds.dao.DaoInteraction;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Interaction;
 import org.mskcc.cgds.graph.NetworkOfInterest;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import edu.uci.ics.jung.graph.Graph;
 

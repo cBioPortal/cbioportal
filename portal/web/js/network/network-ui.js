@@ -882,11 +882,11 @@ function updateEdges()
 	_filteredByIsolation = new Array();
 	
 	// re-apply filter to update nodes
-	_vis.removeFilter("nodes", false);
+	//_vis.removeFilter("nodes", false);
 	_vis.filter("nodes", currentVisibility);
 	
 	// remove current edge filters
-	_vis.removeFilter("edges", false);
+	//_vis.removeFilter("edges", false);
 	
 	// filter selected types
 	_vis.filter("edges", edgeVisibility);
@@ -2062,7 +2062,7 @@ function _filterBySlider()
 	_filteredByIsolation = new Array();
 	
 	// remove filters
-	_vis.removeFilter("nodes", false);
+	//_vis.removeFilter("nodes", false);
 	
 	// filter with new slider value
 	_vis.filter("nodes", sliderVisibility);

@@ -40,7 +40,6 @@ public class ImportProteinArrayInfo {
      * @throws DaoException 
      */
     public void importData() throws IOException, DaoException {
-        MySQLbulkLoader.bulkLoadOff();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();

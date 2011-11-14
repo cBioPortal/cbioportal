@@ -49,8 +49,6 @@ public class ImportProteinArrayData {
      * @throws DaoException 
      */
     public void importData() throws IOException, DaoException {
-        MySQLbulkLoader.bulkLoadOff();
-        
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();

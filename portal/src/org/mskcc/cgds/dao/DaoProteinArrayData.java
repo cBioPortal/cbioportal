@@ -22,8 +22,6 @@ import org.apache.commons.lang.StringUtils;
  * @author jj
  */
 public class DaoProteinArrayData {
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoProteinArrayData daoProteinArrayData;
 
     /**
@@ -43,9 +41,6 @@ public class DaoProteinArrayData {
             daoProteinArrayData = new DaoProteinArrayData();
         }
 
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("protein_array_data");
-        }
         return daoProteinArrayData;
     }
 
@@ -57,48 +52,39 @@ public class DaoProteinArrayData {
      * @throws DaoException Database Error.
      */
     public int addProteinArrayData(ProteinArrayData pad) throws DaoException {
+        if (getProteinArrayData(pad.getArrayId(),pad.getCaseId())!=null) {
+            System.err.println("RPPA data of "+pad.getArrayId()+" for case "
+                    +pad.getCaseId()+" has already been added.");
+            return 0;
+        }
+        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(pad.getArrayId(),
-                        pad.getCaseId(), Double.toString(pad.getAbundance()));
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection();
-                pstmt = con.prepareStatement
-                        ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`ABUNDANCE`) "
-                                + "VALUES (?,?,?)");
-                pstmt.setString(1, pad.getArrayId());
-                pstmt.setString(2, pad.getCaseId());
-                pstmt.setDouble(3, pad.getAbundance());
-                int rows = pstmt.executeUpdate();
-                return rows;
-            }
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`ABUNDANCE`) "
+                            + "VALUES (?,?,?)");
+            pstmt.setString(1, pad.getArrayId());
+            pstmt.setString(2, pad.getCaseId());
+            pstmt.setDouble(3, pad.getAbundance());
+            int rows = pstmt.executeUpdate();
+            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushProteinArrayDataesToDatabase() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
+    
+    public ProteinArrayData getProteinArrayData(String arrayId, String caseId) throws DaoException {
+        ArrayList<ProteinArrayData> list = getProteinArrayData(arrayId, Collections.singleton(caseId));
+        if (list.isEmpty()) {
+            return null;
         }
+        
+        return list.get(0);
     }
     
     public ArrayList<ProteinArrayData> getProteinArrayData(String arrayId, Collection<String> caseIds) throws DaoException {

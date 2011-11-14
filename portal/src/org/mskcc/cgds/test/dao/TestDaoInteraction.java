@@ -4,12 +4,10 @@ import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoInteraction;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.dao.DaoMicroRnaAlteration;
 import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Interaction;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 
 /**

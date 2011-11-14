@@ -1,11 +1,12 @@
 package org.mskcc.cgds.util;
 
 // imports
-import org.mskcc.cgds.model.CanonicalGene;
+import java.util.Comparator;
 import org.mskcc.cgds.model.Gene;
 
-import java.util.Comparator;
-
+/**
+ * Compares two genes for equivalency (ref and standard symbol).
+ */
 public class GeneComparator implements Comparator {
 
     public int compare(Object object0, Object object1) {

@@ -43,10 +43,8 @@ public class ImportClinicalData {
      *
      * @throws java.io.IOException
      * @throws org.mskcc.cgds.dao.DaoException
-     *
-     * @throws IllegalArgumentException
      */
-    public void importData() throws IOException, DaoException, IllegalArgumentException {
+    public void importData() throws IOException, DaoException {
         // create reader
         FileReader reader = new FileReader(clinicalDataFile);
         BufferedReader buf = new BufferedReader(reader);

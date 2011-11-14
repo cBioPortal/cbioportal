@@ -92,6 +92,12 @@
         - gdac.broadinstitute.org_<CANCER>.Correlate_Methylation_vs_mRNA.Level_4.<date><version> Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
         - gdac.broadinstitute.org_<CANCER>.Merge_methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.<date><version> <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
 
+# .seg file required for igv linking
+- create_igv_seg:
+    outfile: <CANCER>.seg
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version> <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
+
 ---
 # dependencies
 - create_data_mRNA_median precluded_by create_data_both_mRNA_miRNA 

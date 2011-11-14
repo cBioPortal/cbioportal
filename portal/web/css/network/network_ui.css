@@ -1,3 +1,19 @@
+/* CytoscapeWeb dimensions */
+#vis_content
+{
+    width: 100%;
+	height: 666px;
+	border: 1px solid #aaaaaa;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+/*
+ * ######################################################## 
+ * #################### Network Menu ######################
+ * ########################################################
+ */
 
 #network_menu_div
 {
@@ -110,9 +126,15 @@
 	width: 17em;
 }
 
-/* 
- * Menu & Settings Panel
- */
+#legends_menu
+{
+	width: 17em;
+}
+
+#legends_menu a
+{
+	width: 14em;
+}
 
 #network_menu .hovered-menu-item
 {
@@ -187,6 +209,7 @@
 	visibility: hidden;
 }
 
+/* settings panel */
 #settings_dialog .footer
 {
 	padding-top: 0.5em;
@@ -194,23 +217,12 @@
 	font-size: 9pt;
 }
 
-
 /*
- * CytoscapeWeb dimensions
+ * ######################################################## 
+ * ################### Node inspector #####################
+ * ########################################################
  */
-#vis_content
-{
-	width: 580px;
-	height: 666px;
-	border: 1px solid #aaaaaa;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-}
-
-/*
- * Inspectors
- */
+ 
 #node_inspector_content
 {
 	text-align: left;
@@ -274,6 +286,19 @@
 	border-bottom: 2px solid #aaaaaa;
 }
 
+/*
+ * ######################################################## 
+ * ################### Edge inspector #####################
+ * ########################################################
+ */
+
+#edge_inspector .data, #edge_inspector .xref
+{
+	/* centering the tables */
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #edge_inspector .top-row td
 {
 	border-top: 1px solid #aaaaaa;
@@ -307,19 +332,56 @@
 }
 
 /*
- * Tabs
+ * ######################################################## 
+ * ############## Network Tabs (general) ##################
+ * ########################################################
  */
+
+#network_tabs
+{
+	width: 240px;
+	height: 666px;
+}
+
+#network_tabs .tabs-button
+{
+	padding-top: 7px;
+	padding-bottom: 7px;
+	width: 26px;
+}
+
+#network_tabs .heading
+{
+	font-weight: bold;
+	font-size: 13px;
+}
+
+#network_tabs label
+{
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 12px;
+}
+
+
+/*
+ * ######################################################## 
+ * ##################### Genes Tab ########################
+ * ########################################################
+ */
+
 #genes_tab .header
 {
 	padding-bottom: 0.5em;
 	text-align: center;
-	font-size: 9pt;
 	width: 200px;
 }
 
 #genes_tab .header #search
 {
-	width: 111px;
+	width: 64px;
+	margin-left: 2px;
+	vertical-align: bottom;
 }
 
 #genes_tab .in-query
@@ -332,23 +394,90 @@
 	color: #808080;
 }
 
-#relations_tab .footer
-{
-	padding-top: 0.5em;
-	text-align: center;
-	font-size: 9pt;
-}
-
 #genes_tab select
 {
+	/* dimensions of the select box */
 	width: 200px;
-	height: 500px;
+	height: 460px;
 }
 
 #genes_tab .selected-gene
 {
 	background: #aaaaaa;
 }
+
+#genes_tab #control_area
+{
+	margin-top: 1.35em;
+	margin-bottom: 0.35em;
+}
+
+#genes_tab #weight_slider_area
+{
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+#genes_tab #affinity_slider_area
+{
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+#genes_tab #weight_slider_bar, #genes_tab #affinity_slider_bar
+{
+	margin-left: 20px;
+	margin-right: 70px;
+}
+
+#genes_tab #slider_area .slider-value
+{
+    float: right;
+    text-align: left;
+    padding-left: 5px;
+    margin-top: -4px;
+}
+
+#genes_tab #slider_area .slider-value input
+{
+	font-size: 11px;
+	width: 3em;
+}
+
+#genes_tab #slider_area .slider-max
+{
+    float: right;
+    text-align: left;
+    /*padding-left: 15px;*/
+}
+
+#genes_tab #slider_area .slider-min
+{
+    float: left;
+    text-align: left;
+}
+
+#genes_tab #slider_area label
+{
+	font-size: 11px;
+}
+
+#genes_tab .ui-icon-crop
+{
+	background-image: url(images/crop_disabled.png); 
+}
+
+#genes_tab .ui-state-hover .ui-icon-crop,
+#genes_tab .ui-icon-crop .ui-state-focus
+{
+	background-image: url(images/crop_enabled.png);
+}
+
+/*
+ * ######################################################## 
+ * ########## Interactions (Relations) Tab ################
+ * ########################################################
+ */
 
 #relations_tab .percent-bar
 {
@@ -358,9 +487,22 @@
 	clear: both;
 }
 
+#relations_tab .footer
+{
+	padding-top: 0.5em;
+	text-align: center;
+}
+
+#relations_tab .footer table
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #relations_tab .percent-value
 {
-	font-size: 8pt;
+	font-size: 10px;
 	text-align: right;
 }
 
@@ -374,4 +516,149 @@
 {
 	height: 575px;
 	width: 200px;
+}
+
+#relations_tab #edge_source_filter
+{
+	padding-top: 1em;
+}
+
+/* label of the update button */
+#relations_tab .footer label
+{
+	text-align: center;
+	font-weight: bold;
+	margin-right: 2px;
+}
+
+/*
+ * ######################################################## 
+ * ####################### Help Tab #######################
+ * ########################################################
+ */
+ 
+#help_tab
+{
+	overflow-y: auto;
+}
+
+#help_tab p
+{
+	margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: left;
+}
+
+#help_tab .seed_node_img
+{
+	/* actual [width,height] : [96px,139px] */	
+	width: auto;
+	height: 72px;
+}
+
+#help_tab .linker_node_img
+{
+	/* actual [width,height] : [93px,121px] */
+	width: auto;
+	height: 64px;
+}
+
+#help_tab .altered_node_img
+{
+	/* actual [width,height] : [111px,125px] */
+	width: auto;
+	height: 90px;
+}
+
+#help_tab .not_altered_node_img
+{
+	/* actual [width,height] : [108px,124px] */
+	width: auto;
+	height: 90px;
+}
+
+#help_tab img
+{
+	display: block;
+	
+	/* centering images */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#help_tab ul, #help_tab p
+{
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 11px;
+}
+
+#help_tab ul li
+{
+	margin-left: -15px;
+	text-align: left;
+}
+
+#help_tab a
+{
+	cursor:pointer;
+	color:#1974B8;
+}
+
+#help_tab .italic
+{
+	font-style: italic;
+}
+
+#help_tab .bold
+{
+	font-weight: bold;
+}
+
+/*
+ * ######################################################## 
+ * ###################### Legends #########################
+ * ########################################################
+ */
+#node_legend img
+{
+	margin: 0.4em;
+}
+
+#edge_legend #edge_type_legend
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#edge_legend img
+{
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+}
+
+#edge_legend .color-bar
+{
+	width: 95%;
+	margin: 0.2em 0.5em 0 1.0em;
+	height: 0.3em;
+	border-right: 0px solid #b0b0b0;
+	clear: both;
+}
+
+#edge_legend .color-cell
+{
+	width: 100px;
+}
+
+#edge_legend .label-cell
+{
+	width: 165px;
+}
+
+#edge_legend .type-label
+{
+	align: left;
+	white-space: nowrap;
 }

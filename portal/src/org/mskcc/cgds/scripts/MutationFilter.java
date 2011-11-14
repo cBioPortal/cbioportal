@@ -21,10 +21,10 @@ import org.mskcc.cgds.model.ExtendedMutation;
 public class MutationFilter {
    
    // lists of Entrez gene IDs
-   private HashSet<Long> cancer_specific_germline_white_list = new HashSet<Long>(); 
+   private HashSet<Long> cancerSpecificGermlineWhiteList = new HashSet<Long>();
 
    // text lists of the gene lists, for reporting
-   private ArrayList<String> cancer_specific_germline_white_list_gene_names = new ArrayList<String>();
+   private ArrayList<String> cancerSpecificGermlineWhiteListGeneNames = new ArrayList<String>();
 
    private int accepts=0;
    private int germlineWhitelistAccepts=0;
@@ -53,18 +53,18 @@ public class MutationFilter {
     * Whitelists contain Gene symbols.
     * <p>
     * <p>
-    * @param germline_white_list_file filename for the germline whitelist; null if not provided
+    * @param germlineWhiteListFile filename for the germline whitelist; null if not provided
     */
-   public MutationFilter(String germline_white_list_file) {
-      __internalConstructor( germline_white_list_file);
+   public MutationFilter(String germlineWhiteListFile) {
+      __internalConstructor(germlineWhiteListFile);
    }
    
-   private void __internalConstructor(String germline_white_list_file) throws IllegalArgumentException{
+   private void __internalConstructor(String germlineWhiteListFile) throws IllegalArgumentException{
 
-      // read germline_white_list_file (e.g., ova: BRCA1 BRCA2)
-      if( null != germline_white_list_file ){
-         cancer_specific_germline_white_list = getContents(
-                 germline_white_list_file, this.cancer_specific_germline_white_list_gene_names );
+      // read germlineWhiteListFile (e.g., ova: BRCA1 BRCA2)
+      if( null != germlineWhiteListFile){
+         cancerSpecificGermlineWhiteList = getContents(
+                 germlineWhiteListFile, this.cancerSpecificGermlineWhiteListGeneNames );
       }
    }
    
@@ -78,8 +78,6 @@ public class MutationFilter {
     * @return true if the mutation should be imported into the dbms
     */
    public boolean acceptMutation(ExtendedMutation mutation) {
-
-      // out.println("Filter out Mutations: " + mutation.toString());
       this.decisions++;
       
       /*
@@ -121,8 +119,8 @@ public class MutationFilter {
             missenseGermlineRejects++;
             return false;
          }
-         if(cancer_specific_germline_white_list != null && cancer_specific_germline_white_list.size() > 0) {
-             if (!cancer_specific_germline_white_list.contains(
+         if(cancerSpecificGermlineWhiteList != null && cancerSpecificGermlineWhiteList.size() > 0) {
+             if (!cancerSpecificGermlineWhiteList.contains(
                   new Long( mutation.getEntrezGeneId() ) ) ){
                 return false;
              }
@@ -228,7 +226,7 @@ public class MutationFilter {
    *
    * @param filename  is a file which already exists and can be read.
    */
-   private HashSet<Long> getContents( String filename, ArrayList <String> geneNames ) throws IllegalArgumentException{
+   private HashSet<Long> getContents( String filename, ArrayList <String> geneNames ) {
 
       //...checks on filename are elided
       HashSet<Long> contents = new HashSet<Long>();
@@ -247,10 +245,8 @@ public class MutationFilter {
          * it returns null only for the END of the stream.
          * it returns an empty String if two newlines appear in a row.
          */
-         // out.println( aFile.getName() + " contains: ");
          DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
-         //DaoGene aDaoGene = new DaoGene();
-         
+
          while (( line = input.readLine()) != null){
 
             // convert Hugo symbol to Entrez ID
@@ -265,17 +261,14 @@ public class MutationFilter {
       } catch (DaoException e) {
          System.err.println( "dbms access problem.");
          e.printStackTrace();
-      }
-       finally {
+      } finally {
          input.close();
        }
-     }
-     catch (FileNotFoundException e){
+     } catch (FileNotFoundException e){
         throw new IllegalArgumentException( "Gene list '" + filename + "' not found.");
-      }
-     catch (IOException ex){
+     } catch (IOException ex){
         ex.printStackTrace();
-      }
+     }
      return contents;
    }
    
@@ -296,8 +289,7 @@ public class MutationFilter {
    @Override
    public String toString(){
       StringBuffer sb = new StringBuffer();
-      sb.append( "Germline whitelist: " + this.cancer_specific_germline_white_list_gene_names.toString() + "\n" );
+      sb.append( "Germline whitelist: " + this.cancerSpecificGermlineWhiteListGeneNames.toString() + "\n" );
       return( sb.toString() );
    }
-
 }

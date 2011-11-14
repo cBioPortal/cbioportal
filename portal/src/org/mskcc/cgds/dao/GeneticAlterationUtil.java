@@ -127,8 +127,14 @@ public class GeneticAlterationUtil {
         
         for (ExtendedMutation mutation : mutationList) {
             String caseId = mutation.getCaseId();
-            if (!mutationMap.containsKey(caseId))
+            //  Handle the possibility of multiple mutations in the same gene / patient
+            //  Handles issue:  165
+            if (mutationMap.containsKey(caseId)) {
+                String existingStr = mutationMap.get(caseId);
+                mutationMap.put(caseId, existingStr + ";" + mutation.getAminoAcidChange());
+            } else {
                 mutationMap.put(caseId, mutation.getAminoAcidChange());
+            }
         }
         return mutationMap;
     }
@@ -160,8 +166,9 @@ public class GeneticAlterationUtil {
             ProteinArrayInfo pai = pais.get(0);
             String arrayId = pai.getId();
 
-            if (arrayId == null)
+            if (arrayId == null) {
                 continue;
+            }
 
             ret[i] = new HashMap<String,String>();
             List<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
@@ -174,8 +181,9 @@ public class GeneticAlterationUtil {
     
     private static Map<String,String> getBestCorrelatedCaseMap(Map<String, String>[] caseMaps,
             ArrayList<String> targetCaseList, ArrayList<String> correlatedToData) {
-        if (caseMaps.length==1 || correlatedToData==null || correlatedToData.size()!= targetCaseList.size())
+        if (caseMaps.length==1 || correlatedToData==null || correlatedToData.size()!= targetCaseList.size()) {
             return caseMaps[0];
+        }
         
         Map<String, String> ret = null;
         double maxCorr = Double.NEGATIVE_INFINITY;
@@ -197,12 +205,14 @@ public class GeneticAlterationUtil {
             List<Double> l2 = new ArrayList<Double>();
             for (int i=0; i<targetCaseList.size(); i++) {
                 String targetCase = targetCaseList.get(i);
-                if (correlatedToData.get(i).equals("NAN"))
+                if (correlatedToData.get(i).equals("NAN")) {
                     continue;
+                }
 
                 String abun = caseMap.get(targetCase);
-                if (abun==null)
+                if (abun==null) {
                     continue;
+                }
 
                 l1.add(Double.valueOf(abun));
                 l2.add(Double.valueOf(correlatedToData.get(i)));

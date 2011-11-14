@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * Junit tests for DaoMicroRnaAlteration class.
+ */
 public class TestDaoMicroRnaAlteration extends TestCase {
 
     public void testDaoMicroRnaAlteration() throws DaoException {

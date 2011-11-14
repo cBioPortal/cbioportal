@@ -3,3 +3,4 @@
 ./all-prostate.sh
 ./all-sgp.sh
 ./all-gbm.sh
+./loadNetwork.sh

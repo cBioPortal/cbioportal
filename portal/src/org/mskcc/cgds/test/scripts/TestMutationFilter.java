@@ -10,6 +10,9 @@ import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.scripts.MutationFilter;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
+/**
+ * JUnit tests for MutationFilter class.
+ */
 public class TestMutationFilter extends TestCase {
    
    protected void setUp(){
@@ -88,7 +91,7 @@ public class TestMutationFilter extends TestCase {
 
    }
 
-   public void testAcceptMutation_germline_white_list() throws DaoException {
+   public void testAcceptMutationGermlineWhiteList() throws DaoException {
       
       // load genes
       loadGene( "FOO", 3L  );
@@ -137,26 +140,27 @@ public class TestMutationFilter extends TestCase {
 
    }
 
-   private void nowTestAcceptMutation( 
+    private void nowTestAcceptMutation(
             MutationFilter myMutationFilter,
-            boolean expectedResult, 
-            long entrezGeneId, 
-            String validationStatus, 
+            boolean expectedResult,
+            long entrezGeneId,
+            String validationStatus,
             String mutationStatus,
             String mutationType
-            ){
-      ExtendedMutation anExtendedMutation = new ExtendedMutation(
-         entrezGeneId,           // entrezGeneId,
-         validationStatus,       // validationStatus,
-         mutationStatus,         // mutationStatus,
-         mutationType            // mutationType
-      );
-      if( expectedResult ){
-         assertTrue( myMutationFilter.acceptMutation( anExtendedMutation ) );         
-      }else{
-         assertFalse( myMutationFilter.acceptMutation( anExtendedMutation ) );         
-      }
-   }
+    ) {
+        CanonicalGene gene = new CanonicalGene(entrezGeneId, "XXX");
+        ExtendedMutation anExtendedMutation = new ExtendedMutation(
+                gene,                   // gene,
+                validationStatus,       // validationStatus,
+                mutationStatus,         // mutationStatus,
+                mutationType            // mutationType
+        );
+        if (expectedResult) {
+            assertTrue(myMutationFilter.acceptMutation(anExtendedMutation));
+        } else {
+            assertFalse(myMutationFilter.acceptMutation(anExtendedMutation));
+        }
+    }
    
    private void alwaysRejectTheseMutations(MutationFilter myMutationFilter){
 
@@ -196,8 +200,8 @@ public class TestMutationFilter extends TestCase {
       
    }
    
-   private void loadGene( String GeneSymbol, long GeneID ) throws DaoException {
+   private void loadGene( String geneSymbol, long geneID ) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(new CanonicalGene( GeneID, GeneSymbol ));
+        daoGene.addGene(new CanonicalGene( geneID, geneSymbol ));
     }
 }

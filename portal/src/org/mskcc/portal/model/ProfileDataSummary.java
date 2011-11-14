@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
@@ -24,7 +23,9 @@ public class ProfileDataSummary {
     private HashMap<String, double[]> geneMRNAUpDownMap = new HashMap<String, double[]>();
     private HashMap<String, Integer> numCasesAlteredMap = new HashMap<String, Integer>();
     private ArrayList<GeneWithScore> geneAlteredList = new ArrayList<GeneWithScore>();
-    private HashMap<String, Boolean> caseAlteredMap = new HashMap<String, Boolean>();
+    private HashMap<String, Boolean> caseAlteredMap = null; //lazy init
+    private HashMap<String,HashMap<String,ValueParser>> mapGeneCaseParser = 
+            new HashMap<String,HashMap<String,ValueParser>>();
     private double percentOfCasesWithAlteredPathway;
     private ProfileData profileData;
     private double zScoreThreshold;
@@ -32,23 +33,23 @@ public class ProfileDataSummary {
     private int numCasesAffected;
     
     /**
-     * Calculate summary statistics for the cancer profiles in data, as filtered through theOncoPrintSpecification and the 
+     * Calculate summary statistics for the cancer profiles in data, as filtered 
+     * through theOncoPrintSpecification and the 
      * zScoreThreshold.
      * 
      * @param data
      * @param theOncoPrintSpecification
      * @param zScoreThreshold
      */
-    public ProfileDataSummary(ProfileData data, OncoPrintSpecification theOncoPrintSpecification,  double zScoreThreshold) {
+    public ProfileDataSummary(ProfileData data, 
+            OncoPrintSpecification theOncoPrintSpecification,  
+            double zScoreThreshold) {
         this.profileData = data;
         this.theOncoPrintSpecification = theOncoPrintSpecification;
         this.zScoreThreshold = zScoreThreshold;
         ArrayList<String> geneList = data.getGeneList();
         ArrayList<String> caseList = data.getCaseIdList();
         geneAlteredList = determineFrequencyOfGeneAlteration(geneList, caseList);
-        numCasesAffected = determineFrequencyOfCaseAlteration(geneList, caseList);
-        this.percentOfCasesWithAlteredPathway = numCasesAffected
-                / (double) caseList.size();
     }
 
     /**
@@ -96,6 +97,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isCaseAltered(String caseId) {
+        determineFrequencyOfCaseAlteration();
         return caseAlteredMap.get(caseId);
     }
 
@@ -105,6 +107,7 @@ public class ProfileDataSummary {
      * @return percent value.
      */
     public double getPercentCasesAffected() {
+        determineFrequencyOfCaseAlteration();
         return this.percentOfCasesWithAlteredPathway;
     }
 
@@ -114,7 +117,26 @@ public class ProfileDataSummary {
      * @return number of cases.
      */
     public int getNumCasesAffected() {
+        determineFrequencyOfCaseAlteration();
         return this.numCasesAffected;
+    }
+    
+    private ValueParser getValueParser(String gene, String caseId) {
+        HashMap<String,ValueParser> mapCaseParser = mapGeneCaseParser.get(gene);
+        if (mapCaseParser==null) {
+            mapCaseParser = new HashMap<String,ValueParser>();
+            mapGeneCaseParser.put(gene, mapCaseParser);
+        }
+        
+        ValueParser parser = mapCaseParser.get(caseId);
+        if (parser==null) {
+            String value = profileData.getValue(gene, caseId);
+            parser = ValueParser.generateValueParser(gene, value, 
+                    this.zScoreThreshold, this.theOncoPrintSpecification);
+            mapCaseParser.put(caseId, parser);
+        }
+        return parser;
+        
     }
 
     /**
@@ -125,8 +147,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isGeneAltered(String gene, String caseId) {
-        String value = profileData.getValue(gene, caseId);
-        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        ValueParser parser = getValueParser(gene, caseId);
         if( null != parser ){
            return parser.isGeneAltered();
         }
@@ -141,8 +162,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isGeneMutated(String gene, String caseId) {
-        String value = profileData.getValue(gene, caseId);
-        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        ValueParser parser = getValueParser(gene, caseId);
         if( null != parser ){
            return parser.isMutated();
         }
@@ -157,10 +177,17 @@ public class ProfileDataSummary {
      * @return CNV level.
      */
     public GeneticTypeLevel getCNALevel(String gene, String caseId) {
-        String value = profileData.getValue(gene, caseId);
-        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        ValueParser parser = getValueParser(gene, caseId);
         if( null != parser ){
-           return parser.getCNAlevel();
+           if (parser.isCnaAmplified()) {
+               return GeneticTypeLevel.Amplified;
+           } else if (parser.isCnaGained()) {
+               return GeneticTypeLevel.Gained;
+           } else if (parser.isCnaHemizygouslyDeleted()) {
+               return GeneticTypeLevel.HemizygouslyDeleted;
+           } else if (parser.isCnaHomozygouslyDeleted()) {
+               return GeneticTypeLevel.HomozygouslyDeleted;
+           }
         }
         return null;
     }
@@ -173,8 +200,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isMRNAWayUp(String gene, String caseId) {
-        String value = profileData.getValue(gene, caseId);
-        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        ValueParser parser = getValueParser(gene, caseId);
         if( null != parser ){
            return parser.isMRNAWayUp();
         }
@@ -189,8 +215,7 @@ public class ProfileDataSummary {
      * @return true or false.
      */
     public boolean isMRNAWayDown(String gene, String caseId) {
-        String value = profileData.getValue(gene, caseId);
-        ValueParser parser = ValueParser.generateValueParser( gene, value, this.zScoreThreshold, this.theOncoPrintSpecification );
+        ValueParser parser = getValueParser(gene, caseId);
         if( null != parser ){
            return parser.isMRNAWayDown();
         }
@@ -215,8 +240,9 @@ public class ProfileDataSummary {
             double delta = 1.0 / caseList.size();
             for (String caseId : caseList) {
                  GeneticTypeLevel level = getCNALevel(gene, caseId);
-                 if (level!=null)
+                 if (level!=null) {
                     map.put(level, map.get(level)+delta);
+                 }
             }
         }
         
@@ -257,10 +283,11 @@ public class ProfileDataSummary {
             int numSamplesWhereGeneIsDownRegulated = 0;
             ArrayList<String> caseList = profileData.getCaseIdList();
             for (String caseId : caseList) {
-                if (isMRNAWayUp(gene, caseId))
+                if (isMRNAWayUp(gene, caseId)) {
                     numSamplesWhereGeneIsUpRegulated++;
-                else if (isMRNAWayDown(gene, caseId))
+                } else if (isMRNAWayDown(gene, caseId)) {
                     numSamplesWhereGeneIsDownRegulated++;
+                }
             }
             geneMRNAUpDownMap.put(gene, new double[]{
                 1.0*numSamplesWhereGeneIsUpRegulated/caseList.size(),
@@ -285,8 +312,9 @@ public class ProfileDataSummary {
             int numSamplesWhereGeneIsMutated = 0;
             ArrayList<String> caseList = profileData.getCaseIdList();
             for (String caseId : caseList) {
-                if (isGeneMutated(gene, caseId))
+                if (isGeneMutated(gene, caseId)) {
                     numSamplesWhereGeneIsMutated++;
+                }
             }
             geneMutatedMap.put(gene, 1.0*numSamplesWhereGeneIsMutated/caseList.size());
         }
@@ -325,7 +353,8 @@ public class ProfileDataSummary {
             geneWithScore.setScore(percent);
 
             if (this.theOncoPrintSpecification.containsGene(gene) ) {
-               // TODO: this isn't right, as the same gene could appear multiple times in a spec; thus, we need a more complex way to find the given gene
+               // TODO: this isn't right, as the same gene could appear multiple times in a spec;
+               // thus, we need a more complex way to find the given gene
                // for now, return the 1st one 
                GeneWithSpec aGeneWithSpec = this.theOncoPrintSpecification.getGeneWithSpec(gene); 
                geneWithScore.setaGeneWithSpec(aGeneWithSpec);
@@ -342,10 +371,18 @@ public class ProfileDataSummary {
      * Determines frequency with which each case contains an alteration in at
      * least one member of the gene set.
      */
-    private int determineFrequencyOfCaseAlteration(ArrayList<String> geneList,
-                                                   ArrayList<String> caseList) {
-        int numCasesAffected = 0;
+    private void determineFrequencyOfCaseAlteration() {
+        if (caseAlteredMap != null) {
+            return;
+        }
+        
+        caseAlteredMap = new HashMap<String, Boolean>();
+        
+        numCasesAffected = 0;
 
+        ArrayList<String> caseList = profileData.getCaseIdList();
+        ArrayList<String> geneList = profileData.getGeneList();
+        
         //  Iterate through all cases
         for (String caseId : caseList) {
             boolean caseIsAltered = false;
@@ -362,7 +399,9 @@ public class ProfileDataSummary {
             }
             caseAlteredMap.put(caseId, caseIsAltered);
         }
-        return numCasesAffected;
+        
+        percentOfCasesWithAlteredPathway = numCasesAffected
+                / (double) caseList.size();
     }
 }
 

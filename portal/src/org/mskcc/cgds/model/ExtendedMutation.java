@@ -2,13 +2,18 @@ package org.mskcc.cgds.model;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+/**
+ * Encapsules Details regarding a Single Mutation.
+ *
+ * @author Ethan Cerami.
+ */
 public class ExtendedMutation {
+    private static final String GERMLINE = "germline";
+
     private int geneticProfileId;
     private String caseId;
-    private long entrezGeneId;
     private CanonicalGene gene;
-    private String geneSymbol;
-    private String center;
+    private String sequencingCenter;
     private String sequencer;
     private String mutationStatus;
     private String validationStatus;
@@ -26,25 +31,88 @@ public class ExtendedMutation {
     }
 
     /**
-     * Construct an ExtendedMutation with the fields needed for testing.
-     * Include mutationType mutationStatus ValidationStatus and EntrezGeneId.
+     * Constructor.
+     *
+     * @param gene              Gene Object.
+     * @param validationStatus  Validation Status,  e.g. Valid or Unknown.
+     * @param mutationStatus    Mutation Status, e.g. Somatic or Germline.
+     * @param mutationType      Mutation Type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
      */
-    public ExtendedMutation(long entrezGeneId, String validationStatus, String mutationStatus,
+    public ExtendedMutation(CanonicalGene gene, String validationStatus, String mutationStatus,
                             String mutationType) {
-        this.entrezGeneId = entrezGeneId;
+        this.gene = gene;
         this.mutationStatus = mutationStatus;
         this.validationStatus = validationStatus;
         this.mutationType = mutationType;
     }
 
-    public ExtendedMutation(CanonicalGene gene, String validationStatus, String mutationStatus,
-                            String mutationType) {
-        this.entrezGeneId = gene.getEntrezGeneId();
-        this.geneSymbol = gene.getHugoGeneSymbolAllCaps();
+    /**
+     * Sets the Sequencing Center which performed the sequencing.
+     * @param center sequencing center, e.g. WashU, Broad, etc.
+     */
+    public void setSequencingCenter(String center) {
+        this.sequencingCenter = center;
+    }
+
+    /**
+     * Gets the Sequencing Center which performed the sequencing.
+     * @return sequencing center, e.g. WashU, Broad, etc.
+     */
+    public String getSequencingCenter() {
+        return sequencingCenter;
+    }
+
+    /**
+     * Gets the Mutations Status, e.g. Somatic or Germline.
+     * @return mutation status, e.g. Somatic or Germline.
+     */
+    public String getMutationStatus() {
+        return mutationStatus;
+    }
+
+    public boolean isGermlineMutation() {
+        return getMutationStatus() != null && getMutationStatus().equalsIgnoreCase(GERMLINE);
+    }
+
+    /**
+     * Sets the Mutation Status, e.g. Somatic or Germline.
+     * @param mutationStatus mutation status, e.g. Somatic or Germline.
+     */
+    public void setMutationStatus(String mutationStatus) {
         this.mutationStatus = mutationStatus;
+    }
+
+    /**
+     * Sets the Validation Status, e.g. Valid or Unknown.
+     * @param validationStatus validation status, e.g. Valid or Unknown.
+     */
+    public void setValidationStatus(String validationStatus) {
         this.validationStatus = validationStatus;
+    }
+
+    /**
+     * Gets the Validation Status, e.g. Valid or Unknown.
+     * @return validation status, e.g. Valid or Unknown.
+     */
+    public String getValidationStatus() {
+        return validationStatus;
+    }
+
+    /**
+     * Sets the Mutation Type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
+     * @param mutationType mutation type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
+     */
+    public void setMutationType(String mutationType) {
         this.mutationType = mutationType;
     }
+
+    /**
+     * Gets the Mutation Type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
+     * @return mutation type, e.g. Nonsense_Mutation, Frame_Shift_Del, etc.
+     */
+    public String getMutationType() {
+        return mutationType;
+    }    
 
     public int getGeneticProfileId() {
         return geneticProfileId;
@@ -60,38 +128,6 @@ public class ExtendedMutation {
 
     public void setCaseId(String caseId) {
         this.caseId = caseId;
-    }
-
-    public long getEntrezGeneId() {
-        return entrezGeneId;
-    }
-
-    public void setEntrezGeneId(long entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
-
-    public String getCenter() {
-        return center;
-    }
-
-    public void setCenter(String center) {
-        this.center = center;
-    }
-
-    public String getMutationStatus() {
-        return mutationStatus;
-    }
-
-    public void setMutationStatus(String mutationStatus) {
-        this.mutationStatus = mutationStatus;
-    }
-
-    public String getValidationStatus() {
-        return validationStatus;
-    }
-
-    public void setValidationStatus(String validationStatus) {
-        this.validationStatus = validationStatus;
     }
 
     public String getChr() {
@@ -124,14 +160,6 @@ public class ExtendedMutation {
 
     public void setAminoAcidChange(String aminoAcidChange) {
         this.aminoAcidChange = aminoAcidChange;
-    }
-
-    public String getMutationType() {
-        return mutationType;
-    }
-
-    public void setMutationType(String mutationType) {
-        this.mutationType = mutationType;
     }
 
     public String getFunctionalImpactScore() {
@@ -174,18 +202,6 @@ public class ExtendedMutation {
         this.sequencer = sequencer;
     }
 
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    public void setGeneSymbol(String geneSymbol) {
-        this.geneSymbol = geneSymbol;
-    }
-
-    public String getGeneSymbol() {
-        return geneSymbol;
-    }
-
     public void setGene(CanonicalGene gene) {
         this.gene = gene;
     }
@@ -194,13 +210,16 @@ public class ExtendedMutation {
         return gene;
     }
 
-    public String keyFieldsToString() {
-        return new ToStringBuilder(this).
-                append("entrezGeneId", entrezGeneId).
-                append("mutationStatus", mutationStatus).
-                append("validationStatus", validationStatus).
-                append("mutationType", mutationType).
-                toString();
+    public long getEntrezGeneId() {
+        return gene.getEntrezGeneId();
     }
 
+    public String getGeneSymbol() {
+        return gene.getHugoGeneSymbolAllCaps();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 }

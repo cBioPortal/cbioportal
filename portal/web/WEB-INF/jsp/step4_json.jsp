@@ -14,9 +14,7 @@
         return false;
     }
     </script>
-    <span style="float:right">
-        <a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a>
-    </span>
+    <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
 
 <%
 // Output step 4 form validation error
@@ -28,7 +26,7 @@ if (step4ErrorMsg != null) {
 %>
 
     <P/>
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
+<textarea rows='5' cols='40' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
         out.println(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
     }

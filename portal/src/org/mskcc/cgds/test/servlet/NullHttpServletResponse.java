@@ -1,7 +1,8 @@
 package org.mskcc.cgds.test.servlet;
 
 /*
- * from: http://www.java2s.com/Open-Source/Java-Document/Content-Management-System/TransferCM/com/methodhead/shim/NullHttpServletResponse.java.htm
+ * from: http://www.java2s.com/Open-Source/Java-Document/Content-Management-System/
+ * TransferCM/com/methodhead/shim/NullHttpServletResponse.java.htm
  */
 
 /* 
@@ -42,13 +43,16 @@ public class NullHttpServletResponse implements  HttpServletResponse {
     // constructors /////////////////////////////////////////////////////////////
 
     public NullHttpServletResponse() {
-        out_ = new NullServletOutputStream();
+        servletOutputStream = new NullServletOutputStream();
     }
 
     // constants ////////////////////////////////////////////////////////////////
 
     // classes //////////////////////////////////////////////////////////////////
 
+    /**
+     * An OutputStream implementation for JUnit tests.
+     */
     private static class NullServletOutputStream extends
             ServletOutputStream {
 
@@ -75,13 +79,13 @@ public class NullHttpServletResponse implements  HttpServletResponse {
     }
 
     public ServletOutputStream getOutputStream() {
-        return out_;
+        return servletOutputStream;
     }
 
     public PrintWriter getWriter() {
        return new MyPrintWriter( myStringWriter );
 //       return new PrintWriter( System.err );
-// was        return new PrintWriter(out_);
+// was        return new PrintWriter(servletOutputStream);
     }
 
     public boolean isCommitted() {
@@ -167,8 +171,8 @@ public class NullHttpServletResponse implements  HttpServletResponse {
 
     // properties ///////////////////////////////////////////////////////////////
 
-    ServletOutputStream out_ =  null; // new NullServletOutputStream();;
-    StringWriter myStringWriter = new StringWriter();
+    private ServletOutputStream servletOutputStream =  null; // new NullServletOutputStream();;
+    private StringWriter myStringWriter = new StringWriter();
     
     public String getOutput(){
        return myStringWriter.toString();

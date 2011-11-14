@@ -11,6 +11,9 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.HashSet;
 
+/**
+ * Command Line Tool to Remove Exclused Cases.
+ */
 public class CutInvalidCases {
 
     private ProgressMonitor pMonitor;

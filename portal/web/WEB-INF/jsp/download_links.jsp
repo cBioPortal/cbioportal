@@ -14,7 +14,7 @@
         out.println ("<li><a href='show_data.do?" + ShowData.INDEX + "=" + i + "'>"
                 + link.getProfile().getProfileName() +"</a>:  ["
                 + link.getGeneList().size() + " genes]");
-        out.println ("&nbsp;<a href='show_data.do?transpose=1&" + ShowData.INDEX + "=" + i + "'>" 
+        out.println ("&nbsp;<a href='show_data.do?transpose_matrix=1&" + ShowData.INDEX + "=" + i + "'>" 
                 + "[Transposed Matrix]</a></li>");
         i++;
     }

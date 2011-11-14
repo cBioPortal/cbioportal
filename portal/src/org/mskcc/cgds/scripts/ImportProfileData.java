@@ -51,19 +51,25 @@ public class ImportProfileData{
        		"command line usage for importProfileData:";
        /*
         * usage:
-        * --data <data_file.txt> --meta <meta_file.txt> --dbmsAction [clobber (default)]  --loadMode [directLoad|bulkLoad (default)] " +
-        * --germlineWhiteList <filename> --acceptRemainingMutations --somaticWhiteList <filename> --somaticWhiteList <filename>
+        * --data <data_file.txt> --meta <meta_file.txt> --dbmsAction [clobber (default)]  --loadMode
+        *  [directLoad|bulkLoad (default)] " +
+        * --germlineWhiteList <filename> --acceptRemainingMutations --somaticWhiteList <filename>
+        * --somaticWhiteList <filename>
         */
 
        parser = new OptionParser();
        OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-       OptionSpec<String> data = parser.accepts( "data", "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
-       OptionSpec<String> meta = parser.accepts( "meta", "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-       OptionSpec<String> dbmsAction = parser.accepts( "dbmsAction", "database action; 'clobber' deletes exsiting data" )
+       OptionSpec<String> data = parser.accepts( "data",
+               "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
+       OptionSpec<String> meta = parser.accepts( "meta",
+               "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
+       OptionSpec<String> dbmsAction = parser.accepts( "dbmsAction",
+               "database action; 'clobber' deletes exsiting data" )
           .withRequiredArg().describedAs( "[clobber (default)]" ).ofType( String.class );
        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
           .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-       OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList", "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
+       OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList",
+               "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
           .withRequiredArg().describedAs( "filename" ).ofType( String.class );
        OptionSet options = null;
       try {

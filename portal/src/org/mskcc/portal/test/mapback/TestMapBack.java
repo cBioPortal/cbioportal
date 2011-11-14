@@ -3,10 +3,11 @@ package org.mskcc.portal.test.mapback;
 import junit.framework.TestCase;
 import org.mskcc.portal.mapback.MapBack;
 import org.mskcc.portal.mapback.Brca1;
+import org.mskcc.portal.mapback.Brca2;
 
 public class TestMapBack extends TestCase {
 
-    public void testMapBack () {
+    public void testMapBack1 () {
         Brca1 brca1 = new Brca1();
 
         //  From:  http://www.pharmgkb.org/search/annotatedGene/brca1/variant.jsp
@@ -22,6 +23,15 @@ public class TestMapBack extends TestCase {
         validate(brca1, 38498908, 2285, 'C');
         validate(brca1, 38451310, 5622, 'C');
     }
+
+    public void testMapBack2 () {
+        Brca2 brca2 = new Brca2();
+        MapBack mapBack = new MapBack (brca2, 31812438);
+        long ntPosition = mapBack.getNtPositionWhereMutationOccurs();
+
+        assertEquals ("Nucleotide Position does not match!", 6174, ntPosition);
+    }
+
 
     private void validate (Brca1 brca1, long mutationLocation, long expected, char expectedBp) {
         MapBack mapBack = new MapBack (brca1, mutationLocation);

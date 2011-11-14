@@ -8,6 +8,9 @@ import org.mskcc.cgds.model.User;
 import org.mskcc.cgds.dao.DaoUser;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
+/**
+ * JUnit test for DaoUser class.
+ */
 public class TestDaoUser extends TestCase {
 
    public void testDaoUser() throws Exception {

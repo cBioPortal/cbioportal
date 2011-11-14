@@ -10,6 +10,9 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.mskcc.cgds.web_api.GetCaseLists;
 
+/**
+ * JUnit test for GetCaseLists class.
+ */
 public class TestGetCaseList extends TestCase {
 
    public void testGetCaseList() throws Exception {

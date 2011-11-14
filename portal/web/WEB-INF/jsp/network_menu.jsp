@@ -90,6 +90,21 @@
 	    		</li>
 	    	</ul>
 	    </li>
+	    <li>
+	    	<a id="network_menu_legends">Legends</a>
+	    	<ul id="legends_menu">
+	    		<li>
+	    			<a id="show_node_legend" onclick="handleMenuEvent('node_legend')">
+	    				Gene Legend
+	    			</a>
+	    		</li>
+	    		<li>
+	    			<a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">
+	    				Interaction Legend
+	    			</a>
+	    		</li>
+	    	</ul>
+	    </li>
 	</ul>
 </div>
 
@@ -152,26 +167,6 @@
 					<input type="text" id="maxDistance" value=""/>
 				</td>
 			</tr>
-			<tr title="The name of the edge attribute that contains the weights.">
-				<td align="right">
-					<label>Weight Attribute</label>
-				</td>
-				<td>
-					<input type="text" id="weightAttr" value=""/>
-				</td>
-			</tr>
-			<tr title="How to interpret weight values.">
-				<td align="right">
-					<label>Weight Normalization</label>
-				</td>				
-				<td>
-					<select id="weightNorm" size="1">
-						<option id="norm_linear" value="linear">linear</option>
-						<option id="norm_invlinear" value="invlinear">invlinear</option>
-						<option id="norm_log" value="log">log</option>
-					</select>
-				</td>
-			</tr>
 			<tr title="The number of iterations to run the simulation.">
 				<td align="right">
 					<label>Iterations</label>
@@ -188,7 +183,7 @@
 					<input type="text" id="maxTime" value=""/>
 				</td>
 			</tr>
-			<tr title="If checked, Cytoscape Web automatically tries to stabilize results that seems unstable after running the regular iterations.">
+			<tr title="If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations.">
 				<td align="right">
 					<label>Auto Stabilize</label>
 				</td>

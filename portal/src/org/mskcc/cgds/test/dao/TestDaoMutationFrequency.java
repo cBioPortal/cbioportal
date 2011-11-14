@@ -9,6 +9,9 @@ import org.mskcc.cgds.model.CanonicalGene;
 
 import java.util.ArrayList;
 
+/**
+ * JUnit test for DaoMutationFrequency class.
+ */
 public class TestDaoMutationFrequency extends TestCase {
 
     public void testDaoMutationFrequency() throws DaoException {

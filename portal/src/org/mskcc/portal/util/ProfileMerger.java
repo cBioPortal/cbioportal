@@ -9,27 +9,35 @@ import java.util.HashMap;
 /*
  * TODO:
  * 
- * I think that these changes should be made to make that code more robust and easier, i.e. faster, to modify in the future.
- * A value in a merged profile is stored as a String of the RE form (TYPE:VALUE;)+  I replaced constant ':' and ';' as used 
- * in these strings by defined constants ProfileMerger.TYPE_VALUE_SEPARATOR and ProfileMerger.VALUE_SEPARATOR, respectively.
+ * I think that these changes should be made to make that code more robust and easier, i.e. faster, to modify
+ * in the future.
+ * A value in a merged profile is stored as a String of the RE form (TYPE:VALUE;)+  I replaced constant ':'
+ * and ';' as used
+ * in these strings by defined constants ProfileMerger.TYPE_VALUE_SEPARATOR and ProfileMerger.VALUE_SEPARATOR,
+ * respectively.
  * 
- * Since the VALUE in a PROTEIN_LEVEL or PHOSPHORYLATION data type can contain a ':', I changed ValueParser.parseValue to parse 
+ * Since the VALUE in a PROTEIN_LEVEL or PHOSPHORYLATION data type can contain a ':',
+ * I changed ValueParser.parseValue to parse
  * each TYPE:VALUE on the first ':'.
  * 
- * These changes cause the tests on lines 154-155 of TestValueParser.testValueParser to fail. Unclear that we need these tests so I disabled them.
+ * These changes cause the tests on lines 154-155 of TestValueParser.testValueParser to fail.
+ * Unclear that we need these tests so I disabled them.
  * 
  * Interactions between ValueParser and OncoPrintGeneDisplaySpec are overly complex and should be simplified.
  * 
- * String-based enumerations, especially GeneticAlterationType, should be replaced with Java enums to 1) simplify the code, by, for example, 
+ * String-based enumerations, especially GeneticAlterationType, should be replaced with Java enums to
+ * 1) simplify the code, by, for example,
  * replacing cascading if-else statements with switch statements, 2) provide reliable compile-time type checking, 
  * 3) provide opportunities for greater generality (such as operations on sets of enumerations), and 
- * 4) simplify the addition of new data types. Also, multiple enumerations, including those in the OncoSpec code, should be combined into one.
+ * 4) simplify the addition of new data types. Also, multiple enumerations, including those in
+ * the OncoSpec code, should be combined into one.
  * 
  * ProfileMerger.determineAlteredStatus should return an object that stores the alteration, rather than a String, 
  * so we have the data already structured and it doesn't need to be parsed again (by ValueParser).
  */
 /**
- * Merge multiple ProfileData objects into one, so the data (in a String) for each gene,case pair contains the data from all input ProfileData objects.
+ * Merge multiple ProfileData objects into one, so the data (in a String) for each gene,case pair
+ * contains the data from all input ProfileData objects.
  */
 public class ProfileMerger {
     private ProfileData profileData;
@@ -112,28 +120,34 @@ public class ProfileMerger {
             } else if (alterationType.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
                 //  Handle mRNA Data
                 if (value != null) {
-                    status.append(GeneticAlterationType.MRNA_EXPRESSION + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                    status.append(GeneticAlterationType.MRNA_EXPRESSION
+                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
             } else if (alterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 //  Handle Mutation Data
                 if (value != null) {
-                    status.append(GeneticAlterationType.MUTATION_EXTENDED + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                    status.append(GeneticAlterationType.MUTATION_EXTENDED
+                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
             } else if (alterationType.equals(GeneticAlterationType.METHYLATION)) {
                 if (value != null) {
-                    status.append(GeneticAlterationType.METHYLATION + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                    status.append(GeneticAlterationType.METHYLATION
+                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                 }
             } else if (alterationType.equals(GeneticAlterationType.METHYLATION_BINARY)) {
                if (value != null) {
-                   status.append(GeneticAlterationType.METHYLATION_BINARY + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                   status.append(GeneticAlterationType.METHYLATION_BINARY
+                           + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
             } else if (alterationType.equals(GeneticAlterationType.PROTEIN_LEVEL)) {
                if (value != null) {
-                   status.append(GeneticAlterationType.PROTEIN_LEVEL + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                   status.append(GeneticAlterationType.PROTEIN_LEVEL
+                           + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
             } else if (alterationType.equals(GeneticAlterationType.PHOSPHORYLATION)) {
                if (value != null) {
-                   status.append(GeneticAlterationType.PHOSPHORYLATION + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+                   status.append(GeneticAlterationType.PHOSPHORYLATION
+                           + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
             }
         }

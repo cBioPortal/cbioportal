@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Reads build.properties file and makes key/value pairs accessible.
+ */
 public class Config {
     private static Config config = null;
     private Properties properties;

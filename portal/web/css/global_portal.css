@@ -13,7 +13,8 @@ body {
 #page_wrapper {
   margin-left: auto;
   margin-right: auto;
-  width: 880px;
+  min-width: 780px;
+  max-width: 1260px;
   text-align: left;
   background: #FFFFFF;
   border: 8px solid #FFFFFF;
@@ -22,13 +23,11 @@ body {
 #header_wrapper {
   background: #fff ;
   margin:0px; padding:0px;
-  width:860px;
 }
 
 #login_header_wrapper {
   background: #fff ;
   margin:0px; padding:0px;
-  width:860px;
   height:50px;
 }
 
@@ -59,7 +58,6 @@ body {
 #content {
   margin-top: 10px;
   margin-bottom: 0px;
-  width: 680px;
 }
 
 img {
@@ -82,7 +80,6 @@ A:hover {
 #instructions {
   margin-left: auto;
   margin-right: auto;
-  width: 700px;
   text-align: left;
   background: #FFFFFF;
   border: 8px solid #FFFFFF;
@@ -115,7 +112,6 @@ A:hover {
 
 
 #results_container {
-    width:860px;
     padding: 0px;
     margin: 0px;
 }
@@ -124,22 +120,11 @@ A:hover {
     margin: 0px;
     padding: 0px;
     background: #ffffff;
-    width: 820px;
     font-size: 12px;
 }
 
 #network {
-    height: 700px;
-}
-
-#frequency_plot {
-    width: 820px;
-}
-
-.map {
-    width: 820px;
-    overflow-x:auto;
-    overflow-y:hidden;
+    height: 750px;
 }
 
 .map table {
@@ -327,46 +312,11 @@ table td {
     font-weight:bold;
 }
 
-.high {
-  background: #FF9999;
-  padding-left:12px;
-  padding-right:18px;
-  font-weight:bold;
-}
-
-.high A:link {!important; text-decoration: underline !important;}
-.high A:visited {!important; text-decoration: underline !important;}
-.high A:active {!important; text-decoration: underline !important;}
-
-.medium {
-  background: #FFCCCC;
-  color:white;
-  padding-left:5px;
-  padding-right:8px;
-  font-weight:bold;
-}
-
-
-.low {
-  background: #eeeeee;
-  padding-left:13px;
-  padding-right:17px;
-  font-weight:bold;
-}
-
-.neutral {
-  background: #DDDDDD;
-  padding-left:5px;
-  padding-right:5px;
-  font-weight:bold;
-}
-
 .map A:link {text-decoration: underline !important;}
 .map A:visited {text-decoration: underline !important;}
 .map A:active {text-decoration: underline !important;}
 
 .markdown {
-    width:668px;
     word-wrap:break-word;
     margin: 5px;
     overflow:hidden;
@@ -432,10 +382,6 @@ table td {
   color:black;
 }
 
-blockquote {
-    width: 600px;
-}
-
 .oncoprint {
     font-family: verdana, arial, sans-serif;
     font-size:12px !important;
@@ -451,7 +397,6 @@ blockquote {
     border:  gray 1px solid;
     margin-top:6px;
     border: 1px solid #cccccc;
-    width: 810px;
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
@@ -464,7 +409,6 @@ blockquote {
     border:  gray 1px solid;
     margin-top:6px;
     border: 1px solid #cccccc;
-    width: 810px;
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
@@ -513,7 +457,7 @@ td.op_data_cell{
 
 #tabs {
     display: none;
-    margin-top:10px;    
+    margin-top:10px;
 }
 
 #tabs li {
@@ -539,7 +483,6 @@ td.op_data_cell{
   border: 1px solid #03476F;
   font: normal 11px verdana, arial, helvetica, sans-serif;
   color: #363636;
-  width: 600px;
 }
 
 .markdown td, th {
@@ -568,6 +511,10 @@ td.op_data_cell{
 
 #right_side table {
   margin:10px;
+}
+
+#right_side td {
+  font-size:125%;
 }
 
 #left_side, #right_side li {
@@ -613,10 +560,9 @@ td.op_data_cell{
 }
 
 #optional_args {
-  background:  #dddddd;
   margin:5px;
   padding:3px;
-  font-size:11px;
+  font-size:12px;
 }
 
 #step5 .step_header{
@@ -671,7 +617,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 #content ul {
-  margin-top:15px; margin-bottom: 15px;
+  margin-top:5px; margin-bottom: 5px;
   font-family: verdana, arial, sans-serif;
   font-size: 12px;
   line-height: 18px;
@@ -868,33 +814,17 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 .welcome {
-    background-color:#E8F1F8;
-    background: -moz-linear-gradient(top, #D6E9F9 0%, #FFF 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D6E9F9), color-stop(100%,#FFF)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D6E9F9', endColorstr='#FFFFFF',GradientType=0 ); /* ie */
-    -moz-border-radius:     10px;
-    -khtml-border-radius:   10px;
-    -webkit-border-radius:  10px;
     padding: 3px;
     height: 200px;
-    width: 660px;
-}
 
-#left_side {
-  margin-top: 0px;
-  float: left;
-  width: 160px;
-  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
-  text-align: center;
 }
 
 #right_side {
   margin-top: 10px;
-  float: right;
-  align: right;
-  width: 160px;
   background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
   text-align: left;
+  margin-left:60px;
+  font-size:80%;
 }
 
 #login_header {
@@ -1008,7 +938,10 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 }
 
 /* The Cytoscape Web container must have its dimensions set. */
-#cytoscapeweb { width: 100%; height: 100%; }
+#cytoscapeweb {
+    width: 100%;
+    height: 100%;
+}
 #note { width: 100%; text-align: center; padding-top: 1em; }
 /*.link { text-decoration: underline; color: #0b94b1; cursor: pointer; } */
 
@@ -1040,6 +973,8 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
+    min-width: 780px;
+    max-width: 1000px;
 }
 
 /* Accordion Panel H1 */
@@ -1075,7 +1010,6 @@ cursor: default;
     padding:10px;
     margin-top:6px;
     padding-top:10px;
-    /*width: 650px;  */
 }
 
 /* Main Query Form */
@@ -1126,6 +1060,10 @@ cursor: default;
 /* This is the gene_list input text area */
 #gene_list {
   background-color:#eeeeee;
+  width:75%;
+  font-weight:bold;
+  font-size:15px;
+  font-family: verdana, arial, sans-serif;
 }
 
 /* This refers to a subgroup of profiles that all share the same alteration type,
@@ -1167,4 +1105,13 @@ padding:4px;
 
 .percent_altered {
     color:green;
+}
+
+#netmsg {
+  padding-bottom:10px;
+  padding-left:5px;
+}
+
+#mutation_details td {
+  font-size:100%;
 }

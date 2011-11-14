@@ -12,6 +12,9 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 import org.mskcc.cgds.util.CancerStudyReader;
 import org.mskcc.cgds.util.ProgressMonitor;
 
+/**
+ * JUnit test for CancerStudyReader class.
+ */
 public class TestCancerStudyReader extends TestCase {
 
    public void testCancerStudyReader() throws Exception {

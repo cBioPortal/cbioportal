@@ -8,6 +8,9 @@ import org.mskcc.cgds.model.GeneticProfile;
 
 import java.io.File;
 
+/**
+ * Command Line to Update Meta Data Associated with a Genomic Profile.
+ */
 public class UpdateMetaData {
 
     public static void main(String[] args) throws Exception {

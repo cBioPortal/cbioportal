@@ -24,7 +24,7 @@ public class GetCaseLists {
      */
     public static String getCaseLists(String cancerStudyStableId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
             DaoCaseList daoCaseList = new DaoCaseList();
@@ -33,17 +33,17 @@ public class GetCaseLists {
                 buf.append("case_list_id\tcase_list_name\tcase_list_description\t"
                         + "cancer_study_id\t" + "case_ids\n");
                 for (CaseList caseList : list) {
-                    buf.append(caseList.getStableId() + "\t");
-                    buf.append(caseList.getName() + "\t");
-                    buf.append(caseList.getDescription() + "\t");
-                    buf.append(caseList.getCancerStudyId() + "\t");
-                    for (String _case : caseList.getCaseList()) {
-                        buf.append(_case + " ");
+                    buf.append(caseList.getStableId()).append("\t");
+                    buf.append(caseList.getName()).append("\t");
+                    buf.append(caseList.getDescription()).append("\t");
+                    buf.append(caseList.getCancerStudyId()).append("\t");
+                    for (String aCase : caseList.getCaseList()) {
+                        buf.append(aCase).append(" ");
                     }
                     buf.append("\n");
                 }
             } else {
-                buf.append("Error:  No case lists available for:  " + cancerStudyStableId + ".\n");
+                buf.append("Error:  No case lists available for:  ").append(cancerStudyStableId).append(".\n");
                 return buf.toString();
             }
         }

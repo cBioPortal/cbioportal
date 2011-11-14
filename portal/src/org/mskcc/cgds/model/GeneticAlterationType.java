@@ -1,5 +1,8 @@
 package org.mskcc.cgds.model;
 
+/**
+ * Class for genetic alteration type
+ */
 public class GeneticAlterationType {
     public static final String HOMOZYGOUS_DELETION = "-2";
     public static final String HEMIZYGOUS_DELETION = "-1";
@@ -24,6 +27,7 @@ public class GeneticAlterationType {
      *
      * @return Type Name.
      */
+    @Override
     public String toString() {
         return type;
     }

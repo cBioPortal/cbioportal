@@ -2,16 +2,28 @@ package org.mskcc.portal.mapback;
 
 import java.util.ArrayList;
 
+/**
+ * Maps Back from a global chromosomal location to a local nucleotide position, based
+ * on a GenBank Record.
+ *
+ * @author Ethan Cerami.
+ */
 public class MapBack {
-    private Gene gene;
+    private MapBackGene mapBackGene;
     private ArrayList<Mapping> mappingList;
     private long globalMutationLocation;
     private long ntPosition = -1;
 
-    public MapBack(Gene gene, long globalMutationLocation) {
-        this.gene = gene;
-        this.mappingList = gene.getMappingList();
-        this.globalMutationLocation = globalMutationLocation;
+    /**
+     * Constructor.
+     *
+     * @param mapBackGene       MapBackGene Object.
+     * @param globalLocation    Global chromosomal location.
+     */
+    public MapBack(MapBackGene mapBackGene, long globalLocation) {
+        this.mapBackGene = mapBackGene;
+        this.mappingList = mapBackGene.getMappingList();
+        this.globalMutationLocation = globalLocation;
         mapBack();
     }
 
@@ -22,7 +34,8 @@ public class MapBack {
         Mapping matchedMapping = null;
         for (int i =0; i< mappingList.size(); i++) {
             Mapping mapping = mappingList.get(i);
-            if (globalMutationLocation > mapping.getTStart() && globalMutationLocation < mapping.getTStop()) {
+            if (globalMutationLocation > mapping.getTStart()
+                    && globalMutationLocation < mapping.getTStop()) {
                 matchedMapping = mapping;
             }
         }
@@ -30,13 +43,10 @@ public class MapBack {
         if (matchedMapping != null) {
             long offset = globalMutationLocation - matchedMapping.getTStart();
             long plusQuery = matchedMapping.getQStart() + offset;
-            //System.out.println ("offset:  " + offset);
-            //System.out.println ("qStart:  " + matchedMapping.getQStart());
             ntPosition = plusQuery;
-            if (!gene.isForwardStrand()) {
+            if (!mapBackGene.isForwardStrand()) {
                 ntPosition = sequenceLen - plusQuery +1;
             }
-            //System.out.println ("Match occurs in mapping:  " + ntPosition);
         }
     }
 
@@ -45,7 +55,6 @@ public class MapBack {
     }
 
     public char getBpWhereMutationOccurs() {
-        return gene.getFullDna().charAt((int) ntPosition-1);
+        return mapBackGene.getFullDna().charAt((int) ntPosition-1);
     }
-
 }

@@ -9,6 +9,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 
+/**
+ * JUnit tests for ImportGeneData class.
+ */
 public class TestImportGeneData extends TestCase {
 
     public void testImportGeneData() throws Exception {

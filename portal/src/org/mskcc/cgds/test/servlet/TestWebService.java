@@ -21,16 +21,19 @@ import org.mskcc.cgds.servlet.WebService;
 import org.mskcc.cgds.test.util.NullHttpServletRequest;
 import org.mskcc.cgds.util.ProgressMonitor;
 
+/**
+ * JUnit test for WebService class.
+ */
 public class TestWebService extends TestCase {
 
-   CancerStudy publicCancerStudy;
-   CancerStudy privateCancerStudy1;
-   CancerStudy privateCancerStudy2;
-   User user1;
-   User user2;
-   String cleartextPwd;
-   GeneticProfile privateGeneticProfile;      
-   GeneticProfile publicGeneticProfile;
+   private CancerStudy publicCancerStudy;
+   private CancerStudy privateCancerStudy1;
+   private CancerStudy privateCancerStudy2;
+   private User user1;
+   private User user2;
+   private String cleartextPwd;
+   private GeneticProfile privateGeneticProfile;
+   private GeneticProfile publicGeneticProfile;
    
    public void testWebService() throws Exception {
       setUpDBMS();
@@ -61,11 +64,14 @@ public class TestWebService extends TestCase {
             mkStringArray( "Error: " + "No cancer study (cancer_study_id), or genetic profile (genetic_profile_id) " +
                               "or case list or (case_list) case set (case_set_id) provided by request. " +
                               "Please reformulate request." ) );
-      checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles", WebService.CANCER_STUDY_ID, CancerStudy.NO_SUCH_STUDY +"" ), 
+      checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles",
+              WebService.CANCER_STUDY_ID, CancerStudy.NO_SUCH_STUDY +"" ),
             mkStringArray( "Error: " + "Problem when identifying a cancer study for the request." ) );
 
       // getGeneticProfiles for public study
-      String[] publicGenePro = mkStringArray( "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\tcancer_study_id\tgenetic_alteration_type\tshow_profile_in_analysis_tab",
+      String[] publicGenePro = mkStringArray(
+         "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\t" +
+            "cancer_study_id\tgenetic_alteration_type\tshow_profile_in_analysis_tab",
          "stableIdpublic\tprofileName\tprofileDescription\t3\tCOPY_NUMBER_ALTERATION\ttrue");  
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
@@ -81,7 +87,8 @@ public class TestWebService extends TestCase {
             publicGenePro );
       
       // missing email address for private study
-      String deniedError = "Error: User cannot access the cancer study called 'name'. Please provide credentials to access private data.";
+      String deniedError = "Error: User cannot access the cancer study called 'name'." +
+      "Please provide credentials to access private data.";
       checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles", WebService.CANCER_STUDY_ID, "study1" ),
                mkStringArray( deniedError ) );
       
@@ -103,7 +110,8 @@ public class TestWebService extends TestCase {
             mkStringArray( deniedError ) );
 
       // getGeneticProfiles works for private study 
-      String[] privateGenePro1 = mkStringArray( "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\tcancer_study_id\tgenetic_alteration_type\tshow_profile_in_analysis_tab",
+      String[] privateGenePro1 = mkStringArray( "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description"
+            + "\tcancer_study_id\tgenetic_alteration_type\tshow_profile_in_analysis_tab",
       "stableIdPrivate\tprofileName\tprofileDescription\t1\tCOPY_NUMBER_ALTERATION\ttrue");  
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
@@ -204,8 +212,9 @@ public class TestWebService extends TestCase {
                privateGeneticProfile.getStableId() );
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
-      assertTrue( studies.contains
-              (DaoCancerStudy.getCancerStudyByInternalId(privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+      assertTrue( studies.contains(
+              DaoCancerStudy.getCancerStudyByInternalId(
+                      privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when multiple profile_ids provided, as by getProfileData
       aNullHttpServletRequest = new NullHttpServletRequest();

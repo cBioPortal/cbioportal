@@ -1,5 +1,3 @@
-[TOC]
-
 # CGDS-R Package
 
 ## Description

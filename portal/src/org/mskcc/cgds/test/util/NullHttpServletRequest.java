@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
  * From http://www.jguru.com/faq/view.jsp?EID=110660
  */
 public class NullHttpServletRequest implements HttpServletRequest{
-   public Hashtable parameters = new Hashtable();
+   private Hashtable parameters = new Hashtable();
       
    public void setParameter(String key, String value) {
       parameters.put(key, value);

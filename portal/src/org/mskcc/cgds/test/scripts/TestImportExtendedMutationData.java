@@ -35,7 +35,6 @@ public class TestImportExtendedMutationData extends TestCase {
             } catch (IllegalArgumentException e) {
                 assertEquals("Gene list 'no_such_germline_whitelistfile' not found.", e.getMessage());
             }
-
             loadGenes();
             parser = new ImportExtendedMutationData(file, 1, pMonitor);
             parser.importData();
@@ -89,7 +88,7 @@ public class TestImportExtendedMutationData extends TestCase {
     }
 
     private void checkBasicFilteringRules() throws DaoException {
-        rejectSilent_LOH_Intron_Wildtype();
+        rejectSilentLOHIntronWildtype();
         acceptValidSomaticMutations();
     }
 
@@ -112,7 +111,7 @@ public class TestImportExtendedMutationData extends TestCase {
         validateMutationAminoAcid (1, "TCGA-AA-3664", 51259, "G61G");
     }
 
-    private void rejectSilent_LOH_Intron_Wildtype() throws DaoException {
+    private void rejectSilentLOHIntronWildtype() throws DaoException {
         DaoMutation daoMutation = DaoMutation.getInstance();
         assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
         assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH

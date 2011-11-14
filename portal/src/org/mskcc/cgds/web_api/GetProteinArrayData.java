@@ -49,8 +49,9 @@ public class GetProteinArrayData {
             Set<Long> entrezIds = new HashSet<Long>();
             for (String symbol : targetGeneList) {
                 CanonicalGene gene = daoGene.getGene(symbol);
-                if (gene!=null)
+                if (gene!=null) {
                     entrezIds.add(gene.getEntrezGeneId());
+                }
             }
             pais = daoPAI.getProteinArrayInfoForEntrezIds(cancerStudyId, entrezIds, types);
         }
@@ -86,8 +87,9 @@ public class GetProteinArrayData {
         }
         
         StringBuilder sb = new StringBuilder();
-        if (targetCaseList==null)
+        if (targetCaseList==null) {
             targetCaseList = new ArrayList<String>(caseIds);
+        }
         
         sb.append('\t');
         sb.append(StringUtils.join(targetCaseList, "\t"));
@@ -101,10 +103,11 @@ public class GetProteinArrayData {
             for (String caseId : targetCaseList) {
                 sb.append('\t');
                 Double abundance = mapCaseAbun.get(caseId);
-                if (abundance==null)
+                if (abundance==null) {
                     sb.append("NaN");
-                else
+                } else {
                     sb.append(abundance.toString()); 
+                }
             }
                 
             sb.append('\n');

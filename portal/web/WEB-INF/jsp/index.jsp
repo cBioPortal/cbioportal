@@ -37,13 +37,13 @@
             <div class="welcome">
                 <table>
                 <tr>
-                   <td valign=top style="width: 350px">
+                   <td valign=top>
                       <P><%= SkinUtil.getBlurb() %></p>
                       <p>The portal is developed and maintained by
                       the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
-                      at <br><a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
+                      at <a href="http://www.mskcc.org/">Memorial Sloan-Kettering Cancer Center</a>. </p>
                    </td>
-                   <td valign=top style="width: 300px">
+                   <td valign=top>
                        <jsp:include page="<%= popeye %>" flush="true" />
                    </td>
                 </tr>
@@ -74,7 +74,7 @@
         </tr>
     </table>
     </td>
-    <td width="172">
+    <td>
 	<jsp:include page="global/right_column.jsp" flush="true" />
     </td>
   </tr>

@@ -79,11 +79,13 @@ $(document).ready(function(){
     });
 
     //  set toggle Step 5: Optional arguments
-    $("#optional_args").hide();
+    //$("#optional_args").hide();
     /*$("#step5_toggle").click(function(event) {
         event.preventDefault();
         $("#optional_args").toggle( "blind" );
     });*/
+    
+    $('.netsize_help').tipTip();
 
     $('#step5 > .step_header').click(function(){
          $(".ui-icon", this).toggle();
@@ -345,7 +347,8 @@ function cancerStudySelected() {
         + "title='Specify you own case list'>User-defined Case List</option>");
 
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
-    $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+    //  commented out for now, as this did not work in Chrome or Safari
+    //  $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
 
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".profile_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});

@@ -8,6 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Data access object for Case_List table
+ */
 public class DaoCaseList {
 
 	/**
@@ -20,7 +23,8 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection();
 
-            pstmt = con.prepareStatement("INSERT INTO case_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `DESCRIPTION`) VALUES (?,?,?,?)");
+            pstmt = con.prepareStatement("INSERT INTO case_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `DESCRIPTION`)"
+                                        + " VALUES (?,?,?,?)");
             pstmt.setString(1, caseList.getStableId());
             pstmt.setInt(2, caseList.getCancerStudyId());
             pstmt.setString(3, caseList.getName());
@@ -219,7 +223,9 @@ public class DaoCaseList {
 		
 		// get case list id
 		int caseListId = getCaseListId(caseList);
-		if (caseListId == -1) return -1;
+		if (caseListId == -1) {
+            return -1;
+        }
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -228,7 +234,7 @@ public class DaoCaseList {
 			int rows = 0;
             con = JdbcUtil.getDbConnection();
 			for (String caseId : caseList.getCaseList()) {
-				pstmt = con.prepareStatement("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES (?,?)");
+                pstmt = con.prepareStatement("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES (?,?)");
 				pstmt.setInt(1, caseListId);
 				pstmt.setString(2, caseId);
 				rows += pstmt.executeUpdate();

@@ -27,8 +27,8 @@ public class DaoUserAuthorities {
 			con = JdbcUtil.getDbConnection();
 			String email = userAuthorities.getEmail();
 			for (String authority : userAuthorities.getAuthorities()) {
-				pstmt = con.prepareStatement("INSERT INTO authorities (`EMAIL`, `AUTHORITY`) VALUES (?,?)");
-				pstmt.setString(1, email);
+                pstmt = con.prepareStatement("INSERT INTO authorities (`EMAIL`, `AUTHORITY`) VALUES (?,?)");
+                pstmt.setString(1, email);
 				pstmt.setString(2, authority);
 				toReturn += pstmt.executeUpdate();
 			}

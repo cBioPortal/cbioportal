@@ -1,7 +1,5 @@
 package org.mskcc.portal.test.oncoPrintSpecLanguage;
 
-import static java.lang.System.out;
-
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,19 +25,17 @@ import org.mskcc.portal.oncoPrintSpecLanguage.GeneSet;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.ListOfOncoPrintLangException;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTLexer;
 import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTParser;
 import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTwalker;
 
 /**
- * test the parser version that generates and walks an AST
- * @author Arthur Goldberg
+ * Tests the parser version that generates and walks an AST.
  *
+ * @author Arthur Goldberg
  */
 public class TestOncoPrintSpecificationInParser extends TestCase{
 
@@ -47,7 +43,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
    public void testBadGeneNameInASTParser() {
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
       theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
-      ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser( "2-PDE", theOncoPrintGeneDisplaySpec );
+      ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser
+              ( "2-PDE", theOncoPrintGeneDisplaySpec );
    }
 
     @Test
@@ -98,7 +95,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                 (ContinuousDataTypeSpec) parseMethod( "continuousDataTypeInequality", testLangFragment) );
 
       } catch (RecognitionException e) {
-
           System.out.println("testcontinuousDataTypeInequality: RecognitionException: " + e.getMessage());
           e.printStackTrace();
       } catch (Throwable e) {
@@ -129,7 +125,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
         // aDiscreteDataTypeSetSpecs
         tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration,
                 GeneticTypeLevel.HemizygouslyDeleted, "C -1");
-        // tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted, "C-1");
         tryADiscreteDataType(GeneticDataTypes.CopyNumberAlteration,
                 GeneticTypeLevel.Amplified, "C 2");
         
@@ -138,7 +133,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
            "is not a valid discrete genetic data type and discrete genetic data level." );
         tryErroneousProduction( "discreteDataType", "\nExp <= blah", "Error at char 1 of line 2: 'Exp <= blah' " +
            "is not a valid discrete genetic data type and discrete genetic data level." );
-        tryErroneousProduction( "discreteDataType", "CNA 5", "Error at char 1 of line 1: 'CNA 5' is not a valid genetic data type and GISTIC code." );
+        tryErroneousProduction( "discreteDataType", "CNA 5", "Error at char 1 of line 1: 'CNA 5' is " +
+                "not a valid genetic data type and GISTIC code." );
     }
 
     private void tryADiscreteDataType(
@@ -153,9 +149,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                     .equals((DiscreteDataTypeSpec) parseMethod( "discreteDataType", testLangFragment) ));
             
         } catch (RecognitionException e) {
-            System.out
-                    .println("testDiscreteDataType: RecognitionException: "
-                            + e.getMessage());
+            System.out.println("testDiscreteDataType: RecognitionException: " + e.getMessage());
             e.printStackTrace();
         } catch (Throwable e) {
          e.printStackTrace();
@@ -173,58 +167,18 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
                     .equals((DiscreteDataTypeSetSpec) parseMethod( "discreteDataType", testLangFragment) ));
             
         } catch (RecognitionException e) {
-            System.out
-                    .println("testDiscreteDataType: RecognitionException: "
-                            + e.getMessage());
+            System.out.println("testDiscreteDataType: RecognitionException: " + e.getMessage());
             e.printStackTrace();
         } catch (Throwable e) {
          e.printStackTrace();
       }
     }
 
-    // test error handling
-    /*
-    private void tryImproperDiscreteDataType( String testLangFragment) {
-        try {
-                parseMethod( "discreteDataType", testLangFragment);
-            
-        } catch (RecognitionException e) {
-            System.out
-                    .println("testDiscreteDataType: RecognitionException: "
-                            + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    */
-
     @Test
     public void testDataTypeSpecInParser() {
         
         try {
-            // test alternative:    dataTypeName 
-           /*
-            * // TODO: DATA_TYPE_PARSE_PROBLEM: very strange; dataTypeSpec will not parse an ID, but fullDataTypeSpec will parse ": ID ;" perhaps fix this
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, "C" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, "Cna" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, "Copy" );
-            tryADataTypeSpec( GeneticDataTypes.Expression, "Exp" );
-            tryADataTypeSpec( GeneticDataTypes.Methylation, "Meth" );
-            tryADataTypeSpec( GeneticDataTypes.Mutation, "MUT" );
-            
-            // test alternative: dataTypeLevel 
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted, "Homo" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted, "Homdel" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted, "HEM" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted, "Hetloss" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Diploid, "Dip" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained, "g" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained, "Gained" );
-            tryADataTypeSpec( GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified, "Amp" );
-            tryADataTypeSpec( GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated, "Mutated" );
-            tryADataTypeSpec( GeneticDataTypes.Mutation, GeneticTypeLevel.Normal, "Norm" );
-            */
-
-            // overloaded several times: these test alternative: discreteDataType      
+            // overloaded several times: these test alternative: discreteDataType
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
                     ComparisonOp.LessEqual, GeneticTypeLevel.Gained, "CopyNumberAlteration <= Gain");
 
@@ -245,7 +199,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             // aDiscreteDataTypeSetSpecs
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.HemizygouslyDeleted, "C -1");
-            // tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted, "C-1");
             tryADataTypeSpec(GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.Amplified, "C 2");
 
@@ -279,17 +232,15 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
         } catch (RecognitionException e) {
             e.printStackTrace();
         }
-        
-        // test error
-        // should work, but same as DATA_TYPE_PARSE_PROBLEM: 
-        // tryErroneousProduction( "dataTypeSpec",  "scam", "Error at char 1 of line 1: 'scam' is not a valid genetic data type or data level.");
     }
     
     // overloaded several times: this tests alternative:    dataTypeName // may be discrete or continuous
-    private void tryADataTypeSpec( GeneticDataTypes aGeneticDataTypes, String testLangFragment) throws RecognitionException{
+    private void tryADataTypeSpec( GeneticDataTypes aGeneticDataTypes, String testLangFragment)
+            throws RecognitionException{
             ConcreteDataTypeSpec aConcreteDataTypeSpec = new ConcreteDataTypeSpec( aGeneticDataTypes );
             try {
-               Assert.assertTrue( aConcreteDataTypeSpec.equals((ConcreteDataTypeSpec) parseMethod( "dataTypeSpec", testLangFragment) ));
+               Assert.assertTrue( aConcreteDataTypeSpec.equals((ConcreteDataTypeSpec) parseMethod
+                       ( "dataTypeSpec", testLangFragment) ));
             } catch (Throwable e) {
                e.printStackTrace();
             }
@@ -298,16 +249,19 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
     // overloaded several times: this tests alternative: dataTypeLevel  // must be discrete
     private void tryADataTypeSpec( GeneticDataTypes aGeneticDataType, GeneticTypeLevel aGeneticTypeLevel,
             String testLangFragment) throws RecognitionException{
-            DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = new DiscreteDataTypeSetSpec( aGeneticDataType, aGeneticTypeLevel );
+            DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = new DiscreteDataTypeSetSpec( aGeneticDataType,
+                    aGeneticTypeLevel );
             try {
-               Assert.assertTrue( aDiscreteDataTypeSetSpec.equals((DiscreteDataTypeSetSpec) parseMethod( "dataTypeSpec", testLangFragment) ));
+               Assert.assertTrue( aDiscreteDataTypeSetSpec.equals((DiscreteDataTypeSetSpec) parseMethod
+                       ( "dataTypeSpec", testLangFragment) ));
             } catch (Throwable e) {
                e.printStackTrace();
             }
     }
 
     // overloaded several times: this tests alternative: discreteDataType      
-    private void tryADataTypeSpec( GeneticDataTypes aGeneticDataType, ComparisonOp aComparisonOp, GeneticTypeLevel aGeneticTypeLevel,
+    private void tryADataTypeSpec( GeneticDataTypes aGeneticDataType, ComparisonOp aComparisonOp,
+            GeneticTypeLevel aGeneticTypeLevel,
             String testLangFragment) throws RecognitionException{
             DiscreteDataTypeSpec aDiscreteDataTypeSpec = new DiscreteDataTypeSpec(
                     aGeneticDataType, aComparisonOp, aGeneticTypeLevel);
@@ -335,11 +289,9 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
     @Test
     public void testFullDataTypeSpecInParser() {        
         try {
-           OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod( "fullDataTypeSpec",
-                    ": Mutation Mut Meth  HetLoss Exp<-1   " +
+           OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod
+                   ( "fullDataTypeSpec", ": Mutation Mut Meth  HetLoss Exp<-1   " +
                     "HetLoss Exp>=1.5  Exp <= -1.5   C -2 Expression<-2; " ); 
-
-            //System.out.println( theResultFullDataTypeSpec );
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Mutation, null ));
 
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Methylation, 2f ));
@@ -350,17 +302,23 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 1.5f ));
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, 3f ));
             
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HemizygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HomozygouslyDeleted ));
             
             theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod( "fullDataTypeSpec", ": C ; " );
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HemizygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HomozygouslyDeleted ));
             Assert.assertFalse( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, -1f ));
             
             theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod( "fullDataTypeSpec", ": C Exp; " );
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted ));
-            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HemizygouslyDeleted ));
+            Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.CopyNumberAlteration,
+                    GeneticTypeLevel.HomozygouslyDeleted ));
             Assert.assertTrue( theResultFullDataTypeSpec.satisfy(GeneticDataTypes.Expression, -1f ));
             
         } catch (RecognitionException e) {
@@ -371,7 +329,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
         
         // try error
         // this exercises the error produced by dataTypeSpec, which I cannot trigger with that production
-        tryErroneousProduction( "fullDataTypeSpec", ":FOOL;", "Error at char 2 of line 1: 'FOOL' is not a valid genetic data type or data level." );
+        tryErroneousProduction( "fullDataTypeSpec", ":FOOL;", "Error at char 2 of line 1: " +
+                "'FOOL' is not a valid genetic data type or data level." );
     }
     
     @Test
@@ -387,9 +346,11 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             GeneWithSpec aGeneWithSpec = theGenes.get(2); 
             Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(
                     GeneticDataTypes.Methylation));
-            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.CopyNumberAlteration, 
+            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.HomozygouslyDeleted ));
-            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.CopyNumberAlteration, 
+            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.HemizygouslyDeleted ));
 
         } catch (RecognitionException e) {
@@ -402,7 +363,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
     @Test
     public void testIndividualGeneInParser() {
         try {
-            GeneWithSpec aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene", "amazin : CNA Mutation C -2 Expression<-2; ");
+            GeneWithSpec aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene", "amazin : " +
+                    "CNA Mutation C -2 Expression<-2; ");
             checkAgeneWithSpec(aGeneWithSpec);
 
             aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene", 
@@ -410,12 +372,16 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Methylation));
             Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Mutation,
                     GeneticTypeLevel.Mutated ));
-            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.CopyNumberAlteration, 
+            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.HomozygouslyDeleted ));
-            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.CopyNumberAlteration, 
+            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.CopyNumberAlteration,
                     GeneticTypeLevel.Gained ));
-            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Expression, -2.01f));
-            Assert.assertFalse(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy(GeneticDataTypes.Expression, -2.0f));
+            Assert.assertTrue(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.Expression, -2.01f));
+            Assert.assertFalse(aGeneWithSpec.getTheOncoPrintGeneDisplaySpec().satisfy
+                    (GeneticDataTypes.Expression, -2.0f));
             
         } catch (RecognitionException e) {
             e.printStackTrace();
@@ -424,7 +390,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
         }
         
         // test errors
-        tryErroneousProduction( "individualGene", "notGene", "Error at char 1 of line 1: 'notGene' is not a valid gene or microRNA name.");
+        tryErroneousProduction( "individualGene", "notGene", "Error at char 1 of line 1: " +
+                "'notGene' is not a valid gene or microRNA name.");
     }
 
     private void checkAgeneWithSpec(GeneWithSpec aGeneWithSpec){
@@ -446,7 +413,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             String[] names = inputNames.split(" ");
             
             GeneSet theGeneSet = (GeneSet) parseMethod( "userGeneList", nInQuotes + " {  " + inputNames + " } ");
-            //System.out.println(theGeneSet);
             Assert.assertEquals( n, theGeneSet.getName() );
             ArrayList<GeneWithSpec> theGenes = theGeneSet.getGenes();
             int i=0;
@@ -455,7 +421,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
             }
 
             theGeneSet = (GeneSet) parseMethod( "userGeneList", " {  " + inputNames + " } ");
-            // System.out.println(theGeneSet);
             theGenes = theGeneSet.getGenes();
             i=0;
             for( GeneWithSpec aGeneWithSpec : theGenes ){
@@ -478,7 +443,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
     /*
      * TODO: IMPORTANT; MAKE TEST OPERATIONAL
      */
-
     @Test
     public void testOncoPrintSpecificationInParser() {
            
@@ -490,32 +454,37 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
            g.setTheResultFullDataTypeSpec(r);
            GeneSet h = new GeneSet( );
            h.addGeneWithSpec(g);
-           GeneWithSpec aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene", "gene3 : Hetloss Homdel Expression <-1;");
+           GeneWithSpec aGeneWithSpec = (GeneWithSpec) parseMethod( "individualGene",
+                   "gene3 : Hetloss Homdel Expression <-1;");
            h.addGeneWithSpec(aGeneWithSpec);
            expectedGeneSets.add( h );
 
-           GeneSet theGeneSet = (GeneSet) parseMethod( "userGeneList", " { DATATYPES: AMP homo EXP<-1 exp>1 MUTated ; JAG1 JAG2 }" );
+           GeneSet theGeneSet = (GeneSet) parseMethod( "userGeneList",
+                   " { DATATYPES: AMP homo EXP<-1 exp>1 MUTated ; JAG1 JAG2 }" );
            expectedGeneSets.add( theGeneSet );
 
-           OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod( "fullDataTypeSpec",
-                 ": G Amp Mutated Expression <=-2; ");
+           OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = (OncoPrintGeneDisplaySpec)parseMethod
+                   ( "fullDataTypeSpec", ": G Amp Mutated Expression <=-2; ");
            h = new GeneSet( );
            g = new GeneWithSpec( "FOO" );
            g.setTheResultFullDataTypeSpec(theResultFullDataTypeSpec);
            h.addGeneWithSpec(g);
            expectedGeneSets.add( h );
            
-           theGeneSet = (GeneSet) parseMethod( "userGeneList", "\"P53 pathway\" { DATATYPES: G Amp Mutated Expression <=-2; CCND1 " +
+           theGeneSet = (GeneSet) parseMethod( "userGeneList",
+                "\"P53 pathway\" { DATATYPES: G Amp Mutated Expression <=-2; CCND1 " +
            		"DATATYPES: Di G Am Mut E<=-2; CDKN2B  CDKN2A  }" +
            		"AR: C-1");
            expectedGeneSets.add( theGeneSet );
            
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
            theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
-           ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser( "gene2 gene3 : Hetloss Homdel Expression <-1; " +
+           ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser
+                   ("gene2 gene3 : Hetloss Homdel Expression <-1; " +
                     "{ JAG1 JAG2 } " +
                     "DATATYPES: G Amp Mutated Expression <=-2; FOO" +
-                    "\"P53 pathway\" { CCND1 DATATYPES: Di G Am Mut E<=-2; CDKN2B CDKN2A  }", theOncoPrintGeneDisplaySpec );
+                    "\"P53 pathway\" { CCND1 DATATYPES: Di G Am Mut E<=-2; CDKN2B CDKN2A  }",
+                    theOncoPrintGeneDisplaySpec );
            
            Assert.assertEquals( 0, theParserOutput.getSemanticsErrors().size() );
            Iterator<GeneSet> theIterator = expectedGeneSets.iterator();
@@ -540,23 +509,25 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
 
       // should return a list of errors
       String[][] errorFilledInputAndErrors = {
-            // rule input error; the extra stuff like "DATATYPES: CNA ; " in the input is needed for the parser to recover; don't change it
+            // rule input error; the extra stuff like "DATATYPES: CNA ; " \
+            // in the input is needed for the parser to recover; don't change it
             { "continuousDataTypeInequality", "gene: barf < 1.3 ;",
                   "Error at char 7 of line 1: 'barf' is not a valid genetic data type." },
             {
                   "discreteDataType",
                   "g2:Foo <= blah; DATATYPES: CNA ;  { X }",
-                  "Error at char 4 of line 1: 'Foo <= blah' is not a valid discrete genetic data type and discrete genetic data level." },
+                  "Error at char 4 of line 1: 'Foo <= blah' is not a valid discrete genetic data " +
+                          "type and discrete genetic data level." },
             {
                   "discreteDataType",
                   "g3:Exp <= blah;  DATATYPES: CNA ;  ",
-                  "Error at char 4 of line 1: 'Exp <= blah' is not a valid discrete genetic data type and discrete genetic data level." },
+                  "Error at char 4 of line 1: 'Exp <= blah' is not a valid discrete genetic data " +
+                          "type and discrete genetic data level." },
             { "discreteDataType", "g4: CNA 5;  DATATYPES: CNA ; { X }",
                   "Error at char 5 of line 1: 'CNA 5' is not a valid genetic data type and GISTIC code." },
             { "fullDataTypeSpec", "DATATYPES:FOOL; DATATYPES: CNA ;  ",
                   "Error at char 11 of line 1: 'FOOL' is not a valid genetic data type or data level." },
-/*            { "individualGene", "notGene",
-                  "Error at char 1 of line 1: 'notGene' is not a valid gene or microRNA name." }, */ };
+      };
 
       String[] errors  = new String[1];
       // try each error
@@ -581,7 +552,8 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
    private void tryOncoPrintSpecification(String testLangFragment, String[] errorMsgs) {
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
       theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
-      ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser( testLangFragment, theOncoPrintGeneDisplaySpec );
+      ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser( testLangFragment,
+              theOncoPrintGeneDisplaySpec );
       ArrayList<OncoPrintLangException> listOfErrors = theParserOutput.getSemanticsErrors();
       Iterator<OncoPrintLangException> i = listOfErrors.iterator();
       for (String s : errorMsgs) {
@@ -589,63 +561,15 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
       }
    }
 
-      /**
-    * test some syntax errors generated by the ASTparser
-    */
-   /*
-     * TODO: IMPORTANT; MAKE TEST OPERATIONAL, BUT CURRENTLY SYNTAX ERRORS NOT BEING RETURNED
-// TODO: HIGH: UNIT TEST in OncoSpec
-   @Test
-  public void testErrorHandlingByOncoPrintSpecificationInASTParser() {
-      
-      // compare the file with errors expected
-      // syntax errors, generated by the grammar that outputs an AST 
-      System.err.println("NOTICE: NO PROBLEM: these tests will produce some STDERR output from the lexer; unfortunately, there's NO easy way to have ANTLER suppress them." );
-
-      tryAsyntaxErrorInASTParser( "continuousDataTypeInequality", "exp < gain", "Syntax error at char 7 of line 1: mismatched input 'gain'.");
-      // in lexer: tryAsyntaxErrorInASTParser( "continuousDataTypeInequality", "exp < = 3", "Cannot deal with this, it's in the lexer.");
-      tryAsyntaxErrorInASTParser( "dataTypeSpec",  "scam", "Syntax error at char 1 of line 1: Syntax error at 'scam'");
-      tryAsyntaxErrorInASTParser( "discreteDataType",  "ID <= 7notID", "Syntax error at char 7 of line 1: extraneous input '7' expecting ID");
-      tryAsyntaxErrorInASTParser( "discreteDataType",  "foo xx", "Syntax error at char 1 of line 1: Syntax error at 'foo'");
-      tryAsyntaxErrorInASTParser( "fullDataTypeSpec",  ": blah xx", "Syntax error at char 8 of line 1: Syntax error at 'xx'");
-      tryAsyntaxErrorInASTParser( "fullDataTypeSpec",  ": 3 ", "Syntax error at char 3 of line 1: found empty list at '3'");
-      tryAsyntaxErrorInASTParser( "userGeneList",  " { g1 g2 ", "Syntax error at char 0 of line 0: missing '}' at '<EOF>'");
-      tryAsyntaxErrorInASTParser( "userGeneList",  " { g1 g2 {", "Syntax error at char 10 of line 1: missing '}' at '{'");
-      tryAsyntaxErrorInASTParser( "userGeneList",  " { }", "Syntax error at char 4 of line 1: found empty list at '}'");
-      // in lexer: tryAsyntaxErrorInASTParser( "userGeneList",  " \" no end quote { ", "");
-      System.err.println("NOTICE: end of lexer errors to STDERR." );
-  }
-
-   public void tryAsyntaxErrorInASTParser( String method, String testLangFragment, String expectedError ) {
-      
-      Utilities.clearErrorMessageList();
-
-      try {
-         parseMethod( method, testLangFragment);
-      } catch (OncoPrintLangException e) {
-         // ignore OncoPrintLangExceptions
-      } catch (Throwable e) {
-         e.printStackTrace();
-      }
-      ArrayList<String> errorMessages = Utilities.getErrorMessages();
-      Iterator<String> theIterator = errorMessages.iterator();
-      
-      Assert.assertEquals( expectedError, theIterator.next() );
-   }
- */
-
    /**
      * check that IllegalArgumentException with appropriate error message is thrown
-     * @param production
-     * @param testLangFragment
-     * @param errorMsg
      */
     private void tryErroneousProduction( String production, String testLangFragment, String errorMsg ) {
        try {
           parseMethod( production, testLangFragment);
        } catch (Throwable e) {
           if( !(e instanceof OncoPrintLangException)){
-             out.println( e.getClass().getName() );
+             System.out.println( e.getClass().getName() );
              e.printStackTrace();
           }
           Assert.assertTrue(e instanceof OncoPrintLangException);
@@ -656,10 +580,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
     /**
      * call method 'method' in the lexer and parser;
      * loads of reflection
-     * @param method
-     * @param prog
-     * @return object returned by the parser
-     * @throws Throwable
      */
    public static Object parseMethod(String method, String prog) throws Throwable {
 
@@ -727,7 +647,6 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
       } catch (InvocationTargetException e) {
          throw e.getCause();
       }
-
       return null;
    }   
 }

@@ -8,6 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * Data access object for Mutation Frequency table
+ */
 public class DaoMutationFrequency {
 
     public int addGene(long entrezGeneId, double mutationFrequency, int cancerStudyId)
@@ -43,7 +46,8 @@ public class DaoMutationFrequency {
             con = JdbcUtil.getDbConnection();
 
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mutation_frequency WHERE CANCER_STUDY_ID = ? ORDER BY SOMATIC_MUTATION_RATE DESC LIMIT 0, 100");
+                    ("SELECT * FROM mutation_frequency WHERE CANCER_STUDY_ID = ? " +
+                            "ORDER BY SOMATIC_MUTATION_RATE DESC LIMIT 0, 100");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             while (rs.next()) {

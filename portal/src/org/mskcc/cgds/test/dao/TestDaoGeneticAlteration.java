@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * JUnit tests for DaoGeneticAlteration class.
+ */
 public class TestDaoGeneticAlteration extends TestCase {
 
     public void testDaoGeneticAlteration() throws DaoException {

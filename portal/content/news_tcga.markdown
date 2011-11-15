@@ -2,12 +2,15 @@
 
 Another major update, with the following new features and data:
 
-* New and improved mutation details, with sorting and filtering capabilities.
 * In collaboration with Bilkent University, we have added a new *network* tab to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
-* Survival data is now available for many tumor types
-* RPPA data is now available for over 2000 samples in six tumor types
+* New and improved mutation details, with sorting and filtering capabilities.
+* Survival analysis - assess survival differences between altered and non-altered patient sets.
+* Links to IGV to view copy-number alterations
 * Based on the October Firehose run
-* Many new and updated MAF files
+* RPPA data is now available for 2154 samples in six tumor types
+* Many new and updated MAF files - now 9 tumor types with mutation data
+
+![GBM Network](images/previews/ova_network.png)
 
 # October 18, 2011
 

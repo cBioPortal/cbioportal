@@ -46,7 +46,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Lung adenocarcinoma">LUAD</td>
-<td style="text-align: right;">173</td>
+<td style="text-align: right;">229</td>
 </tr>
 <tr>
 <td class="Tips1" title="Lung squamous cell carcinoma">LUSC</td>

@@ -1,3 +1,14 @@
+# November 15, 2011
+
+Another major update, with the following new features and data:
+
+* New and improved mutation details, with sorting and filtering capabilities.
+* In collaboration with Bilkent University, we have added a new *network* tab to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
+* Survival data is now available for many tumor types
+* RPPA data is now available for over 2000 samples in six tumor types
+* Based on the October Firehose run
+* Many new and updated MAF files
+
 # October 18, 2011
 
 This release adds the following new data:

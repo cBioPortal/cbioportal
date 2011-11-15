@@ -67,11 +67,11 @@ while ($line = <IN3>) {
       }
 		print OUT1 "\t\t<td><b>$data[0]</b></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$data[0]}</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[6]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
 	}

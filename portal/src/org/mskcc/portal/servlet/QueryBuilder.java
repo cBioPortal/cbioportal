@@ -470,6 +470,9 @@ public class QueryBuilder extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
 		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
+		String igvURL = GlobalProperties.getIGVUrl();
+		// following is hack until we have better way to exclude igv links (or we get seg file for tumor type)
+		boolean includeIGVLinks = (igvURL != null && !cancerStudyIdentifier.toLowerCase().equals("laml"));
         writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -483,7 +486,7 @@ public class QueryBuilder extends HttpServlet {
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
 												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
 												 geneticProfileIdSet, profileList, true, true,
-												 true, cancerStudyIdentifier);
+												 includeIGVLinks, cancerStudyIdentifier);
         writer.write(out);
         
         // TODO: hacky way for su2c
@@ -497,8 +500,8 @@ public class QueryBuilder extends HttpServlet {
 		}
 
 		// links to igv
-		String igvURL = GlobalProperties.getIGVUrl();
-		if (igvURL != null) {
+
+		if (includeIGVLinks) {
 			igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg");
 			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
 			if (geneList != null && geneList.size() > 0) {

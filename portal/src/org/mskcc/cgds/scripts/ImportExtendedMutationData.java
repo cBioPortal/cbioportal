@@ -12,6 +12,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Import an extended mutation file.
@@ -30,6 +32,20 @@ public class ImportExtendedMutationData{
     private HashMap <String, Integer> headerMap;
     private static final String NOT_AVAILABLE = "NA";
     private MutationFilter myMutationFilter;
+	private static final List<String> validChrValues;
+	static {
+		validChrValues = new ArrayList<String>();
+		for (int lc = 1; lc<24; lc++) {
+			validChrValues.add(Integer.toString(lc));
+			validChrValues.add("CHR" + Integer.toString(lc));
+		}
+		validChrValues.add("X");
+		validChrValues.add("CHRX");
+		validChrValues.add("Y");
+		validChrValues.add("CHRY");
+		validChrValues.add("NA");
+		validChrValues.add("MT"); // mitochondria
+	}
     
     /**
      * construct an ImportExtendedMutationData with no white lists.
@@ -122,6 +138,12 @@ public class ImportExtendedMutationData{
                 String center = getField( parts, "Center" );
                 String sequencer = getField(parts, "Sequencer");
                 String chr = getField( parts, "Chromosome");
+
+				if (!validChrValues.contains(chr.toUpperCase())) {
+                    pMonitor.logWarning("Skipping entry with chromosome value: " + chr );
+					line = buf.readLine();
+					continue;
+				}
 
                 long startPosition = 0;
                 try {

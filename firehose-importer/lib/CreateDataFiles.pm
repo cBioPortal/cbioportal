@@ -389,7 +389,7 @@ sub create_data_mutations_extended{
 # <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
 #
 # data transformation:
-#    For each gene select row with smallest Correlation_Spearman in Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
+#    For each gene select row with smallest Corr_Spearman in Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
 #    Join selected rows from Correlate_Methylation_vs_mRNA... with <CANCER>.methylation__humanmethylation... on probe (Hybridization REF)
 # Output matrix beta_value( caseID, gene [symbol/Entrez gene ID] ) from joined table
 sub create_data_methylation{
@@ -423,18 +423,18 @@ sub create_data_methylation{
     $Correlate_Methylation_vs_mRNA_Ctable->calc( sub{
         package main;
         no strict 'vars';
-        # print "$Meth_Probe\t$Gene\t$Correlation_Spearman\n";
+        # print "$Meth_Probe\t$Gene\t$Corr_Spearman\n";
         if( exists( $genes->{$Gene} ) ){
-            if( $Correlation_Spearman < $genes->{$Gene}->[1] ){
-                # print $Correlation_Spearman . " < " .  $genes->{$Gene}->[1] . "\n";
-                $genes->{$Gene} = [ $Meth_Probe, $Correlation_Spearman ];
+            if( $Corr_Spearman < $genes->{$Gene}->[1] ){
+                # print $Corr_Spearman . " < " .  $genes->{$Gene}->[1] . "\n";
+                $genes->{$Gene} = [ $Meth_Probe, $Corr_Spearman ];
             }
             
         }else{
-            $genes->{$Gene} = [ $Meth_Probe, $Correlation_Spearman ];
+            $genes->{$Gene} = [ $Meth_Probe, $Corr_Spearman ];
         }
     }, undef, existingCols( $Correlate_Methylation_vs_mRNA_Ctable,
-        qw( Meth_Probe Gene Correlation_Spearman ) ) ); # speed up calc by listing needed fields 
+        qw( Meth_Probe Gene Corr_Spearman ) ) ); # speed up calc by listing needed fields 
 
     # print "methylation genes: ", scalar(keys %{$genes}), " unique lowest correlation genes from \$Correlate_Methylation_vs_mRNA_Ctable: $Firehose_Correlate_Methylation_vs_mRNA_File\n";
     print "create_data_methylation: of ", $ffm->numGenes(), " with measured methylation, only ", scalar(keys %{$genes}), " have correlations.\n";

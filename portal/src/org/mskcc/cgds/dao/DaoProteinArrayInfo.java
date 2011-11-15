@@ -51,6 +51,10 @@ public class DaoProteinArrayInfo {
      * @throws DaoException Database Error.
      */
     public int addProteinArrayInfo(ProteinArrayInfo pai) throws DaoException {
+        if (this.getProteinArrayInfo(pai.getId())!=null) {
+            System.err.println("Protein array "+pai.getId()+" has alread been added. Ignore!");
+            return 0;
+        }
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -80,6 +84,12 @@ public class DaoProteinArrayInfo {
             con = JdbcUtil.getDbConnection();
             int rows = 0;
             for (int cancerStudyId : cancerStudyIds) {
+                if (proteinArrayCancerStudyAdded(arrayId, cancerStudyId)) {
+                    System.err.println("RPPA array "+arrayId+" has already been added for cancer study of "
+                            + cancerStudyId + ".");
+                    continue;
+                }
+                
                 pstmt = con.prepareStatement
                         ("INSERT INTO protein_array_cancer_study (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`) "
                                 + "VALUES (?,?)");
@@ -88,6 +98,26 @@ public class DaoProteinArrayInfo {
                 rows += pstmt.executeUpdate();
             }
             return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public boolean proteinArrayCancerStudyAdded(String arrayId, int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM protein_array_cancer_study WHERE PROTEIN_ARRAY_ID=? AND CANCER_STUDY_ID=?");
+            pstmt.setString(1, arrayId);
+            pstmt.setInt(2, cancerStudyId);
+            
+            rs = pstmt.executeQuery();
+            return rs.next();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

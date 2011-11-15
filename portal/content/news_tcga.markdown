@@ -1,3 +1,17 @@
+# November 15, 2011
+
+Another major update, with the following new features and data:
+
+* In collaboration with Bilkent University, we have added a new *network* tab to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
+* New and improved mutation details, with sorting and filtering capabilities.
+* Survival analysis - assess survival differences between altered and non-altered patient sets.
+* Links to the [Integrative Genomics Viewer (IGV)](http://www.broadinstitute.org/igv/) to view copy-number alterations.
+* All data updated to the October 2011 TCGA Broad Firehose run.
+* RPPA data is now available for 2154 samples in six tumor types.
+* Many new and updated MAF files - now 9 tumor types with mutation data.
+
+![GBM Network](images/previews/ova_network.png)
+
 # October 18, 2011
 
 This release adds the following new data:

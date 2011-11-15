@@ -26,7 +26,7 @@ use warnings;
 use Getopt::Long;
 use File::Spec;
 use File::Util;
-use File::Path qw(remove_tree);
+use File::Path qw(make_path remove_tree);
 use Data::Dumper;
 use Digest::MD5;
 use Data::CTable;
@@ -258,7 +258,7 @@ sub download_from_firehose{
 
 	# eliminate duplicate directory name patterns
 	my $filesToGet = join( ',', removeDupes( @filesToGet ) );
-    
+
 	# server directory root is URL without hostname
 	my $serverDir = $FirehoseURL;
 	$serverDir =~ s|.*//[^/]+/||;
@@ -270,18 +270,45 @@ sub download_from_firehose{
 	    # --include-directories='tcgafiles/ftp_auth/distro_ftpusers/tcga4yeo/other/gdacs/gdacbroad/read/2011011400' 
 	    # https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/tcga4yeo/other/gdacs/gdacbroad/read/2011011400
 
-	    my $cancersURL = "$FirehoseURL/$cancer/$mostRecentRunDate";
+	    my $cancersAnalysesURL = "$FirehoseURL/$cancer/analyses/$mostRecentRunDate";
+	    my $cancersStddataURL = "$FirehoseURL/$cancer/stddata/$mostRecentRunDate";
 
 	    # only get from those directories with the most recent run date
-	    my $includeDirectories = "$serverDir/$cancer/$mostRecentRunDate"; 
+	    my $includeDirectories = "$serverDir/$cancer/analyses/$mostRecentRunDate,$serverDir/$cancer/stddata/$mostRecentRunDate"; 
 
-	    # and accept only files we want: Ô--accept acclistÕ
+	    # grab data that lives in analyses subdir
 	    @args = ( '--recursive', '-e', 'robots=off', '--no-verbose', '--no-parent', # # '--debug', 
 	        "--user=$FirehoseURLUserid", "--password=$FirehoseURLPassword", 
-	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersURL" );     
+	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersAnalysesURL" );     
 	        print 'wget ', join ' ', @args, "\n";
 
-	    runSystem( 'wget', "Downloading from $cancersURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+	    runSystem( 'wget', "Downloading from $cancersAnalysesURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+
+	    # grab data that lives in stddata subdir
+	    @args = ( '--recursive', '-e', 'robots=off', '--no-verbose', '--no-parent', # # '--debug', 
+	        "--user=$FirehoseURLUserid", "--password=$FirehoseURLPassword", 
+	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersStddataURL" );     
+	        print 'wget ', join ' ', @args, "\n";
+
+	    runSystem( 'wget', "Downloading from $cancersStddataURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+
+		# to avoid rewriting other parts of firehose to work with new directory structure we do the following:
+		
+		# create oldstyle $cancer/$mostRecentRunDate subdir
+		my $downloadLocation = "$FirehoseDirectory/" . substr $FirehoseURL, 8;
+		my $cancerSubdir = "$downloadLocation/$cancer/$mostRecentRunDate";
+		make_path( $cancerSubdir );
+		
+		# move from analyses/rundate -> cancer/rundate
+		my $fromAnalyses = "$downloadLocation/$cancer/analyses/$mostRecentRunDate";
+		system( "mv $fromAnalyses/* $cancerSubdir" );
+
+		# move from stddata/rundate -> cancer/rundate
+		my $fromStddata = "$downloadLocation/$cancer/stddata/$mostRecentRunDate";
+		system( "mv $fromStddata/* $cancerSubdir" );
+
+		# get rid of unused subdirs
+		remove_tree( "$downloadLocation/$cancer/analyses", "$downloadLocation/$cancer/stddata/" ); 
     }
 }
 

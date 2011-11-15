@@ -1,17 +1,18 @@
-Cancers	cases_sequenced.txt	cases_CGH.txt	cases_complete.txt	cases_normal_mRNA.txt	cases_mRNA.txt	cases_all.txt
-blca		34				34
-brca	514	700	487	0	530	731
-cesc		31				31
-coadread	224	509	196	0	224	526
-gbm	372	492				526
-hnsc		124				124
-kirc	378	489	55	0	72	496
+Cancers	cases_sequenced.txt	cases_complete.txt	cases_CGH.txt	cases_normal_mRNA.txt	cases_mRNA.txt	cases_all.txt
+blca			35			35
+brca	507	481	700	0	530	731
+cesc			36			36
+coadread	224	196	519	0	224	536
+gbm	372		501			532
+hnsc			127			127
+kirc	327	48	489	0	72	495
 laml	131					131
-lgg		55		0	21	55
-lihc		49				49
-luad	120	154	26	0	33	216
-lusc	184	183	106	0	148	213
-ov	456	501	384	0	528	561
-stad		143				143
-thca						0
-ucec	239	268	43	0	44	322
+lgg			58	0	27	58
+lihc			53			53
+luad			172	0	33	173
+lusc	184	112	194	0	155	213
+ov	456	379	481	0	509	545
+paad			14			14
+stad			149			149
+thca			85			85
+ucec	239	53	283	0	54	337

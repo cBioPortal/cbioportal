@@ -384,10 +384,20 @@ table td {
 
 .oncoprint {
     font-family: verdana, arial, sans-serif;
-    font-size:12px !important;
+    font-size:13px !important;
     text-align: left;
     background: white;
     border: none;
+}
+
+.oncoprint td {
+    font-size:12px;
+}
+
+.oncoprint th{
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    color:#666666;
 }
 
 .oncoprint_section {
@@ -570,7 +580,7 @@ td.op_data_cell{
 }
 
 .tiny {
-  font-size:8px;
+  font-size:12px;
 }
 
 #load {

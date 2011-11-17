@@ -60,7 +60,7 @@ function clinical(){
 function bitlyURL(fullURL){
 
     //testing - can not encode URI component when localhost is in URL
-    fullURL = fullURL.replace("localhost:8080/cgx","cbioportal.org/public-portal");
+    //fullURL = fullURL.replace("localhost:8080/cgx","cbioportal.org/public-portal");
     //console.log("URL: "+fullURL);
 
     var defaults = {

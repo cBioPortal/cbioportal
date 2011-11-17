@@ -88,25 +88,6 @@
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
-<script type="text/javascript">
-
-    function getTinyURL(longURL, success) {
-        var API = 'http://json-tinyurl.appspot.com/?url=',
-        URL = API + encodeURIComponent(longURL) + '&callback=?';
-
-	    $.getJSON(URL, function(data){
-        	success && success(data.tinyurl);
-        });
-    }
-
-    function shrinkURL(longURL){
-        getTinyURL(longURL, function(tinyurl){
-            $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
-        });
-    }
-
-
-</script>
 
 <jsp:include page="global/header.jsp" flush="true" />
 
@@ -269,13 +250,14 @@
 
                     String longLink = buf.toString();
                     out.println("<br><br>");
-                    // out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='http://tinyurl.com/'>TinyURL.com</a> service below:<BR>");
-                    // out.println("<BR><form><input type=\"button\" onClick=\"shrinkURL('"+longLink+"')\" value=\"Get TinyURL\"></form>");
-                    // out.println("<div id='tinyurl'></div>");
-					out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
-					out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
-					out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
-					out.println("<a href='http://goo.gl/'>Google</a>.");
+                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"')\" value=\"Shorten URL\"></form>");
+                    out.println("<div id='bitly'></div>");
+
+					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
+					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
+					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
+					//out.println("<a href='http://goo.gl/'>Google</a>.");
                     out.println("</div>");
                 }
 

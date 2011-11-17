@@ -506,7 +506,7 @@ public class QueryBuilder extends HttpServlet {
 			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
 			if (geneList != null && geneList.size() > 0) {
 				igvURL += StringUtils.join(geneList,"%20");
-				writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
+				writer.write("<div style=\"text-align:left\"><a target=\"_blank\" href=\"");
 				writer.write(igvURL);
 				writer.write("\"><font color=\"#1974b8\" size=\"1\">Integrative Genomics Viewer</font>" +
 							 "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");

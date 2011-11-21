@@ -19,6 +19,8 @@ public class SkinUtil {
             "skin.right_nav.show_examples";
     private static final String PROPERTY_SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     private static final String PROPERTY_AUTHENTICATION_REQUIRED = "authenticate";
+    private static final String PROPERTY_BITLY_USER = "bitly.user";
+    private static final String PROPERTY_BITLY_API_KEY = "bitly.api_key";
 
     /**
      * Gets the Site Title.
@@ -73,6 +75,24 @@ public class SkinUtil {
 
         //  Return email address within mailme span, so that we can de-obfuscate with JQuery.
         return ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
+    }
+
+    /**
+     * Gets the bitly user name.
+     * @return bitly user name.
+     */
+    public static String getBitlyUser() {
+        Config config = Config.getInstance();
+        return config.getProperty(PROPERTY_BITLY_USER);
+    }
+
+    /**
+     * Gets the bitly api key.
+     * @return bitly api key.
+     */
+    public static String getBitlyApiKey() {
+        Config config = Config.getInstance();
+        return config.getProperty(PROPERTY_BITLY_API_KEY);
     }
 
     /**

@@ -165,6 +165,36 @@ sub create_data_mRNA_median{
     $data->write( $CGDSfile );
 }
 
+# create data_rna_seq_expression_median.txt for RNA-Seq mRNA
+# source file: <cancer>.rnaseq.txt
+# data transformation:
+# Convert case ID
+# Convert 'Symbol' to Gene_ID
+sub create_data_RNA_seq_mRNA_median{
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    # convert case-ID headers
+    convert_case_ID_headers( $firehoseFile, $data );
+
+    # create Gene_ID column
+    $data->col('Gene_ID');
+    
+    # convert geneIDs
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Symbol', 'Gene_ID' );
+
+    # rename 'Symbol' column to Gene
+    # todo: change Zscores calculation and importProfile so we can create a Gene column
+    my @cols = ( 'Gene_ID', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    $data->fieldlist_set( \@cols );
+    
+    # write CGDS file
+    $data->write( $CGDSfile );
+}
+
 # sub to create data_expression_median.txt for miRNA
 # find latest version of tarball
 # source tarball: gdac.broadinstitute.org_<cancer>.Merge_mirna__h_mirna_8x15kv2__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date>.<version>.tar.gz
@@ -756,6 +786,48 @@ sub create_data_mRNA_median_Zscores{
     # todo: make a "real" temp file; avoid concurency collisions
     my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt' );
     $self->create_data_mRNA_median( $globalHash, [ $FirehoseMRNA_File ], [ $MRNA_FileCtable ], $tmpFirehoseMRNA_File );
+
+    my $cmdLineCP = set_up_classpath( $codeForCGDS );
+    my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
+
+    # run the zScore java program
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.ComputeZScoreUnit " . $files );
+}
+
+# sub to create data_RNA_seq_mRNA_median_Zscores.txt
+# source file: <cancer>.rnaseq.txt
+# data transformation:
+# Giovanni's Z-score program
+# inputs CNA and median expression profile files
+# outputs z-Score expression file
+# special, as calls java program to compute output file
+sub create_data_RNA_seq_mRNA_median_Zscores{
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, $codeForCGDS ) = @_;    
+
+    # the CNA and median expression files are the first two entries in $firehoseFiles
+    my $FirehoseGistic_File = shift @{$firehoseFiles};
+    my $FirehoseMRNA_File = shift @{$firehoseFiles};
+    
+    # Similarly for cTables
+    my $Gistic_FileCtable = shift @{$cTables};
+    my $MRNA_FileCtable = shift @{$cTables};
+    
+    ###########
+    # preprocess gene ids so that cgds finds as many zScore genes as possible 
+    # for each input file, read file, map, write to temp file
+    # give temp files to ComputeZScoreUnit
+    my $tmpDir = File::Spec->tmpdir();
+
+    # 1) combine Hugo_Symbol and Entrez_Gene_Id in all_thresholded.by_genes.txt into a 'best' gene ID
+    # todo: make a "real" temp file; avoid concurency collisions
+    # todo: tmp cleanup: remove this and other temp files
+    my $tmpFirehoseGistic_File = File::Spec->catfile( $tmpDir, 'tmp_all_thresholded.by_genes.txt' );
+    $self->create_data_CNA( $globalHash, [ $FirehoseGistic_File ], [ $Gistic_FileCtable ], $tmpFirehoseGistic_File );
+
+    # 2) map Hugo_Symbol in <CANCER>.medianexp.txt into a 'best' gene ID 
+    # todo: make a "real" temp file; avoid concurency collisions
+    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.rnaseq.txt' );
+    $self->create_data_RNA_seq_mRNA_median( $globalHash, [ $FirehoseMRNA_File ], [ $MRNA_FileCtable ], $tmpFirehoseMRNA_File );
 
     my $cmdLineCP = set_up_classpath( $codeForCGDS );
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );

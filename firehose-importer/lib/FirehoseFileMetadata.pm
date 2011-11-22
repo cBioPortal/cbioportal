@@ -31,6 +31,13 @@ my $fileProperties = {
         geneIDcol => undef,
         geneSymbolCol => 'Hybridization REF',
     },
+    '<CANCER>.rnaseq.txt' => {
+        example => 'KIRC.rnaseq.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'Symbol',
+    },
     'all_thresholded.by_genes.txt' => {
         example => 'all_thresholded.by_genes.txt',
         structure => 'profile',

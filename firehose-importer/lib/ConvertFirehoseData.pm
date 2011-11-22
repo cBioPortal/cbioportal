@@ -133,7 +133,16 @@ sub CreateCancersCGDSinput{
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_mrna',
             'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Tumors with mRNA data',
+            'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
+            'case_list_description' =>
+              'All samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_RNA_Seq_mRNA.txt' => {
+            'FirehoseFile'          => '<CANCER>.rnaseq.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_rna_seq_mrna',
+            'cancer_study_identifier'        => '<cancer>',
+            'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
             'case_list_description' =>
               'All samples with mRNA expression data (<cases> samples)',
         },
@@ -175,6 +184,7 @@ sub CreateCancersCGDSinput{
         # todo: make these table/config file driven
         [ qw( 
             all_thresholded.by_genes.txt
+            <CANCER>.rnaseq.txt
             <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
             <CANCER>.maf.annotated
          ) ],
@@ -187,6 +197,13 @@ sub CreateCancersCGDSinput{
         }
     );
 
+	# if rna seq data exists use it
+	my $mRNAExpressionMedianFile = "<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt";
+	my $rnaSeqExpressionFile = getLastestVersionOfFile( $CancersFirehoseDataDir, "gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>", "<CANCER>.rnaseq.txt", $cancer, $runDate );
+	if ( defined( $rnaSeqExpressionFile ) ) {
+	  $mRNAExpressionMedianFile = "<CANCER>.rnaseq.txt";
+	}
+
     # create cases_complete.txt
     create_many_to_one_case_lists( 
         $FirehoseFileMetadata_objects,
@@ -195,8 +212,8 @@ sub CreateCancersCGDSinput{
         'cases_complete.txt',
         $cancer,
         # todo: make these table/config file driven
-        [ qw( 
-            <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+        [ $mRNAExpressionMedianFile,
+		  qw( 
             all_thresholded.by_genes.txt
             <CANCER>.maf.annotated
          ) ],
@@ -358,15 +375,29 @@ sub createMetaFile{
             'stable_id'                    => '<cancer>_mrna',  # todo: change to _rna; might work
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'false',
-            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases',
+            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (Agilent microarray).',
             'profile_name'                 => 'mRNA expression (microarray)'
+        },
+        'RNA_Seq_expression_median' => {
+            'stable_id'                    => '<cancer>_rna_seq_mrna',  # todo: change to _rna; might work
+            'genetic_alteration_type'      => 'MRNA_EXPRESSION',
+            'show_profile_in_analysis_tab' => 'false',
+            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (RNA Seq).',
+            'profile_name'                 => 'mRNA expression (RNA Seq)'
         },
         'mRNA_median_Zscores' => {
             'stable_id'                    => '<cancer>_mrna_median_Zscores',
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'true',
-            'profile_description'          => 'mRNA z-Scores compared to the expression distribution of each gene in diploid tumors.',
-            'profile_name'                 => 'mRNA Expression z-Scores'
+            'profile_description'          => 'mRNA z-Scores (Agilent microarray) compared to the expression distribution of each gene tumors that are diploid for this gene.',
+            'profile_name'                 => 'mRNA Expression z-Scores (microarray)'
+        },
+        'RNA_Seq_mRNA_median_Zscores' => {
+            'stable_id'                    => '<cancer>_rna_seq_mrna_median_Zscores',
+            'genetic_alteration_type'      => 'MRNA_EXPRESSION',
+            'show_profile_in_analysis_tab' => 'true',
+            'profile_description'          => 'mRNA z-Scores (RNA Seq) compared to the expression distribution of each gene tumors that are diploid for this gene.',
+            'profile_name'                 => 'mRNA Expression z-Scores (RNA Seq)'
         },
         'mutations_extended' => {
             'stable_id'               => '<cancer>_mutations',
@@ -446,7 +477,7 @@ sub create_many_to_one_case_lists{
     # get files available in firehose files $FirehoseFileMetadata_objects
     my @FirehoseFileMetadata_objects_of_interest;
     foreach my $possibleFirehoseFile (@{$FirehoseFilesToProcess}){
-         
+
         $possibleFirehoseFile =~ s/<cancer>/$cancer/;
         # substitute <CANCER> with this cancer, uppercased 
         my $cancerUC = uc( $cancer );
@@ -468,7 +499,7 @@ sub create_many_to_one_case_lists{
     # intersection of case lists
     if( $operation eq 'intersection'){
         # for intersections, all desired Firehose files must be present
-        if( scalar( @FirehoseFileMetadata_objects_of_interest ) < scalar( @{ $FirehoseFilesToProcess }) ){
+	    if( scalar( @FirehoseFileMetadata_objects_of_interest ) < scalar( @{ $FirehoseFilesToProcess }) ){
             return;
         }
         @cases = sort( FirehoseFileMetadata::intersection_of_case_lists( @FirehoseFileMetadata_objects_of_interest) );

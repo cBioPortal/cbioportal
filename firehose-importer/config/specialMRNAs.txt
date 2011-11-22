@@ -1,2 +1,3 @@
-GBM.medianexp.txt  gbm
-OV.medianexp.txt ov
+COADREAD.rnaseq.txt	coadread
+KIRC.rnaseq.txt kirc
+LUSC.rnaseq.txt lusc

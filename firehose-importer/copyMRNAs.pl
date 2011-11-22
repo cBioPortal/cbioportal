@@ -57,7 +57,7 @@ sub moveMRNA{
     # because that's what convertFirehoseData.pl will use via getLastestVersionOfFile()
     my $CancersFirehoseDataDir = File::Spec->catfile( $DeepFirehoseDirectory, $cancer, $runDate . '00' );
     my( $mRNADir, $mRNAFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
-        'gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_<version>__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version>', '<CANCER>.transcriptome__agilentg4502a_07_<version>__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
+        'gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>', '<CANCER>_rnaseq.txt',
         $cancer, $runDate );
     
     my $toFile = File::Spec->catfile( $mRNADir, $mRNAFile );
@@ -73,16 +73,17 @@ sub getNextVersionOfFile{
     my $latestVersion = getLastestVersionOfFile( $CancersFirehoseDataDir, $directoryNamePattern, $fileNamePattern, $cancer, $runDate );
     my($volume, $latestDir, $latestFile ) = File::Spec->splitpath( $latestVersion );
     my $nextDir = $latestDir;
-	#unless ( -d $nextDir) {
-	  #my $mRNADir = File::Spec->catfile($CancersFirehoseDataDir, $directoryNamePattern);
-	  #my $cancer_UC = uc( $cancer );
-	  #$mRNADir =~ s/<CANCER>/$cancer_UC/;
-	  #$mRNADir =~ s/<date><version>/$runDate.0.0/;
-	  #print "cannot find dir to put mRNA file, making: $mRNADir\n";
-	  #$nextDir = File::Util->new->makde_dir($mRNADir);
-    #}
+	unless ( -d $nextDir) {
+	  my $mRNADir = File::Spec->catfile($CancersFirehoseDataDir, $directoryNamePattern);
+	  my $cancer_UC = uc( $cancer );
+	  $mRNADir =~ s/<CANCER>/$cancer_UC/;
+	  my $dateVersion = $runDate . "00.0.0";
+	  $mRNADir =~ s/<date><version>/$dateVersion/;
+	  print "cannot find dir to put maf file, making: $mRNADir\n";
+	  $nextDir = File::Util->new->make_dir($mRNADir);
+	}
     # pattern is '.digit.digit/'
-    $nextDir =~ /(\d)\.(\d)\/$/;
+    $nextDir =~ /(\d)\.(\d)\/?$/;
     unless( defined($1) and defined($2)){
 	  die "Did not match directory pattern correctly on $nextDir.";
     }   

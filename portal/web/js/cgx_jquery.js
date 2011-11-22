@@ -57,22 +57,27 @@ function clinical(){
 }
 
 
-function bitlyURL(fullURL){
+/*
+This function accepts as arguments the URL to be shortened,
+our bitly user name and bitly API key (user and key are
+stored in properties file)
+ */
+function bitlyURL(fullURL, usr, key){
 
-    //testing - can not encode URI component when localhost is in URL
+    /*testing - can not encode URI component when localhost is in URL.
+              - uncomment following line when testing on localhost.
+     */
     //fullURL = fullURL.replace("localhost:8080/cgx","cbioportal.org/public-portal");
-    //console.log("URL: "+fullURL);
 
     var defaults = {
         version: '3.0',
-        login: 'cbioportal',
-        apiKey: 'R_94aa4ca6019d2a1f4dfe99acf59c9275',
+        login: usr,
+        apiKey: key,
         history: '0',
         longURL: encodeURIComponent(fullURL)
     };
 
-    //console.log("LONGURL: "+defaults.longURL);
-
+    //build call to web API
     var qurl = "http://api.bit.ly/shorten?"
     +"version="+defaults.version
     +"&longUrl="+defaults.longURL
@@ -81,12 +86,10 @@ function bitlyURL(fullURL){
     +"&history="+defaults.history
     +"&format=json&callback=?";
 
+    // get JSON data, extract from it the new short URL and
+    // append the short URL to div with id 'bitly'
     $.getJSON(qurl, function(data){
-
-	console.log(data);
-
-        $('#bitly').append(data.results[fullURL].shortUrl);
-
+        $('#bitly').append("<br><strong>"+data.results[fullURL].shortUrl+"</strong><br>");
     });
 
 

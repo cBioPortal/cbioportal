@@ -68,6 +68,8 @@
 
     Config globalConfig = Config.getInstance();
     String siteTitle = SkinUtil.getTitle();
+    String bitlyUser = SkinUtil.getBitlyUser();
+    String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
@@ -251,7 +253,7 @@
                     String longLink = buf.toString();
                     out.println("<br><br>");
                     out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"')\" value=\"Shorten URL\"></form>");
+                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
                     out.println("<div id='bitly'></div>");
 
 					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");

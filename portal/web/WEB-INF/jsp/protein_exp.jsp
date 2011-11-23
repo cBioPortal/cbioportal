@@ -295,7 +295,7 @@
                         var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
                         if (aData[5])
                             antibody += ' ['+aData[5]+']';
-                        var xlabel = "Gene list: ";
+                        var xlabel = "Query: ";
                         if (aData[1] == "Any")
                             xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
                         else

@@ -104,8 +104,8 @@
                 if (aDataSet.length==0)
                     return;
                 
-                var showPValueColumn = aDataSet[0][11]!="NaN";
-                var showAbsDiffColumn = !showPValueColumn && aDataSet[0][10]!="NaN";
+                var showPValueColumn = aDataSet[0][9]!="NaN";
+                var showAbsDiffColumn = !showPValueColumn && aDataSet[0][8]!="NaN";
                 
                 var sortingColumn;
                 if (showPValueColumn) {

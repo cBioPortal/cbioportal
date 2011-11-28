@@ -30,6 +30,6 @@ public abstract class AbstractIdMappingServiceTest {
 
     @Test(expected=NullPointerException.class)
     public final void testGetUniProtIdNullHugoGeneSymbol() {
-        idMappingService.getUniProtId(null);
+        idMappingService.getUniProtIds(null);
     }
 }

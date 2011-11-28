@@ -1,15 +1,17 @@
 package org.mskcc.portal.mutation.diagram;
 
+import java.util.List;
+
 /**
  * Id mapping service.
  */
 public interface IdMappingService {
 
     /**
-     * Return the UniProt id for the specified HUGO gene symbol, or <code>null</code> if no such id exists
+     * Return a list of UniProt ids for the specified HUGO gene symbol, or an empty list if no such ids exist.
      *
      * @param hugoGeneSymbol HUGO gene symbol, must not be null
-     * @return the UniProt id for the specified HUGO gene symbol, or <code>null</code> if no such id exists
+     * @return a list of UniProt ids for the specified HUGO gene symbol, or an empty list if no such ids exist
      */
-    String getUniProtId(String hugoGeneSymbol);
+    List<String> getUniProtIds(String hugoGeneSymbol);
 }

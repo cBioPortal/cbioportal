@@ -35,7 +35,8 @@ public final class MutationDiagramDataServlet extends HttpServlet {
         // todo:  check and sanitize hugoGeneSymbol if necessary
         String hugoGeneSymbol = request.getParameter("hugoGeneSymbol");
         int length = 800;  // uh oh
-        String uniProtId = idMappingService.getUniProtId(hugoGeneSymbol);
+        List<String> uniProtIds = idMappingService.getUniProtIds(hugoGeneSymbol);
+        String uniProtId = uniProtIds.get(0); // uh oh
         List<Domain> domains = domainService.getDomains(uniProtId);
         List<Mutation> mutations = mutationService.getMutations(hugoGeneSymbol);
         String label = hugoGeneSymbol + "/" + uniProtId;

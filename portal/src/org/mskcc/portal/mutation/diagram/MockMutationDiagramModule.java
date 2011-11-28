@@ -1,10 +1,7 @@
 package org.mskcc.portal.mutation.diagram;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.ListMultimap;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -17,7 +14,7 @@ public final class MockMutationDiagramModule extends AbstractModule {
     @Override 
     protected void configure() {
         bind(DomainService.class).to(ListMultimapDomainService.class).in(Singleton.class);
-        bind(IdMappingService.class).to(MultimapIdMappingService.class).in(Singleton.class);
+        bind(IdMappingService.class).to(ListMultimapIdMappingService.class).in(Singleton.class);
         bind(MutationService.class).to(ListMultimapMutationService.class).in(Singleton.class);
     }
 
@@ -48,8 +45,8 @@ public final class MockMutationDiagramModule extends AbstractModule {
     }
 
     @Provides
-    Multimap<String, String> createUniProtIds() {
-        Multimap<String, String> uniProtIds = HashMultimap.create();
+    ListMultimap<String, String> createUniProtIds() {
+        ListMultimap<String, String> uniProtIds = ArrayListMultimap.create();
         uniProtIds.put("DVL1", "DVL1_HUMAN");
         uniProtIds.put("DVL1", "O14640");
         uniProtIds.put("TP53", "P04637");

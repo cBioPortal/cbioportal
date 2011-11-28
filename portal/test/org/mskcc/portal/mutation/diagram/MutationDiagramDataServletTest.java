@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Unit test for MutationDiagramDataServlet.
  */
@@ -55,7 +57,7 @@ public final class MutationDiagramDataServletTest {
     @Test
     public void testDoPost() throws Exception {
         when(request.getParameter("hugoGeneSymbol")).thenReturn("PIK3CA");
-        when(idMappingService.getUniProtId("PIK3CA")).thenReturn("P42336");
+        when(idMappingService.getUniProtIds("PIK3CA")).thenReturn(ImmutableList.of("P42336"));
         when(domainService.getDomains("P42336")).thenReturn(Collections.<Domain>emptyList());
         when(mutationService.getMutations("PIK3CA")).thenReturn(Collections.<Mutation>emptyList());
         StringWriter stringWriter = new StringWriter();

@@ -11,6 +11,9 @@
 # Load up Entrez Genes
 ./importGenes.pl ../sample_data/genes/human_genes.txt
 
+# Load Entrez Gene ID --> UniProt ID mapping
+./importUniProtIdMapping.pl ../sample_data/genes/uniprot_id_mapping.txt
+
 # Load up All Cancer Types
 ./importTypesOfCancer.pl ../sample_data/cancers.txt
 

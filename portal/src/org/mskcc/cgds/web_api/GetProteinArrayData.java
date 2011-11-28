@@ -36,8 +36,8 @@ public class GetProteinArrayData {
             throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
-        StringBuilder sb = new StringBuilder("GENE\tARRAY_ID\tARRAY_TYPE\t"
-                + "RESIDUE\tANTIBODY_SOURCE\tVALIDATED\n");
+        StringBuilder sb = new StringBuilder("ARRAY_ID\tARRAY_TYPE\tGENE\t"
+                + "RESIDUE\n");
         
         ArrayList<ProteinArrayInfo> pais;
         
@@ -61,8 +61,8 @@ public class GetProteinArrayData {
             sb.append(pai.getType()); sb.append('\t');
             sb.append(pai.getGene()); sb.append('\t');
             sb.append(pai.getResidue()); sb.append('\t');
-            sb.append(pai.getSource()); sb.append('\t');
-            sb.append(Boolean.toString(pai.isValidated()));
+            //sb.append(pai.getSource()); sb.append('\t');
+            //sb.append(Boolean.toString(pai.isValidated()));
             sb.append('\n');
         }
         
@@ -95,10 +95,13 @@ public class GetProteinArrayData {
         sb.append(StringUtils.join(targetCaseList, "\t"));
         sb.append('\n');
         
-        for (Map.Entry<String, Map<String,Double>> entry : mapArrayCaseAbun.entrySet()) {
-            String arrayId = entry.getKey();
+        for (String arrayId : arrayIds) {
+            Map<String,Double> mapCaseAbun = mapArrayCaseAbun.get(arrayId);
+            if (mapCaseAbun==null) {
+                continue;
+            }
+            
             sb.append(arrayId);
-            Map<String,Double> mapCaseAbun = entry.getValue();
             
             for (String caseId : targetCaseList) {
                 sb.append('\t');

@@ -323,6 +323,37 @@
     <copy file="${war.dir}/cgx.war" todir="/Library/Tomcat/Home/webapps/" />
   </target>
 
+  <target name="snapshot" description="Prepares a tar.gz Snapshot for upload to google code"
+	depends="clean" >
+	<!-- Call hg id to determine the current tag -->
+	<exec executable="hg" outputproperty="tag.id">
+	        <arg value="id"/>
+	        <arg value="-t"/>
+    </exec>
+	<!-- Make new directory, based on tag # -->
+	<mkdir dir="${dist.dir}/cbio_portal_${tag.id}"/>
+	<copy todir="${dist.dir}/cbio_portal_${tag.id}">
+		<fileset dir=".">
+			<exclude name="**/*.log*"/>
+			<exclude name="reload.sh"/>
+			<exclude name=".classpath"/>
+			<exclude name="*.ipr"/>
+			<exclude name="*.iws"/>
+			<exclude name="build.properties.*"/>
+			<exclude name=".settings/"/>
+			<exclude name="interim/"/>
+			<exclude name="web_sandbox/"/>
+			<exclude name="artwork/"/>
+			<exclude name=".project"/>
+			<exclude name="dist/"/>
+		</fileset>
+  	</copy>
+	<tar destfile="${dist.dir}/cbio_portal_${tag.id}.tar"
+	     basedir="${dist.dir}"
+	/>
+	<gzip destfile="${dist.dir}/cbio_portal_${tag.id}.tar.gz" src="${dist.dir}/cbio_portal_${tag.id}.tar"/>
+  </target>
+
   <target name="targets" description="Describes available ant targets">
     <echo>check - Runs Checkstyle on all source code</echo>
     <echo>check-validator-code - Runs Checkstyle on Validator Package Only</echo>

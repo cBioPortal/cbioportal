@@ -35,13 +35,6 @@ public final class MutationDiagramModule extends AbstractModule {
         return DaoGeneOptimized.getInstance();
     }
 
-    /*
-    @Provides
-    DaoIdMapping createDaoIdMapping() throws DaoException {
-        return DaoIdMapping.getInstance();
-    }
-    */
-
     @Provides
     DaoMutation createDaoMutation() throws DaoException {
         return DaoMutation.getInstance();

@@ -19,7 +19,7 @@ public abstract class AbstractIdMappingServiceTest {
     protected abstract IdMappingService createIdMappingService();
 
     @Before
-    public final void setUp() {
+    public void setUp() {
         idMappingService = createIdMappingService();
     }
 

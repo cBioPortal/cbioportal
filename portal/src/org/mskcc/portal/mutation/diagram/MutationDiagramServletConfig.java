@@ -13,7 +13,7 @@ public final class MutationDiagramServletConfig extends GuiceServletContextListe
 
     @Override
     protected Injector getInjector() {
-        return Guice.createInjector(new MockMutationDiagramModule(), new ServletModule() {
+        return Guice.createInjector(new MutationDiagramModule(), new ServletModule() {
                 @Override
                 protected void configureServlets() {
                     serve("/mutation_diagram.do").with(MutationDiagramServlet.class);

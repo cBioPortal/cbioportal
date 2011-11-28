@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `gene_alias` (
 CREATE TABLE IF NOT EXISTS `uniprot_id_mapping` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `UNIPROT_ID` varchar(255) NOT NULL,
-  PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
+  PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

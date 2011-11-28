@@ -210,6 +210,18 @@
 }
 
 /* settings panel */
+#settings_dialog #fd_layout_settings table 
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#settings_dialog #fd_layout_settings label 
+{
+	white-space: nowrap;
+}
+
 #settings_dialog .footer
 {
 	padding-top: 0.5em;

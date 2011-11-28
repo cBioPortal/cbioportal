@@ -1929,7 +1929,7 @@ function _initDialogs()
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 280,
-		height: 135});
+		height: 140});
 }
 
 /**
@@ -1938,8 +1938,8 @@ function _initDialogs()
 function _initSliders()
 {
 	// add key listeners for input fields
-	$("#weight_slider_field").keypress(_keyPressedForSlider);
-	$("#affinity_slider_field").keypress(_keyPressedForSlider);
+	$("#weight_slider_field").keypress(_keyPressListener);
+	$("#affinity_slider_field").keypress(_keyPressListener);
 	
 	// show gene filtering slider	
 	$("#weight_slider_bar").slider(
@@ -2110,13 +2110,13 @@ function _affinitySliderChange(event, ui)
 }
 
 /**
- * Key listener for input fields next to sliders.
+ * Key listener for input fields on the genes tab.
  * Updates the slider values (and filters if necessary), if the input
  * value is valid.
  * 
  * @param event		event triggered the action
  */
-function _keyPressedForSlider(event)
+function _keyPressListener(event)
 {
 	var input;
 	
@@ -2180,6 +2180,10 @@ function _keyPressedForSlider(event)
 			$("#affinity_slider_bar").slider("option",
 				"value",
 				Math.round(input * 100));
+		}
+		else if (event.target.id == "search")
+		{
+			searchGene();
 		}
 	}
 }
@@ -2501,6 +2505,7 @@ function _initControlFunctions()
 	$("#default_layout_settings").click(defaultSettings);
 	
 	$("#search_genes").click(searchGene);
+	$("#genes_tab #search").keypress(_keyPressListener);
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelected);
 	$("#unhide_genes").click(_unhideAll);

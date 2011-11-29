@@ -24,12 +24,16 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Unit test for CgdsMutationService.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DaoGeneOptimized.class, DaoMutation.class })
 public final class CgdsMutationServiceTest extends AbstractMutationServiceTest {
+    private static final List<String> INDELS = ImmutableList.of("missense", "inframe_del", "frameshift_del", "frameshift_ins");
+
     @Mock
     private CanonicalGene gene;
     @Mock
@@ -86,6 +90,42 @@ public final class CgdsMutationServiceTest extends AbstractMutationServiceTest {
         assertEquals(123, mutation.getLocation());
         assertEquals(1, mutation.getCount());
         assertNull(mutation.getLabel());
+    }
+
+    @Test
+    public void testGetMutationsNonsenseMutation() throws DaoException {
+        when(geneDao.getGene("DVL1")).thenReturn(gene);
+        when(gene.getEntrezGeneId()).thenReturn(1855L);
+        ArrayList<ExtendedMutation> extendedMutations = new ArrayList<ExtendedMutation>();
+        extendedMutations.add(extendedMutation);
+        when(mutationDao.getMutations(1, 1855L)).thenReturn(extendedMutations);
+        when(extendedMutation.getAminoAcidChange()).thenReturn("K123*");
+
+        List<Mutation> mutations = mutationService.getMutations("DVL1");
+        assertNotNull(mutations);
+        assertEquals(1, mutations.size());
+
+        Mutation mutation = mutations.get(0);
+        assertEquals(123, mutation.getLocation());
+        assertEquals(1, mutation.getCount());
+        assertNull(mutation.getLabel());
+    }
+
+    @Test
+    public void testGetMutationsIndelMutations() throws DaoException {
+        when(geneDao.getGene("DVL1")).thenReturn(gene);
+        when(gene.getEntrezGeneId()).thenReturn(1855L);
+        ArrayList<ExtendedMutation> extendedMutations = new ArrayList<ExtendedMutation>();
+        extendedMutations.add(extendedMutation);
+        when(mutationDao.getMutations(1, 1855L)).thenReturn(extendedMutations);
+
+        for (String indel : INDELS) {
+            when(extendedMutation.getAminoAcidChange()).thenReturn(indel);
+
+            List<Mutation> mutations = mutationService.getMutations("DVL1");
+            assertNotNull(mutations);
+            assertTrue(mutations.isEmpty());
+        }
     }
 
     @Test(expected=NullPointerException.class)

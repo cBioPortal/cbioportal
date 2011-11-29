@@ -54,8 +54,13 @@ public final class CgdsMutationService implements MutationService {
             Multiset<Integer> locations = HashMultiset.create();
             for (ExtendedMutation extendedMutation : extendedMutations) {
                 String label = extendedMutation.getAminoAcidChange();
-                int location = Integer.valueOf(label.replaceAll("[A-Z]+", ""));
-                locations.add(location);
+                try {
+                    int location = Integer.valueOf(label.replaceAll("[A-Z*]+", ""));
+                    locations.add(location);
+                }
+                catch (NumberFormatException e) {
+                    logger.warn("ignoring extended mutation " + label + ", no location information");
+                }
             }
             for (Multiset.Entry<Integer> entry : locations.entrySet()) {
                 int location = entry.getElement();

@@ -775,11 +775,19 @@ function updateGenesTab(evt)
  */
 function searchGene()
 {
-	var query = $("#genes_tab #search").val();
+	var query = $("#genes_tab #search_box").val();
+	
+	// do not perform search for an empty string
+	if (query.length == 0)
+	{
+		return;
+	}
 	
 	var genes = _visibleGenes();
 	var matched = new Array();
 	var i;
+	
+	// linear search for the input text
 	
 	for (i=0; i < genes.length; i++)
 	{
@@ -1997,8 +2005,8 @@ function _adjustIE()
 	if (_isIE())
 	{
 		// this is required to position scrollbar on IE
-		var width = $("#help_tab").width();
-		$("#help_tab").width(width * 1.15);
+		//var width = $("#help_tab").width();
+		//$("#help_tab").width(width * 1.15);
 	}
 }
 
@@ -2181,7 +2189,7 @@ function _keyPressListener(event)
 				"value",
 				Math.round(input * 100));
 		}
-		else if (event.target.id == "search")
+		else if (event.target.id == "search_box")
 		{
 			searchGene();
 		}
@@ -2505,7 +2513,7 @@ function _initControlFunctions()
 	$("#default_layout_settings").click(defaultSettings);
 	
 	$("#search_genes").click(searchGene);
-	$("#genes_tab #search").keypress(_keyPressListener);
+	$("#genes_tab #search_box").keypress(_keyPressListener);
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelected);
 	$("#unhide_genes").click(_unhideAll);

@@ -38,7 +38,7 @@
 						<button id="unhide_genes" class="tabs-button" title="Show All"></button>
 					</td>
 					<td>					
-						<input type="text" id="search" value=""/>
+						<input type="text" id="search_box" value=""/>
 					</td>
 					<td>
 						<button id="search_genes" class="tabs-button" title="Search"></button>

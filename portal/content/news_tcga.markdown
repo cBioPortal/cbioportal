@@ -1,3 +1,8 @@
+# December 1, 2011
+
+* Added support for RNA-Seq expression data (COADREAD, KIRC, LUSC)
+* Updated LAML and LUSC MAF files
+
 # November 15, 2011
 
 Another major update, with the following new features and data:

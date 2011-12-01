@@ -128,6 +128,15 @@ sub CreateCancersCGDSinput{
             'case_list_description' =>
               'All tumors with aCGH data (<cases> samples)',
         },
+        'cases_log2CNA.txt' => {
+            'FirehoseFile'          => 'all_data_by_genes.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_log2CNA',
+            'cancer_study_identifier'        => '<cancer>',
+            'case_list_name'        => 'Tumors log2 copy-number',
+            'case_list_description' =>
+              'All tumors with log2 copy-number data (<cases> samples)',
+        },
         'cases_mRNA.txt' => {
             'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
             'xformFunc'               => undef,
@@ -184,6 +193,7 @@ sub CreateCancersCGDSinput{
         # todo: make these table/config file driven
         [ qw( 
             all_thresholded.by_genes.txt
+            all_data_by_genes.txt
             <CANCER>.rnaseq.txt
             <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
             <CANCER>.maf.annotated
@@ -215,6 +225,7 @@ sub CreateCancersCGDSinput{
         [ $mRNAExpressionMedianFile,
 		  qw( 
             all_thresholded.by_genes.txt
+            all_data_by_genes.txt
             <CANCER>.maf.annotated
          ) ],
         'intersection',
@@ -413,6 +424,13 @@ sub createMetaFile{
                 'Putative copy-number calls on <cases> cases determined using GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',
             'profile_name' => 'Putative copy-number alterations from GISTIC',
             'show_profile_in_analysis_tab' => 'true',
+        },
+        'log2CNA' => {
+            'stable_id'               => '<cancer>_log2CNA',
+            'genetic_alteration_type' => 'COPY_NUMBER_ALTERATION',
+            'profile_description'     => 'Log2 copy-number values for each gene (from Affymetrix SNP6).',
+            'profile_name' => 'Log2 copy-number values',
+            'show_profile_in_analysis_tab' => 'false',
         },
         'methylation' => {
             'stable_id'                     => '<cancer>_methylation',

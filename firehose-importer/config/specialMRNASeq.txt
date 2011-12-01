@@ -1,3 +1,3 @@
-COADREAD.rnaseq.txt	coadread
+COADREAD.rnaseq.txt coadread
 KIRC.rnaseq.txt kirc
 LUSC.rnaseq.txt lusc

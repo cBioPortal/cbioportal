@@ -45,6 +45,13 @@ my $fileProperties = {
         geneIDcol => 'Locus ID',
         geneSymbolCol => 'Gene Symbol',
     },
+    'all_data_by_genes.txt' => {
+        example => 'all_data_by_genes.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Locus ID',
+        geneSymbolCol => 'Gene Symbol',
+    },
     '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt' => {  
         example => 'OV.mirna__h_mirna_8x15kv2__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt',
         structure => 'profile',

@@ -80,6 +80,37 @@ sub create_data_CNA{
     $data->write( $CGDSfile );
 }
 
+#########
+# set of subroutines, each of which takes Firehose file(s) and makes a CGDS input file
+# almost all subs take just one firehose file; only current exception is create_data_mRNA_median_Zscores()
+
+# create data_log2CNA.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: all_data_by_genes.txt
+# data transformation:
+# Convert case ID
+# drop columns 1 & 3
+# Use Locus ID (aka Gene ID)
+sub create_data_log2CNA{
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Gene Symbol', 'Locus ID' );
+ 
+    # drop cols
+    $data->col_delete( "Gene Symbol" );
+    $data->col_delete( "Cytoband" );
+    
+    # convert case-ID headers
+    convert_case_ID_headers( $firehoseFile, $data );
+
+    # write CGDS file
+    $data->write( $CGDSfile );
+}
+
 # sub to create data_expression_median.txt
 # only called if both mRNA and miRNA are available; these must be combined into a single file
 #

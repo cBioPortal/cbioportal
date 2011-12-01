@@ -5,18 +5,30 @@ import java.util.*;
 
 /**
  * 
- * @author Giovanni Ciriello
- *
+ * Given expression and CNV data for a set of samples (patients), generate normalized expression values. 
+ * Currently the input must be TCGA data, with samples identified by TCGA barcode identifiers.
+ * 
+ * Each gene is normalized separately. First, the expression distribution for unaltered copies of the 
+ * gene is estimated by calculating the mean and variance of the expression values for samples in which 
+ * the gene is diploid (as reported by the CNV data). We call this the unaltered distribution.
+ * 
+ * If the gene has no diploid samples, then its normalized expression is reported as NA. 
+ * Otherwise, for every sample, the gene's normalized expression is reported as
+ * 
+ *  (r - mu)/sigma
+ * 
+ * where r is the raw expression value, and mu and sigma are the mean and standard deviation 
+ * of the unaltered distribution, respectively.
+ * 
  * The syntax is simple:
  * 
- * java ComputeZscoreUnit <copy_number_file> <expression_file> <output_file>
+ * java ComputeZscoreUnit <copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]
  * 
  * The output is written onto a file named "zscores.txt"
  * 
- * It will work no matter how many columns there are before the actual values,
- * the two requisites on the format of the input files are:
+ * Any number of columns may precede the data. However, the following must be satisfied: 
  * 
- * - the first column gives the gene identifier (in the current files this is the gene symbol)
+ * - the first column provides gene identifiers
  * - sample names start with the "TCGA" prefix
  * 
  * Algorithm
@@ -29,6 +41,7 @@ import java.util.*;
  *       zScore <- (value - mean)/sd
  *    }
  * }
+ * 
  * implementation:
  * read CNA: build hash geneCopyNumberStatus: gene -> Array of (caseID, value ) pairs
  * read exp: skip normal cases; 
@@ -37,153 +50,210 @@ import java.util.*;
  *    get zScore for each case
  * }
  * 
+ * @author Giovanni Ciriello
  * @author Arthur Goldberg  goldberg@cbio.mskcc.org
+ * 
  */
 public class ComputeZScoreUnit{
 
    static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
    static int SAMPLES;
    static String zScoresFile;
+   static String SampleNamePrefix = "TCGA";
+   static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
+   static int MIN_NUM_DIPLOIDS = DEFAULT_MIN_NUM_DIPLOIDS;
+   static final int MIN_NUM_ALLOWED_DIPLOIDS = 3;
    
-   public static void main (String[]args) throws Exception{
-      // TODO: argument error checking; use command line parser
+   public static void main (String[]args){
+
+      // TODO, perhaps: use command line parser
+      if( args.length != 3 && args.length != 4){
+         fatalError( "incorrect number of arguments. Arguments should be '<copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]'." );
+      }
       String copyNumberFile = args[0];
       String expressionFile = args[1];
       zScoresFile = args[2];
+      if( args.length == 4){
+         try {
+            MIN_NUM_DIPLOIDS = Integer.parseInt(args[3] );
+         } catch (NumberFormatException e) {
+            fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be an integer." );
+         }
+         if( MIN_NUM_DIPLOIDS < MIN_NUM_ALLOWED_DIPLOIDS ){
+            fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be at least " + MIN_NUM_ALLOWED_DIPLOIDS + "." );
+         }
+      }
+      
       geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
       computeZScoreXP(expressionFile); 
-   }   
+   }
    
-   public static void computeZScoreXP(String file) throws IOException{
+   private static void computeZScoreXP(String file){
       
-      PrintWriter out = new PrintWriter(new FileWriter( zScoresFile ));
-      BufferedReader in = new BufferedReader(new FileReader(file));
-      String header = in.readLine();
-      String[]values = header.split("\t");
+      BufferedReader in = null;
+      PrintWriter out = null;
+      String NOT_AVAILABLE = "NA";
       
-      int firstSamplePosition = 0;
-      
-      // Assume: case IDs contain TCGA 
-      // TODO: generalize to other case ID formats
-      search:
-      for(int i=0;i<values.length;i++)
-         if(values[i].indexOf("TCGA") != -1){
-            firstSamplePosition = i;
-            break search;
-         }
-      SAMPLES = values.length;// - firstSamplePosition;  
-      String[]samples = new String[SAMPLES];  // the names of all samples
-      HashSet<String> normalSamples = new HashSet<String>();
-      
-      // make set of case IDs of normal samples 
-      for(int i=firstSamplePosition;i<values.length;i++){
-         if(isNormal(values[i])){
-            normalSamples.add(truncatedSampleName(values[i]));
-         }
-         samples[i] = truncatedSampleName(values[i]);
+      try {
+         out = new PrintWriter(new FileWriter( zScoresFile ));
+      } catch (IOException e) {
+         fatalError( "cannot open <output_file> '" + zScoresFile + "' for writing.");
       }
-      
-      // list normal samples (cases) at start of output
-      out.print("GeneSymbol\t");
-      for(int i=firstSamplePosition;i<samples.length;i++)
-         if(!normalSamples.contains(samples[i]))
-            out.print(samples[i]+"\t");
-      out.println();
-      SAMPLES = SAMPLES-normalSamples.size()-firstSamplePosition;
-      System.out.println(file+")\t"+SAMPLES+" SAMPLES ("+normalSamples.size()+" normal)");
-      
-      // discards second line from expr file: should be: "Composite Element REF  signal   ... "
-      in.readLine();
-      
-      String line;
-      int genes = 0;
-      int genesWithValidScores = 0;
-      int genesFound=0;
-      int rowsWithSomeDiploidCases = 0;
-      
-      // process expression file
-      while((line = in.readLine())!=null){
+      try {
+         in = new BufferedReader(new FileReader(file));
+      } catch (FileNotFoundException e) {
+         fatalError( "cannot read <expression_file> in '" + file + "'.");
+      }
+      String header;
+      try {
+         header = in.readLine();
+         String[]values = header.split("\t");
          
-         values = line.split("\t");
+         int firstSamplePosition = getFirstDataColumn( values );
+         // catch error if no sample id contains SampleNamePrefix
+         if( NO_POSITION == firstSamplePosition ){
+            fatalError( "no sample id contains " + SampleNamePrefix + " in <expression_file>, '" + file + "'.");
+         }
 
-         // todo: instead of assuming 1st column is geneID, use last column 
-         String id = values[0];  // geneID in 1st column
+         SAMPLES = values.length;// - firstSamplePosition;  
+         String[]samples = new String[SAMPLES];  // the names of all samples
+         HashSet<String> normalSamples = new HashSet<String>();
          
-         // ignore gene's data if its copy number status is unknown
-         // TODO: fix, as this really isn't right; if there are some normal samples, then we shouldn't need to know the gene's CN status 
-         if(geneCopyNumberStatus.containsKey(id)){
-            genesFound++;
-
-            ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
-            for(int i=firstSamplePosition;i<values.length;i++){
-               if(!normalSamples.contains(samples[i])){
-                  String[] p = new String[2];
-                  p[0] = samples[i];
-                  p[1] = values[i];
-                  tumorSampleExpressions.add(p);
-               }
+         // make set of case IDs of normal samples, and list of all truncated samples
+         for(int i=firstSamplePosition; i<SAMPLES; i++){
+            if(isNormal(values[i])){
+               normalSamples.add(truncatedSampleName(values[i]));
             }
-            
-            ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(id);
-            double[]zscores = getZscore(tumorSampleExpressions,cnStatus);
-            
-            if(zscores != null){
-               rowsWithSomeDiploidCases++;
-               out.print(id+"\t");
+            samples[i] = truncatedSampleName(values[i]);
+         }
+         
+         ArrayList<String> outputLine = new ArrayList<String>(); 
 
-               for(int k =0;k<zscores.length;k++)
-                  // TODO: 9999 indicates an invalid exp value; make a constant
-                  if(zscores[k] != 9999){
-                     // limit precision
-                     out.format( "%.4f\t", zscores[k] );
-                  }else{
-                     out.print("NA\t");
+         // header contains only ids of tumor samples
+         outputLine.add("GeneSymbol");
+         for(int i=firstSamplePosition;i<samples.length;i++)
+            if(!normalSamples.contains(samples[i]))
+               outputLine.add(samples[i]);
+         out.println( join( outputLine, "\t") );
+
+         // SAMPLES is number of tumors
+         SAMPLES = SAMPLES-normalSamples.size()-firstSamplePosition;
+         System.out.println(file+")\t"+SAMPLES+" SAMPLES ("+normalSamples.size()+" normals)");
+         
+         // discards second line from expr file: it should be: "Composite Element REF  signal   ... "
+         // TODO: check that 2nd line does not contain data
+         in.readLine();
+         
+         String line;
+         int genes = 0;
+         int genesWithValidScores = 0;
+         int genesFound=0;
+         int rowsWithSomeDiploidCases = 0;
+         
+         // process expression file
+         while((line = in.readLine())!=null){
+            
+            values = line.split("\t");
+            String id = values[0];  // gene identifier in 1st column
+            
+            // ignore gene's data if its copy number status is unknown
+            if(geneCopyNumberStatus.containsKey(id)){
+               genesFound++;
+
+               ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
+               for(int i=firstSamplePosition;i<values.length;i++){
+                  if(!normalSamples.contains(samples[i])){
+                     String[] p = new String[2];
+                     p[0] = samples[i];
+                     p[1] = values[i];
+                     tumorSampleExpressions.add(p);
                   }
-               out.println();
-               genesWithValidScores++;
+               }
+               
+               ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(id);
+               double[] zscores = getZscore( id, tumorSampleExpressions, cnStatus );
+               
+               if(zscores != null){
+                  rowsWithSomeDiploidCases++;
+                  
+                  outputLine.clear();
+                  outputLine.add(id);
+
+                  for(int k =0;k<zscores.length;k++)
+
+                     // Double.NaN indicates an invalid expression value
+                     if(zscores[k] != Double.NaN){
+                        // limit precision
+                        outputLine.add( String.format( "%.4f", zscores[k] ) );
+                     }else{
+                        outputLine.add( NOT_AVAILABLE );
+                     }
+                  out.println( join( outputLine, "\t") );
+                  genesWithValidScores++;
+               }else{
+                  outputLine.clear();
+                  outputLine.add(id);
+                  for(int k =0;k<SAMPLES;k++)
+                     outputLine.add( NOT_AVAILABLE );
+                  out.println( join( outputLine, "\t") );
+               }
+               genes++;
             }else{
-               out.print(id+"\t");
+               outputLine.clear();
+               outputLine.add(id);
                for(int k =0;k<SAMPLES;k++)
-                  out.print("NA\t");
-               out.println();
+                  outputLine.add( NOT_AVAILABLE );
+               out.println( join( outputLine, "\t") );
             }
-            genes++;
-         }else{
-            out.print(id+"\t");
-            for(int k =0;k<SAMPLES;k++)
-               out.print("NA\t");
-            out.println();
          }
-      }
-      if( 0 == genesFound ){
-         System.err.println( "No genes in expression file '" + file + "' found in copy number file." );
-      }
-      if( 0 == rowsWithSomeDiploidCases ){
-         System.err.println( "No diploid cases found. Check copy number file." );
+         if( 0 == genesFound ){
+            fatalError( "none of the genes in the expression file '" + file + "' were in the copy number file." );
+         }
+         if( 0 == rowsWithSomeDiploidCases ){
+            fatalError( "no genes with at least " + MIN_NUM_DIPLOIDS + " diploid cases found. Check copy number file." );
+         }
+      } catch (IOException e) {
+         fatalError( "cannot read from <expression_file> in '" + file + "'.");
       }
       out.close();
    }
    
+   static int NO_POSITION = -1;
+   private static int getFirstDataColumn( String[] values){
+      
+      int tmp = NO_POSITION;
+      
+      search:
+         for(int i=0;i<values.length;i++)
+            if(values[i].indexOf(SampleNamePrefix) != -1){
+               tmp = i;
+               break search;
+            }
+      
+      return tmp;
+      
+   }
+   
    /**
-    * given array lists of expression and copy number data for a set of cases for one gene
-    * return array of z-Scores for the expression data
+    * Given expression and copy number data for a set of cases for one gene
+    * return array of z-Scores for the expression data.
     * 
-    * assumes that cases appear in same sequence in cn and exp data
-    * 
-    * @param exp arrayList of String[] = [ sampleID, value ] 
-    * @param cn same
+    * @param exp ArrayList of String[] = [ sampleID, expression ] 
+    * @param cn  ArrayList< [sampleID, copyNumber] >
     * @return array of z-Scores for the expression data; null if there were no diploid values
     */
-   private static double[] getZscore(ArrayList<String[]> xp, ArrayList<String[]> cn){
-      double[]z = null;
-      double[]diploid = new double[SAMPLES];
+   private static double[] getZscore(String id, ArrayList<String[]> xp, ArrayList<String[]> cn){
+      double[] z = null;
+      double[] diploid = new double[SAMPLES];
       HashSet<String> diploidSamples = new HashSet<String>();
-
+      String DiploidSample = "0"; // CN value of 0 indicates diploid
+      
       for(int i=0;i<cn.size();i++){
          
-         if(cn.get(i)[1].equals("0"))  // CN value of 0 indicates diploid; todo, make a constant
-            diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; todo, put in a named record (class)
+         if(cn.get(i)[1].equals( DiploidSample ))  
+            diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; TODO: put in a named record (class)
       }
+      
       int xPos = 0;
       int count = 0;
 
@@ -196,37 +266,57 @@ public class ComputeZScoreUnit{
             if(xp.get(i)[1].compareTo("NA")!=0 && xp.get(i)[1].compareTo("NaN")!=0 
                               && xp.get(i)[1].compareTo("null")!=0){
                // then add the measurement to the array of diploid values
-               diploid[xPos++] = Double.parseDouble(xp.get(i)[1]);
+               try {
+                  diploid[xPos++] = Double.parseDouble(xp.get(i)[1]);
+               } catch (NumberFormatException e) {
+                  fatalError( "expression value '" + xp.get(i)[1] + "' for gene " + id + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
+               }
             }
          }
       }
 
-      // if there are some diploid values
-      if(xPos != 0){
-         // todo: do we want to do this if there's only 1 diploid value? std will then be 0, and zScores infinite
+      // make sure there are enough diploid values to normalize to the distribution
+      // perhaps TODO: also make sure that the distribution of diploids is close enough to normal
+      if( MIN_NUM_DIPLOIDS <= xPos ){
+
          // remove empty elements at end of diploid
          diploid = resize(diploid,xPos);
          // get mean and s.d. of elements of diploid
          double avg = avg(diploid);
          double std = std(diploid, avg);
+         
          // create an array of z-Scores
-         z = getZ(xp,avg,std);   
+         // do not compute z-Score if std == 0
+         // TODO: use some minimum threshold for std
+         if( 0.0d < std ){
+            z = getZ(id, xp, avg, std);
+         }
       }
       return z;
    }
    
-   private static double[] getZ(ArrayList<String[]> xp, double avg, double std){
+   public static double[] getZ(String id, ArrayList<String[]> xp, double avg, double std){
       double[]z = new double[xp.size()];
+      
+      if( 0.0d == std){
+         // this should not happen
+         fatalError( "cannot normalize relative to distribution with standard deviation of 0.0." );         
+      }
       for(int i=0;i<xp.size();i++){
          if(xp.get(i)[1].compareTo("NA")!=0 && xp.get(i)[1].compareTo("NaN")!=0 
             && xp.get(i)[1].compareTo("null")!=0){
-               double s = Double.parseDouble(xp.get(i)[1]);
-               s = s - avg;
-               s = s/std;  // todo: could div by 0
-               z[i] = s;
+               double s;
+               try {
+                  s = Double.parseDouble(xp.get(i)[1]);
+                  s = s - avg;
+                  s = s/std;
+                  z[i] = s;
+               } catch (NumberFormatException e) {
+                  fatalError( "expression value '" + xp.get(i)[1] + "' for gene " + id + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
+               }
             }
          else
-            z[i] = 9999;  
+            z[i] = Double.NaN;
       }
       return z;
    }
@@ -235,64 +325,77 @@ public class ComputeZScoreUnit{
    /**
    * Read the copy number file and generate copy number status table
    * returns: HashMap<String,ArrayList<String[]>> that
-   * maps geneName -> ArrayList< [ sample, value ] >  // but sample and value are same thing, albeit offset!
+   * maps geneName -> ArrayList< [ sampleName, value ] >  
    */
-   private static HashMap<String,ArrayList<String[]>> readCopyNumberFile(String file) throws IOException{
+   public static HashMap<String,ArrayList<String[]>> readCopyNumberFile(String file){
    
       HashMap<String,ArrayList<String[]>> map = new HashMap<String,ArrayList<String[]>>();
-      
-      BufferedReader in = new BufferedReader(new FileReader(file));
+      BufferedReader in = null;
+      try {
+         in = new BufferedReader(new FileReader(file));
+      } catch (FileNotFoundException e) {
+         fatalError( "cannot open copy number file '" + file + "' for reading.");
+      }
       
       // assumes single header line
-      String header = in.readLine();
-      String[]values = header.split("\t");
-      
-      // todo: this code duplicates above up through 'genes = 0'; combine
-      int firstSamplePosition = 0;
-      search:
-      for(int i=0;i<values.length;i++){
-         // todo: won't work with junky jan 2011 tumor case bar codes.
-         if(values[i].indexOf("TCGA") != -1){
-            firstSamplePosition = i;
-            break search;
+      String header;
+      try {
+         header = in.readLine();
+         String[]values = header.split("\t");
+         
+         int firstSamplePosition = getFirstDataColumn( values );
+         // error if no sample id contains SampleNamePrefix
+         if( NO_POSITION == firstSamplePosition ){
+            fatalError( "no sample id contains " + SampleNamePrefix + " in <CopyNumberFile>, '" + file + "'.");
          }
-      }
-      SAMPLES = values.length; // - firstSamplePosition; 
-      String[]samples = new String[SAMPLES];
-      for(int i=firstSamplePosition;i<values.length;i++){
-         samples[i] = truncatedSampleName(values[i]);
-      }
-      System.out.println(file+")\t"+(SAMPLES-firstSamplePosition)+" SAMPLES");
-      
-      int genes = 0;
-      String line;
-      while((line=in.readLine())!=null){
-         values = line.split("\t");
-         String id = values[0];
-         // todo: instead of assuming 1st column is geneID, use last column 
-         if(!map.containsKey(id)){
-            
-            ArrayList<String[]> tmp = new ArrayList<String[]>(); 
-            for(int i = firstSamplePosition;i<values.length;i++){
-               String[] p = new String[2];
-               p[0] = samples[i];
-               p[1] = values[i];
-               tmp.add(p);
+
+         SAMPLES = values.length; // - firstSamplePosition; 
+         String[]samples = new String[SAMPLES];
+         HashSet<String> tempSamplesNames = new HashSet<String>(); 
+         for(int i=firstSamplePosition;i<SAMPLES;i++){
+            samples[i] = truncatedSampleName(values[i]);
+            // error if sample name is duplicated in CNV file
+            if( tempSamplesNames.contains(samples[i] ) ){
+               fatalError( "multiple columns with same truncated sample id of " + samples[i] + " in <CopyNumberFile>, '" + file + "'.");               
             }
-            map.put(id,tmp);  
-         genes++;
+            tempSamplesNames.add( samples[i] );
          }
-      }
-      System.out.println(file+")\t"+genes+" GENES");
-      if( map.size() == 0 ){
-         System.err.println( "ComputeZScoreUnit: No gene IDs in copy number file.");
+         System.out.println(file+")\t"+(SAMPLES-firstSamplePosition)+" SAMPLES");
+         
+         String line;
+         while((line=in.readLine())!=null){
+            values = line.split("\t");
+            String id = values[0];
+
+            if(!map.containsKey(id)){
+
+               ArrayList<String[]> tmp = new ArrayList<String[]>(); 
+               for(int i = firstSamplePosition;i<values.length;i++){
+                  String[] p = new String[2];
+                  p[0] = samples[i];
+                  p[1] = values[i];
+                  tmp.add(p);
+               }
+               map.put(id,tmp);  
+            }else{
+               // remove duplicate ids, and report a warning
+               map.remove(id);
+               warning( "duplicate entry for gene " + id + " in <CopyNumberFile>, '" + file + "'.");
+            }
+         }
+
+         System.out.println(file+")\t"+ map.size() +" GENES");
+         if( map.size() == 0 ){
+            fatalError( "no gene IDs in copy number file '" + file + "'.");
+         }
+      } catch (IOException e) {
+         fatalError( "cannot read copy number file '" + file + "'.");
       }
       return map;
    }
    
    /**
    * Return the truncated version of a TCGA sample name
-   * same as /([^-]*\-[^-]*\-[^-]*)/; return $1;
    */
    private static String truncatedSampleName(String name){
       String truncatedName = "";
@@ -363,4 +466,22 @@ public class ComputeZScoreUnit{
       return tmp;
    }
 
+   private static void fatalError(String msg){
+      System.err.println( "ComputeZScoreUnit: Fatal error: " + msg );
+      System.exit(1);
+   }
+   
+   private static void warning(String msg){
+      System.err.println( "ComputeZScoreUnit: " + msg );
+   }
+   
+   public static String join(Collection<String> s, String delimiter) {
+      if (s.isEmpty()) return "";
+
+      Iterator<String> iter = s.iterator();
+      StringBuffer buffer = new StringBuffer(iter.next());
+      while (iter.hasNext()) buffer.append(delimiter).append(iter.next());
+      return buffer.toString();
+  }
+   
 }

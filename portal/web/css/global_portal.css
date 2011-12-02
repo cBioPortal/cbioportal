@@ -849,6 +849,8 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
                                       between fade in/fade out of each quote */ 
 }
 
+#testimonials blockquote cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
+
 #login_header {
   height: 50px;
   background-color: #1974b8;

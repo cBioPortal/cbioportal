@@ -33,6 +33,6 @@
     options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
 
-    <h3>Testimonials</h3>
+    <h3>What People are Saying</h3>
     <jsp:include page="../testimonials.jsp" flush="true" />
 </div>

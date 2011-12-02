@@ -21,7 +21,7 @@ function rotateTestimonials() {
     // set animation speed to 400; quovolver default is 500
     var animationSpeed = 400;
     // set duration of each testimonial; quovolver default is 6000
-    var duration = 6000;
+    var duration = 8000;
     $('#testimonials > blockquote').quovolver(animationSpeed, duration);
 }
 

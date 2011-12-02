@@ -186,7 +186,7 @@ function updateSelectedGenes(evt)
 	_vis.deselect("nodes");
 	
 	// collect id's of selected node's on the tab
-	$("#genes_tab select option").each(
+	$("#gene_list_area select option").each(
 		function(index)
 		{
 			if ($(this).is(":selected"))
@@ -745,11 +745,11 @@ function updateGenesTab(evt)
 		
 		if (_isIE())
 		{
-			_setComponentVis($("#genes_tab select"), false);
+			_setComponentVis($("#gene_list_area select"), false);
 		}
 		
 		// deselect all options
-		$("#genes_tab select option").each(
+		$("#gene_list_area select option").each(
 			function(index)
 			{
 				$(this).removeAttr("selected");
@@ -764,8 +764,29 @@ function updateGenesTab(evt)
 		
 		if (_isIE())
 		{
-			_setComponentVis($("#genes_tab select"), true);
+			_setComponentVis($("#gene_list_area select"), true);
 		}
+	}
+}
+
+function reRunQuery()
+{
+	// TODO get the list of currently interested genes
+	var currentGenes = "";
+	var nodeMap = _selectedElementsMap("nodes");
+	
+	for (var key in nodeMap)
+	{
+		currentGenes += nodeMap[key].data.label + " ";
+	}
+	
+	if (currentGenes.length > 0)
+	{
+		// update the list of seed genes for the query
+		$("#main_form #gene_list").val(currentGenes);
+		
+		// re-run query by performing click action on the submit button
+		$("#main_form #main_submit").click();
 	}
 }
 
@@ -2275,6 +2296,10 @@ function _initGenesTab()
 	
 	$("#update_edges").button({icons: {primary: 'ui-icon-refresh'},
 		text: false});
+	
+	$("#re-submit_query").button({icons: {primary: 'ui-icon-play'},
+		text: false});
+	// $("#re-run_query").button({label: "Re-run query with selected genes"});
 }
 
 
@@ -2288,9 +2313,9 @@ function _refreshGenesTab()
 	var geneList = _visibleGenes();
 	
 	// clear old content
-	$("#genes_tab select").remove();
+	$("#gene_list_area select").remove();
 	
-	$("#genes_tab").append('<select multiple></select>');
+	$("#gene_list_area").append('<select multiple></select>');
 		
 	// add new content
 	
@@ -2310,7 +2335,7 @@ function _refreshGenesTab()
 			classContent = 'class="not-in-query" ';
 		}
 		
-		$("#genes_tab select").append(
+		$("#gene_list_area select").append(
 			'<option id="' + safeId + '" ' +
 			classContent + 
 			'value="' + geneList[i].data.id + '" ' + '>' + 
@@ -2352,13 +2377,13 @@ function _refreshGenesTab()
 	}
 	
 	// add change listener to the select box
-	$("#genes_tab select").change(updateSelectedGenes);
+	$("#gene_list_area select").change(updateSelectedGenes);
 	
 	if (_isIE())
 	{
 		// listeners on <option> elements do not work in IE, therefore add 
 		// double click listener to the select box
-		$("#genes_tab select").dblclick(showGeneDetails);
+		$("#gene_list_area select").dblclick(showGeneDetails);
 		
 		// TODO if multiple genes are selected, double click always shows
 		// the first selected genes details in IE
@@ -2517,8 +2542,10 @@ function _initControlFunctions()
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelected);
 	$("#unhide_genes").click(_unhideAll);
+	$("#re-submit_query").click(reRunQuery);
 	
 	$("#update_edges").click(updateEdges);
+	
 	
 	// add listener for double click action
 	

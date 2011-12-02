@@ -375,7 +375,6 @@
     font-size: 12px;
 }
 
-
 /*
  * ######################################################## 
  * ##################### Genes Tab ########################
@@ -489,6 +488,19 @@
 {
 	font-size: 11px;
 }
+
+#genes_tab #post_control_area
+{
+	margin-top: 8px;
+	text-align: center;
+}
+
+#genes_tab #post_control_area table
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
 
 #genes_tab .ui-icon-crop
 {

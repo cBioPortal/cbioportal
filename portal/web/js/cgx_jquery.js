@@ -19,9 +19,9 @@ function rotateTestimonials() {
     // use quovolver plugin to rotate testimonials
 
     // set animation speed to 400; quovolver default is 500
-    var animationSpeed = 400
+    var animationSpeed = 400;
     // set duration of each testimonial; quovolver default is 6000
-    var duration = 6000
+    var duration = 6000;
     $('#testimonials > blockquote').quovolver(animationSpeed, duration);
 }
 
@@ -100,9 +100,6 @@ function bitlyURL(fullURL, usr, key){
     // get JSON data, extract from it the new short URL and
     // append the short URL to div with id 'bitly'
     $.getJSON(qurl, function(data){
-        if (data.results[fullURL].shortUrl == null){
-            $('#bitly').append(    
-        }
         $('#bitly').append("<br><strong>"+data.results[fullURL].shortUrl+"</strong><br>");
     });
 

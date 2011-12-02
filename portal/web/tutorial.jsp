@@ -14,17 +14,10 @@
         <table cellspacing="2px">
         <tr>
             <td>
-                <h1>Video Tutorial</h1>
-                    <p>   Check out our updated video tutorial below. </p>
+                <h1>Tutorial</h1>
+                    <p>   Check out our introductory tutorial below. </p>
                 <br>
-                <object width="640" height="505"><param name="movie"
-                value="http://www.youtube.com/v/YW2Thf6PNS8?fs=1&amp;hl=en_US">
-                </param><param name="allowFullScreen" value="true"></param>
-                <param name="allowscriptaccess" value="always"></param>
-                <embed src="http://www.youtube.com/v/YW2Thf6PNS8?fs=1&amp;hl=en_US"
-               type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="505">
-               </embed></object>
-            </td>
+                <div style="width:595px" id="__ss_10438088"> <strong style="display:block;margin:12px 0 4px"><a href="http://www.slideshare.net/EthanCerami/cbio-cancer-genomics-portal-getting-started" title="cBio Cancer Genomics Portal: Getting started" target="_blank">cBio Cancer Genomics Portal: Getting started</a></strong> <iframe src="http://www.slideshare.net/slideshow/embed_code/10438088" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> <div style="padding:5px 0 12px"> View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </div> </div>            </td>
         </tr>
     </table>
         </div>

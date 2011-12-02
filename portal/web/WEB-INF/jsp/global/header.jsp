@@ -40,11 +40,9 @@
 					<li class="internal" id="results">
 					    <a href="#">Results</a>
 					</li>
-                    <!--
                     <li class="internal">
-					   	<a href="video.jsp">Tutorial</a>
+					   	<a href="tutorial.jsp">Tutorial</a>
 					</li>
-					-->
                     <% if (SkinUtil.showNewsTab()) { %>
                         <li class="internal">
                             <a href="news.jsp">News</a>

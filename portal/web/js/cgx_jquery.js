@@ -2,6 +2,7 @@ $(document).ready(function(){
        
     setUpPopEye();
     setUpTabs();
+    rotateTestimonials();
 
 });
 
@@ -12,6 +13,16 @@ function setUpTabs() {
     // state of tabs when user navigates away from page and back
     $('#tabs').tabs({cookie:{expires:1, name:"results-tab"}});
     $('#tabs').show();
+}
+
+function rotateTestimonials() {
+    // use quovolver plugin to rotate testimonials
+
+    // set animation speed to 400; quovolver default is 500
+    var animationSpeed = 400
+    // set duration of each testimonial; quovolver default is 6000
+    var duration = 6000
+    $('#testimonials > blockquote').quovolver(animationSpeed, duration);
 }
 
 

@@ -32,4 +32,7 @@
     <P>Check out our new network visualization
     options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
+
+    <h3>Testimonials</h3>
+    <jsp:include page="../testimonials.jsp" flush="true" />
 </div>

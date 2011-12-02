@@ -837,6 +837,18 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   font-size:80%;
 }
 
+#testimonials {
+    height: 300px;
+}
+
+#testimonials blockquote {
+    width: 80%;
+    margin-left: 5px;
+    padding-top: 0px;
+    border: 1px dashed transparent; /*setting transparent border prevents scroll bar from 'jumping'
+                                      between fade in/fade out of each quote */ 
+}
+
 #login_header {
   height: 50px;
   background-color: #1974b8;

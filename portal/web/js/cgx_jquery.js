@@ -100,6 +100,9 @@ function bitlyURL(fullURL, usr, key){
     // get JSON data, extract from it the new short URL and
     // append the short URL to div with id 'bitly'
     $.getJSON(qurl, function(data){
+        if (data.results[fullURL].shortUrl == null){
+            $('#bitly').append(    
+        }
         $('#bitly').append("<br><strong>"+data.results[fullURL].shortUrl+"</strong><br>");
     });
 

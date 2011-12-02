@@ -45,6 +45,20 @@
 					</td>
 				</tr></table>
 			</div>
+			<div id="gene_list_area">
+			</div>
+			<div id="post_control_area">
+				<table>
+	        		<tr>
+	        			<td>
+	        				<label class="heading">Re-submit Query</label>
+	        			</td>
+	        			<td>
+	        				<button id="re-submit_query" class="tabs-button" title="Re-submit Query with Selected Genes"></button>
+	        			</td>
+	        		</tr>
+	        	</table>
+			</div>
 		</div>
     </div>
     <div id="relations_tab">

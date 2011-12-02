@@ -112,7 +112,9 @@ public class GeneratePlots extends HttpServlet {
                 }
 
                 //  Output mRNA by CNA Box Plot
-                if (mRNAProfileId != null && cnaProfileId != null && plotType.equalsIgnoreCase("mrna_cna")) {
+                if (mRNAProfileId != null &&
+					cnaProfileId != null && (cnaProfileId.indexOf("_log2CNA") == -1) &&
+					plotType.equalsIgnoreCase("mrna_cna")) {
                     StringBuffer url1 = new StringBuffer ();
                     if (!rInstalled) {
                         url1.append("http://172.21.218.47:8080/cgx/");
@@ -145,6 +147,45 @@ public class GeneratePlots extends HttpServlet {
                     writer.append ("<img width=600 height=600 src='" + url1.toString() + "'>");
                     writer.append("</td></tr></table>");
                 }
+
+				// Output mRNA by log2CNA Scatter Plot
+				if (mRNAProfileId != null &&
+					cnaProfileId != null && (cnaProfileId.indexOf("_log2CNA") > 0) &&
+					plotType.equalsIgnoreCase("mrna_cna")) {
+                    StringBuffer url1 = new StringBuffer ();
+                    if (!rInstalled) {
+                        url1.append("http://172.21.218.47:8080/cgx/");
+                    }
+                    url1.append ("plot.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerTypeId);
+                    writer.append("<table cellspacing=15><tr><td>");
+                    url1.append ("&" + QueryBuilder.GENE_LIST + "=" + gene);
+                    url1.append ("&" + QueryBuilder.GENETIC_PROFILE_IDS + "=");
+                    url1.append (cnaProfileId + "," + mRNAProfileId);
+                    url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
+                    url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
+                    url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    if (mutationProfileId != null && cnaProfileId != null) {
+						// we want to use gistic skin col group
+						String skinColGroup = cancerTypeId + "_gistic";
+						url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + skinColGroup
+                        + "," + mutationProfileId);
+                    }
+                    if (includeNormals != null && includeNormals.equalsIgnoreCase("INCLUDE_NORMALS")
+                        && normalCaseSetId != null && normalCaseSetId.length() > 0) {
+                        url1.append("&" + PlotServlet.SKIN_NORMALS + "=" + normalCaseSetId);
+                    }
+                    String pdfUrl = url1.toString().replace("plot.do", "plot.pdf") + "&format=pdf";
+                    writer.append("<B>" + gene.toUpperCase() + ":  "
+                            + "mRNA Expression ("
+                            + caseSetName + ") v. Log2CNA");
+                    writer.append (" [<a href='" + pdfUrl + "'>PDF</a>]");
+                    writer.append("</B><BR>");
+                    if (xdebug != null) {
+                        writer.append ("URL:  " + url1.toString());
+                    }
+                    writer.append ("<img width=600 height=600 src='" + url1.toString() + "'>");
+                    writer.append("</td></tr></table>");
+				}
 
                 //  Output mRNA by Methylation Scatter Plot
                 if (mRNAProfileId != null && methylationProfileId != null

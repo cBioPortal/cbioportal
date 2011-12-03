@@ -1,7 +1,11 @@
-# December 1, 2011
+# December 5, 2011
+
+New data types and updated data:
 
 * Added support for RNA-Seq expression data (COADREAD, KIRC, LUSC)
+* Added support for log2 copy-number data (available on the Plots tab)
 * Updated LAML and LUSC MAF files
+* Updated LUSC case lists (reflecting the manuscript sample set)
 
 # November 15, 2011
 

@@ -34,13 +34,13 @@ public final class MutationDiagramDataServlet extends HttpServlet {
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         // todo:  check and sanitize hugoGeneSymbol if necessary
         String hugoGeneSymbol = request.getParameter("hugoGeneSymbol");
-        int length = 800;  // uh oh
         List<String> uniProtIds = idMappingService.getUniProtIds(hugoGeneSymbol);
         String uniProtId = uniProtIds.get(0); // uh oh
         List<Domain> domains = domainService.getDomains(uniProtId);
+        int length = domains.get(0).getEnd();
         List<Mutation> mutations = mutationService.getMutations(hugoGeneSymbol);
         String label = hugoGeneSymbol + "/" + uniProtId;
-        MutationDiagram mutationDiagram = new MutationDiagram(hugoGeneSymbol, label, length, domains, mutations);
+        MutationDiagram mutationDiagram = new MutationDiagram(hugoGeneSymbol, label, length, domains.subList(1, domains.size()), mutations);
         response.setContentType("application/json");
         response.getWriter().append(mutationDiagram.toJSONString());
     }

@@ -27,6 +27,7 @@ final class UniProtDasCacheLoader extends CacheLoader<String, List<Domain>> {
         DasGFFAdapter gffAdapter = featuresClient.fetchData(SERVER_URL, segments, TYPES, null, null, null, null);
         // todo: assumes there will be at least one segment
         DasGFFAdapter.SegmentAdapter segment = gffAdapter.getGFF().getSegment().get(0);
+        domains.add(new Domain("length", 1, Integer.parseInt(segment.getStop())));
         for (FeatureAdapter feature : segment.getFeature()) {
             String label = feature.getLabel();
             int start = feature.getStart();

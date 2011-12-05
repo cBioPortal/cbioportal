@@ -71,6 +71,7 @@ if (step4ErrorMsg != null) {
                           for(var i=0; i < genes.length; i++) {
                               var found = false;
                               var multiple = false;
+                              var foundSynonym = false;
                               var symbols = [];
 
                               if(genes[i] == "")
@@ -82,6 +83,7 @@ if (step4ErrorMsg != null) {
                                       if( aResult.symbols.length == 1 ) {
                                           found = true;
                                           multiple = false;
+                                          foundSynonym = aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase();
                                       } else if( aResult.symbols.length > 1 ) {
                                           found = true;
                                           multiple = true;
@@ -91,33 +93,63 @@ if (step4ErrorMsg != null) {
                                   }
                               }
 
-                              if(found && !multiple)
+                              if(found && !foundSynonym && !multiple)
                                   continue;
                               else
                                 allValid = false;
 
                               if(multiple) {
-                                  for(var k=0; k < symbols.length; k++) {
-                                     var aSymbol = symbols[k];
-                                     var state = $("<li>").addClass("ui-state-default ui-corner-all");
-                                     state.click(function(){
-                                           $(this).toggleClass('ui-state-active');
-                                           geneName = $(this).attr("name");
-                                           $("#gene_list").val($("#gene_list").val().replace(geneName, aSymbol));
-                                           setTimeout(validateGenes, 500);
-                                     });
+                                   var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                                   var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
+                                   var stateText = $("<span>").addClass("text");
 
+                                   stateText.html(genes[i] + ": ");
+                                   var nameSelect = $("<select>").addClass("geneSelectBox").attr("name", genes[i]);
+                                   $("<option>").attr("value", "")
+                                        .attr("disabled", "disabled")
+                                        .html("select a symbol")
+                                        .appendTo(nameSelect);
+                                   for(var k=0; k < symbols.length; k++) {
+                                        var aSymbol = symbols[k];
+                                        var anOption = $("<option>").attr("value", aSymbol).html(aSymbol);
+                                        anOption.appendTo(nameSelect);
+                                   }
+                                   nameSelect.appendTo(stateText);
+                                   nameSelect.change(function() {
+                                         var trueSymbol = $(this).attr('value');
+                                         var geneName = $(this).attr("name");
+                                         $("#gene_list").val($("#gene_list").val().replace(geneName, trueSymbol));
+                                         setTimeout(validateGenes, 500);
+                                   });
+
+                                   stateSpan.appendTo(state);
+                                   stateText.insertAfter(stateSpan);
+                                   state.attr("title",
+                                         "Ambiguous gene symbol. Click on one of the alternatives to replace it."
+                                   );
+                                   state.attr("name", genes[i]);
+                                   state.appendTo(stateList);
+                              } else if( foundSynonym ) {
+                                     var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                                     var trueSymbol = aResult.symbols[0];
+
+                                     state.click(function(){
+                                          $(this).toggleClass('ui-state-active');
+                                          geneName = $(this).attr("name");
+                                          $("#gene_list").val($("#gene_list").val().replace(geneName, trueSymbol));
+                                          setTimeout(validateGenes, 500);
+                                     });
                                      var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
                                      var stateText = $("<span>").addClass("text");
-                                     stateText.html("<b>" + genes[i] + "</b>: " + aSymbol);
+                                     stateText.html("<b>" + genes[i] + "</b>: " + trueSymbol);
                                      stateSpan.appendTo(state);
                                      stateText.insertAfter(stateSpan);
                                      state.attr("title",
-                                         "Ambiguous gene symbol. Click on one of the alternatives to replace it."
+                                            "'" + genes[i] + "' is a synonym for '" + trueSymbol + "'. "
+                                                + "Click here to replace it with the official symbol."
                                      );
                                      state.attr("name", genes[i]);
                                      state.appendTo(stateList);
-                                  }
                               } else {
                                      var state = $("<li>").addClass("ui-state-default ui-corner-all");
                                      state.click(function(){
@@ -156,7 +188,7 @@ if (step4ErrorMsg != null) {
                                 var validSpan = $("<span>")
                                   .addClass("ui-icon ui-icon-circle-check");
                                 var validText = $("<span>").addClass("text");
-                                validText.html("All gene symbols are valid");
+                                validText.html("All gene symbols are valid.");
 
                                 validSpan.appendTo(validState);
                                 validText.insertAfter(validSpan);
@@ -164,9 +196,24 @@ if (step4ErrorMsg != null) {
                                 validState.appendTo(stateList);
                                 validState.attr("title", "You can now submit the list").tipTip();
                           } else {
+                                var invalidState = $("<li>").addClass("ui-state-default ui-corner-all");
+                                var invalidSpan = $("<span>")
+                                  .addClass("ui-icon ui-icon-notice");
+                                var invalidText = $("<span>").addClass("text");
+                                invalidText.html("Invalid gene symbols.");
+
+                                invalidState.attr("title", "Please edit the gene symbols").tipTip();
+
+                                invalidSpan.appendTo(invalidState);
+                                invalidText.insertAfter(invalidSpan);
+                                invalidState.addClass("ui-state-active");
+                                invalidState.prependTo(stateList);
+
+                                /*
                                 $("#main_submit")
                                     .attr("title", "Gene symbols are not valid. Please edit the gene list.")
                                     .tipTip();
+                                */
                           }
 
                           $("<br>").appendTo(stateList);
@@ -270,6 +317,7 @@ if (step4ErrorMsg != null) {
 		    cursor: pointer;
 		    float: left;
 		    list-style: none;
+		    height: 20px;
 		}
 		span.ui-icon {float: left; margin: 0 4px;}
 		span.text {float: left; padding-right: 5px;}

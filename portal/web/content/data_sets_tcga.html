@@ -4,9 +4,11 @@
 		<th align="left">Cancer Type/Study</th>
 		<th>Full cancer name</th>
 		<th>aCGH</th>
+		<th>log2CNA</th>
 		<th>Sequenced</th>
 		<th>Normal mRNA</th>
-		<th>Tumor mRNA</th>
+		<th>Tumor mRNA (RNA Seq)</th>
+		<th>Tumor mRNA (Agilent microarray)</th>
 		<th>Complete</th>
 		<th>All</th>
 	</tr>
@@ -15,6 +17,8 @@
 		<td><b>BLCA</b></td>
 		<td style="text-align: left;"><b>Bladder Urothelial Carcinoma</b></td>
 		<td style="text-align: center;">35</td>
+		<td style="text-align: center;">35</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -26,8 +30,10 @@
 		<td><b>BRCA</b></td>
 		<td style="text-align: left;"><b>Breast invasive carcinoma</b></td>
 		<td style="text-align: center;">700</td>
+		<td style="text-align: center;">700</td>
 		<td style="text-align: center;">507</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;">530</td>
 		<td style="text-align: center;">481</td>
 		<td style="text-align: center;"><b>731</b></td>
@@ -37,6 +43,8 @@
 		<td><b>CESC</b></td>
 		<td style="text-align: left;"><b>Cervical Squamous Cell Carcinoma</b></td>
 		<td style="text-align: center;">36</td>
+		<td style="text-align: center;">36</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -48,28 +56,34 @@
 		<td><b>COADREAD</b></td>
 		<td style="text-align: left;"><b>Colon and Rectum adenocarcinoma</b></td>
 		<td style="text-align: center;">519</td>
+		<td style="text-align: center;">519</td>
 		<td style="text-align: center;">224</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;">244</td>
 		<td style="text-align: center;">224</td>
-		<td style="text-align: center;">196</td>
-		<td style="text-align: center;"><b>536</b></td>
+		<td style="text-align: center;">193</td>
+		<td style="text-align: center;"><b>537</b></td>
 	</tr>
 
 	<tr class="rowcolor">
 		<td><b>GBM</b></td>
 		<td style="text-align: left;"><b>Glioblastoma multiforme</b></td>
 		<td style="text-align: center;">501</td>
+		<td style="text-align: center;">501</td>
 		<td style="text-align: center;">372</td>
+		<td style="text-align: center;">0</td>
 		<td style="text-align: center;"></td>
-		<td style="text-align: center;"></td>
-		<td style="text-align: center;"></td>
-		<td style="text-align: center;"><b>532</b></td>
+		<td style="text-align: center;">500</td>
+		<td style="text-align: center;">319</td>
+		<td style="text-align: center;"><b>547</b></td>
 	</tr>
 
 	<tr>
 		<td><b>HNSC</b></td>
 		<td style="text-align: left;"><b>Head and Neck squamous cell carcinoma</b></td>
 		<td style="text-align: center;">127</td>
+		<td style="text-align: center;">127</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -81,10 +95,12 @@
 		<td><b>KIRC</b></td>
 		<td style="text-align: left;"><b>Kidney renal clear cell carcinoma</b></td>
 		<td style="text-align: center;">489</td>
+		<td style="text-align: center;">489</td>
 		<td style="text-align: center;">327</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;">309</td>
 		<td style="text-align: center;">72</td>
-		<td style="text-align: center;">48</td>
+		<td style="text-align: center;">269</td>
 		<td style="text-align: center;"><b>495</b></td>
 	</tr>
 
@@ -92,19 +108,23 @@
 		<td><b>LAML</b></td>
 		<td style="text-align: left;"><b>Acute Myeloid Leukemia</b></td>
 		<td style="text-align: center;"></td>
-		<td style="text-align: center;">131</td>
+		<td style="text-align: center;"></td>
+		<td style="text-align: center;">199</td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
-		<td style="text-align: center;"><b>131</b></td>
+		<td style="text-align: center;"></td>
+		<td style="text-align: center;"><b>199</b></td>
 	</tr>
 
 	<tr class="rowcolor">
 		<td><b>LGG</b></td>
 		<td style="text-align: left;"><b>Brain Lower Grade Glioma</b></td>
 		<td style="text-align: center;">58</td>
+		<td style="text-align: center;">58</td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;">27</td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"><b>58</b></td>
@@ -114,6 +134,8 @@
 		<td><b>LIHC</b></td>
 		<td style="text-align: left;"><b>Liver hepatocellular carcinoma</b></td>
 		<td style="text-align: center;">53</td>
+		<td style="text-align: center;">53</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -125,8 +147,10 @@
 		<td><b>LUAD</b></td>
 		<td style="text-align: left;"><b>Lung adenocarcinoma</b></td>
 		<td style="text-align: center;">172</td>
+		<td style="text-align: center;">172</td>
 		<td style="text-align: center;">120</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;">33</td>
 		<td style="text-align: center;">31</td>
 		<td style="text-align: center;"><b>229</b></td>
@@ -135,22 +159,26 @@
 	<tr>
 		<td><b>LUSC</b></td>
 		<td style="text-align: left;"><b>Lung squamous cell carcinoma</b></td>
-		<td style="text-align: center;">194</td>
-		<td style="text-align: center;">184</td>
+		<td style="text-align: center;">179</td>
+		<td style="text-align: center;"></td>
+		<td style="text-align: center;">183</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;">179</td>
 		<td style="text-align: center;">155</td>
-		<td style="text-align: center;">112</td>
-		<td style="text-align: center;"><b>213</b></td>
+		<td style="text-align: center;"></td>
+		<td style="text-align: center;"><b>212</b></td>
 	</tr>
 
 	<tr class="rowcolor">
 		<td><b>OV</b></td>
 		<td style="text-align: left;"><b>Ovarian serous cystadenocarcinoma</b></td>
 		<td style="text-align: center;">481</td>
+		<td style="text-align: center;">481</td>
 		<td style="text-align: center;">456</td>
 		<td style="text-align: center;">0</td>
-		<td style="text-align: center;">509</td>
-		<td style="text-align: center;">379</td>
+		<td style="text-align: center;"></td>
+		<td style="text-align: center;">538</td>
+		<td style="text-align: center;">397</td>
 		<td style="text-align: center;"><b>545</b></td>
 	</tr>
 
@@ -158,6 +186,8 @@
 		<td><b>PAAD</b></td>
 		<td style="text-align: left;"><b>Pancreatic adenocarcinoma</b></td>
 		<td style="text-align: center;">14</td>
+		<td style="text-align: center;">14</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -169,6 +199,8 @@
 		<td><b>STAD</b></td>
 		<td style="text-align: left;"><b>Stomach adenocarcinoma</b></td>
 		<td style="text-align: center;">149</td>
+		<td style="text-align: center;">149</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -180,6 +212,8 @@
 		<td><b>THCA</b></td>
 		<td style="text-align: left;"><b>Thyroid Carcinoma</b></td>
 		<td style="text-align: center;">85</td>
+		<td style="text-align: center;">85</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
 		<td style="text-align: center;"></td>
@@ -191,8 +225,10 @@
 		<td><b>UCEC</b></td>
 		<td style="text-align: left;"><b>Uterine Corpus Endometrioid Carcinoma</b></td>
 		<td style="text-align: center;">283</td>
+		<td style="text-align: center;">283</td>
 		<td style="text-align: center;">239</td>
 		<td style="text-align: center;">0</td>
+		<td style="text-align: center;"></td>
 		<td style="text-align: center;">54</td>
 		<td style="text-align: center;">53</td>
 		<td style="text-align: center;"><b>337</b></td>

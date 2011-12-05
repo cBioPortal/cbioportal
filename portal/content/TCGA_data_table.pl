@@ -36,9 +36,11 @@ print OUT1 "\t<tr>\n";
 print OUT1 "\t\t<th align=\"left\">Cancer Type/Study</th>\n";
 print OUT1 "\t\t<th>Full cancer name</th>\n";
 print OUT1 "\t\t<th>aCGH</th>\n";
+print OUT1 "\t\t<th>log2CNA</th>\n";
 print OUT1 "\t\t<th>Sequenced</th>\n";
 print OUT1 "\t\t<th>Normal mRNA</th>\n";
-print OUT1 "\t\t<th>Tumor mRNA</th>\n";
+print OUT1 "\t\t<th>Tumor mRNA (RNA Seq)</th>\n";
+print OUT1 "\t\t<th>Tumor mRNA (Agilent microarray)</th>\n";
 print OUT1 "\t\t<th>Complete</th>\n";
 print OUT1 "\t\t<th>All</th>\n";
 print OUT1 "\t</tr>\n\n";
@@ -58,7 +60,7 @@ while ($line = <IN3>) {
 	@data = split (/\t/,$line);
 	$data[0] =~ tr/a-z/A-Z/;
 
-	unless ($data[6]==0) {
+	unless ($data[8]==0) {
       if ($line_ct++ % 2) {
         print OUT1 "\t<tr>\n";
       }
@@ -67,19 +69,21 @@ while ($line = <IN3>) {
       }
 		print OUT1 "\t\t<td><b>$data[0]</b></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$data[0]}</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[6]</b></td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[8]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
 	}
 	
-	unless ($data[6]==0) {
+	unless ($data[8]==0) {
 		print OUT2 "<tr>\n";
 		print OUT2 "<td class=\"Tips1\" title=\"$cancers{$data[0]}\">$data[0]</td>\n";
-		print OUT2 "<td style=\"text-align: right;\">$data[6]</td>\n";
+		print OUT2 "<td style=\"text-align: right;\">$data[8]</td>\n";
 		print OUT2 "</tr>\n";
 	}
 }

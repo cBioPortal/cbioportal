@@ -22,6 +22,7 @@ public class PlotServlet extends HttpServlet {
     private static Logger logger = Logger.getLogger(PlotServlet.class);
     public static final String SKIN = "skin";
     public static final String SKIN_COL_GROUP = "skin_col_gp";
+	public static final String LEGEND_POS = "legendPos";
     public static final String SKIN_NORMALS = "skin_normals";
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
@@ -69,7 +70,7 @@ public class PlotServlet extends HttpServlet {
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);
             String skinNormals = servletXssUtil.getCleanInput(req, SKIN_NORMALS);
-			String legendPos = servletXssUtil.getCleanInput(req, "legendPos");
+			String legendPos = servletXssUtil.getCleanInput(req, LEGEND_POS);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png

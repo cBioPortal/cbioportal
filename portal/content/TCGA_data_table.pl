@@ -39,7 +39,7 @@ print OUT1 "\t\t<th>aCGH</th>\n";
 print OUT1 "\t\t<th>log2CNA</th>\n";
 print OUT1 "\t\t<th>Sequenced</th>\n";
 print OUT1 "\t\t<th>Normal mRNA</th>\n";
-print OUT1 "\t\t<th>Tumor mRNA (RNA Seq)</th>\n";
+print OUT1 "\t\t<th>Tumor mRNA (RNA Seq RPKM)</th>\n";
 print OUT1 "\t\t<th>Tumor mRNA (Agilent microarray)</th>\n";
 print OUT1 "\t\t<th>Complete</th>\n";
 print OUT1 "\t\t<th>All</th>\n";

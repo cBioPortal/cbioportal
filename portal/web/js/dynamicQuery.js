@@ -429,6 +429,10 @@ function addMetaDataToPage() {
                 + gene_set.name + "</option>");
     });  //  end for each gene set loop
 
+    // Set the placeholder for the autocomplete select box
+    $("#example_gene_set").children("span:first").children("input:first")
+        .attr("placeholder", $("#select_gene_set").children("option:first").text());
+
     //  Set things up, based on currently selected cancer type
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter

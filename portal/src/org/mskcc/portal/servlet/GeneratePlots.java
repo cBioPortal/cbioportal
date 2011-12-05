@@ -169,6 +169,7 @@ public class GeneratePlots extends HttpServlet {
 						String skinColGroup = cancerTypeId + "_gistic";
 						url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + skinColGroup
                         + "," + mutationProfileId);
+						url1.append("&legendPos=topleft");
                     }
                     if (includeNormals != null && includeNormals.equalsIgnoreCase("INCLUDE_NORMALS")
                         && normalCaseSetId != null && normalCaseSetId.length() > 0) {
@@ -241,6 +242,7 @@ public class GeneratePlots extends HttpServlet {
                     if (mutationProfileId != null && cnaProfileId != null) {
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
                         + "," + mutationProfileId);
+						url1.append("&legendPos=topleft");
                     }
                     if (includeNormals != null && includeNormals.equalsIgnoreCase("INCLUDE_NORMALS")
                         && normalCaseSetId != null && normalCaseSetId.length() > 0) {

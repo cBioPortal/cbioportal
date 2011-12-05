@@ -18,11 +18,11 @@
 </tr>
 <tr>
 <td class="Tips1" title="Colon and Rectum adenocarcinoma">COADREAD</td>
-<td style="text-align: right;">536</td>
+<td style="text-align: right;">537</td>
 </tr>
 <tr>
 <td class="Tips1" title="Glioblastoma multiforme">GBM</td>
-<td style="text-align: right;">532</td>
+<td style="text-align: right;">547</td>
 </tr>
 <tr>
 <td class="Tips1" title="Head and Neck squamous cell carcinoma">HNSC</td>
@@ -34,7 +34,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Acute Myeloid Leukemia">LAML</td>
-<td style="text-align: right;">131</td>
+<td style="text-align: right;">199</td>
 </tr>
 <tr>
 <td class="Tips1" title="Brain Lower Grade Glioma">LGG</td>
@@ -50,7 +50,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Lung squamous cell carcinoma">LUSC</td>
-<td style="text-align: right;">213</td>
+<td style="text-align: right;">212</td>
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>

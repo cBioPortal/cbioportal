@@ -44,21 +44,21 @@
 						<button id="search_genes" class="tabs-button" title="Search"></button>
 					</td>
 				</tr></table>
-			</div>
-			<div id="gene_list_area">
-			</div>
-			<div id="post_control_area">
-				<table>
-	        		<tr>
-	        			<td>
-	        				<label class="heading">Re-submit Query</label>
-	        			</td>
-	        			<td>
-	        				<button id="re-submit_query" class="tabs-button" title="Re-submit Query with Selected Genes"></button>
-	        			</td>
-	        		</tr>
-	        	</table>
-			</div>
+			</div>			
+		</div>
+		<div id="gene_list_area">
+		</div>
+		<div class="footer">
+			<table>
+        		<tr>
+        			<td>
+        				<label class="button-text">Re-Submit Query</label>
+        			</td>
+        			<td>
+        				<button id="re-submit_query" class="tabs-button" title="Re-Submit Query with Selected Genes"></button>
+        			</td>
+        		</tr>
+        	</table>
 		</div>
     </div>
     <div id="relations_tab">
@@ -138,7 +138,7 @@
         	<table>
         		<tr>
         			<td>
-        				<label class="heading">Update</label>
+        				<label class="button-text">Update</label>
         			</td>
         			<td> 
         				<button id="update_edges" class="tabs-button" title="Update"></button>

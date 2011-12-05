@@ -100,7 +100,12 @@ function bitlyURL(fullURL, usr, key){
     // get JSON data, extract from it the new short URL and
     // append the short URL to div with id 'bitly'
     $.getJSON(qurl, function(data){
-        $('#bitly').append("<br><strong>"+data.results[fullURL].shortUrl+"</strong><br>");
+        if (data.results == null){
+            $('#bitly').append("An unknown error occurred. Unable to shorten your URL.");
+        }  else {
+            $('#bitly').append("<br><strong><a href='" + data.results[fullURL].shortUrl+"'>" +
+                    data.results[fullURL].shortUrl + "</a></strong><br>");
+        }
     });
 
 

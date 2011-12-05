@@ -17,7 +17,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DaoProteinArrayTarget {
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoProteinArrayTarget daoProteinArrayTarget;
 
     /**
@@ -36,10 +35,6 @@ public class DaoProteinArrayTarget {
         if (daoProteinArrayTarget == null) {
             daoProteinArrayTarget = new DaoProteinArrayTarget();
         }
-
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("protein_array_target");
-        }
         return daoProteinArrayTarget;
     }
 
@@ -54,42 +49,18 @@ public class DaoProteinArrayTarget {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(proteinArrayId,
-                        Long.toString(entrezGeneId));
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection();
-                pstmt = con.prepareStatement
-                        ("INSERT INTO protein_array_target (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`) "
-                                + "VALUES (?,?)");
-                pstmt.setString(1, proteinArrayId);
-                pstmt.setLong(2, entrezGeneId);
-                int rows = pstmt.executeUpdate();
-                return rows;
-            }
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("INSERT INTO protein_array_target (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`) "
+                            + "VALUES (?,?)");
+            pstmt.setString(1, proteinArrayId);
+            pstmt.setLong(2, entrezGeneId);
+            int rows = pstmt.executeUpdate();
+            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushProteinArrayTargetsToDatabase() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
     

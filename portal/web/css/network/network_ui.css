@@ -368,6 +368,14 @@
 	font-size: 13px;
 }
 
+/* label of the update button */
+#network_tabs .footer .button-text
+{
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	margin-right: 2px;
+}
 #network_tabs label
 {
 	color: #666666;
@@ -452,10 +460,9 @@
 #genes_tab #weight_slider_bar
 {
 	margin-left: 20px;
-	margin-right: 70px;
+	margin-right: 75px;
 	font-size: 1.3em;
 }
-
 
 #genes_tab #slider_area .slider-value
 {
@@ -486,16 +493,16 @@
 
 #genes_tab #slider_area label
 {
-	font-size: 11px;
+	font-size: 12px;
 }
 
-#genes_tab #post_control_area
+#genes_tab .footer
 {
-	margin-top: 8px;
+	margin-top: 4px;
 	text-align: center;
 }
 
-#genes_tab #post_control_area table
+#genes_tab .footer table
 {
 	margin-left: auto;
 	margin-right: auto;
@@ -561,14 +568,6 @@
 #relations_tab #edge_source_filter
 {
 	padding-top: 1em;
-}
-
-/* label of the update button */
-#relations_tab .footer label
-{
-	text-align: center;
-	font-weight: bold;
-	margin-right: 2px;
 }
 
 /*

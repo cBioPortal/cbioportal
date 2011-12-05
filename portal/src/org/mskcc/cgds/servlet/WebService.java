@@ -285,14 +285,19 @@ public class WebService extends HttpServlet {
     private void getProteinArrayData(HttpServletRequest httpServletRequest,
                                      PrintWriter writer) throws DaoException, ProtocolException {
         String arrayId = httpServletRequest.getParameter(PROTEIN_ARRAY_ID);
+        String cancerStudyId = null;
         if (arrayId == null || arrayId.length() == 0) {
-            throw new ProtocolException("Missing Parameter:  " + PROTEIN_ARRAY_ID);
+            cancerStudyId = getCancerStudyIDs(httpServletRequest).iterator().next();
         }
         ArrayList<String> targetCaseIds = null;
         if (null != httpServletRequest.getParameter(CASE_LIST)
                 || null != httpServletRequest.getParameter(CASE_SET_ID))
             targetCaseIds = WebserviceParserUtils.getCaseList(httpServletRequest);
-        writer.print(GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayId.split(" ")), targetCaseIds));
+        String arrayInfo = httpServletRequest.getParameter("array_info");
+        boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
+        writer.print(GetProteinArrayData.getProteinArrayData(cancerStudyId, 
+                arrayId==null?null : Arrays.asList(arrayId.split(" ")), 
+                targetCaseIds, includeArrayInfo));
     }
 
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {

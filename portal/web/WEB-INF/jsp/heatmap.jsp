@@ -104,6 +104,9 @@
                                 String fields[] = valueParser.getOriginalValue().split(";");
                                 for (String field:  fields) {
                                     String parts[] = field.split(":");
+                                    if (parts.length<2) {
+                                        continue;
+                                    }
                                     if (parts[1].contains(",")) {
                                         String pieces[] = parts[1].split(",");
                                         out.println ("<br><nobr>" + parts[0] +  " [" + pieces.length + " probe sets]:</nobr>");

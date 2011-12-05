@@ -131,7 +131,7 @@ public class GeneticAlterationUtil {
             //  Handles issue:  165
             if (mutationMap.containsKey(caseId)) {
                 String existingStr = mutationMap.get(caseId);
-                mutationMap.put(caseId, existingStr + ";" + mutation.getAminoAcidChange());
+                mutationMap.put(caseId, existingStr + "," + mutation.getAminoAcidChange());
             } else {
                 mutationMap.put(caseId, mutation.getAminoAcidChange());
             }

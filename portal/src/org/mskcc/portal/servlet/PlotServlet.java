@@ -69,6 +69,7 @@ public class PlotServlet extends HttpServlet {
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);
             String skinNormals = servletXssUtil.getCleanInput(req, SKIN_NORMALS);
+			String legendPos = servletXssUtil.getCleanInput(req, "legendPos");
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png
@@ -168,6 +169,11 @@ public class PlotServlet extends HttpServlet {
             if (skinNormals != null) {
                 plot.append (", skin.normals='" + skinNormals + "'");   
             }
+
+            if (legendPos != null) {
+                plot.append (", legend.pos='" + legendPos + "'");   
+            }
+
             plot.append (");\n");
             plot.append ("dev.off();\n");
 

@@ -87,6 +87,15 @@ sub moveCustomFile{
 	my $fromFile = File::Spec->catdir( $customDirectory, $customFile );
 
     my $CancersFirehoseDataDir = File::Spec->catfile( $DeepFirehoseDirectory, $cancer, $runDate . '00' );
+
+	# if we are using custom CNA, we will need to move over Log2CNA,
+	# lets get latest version before we get next version
+	my $latestVersionOfLog2CNAFile;
+	if ( $customFileType eq "CNA" ) {
+	  $latestVersionOfLog2CNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_data_by_genes.txt", $cancer, $runDate );
+	  print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
+	}
+
     my( $customFileDir, $customFileFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
 																  $destDir, $destFile,
 																  $cancer, $runDate );
@@ -96,9 +105,21 @@ sub moveCustomFile{
 	print `wc -l $fromFile`; 
     mkdir( $customFileDir ); system( "cp $fromFile $toFile"); 
     print `cmp  $fromFile $toFile`;
-    
+
+	# if using custom CNA, lets now copy over Log2CNA
+	if ( $customFileType eq "CNA"  && defined($latestVersionOfLog2CNAFile) )
+	{
+	  my $newLog2CNAFile = File::Spec->catfile( $customFileDir, "all_data_by_genes.txt" );
+	  print "\ncopying Log2CNA:\n", "from: $latestVersionOfLog2CNAFile\n", "  to: $newLog2CNAFile\n";
+	  system( "cp $latestVersionOfLog2CNAFile $newLog2CNAFile"); 
+	  print `cmp  $latestVersionOfLog2CNAFile $newLog2CNAFile`;
+	}
+	else {
+	  warn "Copying custom CNA and cannot find Log2CNA data\n";
+	}
+	
+	# must also create an empty directory in which the sig_genes.txt file will be created    
 	if ( $customFileType eq "MAF" ) {
-		# must also create an empty directory in which the sig_genes.txt file will be created
 		my( $mutSigDir, $mutSigFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
 															  'gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>', '<CANCER>.sig_genes.txt',
 															  $cancer, $runDate );

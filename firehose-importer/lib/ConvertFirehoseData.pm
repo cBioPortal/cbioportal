@@ -393,8 +393,8 @@ sub createMetaFile{
             'stable_id'                    => '<cancer>_rna_seq_mrna',  # todo: change to _rna; might work
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'false',
-            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (RNA Seq).',
-            'profile_name'                 => 'mRNA expression (RNA Seq)'
+            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (RNA Seq RPKM).',
+            'profile_name'                 => 'mRNA expression (RNA Seq RPKM)'
         },
         'mRNA_median_Zscores' => {
             'stable_id'                    => '<cancer>_mrna_median_Zscores',
@@ -407,8 +407,8 @@ sub createMetaFile{
             'stable_id'                    => '<cancer>_rna_seq_mrna_median_Zscores',
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'true',
-            'profile_description'          => 'mRNA z-Scores (RNA Seq) compared to the expression distribution of each gene tumors that are diploid for this gene.',
-            'profile_name'                 => 'mRNA Expression z-Scores (RNA Seq)'
+            'profile_description'          => 'mRNA z-Scores (RNA Seq RPKM) compared to the expression distribution of each gene tumors that are diploid for this gene.',
+            'profile_name'                 => 'mRNA Expression z-Scores (RNA Seq RPKM)'
         },
         'mutations_extended' => {
             'stable_id'               => '<cancer>_mutations',

@@ -63,7 +63,7 @@ if (step4ErrorMsg != null) {
                   { 'genes': genesStr },
                   function(symbolResults) {
                           $("#genestatus").html("");
-                          var stateList = $("<ul>").addClass("ui-widget icon-collection");
+                          var stateList = $("<ul>").addClass("ui-widget icon-collection validation-list");
                           var allValid = true;
 
                           for(var i=0; i < genes.length; i++) {
@@ -307,8 +307,8 @@ if (step4ErrorMsg != null) {
     </script>
 
     <style>
-        ul {margin: 0; padding: 0;}
-		li.ui-state-default {
+        #genestatus ul.validation-list {margin: 0; padding: 0;}
+		#genestatus * li.ui-state-default {
 		    margin: 2px;
 		    position: relative;
 		    padding: 4px 0;
@@ -317,11 +317,11 @@ if (step4ErrorMsg != null) {
 		    list-style: none;
 		    height: 20px;
 		}
-		span.ui-icon {float: left; margin: 0 4px;}
-		span.text {float: left; padding-right: 5px;}
-		.ui-button-icon-only .ui-button-text { padding: 0.35em; }
+		#genestatus * span.ui-icon {float: left; margin: 0 4px;}
+		#genestatus * span.text {float: left; padding-right: 5px;}
+		#genestatus * .ui-button-icon-only .ui-button-text { padding: 0.35em; }
 		.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
-		.ui-menu-item { font-size: 0.6em; }
+		#genestatus * .ui-menu-item { font-size: 0.6em; }
 		#genestatus { clear: both; }
 		#example_gene_set { clear: both; }
 	</style>

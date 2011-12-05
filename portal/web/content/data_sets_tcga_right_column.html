@@ -50,7 +50,7 @@
 </tr>
 <tr>
 <td class="Tips1" title="Lung squamous cell carcinoma">LUSC</td>
-<td style="text-align: right;">212</td>
+<td style="text-align: right;">213</td>
 </tr>
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>

@@ -104,7 +104,6 @@ if (step4ErrorMsg != null) {
                                    stateText.html(genes[i] + ": ");
                                    var nameSelect = $("<select>").addClass("geneSelectBox").attr("name", genes[i]);
                                    $("<option>").attr("value", "")
-                                        .attr("disabled", "disabled")
                                         .html("select a symbol")
                                         .appendTo(nameSelect);
                                    for(var k=0; k < symbols.length; k++) {
@@ -133,10 +132,13 @@ if (step4ErrorMsg != null) {
 
                                      state.click(function(){
                                           $(this).toggleClass('ui-state-active');
-                                          geneName = $(this).attr("name");
-                                          $("#gene_list").val($("#gene_list").val().replace(geneName, trueSymbol));
+                                          var names = $(this).attr("name").split(":");
+                                          var geneName = names[0];
+                                          var symbol = names[1];
+                                          $("#gene_list").val($("#gene_list").val().replace(geneName, symbol));
                                           setTimeout(validateGenes, 500);
                                      });
+
                                      var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
                                      var stateText = $("<span>").addClass("text");
                                      stateText.html("<b>" + genes[i] + "</b>: " + trueSymbol);
@@ -146,7 +148,7 @@ if (step4ErrorMsg != null) {
                                             "'" + genes[i] + "' is a synonym for '" + trueSymbol + "'. "
                                                 + "Click here to replace it with the official symbol."
                                      );
-                                     state.attr("name", genes[i]);
+                                     state.attr("name", genes[i] + ":" + trueSymbol);
                                      state.appendTo(stateList);
                               } else {
                                      var state = $("<li>").addClass("ui-state-default ui-corner-all");
@@ -182,17 +184,19 @@ if (step4ErrorMsg != null) {
                                 $("#main_submit").removeAttr("disabled").removeAttr("title")
                                     .attr("title", "Click to submit.").tipTip();
 
-                                var validState = $("<li>").addClass("ui-state-default ui-corner-all");
-                                var validSpan = $("<span>")
-                                  .addClass("ui-icon ui-icon-circle-check");
-                                var validText = $("<span>").addClass("text");
-                                validText.html("All gene symbols are valid.");
+                                if( genes.length > 0 ) {
+                                    var validState = $("<li>").addClass("ui-state-default ui-corner-all");
+                                    var validSpan = $("<span>")
+                                      .addClass("ui-icon ui-icon-circle-check");
+                                    var validText = $("<span>").addClass("text");
+                                    validText.html("All gene symbols are valid.");
 
-                                validSpan.appendTo(validState);
-                                validText.insertAfter(validSpan);
-                                validState.addClass("ui-state-active");
-                                validState.appendTo(stateList);
-                                validState.attr("title", "You can now submit the list").tipTip();
+                                    validSpan.appendTo(validState);
+                                    validText.insertAfter(validSpan);
+                                    validState.addClass("ui-state-active");
+                                    validState.appendTo(stateList);
+                                    validState.attr("title", "You can now submit the list").tipTip();
+                                }
                           } else {
                                 var invalidState = $("<li>").addClass("ui-state-default ui-corner-all");
                                 var invalidSpan = $("<span>")
@@ -321,7 +325,7 @@ if (step4ErrorMsg != null) {
 		#genestatus * span.text {float: left; padding-right: 5px;}
 		#genestatus * .ui-button-icon-only .ui-button-text { padding: 0.35em; }
 		.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
-		#genestatus * .ui-menu-item { font-size: 0.6em; }
+		ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 		#genestatus { clear: both; }
 		#example_gene_set { clear: both; }
 	</style>

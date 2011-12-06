@@ -132,7 +132,7 @@ function drawMutationDiagram(mutationDiagram)
 
     // scale labels
     svg.append("svg:text")
-      .attr("x", scaleX - 4)
+      .attr("x", scaleX - 8)
       .attr("y", scaleY + 4)
       .attr("text-anchor", "middle")
       .style("fill", "rgb(80, 80, 80)")
@@ -141,7 +141,7 @@ function drawMutationDiagram(mutationDiagram)
       .text("0");
 
     svg.append("svg:text")
-      .attr("x", scaleX - 4)
+      .attr("x", scaleX - 8)
       .attr("y", scaleY + 4 - (maxCount * per))
       .attr("text-anchor", "middle")
       .style("fill", "rgb(80, 80, 80)")
@@ -182,7 +182,7 @@ function drawMutationDiagram(mutationDiagram)
       }
     }
 
-    if (mutationDiagram.mutations[i].label && maxCount == mutationDiagram.mutations[i].count)
+    if (mutationDiagram.mutations[i].label && (maxCount == mutationDiagram.mutations[i].count))
     {
       svg.append("svg:text")
         .attr("x", x1)

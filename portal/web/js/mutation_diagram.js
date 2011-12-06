@@ -34,7 +34,9 @@ function drawMutationDiagram(mutationDiagram)
     .attr("width", scaleHoriz(mutationDiagram.length, w, l))
     .attr("height", 13)
     .style("fill", "rgb(120, 120, 120)")
-    .style("stroke", "none");
+    .style("stroke", "none")
+    .append("svg:title")
+      .text(mutationDiagram.label + " (1 - " + mutationDiagram.length + ")");
 
   // domains
   for (i = 0, size = mutationDiagram.domains.length; i < size; i++)

@@ -6,7 +6,7 @@ function drawMutationDiagram(mutationDiagram)
 
   x = 40;
   y = 0;
-  w = 540 - (2 * x);
+  w = 700 - (2 * x);
   h = 220;
   c = (2 * h) / 3;
   l = mutationDiagram.length;
@@ -15,7 +15,7 @@ function drawMutationDiagram(mutationDiagram)
     .append("div");
 
   var svg = div.append("svg:svg")
-    .attr("width", 540)
+    .attr("width", 700)
     .attr("height", 220);
 
   // label
@@ -170,7 +170,7 @@ function drawMutationDiagram(mutationDiagram)
         .attr("x2", x2)
         .attr("y2", y2)
         .style("stroke", mutationColors[i % 4])
-        .style("stroke-width", 1)
+        .style("stroke-width", 2)
         .append("svg:title")
           .text(mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")");
     }

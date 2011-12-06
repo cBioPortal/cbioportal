@@ -113,6 +113,7 @@ function initNetworkUI(vis)
 
 	_initMainMenu();
 	_initDialogs();
+	_initPropsUI();
 	_initSliders();
 	_initTooltipStyle();
 	
@@ -738,11 +739,12 @@ function showGeneDetails(evt)
  */
 function updateGenesTab(evt)
 {
-	// do not perform any action if the selection is due to the genes tab
+	var selected = _vis.selected("nodes");
+	
+	// do not perform any action on the gene list,
+	// if the selection is due to the genes tab
 	if(!_selectFromTab)
-	{
-		var selected = _vis.selected("nodes");
-		
+	{	
 		if (_isIE())
 		{
 			_setComponentVis($("#gene_list_area select"), false);
@@ -766,6 +768,18 @@ function updateGenesTab(evt)
 		{
 			_setComponentVis($("#gene_list_area select"), true);
 		}
+	}
+	
+	// also update Re-submit button
+	if (selected.length > 0)
+	{
+		// enable the button
+		$("#re-submit_query").button("enable");
+	}
+	else
+	{
+		// disable the button
+		$("#re-submit_query").button("disable");
 	}
 }
 
@@ -2282,6 +2296,7 @@ function _refreshGenesTab()
 function _initGenesTab()
 {
 	// init buttons
+	
 	$("#filter_genes").button({icons: {primary: 'ui-icon-circle-minus'},
 		text: false});
 	
@@ -2297,9 +2312,15 @@ function _initGenesTab()
 	$("#update_edges").button({icons: {primary: 'ui-icon-refresh'},
 		text: false});
 	
+	// re-submit button is initially disabled
 	$("#re-submit_query").button({icons: {primary: 'ui-icon-play'},
-		text: false});
+		text: false,
+		disabled: true});
+	
 	// $("#re-run_query").button({label: "Re-run query with selected genes"});
+	
+	// apply tiptip to all buttons on the network tabs
+	$("#network_tabs button").tipTip({edgeOffset:8});
 }
 
 
@@ -2347,6 +2368,7 @@ function _refreshGenesTab()
 		
 		// TODO qtip does not work with Chrome&IE because of the restrictions of
 		// the <select><option> structure.
+		/*
 		var qtipOpts =
 		{
 			content: "id: " + safeId,
@@ -2372,7 +2394,9 @@ function _refreshGenesTab()
 				//name: 'cream' // preset 'cream' style
 			}
 		};
+		*/
 		
+		// TODO try tipTip?
 		//$("#genes_tab #" + safeId).qtip(qtipOpts);
 	}
 	
@@ -2927,6 +2951,14 @@ function _openProperties()
 {	
 	_updatePropsUI();
 	$("#settings_dialog").dialog("open").height("auto");
+}
+
+/**
+ * Initializes the layout settings panel.
+ */
+function _initPropsUI()
+{
+	$("#fd_layout_settings tr").tipTip();
 }
 
 /**

@@ -282,7 +282,7 @@ if (step4ErrorMsg != null) {
 					},
 					text: false
 				}).removeClass("ui-corner-all")
-				.addClass("ui-corner-right ui-button-icon")
+				.addClass("ui-corner-right ui-button-icon geneset-button")
 				.position({
 					my: "left center",
 					at: "right center",
@@ -323,7 +323,7 @@ if (step4ErrorMsg != null) {
 		}
 		#genestatus * span.ui-icon {float: left; margin: 0 4px;}
 		#genestatus * span.text {float: left; padding-right: 5px;}
-		#genestatus * .ui-button-icon-only .ui-button-text { padding: 0.35em; }
+		.geneset-button .ui-button-text { padding: 0.35em; }
 		.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
 		ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 		#genestatus { clear: both; }

@@ -186,7 +186,9 @@ if (step4ErrorMsg != null) {
                                 $("#main_submit").removeAttr("disabled").removeAttr("title")
                                     .attr("title", "Click to submit.").tipTip();
 
-                                if( genes.length > 0 ) {
+                                if( symbolResults.length > 0
+                                    && !(symbolResults[0].name == "" && symbolResults[0].symbols.length == 0) ) {
+
                                     var validState = $("<li>").addClass("ui-state-default ui-corner-all");
                                     var validSpan = $("<span>")
                                       .addClass("ui-icon ui-icon-circle-check");
@@ -198,7 +200,10 @@ if (step4ErrorMsg != null) {
                                     validState.addClass("ui-state-active");
                                     validState.appendTo(stateList);
                                     validState.attr("title", "You can now submit the list").tipTip();
+                                    $("<br>").appendTo(stateList);
+                                    $("<br>").appendTo(stateList);
                                 }
+
                           } else {
                                 var invalidState = $("<li>").addClass("ui-state-default ui-corner-all");
                                 var invalidSpan = $("<span>")
@@ -218,10 +223,10 @@ if (step4ErrorMsg != null) {
                                     .attr("title", "Gene symbols are not valid. Please edit the gene list.")
                                     .tipTip();
                                 */
-                          }
 
-                          $("<br>").appendTo(stateList);
-                          $("<br>").appendTo(stateList);
+                                $("<br>").appendTo(stateList);
+                                $("<br>").appendTo(stateList);
+                          }
                   },
                   'json'
             );

@@ -182,7 +182,7 @@ function drawMutationDiagram(mutationDiagram)
       }
     }
 
-   if (mutationDiagram.mutations[i].label)
+    if (mutationDiagram.mutations[i].label && maxCount == mutationDiagram.mutations[i].count)
     {
       svg.append("svg:text")
         .attr("x", x1)

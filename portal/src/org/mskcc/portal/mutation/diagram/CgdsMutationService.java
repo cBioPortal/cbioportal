@@ -12,10 +12,12 @@ import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.ExtendedMutation;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
-
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
@@ -49,14 +51,14 @@ public final class CgdsMutationService implements MutationService {
             // todo:  pass in genetic_profile_id, or cancer_study_id, or target case list
             List<ExtendedMutation> extendedMutations = mutationDao.getMutations(1, gene.getEntrezGeneId());
 
-            // ignore labels for now
-            // todo:  if count > 4, use label with ambiguity if necessary
             Multiset<Integer> locations = HashMultiset.create();
+            SetMultimap<Integer, String> labels = HashMultimap.create();
             for (ExtendedMutation extendedMutation : extendedMutations) {
                 String label = extendedMutation.getAminoAcidChange();
                 try {
                     int location = Integer.valueOf(label.replaceAll("[A-Z*]+", ""));
                     locations.add(location);
+                    labels.put(location, label);
                 }
                 catch (NumberFormatException e) {
                     logger.warn("ignoring extended mutation " + label + ", no location information");
@@ -65,7 +67,8 @@ public final class CgdsMutationService implements MutationService {
             for (Multiset.Entry<Integer> entry : locations.entrySet()) {
                 int location = entry.getElement();
                 int count = entry.getCount();
-                Mutation mutation = new Mutation(location, count);
+                String label = Joiner.on("/").join(labels.get(location));
+                Mutation mutation = new Mutation(label, location, count);
                 mutations.add(mutation);
             }
         }

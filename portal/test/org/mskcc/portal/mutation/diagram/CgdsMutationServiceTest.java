@@ -2,7 +2,6 @@ package org.mskcc.portal.mutation.diagram;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -89,7 +88,42 @@ public final class CgdsMutationServiceTest extends AbstractMutationServiceTest {
         Mutation mutation = mutations.get(0);
         assertEquals(123, mutation.getLocation());
         assertEquals(1, mutation.getCount());
-        assertNull(mutation.getLabel());
+        assertEquals("K123G", mutation.getLabel());
+    }
+
+    @Test
+    public void testGetMutationsMultipleMutationsAtSameLocation() throws DaoException {
+        when(geneDao.getGene("DVL1")).thenReturn(gene);
+        when(gene.getEntrezGeneId()).thenReturn(1855L);
+        ArrayList<ExtendedMutation> extendedMutations = new ArrayList<ExtendedMutation>(); // :|
+        ExtendedMutation k123G = new ExtendedMutation();
+        k123G.setAminoAcidChange("K123G");
+        ExtendedMutation k123V = new ExtendedMutation();
+        k123V.setAminoAcidChange("K123V");
+        ExtendedMutation k234S = new ExtendedMutation();
+        k234S.setAminoAcidChange("K234S");
+        extendedMutations.add(k123G);
+        extendedMutations.add(k123V);
+        extendedMutations.add(k234S);
+        when(mutationDao.getMutations(1, 1855L)).thenReturn(extendedMutations);
+
+        List<Mutation> mutations = mutationService.getMutations("DVL1");
+        assertNotNull(mutations);
+        assertEquals(2, mutations.size());
+
+        for (Mutation mutation : mutations) {
+            if (mutation.getLocation() == 123) {
+                assertEquals(2, mutation.getCount());
+                assertTrue("K123G/K123V".equals(mutation.getLabel()) || "K123V/K123G".equals(mutation.getLabel()));
+            }
+            else if (mutation.getLocation() == 234) {
+                assertEquals(1, mutation.getCount());
+                assertEquals("K234S", mutation.getLabel());
+            }
+            else {
+                fail("unexpected location " + mutation.getLocation());
+            }
+        }
     }
 
     @Test
@@ -108,7 +142,7 @@ public final class CgdsMutationServiceTest extends AbstractMutationServiceTest {
         Mutation mutation = mutations.get(0);
         assertEquals(123, mutation.getLocation());
         assertEquals(1, mutation.getCount());
-        assertNull(mutation.getLabel());
+        assertEquals("K123*", mutation.getLabel());
     }
 
     @Test

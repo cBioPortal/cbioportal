@@ -40,3 +40,7 @@ include_networks=true
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

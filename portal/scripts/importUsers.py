@@ -275,7 +275,7 @@ def get_db_connection(build_properties):
 
 def get_build_properties(build_properties_filename):
 
-    properties = {};
+    properties = {}
     build_properties_file = open(build_properties_filename, 'r')
     for line in build_properties_file:
         line = line.strip()
@@ -291,6 +291,7 @@ def get_build_properties(build_properties_filename):
             print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
             continue
         properties[property[0]] = property[1].strip()
+	build_properties_file.close()
 
     # error check
     if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or

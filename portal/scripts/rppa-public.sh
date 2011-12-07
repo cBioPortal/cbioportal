@@ -1,6 +1,6 @@
 #!/bin/sh
 
 ./rppa-antibody.sh
-./rppa-ovarian.sh tcga_ova
+./rppa-ovarian.sh ov
 ./rppa-coadread.sh coadread
-./rppa-gbm.sh tcga_gbm
+./rppa-gbm.sh gbm

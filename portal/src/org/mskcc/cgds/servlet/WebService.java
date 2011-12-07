@@ -296,7 +296,7 @@ public class WebService extends HttpServlet {
         String arrayInfo = httpServletRequest.getParameter("array_info");
         boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
         writer.print(GetProteinArrayData.getProteinArrayData(cancerStudyId, 
-                arrayId==null?null : Arrays.asList(arrayId.split(" ")), 
+                arrayId==null?null : Arrays.asList(arrayId.split("[ ,]+")), 
                 targetCaseIds, includeArrayInfo));
     }
 

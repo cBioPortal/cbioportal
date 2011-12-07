@@ -275,52 +275,52 @@ def get_db_connection(build_properties):
 
 def get_build_properties(build_properties_filename):
 
-    properties = {}
-    build_properties_file = open(build_properties_filename, 'r')
-    for line in build_properties_file:
-        line = line.strip()
-        # skip line if its blank or a comment
-        if len(line) == 0 or line.startswith('#'):
-            continue
+	properties = {}
+	build_properties_file = open(build_properties_filename, 'r')
+	for line in build_properties_file:
+		line = line.strip()
+		# skip line if its blank or a comment
+		if len(line) == 0 or line.startswith('#'):
+			continue
         # store name/value
-        property = line.split('=')
-        # spreadsheet url contains an '=' sign
-        if line.startswith(CGDS_USERS_SPREADSHEET):
-            property = [property[0], line[line.index('=')+1:len(line)]]
-        if (len(property) != 2):
-            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
-            continue
-        properties[property[0]] = property[1].strip()
+		property = line.split('=')
+		# spreadsheet url contains an '=' sign
+		if line.startswith(CGDS_USERS_SPREADSHEET):
+			property = [property[0], line[line.index('=')+1:len(line)]]
+		if (len(property) != 2):
+			print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
+			continue
+		properties[property[0]] = property[1].strip()
 	build_properties_file.close()
 
     # error check
-    if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
-        CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
-        CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
-        CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
-        GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
-        GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
-        CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
-        CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-        return None
+	if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
+		CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
+		CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
+		CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
+		GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
+		GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
+		CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
+		CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
+		print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
+		return None
 
-    # extra verification for database names
-    if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
-        properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
-        properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
-        print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
-        return None
+	# extra verification for database names
+	if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
+		properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
+		properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
+		print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
+		return None
     
     # return an instance of BuildProperties
-    return BuildProperties(properties[CGDS_DATABASE_HOST],
-                           properties[CGDS_DATABASE_NAME],
-                           properties[CGDS_DATABASE_USER],
-                           properties[CGDS_DATABASE_PW],
-                           properties[GOOGLE_ID],
-                           properties[GOOGLE_PW],
-                           properties[CGDS_USERS_SPREADSHEET],
-                           properties[CGDS_USERS_WORKSHEET])
+	return BuildProperties(properties[CGDS_DATABASE_HOST],
+						   properties[CGDS_DATABASE_NAME],
+						   properties[CGDS_DATABASE_USER],
+						   properties[CGDS_DATABASE_PW],
+						   properties[GOOGLE_ID],
+						   properties[GOOGLE_PW],
+						   properties[CGDS_USERS_SPREADSHEET],
+						   properties[CGDS_USERS_WORKSHEET])
 
 # ------------------------------------------------------------------------------
 # adds new users from the google spreadsheet into the cgds portal database

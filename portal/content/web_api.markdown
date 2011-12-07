@@ -170,14 +170,14 @@ You can either:
 
 #### Response Format 1
 
-When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:
+When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:
 
 1. **GENE\_ID**:  Entrez Gene ID   
 2. **COMMON**:  HUGO Gene Symbol
 3. **Columns 3 - N**:  Data for each case
 
 #### Response Format 2
-When requesting a single gene and multiple genetic profile IDs (see above), you will receive a 2x2 matrix with the following columns:
+When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:
 
 1. **GENETIC\_PROFILE_ID**:  The Genetic Profile ID.   
 2. **ALTERATION\_TYPE**:  The Genetic Alteration Type, e.g. MUTATION, MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, or MRNA_EXPRESSION.
@@ -255,6 +255,68 @@ A tab-delimited file with the following columns:
 Get Clinical Data for All TCGA Ovarian Cases:
 
 [webservice.do?cmd=getClinicalData&case_set_id=ova_all](webservice.do?cmd=getClinicalData&case_set_id=ova_all)
+
+## Get Protein/Phosphoprotein Antibody Information
+
+### Description
+
+Retrieves informations on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.
+
+### Query Format
+* **cmd**=getProteinArrayInfo (required)
+* **cancer_study_id**= [cancer study ID] (required)
+* **protein_array_type**= [protein_level or phosphorylation]
+* **gene_list**= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +
+
+### Response Format
+
+You will receive a tab-delimited matrix with the following 4 columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **ARRAY_TYPE**: The protein array antibody type, i.e. protein_level or phosphorylation.
+* **GENE**: The targeted gene name (HUGO gene symbol).
+* **RESIDUE**: The targeted resdue(s).
+
+### Example
+
+* Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread)
+* Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation)
+* Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation&gene_list=ERBB2+TP53](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=protein_level&gene_list=ERBB2+TP53)
+
+## Get RPPA-based Proteomics Data
+
+### Description
+
+Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).
+
+### Query Format
+* **cmd**=getProteinArrayData (required)
+* **case_set_id**= [case set ID] (required)
+* **protein_array_id**= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +
+* **array_info**= [1 or 0]. If 1, antibody information will also be exported. 
+
+#### Response Format 1
+
+If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **Columns 2 - N**: Data for each case.
+
+#### Response Format 2
+
+If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **ARRAY_TYPE**: The protein array antibody type, i.e. protein_level or phosphorylation.
+* **GENE**: The targeted gene name (HUGO gene symbol).
+* **RESIDUE**: The targeted resdue(s).
+* **Columns 5 - N**: Data for each case.
+
+### Example
+
+* Get All RPPA Data in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA)
+* Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365)
+* Get All RPPA Data with antibody information in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1)
 
 # Linking to Us
 

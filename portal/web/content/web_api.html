@@ -137,7 +137,7 @@
 <li>Specify a single gene and multiple genetic profile IDs. Example: <a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR</a></li>
 </ul>
 <h4 id="response-format-1">Response Format 1</h4>
-<p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:</p>
+<p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
 <li><strong>GENE_ID</strong>:  Entrez Gene ID <br />
 </li>
@@ -145,7 +145,7 @@
 <li><strong>Columns 3 - N</strong>:  Data for each case</li>
 </ol>
 <h4 id="response-format-2">Response Format 2</h4>
-<p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a 2x2 matrix with the following columns:</p>
+<p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
 <li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID. <br />
 </li>
@@ -210,6 +210,61 @@
 <h3 id="example_5">Example</h3>
 <p>Get Clinical Data for All TCGA Ovarian Cases:</p>
 <p><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<h2 id="get-proteinphosphoprotein-antibody-information">Get Protein/Phosphoprotein Antibody Information</h2>
+<h3 id="description_7">Description</h3>
+<p>Retrieves informations on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.</p>
+<h3 id="query-format_7">Query Format</h3>
+<ul>
+<li><strong>cmd</strong>=getProteinArrayInfo (required)</li>
+<li><strong>cancer_study_id</strong>= [cancer study ID] (required)</li>
+<li><strong>protein_array_type</strong>= [protein_level or phosphorylation]</li>
+<li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+</ul>
+<h3 id="response-format_6">Response Format</h3>
+<p>You will receive a tab-delimited matrix with the following 4 columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+</ul>
+<h3 id="example_6">Example</h3>
+<ul>
+<li>Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread</a></li>
+<li>Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation</a></li>
+<li>Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=protein_level&amp;gene_list=ERBB2+TP53">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation&amp;gene_list=ERBB2+TP53</a></li>
+</ul>
+<h2 id="get-rppa-based-proteomics-data">Get RPPA-based Proteomics Data</h2>
+<h3 id="description_8">Description</h3>
+<p>Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).</p>
+<h3 id="query-format_8">Query Format</h3>
+<ul>
+<li><strong>cmd</strong>=getProteinArrayData (required)</li>
+<li><strong>case_set_id</strong>= [case set ID] (required)</li>
+<li><strong>protein_array_id</strong>= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+<li><strong>array_info</strong>= [1 or 0]. If 1, antibody information will also be exported. </li>
+</ul>
+<h4 id="response-format-1_1">Response Format 1</h4>
+<p>If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>Columns 2 - N</strong>: Data for each case.</li>
+</ul>
+<h4 id="response-format-2_1">Response Format 2</h4>
+<p>If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+<li><strong>Columns 5 - N</strong>: Data for each case.</li>
+</ul>
+<h3 id="example_7">Example</h3>
+<ul>
+<li>Get All RPPA Data in TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA</a></li>
+<li>Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;protein_array_id=GBL9017366+GBL9017365">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;protein_array_id=GBL9017366+GBL9017365</a></li>
+<li>Get All RPPA Data with antibody information in TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;array_info=1">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;array_info=1</a></li>
+</ul>
 <h1 id="linking-to-us">Linking to Us</h1>
 <p>Once you have a cancer_study_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:</p>
 <ul>

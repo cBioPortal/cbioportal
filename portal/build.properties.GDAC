@@ -39,3 +39,7 @@ news=news_tcga.html
 data_sets=data_sets_tcga.html
 examples_right_column=examples_tcga.html
 data_sets_right_column=data_sets_tcga_right_column.html
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

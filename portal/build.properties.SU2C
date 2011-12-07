@@ -44,3 +44,7 @@ step_image_suffix=_su2c
 
 # Authentication Props
 authenticate=true
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

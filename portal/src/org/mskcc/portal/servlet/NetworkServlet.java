@@ -100,7 +100,7 @@ public class NetworkServlet extends HttpServlet {
             
             Network network;
             xdebug.startTimer();
-            if (netSrc.toUpperCase().equals("cpath2")) {
+            if (netSrc.equalsIgnoreCase("cpath2")) {
                 network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
                 if (logXDebug) {
                     xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)

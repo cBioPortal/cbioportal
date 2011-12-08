@@ -34,9 +34,6 @@
         }
 </style>
 
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
-
 <script type="text/javascript">
     function parsePValue(str) {
         return parseFloat(str.replace(/<[^>]*>/g,""));

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Usage: moveSEG.sh <host> <user>"
+
 HOST=$1
 USER=$2
 

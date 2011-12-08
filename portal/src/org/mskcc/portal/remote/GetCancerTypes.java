@@ -12,6 +12,7 @@ import java.util.Collections;
  * Gets all Cancer Studies stored in CGDS Server.
  */
 public class GetCancerTypes {
+    public static final String ALL_CANCER_STUDIES_ID = "all";
 
     /**
      * Gets all Cancer Studies stored in Remote CGDS Server.
@@ -28,7 +29,7 @@ public class GetCancerTypes {
         //  Then, insert "All" Cancer Types at beginning
         ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
         CancerStudy cancerStudy = new CancerStudy("All Cancer Studies", "All Cancer Studies",
-                "all", "all", true);
+                ALL_CANCER_STUDIES_ID, ALL_CANCER_STUDIES_ID, true);
         finalCancerStudiesList.add(cancerStudy);
         finalCancerStudiesList.addAll(cancerStudyList);
 

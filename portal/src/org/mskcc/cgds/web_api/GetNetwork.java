@@ -35,7 +35,7 @@ public class GetNetwork {
                 canonicalGeneList.add(canonicalGene);
             }
         }
-        if (canonicalGeneList.size() ==0) {
+        if (canonicalGeneList.isEmpty()) {
             throw new ProtocolException ("You must specify at least one gene.");
         }
 

@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.text.DecimalFormat;
 
+/**
+ * class to get mutation frequencies
+ * @author jgao
+ */
 public class GetMutationFrequencies {
     public static final String TAB = "\t";
 
@@ -26,14 +30,16 @@ public class GetMutationFrequencies {
             }
             appendHeader(buf);
             canonicalGene = daoMutationFrequency.getSomaticMutationFrequency(canonicalGene.getEntrezGeneId());
-            buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbol() + TAB
-                + formatter.format(canonicalGene.getSomaticMutationFrequency()) + "\n");
+            buf.append(canonicalGene.getEntrezGeneId()).append(TAB)
+                    .append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB)
+                    .append(formatter.format(canonicalGene.getSomaticMutationFrequency())).append ("\n");
         } else {
             appendHeader(buf);
             ArrayList <CanonicalGene> geneList = daoMutationFrequency.getTop100SomaticMutatedGenes(cancerStudyId);
             for (CanonicalGene canonicalGene :  geneList) {
-                buf.append (canonicalGene.getEntrezGeneId() + TAB + canonicalGene.getHugoGeneSymbol() + TAB
-                    + formatter.format(canonicalGene.getSomaticMutationFrequency()) + "\n");
+                buf.append(canonicalGene.getEntrezGeneId()).append(TAB)
+                        .append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB)
+                        .append(formatter.format(canonicalGene.getSomaticMutationFrequency())).append ("\n");
             }
         }
         return buf.toString();

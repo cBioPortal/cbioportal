@@ -1,0 +1,26 @@
+
+# YAML
+# Firehose conversion workflow
+
+# subroutines
+# does not support directory or file names containing spaces
+---
+- subA:
+    outfile: outfileA
+    dirsAndFiles:
+        - dirA fileA
+- subB:
+    outfile: outfileB
+    dirsAndFiles:
+        - dirB fileB
+- subC:
+    outfile: outfileC
+    dirsAndFiles:
+        - dirC1 fileC1
+        - dirC2 fileC2
+
+# dependencies
+---
+- subB requires subA
+- subC precluded_by subB
+

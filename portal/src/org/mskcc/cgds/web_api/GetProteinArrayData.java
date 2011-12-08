@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
@@ -24,48 +25,70 @@ import org.mskcc.cgds.model.ProteinArrayInfo;
  */
 public class GetProteinArrayData {
     
-    public static String getProteinArrayInfo(ArrayList<String> targetGeneList, String type) 
+    
+    public static String getProteinArrayInfo(String cancerStudyStableId, ArrayList<String> targetGeneList, String type) 
+            throws DaoException {
+        return getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId(),
+                targetGeneList, type);
+    }
+    
+    public static String getProteinArrayInfo(int cancerStudyId, ArrayList<String> targetGeneList, String type) 
             throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
-        StringBuilder sb = new StringBuilder("GENE\tARRAY_ID\tARRAY_TYPE\t"
-                + "RESIDUE\tANTIBODY_SOURCE\tVALIDATED\n");
+        StringBuilder sb = new StringBuilder("ARRAY_ID\tARRAY_TYPE\tGENE\t"
+                + "RESIDUE\n");
         
         ArrayList<ProteinArrayInfo> pais;
         
-        Set<String> types = Collections.singleton(type);
+        Set<String> types = type==null?null:Collections.singleton(type);
         if (targetGeneList==null) {
-            pais = daoPAI.getProteinArrayInfoForType(types);
+            pais = daoPAI.getProteinArrayInfoForType(cancerStudyId,types);
         } else {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             Set<Long> entrezIds = new HashSet<Long>();
             for (String symbol : targetGeneList) {
                 CanonicalGene gene = daoGene.getGene(symbol);
-                if (gene!=null)
+                if (gene!=null) {
                     entrezIds.add(gene.getEntrezGeneId());
+                }
             }
-            pais = daoPAI.getProteinArrayInfoForEntrezIds(entrezIds, types);
+            pais = daoPAI.getProteinArrayInfoForEntrezIds(cancerStudyId, entrezIds, types);
         }
         
         for (ProteinArrayInfo pai : pais) {
-            sb.append(pai.getGene()); sb.append('\t');
-            sb.append(pai.getId()); sb.append('\t');
-            sb.append(pai.getType()); sb.append('\t');
-            sb.append(pai.getResidue()); sb.append('\t');
-            sb.append(pai.getSource()); sb.append('\t');
-            sb.append(Boolean.toString(pai.isValidated()));
+            sb.append(pai.getId()); 
+            sb.append('\t').append(pai.getType()); 
+            sb.append('\t').append(pai.getGene()); 
+            sb.append('\t').append(pai.getResidue()); 
+            //sb.append('\t').append(pai.getSource()); 
+            //sb.append('\t').append(Boolean.toString(pai.isValidated()));
             sb.append('\n');
         }
         
         return sb.toString();
     }
     
-    public static String getProteinArrayData(List<String> arrayIds, ArrayList<String> targetCaseList) 
-            throws DaoException {
+    public static String getProteinArrayData(String cancerStudyStableId, List<String> arrayIds,
+            ArrayList<String> targetCaseList, boolean arrayInfo) throws DaoException {
+        Map<String,ProteinArrayInfo> mapArrayIdArray = new HashMap<String,ProteinArrayInfo>();
+        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
+        ArrayList<ProteinArrayInfo> pais;
+        if (arrayIds==null || arrayIds.isEmpty()) {
+            pais = daoPAI.getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId)
+                    .getInternalId());
+        } else {
+            pais = daoPAI.getProteinArrayInfo(arrayIds, null);
+        }
+        for (ProteinArrayInfo pid : pais){
+            mapArrayIdArray.put(pid.getId(), pid);
+        }
+        Set<String> arrays = mapArrayIdArray.keySet();
+        
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         Map<String, Map<String,Double>> mapArrayCaseAbun = new HashMap<String,Map<String,Double>>();
         Set<String> caseIds = new HashSet<String>();
-        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrayIds, targetCaseList)) {
+        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrays, targetCaseList)) {
             String arrayId = pad.getArrayId();
             String caseId = pad.getCaseId();
             caseIds.add(caseId);
@@ -78,25 +101,39 @@ public class GetProteinArrayData {
         }
         
         StringBuilder sb = new StringBuilder();
-        if (targetCaseList==null)
+        if (targetCaseList==null) {
             targetCaseList = new ArrayList<String>(caseIds);
+        }
         
-        sb.append('\t');
+        sb.append("ARRAY_ID\t");
+        if (arrayInfo) {
+            sb.append("ARRAY_TYPE\tGENE\tRESIDUE\t");
+        }
         sb.append(StringUtils.join(targetCaseList, "\t"));
         sb.append('\n');
         
-        for (Map.Entry<String, Map<String,Double>> entry : mapArrayCaseAbun.entrySet()) {
-            String arrayId = entry.getKey();
+        for (String arrayId : arrays) {
+            Map<String,Double> mapCaseAbun = mapArrayCaseAbun.get(arrayId);
+            if (mapCaseAbun==null) {
+                continue;
+            }
+            
             sb.append(arrayId);
-            Map<String,Double> mapCaseAbun = entry.getValue();
+            if (arrayInfo) {
+                ProteinArrayInfo pai = mapArrayIdArray.get(arrayId);
+                sb.append("\t").append(pai.getType());
+                sb.append("\t").append(pai.getGene());
+                sb.append("\t").append(pai.getResidue());
+            }
             
             for (String caseId : targetCaseList) {
                 sb.append('\t');
                 Double abundance = mapCaseAbun.get(caseId);
-                if (abundance==null)
+                if (abundance==null) {
                     sb.append("NaN");
-                else
+                } else {
                     sb.append(abundance.toString()); 
+                }
             }
                 
             sb.append('\n');

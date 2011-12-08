@@ -8,6 +8,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 
+/**
+ * JUnit test for GenerateMutationData class.
+ */
 public class TestGenerateMutationData extends TestCase {
 
     public void testGenerateMutationData() throws Exception {

@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * Data access object for Clinical Data table
+ */
 public class DaoClinicalData {
 
     /**

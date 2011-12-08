@@ -1,4 +1,3 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%
     String step3ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP3_ERROR_MSG);
 %>
@@ -6,7 +5,7 @@
 <div class="query_step_section" id="step3">
     <span class="step_header">Select Patient/Case Set:</span>
     <select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
-
+    <span style="font-size:120%; color:black">(Tip:  Hover your mouse over a case set to view a description.)</span>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

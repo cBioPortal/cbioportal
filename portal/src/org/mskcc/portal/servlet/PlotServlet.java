@@ -3,7 +3,6 @@ package org.mskcc.portal.servlet;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.owasp.validator.html.PolicyException;
-import org.mskcc.portal.util.GlobalProperties;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -23,6 +22,7 @@ public class PlotServlet extends HttpServlet {
     private static Logger logger = Logger.getLogger(PlotServlet.class);
     public static final String SKIN = "skin";
     public static final String SKIN_COL_GROUP = "skin_col_gp";
+	public static final String LEGEND_POS = "legendPos";
     public static final String SKIN_NORMALS = "skin_normals";
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
@@ -70,6 +70,7 @@ public class PlotServlet extends HttpServlet {
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);
             String skinNormals = servletXssUtil.getCleanInput(req, SKIN_NORMALS);
+			String legendPos = servletXssUtil.getCleanInput(req, LEGEND_POS);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png
@@ -109,8 +110,22 @@ public class PlotServlet extends HttpServlet {
                 plot.append("pdf(width=6, height=6, file='" + tmpfile + "')\n");
             }
 
-            String cgdsUrl = GlobalProperties.getCgdsUrl();
-            cgdsUrl = cgdsUrl.replaceAll("webservice.do", "");
+            String currentUrl = req.getRequestURL().toString();
+            String localHost = "127.0.0.1";
+            logger.debug("Current URL is:  " + currentUrl);
+            // locate host name to replace
+            int startOfHostname = currentUrl.indexOf("//") + 2;
+            int endOfHostname = currentUrl.indexOf(":", startOfHostname);
+            // port not included in url
+            if (endOfHostname == -1) {
+                endOfHostname = currentUrl.indexOf("/", startOfHostname);
+                // we need to append port number
+                localHost += ":38080";
+            }
+            String hostname = currentUrl.substring(startOfHostname, endOfHostname);
+            String cgdsUrl = currentUrl.replaceAll("plot.(do|pdf)", "");
+            cgdsUrl = cgdsUrl.replace(hostname, localHost);
+            logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");
             if (caseSetId != null && !caseSetId.equals("-1")) {
@@ -155,11 +170,16 @@ public class PlotServlet extends HttpServlet {
             if (skinNormals != null) {
                 plot.append (", skin.normals='" + skinNormals + "'");   
             }
+
+            if (legendPos != null) {
+                plot.append (", legend.pos='" + legendPos + "'");   
+            }
+
             plot.append (");\n");
             plot.append ("dev.off();\n");
 
-            logger.info("Call to R Follows:");
-            logger.info(plot.toString());
+            logger.debug("Call to R Follows:");
+            logger.debug(plot.toString());
 
             // open device
             c.parseAndEval(plot.toString());

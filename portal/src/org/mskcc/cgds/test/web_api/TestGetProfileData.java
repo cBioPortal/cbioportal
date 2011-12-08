@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * JUnit test for GetProfileData class.
+ */
 public class TestGetProfileData extends TestCase {
 
     public void testGetProfileData() throws DaoException, IOException {

@@ -97,12 +97,109 @@ package org.cytoscapeweb.view.render {
             // Get arrow styles:
             var sourceShape:String = e.props.sourceArrowShape;
             var targetShape:String = e.props.targetArrowShape;
+            var targetArrowColor:uint = e.props.targetArrowColor;
+            var sourceArrowColor:uint = e.props.sourceArrowColor;
+            
             var sourceArrowStyle:Object, targetArrowStyle:Object;
             
+            // Check special conditions for merged edges
+            
+            var edgeType:String = null;
+			var sameType:Boolean = true;
+			var direction:Object = new Object();
+			var lastEdge:EdgeSprite = null;
+            
+            if (e.props.$merged)
+			{
+				// visit all edges of the source node of the merged edge and
+				// find all edges between source and target nodes 
+				e.source.visitEdges(
+					function(edge:EdgeSprite):Boolean
+					{
+						var endVisit:Boolean = false;
+						
+						if (edge == e ||
+							GraphUtils.isFilteredOut(edge))
+						{
+							// skip the merged edge & filtered edges
+							endVisit = false;
+						}
+						// if the target or source of the current edge is
+						// the target edge of the merged edge, then the
+						// current edge is between e.source and e.target
+						else if (edge.target == e.target ||
+							edge.source == e.target)
+						{
+							// update last edge
+							lastEdge = edge;
+							
+							// first edge, so set the type & direction directly
+							if (edgeType == null)
+							{
+								edgeType = edge.data.type;
+								
+								direction.same = true;
+								
+								if (edge.target == e.target)
+								{
+									direction.source = "source";
+								}
+								else
+								{
+									direction.source = "target";
+								}
+							}
+							// different type found
+							else if (edgeType != edge.data.type)
+							{
+								sameType = false;
+								
+								// end visitation with an early exit
+								endVisit = true;
+							}
+							
+							// check for same edge direction
+							if (direction.same)
+							{
+								if (direction.source == "source")
+								{
+									if (edge.target != e.target)
+									{
+										direction.same = false;
+									}	
+								}
+								else
+								{
+									if (edge.target != e.source)
+									{
+										direction.same = false;
+									}
+								}
+							}
+						}
+						
+						return endVisit;
+					},
+					NodeSprite.OUT_LINKS);
+				
+				// if all edges of same type, and their direction are all same,
+				// then draw the arrow shape for the merged edge
+				if (sameType &&
+					(lastEdge != null)
+					&& direction.same)
+				{
+					// set arrow shape & color
+					sourceShape = lastEdge.props.sourceArrowShape;
+					targetShape = lastEdge.props.targetArrowShape;
+					targetArrowColor = lastEdge.props.targetArrowColor;
+					sourceArrowColor = lastEdge.props.sourceArrowColor;
+				}
+			}
+            
             if (targetShape != ArrowShapes.NONE)
-                targetArrowStyle = ArrowShapes.getArrowStyle(e, targetShape, e.props.targetArrowColor);
+                targetArrowStyle = ArrowShapes.getArrowStyle(e, targetShape, targetArrowColor);
             if (sourceShape != ArrowShapes.NONE)
-                sourceArrowStyle = ArrowShapes.getArrowStyle(e, sourceShape, e.props.sourceArrowColor);
+                sourceArrowStyle = ArrowShapes.getArrowStyle(e, sourceShape, sourceArrowColor);
             
             // Curvature
             var op1:Point, op2:Point;
@@ -148,58 +245,14 @@ package org.cytoscapeweb.view.render {
             // See https://sourceforge.net/forum/message.php?msg_id=7393265
             var color:uint =  0xffffff & e.lineColor;
         
-			
-			if (e.props.$merged)
+        	// if all edges are of the same type, so use a specific color
+        	// of that type instead of color of the merged edge
+			if (sameType &&
+				(lastEdge != null))
 			{
-				var type:String = null;
-				var same:Boolean = true;
-				var lastEdge:EdgeSprite = null;
-				
-				e.source.visitEdges(
-					function(edge:EdgeSprite):Boolean
-					{
-						var endVisit:Boolean = false;
-						
-						
-						if (edge == e ||
-							GraphUtils.isFilteredOut(edge))
-						{
-							// skip the merged edge & filtered edges
-							endVisit = false;
-						}
-						else if (edge.target == e.target)
-						{
-							// update last edge
-							lastEdge = edge;
-							
-							// first edge, so set the type directly
-							if (type == null)
-							{
-								type = edge.data.type;
-							}
-							// different type found
-							else if (type != edge.data.type)
-							{
-								same = false;
-								
-								// end visitation with an early exit
-								endVisit = true;
-							}
-						}
-						
-						return endVisit;
-					},
-					NodeSprite.OUT_LINKS);
-				
-				// all edges are of the same type, so use a specific color
-				
-				if (same &&
-					(lastEdge != null))
-				{
-					color =  0xffffff & lastEdge.lineColor;
-				}
+				color =  0xffffff & lastEdge.lineColor;
 			}
-			
+					
             // Start/end points of the line (without arrows):
             var sShaft:Point = start.clone(), eShaft:Point = end.clone();
 

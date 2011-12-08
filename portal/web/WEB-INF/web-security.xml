@@ -95,10 +95,25 @@
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PortalMetaDataJSON</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>plot</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>scatterplot</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ScatterPlotServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -125,9 +140,29 @@
         <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>oma_redirect</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>link_out</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
+    </servlet>    
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oma_redirect</servlet-name>
+        <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -171,6 +206,26 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>generatePlots</servlet-name>
         <url-pattern>/generatePlots.do</url-pattern>
     </servlet-mapping>
@@ -183,6 +238,21 @@
     <servlet-mapping>
         <servlet-name>network</servlet-name>
         <url-pattern>/network.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <url-pattern>/CheckGeneSymbol.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

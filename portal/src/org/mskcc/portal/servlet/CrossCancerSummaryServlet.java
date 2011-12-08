@@ -7,8 +7,9 @@ import org.mskcc.portal.util.*;
 import org.mskcc.portal.model.ProfileData;
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cgds.model.AnnotatedCaseSets;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
@@ -78,13 +79,6 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
 
-        //  This delay code is temporarily, and is used to test the AJAX spinners.
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         // In order to process request, we must have a gene list, and a cancer type
         try {
             String geneList = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.GENE_LIST);
@@ -100,11 +94,15 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
 
             //  Get the default case set
-            CaseList defaultCaseSet = getDefaultCaseSet(caseSetList);
+            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
+            CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
             httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getStableId());
 
             //  Get the default genomic profiles
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfiles(geneticProfileList);
+            CategorizedGeneticProfileSet categorizedGeneticProfileSet =
+                    new CategorizedGeneticProfileSet(geneticProfileList);
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet =
+                    categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
             httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
             //  Create URL for Cancer Study Details
@@ -157,7 +155,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                 + URLEncoder.encode(geneList));
 
         //  Append action parameters
-        detailsUrl.append("&action=Submit&tab_index=tab_visualize");
+        detailsUrl.append("&"+QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT+"&tab_index=tab_visualize");
 
         return detailsUrl.toString();
     }
@@ -217,61 +215,15 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseList, defaultCaseSet.getStableId(),
-                zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-                new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), false, false);
+														   caseList, defaultCaseSet.getStableId(),
+														   zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
+														   new HashSet<String>(defaultGeneticProfileSet.keySet()),
+														   new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
+														   false, false, false, "");
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
         request.setAttribute(QueryBuilder.PROFILE_DATA_SUMMARY, dataSummary);
         request.setAttribute(QueryBuilder.ONCO_PRINT_HTML, oncoPrintHtml);
-    }
-
-    /**
-     * This code makes an attempts at selecting the "best" default case set.
-     *
-     * @param caseSetList List of all Case Sets.
-     * @return the "best" default case set.
-     */
-    private CaseList getDefaultCaseSet(ArrayList<CaseList> caseSetList) {
-        for (CaseList caseSet : caseSetList) {
-            String name = caseSet.getName();
-            if (name.startsWith("All Complete Tumors")) {
-                return caseSet;
-            } else if (name.startsWith("All Tumors")) {
-                return caseSet;
-            }
-        }
-
-        // If there are no matches, return the 0th in the list.
-        return caseSetList.get(0);
-    }
-
-    /**
-     * This code makes an attempt at selecting the "best" default genomic profiles.
-     *
-     * @param geneticProfileList List of Genomic Profiles.
-     * @return list of "best" default genomic profiles.
-     */
-    private HashMap<String, GeneticProfile> getDefaultGeneticProfiles(ArrayList<GeneticProfile> geneticProfileList) {
-        HashMap<String, GeneticProfile> defaultSet = new HashMap<String, GeneticProfile>();
-        boolean cnaChosen = false;
-        for (GeneticProfile geneticProfile : geneticProfileList) {
-            GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
-            String name = geneticProfile.getProfileName();
-            if (geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
-            }
-            if (name.contains("GISTIC") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
-                cnaChosen = true;
-            }
-            if (name.contains("RAE") && cnaChosen == false) {
-                defaultSet.put(geneticProfile.getStableId(), geneticProfile);
-                cnaChosen = true;
-            }
-        }
-        return defaultSet;
     }
 }

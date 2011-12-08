@@ -1,7 +1,5 @@
 package org.mskcc.cgds.dao;
 
-import org.mskcc.cgds.model.CanonicalGene;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

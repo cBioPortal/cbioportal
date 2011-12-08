@@ -19,6 +19,7 @@ drop table IF EXISTS cancer_type;
 drop table IF EXISTS case_list;
 drop table IF EXISTS case_list_list;
 drop table IF EXISTS gene;
+drop table IF EXISTS gene_alias;
 drop table IF EXISTS gene_in_profile;
 drop table IF EXISTS genetic_alteration;
 drop table IF EXISTS genetic_profile_cases;
@@ -33,6 +34,7 @@ drop table IF EXISTS interaction;
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
+drop table IF EXISTS protein_array_cancer_study;
 
 --
 -- Database: `cgds`
@@ -130,6 +132,18 @@ CREATE TABLE IF NOT EXISTS `gene` (
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gene_alias`
+--
+
+CREATE TABLE IF NOT EXISTS `gene_alias` (
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `GENE_ALIAS` varchar(255) NOT NULL,
+  PRIMARY KEY  (`ENTREZ_GENE_ID`,`GENE_ALIAS`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -296,12 +310,19 @@ CREATE TABLE `protein_array_info` (
 
 CREATE TABLE `protein_array_target` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
-  `ENTREZ_GENE_ID` int(255) NOT NULL
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `protein_array_data` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
+  `ABUNDANCE` double NOT NULL,
+  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CASE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `protein_array_cancer_study` (
+  `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  `ABUNDANCE` double NOT NULL
+  PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

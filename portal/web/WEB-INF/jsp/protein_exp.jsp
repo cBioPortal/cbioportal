@@ -1,8 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON" %>
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.remote.GetProteinArrayData" %>
 <%@ page import="java.util.Set" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
+    String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 %>
 
 <style type="text/css" title="currentStyle"> 
@@ -31,9 +33,6 @@
                 background-color : white;
         }
 </style>
-
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 
 <script type="text/javascript">
     function parsePValue(str) {
@@ -86,54 +85,80 @@
     
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
-        var params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
+        var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
+            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ANTIBODY_TYPE%>:'phosphorylation'
+            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
+        if ($.browser.msie) //TODO: this is a temporary fix for bug #74
+            params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
+                        
         $.post("ProteinArraySignificanceTest.json", 
             params,
             function(aDataSet){
                 //$("div#protein_exp").html(aDataSet);
                 //alert(aDataSet);
-                var aiExclude = [0,1,2,10];
+                if (aDataSet.length==0)
+                    return;
+                
+                var showPValueColumn = aDataSet[0][9]!="NaN";
+                var showAbsDiffColumn = !showPValueColumn && aDataSet[0][8]!="NaN";
+                
+                var sortingColumn;
+                if (showPValueColumn) {
+                    sortingColumn = [9,'asc'];
+                } else if (showAbsDiffColumn) {
+                    sortingColumn = [8, 'desc'];
+                } else if (aDataSet[0][6]!="NaN") {
+                    sortingColumn = [6, 'desc'];
+                } else {
+                    sortingColumn = [7, 'desc'];
+                }
+                
+                
+                var aiExclude = [1,2,3,10];
                 var oTable = $('table#protein_expr').dataTable( {
                         "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
 			"oColVis": {
                             //"aiExclude": aiExclude
                         },
                         "bJQueryUI": true,
+                        "bDestroy": true,
                         "aaData": aDataSet,
                         "aoColumnDefs":[
-                            { //"sTitle": "Gene",
+                            { //"sTitle": "RPPA ID",
                               "bVisible": false,
                               "aTargets": [ 0 ]
                             },
+                            { //"sTitle": "Gene",
+                              "bVisible": false,
+                              "aTargets": [ 1 ]
+                            },
                             { //"sTitle": "Alteration type",
                               "bVisible": false,
-                              "aTargets": [ 1 ] 
+                              "aTargets": [ 2 ] 
                             },
                             { //"sTitle": "Type",
                               "bVisible": false,
-                              "aTargets": [ 2 ]
+                              "aTargets": [ 3 ]
                             },
                             { //"sTitle": "Target Gene",
                               "fnRender": function(obj) {
                                     return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
                               },
-                              "aTargets": [ 3 ] 
-                            },
-                            { //"sTitle": "Target Residue",
                               "aTargets": [ 4 ] 
                             },
-                            { //"sTitle": "Source organism",
-                              "bVisible": false, 
+                            { //"sTitle": "Target Residue",
                               "aTargets": [ 5 ] 
                             },
-                            { //"sTitle": "Validated?",
-                              "bVisible": false,
-                              "aTargets": [ 6 ]
-                            },
+//                            { //"sTitle": "Source organism",
+//                              "bVisible": false, 
+//                              "aTargets": [ 6 ] 
+//                            },
+//                            { //"sTitle": "Validated?",
+//                              "bVisible": false,
+//                              "aTargets": [ 7 ]
+//                            },
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
@@ -144,7 +169,7 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
-                              "aTargets": [ 7 ]
+                              "aTargets": [ 6 ]
                             },
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
@@ -156,9 +181,34 @@
                                     return value.toFixed(2);
                               },
                               "bSearchable": false,
+                              "aTargets": [ 7 ]
+                            },
+                            { //"sTitle": "abs diff",
+                              "bVisible": showAbsDiffColumn,
+                              "sType": "num-nan-col",
+                              "fnRender": function(obj) {
+                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                                    if (isNaN(value))
+                                        return "NaN";
+                                    
+                                    var ret = value.toFixed(2);
+                                    
+                                    var eps = 10e-5;
+                                    var abunUnaltered = parseFloat(obj.aData[6]);
+                                    var abunAltered = parseFloat(obj.aData[7]);
+                                    
+                                    if (value<eps)
+                                        return ret;
+                                    if (abunUnaltered < abunAltered)
+                                        return ret + "<img src=\"images/up1.png\"/>";
+                                    
+                                    return ret + "<img src=\"images/down1.png\"/>";                                    
+                              },
+                              "bSearchable": false,
                               "aTargets": [ 8 ]
                             },
                             { //"sTitle": "p-value",
+                              "bVisible": showPValueColumn,
                               "sType": "num-nan-col",
                               "fnRender": function(obj) {
                                     var value = parseFloat(obj.aData[ obj.iDataColumn ]);
@@ -170,8 +220,8 @@
                                         ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[7]);
-                                    var abunAltered = parseFloat(obj.aData[8]);
+                                    var abunUnaltered = parseFloat(obj.aData[6]);
+                                    var abunAltered = parseFloat(obj.aData[7]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;
@@ -193,21 +243,19 @@
                               "bSearchable": false,
                               "bSortable": false,
                               "fnRender": function(obj) {
-                                    if (isNaN(parsePValue(obj.aData[9])))
-                                        return "";
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 11 ]
                                 
                             }
                         ],
-                        "aaSorting": [[9,'asc']],
+                        "aaSorting": [sortingColumn],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
                             "sLengthMenu": "Show _MENU_ per page"
                         },
-                        "iDisplayLength": -1,
+                        "iDisplayLength": 100,
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
 
@@ -241,46 +289,40 @@
                         $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
                         var aData = oTable.fnGetData( nTr );
                         var data = aData[10];
-                        var xlabel = "";
-                        var param = 'data='+data+'&xlabel='+xlabel
-                            +'&ylabel=Median-centered RPPA score&width=500&height=400';
-                        var html = 'Boxplots of RPPA data (antibody:'+aData[3].replace(/<[^>]*>/g,"");
-                        if (aData[4])
-                            html += '['+aData[4]+']';
-                        html += ') for altered and unaltered cases ';
-                        html += ' [<a href="boxplot.pdf?'+param+'&format=pdf" target="_blank">PDF</a>]<br/>' 
+                        var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
+                        if (aData[5])
+                            antibody += ' ['+aData[5]+']';
+                        var xlabel = "Query: ";
+                        if (aData[1] == "Any")
+                            xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
+                        else
+                            xlabel += aData[1];
+                        var pvalue = parsePValue(aData[9]);
+                        if (!isNaN(pvalue)) {
+                            xlabel += " (p-value: "+pvalue+")";
+                        }
+                        var ylabel = "RPPA score ("+antibody+")";
+                        var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
+                        var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
+                        html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>' 
                                 + '<img src="boxplot.do?'+param+'">';
                         oTable.fnOpen( nTr, html, 'rppa-details' );
                     }
                 } );
                 
-                $('table#protein_expr_wrapper').show();
-                $('div#protein_expr_wait').remove();
-            }
-            ,"json"
-        );
-        
-        params = {<%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
-            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.EXCLUDE_ANTIBODY_TYPE%>:'phosphorylation'
-        };
-        $.post("ProteinArraySignificanceTest.json", 
-            params,
-            function(aDataSet){
-                var oTable = $('table#protein_expr').dataTable();
-                oTable.fnAddData(aDataSet, false);
-                
                 // filter for antibody type
-                oTable.fnFilter("phosphorylation",2);
+                oTable.fnFilter("phosphorylation",3);
                 $('div.datatable-filter-custom').html("Antibody Type: "+
                     fnCreateSelect(getProteinArrayTypes(),"array_type_alteration_select","phosphorylation")
                     );
                 $('select#array_type_alteration_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 2);
+                        oTable.fnFilter( $(this).val(), 3);
                 } );
-            },
-            "json"
+                
+                $('div#protein_expr_wait').remove();
+                $('table#protein_expr_wrapper').show();
+            }
+            ,"json"
         );
     });
 </script>
@@ -295,13 +337,12 @@
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
                 <thead style="font-size:80%">
                     <tr valign="bottom">
+                        <th rowspan="2">RPPA ID</th>
                         <th rowspan="2">Gene</th>
                         <th rowspan="2">Alteration</th>
                         <th rowspan="2">Type</th>
                         <th colspan="2" class="ui-state-default">Target</th>
-                        <th rowspan="2">Source Organism</th>
-                        <th rowspan="2">Validated?</th>
-                        <th colspan="2" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
+                        <th colspan="3" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
                         <th rowspan="2" nowrap="nowrap">p-value<img class="datatable_help" src="images/help.png" title="Based on two-sided two sample student t-test."/></th>
                         <th rowspan="2">data</th>
                         <th rowspan="2">Plot</th>
@@ -311,19 +352,20 @@
                         <th>Residue</th>
                         <th>Unaltered</th>
                         <th>Altered</th>
+                        <th nowrap="nowrap">Abs. Diff.<!--img class="datatable_help" src="images/help.png" title="Absolute difference of average RPPA scores between altered and unaltered cases."/--></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr valign="bottom">
+                        <th>RPPA ID</th>
                         <th>Gene</th>
                         <th>Alteration</th>
                         <th>Type</th>
                         <th>Protein</th>
                         <th>Residue</th>
-                        <th>Source Organism</th>
-                        <th>Validated?</th>
                         <th>Unaltered</th>
                         <th>Altered</th>
+                        <th>Abs. Diff.</th>
                         <th>p-value</th>
                         <th>data</th>
                         <th>Plot</th>

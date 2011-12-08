@@ -9,6 +9,9 @@ import org.mskcc.cgds.model.CanonicalGene;
 
 import java.util.ArrayList;
 
+/**
+ * JUnit test for DaoMutationFrequency class.
+ */
 public class TestDaoMutationFrequency extends TestCase {
 
     public void testDaoMutationFrequency() throws DaoException {
@@ -25,12 +28,12 @@ public class TestDaoMutationFrequency extends TestCase {
         assertEquals (2, list.size());
         CanonicalGene gene0 = list.get(0);
         assertEquals (675, gene0.getEntrezGeneId());
-        assertEquals ("BRCA2", gene0.getHugoGeneSymbol());
+        assertEquals ("BRCA2", gene0.getHugoGeneSymbolAllCaps());
         assertEquals (0.10, gene0.getSomaticMutationFrequency(), 0.0001);
 
         CanonicalGene gene1 = list.get(1);
         assertEquals (672, gene1.getEntrezGeneId());
-        assertEquals ("BRCA1", gene1.getHugoGeneSymbol());
+        assertEquals ("BRCA1", gene1.getHugoGeneSymbolAllCaps());
         assertEquals (0.06, gene1.getSomaticMutationFrequency(), 0.0001);
         
         daoMutationFrequency.deleteAllRecords();

@@ -37,7 +37,7 @@ public class NetworkOfInterest {
             //  Get all interactions involving current gene.
             ArrayList<Interaction> currentInteractionList = daoInteraction.getInteractions(gene);
             interactionList.addAll(currentInteractionList);
-            seedSet.add(gene.getHugoGeneSymbol());
+            seedSet.add(gene.getHugoGeneSymbolAllCaps());
         }
 
         //  Convert to JUNG to Graph
@@ -57,7 +57,6 @@ public class NetworkOfInterest {
                 }
             }
             if (seedDegree == 1 && !seedSet.contains(gene)) {
-                // System.out.println ("Mark for deletion:  " + gene);
                 deleteList.add(gene);
             }
         }

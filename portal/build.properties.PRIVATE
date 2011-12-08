@@ -1,0 +1,39 @@
+# Application Name and Version
+app.name=private-portal
+app.version=0.1
+
+# Database Settings
+db.name=cgds_private
+db.user=
+db.password=
+db.host=localhost
+
+# google settings
+google.id=
+google.pw=
+users.spreadsheet=
+users.worksheet=
+
+# Location of log file
+log.file.path=/srv/www/sander-tomcat/tomcat6/logs/private-portal.log
+
+# Skin Configuration
+skin.title=cBio Private Portal
+skin.blurb=Welcome to the <b>private</b> instance of the cBio Portal.  Access to this instance is only available to authorized users.
+skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/internal-form">Request Access</a>].
+skin.show_news_tab=false
+skin.show_data_tab=false
+skin.right_nav.show_data_sets=false
+skin.right_nav.show_examples=false
+
+# Manager webapp username and password
+manager.username=tomcat
+manager.password=tomcat
+
+pathway_commons.url=http://www.pathwaycommons.org/pc2
+r_installed=true
+authenticate=true
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

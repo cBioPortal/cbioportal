@@ -9,14 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/*
+/**
  * @author Lennart Bastian
  * DaoMutSig defines methods that interact with the CGDS database
  * getMutSig methods return MutSig objects. addMutSig takes a MutSig object and adds it to CGDS
  * getAllMutSig returns an arraylist
  *
  */
-
 public class DaoMutSig {
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
     private static MySQLbulkLoader myMySQLbulkLoader = null;
@@ -59,7 +58,7 @@ public class DaoMutSig {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 myMySQLbulkLoader.insertRecord(Integer.toString(mutSig.getCancerType()),
                         Long.toString(gene.getEntrezGeneId()), Integer.toString(mutSig.getRank()),
-                        Integer.toString(mutSig.getN()), Integer.toString(mutSig.getn()),
+                        Integer.toString(mutSig.getNumBasesCovered()), Integer.toString(mutSig.getNumMutations()),
                         Integer.toString(mutSig.getnVal()), Integer.toString(mutSig.getnVer()),
                         Integer.toString(mutSig.getCpG()), Integer.toString(mutSig.getCandG()),
                         Integer.toString(mutSig.getAandT()), Integer.toString(mutSig.getIndel()),
@@ -72,12 +71,13 @@ public class DaoMutSig {
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `RANK`, `BIG_N`, `SMALL_N`," +
                                     " `N_VAL`, `N_VER`, `CPG`, `C+G`, `A+T`, " +
-                                    "`INDEL`, `P_VALUE`, `LESS_THAN_Q_VALUE`,`Q_VALUE`) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                    "`INDEL`, `P_VALUE`, `LESS_THAN_Q_VALUE`,`Q_VALUE`) " +
+                                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                     pstmt.setInt(1, mutSig.getCancerType());
                     pstmt.setLong(2, gene.getEntrezGeneId());
                     pstmt.setInt(3, mutSig.getRank());
-                    pstmt.setInt(4, mutSig.getN());
-                    pstmt.setInt(5, mutSig.getn());
+                    pstmt.setInt(4, mutSig.getNumBasesCovered());
+                    pstmt.setInt(5, mutSig.getNumMutations());
                     pstmt.setInt(6, mutSig.getnVal());
                     pstmt.setInt(7, mutSig.getnVer());
                     pstmt.setInt(8, mutSig.getCpG());
@@ -243,7 +243,8 @@ public class DaoMutSig {
             throws SQLException, DaoException {
         MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"), gene, rs.getInt("RANK"), rs.getInt("BIG_N"),
                 rs.getInt("SMALL_N"), rs.getInt("N_VAL"), rs.getInt("N_VER"), rs.getInt("CPG"), rs.getInt("C+G"),
-                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("LESS_THAN_Q_VALUE"), rs.getDouble("Q_VALUE"));
+                rs.getInt("A+T"), rs.getInt("INDEL"), rs.getString("P_VALUE"), rs.getString("LESS_THAN_Q_VALUE"),
+                rs.getDouble("Q_VALUE"));
         return mutSig;
     }
 

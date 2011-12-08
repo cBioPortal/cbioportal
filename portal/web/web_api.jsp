@@ -1,18 +1,10 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
-%>
-
-<%
-    String cgdsUrl = GlobalProperties.getCgdsUrl();
+    String siteTitle = SkinUtil.getTitle();
 %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Web Interface"); %>
@@ -23,14 +15,6 @@
             <td>
             <h1>Web Interface</h1>
             <div class="markdown">
-            <% if (!cgdsUrl.startsWith("http://cbio.mskcc.org/cgx/")) { %>
-                    <div class="url_warning">
-                    <B>Please note:  All Web API calls for this portal are available at:
-                    <a href="<%= cgdsUrl %>"><%= cgdsUrl %></a>.  The <i>examples</i> below point to our
-                    public portal available at
-                    <a href="http://cbio.mskcc.org/cgx/webservice.do">http://cbio.mskcc.org/cgx/webservice.do</a>.</B>
-                    </div>
-                <% } %>
             <P><jsp:include page="content/web_api.html" flush="true" /></p>
 
             </div>

@@ -1,0 +1,101 @@
+rank	gene	description	N	n	CpG_transition	other_CG_transition	CG_transversion	AT_mutation	indelPlusnull	p
+1	KRAS	v-Ki-ras2 Kirsten rat sarcoma viral oncogene homolog	54339	30	0	17	11	2	0	<1.00e-11
+2	TP53	tumor protein p53	89023	34	15	6	2	5	6	<1.00e-11
+3	APC	adenomatous polyposis coli	646052	58	2	1	0	6	49	<1.00e-11
+4	FBXW7	F-box and WD repeat domain containing 7	197813	17	8	0	2	3	4	1.65E-010
+5	PGA5	pepsinogen 5, group I (pepsinogen A)	32801	7	0	0	0	2	5	6.34E-010
+6	CSNK2B	casein kinase 2, beta polypeptide	51672	10	0	0	5	4	1	7.82E-010
+7	PIK3CA	phosphoinositide-3-kinase, catalytic, alpha polypeptide	98610	12	2	3	2	5	0	4.54E-009
+8	ZNF689	zinc finger protein 689	58646	6	0	0	0	0	6	1.48E-008
+9	PLEKHA8	pleckstrin homology domain containing, family A (phosphoinositide binding specific) member 8	94124	8	0	0	0	2	6	2.95E-008
+10	CYP11B1	cytochrome P450, family 11, subfamily B, polypeptide 1	99109	11	2	0	2	3	4	3.35E-008
+11	FERD3L	Fer3-like (Drosophila)	37348	6	0	0	0	6	0	5.99E-007
+12	ANP32C	acidic (leucine-rich) nuclear phosphoprotein 32 family, member C	51042	6	0	4	2	0	0	7.25E-007
+13	DNAJC25-GNG10		7664	4	0	0	0	4	0	8.68E-007
+14	HIST1H2BL	histone cluster 1, H2bl	25847	4	0	0	0	0	4	1.30E-006
+15	PCDHB5	protocadherin beta 5	143897	11	4	0	2	1	4	1.44E-006
+16	PLA2R1	phospholipase A2 receptor 1, 180kDa	338611	14	0	0	7	3	4	1.76E-006
+17	SLC13A2	solute carrier family 13 (sodium-dependent dicarboxylate transporter), member 2	131132	11	1	1	4	4	1	5.51E-006
+18	TNNT1	troponin T type 1 (skeletal, slow)	42831	5	0	4	0	1	0	6.41E-006
+19	FAM123B	family with sequence similarity 123B	204528	7	0	0	1	0	6	7.67E-006
+20	APOBEC3C	apolipoprotein B mRNA editing enzyme, catalytic polypeptide-like 3C	41692	4	0	0	0	0	4	8.03E-006
+21	PECR	peroxisomal trans-2-enoyl-CoA reductase	65344	5	5	0	0	0	0	8.68E-006
+22	CDC25A	cell division cycle 25 homolog A (S. pombe)	110969	7	1	0	6	0	0	0
+23	MYO16	myosin XVI	351053	13	2	6	3	1	1	0
+24	FBN1	fibrillin 1	678638	20	3	0	12	4	1	0
+25	NIPSNAP3A	nipsnap homolog 3A (C. elegans)	51377	5	3	0	2	0	0	0
+26	MEOX1	mesenchyme homeobox 1	37498	5	0	0	0	5	0	0
+27	PAX3	paired box 3	107523	7	4	0	0	0	3	0
+28	TCP11L1	t-complex 11 (mouse)-like 1	119839	8	0	0	0	8	0	0
+29	FRG1	FSHD region gene 1	43505	6	0	1	1	3	1	0
+30	ZNF264	zinc finger protein 264	137940	8	2	2	4	0	0	0
+31	GAS7	growth arrest-specific 7	101562	6	2	0	0	0	4	0
+32	PTPRM	protein tyrosine phosphatase, receptor type, M	330792	16	4	1	3	5	3	0
+33	TCF7L2	transcription factor 7-like 2 (T-cell specific, HMG-box)	114111	7	1	0	0	2	4	0
+34	MC3R	melanocortin 3 receptor	75149	7	0	0	2	5	0	0
+35	SULT2A1	sulfotransferase family, cytosolic, 2A, dehydroepiandrosterone (DHEA)-preferring, member 1	67761	5	0	1	1	0	3	0
+36	IDUA	iduronidase, alpha-L-	2296	2	0	0	1	0	1	0
+37	STAU1	staufen, RNA binding protein, homolog 1 (Drosophila)	138558	8	0	3	4	1	0	0
+38	VPS33A	vacuolar protein sorting 33 homolog A (S. cerevisiae)	132116	9	1	2	0	6	0	0
+39	PLAUR	plasminogen activator, urokinase receptor	81469	6	1	4	1	0	0	0
+40	PPOX	protoporphyrinogen oxidase	107894	7	1	4	2	0	0	0
+41	BRAF	v-raf murine sarcoma viral oncogene homolog B1	168781	9	0	0	0	9	0	0
+42	GPC6	glypican 6	124024	9	2	0	2	3	2	0
+43	ADAM2	ADAM metallopeptidase domain 2 (fertilin beta)	174754	10	0	0	4	6	0	0
+44	GTF2IRD1	GTF2I repeat domain containing 1	169835	10	3	0	0	7	0	0
+45	DNAH6	dynein, axonemal, heavy chain 6	102036	5	0	0	1	0	4	0
+46	CLCN7	chloride channel 7	23274	4	0	0	0	3	1	0
+47	ATM	ataxia telangiectasia mutated	715856	13	1	2	2	1	7	0
+48	AKR7A3	aldo-keto reductase family 7, member A3 (aflatoxin aldehyde reductase)	40574	5	2	0	3	0	0	0
+49	CARD6	caspase recruitment domain family, member 6	237275	8	0	1	0	2	5	0
+50	LCE4A	late cornified envelope 4A	18682	3	0	0	0	1	2	0
+51	ERBB3	v-erb-b2 erythroblastic leukemia viral oncogene homolog 3 (avian)	310999	13	2	5	3	3	0	0
+52	METTL11A		42986	4	1	0	0	0	3	0
+53	NMS	neuromedin S	37770	5	0	0	1	3	1	0
+54	CPNE5	copine V	114806	6	0	0	6	0	0	0
+55	HIST1H2BI	histone cluster 1, H2bi	29191	3	0	0	0	0	3	0
+56	RAE1	RAE1 RNA export 1 homolog (S. pombe)	87530	7	2	2	1	2	0	0
+57	CTNNB1	catenin (cadherin-associated protein), beta 1, 88kDa	180298	10	1	2	4	3	0	0
+58	SLC35A1	solute carrier family 35 (CMP-sialic acid transporter), member A1	78983	6	0	0	4	2	0	0
+59	SIRT5	sirtuin (silent mating type information regulation 2 homolog) 5 (S. cerevisiae)	72282	5	1	3	0	0	1	0
+60	HTRA3	HtrA serine peptidase 3	36598	5	1	1	0	3	0	0
+61	SDCBP2	syndecan binding protein (syntenin) 2	24126	4	2	0	2	0	0	0
+62	TSTA3	tissue specific transplantation antigen P35B	28520	4	1	0	3	0	0	0
+63	DLG3	discs, large homolog 3 (neuroendocrine-dlg, Drosophila)	158053	9	0	0	3	6	0	0
+64	FBXW10	F-box and WD repeat domain containing 10	146319	9	3	0	1	5	0	0
+65	CASP8	caspase 8, apoptosis-related cysteine peptidase	122142	8	1	2	2	3	0	0
+66	PNLDC1	poly(A)-specific ribonuclease (PARN)-like domain containing 1	122069	7	2	0	0	2	3	0
+67	CLEC11A	C-type lectin domain family 11, member A	19515	3	0	0	0	1	2	0
+68	PCDH17	protocadherin 17	160347	11	4	1	2	4	0	0
+69	WBSCR17	Williams-Beuren syndrome chromosome region 17	123539	9	4	1	2	2	0	0
+70	AKT1	v-akt murine thymoma viral oncogene homolog 1	58322	6	1	0	1	3	1	0
+71	CHST10	carbohydrate sulfotransferase 10	83585	6	0	0	0	6	0	0
+72	BMP5	bone morphogenetic protein 5	106253	6	3	0	0	1	2	0
+73	GPD2	glycerol-3-phosphate dehydrogenase 2 (mitochondrial)	173029	5	0	5	0	0	0	0
+74	STAG1	stromal antigen 1	300058	13	2	2	3	6	0	0
+75	FUCA2	fucosidase, alpha-L- 2, plasma	96372	5	0	4	0	1	0	0
+76	ZNF148	zinc finger protein 148	182264	9	0	1	0	8	0	0
+77	RFX6		202618	10	0	1	1	6	2	0
+78	KRTAP27-1	keratin associated protein 27-1	47728	4	0	1	1	0	2	0
+79	CPSF6	cleavage and polyadenylation specific factor 6, 68kDa	124951	8	2	1	0	5	0	0
+80	TMLHE	trimethyllysine hydroxylase, epsilon	83055	6	0	2	0	4	0	0
+81	AIMP2		66564	6	2	1	0	2	1	0
+82	TNNI3K	TNNI3 interacting kinase	224594	10	1	2	0	5	2	0
+83	MAGEC2	melanoma antigen family C, 2	83751	5	0	3	2	0	0	0
+84	HAGH	hydroxyacylglutathione hydrolase	40596	3	0	0	0	0	3	0
+85	USP9Y	ubiquitin specific peptidase 9, Y-linked (fat facets-like, Drosophila)	235276	10	0	1	0	9	0	0
+86	PTH2	parathyroid hormone 2	5861	2	0	0	0	1	1	0
+87	KIAA1539	KIAA1539	97381	6	0	0	5	1	0	0
+88	OR6K3	olfactory receptor, family 6, subfamily K, member 3	73125	6	0	0	2	4	0	0
+89	FXYD1	FXYD domain containing ion transport regulator 1 (phospholemman)	16229	3	0	0	0	3	0	0
+90	TNFSF11	tumor necrosis factor (ligand) superfamily, member 11	58901	4	0	0	2	0	2	0
+91	ACSL3	acyl-CoA synthetase long-chain family member 3	165866	8	1	3	2	2	0	0
+92	GGA3	golgi associated, gamma adaptin ear containing, ARF binding protein 3	130275	6	1	4	1	0	0	0
+93	OR52K2	olfactory receptor, family 52, subfamily K, member 2	71366	5	0	0	0	3	2	0
+94	BLVRB	biliverdin reductase B (flavin reductase (NADPH))	27140	4	1	1	0	2	0	0
+95	OR6C1	olfactory receptor, family 6, subfamily C, member 1	72002	4	0	0	4	0	0	0
+96	C10orf84	chromosome 10 open reading frame 84	54643	5	1	0	0	4	0	0
+97	DRD1	dopamine receptor D1	99530	5	0	0	5	0	0	0
+98	HAAO	3-hydroxyanthranilate 3,4-dioxygenase	47967	3	0	0	0	0	3	0
+99	ECHDC2	enoyl Coenzyme A hydratase domain containing 2	48409	5	2	0	0	2	1	0
+100	GLUD1	glutamate dehydrogenase 1	88574	4	1	0	0	0	3	0

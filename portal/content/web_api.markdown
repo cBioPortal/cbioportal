@@ -1,5 +1,3 @@
-[TOC]
-
 # Introduction
 
 The Cancer Genomic Data Server (CGDS) web service interface provides direct programmatic access to all genomic data stored within the server.  This enables you to easily access data from your favorite programming language, such as Python, Java, Perl, R or MatLab.  The CGDS web service is REST-based, meaning that client applications create a query consisting of parameters appended to a URL, and receive back either either text or an XML response.  For CGDS, all responses are currently tab-delimited text.  Clients of the CGDS web service can issue the following types of queries:
@@ -10,19 +8,21 @@ The Cancer Genomic Data Server (CGDS) web service interface provides direct prog
 
 Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.
 
+Please note that the example queries below are accurate, but they are not guaranteed to return data, as our database is constantly being updated.
+
 # The CGDS R Package
 
 If you are interested in accessing CGDS via R, please check out our [CGDS-R library](cgds_r.jsp).
 
 # Basic Query Syntax
-All web queries are available at: [http://cbio.mskcc.org/cgx/webservice.do](http://cbio.mskcc.org/cgx/webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
+All web queries are available at: [webservice.do](webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
 
 * **cmd** = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.
 * optional additional parameters, depending of the command (see below).
 
 For example, the following query will request all case lists for the TCGA GBM data:
 
-[webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+[webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
 
 # Response Header and Error Messages
 
@@ -92,7 +92,7 @@ A tab-delimited file with three columns:
 
 ### Example
 
-Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCancerStudies)
+Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](webservice.do?cmd=getCancerStudies)
 
 ## Get All Genetic Profiles for a Specific Cancer Study
 
@@ -123,7 +123,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm)
+Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm](webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -148,7 +148,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
 
 ## Get Profile Data
 
@@ -165,19 +165,19 @@ Retrieves genomic profile data for one or more genes.
 
 You can either:
 
-* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
-* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR](http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR)
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR](webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR)
 
 #### Response Format 1
 
-When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:
+When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:
 
 1. **GENE\_ID**:  Entrez Gene ID   
 2. **COMMON**:  HUGO Gene Symbol
 3. **Columns 3 - N**:  Data for each case
 
 #### Response Format 2
-When requesting a single gene and multiple genetic profile IDs (see above), you will receive a 2x2 matrix with the following columns:
+When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:
 
 1. **GENETIC\_PROFILE_ID**:  The Genetic Profile ID.   
 2. **ALTERATION\_TYPE**:  The Genetic Alteration Type, e.g. MUTATION, MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, or MRNA_EXPRESSION.
@@ -226,7 +226,7 @@ A tab-delimited file with the following columns:
 
 Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
 
-[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](http://cbio.mskcc.org/cgx/webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
+[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
 
 ## Get Clinical Data
 
@@ -254,5 +254,82 @@ A tab-delimited file with the following columns:
 
 Get Clinical Data for All TCGA Ovarian Cases:
 
-[webservice.do?cmd=getClinicalData&case_set_id=ova_all](http://cbio.mskcc.org/cgx/webservice.do?cmd=getClinicalData&case_set_id=ova_all)
+[webservice.do?cmd=getClinicalData&case_set_id=ova_all](webservice.do?cmd=getClinicalData&case_set_id=ova_all)
 
+## Get Protein/Phosphoprotein Antibody Information
+
+### Description
+
+Retrieves informations on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.
+
+### Query Format
+* **cmd**=getProteinArrayInfo (required)
+* **cancer_study_id**= [cancer study ID] (required)
+* **protein_array_type**= [protein_level or phosphorylation]
+* **gene_list**= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +
+
+### Response Format
+
+You will receive a tab-delimited matrix with the following 4 columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **ARRAY_TYPE**: The protein array antibody type, i.e. protein_level or phosphorylation.
+* **GENE**: The targeted gene name (HUGO gene symbol).
+* **RESIDUE**: The targeted resdue(s).
+
+### Example
+
+* Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread)
+* Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation)
+* Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation&gene_list=ERBB2+TP53](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=protein_level&gene_list=ERBB2+TP53)
+
+## Get RPPA-based Proteomics Data
+
+### Description
+
+Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).
+
+### Query Format
+* **cmd**=getProteinArrayData (required)
+* **case_set_id**= [case set ID] (required)
+* **protein_array_id**= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +
+* **array_info**= [1 or 0]. If 1, antibody information will also be exported. 
+
+#### Response Format 1
+
+If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **Columns 2 - N**: Data for each case.
+
+#### Response Format 2
+
+If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:
+
+* **ARRAY_ID**: The protein array ID.
+* **ARRAY_TYPE**: The protein array antibody type, i.e. protein_level or phosphorylation.
+* **GENE**: The targeted gene name (HUGO gene symbol).
+* **RESIDUE**: The targeted resdue(s).
+* **Columns 5 - N**: Data for each case.
+
+### Example
+
+* Get All RPPA Data in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA)
+* Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365)
+* Get All RPPA Data with antibody information in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1)
+
+# Linking to Us
+
+Once you have a cancer\_study\_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:
+
+* **cancer\_study\_id**=[cancer study ID] (required)
+* **gene\_list**=[a comma separated list of HUGO gene symbols] (required)
+* **report**=[report to display;  can be one of:  full (default), oncoprint_html]
+
+For example, the following links to the TCGA GBM data for EGFR and NF1:
+
+[link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1](link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1)
+
+This link displays the same data as an Oncoprint only:
+
+[link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1&report=oncoprint_html)

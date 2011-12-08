@@ -11,10 +11,13 @@ import org.mskcc.cgds.servlet.WebService;
 
 import java.util.ArrayList;
 
+/**
+ * Class to get mutation data
+ */
 public class GetMutationData {
-    public static int ID_ENTREZ_GENE = 1;
-    public static int GENE_SYMBOL = 0;
-    private static String TAB = "\t";
+    public static final int ID_ENTREZ_GENE = 1;
+    public static final int GENE_SYMBOL = 0;
+    private static final String TAB = "\t";
 
     public static String getProfileData(String geneticProfileId,
                                         ArrayList<String> targetGeneList,
@@ -27,8 +30,8 @@ public class GetMutationData {
         GeneticProfile geneticProfile = daoGeneticProfile.getGeneticProfileByStableId
                 (geneticProfileId);
         if (geneticProfile == null) {
-            buf.append("No genetic profile available for " + WebService.GENETIC_PROFILE_ID + ":  "
-                    + geneticProfileId + ".\n");
+            buf.append("No genetic profile available for ").append(WebService.GENETIC_PROFILE_ID)
+                    .append(":  ").append(geneticProfileId).append(".\n");
             return buf.toString();
         }
 
@@ -38,7 +41,7 @@ public class GetMutationData {
                 buf, new ArrayList<String>());
 
         //  Output DATA_TYPE
-        buf.append("# DATA_TYPE\t " + geneticProfile.getProfileName() + "\n");
+        buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append("\n");
 
         //  Ouput Column Headings
         buf.append("entrez_gene_id\tgene_symbol\tcase_id\tsequencing_center\t");
@@ -63,20 +66,20 @@ public class GetMutationData {
             for (ExtendedMutation mutation:  mutationList) {
                 String caseId = mutation.getCaseId();
                 if (targetCaseList.contains(caseId)) {
-                    buf.append(canonicalGene.getEntrezGeneId() + TAB);
-                    buf.append(canonicalGene.getHugoGeneSymbol() + TAB);
-                    buf.append(caseId + TAB);
-                    buf.append(mutation.getCenter() + TAB);
-                    buf.append(mutation.getMutationStatus() + TAB);
-                    buf.append(mutation.getMutationType() + TAB);
-                    buf.append(mutation.getValidationStatus() + TAB);
-                    buf.append(mutation.getAminoAcidChange() + TAB);
-                    buf.append(mutation.getFunctionalImpactScore() + TAB);
-                    buf.append(mutation.getLinkXVar() + TAB);
-                    buf.append(mutation.getLinkPdb() + TAB);
-                    buf.append(mutation.getLinkMsa() + TAB);
-                    buf.append(mutation.getChr() + TAB);
-                    buf.append(mutation.getStartPosition() + TAB);
+                    buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
+                    buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
+                    buf.append(caseId).append(TAB);
+                    buf.append(mutation.getSequencingCenter()).append(TAB);
+                    buf.append(mutation.getMutationStatus()).append(TAB);
+                    buf.append(mutation.getMutationType()).append(TAB);
+                    buf.append(mutation.getValidationStatus()).append(TAB);
+                    buf.append(mutation.getAminoAcidChange()).append(TAB);
+                    buf.append(mutation.getFunctionalImpactScore()).append(TAB);
+                    buf.append(mutation.getLinkXVar()).append(TAB);
+                    buf.append(mutation.getLinkPdb()).append(TAB);
+                    buf.append(mutation.getLinkMsa()).append(TAB);
+                    buf.append(mutation.getChr()).append(TAB);
+                    buf.append(mutation.getStartPosition()).append(TAB);
                     buf.append(mutation.getEndPosition());
                     buf.append("\n");
                 }

@@ -20,8 +20,6 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.GeneticProfile;
 
-//TODO: NOW: put in cvs
-//TODO: put in unit tests
 /**
  * Export all profile data to tsv files suitable for downloading.
  * Also produce html index to the exported files. 
@@ -29,7 +27,9 @@ import org.mskcc.cgds.model.GeneticProfile;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class ExportDataForDownload {
-   
+   static final String NOT_AVAILABLE = "NA";
+   static final String TABBED_FILE_SUFFIX = ".tsv";
+
    private static String usageLine;  
    private static OptionParser parser;
 
@@ -46,15 +46,13 @@ public class ExportDataForDownload {
       System.exit(1);      
    }
 
-   /**
-    * @param args
-    */
    public static void main(String[] args) {
       
       usageLine = "command line usage for ExportProfileData:";
 
       parser = new OptionParser();
-      OptionSpec<String> htmlIndexFile = parser.accepts( "htmlIndexFile", "output file to store html index of files produced" ).
+      OptionSpec<String> htmlIndexFile = parser.accepts( "htmlIndexFile", "output file to store html " +
+              "index of files produced" ).
          withRequiredArg().describedAs( "htmlIndexFile" ).ofType( String.class );
       OptionSpec<String> directory = parser.accepts( "directory", "directory to hold download files produced" ).
          withRequiredArg().describedAs( "directory" ).ofType( String.class );
@@ -76,9 +74,8 @@ public class ExportDataForDownload {
       // TODO: export extended mutations; clinical; if in this class, rename it
       // TODO: write targz of all files for each cancer
       // TODO: split miRNA and mRNA
-      // TODO: *.seg files: like this gbm one: gdac.broadinstitute.org_gbm.Merge_mirna__h_mirna_8x15k__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.2011021700.0.0.tar.gz
-
-      generateExportProfileData( options.valueOf( htmlIndexFile ), 
+      // TODO: *.seg files
+      generateExportProfileData( options.valueOf( htmlIndexFile ),
                options.valueOf( directory ), 
                options.valueOf( baseURL ) );
    }
@@ -88,9 +85,6 @@ public class ExportDataForDownload {
     * Files are stored in directory.
     * Write an HTML directory of the files into htmlIndexFile. 
     * 
-    * @param htmlIndexFile
-    * @param directory
-    * @param baseURL
     */
    public static void generateExportProfileData( String htmlIndexFile, String directory, String baseURL ){
       
@@ -112,12 +106,12 @@ public class ExportDataForDownload {
          PrintWriter htmlIndexFilePrintWriter = new PrintWriter(outFile);
 
          DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
-         ArrayList<CanonicalGene> AllGenes = aDaoGene.getAllGenes();
+         ArrayList<CanonicalGene> allGenes = aDaoGene.getAllGenes();
          // map from EntrezID to HugoSymbol, so we don't have to look up each one
          // TODO: measure how much time this saves, if any
          HashMap<Long, String> geneSymbolMap = new HashMap<Long, String>();
-         for( CanonicalGene aCanonicalGene : AllGenes ){
-            geneSymbolMap.put( aCanonicalGene.getEntrezGeneId(), aCanonicalGene.getHugoGeneSymbol() );
+         for( CanonicalGene aCanonicalGene : allGenes ){
+            geneSymbolMap.put( aCanonicalGene.getEntrezGeneId(), aCanonicalGene.getHugoGeneSymbolAllCaps() );
          }
 
          ArrayList<CancerStudy> theCancerStudies = DaoCancerStudy.getAllCancerStudies();
@@ -165,7 +159,7 @@ public class ExportDataForDownload {
                
                long start = System.currentTimeMillis();
                
-               String filename = aGeneticProfile.getStableId() + TabbedFileSuffix;
+               String filename = aGeneticProfile.getStableId() + TABBED_FILE_SUFFIX;
                String pathname = directory + "/" + filename;
                FileWriter outDownloadFile = new FileWriter( pathname );
                PrintWriter out = new PrintWriter( outDownloadFile );
@@ -177,7 +171,8 @@ public class ExportDataForDownload {
                // TODO: write metadata row:  # date generated, cgds dbms source, documentation of data encoding, 
                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                Date date = new Date();
-               out.println( "# " + dateFormat.format(date) + ", cgds dbms source, documentation of data encoding, etc.");
+               out.println( "# " + dateFormat.format(date) + ", cgds dbms source, documentation of " +
+                       "data encoding, etc.");
                
                // write header row
                out.print( "Hugo Gene Symbol\tGene ID");
@@ -190,15 +185,16 @@ public class ExportDataForDownload {
                int genesWithoutSymbols = 0;
                for( Long aGeneID : theGenes ){
                   HashMap<String, String> theGeneticAlterationMap =
-                     aDaoGeneticAlteration.getGeneticAlterationMap( aGeneticProfile.getGeneticProfileId(), aGeneID.longValue() ); 
+                     aDaoGeneticAlteration.getGeneticAlterationMap( aGeneticProfile.getGeneticProfileId(),
+                             aGeneID.longValue() );
                   
                   // output gene symbol and ID
-                  String Symbol = geneSymbolMap.get(aGeneID);
-                  if( null == Symbol ){
+                  String geneSymbol = geneSymbolMap.get(aGeneID);
+                  if( null == geneSymbol ){
                      out.print( "---" ); // TODO: what should be done if a gene doesn't have a symbol?
                      genesWithoutSymbols++;
                   }else{
-                     out.print( Symbol ); 
+                     out.print( geneSymbol );
                   }
                   out.print( "\t" + aGeneID.longValue() );
                   
@@ -207,7 +203,7 @@ public class ExportDataForDownload {
                      String value = theGeneticAlterationMap.get(aCase);
                      out.print( "\t" );
                      if( null == value ){
-                        out.print( NotAvailable );
+                        out.print(NOT_AVAILABLE);
                      }else{
                         out.print( value );
                      }
@@ -217,12 +213,14 @@ public class ExportDataForDownload {
 
                out.close();
                if( 0 < genesWithoutSymbols ){
-                  monitorOutput.append( "\tWarning: " + genesWithoutSymbols + " Gene IDs without matching symbols.\n" );                  
+                  monitorOutput.append( "\tWarning: " + genesWithoutSymbols
+                          + " Gene IDs without matching symbols.\n" );                  
                }
                monitorOutput.append( "\tWrote " + pathname + "\n" );
                
                long duration = System.currentTimeMillis() - start;
-               monitorOutput.append( "\tProcessed " + ((1000L*(long)theGenes.size()*(long)theCaseIds.size())/duration) + " values per second.\n");
+               monitorOutput.append( "\tProcessed " + ((1000L*(long)theGenes.size()*(long)theCaseIds.size())/duration)
+                       + " values per second.\n");
 
                System.out.println( monitorOutput.toString() );
             }
@@ -277,7 +275,4 @@ public class ExportDataForDownload {
 
       System.out.println( "\nTotal time " + (System.currentTimeMillis() - beginning)/1000L + " seconds.");
    }
-   
-   static final String NotAvailable = "NA";
-   static final String TabbedFileSuffix = ".tsv";
 }

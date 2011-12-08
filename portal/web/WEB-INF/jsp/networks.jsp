@@ -8,7 +8,23 @@
     String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
     String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String caseIds4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS);
-    String zScoreThesholdStr4Network = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
+    String caseSetId4Network = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String zScoreThesholdStr4Network = request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString();
+    String useXDebug = request.getParameter("xdebug");
+    if (useXDebug==null)
+        useXDebug = "0";
+    String netSrc = request.getParameter("netsrc");
+    if (netSrc==null)
+        netSrc = "cgds";
+    String netSize = request.getParameter("netsize");
+    if (netSize==null)
+        netSize = "large";
+    String nLinker = request.getParameter("linkers");
+    if (nLinker==null)
+        nLinker = "50";
+    String diffusion = request.getParameter("diffusion");
+    if (diffusion==null)
+        diffusion = "0";
 %>
 
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
@@ -27,7 +43,8 @@
 
                 var visual_style = {
                     global: {
-                        backgroundColor: "#fefefe" //#F7F6C9 //#F3F7FE
+                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
+                        tooltipDelay: 250
                     },
                     nodes: {
 						shape: {
@@ -72,12 +89,27 @@
 						selectionGlowOpacity: 0.8,
 						hoverGlowColor: "#cbcbcb", //#ffff33
 						hoverGlowOpacity: 1.0,
-						hoverGlowStrength: 8
+						hoverGlowStrength: 8,
+						tooltipFont: "Verdana",
+	                    tooltipFontSize: 12,
+	                    tooltipFontColor: "#EE0505",
+	                    tooltipBackgroundColor: "#000000",
+	                    tooltipBorderColor: "#000000"
                     },
                     edges: {
                         width: 1,
 						mergeWidth: 2,
+						mergeColor: "#666666",
+ 						targetArrowShape: {
+                     		defaultValue: "NONE",
+ 							discreteMapper: {
+ 								attrName: "type",
+ 								entries: [
+ 									{ attrValue: "STATE_CHANGE", value: "DELTA" } ]
+         					}
+                     	},
 						color: {
+							defaultValue: "#A583AB", // color of all other types
 							discreteMapper: {
 								attrName: "type",
 								entries: [
@@ -85,7 +117,7 @@
 									{ attrValue: "REACTS_WITH", value: "#7B7EF7" },
 									{ attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
         					}
-        				}
+        				}                    	
 					}
 				};
 
@@ -120,14 +152,47 @@
                 vis.draw(draw_options);
             };
             
+            function showXDebug(graphml) {
+                if (<%=useXDebug%>) {
+                    var xdebugsbegin = "<!--xdebug messages begin:";
+                    var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
+                    var ix2 = graphml.indexOf("xdebug messages end-->",ix1);
+                    var xdebugmsgs = $.trim(graphml.substring(ix1,ix2));
+                    $("div#cytoscapeweb").css('height','70%');
+                    $("td#vis_content").append("\n<div id='network_xdebug'>"
+                        +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
+                }
+            }
+            
+            function showMessage(graphml) {
+                var msgbegin = "<!--messages begin:";
+                var ix1 = graphml.indexOf(msgbegin);
+                if (ix1==-1) {
+                    $("div#netmsg").hide();
+                } else {
+                    ix1 += msgbegin.length;
+                    var ix2 = graphml.indexOf("messages end-->",ix1);
+                    var msgs = $.trim(graphml.substring(ix1,ix2));
+                    $("div#netmsg").append(msgs.replace(/\n/g,"<br/>\n"));
+                }    
+            }
+            
             window.onload = function() {
-                $.post("network.do", 
-                    {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
+                var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
                      <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
-                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>'
-                    },
+                     <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
+                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                     heat_map:$("textarea#heat_map").html(),
+                     xdebug:'<%=useXDebug%>',
+                     netsrc:'<%=netSrc%>',
+                     linkers:'<%=nLinker%>',
+                     netsize:'<%=netSize%>',
+                     diffusion:'<%=diffusion%>'
+                    };
+                $.post("network.do", 
+                    networkParams,
                     function(graphml){
                         if (typeof data !== "string") { 
                             if (window.ActiveXObject) { // IE 
@@ -135,15 +200,18 @@
                             } else { // Other browsers 
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
-                        } 
+                        }
                         send2cytoscapeweb(graphml);
+                        showXDebug(graphml);
+                        showMessage(graphml);
                     }
                 );
             }
         </script>
 
 <div class="section" id="network">
-	<table>
+    <div id="netmsg" style="margin-bottom: 12px"></div>
+	<table id="network_wrapper">
 		<tr><td>
 			<div>
 				<jsp:include page="network_menu.jsp"/>

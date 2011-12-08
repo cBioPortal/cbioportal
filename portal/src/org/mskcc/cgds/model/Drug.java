@@ -2,6 +2,9 @@ package org.mskcc.cgds.model;
 
 // CREATED BY P. MANKOO: 27 JULY, 2009
 
+/**
+ * Clas for drug information
+ */
 public class Drug {
     private CanonicalGene gene;
     private String drugType;
@@ -31,7 +34,8 @@ public class Drug {
         this.drugType = drugType;
     }
 
+    @Override
     public String toString() {
-	return new String(drugType);
+	return drugType;
     }
 }

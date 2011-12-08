@@ -46,6 +46,7 @@
       <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/protein_exp.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
 	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
@@ -58,8 +59,16 @@
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
+      <intercept-url pattern="/scatterplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
-      <intercept-url pattern="/webservice.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">

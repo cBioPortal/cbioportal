@@ -1,0 +1,4 @@
+First	Last	Age	State	Statement
+ Chris	Zack	43	CA	Ça fait dix ans.
+Marco 	Bart	 22	NV	Créée par Señor Überpfeffer.
+ Pearl 	Muth 	15	HI	Crème glaçée en croûte.

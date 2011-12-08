@@ -15,16 +15,16 @@ var _controlFunctions;
 var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
-
-// edge source constants
-var REACTOME = "Reactome";
-var NCI = "NCI";
+var OTHER = "OTHER";
 
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
-
 var UNKNOWN = "Unknown";
+
+// default values for sliders
+var WEIGHT_COEFF = 0;
+var ALTERATION_PERCENT = 0;
 
 // class constants for css visualization
 var CHECKED_CLASS = "checked-menu-item";
@@ -41,6 +41,7 @@ var INNER_ROW_CLASS = "inner-row";
 
 // string constants
 var ID_PLACE_HOLDER = "REPLACE_WITH_ID";
+var ENTER_KEYCODE = "13";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
@@ -57,6 +58,12 @@ var _connectedNodes;
 // array of previously filtered elements
 var _alreadyFiltered;
 
+// array of genes filtered due to slider
+var _filteredBySlider;
+
+// array of nodes filtered due to disconnection
+var _filteredByIsolation;
+
 // array of filtered edge types
 var _edgeTypeVisibility;
 
@@ -66,8 +73,18 @@ var _edgeSourceVisibility;
 // map used to resolve cross-references
 var _linkMap;
 
+// map used to filter genes by weight slider
+var _geneWeightMap;
+
+// threshold value used to filter genes by weight slider
+var _geneWeightThreshold;
+
+// maximum alteration value among the non-seed genes in the network
+var _maxAlterationPercent;
+
 // CytoscapeWeb.Visualization instance
 var _vis;
+
 
 /**
  * Initializes all necessary components. This function should be invoked, before
@@ -80,8 +97,15 @@ function initNetworkUI(vis)
 	_vis = vis;
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
+	_filteredBySlider = new Array();
+	_filteredByIsolation = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
+	
+	_geneWeightMap = _geneWeightArray(WEIGHT_COEFF);
+	_geneWeightThreshold = ALTERATION_PERCENT;
+	_maxAlterationPercent = _maxAlterValNonSeed(_geneWeightMap);
+	
 	_resetFlags();
 	
 	_initControlFunctions();
@@ -89,14 +113,46 @@ function initNetworkUI(vis)
 
 	_initMainMenu();
 	_initDialogs();
-
-	// init tabs
+	_initPropsUI();
+	_initSliders();
+	_initTooltipStyle();
+	
+	// add listener for the main tabs to hide dialogs when user selects
+	// a tab other than the Network tab
+	$("#tabs").bind("tabsshow", hideDialogs);
+	
+	// this is required to prevent hideDialogs function to be invoked
+	// when clicked on a network tab
+	$("#network_tabs").bind("tabsshow", false);
+	
+	// init tabs	
 	$("#network_tabs").tabs();
+	
+	_initGenesTab();
 	_refreshGenesTab();
 	_refreshRelationsTab();
-
+	
+	// adjust things for IE
+	_adjustIE();
+	
 	// make UI visible
 	_setVisibility(true);
+}
+
+/**
+ * Hides all dialogs upon selecting a tab other than the network tab.
+ */
+function hideDialogs(evt, ui)
+{
+	// get the index of the tab that is currently selected
+	// var selectIdx = $("#tabs").tabs("option", "selected");
+	
+	// close all dialogs
+	$("#settings_dialog").dialog("close");
+	$("#node_inspector").dialog("close");
+	$("#edge_inspector").dialog("close");
+	$("#node_legend").dialog("close");
+	$("#edge_legend").dialog("close");
 }
 
 /**
@@ -131,7 +187,7 @@ function updateSelectedGenes(evt)
 	_vis.deselect("nodes");
 	
 	// collect id's of selected node's on the tab
-	$("#genes_tab select option").each(
+	$("#gene_list_area select option").each(
 		function(index)
 		{
 			if ($(this).is(":selected"))
@@ -158,24 +214,25 @@ function saveSettings()
 	
 	for (var i=0; i < (_layoutOptions).length; i++)
 	{
-		if (_layoutOptions[i].id == "weightNorm")
-		{
-			// find the selected option and update the corresponding value
-			
-			if ($("#norm_linear").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_linear").val(); 
-			}
-			else if ($("#norm_invlinear").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_invlinear").val(); 
-			}
-			else if ($("#norm_log").is(":selected"))
-			{
-				_layoutOptions[i].value = $("#norm_log").val(); 
-			}
-		}
-		else if (_layoutOptions[i].id == "autoStabilize")
+//		if (_layoutOptions[i].id == "weightNorm")
+//		{
+//			// find the selected option and update the corresponding value
+//			
+//			if ($("#norm_linear").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_linear").val(); 
+//			}
+//			else if ($("#norm_invlinear").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_invlinear").val(); 
+//			}
+//			else if ($("#norm_log").is(":selected"))
+//			{
+//				_layoutOptions[i].value = $("#norm_log").val(); 
+//			}
+//		}
+		
+		if (_layoutOptions[i].id == "autoStabilize")
 		{
 			// check if the auto stabilize box is checked
 			
@@ -241,7 +298,17 @@ function showNodeInspector(evt)
 	
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#node_inspector").height() >
+		$("#node_inspector").dialog("option", "maxHeight"))
+	{
+		$("#node_inspector").dialog("open").height(
+			$("#node_inspector").dialog("option", "maxHeight"));
+	}
 }
+
 
 /**
  * Updates the content of the node inspector with respect to the provided data.
@@ -271,15 +338,13 @@ function _updateNodeInspectorContent(data)
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
 	
-	// add id
-	
-	_addDataRow("node", "ID", data.id);
+		
+	//_addDataRow("node", "ID", data.id);
 	
 	if (data.type == PROTEIN)
 	{
 		_addDataRow("node", "Gene Symbol", data.label);
-		//_addDataRow("node", "Description", "TODO");
-		_addDataRow("node", "User-Specified", data.IN_QUERY);
+		//_addDataRow("node", "User-Specified", data.IN_QUERY);
 	
 		// add percentage information
 		_addPercentages(data);
@@ -289,21 +354,29 @@ function _updateNodeInspectorContent(data)
 	
 	var links = new Array();
 	
-	for (var field in data)
+	// parse the xref data, and construct link and labels
+	
+	var xrefData = new Array();
+	
+	if (data["UNIFICATION_XREF"] != null)
 	{
-		if (field == "xref")
-		{
-			// parse the xref data, and construct the link and its label
-			
-			var link;
-			
-			if (data[field] != null)
-			{
-				link = _resolveXref(data[field]);
-				links.push(link);
-			}
-		}
+		xrefData = data["UNIFICATION_XREF"].split(";");
 	}
+	
+	if (data["RELATIONSHIP_XREF"] != null)
+	{
+		xrefData = xrefData.concat(data["RELATIONSHIP_XREF"].split(";"));
+	}
+		
+	var link, xref;
+			
+	for (var i = 0; i < xrefData.length; i++)
+	{
+		link = _resolveXref(xrefData[i]);
+		links.push(link);
+	}
+	
+	// add each link as an xref entry
 	
 	if (links.length > 0)
 	{
@@ -345,18 +418,18 @@ function _addPercentages(data)
 		available['CNA'].push("cna-amplified");
 	}	
 	
-	if (data["PERCENT_CNA_GAINED"] != null)
-	{
-		percent = (data["PERCENT_CNA_GAINED"] * 100);
-		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
-		available['CNA'].push("cna-gained");
-	}
-	
 	if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] != null)
 	{
 		percent = (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100);
 		_addPercentRow("cna-homozygously-deleted", "Homozygous Deletion", percent, "#0332FF");
 		available['CNA'].push("cna-homozygously-deleted");
+	}
+	
+	if (data["PERCENT_CNA_GAINED"] != null)
+	{
+		percent = (data["PERCENT_CNA_GAINED"] * 100);
+		_addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
+		available['CNA'].push("cna-gained");
 	}
 	
 	if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
@@ -456,7 +529,7 @@ function _addPercentRow(section, label, percent, color)
 	$("#node_inspector .profile ." + section + " .percent-label").text(label);
 
 	$("#node_inspector .profile ." + section + " .percent-bar").css(
-		"width", (parseInt(percent) + 1) + "%");
+		"width", Math.ceil(percent) + "%");
 	
 	$("#node_inspector .profile ." + section + " .percent-bar").css(
 		"background-color", color);
@@ -484,10 +557,10 @@ function showEdgeInspector(evt)
 	
 	// clean xref & data rows
 	$("#edge_inspector_content .data .data-row").remove();
+	$("#edge_inspector_content .xref .xref-row").remove();
 	
 	// if the target is a merged edge, then add information of all edges
 	// between the source and target
-	
 	if (evt.target.merged)
 	{
 		// update title
@@ -495,11 +568,16 @@ function showEdgeInspector(evt)
 		
 		var edges = evt.target.edges;
 		
-		
 		// add information for each edge
 		
 		for (var i = 0; i < edges.length; i++)
 		{
+			// skip filtered-out edges
+			if (!edgeVisibility(edges[i]))
+			{
+				continue;
+			}
+			
 			data = edges[i].data;
 			
 			// add an empty row for better edge separation
@@ -515,22 +593,21 @@ function showEdgeInspector(evt)
 			
 			if (data["INTERACTION_PUBMED_ID"] == null)
 			{
+				// no PubMed ID, add only type information
 				_addDataRow("edge",
 					"Type",
-					data["type"],
+					_toTitleCase(data["type"]),
 					BOTTOM_ROW_CLASS);
 			}
 			else
 			{
+				// add type information
 				_addDataRow("edge",
 					"Type",
-					data["type"],
+					_toTitleCase(data["type"]),
 					INNER_ROW_CLASS);
-				
-				_addDataRow("edge",
-					"PubMed ID",
-					data["INTERACTION_PUBMED_ID"],
-					BOTTOM_ROW_CLASS);
+		
+				_addPubMedIds(data, true);
 			}
 		}
 		
@@ -538,14 +615,15 @@ function showEdgeInspector(evt)
 		$("#edge_inspector_content .data").append(
 			'<tr align="left" class="empty-row data-row"><td> </td></tr>');
 	}
+	// target is a regular edge
 	else
 	{
 		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
-		_addDataRow("edge", "Type", data["type"]);
+		_addDataRow("edge", "Type", _toTitleCase(data["type"]));
 		
 		if (data["INTERACTION_PUBMED_ID"] != null)
 		{
-			_addDataRow("edge", "PubMed ID", data["INTERACTION_PUBMED_ID"]);
+			_addPubMedIds(data, false);
 		}
 	}
 	
@@ -556,6 +634,71 @@ function showEdgeInspector(evt)
 	
 	// open inspector panel
 	$("#edge_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#edge_inspector").height() >
+		$("#edge_inspector").dialog("option", "maxHeight"))
+	{
+		$("#edge_inspector").dialog("open").height(
+			$("#edge_inspector").dialog("option", "maxHeight"));
+	}
+}
+
+/**
+ * Adds PubMed ID's as new data rows to the edge inspector.
+ * 
+ * @param data			edge's data
+ * @param summaryEdge	indicated whether the given edge is a summary edge or
+ * 						a regular edge
+ */
+function _addPubMedIds(data, summaryEdge)
+{
+	var ids = data["INTERACTION_PUBMED_ID"].split(";");
+	var link, xref;
+	var links = new Array();
+	
+	// collect pubmed id(s) into an array
+	
+	for (var i = 0; i < ids.length; i++)
+	{
+		link = _resolveXref(ids[i]);
+		
+		if (link.href == "#")
+		{
+			// skip unknown sources
+			continue;
+		}
+		
+		xref = '<a href="' + link.href + '" target="_blank">' +
+			link.pieces[1] + '</a>';
+		
+		links.push(xref);
+	}
+	
+	xrefList = links[0];
+	
+	for (var i = 1; i < links.length; i++)
+	{
+		xrefList += ", " + links[i];
+	}
+	
+	if (summaryEdge)
+	{
+		// class of this row should be BOTTOM_ROW_CLASS (this is needed
+		// to separate edges visually)
+		
+		_addDataRow("edge",
+			"PubMed ID(s)",
+			xrefList,
+			BOTTOM_ROW_CLASS);
+	}
+	else
+	{
+		_addDataRow("edge",
+			"PubMed ID(s)",
+			xrefList);
+	}
 }
 
 /**
@@ -574,11 +717,17 @@ function showGeneDetails(evt)
 	// update inspector content
 	_updateNodeInspectorContent(node.data);
 	
-	$("#node_inspector").dialog("option",
-		"height",
-		"auto");
-	
+	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
+	
+	// if the inspector panel height exceeds the max height value
+	// adjust its height (this also adds scroll bars by default)
+	if ($("#node_inspector").height() >
+		$("#node_inspector").dialog("option", "maxHeight"))
+	{
+		$("#node_inspector").dialog("open").height(
+			$("#node_inspector").dialog("option", "maxHeight"));
+	}
 }
 
 /**
@@ -590,12 +739,19 @@ function showGeneDetails(evt)
  */
 function updateGenesTab(evt)
 {
+	var selected = _vis.selected("nodes");
+	
+	// do not perform any action on the gene list,
+	// if the selection is due to the genes tab
 	if(!_selectFromTab)
-	{
-		var selected = _vis.selected("nodes");
+	{	
+		if (_isIE())
+		{
+			_setComponentVis($("#gene_list_area select"), false);
+		}
 		
 		// deselect all options
-		$("#genes_tab select option").each(
+		$("#gene_list_area select option").each(
 			function(index)
 			{
 				$(this).removeAttr("selected");
@@ -604,9 +760,47 @@ function updateGenesTab(evt)
 		// select options for selected nodes
 		for (var i=0; i < selected.length; i++)
 		{
-			$("#" +  _safeId(selected[i].data.id)).attr(
+			$("#" +  _safeProperty(selected[i].data.id)).attr(
 				"selected", "selected");
 		}
+		
+		if (_isIE())
+		{
+			_setComponentVis($("#gene_list_area select"), true);
+		}
+	}
+	
+	// also update Re-submit button
+	if (selected.length > 0)
+	{
+		// enable the button
+		$("#re-submit_query").button("enable");
+	}
+	else
+	{
+		// disable the button
+		$("#re-submit_query").button("disable");
+	}
+}
+
+function reRunQuery()
+{
+	// TODO get the list of currently interested genes
+	var currentGenes = "";
+	var nodeMap = _selectedElementsMap("nodes");
+	
+	for (var key in nodeMap)
+	{
+		currentGenes += nodeMap[key].data.label + " ";
+	}
+	
+	if (currentGenes.length > 0)
+	{
+		// update the list of seed genes for the query
+		$("#main_form #gene_list").val(currentGenes);
+		
+		// re-run query by performing click action on the submit button
+		$("#main_form #main_submit").click();
 	}
 }
 
@@ -616,11 +810,19 @@ function updateGenesTab(evt)
  */
 function searchGene()
 {
-	var query = $("#genes_tab #search").val();
+	var query = $("#genes_tab #search_box").val();
+	
+	// do not perform search for an empty string
+	if (query.length == 0)
+	{
+		return;
+	}
 	
 	var genes = _visibleGenes();
 	var matched = new Array();
 	var i;
+	
+	// linear search for the input text
 	
 	for (i=0; i < genes.length; i++)
 	{
@@ -653,7 +855,7 @@ function filterSelectedGenes()
 	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out selected elements
-    _vis.filter("nodes", visibility, true);
+    _vis.filter("nodes", selectionVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -674,7 +876,7 @@ function filterNonSelected()
 	_selectedElements = _selectedElementsMap("nodes");
 
 	// filter out non-selected elements
-    _vis.filter('nodes', geneVisibility, true);
+    _vis.filter('nodes', geneVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -703,26 +905,73 @@ function updateEdges()
 	_edgeTypeVisibility[STATE_CHANGE] =
 		$("#relations_tab .state-change input").is(":checked");
 	
-	_edgeSourceVisibility[REACTOME] =
-		$("#relations_tab .reactome input").is(":checked");
+	_edgeTypeVisibility[OTHER] =
+		$("#relations_tab .other input").is(":checked");
 	
-	_edgeSourceVisibility[NCI] =
-		$("#relations_tab .nci input").is(":checked");
+	for (var key in _edgeSourceVisibility)
+	{
+		_edgeSourceVisibility[key] =
+			$("#relations_tab ." + _safeProperty(key) +
+				" input").is(":checked");
+	}
 	
-	_edgeSourceVisibility[UNKNOWN] =
-		$("#relations_tab .unknown input").is(":checked");
+	// remove previous node filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// clear isolation filter array
+	_filteredByIsolation = new Array();
+	
+	// re-apply filter to update nodes
+	//_vis.removeFilter("nodes", false);
+	_vis.filter("nodes", currentVisibility);
 	
 	// remove current edge filters
-	_vis.removeFilter("edges");
+	//_vis.removeFilter("edges", false);
 	
 	// filter selected types
-	_vis.filter("edges", edgeVisibility, true);
+	_vis.filter("edges", edgeVisibility);
 	
-    // "filter disconnected" option might be confusing for edge filtering...
-    //_filterDisconnected();
+	// remove previous filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
 	
+    // filter disconnected nodes if necessary
+    _filterDisconnected();
+    
 	// visualization changed, perform layout if necessary
 	_visChanged();
+}
+
+/**
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter only the genes which are in the array
+ * _alreadyFiltered.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function currentVisibility(element)
+{
+	var visible;
+	
+	// if the node is in the array of already filtered elements,
+	// then it should be invisibile
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	// any other node should be visible
+	else
+	{
+		visible = true;
+	}
+	
+	return visible;
 }
 
 /**
@@ -737,16 +986,19 @@ function edgeVisibility(element)
 	var typeVisible = true;
 	var sourceVisible = true;
 	
+	// TODO currently we do not allow edge filtering by selection, so
+	// there should not be any edge in the array _alreadyFiltered
+	
 	// if an element is already filtered then it should remain invisible
 	if (_alreadyFiltered[element.data.id] != null)
 	{
 		visible = false;
 	}
 	
-	// unknown edge type, do not filter
+	// unknown edge type, check for the OTHER flag
 	if (_edgeTypeVisibility[element.data.type] == null)
 	{
-		typeVisible = true;
+		typeVisible = _edgeTypeVisibility[OTHER];
 	}
 	// check the visibility of the edge type
 	else
@@ -754,21 +1006,15 @@ function edgeVisibility(element)
 		typeVisible = _edgeTypeVisibility[element.data.type];
 	}
 	
-	// unknown source, check the unknown flag
-	if (element.data['INTERACTION_DATA_SOURCE'] == null)
+	var source = element.data['INTERACTION_DATA_SOURCE'];
+	
+	if (_edgeSourceVisibility[source] != null)
 	{
-		sourceVisible = _edgeSourceVisibility[UNKNOWN];
+		sourceVisible = _edgeSourceVisibility[source];
 	}
-	// check the visibility of the known source
-	else if (element.data.INTERACTION_DATA_SOURCE == REACTOME ||
-		element.data.INTERACTION_DATA_SOURCE == NCI)
-	{
-		sourceVisible = 
-			_edgeSourceVisibility[element.data.INTERACTION_DATA_SOURCE];
-	}
-	// unknown source, check the unknown flag
 	else
 	{
+		// no source specified, check the unknown flag
 		sourceVisible = _edgeSourceVisibility[UNKNOWN];
 	}
 	
@@ -811,6 +1057,64 @@ function geneVisibility(element)
 }
 
 /**
+ * Determines the visibility of a gene (node) for filtering purposes. This
+ * function is designed to filter genes by the slider value.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function sliderVisibility(element)
+{
+	var visible = false;
+	var weight;
+	
+	// if an element is already filtered then it should remain invisible
+	if (_alreadyFiltered[element.data.id] != null)
+	{
+		visible = false;
+	}
+	// if an element is a seed node, then it should be visible
+	// (if it is not filtered manually)
+	else if (element.data["IN_QUERY"] != null &&
+			element.data["IN_QUERY"].toLowerCase() == "true")
+	{
+		visible = true;
+	}
+	else
+	{	
+		// get the weight of the node
+		weight = _geneWeightMap[element.data.id];
+		
+		// if the weight of the current node is below the threshold value
+		// then it should be filtered
+		
+		if (weight != null)
+		{
+			if (weight >= _geneWeightThreshold)
+			{
+				visible = true;
+			}
+		}
+		else
+		{
+			// no weight value, filter not applicable
+			visible = true;
+		}
+		
+		if (!visible)
+		{
+			// if the element should be filtered,
+			// then add it to the required maps
+			
+			_alreadyFiltered[element.data.id] = element;
+			_filteredBySlider[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+/**
  * Determines the visibility of a node for filtering purposes. This function is
  * designed to filter disconnected nodes.
  * 
@@ -839,6 +1143,7 @@ function isolation(element)
 		{
 			// if the node should be filtered, then add it to the map
 			_alreadyFiltered[element.data.id] = element;
+			_filteredByIsolation[element.data.id] = element;
 		}
 	}
 	
@@ -853,7 +1158,7 @@ function isolation(element)
  * @param element	element to be checked
  * @return			false if selected, true otherwise
  */
-function visibility(element)
+function selectionVisibility(element)
 {
 	// if an element is already filtered then it should remain invisible
 	// until the filters are reset
@@ -966,14 +1271,13 @@ function _visChanged()
 function _filterDisconnected()
 {
 	// filter disconnected nodes if the flag is set
-	
 	if (_removeDisconnected)
 	{
 		// update connected nodes map
 		_connectedNodes = _connectedNodesMap();
 		
 		// filter disconnected
-		_vis.filter('nodes', isolation, true);
+		_vis.filter('nodes', isolation);
 	}
 }
 
@@ -1100,6 +1404,41 @@ function _removeHighlights()
 }
 
 /**
+ * Displays the node legend in a separate panel.
+ */
+function _showNodeLegend()
+{
+	// open legend panel
+	$("#node_legend").dialog("open").height("auto");
+}
+
+/**
+ * Displays the edge legend in a separate panel.
+ */
+function _showEdgeLegend()
+{
+
+//	$("#edge_legend .in-same-component .color-bar").css(
+//		"background-color", "#CD976B");
+//	
+//	$("#edge_legend .reacts-with .color-bar").css(
+//		"background-color", "#7B7EF7");
+//	
+//	$("#edge_legend .state-change .color-bar").css(
+//		"background-color", "#67C1A9");
+//	
+//	$("#edge_legend .other .color-bar").css(
+//			"background-color", "#A583AB");
+//	
+//	$("#edge_legend .merged-edge .color-bar").css(
+//		"background-color", "#666666");
+	
+	// open legend panel
+	//$("#edge_legend").dialog("open").height("auto");
+	$("#edge_legend").dialog("open");
+}
+
+/**
  * Adds a data row to the node or edge inspector.
  * 
  * @param type		type of the inspector (should be "node" or "edge")
@@ -1118,6 +1457,13 @@ function _addDataRow(type, label, value /*, section*/)
 	else
 	{
 		section += " ";
+	}
+	
+	// replace null string with a predefined string
+	
+	if (value == null)
+	{
+		value = UNKNOWN;
 	}
 	
 	$("#" + type + "_inspector_content .data").append(
@@ -1176,13 +1522,14 @@ function _resolveXref(xref)
 		}
 		
 		link.text = xref;
+		link.pieces = pieces;
 	}
 	
 	return link;
 }
 
 /**
- * Set default values of the control flags.
+ * Sets the default values of the control flags.
  */
 function _resetFlags()
 {
@@ -1197,7 +1544,7 @@ function _resetFlags()
 }
 
 /**
- * Set visibility of the UI.
+ * Sets the visibility of the complete UI.
  * 
  * @param visible	a boolean to set the visibility.
  */
@@ -1212,6 +1559,8 @@ function _setVisibility(visible)
 			$("#network_tabs").removeClass("hidden-network-ui");
 			$("#node_inspector").removeClass("hidden-network-ui");
 			$("#edge_inspector").removeClass("hidden-network-ui");
+			$("#node_legend").removeClass("hidden-network-ui");
+			$("#edge_legend").removeClass("hidden-network-ui");
 			$("#settings_dialog").removeClass("hidden-network-ui");
 		}
 	}
@@ -1223,7 +1572,35 @@ function _setVisibility(visible)
 			$("#network_tabs").addClass("hidden-network-ui");
 			$("#node_inspector").addClass("hidden-network-ui");
 			$("#edge_inspector").addClass("hidden-network-ui");
+			$("#node_legend").addClass("hidden-network-ui");
+			$("#edge_legend").addClass("hidden-network-ui");
 			$("#settings_dialog").addClass("hidden-network-ui");
+		}
+	}
+}
+
+/**
+ * Sets visibility of the given UI component.
+ * 
+ * @param component	an html UI component
+ * @param visible	a boolean to set the visibility.
+ */
+function _setComponentVis(component, visible)
+{
+	// set visible
+	if (visible)
+	{
+		if (component.hasClass("hidden-network-ui"))
+		{
+			component.removeClass("hidden-network-ui");
+		}
+	}
+	// set invisible
+	else
+	{
+		if (!component.hasClass("hidden-network-ui"))
+		{
+			component.addClass("hidden-network-ui");
 		}
 	}
 }
@@ -1237,18 +1614,16 @@ function _setVisibility(visible)
 function _defaultOptsArray()
 {
 	var defaultOpts = 
-		[ { id: "gravitation", label: "Gravitation",       value: -500,   tip: "The gravitational constant. Negative values produce a repulsive force." },
+		[ { id: "gravitation", label: "Gravitation",       value: -350,   tip: "The gravitational constant. Negative values produce a repulsive force." },
 		  { id: "mass",        label: "Node mass",         value: 3,      tip: "The default mass value for nodes." },
 		  { id: "tension",     label: "Edge tension",      value: 0.1,    tip: "The default spring tension for edges." },
 		  { id: "restLength",  label: "Edge rest length",  value: "auto", tip: "The default spring rest length for edges." },
 		  { id: "drag",        label: "Drag co-efficient", value: 0.4,    tip: "The co-efficient for frictional drag forces." },
 		  { id: "minDistance", label: "Minimum distance",  value: 1,      tip: "The minimum effective distance over which forces are exerted." },
 		  { id: "maxDistance", label: "Maximum distance",  value: 10000,  tip: "The maximum distance over which forces are exerted." },
-		  { id: "weightAttr",  label: "Weight Attribute",  value: "",  tip: "The name of the edge attribute that contains the weights." },
-		  { id: "weightNorm",  label: "Weight Normalization", value: "linear",  tip: "How to interpret weight values." },
 		  { id: "iterations",  label: "Iterations",        value: 400,    tip: "The number of iterations to run the simulation." },
 		  { id: "maxTime",     label: "Maximum time",      value: 30000,  tip: "The maximum time to run the simulation, in milliseconds." },
-		  { id: "autoStabilize", label: "Auto stabilize",  value: true,   tip: "If checked, Cytoscape Web automatically tries to stabilize results that seems unstable after running the regular iterations." } ];
+		  { id: "autoStabilize", label: "Auto stabilize",  value: true,   tip: "If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations." } ];
 	
 	return defaultOpts;
 }
@@ -1262,13 +1637,15 @@ function _xrefArray()
 {
 	var linkMap = new Array();
 	
-	// TODO find missing links (RefSeq and Nucleotide Sequence Database)
-	linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
-	linkMap["nucleotide sequence database"] = "";
+	// TODO find missing links (Nucleotide Sequence Database)
+	//linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
+	linkMap["refseq"] = "http://www.ncbi.nlm.nih.gov/protein/";
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
 	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
+	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
+	linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;
 }
@@ -1286,6 +1663,7 @@ function _edgeTypeArray()
 	typeArray[IN_SAME_COMPONENT] = true;
 	typeArray[REACTS_WITH] = true;
 	typeArray[STATE_CHANGE] = true;
+	typeArray[OTHER] = true;
 	
 	return typeArray;
 }
@@ -1299,12 +1677,138 @@ function _edgeSourceArray()
 {
 	var sourceArray = new Array();
 	
-	// by default every edge source is visible
-	sourceArray[REACTOME] = true;
-	sourceArray[NCI] = true;
+	// dynamically collect all sources
+	
+	var edges = _vis.edges();
+	var source;
+	
+	for (var i = 0; i < edges.length; i++)
+	{
+		source = edges[i].data.INTERACTION_DATA_SOURCE;
+		
+		if (source != null
+			&& source != "")
+		{
+			// by default every edge source is visible
+			sourceArray[source] = true;
+		}
+	}
+	
+	// also set a flag for unknown (undefined) sources
 	sourceArray[UNKNOWN] = true;
 	
 	return sourceArray;
+}
+
+/**
+ * Calculates weight values for each gene by using the formula:
+ * 
+ * weight = Max[(Total Alteration of a node), 
+ *    Max(Total Alteration of its neighbors) * coeff] * 100
+ * 
+ * @param coeff	coefficient value used in the weight function
+ * @returns		a map (array) containing weight values for each gene
+ */
+function _geneWeightArray(coeff)
+{
+	var weightArray = new Array();
+	
+	if (coeff > 1)
+	{
+		coeff = 1;
+	}
+	else if (coeff < 0)
+	{
+		coeff = 0;
+	}
+	
+	// calculate weight values for each gene
+	
+	var nodes = _vis.nodes();
+	var max, weight, neighbors;
+	
+	for (var i = 0; i < nodes.length; i++)
+	{
+		// get the total alteration of the current node
+		
+		if (nodes[i].data["PERCENT_ALTERED"] != null)
+		{
+			weight = nodes[i].data["PERCENT_ALTERED"];
+		}
+		else
+		{
+			weight = 0;
+		}
+		
+		// get first neighbors of the current node
+		
+		neighbors = _vis.firstNeighbors([nodes[i]]).neighbors;
+		max = 0;
+		
+		// find the max of the total alteration of its neighbors,
+		// if coeff is not 0
+		if (coeff > 0)
+		{
+			for (var j = 0; j < neighbors.length; j++)
+			{
+				if (neighbors[j].data["PERCENT_ALTERED"] != null)
+				{
+					if (neighbors[j].data["PERCENT_ALTERED"] > max)
+					{
+						max = neighbors[j].data["PERCENT_ALTERED"];
+					}
+				}
+			}
+			
+			// calculate the weight of the max value by using the coeff 
+			max = max * (coeff);
+			
+			// if maximum weight due to the total alteration of its neighbors
+			// is greater than its own weight, then use max instead
+			if (max > weight)
+			{
+				weight = max;
+			}
+		}
+		
+		// add the weight value to the map
+		weightArray[nodes[i].data.id] = weight * 100;
+	}
+	
+	return weightArray;
+}
+
+/**
+ * Finds the non-seed gene having the maximum alteration percent in
+ * the network, and returns the maximum alteration percent value.
+ * 
+ * @param map	weight map for the genes in the network
+ * @return		max alteration percent of non-seed genes
+ */
+function _maxAlterValNonSeed(map)
+{
+	var max = 0.0;
+	
+	for (var key in map)
+	{
+		// skip seed genes
+		
+		var node = _vis.node(key);
+		
+		if (node != null &&
+			node.data["IN_QUERY"] == "true")
+		{
+			continue;
+		}
+		
+		// update max value if necessary
+		if (map[key] > max)
+		{
+			max = map[key];
+		}
+	}
+	
+	return max;
 }
 
 /**
@@ -1312,7 +1816,7 @@ function _edgeSourceArray()
  * inspector panels and tabs.
  */
 function _initMainMenu()
-{	
+{
 	// Opera fix
 	$("#network_menu ul").css({display: "none"});
 	
@@ -1344,6 +1848,7 @@ function _initMainMenu()
 	$("#network_menu_topology").addClass(MENU_CLASS);
 	$("#network_menu_view").addClass(MENU_CLASS);
 	$("#network_menu_layout").addClass(MENU_CLASS);
+	$("#network_menu_legends").addClass(MENU_CLASS);
 	
 	$("#save_as_png").addClass(FIRST_CLASS);
 	$("#save_as_png").addClass(MENU_SEPARATOR_CLASS);
@@ -1364,6 +1869,10 @@ function _initMainMenu()
 	//$("#layout_properties").addClass(SUB_MENU_CLASS);
 	$("#auto_layout").addClass(MENU_SEPARATOR_CLASS);
 	$("#auto_layout").addClass(LAST_CLASS);
+	
+	$("#show_node_legend").addClass(FIRST_CLASS);
+	$("#show_node_legend").addClass(MENU_SEPARATOR_CLASS);	
+	$("#show_edge_legend").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
 	
@@ -1445,13 +1954,311 @@ function _initDialogs()
 	// adjust node inspector
 	$("#node_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 366});
+		width: 366,
+		maxHeight: 300});
 	
 	// adjust edge inspector
 	$("#edge_inspector").dialog({autoOpen: false, 
 		resizable: false, 
-		width: 350});
+		width: 366,
+		maxHeight: 300});
+	
+	// adjust node legend
+	$("#node_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 440});
+	
+	// adjust edge legend
+	$("#edge_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 280,
+		height: 140});
 }
+
+/**
+ * Initializes the gene filter sliders.
+ */
+function _initSliders()
+{
+	// add key listeners for input fields
+	$("#weight_slider_field").keypress(_keyPressListener);
+	$("#affinity_slider_field").keypress(_keyPressListener);
+	
+	// show gene filtering slider	
+	$("#weight_slider_bar").slider(
+		{value: ALTERATION_PERCENT,
+		stop: _weightSliderStop,
+		slide: _weightSliderMove});
+	
+	// set max alteration value label
+	//$("#weight_slider_area .slider-max label").text(
+	//	_maxAlterationPercent.toFixed(1));
+	
+	// show affinity slider (currently disabled)
+//	$("#affinity_slider_bar").slider(
+//		{value: WEIGHT_COEFF * 100,
+//		change: _affinitySliderChange,
+//		slide: _affinitySliderMove});
+}
+
+/**
+ * Initializes tooltip style for genes.
+ */
+function _initTooltipStyle()
+{	
+	// create a function and add it to the Visualization object
+	_vis["customTooltip"] = function (data) {
+		var text;
+		
+		if (data["PERCENT_ALTERED"] == null)
+		{
+			text = "n/a";
+		}
+		else
+		{
+			text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+		}
+		
+		return "<b>" + text + "</b>";
+		//return text;
+	};
+
+	// register the custom mapper to the tooltipText
+	
+	var style = _vis.visualStyle();
+	style.nodes.tooltipText = { customMapper: { functionName: "customTooltip" } };
+
+	// set the visual style again
+	_vis.visualStyle(style);
+	
+	// enable node tooltips
+	_vis.nodeTooltipsEnabled(true);
+}
+
+function _adjustIE()
+{
+	if (_isIE())
+	{
+		// this is required to position scrollbar on IE
+		//var width = $("#help_tab").width();
+		//$("#help_tab").width(width * 1.15);
+	}
+}
+
+/**
+ * Listener for weight slider movement. Updates current value of the slider
+ * after each mouse move.
+ */
+function _weightSliderMove(event, ui)
+{
+	// get slider value
+	var sliderVal = ui.value;
+	
+	// update current value field
+	$("#weight_slider_field").val(
+		(_transformValue(sliderVal) * (_maxAlterationPercent / 100)).toFixed(1));
+}
+
+/**
+ * Listener for weight slider value change. Updates filters with respect to
+ * the new slider value.
+ */
+function _weightSliderStop(event, ui)
+{
+	// get slider value
+	var sliderVal = ui.value;
+		
+	// apply transformation to prevent filtering of low values 
+	// with a small change in the position of the cursor.
+	sliderVal = _transformValue(sliderVal) * (_maxAlterationPercent / 100);
+	
+	// update threshold
+	_geneWeightThreshold = sliderVal;
+	
+	// update current value field
+	$("#weight_slider_field").val(sliderVal.toFixed(1));
+	
+	// update filters
+	_filterBySlider();
+}
+
+/**
+ * Filters genes by the current gene weight threshold value determined by
+ * the weight slider.
+ */
+function _filterBySlider()
+{
+	// remove previous filters due to slider
+	for (var key in _filteredBySlider)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// remove previous filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// reset required filter arrays
+	_filteredBySlider = new Array();
+	_filteredByIsolation = new Array();
+	
+	// remove filters
+	//_vis.removeFilter("nodes", false);
+	
+	// filter with new slider value
+	_vis.filter("nodes", sliderVisibility);
+	
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
+    
+    // refresh & update genes tab
+    _refreshGenesTab();
+    updateGenesTab();
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+}
+
+/**
+ * Listener for affinity slider movement. Updates current value of the slider
+ * after each mouse move.
+ */
+function _affinitySliderMove(event, ui)
+{
+	// get slider value
+	var sliderVal = ui.value;
+	
+	// update current value field
+	$("#affinity_slider_field").val((sliderVal / 100).toFixed(2));
+}
+
+/**
+ * Listener for affinity slider value change. Updates filters with respect to
+ * the new slider value.
+ */
+function _affinitySliderChange(event, ui)
+{
+	var sliderVal = ui.value;
+	
+	// update current value field
+	$("#affinity_slider_field").val((sliderVal / 100).toFixed(2));
+	
+	// re-calculate gene weights
+	_geneWeightMap = _geneWeightArray(sliderVal / 100);
+	
+	// update filters
+	_filterBySlider();
+}
+
+/**
+ * Key listener for input fields on the genes tab.
+ * Updates the slider values (and filters if necessary), if the input
+ * value is valid.
+ * 
+ * @param event		event triggered the action
+ */
+function _keyPressListener(event)
+{
+	var input;
+	
+	// check for the ENTER key first 
+	if (event.keyCode == ENTER_KEYCODE)
+	{
+		if (event.target.id == "weight_slider_field")
+		{
+			input = $("#weight_slider_field").val();
+			
+			// update weight slider position if input is valid
+			
+			if (isNaN(input))
+			{
+				// not a numeric value, update with defaults
+				input = ALTERATION_PERCENT;
+			}
+			else if (input < 0)
+			{
+				// set values below zero to zero
+				input = 0;
+			}
+			else if (input > 100)
+			{
+				// set values above 100 to 100
+				input = 100;
+			}
+			
+			$("#weight_slider_bar").slider("option", "value",
+				_reverseTransformValue(input / (_maxAlterationPercent / 100)));
+			
+			// update threshold value
+			_geneWeightThreshold = input;
+			
+			// also update filters
+			_filterBySlider();
+		}
+		else if (event.target.id == "affinity_slider_field")
+		{
+			input = $("#affinity_slider_field").val();
+			
+			// update affinity slider position if input is valid
+			// (this will also update filters if necessary)
+			
+			if (isNaN(input))
+			{
+				// not a numeric value, update with defaults
+				value = WEIGHT_COEFF;
+			}
+			else if (input < 0)
+			{
+				// set values below zero to zero
+				value = 0;
+			}
+			else if (input > 1)
+			{
+				// set values above 1 to 1
+				value = 1;
+			}
+			
+			$("#affinity_slider_bar").slider("option",
+				"value",
+				Math.round(input * 100));
+		}
+		else if (event.target.id == "search_box")
+		{
+			searchGene();
+		}
+	}
+}
+
+/*
+function _getSliderValue()
+{
+	var value = $("#slider_bar").slider("option", "value");
+	var sourceInterval, targetInterval;
+	
+	// transform values between 0-50 on the bar to 0-20
+	if (value <= 50)
+	{
+		sourceInterval = {start: 0, end: 50};
+		targetInterval = {start: 0, end: 20};
+	}
+	// transform values between 50-75 on the bar to 20-50
+	else if (value <= 75)
+	{
+		sourceInterval = {start: 50, end: 75};
+		targetInterval = {start: 20, end: 50};
+	}
+	// transform values between 75-100 on the bar to 50-100
+	else
+	{
+		sourceInterval = {start: 75, end: 100};
+		targetInterval = {start: 50, end: 100};
+	}
+	
+	return _transformValue(value, sourceInterval, targetInterval);
+}
+*/
 
 /*
  * Alternative version with checkboxes..
@@ -1486,6 +2293,37 @@ function _refreshGenesTab()
 }
 */
 
+function _initGenesTab()
+{
+	// init buttons
+	
+	$("#filter_genes").button({icons: {primary: 'ui-icon-circle-minus'},
+		text: false});
+	
+	$("#crop_genes").button({icons: {primary: 'ui-icon-crop'},
+		text: false});
+	
+	$("#unhide_genes").button({icons: {primary: 'ui-icon-circle-plus'},
+		text: false});
+	
+	$("#search_genes").button({icons: {primary: 'ui-icon-search'},
+		text: false});
+	
+	$("#update_edges").button({icons: {primary: 'ui-icon-refresh'},
+		text: false});
+	
+	// re-submit button is initially disabled
+	$("#re-submit_query").button({icons: {primary: 'ui-icon-play'},
+		text: false,
+		disabled: true});
+	
+	// $("#re-run_query").button({label: "Re-run query with selected genes"});
+	
+	// apply tiptip to all buttons on the network tabs
+	$("#network_tabs button").tipTip({edgeOffset:8});
+}
+
+
 /**
  * Refreshes the content of the genes tab, by populating the list with visible
  * (i.e. non-filtered) genes.
@@ -1496,16 +2334,16 @@ function _refreshGenesTab()
 	var geneList = _visibleGenes();
 	
 	// clear old content
-	$("#genes_tab select").remove();
+	$("#gene_list_area select").remove();
 	
-	$("#genes_tab").append('<select multiple></select>');
+	$("#gene_list_area").append('<select multiple></select>');
 		
 	// add new content
 	
 	for (var i=0; i < geneList.length; i++)
 	{
 		// use the safe version of the gene id as an id of an HTML object
-		var safeId = _safeId(geneList[i].data.id);
+		var safeId = _safeProperty(geneList[i].data.id);
 		
 		var classContent;
 		
@@ -1518,7 +2356,7 @@ function _refreshGenesTab()
 			classContent = 'class="not-in-query" ';
 		}
 		
-		$("#genes_tab select").append(
+		$("#gene_list_area select").append(
 			'<option id="' + safeId + '" ' +
 			classContent + 
 			'value="' + geneList[i].data.id + '" ' + '>' + 
@@ -1530,6 +2368,7 @@ function _refreshGenesTab()
 		
 		// TODO qtip does not work with Chrome&IE because of the restrictions of
 		// the <select><option> structure.
+		/*
 		var qtipOpts =
 		{
 			content: "id: " + safeId,
@@ -1555,18 +2394,20 @@ function _refreshGenesTab()
 				//name: 'cream' // preset 'cream' style
 			}
 		};
+		*/
 		
+		// TODO try tipTip?
 		//$("#genes_tab #" + safeId).qtip(qtipOpts);
 	}
 	
 	// add change listener to the select box
-	$("#genes_tab select").change(updateSelectedGenes);
+	$("#gene_list_area select").change(updateSelectedGenes);
 	
 	if (_isIE())
 	{
 		// listeners on <option> elements do not work in IE, therefore add 
 		// double click listener to the select box
-		$("#genes_tab select").dblclick(showGeneDetails);
+		$("#gene_list_area select").dblclick(showGeneDetails);
 		
 		// TODO if multiple genes are selected, double click always shows
 		// the first selected genes details in IE
@@ -1586,12 +2427,31 @@ function _refreshRelationsTab()
 	
 	percentages[IN_SAME_COMPONENT] = 0;
 	percentages[REACTS_WITH] = 0;
-	percentages[STATE_CHANGE] = 0;
+	percentages[STATE_CHANGE] = 0;	
 	
 	// for each edge increment count of the correct edge type 
 	for (var i=0; i < edges.length; i++)
 	{
 		percentages[edges[i].data.type] += 1;
+	}
+	
+	percentages[OTHER] = edges.length -
+		(percentages[IN_SAME_COMPONENT] +
+		percentages[REACTS_WITH] +
+		percentages[STATE_CHANGE]);
+	
+	if (percentages[OTHER] == 0)
+	{
+		// do not display OTHER if its percentage is zero
+		_setComponentVis($("#relations_tab .other"), false);
+		
+		// also do not display it in the edge legend
+		//_setComponentVis($("#edge_legend .other"), false);
+	}
+	else
+	{
+		_setComponentVis($("#relations_tab .other"), true);
+		//_setComponentVis($("#edge_legend .other"), true);
 	}
 	
 	// calculate percentages and add content to the tab 
@@ -1601,7 +2461,7 @@ function _refreshRelationsTab()
 	percent = (percentages[IN_SAME_COMPONENT] * 100 / edges.length);
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
 		"background-color", "#CD976B");
@@ -1612,7 +2472,7 @@ function _refreshRelationsTab()
 	percent = (percentages[REACTS_WITH] * 100 / edges.length);
 	
 	$("#relations_tab .reacts-with .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .reacts-with .percent-bar").css(
 		"background-color", "#7B7EF7");
@@ -1623,13 +2483,46 @@ function _refreshRelationsTab()
 	percent = (percentages[STATE_CHANGE] * 100 / edges.length);
 	
 	$("#relations_tab .state-change .percent-bar").css(
-		"width", (parseInt(percent * 0.85) + 1) + "%");
+		"width", Math.ceil(percent * 0.85) + "%");
 		
 	$("#relations_tab .state-change .percent-bar").css(
 		"background-color", "#67C1A9");
 	
 	$("#relations_tab .state-change .percent-value").text(
-		percent.toFixed(1) + "%")
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[OTHER] * 100 / edges.length);
+	
+	$("#relations_tab .other .percent-bar").css(
+		"width", Math.ceil(percent * 0.85) + "%");
+		
+	$("#relations_tab .other .percent-bar").css(
+		"background-color", "#A583AB");
+	
+	$("#relations_tab .other .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	// TODO remove old source filters?
+	//$("#relations_tab #edge_source_filter tr").remove();
+	
+	// add source filtering options
+	
+	for (var key in _edgeSourceVisibility)
+	{
+		$("#relations_tab #edge_source_filter").append(
+			'<tr class="' + _safeProperty(key) + '">' +
+			'<td class="edge-source-checkbox">' +
+			'<input type="checkbox" checked="checked">' +
+			'<label>' + key + '</label>' +
+			'</td></tr>');
+	}
+	
+	// <tr class="unknown">
+	//		<td class="edge-source-checkbox">
+	//				<input type="checkbox" checked="checked">
+	//				<label> Unknown </label>
+	//		</td>
+	// </tr>
 }
 
 
@@ -1653,14 +2546,15 @@ function _initControlFunctions()
 	_controlFunctions["remove_disconnected"] = _toggleRemoveDisconnected;
 	_controlFunctions["show_profile_data"] = _toggleProfileData;
 	_controlFunctions["save_as_png"] = _saveAsPng;
-	_controlFunctions["save_as_svg"] = _saveAsSvg;
+	//_controlFunctions["save_as_svg"] = _saveAsSvg;
 	_controlFunctions["layout_properties"] = _openProperties;
 	_controlFunctions["highlight_neighbors"] = _highlightNeighbors;
 	_controlFunctions["remove_highlights"] = _removeHighlights;
 	_controlFunctions["hide_non_selected"] = filterNonSelected;
+	_controlFunctions["node_legend"] = _showNodeLegend;
+	_controlFunctions["edge_legend"] = _showEdgeLegend;
 	
-	// TODO temp test button, remove when done
-	//_controlFunctions["joker_button"] = jokerAction;
+	
 	
 	// add button listeners
 	
@@ -1668,11 +2562,14 @@ function _initControlFunctions()
 	$("#default_layout_settings").click(defaultSettings);
 	
 	$("#search_genes").click(searchGene);
+	$("#genes_tab #search_box").keypress(_keyPressListener);
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelected);
 	$("#unhide_genes").click(_unhideAll);
+	$("#re-submit_query").click(reRunQuery);
 	
 	$("#update_edges").click(updateEdges);
+	
 	
 	// add listener for double click action
 	
@@ -1693,6 +2590,9 @@ function _initControlFunctions()
 	_vis.addListener("deselect",
 		"nodes",
 		updateGenesTab);
+	
+	// TODO temp debug option, remove when done
+	//_vis.addContextMenuItem("node details", "nodes", jokerAction);
 }
 
 /**
@@ -1714,7 +2614,7 @@ function _hideSelected()
 	_selectedElements = _selectedElementsMap("all");
 	
 	// filter out selected elements
-    _vis.filter('all', visibility, true);
+    _vis.filter('all', selectionVisibility);
     
     // also, filter disconnected nodes if necessary
     _filterDisconnected();
@@ -1737,6 +2637,11 @@ function _unhideAll()
 	
 	// reset array of already filtered elements
 	_alreadyFiltered = new Array();
+	
+	// reset slider UI
+	$("#weight_slider_field").val(0.0);
+	$("#weight_slider_bar").slider("option",
+		"value", 0);
 	
 	// re-apply filtering based on edge types
 	updateEdges();
@@ -1812,18 +2717,11 @@ function _performLayout()
 /**
  * Temporary function for debugging purposes
  */
-function jokerAction()
+function jokerAction(evt)
 {
-	var selectedElements = _vis.selected();
-	
-	var str;
-	
-	if (selectedElements.length > 0)
-	{
-		str = _nodeDetails(selectedElements[0]);
-	}
-	
-	alert(str);
+	var node = evt.target;		
+	str = _nodeDetails(node);		
+	alert(str);	
 }
 
 /**
@@ -1843,7 +2741,9 @@ function _nodeDetails(node)
 		}
 		
 		str += "\n";
+		//str += "data len: " + node.data.length " \n";
 		str += "data: \n";
+		
 		
 		for (var field in node.data)
 		{
@@ -1852,7 +2752,7 @@ function _nodeDetails(node)
 	}
 	
 	str += "short id: " + _shortId(node.data.id) + "\n";
-	str += "safe id: " + _safeId(node.data.id) + "\n";
+	str += "safe id: " + _safeProperty(node.data.id) + "\n";
 	
 	return str;
 }
@@ -2054,6 +2954,14 @@ function _openProperties()
 }
 
 /**
+ * Initializes the layout settings panel.
+ */
+function _initPropsUI()
+{
+	$("#fd_layout_settings tr").tipTip();
+}
+
+/**
  * Updates the contents of the layout properties panel.
  */
 function _updatePropsUI()
@@ -2062,18 +2970,19 @@ function _updatePropsUI()
 	
 	for (var i=0; i < _layoutOptions.length; i++)
 	{
-		if (_layoutOptions[i].id == "weightNorm")
-		{
-			// clean all selections
-			$("#norm_linear").removeAttr("selected");
-			$("#norm_invlinear").removeAttr("selected");
-			$("#norm_log").removeAttr("selected");
-			
-			// set the correct option as selected
-			
-			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
-		}
-		else if (_layoutOptions[i].id == "autoStabilize")
+//		if (_layoutOptions[i].id == "weightNorm")
+//		{
+//			// clean all selections
+//			$("#norm_linear").removeAttr("selected");
+//			$("#norm_invlinear").removeAttr("selected");
+//			$("#norm_log").removeAttr("selected");
+//			
+//			// set the correct option as selected
+//			
+//			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
+//		}
+		
+		if (_layoutOptions[i].id == "autoStabilize")
 		{
 			if (_layoutOptions[i].value == true)
 			{
@@ -2106,11 +3015,19 @@ function _updateLayoutOptions()
 	
 	for (var i=0; i < _layoutOptions.length; i++)
 	{
-		options[_layoutOptions[i].id] = _layoutOptions[i].value; 
+		options[_layoutOptions[i].id] = _layoutOptions[i].value;
 	}
 	
 	_graphLayout.options = options;
 }
+
+
+
+/*
+ * ##################################################################
+ * ##################### Utility Functions ##########################
+ * ##################################################################
+ */
 
 /**
  * Generates a shortened version of the given node id.
@@ -2138,24 +3055,26 @@ function _shortId(id)
 
 /**
  * Replaces all occurrences of a problematic character with an under dash.
- * Those characters cause problems with the "id" property of an HTML object.
+ * Those characters cause problems with the properties of an HTML object.
  * 
- * @param id	id to be modified
- * @return		safe version of the given id
+ * @param str	string to be modified
+ * @return		safe version of the given string
  */
-function _safeId(id)
+function _safeProperty(str)
 {
-	var safeId = id;
+	var safeProperty = str;
 	
-	safeId = _replaceAll(safeId, "/", "_");
-	safeId = _replaceAll(safeId, "\\", "_");
-	safeId = _replaceAll(safeId, "#", "_");
-	safeId = _replaceAll(safeId, ".", "_");
-	safeId = _replaceAll(safeId, ":", "_");
-	safeId = _replaceAll(safeId, '"', "_");
-	safeId = _replaceAll(safeId, "'", "_");
+	safeProperty = _replaceAll(safeProperty, " ", "_");
+	safeProperty = _replaceAll(safeProperty, "/", "_");
+	safeProperty = _replaceAll(safeProperty, "\\", "_");
+	safeProperty = _replaceAll(safeProperty, "#", "_");
+	safeProperty = _replaceAll(safeProperty, ".", "_");
+	safeProperty = _replaceAll(safeProperty, ":", "_");
+	safeProperty = _replaceAll(safeProperty, ";", "_");
+	safeProperty = _replaceAll(safeProperty, '"', "_");
+	safeProperty = _replaceAll(safeProperty, "'", "_");
 	
-	return safeId;
+	return safeProperty;
 }
 
 /**
@@ -2195,6 +3114,195 @@ function _isIE()
 	}
 	
 	return result;
+}
+
+/**
+ * Converts the given string to title case format. Also replaces each
+ * underdash with a space.
+ * 
+ * @param source	source string to be converted to title case
+ */
+function _toTitleCase(source)
+{
+	var str;
+	
+	if (source == null)
+	{
+		return source;
+	}
+	
+	// first, trim the string
+	str = source.replace(/\s+$/, "");
+	
+	// replace each underdash with a space
+	str = _replaceAll(str, "_", " ");
+	
+	// change to lower case
+	str = str.toLowerCase();
+	
+	// capitalize starting character of each word
+	
+	var titleCase = new Array();
+	
+	titleCase.push(str.charAt(0).toUpperCase());
+	
+	for (var i = 1; i < str.length; i++)
+	{
+		if (str.charAt(i-1) == ' ')
+		{
+			titleCase.push(str.charAt(i).toUpperCase());
+		}
+		else
+		{
+			titleCase.push(str.charAt(i));
+		}
+	}
+	
+	return titleCase.join("");
+}
+
+/*
+function _transformIntervalValue(value, sourceInterval, targetInterval)
+{ 
+	var sourceRange = sourceInterval.end - sourceInterval.start;
+	var targetRange = targetInterval.end - targetInterval.start;
+	
+	var transformed = targetInterval.start + 
+		(value - sourceInterval.start) * (targetRange / sourceRange);
+	
+	return transformed;
+}
+*/
+
+/**
+ * Finds and returns the maximum value in a given map.
+ * 
+ * @param map	map that contains real numbers
+ */
+function _getMaxValue(map)
+{
+	var max = 0.0;
+	
+	for (var key in map)
+	{
+		if (map[key] > max)
+		{
+			max = map[key];
+		}
+	}
+	
+	return max;
+}
+
+/**
+ * Transforms the input value by using the function: 
+ * y = (0.000230926)x^3 - (0.0182175)x^2 + (0.511788)x
+ * 
+ * This function is designed to transform slider input, which is between
+ * 0 and 100, to provide a better filtering.
+ * 
+ * @param value		input value to be transformed
+ */
+function _transformValue(value)
+{
+	// previous function: y = (0.000166377)x^3 - (0.0118428)x^2 + (0.520007)x
+	
+	var transformed = 0.000230926 * Math.pow(value, 3) -
+		0.0182175 * Math.pow(value, 2) +
+		0.511788 * value;
+	
+	if (transformed < 0)
+	{
+		transformed = 0;
+	}
+	else if (transformed > 100)
+	{
+		transformed = 100;
+	}
+	
+	return transformed;
+}
+
+/**
+ * Transforms the given value by solving the equation
+ * 
+ *   y = (0.000230926)x^3 - (0.0182175)x^2 + (0.511788)x
+ * 
+ * where y = value
+ * 
+ * @param value	value to be reverse transformed
+ * @returns		reverse transformed value
+ */
+function _reverseTransformValue(value)
+{
+	// find x, where y = value
+	
+	var reverse = _solveCubic(0.000230926,
+		-0.0182175,
+		0.511788,
+		-value);
+	
+	return reverse;
+}
+
+/**
+ * Solves the cubic function
+ * 
+ *   a(x^3) + b(x^2) + c(x) + d = 0
+ *    
+ * by using the following formula
+ * 
+ *   x = {q + [q^2 + (r-p^2)^3]^(1/2)}^(1/3) + {q - [q^2 + (r-p^2)^3]^(1/2)}^(1/3) + p
+ *   
+ * where
+ * 
+ *   p = -b/(3a), q = p^3 + (bc-3ad)/(6a^2), r = c/(3a)
+ * 
+ * @param a	coefficient of the term x^3
+ * @param b	coefficient of the term x^2
+ * @param c coefficient of the term x^1
+ * @param d coefficient of the term x^0
+ * 
+ * @returns one of the roots of the cubic function
+ */
+function _solveCubic(a, b, c, d)
+{
+	var p = (-b) / (3*a);
+	var q = Math.pow(p, 3) + (b*c - 3*a*d) / (6 * Math.pow(a,2));
+	var r = c / (3*a);
+	
+	//alert(q*q + Math.pow(r - p*p, 3));
+	
+	var sqrt = Math.pow(q*q + Math.pow(r - p*p, 3), 1/2);
+	
+	//var root = Math.pow(q + sqrt, 1/3) +
+	//	Math.pow(q - sqrt, 1/3) +
+	//	p;
+	
+	var x = _cubeRoot(q + sqrt) +
+		_cubeRoot(q - sqrt) +
+		p;
+	
+	return x;
+}
+
+/**
+ * Evaluates the cube root of the given value. This function also handles
+ * negative values unlike the built-in Math.pow() function.
+ * 
+ * @param value	source value
+ * @returns		cube root of the source value
+ */
+function _cubeRoot(value)
+{
+	var root = Math.pow(Math.abs(value), 1/3);
+	
+	if (value < 0)
+	{
+		root = -root;
+	}
+	
+	return root;
 }
 
 // TODO get the x-coordinate of the event target (with respect to the window). 

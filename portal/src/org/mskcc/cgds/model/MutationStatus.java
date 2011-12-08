@@ -1,9 +1,12 @@
 package org.mskcc.cgds.model;
 
+/**
+ * Class for mutation status
+ */
 public class MutationStatus {
-    public final static int MUTATED = 1;
-    public final static int NOT_MUTATED = 0;
-    public final static int NO_DATA = -9999;
+    public static final int MUTATED = 1;
+    public static final int NOT_MUTATED = 0;
+    public static final int NO_DATA = -9999;
 
     public static int getMutationStatus(String value) {
         //if (value < -1 || value > 1) {

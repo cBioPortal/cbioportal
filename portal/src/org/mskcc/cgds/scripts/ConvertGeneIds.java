@@ -9,6 +9,9 @@ import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Command Line Tool to Convert Gene IDs.
+ */
 public class ConvertGeneIds {
 
     public static void convertGeneIds(File file, String goCategory) throws IOException, DaoException {
@@ -18,14 +21,9 @@ public class ConvertGeneIds {
         System.out.println ("GO_CATEGORY");
         while (line != null) {
             line = line.trim();
-            CanonicalGene canonicalGene = null;
-            try {
-                canonicalGene =  daoGene.getGene(Integer.parseInt(line));
-            } catch (NumberFormatException e) {
-                canonicalGene =  daoGene.getGene(line);
-            }
+            CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(line);
             if (canonicalGene != null) {
-                System.out.println (canonicalGene.getHugoGeneSymbol() + " = " + goCategory);
+                System.out.println (canonicalGene.getHugoGeneSymbolAllCaps() + " = " + goCategory);
             }
             line = buf.readLine();
         }

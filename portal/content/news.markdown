@@ -1,3 +1,18 @@
+# November 14, 2011
+
+* New and improved mutation details, with sorting and filtering capabilities.
+* In collaboration with Bilkent University, we have added a new *network* tab to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
+
+![GBM Network](images/previews/ova_network.png)
+
+# September 3, 2011
+
+* You can now query across different cancer studies (feature available directly from the home page).
+* Our [MATLAB CGDS Cancer Genomics Toolbox](cgds_r.jsp) is now available.  The toolbox enables you to download data from the cBio Portal, and import it directly into MATLAB.
+* The code for the cBio Portal has now been fully open sourced, and made available at [Google Code](http://code.google.com/p/cbio-cancer-genomics-portal/).  If you would like to join our open source efforts and make the portal even better, drop us an email.
+
+![Cross Cancer Query](images/previews/cross_cancer.png)
+
 # March 2, 2011
 
 New plotting features and other improvements:
@@ -7,6 +22,8 @@ New plotting features and other improvements:
 * Updated [R Package](cgds_r.jsp) with support for correlation plots and general improvements for retrieving and accessing data in R data frames.
 * The [Web Interface](web_api.jsp) now supports basic clinical data, e.g. survival data.
 * [Networks](networks.jsp) for pathway analysis are now available for download.
+
+![Survival Analysis](images/previews/ova_survival_60_percent.png)
 
 # December 15, 2010
 
@@ -25,3 +42,5 @@ only view amplifications of EGFR, and ignore deletions.
 * Enhanced [Oncoprints](faq.jsp#what-are-oncoprints), enabling users to quickly visualize genomic alterations across many cases.  Oncoprints now also work in all major browsers, including Firefox, Chrome, Safari, and Internet Explorer.
 * Official release of our [Web Interface](web_api.jsp), enabling programmatic access to all data.
 * Official release of our [R Package](cgds_r.jsp), enabling programmatic access to all data from the R platform for statistical computing.
+
+![OncoPrints](images/previews/gbm_oncoprint.png)

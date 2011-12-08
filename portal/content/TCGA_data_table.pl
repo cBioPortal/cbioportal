@@ -30,16 +30,19 @@ open (OUT1,">data_sets_tcga.html");
 open (OUT2,">data_sets_tcga_right_column.markdown");
 
 print OUT1 "<P><p>The portal currently contains data from the following TCGA cancer genomics studies. The table below lists the number of available samples per data type and tumor.<br><br>\n";
-print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" style=\"border-collapse: collapse\" bordercolor=\"#808080\">\n";
+#print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bordercolor=\"#808080\">\n";
+print OUT1 "<table>\n";
 print OUT1 "\t<tr>\n";
-print OUT1 "\t\t<th width=75>Cancer</th>\n";
-print OUT1 "\t\t<th width=225>Full cancer name</th>\n";
-print OUT1 "\t\t<th width=75>aCGH</th>\n";
-print OUT1 "\t\t<th width=75>Sequenced</th>\n";
-print OUT1 "\t\t<th width=75>Normal mRNA</th>\n";
-print OUT1 "\t\t<th width=75>Tumor mRNA</th>\n";
-print OUT1 "\t\t<th width=75>Complete</th>\n";
-print OUT1 "\t\t<th width=75>All</th>\n";
+print OUT1 "\t\t<th align=\"left\">Cancer Type/Study</th>\n";
+print OUT1 "\t\t<th>Full cancer name</th>\n";
+print OUT1 "\t\t<th>aCGH</th>\n";
+print OUT1 "\t\t<th>log2CNA</th>\n";
+print OUT1 "\t\t<th>Sequenced</th>\n";
+print OUT1 "\t\t<th>Normal mRNA</th>\n";
+print OUT1 "\t\t<th>Tumor mRNA (RNA Seq RPKM)</th>\n";
+print OUT1 "\t\t<th>Tumor mRNA (Agilent microarray)</th>\n";
+print OUT1 "\t\t<th>Complete</th>\n";
+print OUT1 "\t\t<th>All</th>\n";
 print OUT1 "\t</tr>\n\n";
 
 print OUT2 "<table width=150>\n";
@@ -50,35 +53,43 @@ print OUT2 "</tr>\n\n";
 
 
 <IN3>;
+$line_ct = 0;
 while ($line = <IN3>) {
 
 	chomp $line;
 	@data = split (/\t/,$line);
 	$data[0] =~ tr/a-z/A-Z/;
 
-	unless ($data[6]==0) {
-		print OUT1 "\t<tr>\n";
-		print OUT1 "\t\t<td style=\"text-align: left; padding-left:7px;\"><b>$data[0]</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: left; padding-left:7px;\"><b>$cancers{$data[0]}</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\">$data[2]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\">$data[3]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\">$data[4]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\">$data[5]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\">$data[1]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: right; padding-right:7px;\"><b>$data[6]</b></td>\n";
+	unless ($data[8]==0) {
+      if ($line_ct++ % 2) {
+        print OUT1 "\t<tr>\n";
+      }
+      else {
+		print OUT1 "\t<tr class=\"rowcolor\">\n";
+      }
+		print OUT1 "\t\t<td><b>$data[0]</b></td>\n";
+		print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$data[0]}</b></td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[8]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
 	}
 	
-	unless ($data[6]==0) {
+	unless ($data[8]==0) {
 		print OUT2 "<tr>\n";
 		print OUT2 "<td class=\"Tips1\" title=\"$cancers{$data[0]}\">$data[0]</td>\n";
-		print OUT2 "<td style=\"text-align: right;\">$data[6]</td>\n";
+		print OUT2 "<td style=\"text-align: right;\">$data[8]</td>\n";
 		print OUT2 "</tr>\n";
 	}
 }
 
 print OUT1 "</table>";
-print OUT1 "\n<br>Last update: $m/$d/$y<br>";
+#print OUT1 "\n<br>Last update: $m/$d/$y<br>";
 
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
@@ -86,7 +97,8 @@ $dateOut = "$2/$3/$1";
 print OUT1 "Based on the Firehose run from $dateOut.</p>";
 
 print OUT2 "</table>\n";
-print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
+#print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
+print OUT2 "Based on the Firehose run from $dateOut.</p>";
 
 close (IN1);
 close (IN2);

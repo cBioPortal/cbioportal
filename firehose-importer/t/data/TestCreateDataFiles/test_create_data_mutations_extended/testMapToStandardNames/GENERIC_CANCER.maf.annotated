@@ -1,0 +1,8 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA_MSA	MA_PDB
+	3		TCGA-04-1331												A
+	9		TCGA-04-1331											--	B
+	15		TCGA-04-1331											--	C
+	21		TCGA-04-1331												
+	27		TCGA-04-1331												
+	33		TCGA-04-1331												
+	39		TCGA-04-1331												G

@@ -1,5 +1,3 @@
-[TOC]
-
 # CGDS-R Package
 
 ## Description
@@ -24,25 +22,26 @@ Maintained by [Anders Jacobsen](http://cbio.mskcc.org/people/info/anders_jacobse
 
 ## Example usage
 
-	library('cgdsr')
-	
-	mycgds = CGDS("http://cbio.mskcc.org/cgds-public/")
+	# Create CGDS object
+	mycgds = CGDS("http://www.cbioportal.org/public-portal/")
 
-	# basic server API tests
-	test(mycgds) 
+	test(mycgds)
 
-	# get list of cancer types at server
-	getCancerTypes(mycgds)
+	# Get list of cancer studies at server
+	getCancerStudies(mycgds)
 
-	# get available case lists (collection of samples) for a given cancer type  
-	mycancertype = getCancerTypes(mycgds)[1,1]
-	mycaselist = getCaseLists(mycgds,mycancertype)[1,1]
+	# Get available case lists (collection of samples) for a given cancer study
+	mycancerstudy = getCancerStudies(mycgds)[2,1]
+	mycaselist = getCaseLists(mycgds,mycancerstudy)[1,1]
 
-	# get available genetic profiles
-	mygeneticprofile = getGeneticProfiles(mycgds,mycancertype)[4,1]
+	# Get available genetic profiles
+	mygeneticprofile = getGeneticProfiles(mycgds,mycancerstudy)[4,1]
 
-	# get data for a specified list of genes, datatypes and case list
+	# Get data slices for a specified list of genes, genetic profile and case list
 	getProfileData(mycgds,c('BRCA1','BRCA2'),mygeneticprofile,mycaselist)
+
+	# Get clinical data for the case list
+	myclinicaldata = getClinicalData(mycgds,mycaselist)
 
 	# documentation
 	help('cgdsr')
@@ -75,7 +74,7 @@ An included tutorial ("showdemo cgdstutorial") shows how to use all the function
 	% Get started by adding the CGDS toolbox directory to the path (this will depend
 	% on install location) and setting the server URL
 	addpath('/MATLAB/cgds');
-	cgdsURL = 'http://cbio.mskcc.org/cgds-public/';
+	cgdsURL = 'http://www.cbioportal.org/public-portal';
 
 	% Show toolbox help ('helpwin cgds' will open in the Help window)
 	help cgds;

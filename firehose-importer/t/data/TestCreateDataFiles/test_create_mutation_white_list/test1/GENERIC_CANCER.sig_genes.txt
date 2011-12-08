@@ -1,0 +1,18 @@
+rank	gene	description	N	n	CpG_transition	other_CG_transition	CG_transversion	AT_mutation	indelPlusnull	p	q
+1	KRAS	v-Ki-ras2 Kirsten rat sarcoma viral oncogene homolog	54339	15	0	17	11	2	0	<1.00e-11	<6.29e-08
+2	TP53	tumor protein p53	89023	15	15	6	2	5	6	<1.00e-11	<6.29e-08
+3	APC	adenomatous polyposis coli	646052	12	2	1	0	6	49	<1.00e-11	<6.29e-08
+4	FBXW7	F-box and WD repeat domain containing 7	197813	17	8	0	2	3	4	1.65E-010	7.79E-007
+5	PGA5	pepsinogen 5, group I (pepsinogen A)	32801	7	0	0	0	2	5	6.34E-010	2.39E-006
+6	CSNK2B	casein kinase 2, beta polypeptide	51672	10	0	0	5	4	1	7.82E-010	2.46E-006
+7	PIK3CA	phosphoinositide-3-kinase, catalytic, alpha polypeptide	98610	12	2	3	2	5	0	4.54E-009	0.12
+8	ZNF689	zinc finger protein 689	58646	6	0	0	0	0	6	1.48E-008	0.12
+9	PLEKHA8	pleckstrin homology domain containing, family A (phosphoinositide binding specific) member 8	94124	8	0	0	0	2	6	2.95E-008	0.12
+64	FBXW10	F-box and WD repeat domain containing 10	146319	9	3	0	1	5	0	0	0.12
+65	CASP8	caspase 8, apoptosis-related cysteine peptidase	122142	8	1	2	2	3	0	0	0.12
+66	PNLDC1	poly(A)-specific ribonuclease (PARN)-like domain containing 1	122069	7	2	0	0	2	3	0	0.12
+67	CLEC11A	C-type lectin domain family 11, member A	19515	3	0	0	0	1	2	0	0.12
+92	GGA3	golgi associated, gamma adaptin ear containing, ARF binding protein 3	130275	6	1	4	1	0	0	0	0.12
+93	OR52K2	olfactory receptor, family 52, subfamily K, member 2	71366	5	0	0	0	3	2	0	0.12
+94	BLVRB	biliverdin reductase B (flavin reductase (NADPH))	27140	4	1	1	0	2	0	0	0.12
+95	OR6C1	olfactory receptor, family 6, subfamily C, member 1	72002	4	0	0	4	0	0	0	0.12

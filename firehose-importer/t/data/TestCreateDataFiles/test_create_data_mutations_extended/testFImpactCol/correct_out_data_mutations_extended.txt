@@ -1,0 +1,8 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+XYZ	3		TCGA-04-1331										L	NA	NA
+LRRC41	6		TCGA-04-1331										N	NA	NA
+C1orf173	9		TCGA-04-1331										H	NA	NA
+SSX2IP	12		TCGA-04-1331										NA	NA	NA
+NTNG1	15		TCGA-04-1331										NA	NA	NA
+PGLYRP3	18		TCGA-04-1331										M	NA	NA
+XXX	21		TCGA-04-1331										H	NA	NA

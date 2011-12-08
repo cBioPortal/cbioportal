@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Command Line Tool to Import MicroRNA Data.
+ */
 public class ImportMicroRnaData {
     private ProgressMonitor pMonitor;
     private File geneFile;

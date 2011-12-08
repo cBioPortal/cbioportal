@@ -1,0 +1,200 @@
+rank	gene	description	n	cos	n_cos	N_cos	p	q
+1	TP53	tumor protein p53	279	969	278	356592	0	0
+2	RB1	retinoblastoma 1 (including osteosarcoma)	9	271	8	99728	1.363021e-11	3.100872e-08
+3	NF1	neurofibromin 1 (neurofibromatosis, von Recklinghausen disease, Watson disease)	15	289	6	106352	4.836785e-08	7.335790e-05
+4	MYO3A	myosin IIIA	7	15	3	5520	1.477512e-07	1.680670e-04
+5	WNT11	wingless-type MMTV integration site family, member 11	2	1	2	368	2.054897e-07	1.869956e-04
+6	KLK10	kallikrein-related peptidase 10	2	2	2	736	8.227265e-07	6.239009e-04
+7	CDC27	cell division cycle 27 homolog (S. cerevisiae)	4	3	2	1104	1.851182e-06	1.203268e-03
+8	ERBB2	v-erb-b2 erythroblastic leukemia viral oncogene homolog 2, neuro/glioblastoma derived oncogene homolog (avian)	4	46	3	16928	4.199655e-06	2.388554e-03
+9	NIPBL	Nipped-B homolog (Drosophila)	5	8	2	2944	1.314327e-05	6.644651e-03
+10	MLL4		4	9	2	3312	1.662796e-05	7.565721e-03
+11	EGFR	epidermal growth factor receptor (erythroblastic leukemia viral (v-erb-b) oncogene homolog, avian)	7	235	4	86480	1.914759e-05	7.920141e-03
+12	FBXW7	F-box and WD repeat domain containing 7	4	91	3	33488	3.182086e-05	1.206541e-02
+13	NRAS	neuroblastoma RAS viral (v-ras) oncogene homolog	2	29	2	10672	1.712088e-04	5.992308e-02
+14	KRAS	v-Ki-ras2 Kirsten rat sarcoma viral oncogene homolog	2	53	2	19504	5.660416e-04	7.123311e-02
+15	ARMCX3	armadillo repeat containing, X-linked 3	2	1	1	368	6.418807e-04	7.123311e-02
+16	ATP2A1	ATPase, Ca++ transporting, cardiac muscle, fast twitch 1	2	1	1	368	6.418807e-04	7.123311e-02
+17	BTBD3	BTB (POZ) domain containing 3	3	1	1	368	6.418807e-04	7.123311e-02
+18	C16orf79	chromosome 16 open reading frame 79	1	1	1	368	6.418807e-04	7.123311e-02
+19	CALCR	calcitonin receptor	3	1	1	368	6.418807e-04	7.123311e-02
+20	FBXO6	F-box protein 6	1	1	1	368	6.418807e-04	7.123311e-02
+21	FCGBP	Fc fragment of IgG binding protein	7	1	1	368	6.418807e-04	7.123311e-02
+22	FOXG1	forkhead box G1	1	1	1	368	6.418807e-04	7.123311e-02
+23	GGA3	golgi associated, gamma adaptin ear containing, ARF binding protein 3	2	1	1	368	6.418807e-04	7.123311e-02
+24	GLRA2	glycine receptor, alpha 2	1	1	1	368	6.418807e-04	7.123311e-02
+25	GNAT1	guanine nucleotide binding protein (G protein), alpha transducing activity polypeptide 1	2	1	1	368	6.418807e-04	7.123311e-02
+26	GPR132	G protein-coupled receptor 132	2	1	1	368	6.418807e-04	7.123311e-02
+27	KLF15	Kruppel-like factor 15	2	1	1	368	6.418807e-04	7.123311e-02
+28	KRTAP5-5	keratin associated protein 5-5	2	1	1	368	6.418807e-04	7.123311e-02
+29	MOCS3	molybdenum cofactor synthesis 3	2	1	1	368	6.418807e-04	7.123311e-02
+30	MTDH	metadherin	1	1	1	368	6.418807e-04	7.123311e-02
+31	MTTP	microsomal triglyceride transfer protein	4	1	1	368	6.418807e-04	7.123311e-02
+32	PLA2G4A	phospholipase A2, group IVA (cytosolic, calcium-dependent)	1	1	1	368	6.418807e-04	7.123311e-02
+33	RNF25	ring finger protein 25	2	1	1	368	6.418807e-04	7.123311e-02
+34	RTP1	receptor (chemosensory) transporter protein 1	2	1	1	368	6.418807e-04	7.123311e-02
+35	SCYL1	SCY1-like 1 (S. cerevisiae)	2	1	1	368	6.418807e-04	7.123311e-02
+36	SNRPA	small nuclear ribonucleoprotein polypeptide A	1	1	1	368	6.418807e-04	7.123311e-02
+37	SNX8	sorting nexin 8	1	1	1	368	6.418807e-04	7.123311e-02
+38	SP100	SP100 nuclear antigen	4	1	1	368	6.418807e-04	7.123311e-02
+39	UGT3A2	UDP glycosyltransferase 3 family, polypeptide A2	2	1	1	368	6.418807e-04	7.123311e-02
+40	UNG	uracil-DNA glycosylase	1	1	1	368	6.418807e-04	7.123311e-02
+41	ZNF286A	zinc finger protein 286A	1	1	1	368	6.418807e-04	7.123311e-02
+42	PTCH1	patched homolog 1 (Drosophila)	6	263	3	96784	7.074808e-04	7.664375e-02
+43	ARFGEF2	ADP-ribosylation factor guanine nucleotide-exchange factor 2 (brefeldin A-inhibited)	1	2	1	736	1.283349e-03	9.418129e-02
+44	BRF1	BRF1 homolog, subunit of RNA polymerase III transcription initiation factor IIIB (S. cerevisiae)	1	2	1	736	1.283349e-03	9.418129e-02
+45	CD274	CD274 molecule	1	2	1	736	1.283349e-03	9.418129e-02
+46	CHD4	chromodomain helicase DNA binding protein 4	8	2	1	736	1.283349e-03	9.418129e-02
+47	CHD8	chromodomain helicase DNA binding protein 8	5	2	1	736	1.283349e-03	9.418129e-02
+48	ETV3L	ets variant gene 3-like	2	2	1	736	1.283349e-03	9.418129e-02
+49	GSK3A	glycogen synthase kinase 3 alpha	2	2	1	736	1.283349e-03	9.418129e-02
+50	HTR3C	5-hydroxytryptamine (serotonin) receptor 3, family member C	1	2	1	736	1.283349e-03	9.418129e-02
+51	MMP3	matrix metallopeptidase 3 (stromelysin 1, progelatinase)	1	2	1	736	1.283349e-03	9.418129e-02
+52	NR2F1	nuclear receptor subfamily 2, group F, member 1	2	2	1	736	1.283349e-03	9.418129e-02
+53	PCDH20	protocadherin 20	4	2	1	736	1.283349e-03	9.418129e-02
+54	PI4K2A	phosphatidylinositol 4-kinase type 2 alpha	1	2	1	736	1.283349e-03	9.418129e-02
+55	PTPRS	protein tyrosine phosphatase, receptor type, S	4	2	1	736	1.283349e-03	9.418129e-02
+56	RBM25	RNA binding motif protein 25	2	2	1	736	1.283349e-03	9.418129e-02
+57	RTN1	reticulon 1	2	2	1	736	1.283349e-03	9.418129e-02
+58	TDRD5	tudor domain containing 5	1	2	1	736	1.283349e-03	9.418129e-02
+59	TOR1AIP1	torsin A interacting protein 1	2	2	1	736	1.283349e-03	9.418129e-02
+60	TRIM58	tripartite motif-containing 58	3	2	1	736	1.283349e-03	9.418129e-02
+61	TRPV5	transient receptor potential cation channel, subfamily V, member 5	1	2	1	736	1.283349e-03	9.418129e-02
+62	TTK	TTK protein kinase	3	2	1	736	1.283349e-03	9.418129e-02
+63	ACCS	1-aminocyclopropane-1-carboxylate synthase homolog (Arabidopsis)(non-functional)	1	3	1	1104	1.924406e-03	1.250864e-01
+64	CACNA1F	calcium channel, voltage-dependent, L type, alpha 1F subunit	4	3	1	1104	1.924406e-03	1.250864e-01
+65	CDK17		3	3	1	1104	1.924406e-03	1.250864e-01
+66	CELSR3	cadherin, EGF LAG seven-pass G-type receptor 3 (flamingo homolog, Drosophila)	6	3	1	1104	1.924406e-03	1.250864e-01
+67	CFP	complement factor properdin	1	3	1	1104	1.924406e-03	1.250864e-01
+68	DDIT3	DNA-damage-inducible transcript 3	2	3	1	1104	1.924406e-03	1.250864e-01
+69	FAM5C	family with sequence similarity 5, member C	3	3	1	1104	1.924406e-03	1.250864e-01
+70	SEMA5B	sema domain, seven thrombospondin repeats (type 1 and type 1-like), transmembrane domain (TM) and short cytoplasmic domain, (semaphorin) 5B	1	3	1	1104	1.924406e-03	1.250864e-01
+71	APC	adenomatous polyposis coli	8	842	4	309856	2.319069e-03	1.486164e-01
+72	COL11A1	collagen, type XI, alpha 1	5	4	1	1472	2.565052e-03	1.535656e-01
+73	FURIN	furin (paired basic amino acid cleaving enzyme)	2	4	1	1472	2.565052e-03	1.535656e-01
+74	MAGEB16	melanoma antigen family B, 16	2	4	1	1472	2.565052e-03	1.535656e-01
+75	MAPK9	mitogen-activated protein kinase 9	1	4	1	1472	2.565052e-03	1.535656e-01
+76	MAST1	microtubule associated serine/threonine kinase 1	3	4	1	1472	2.565052e-03	1.535656e-01
+77	AGFG1		1	5	1	1840	3.205286e-03	1.869750e-01
+78	PRKCZ	protein kinase C, zeta	2	5	1	1840	3.205286e-03	1.869750e-01
+79	SMARCB1	SWI/SNF related, matrix associated, actin dependent regulator of chromatin, subfamily b, member 1	4	131	2	48208	3.345212e-03	1.926673e-01
+80	ABCA3	ATP-binding cassette, sub-family A (ABC1), member 3	4	6	1	2208	3.845110e-03	2.133567e-01
+81	KDM3B		4	6	1	2208	3.845110e-03	2.133567e-01
+82	MYST4	MYST histone acetyltransferase (monocytic leukemia) 4	5	6	1	2208	3.845110e-03	2.133567e-01
+83	GLI1	glioma-associated oncogene homolog 1 (zinc finger protein)	5	7	1	2576	4.484522e-03	2.429116e-01
+84	TSC1	tuberous sclerosis 1	3	7	1	2576	4.484522e-03	2.429116e-01
+85	NOS3	nitric oxide synthase 3 (endothelial cell)	2	8	1	2944	5.123524e-03	2.710702e-01
+86	TEX14	testis expressed 14	2	8	1	2944	5.123524e-03	2.710702e-01
+87	EPHB4	EPH receptor B4	1	9	1	3312	5.762116e-03	2.979276e-01
+88	MAGEA1	melanoma antigen family A, 1 (directs expression of antigen MZ2-E)	1	9	1	3312	5.762116e-03	2.979276e-01
+89	MYO3B	myosin IIIB	5	11	1	4048	7.038071e-03	3.575544e-01
+90	PIK3CA	phosphoinositide-3-kinase, catalytic, alpha polypeptide	2	193	2	71024	7.072505e-03	3.575544e-01
+91	PIK3CG	phosphoinositide-3-kinase, catalytic, gamma polypeptide	3	16	1	5888	1.022080e-02	5.110399e-01
+92	NOTCH1	Notch homolog 1, translocation-associated (Drosophila)	4	283	2	104144	1.463920e-02	7.172114e-01
+93	FAM123B	family with sequence similarity 123B	3	23	1	8464	1.465948e-02	7.172114e-01
+94	SETD2	SET domain containing 2	6	28	1	10304	1.781778e-02	8.624565e-01
+95	BRCA1	breast cancer 1, early onset	12	39	1	14352	2.473045e-02	1
+96	MLH1	mutL homolog 1, colon cancer, nonpolyposis type 2 (E. coli)	2	49	1	18032	3.097247e-02	1
+97	KDM6A		2	52	1	19136	3.283727e-02	1
+98	BRCA2	breast cancer 2, early onset	12	61	1	22448	3.841017e-02	1
+99	JAK2	Janus kinase 2 (a protein tyrosine kinase)	2	70	1	25760	4.395097e-02	1
+100	TTN	titin	72	79	1	29072	4.945983e-02	1
+101	HNF1A	HNF1 homeobox A	1	98	1	36064	6.098564e-02	1
+102	BRAF	v-raf murine sarcoma viral oncogene homolog B1	2	102	1	37536	6.339426e-02	1
+103	FLT3	fms-related tyrosine kinase 3	2	117	1	43056	7.237169e-02	1
+104	PTEN	phosphatase and tensin homolog (mutated in multiple advanced cancers 1)	2	736	2	270848	8.200418e-02	1
+105	TNFAIP3	tumor necrosis factor, alpha-induced protein 3	4	139	1	51152	8.538317e-02	1
+106	CDH1	cadherin 1, type 1, E-cadherin (epithelial)	2	187	1	68816	1.131419e-01	1
+107	KIT	v-kit Hardy-Zuckerman 4 feline sarcoma viral oncogene homolog	7	201	1	73968	1.210783e-01	1
+108	MEN1	multiple endocrine neoplasia I	1	208	1	76544	1.250198e-01	1
+109	NF2	neurofibromin 2 (merlin)	1	546	1	200928	2.957201e-01	1
+110	VHL	von Hippel-Lindau tumor suppressor	0	545	0	200560	1	1
+111	CEBPA	CCAAT/enhancer binding protein (C/EBP), alpha	0	418	0	153824	1	1
+112	CDKN2A	cyclin-dependent kinase inhibitor 2A (melanoma, p16, inhibits CDK4)	0	342	0	125856	1	1
+113	ATM	ataxia telangiectasia mutated	5	247	0	90896	1	1
+114	WT1	Wilms tumor 1	0	185	0	68080	1	1
+115	RUNX1	runt-related transcription factor 1 (acute myeloid leukemia 1; aml1 oncogene)	0	180	0	66240	1	1
+116	SMAD4	SMAD family member 4	0	162	0	59616	1	1
+117	STK11	serine/threonine kinase 11	0	138	0	50784	1	1
+118	GATA1	GATA binding protein 1 (globin transcription factor 1)	0	119	0	43792	1	1
+119	CTNNB1	catenin (cadherin-associated protein), beta 1, 88kDa	2	109	0	40112	1	1
+120	PDGFRA	platelet-derived growth factor receptor, alpha polypeptide	3	70	0	25760	1	1
+121	SOCS1	suppressor of cytokine signaling 1	0	70	0	25760	1	1
+122	CDC73	cell division cycle 73, Paf1/RNA polymerase II complex component, homolog (S. cerevisiae)	1	54	0	19872	1	1
+123	RET	ret proto-oncogene	1	54	0	19872	1	1
+124	FGFR3	fibroblast growth factor receptor 3 (achondroplasia, thanatophoric dwarfism)	1	53	0	19504	1	1
+125	MSH6	mutS homolog 6 (E. coli)	1	53	0	19504	1	1
+126	FGFR2	fibroblast growth factor receptor 2 (bacteria-expressed kinase, keratinocyte growth factor receptor, craniofacial dysostosis 1, Crouzon syndrome, Pfeiffer syndrome, Jackson-Weiss syndrome)	0	49	0	18032	1	1
+127	MSH2	mutS homolog 2, colon cancer, nonpolyposis type 1 (E. coli)	1	45	0	16560	1	1
+128	CBL	Cas-Br-M (murine) ecotropic retroviral transforming sequence	0	42	0	15456	1	1
+129	TSHR	thyroid stimulating hormone receptor	4	41	0	15088	1	1
+130	MET	met proto-oncogene (hepatocyte growth factor receptor)	4	36	0	13248	1	1
+131	GATA3	GATA binding protein 3	1	34	0	12512	1	1
+132	PIK3R1	phosphoinositide-3-kinase, regulatory subunit 1 (alpha)	1	34	0	12512	1	1
+133	PTPN11	protein tyrosine phosphatase, non-receptor type 11 (Noonan syndrome 1)	0	33	0	12144	1	1
+134	NPM1	nucleophosmin (nucleolar phosphoprotein B23, numatrin)	0	29	0	10672	1	1
+135	SMARCA4	SWI/SNF related, matrix associated, actin dependent regulator of chromatin, subfamily a, member 4	4	29	0	10672	1	1
+136	ASXL1	additional sex combs like 1 (Drosophila)	0	27	0	9936	1	1
+137	CSMD3	CUB and Sushi multiple domains 3	18	27	0	9936	1	1
+138	SMO	smoothened homolog (Drosophila)	0	26	0	9568	1	1
+139	ABL1	c-abl oncogene 1, receptor tyrosine kinase	1	25	0	9200	1	1
+140	ALK	anaplastic lymphoma receptor tyrosine kinase	3	25	0	9200	1	1
+141	MLL2	myeloid/lymphoid or mixed-lineage leukemia 2	1	25	0	9200	1	1
+142	PRKDC	protein kinase, DNA-activated, catalytic polypeptide	8	25	0	9200	1	1
+143	MPL	myeloproliferative leukemia virus oncogene	0	24	0	8832	1	1
+144	EPHA3	EPH receptor A3	3	22	0	8096	1	1
+145	SYNE1	spectrin repeat containing, nuclear envelope 1	11	22	0	8096	1	1
+146	HRAS	v-Ha-ras Harvey rat sarcoma viral oncogene homolog	0	21	0	7728	1	1
+147	CSF1R	colony stimulating factor 1 receptor, formerly McDonough feline sarcoma viral (v-fms) oncogene homolog	1	20	0	7360	1	1
+148	CYLD	cylindromatosis (turban tumor syndrome)	0	20	0	7360	1	1
+149	TRRAP	transformation/transcription domain-associated protein	3	20	0	7360	1	1
+150	LRP1B	low density lipoprotein-related protein 1B (deleted in tumors)	14	19	0	6992	1	1
+151	JAK3	Janus kinase 3 (a protein tyrosine kinase, leukocyte)	3	18	0	6624	1	1
+152	KDR	kinase insert domain receptor (a type III receptor tyrosine kinase)	1	18	0	6624	1	1
+153	ATR	ataxia telangiectasia and Rad3 related	2	17	0	6256	1	1
+154	NTRK3	neurotrophic tyrosine kinase, receptor, type 3	4	17	0	6256	1	1
+155	OBSCN	obscurin, cytoskeletal calmodulin and titin-interacting RhoGEF	5	16	0	5888	1	1
+156	MAP2K4	mitogen-activated protein kinase kinase 4	1	15	0	5520	1	1
+157	TAF1L	TAF1 RNA polymerase II, TATA box binding protein (TBP)-associated factor, 210kDa-like	0	15	0	5520	1	1
+158	FLT1	fms-related tyrosine kinase 1 (vascular endothelial growth factor/vascular permeability factor receptor)	2	14	0	5152	1	1
+159	MTOR		7	14	0	5152	1	1
+160	PTPRD	protein tyrosine phosphatase, receptor type, D	4	14	0	5152	1	1
+161	EPHA5	EPH receptor A5	1	13	0	4784	1	1
+162	EPHA7	EPH receptor A7	7	13	0	4784	1	1
+163	EPHB6	EPH receptor B6	1	13	0	4784	1	1
+164	ERBB4	v-erb-a erythroblastic leukemia viral oncogene homolog 4 (avian)	0	13	0	4784	1	1
+165	ROR2	receptor tyrosine kinase-like orphan receptor 2	3	13	0	4784	1	1
+166	TAF1	TAF1 RNA polymerase II, TATA box binding protein (TBP)-associated factor, 250kDa	5	13	0	4784	1	1
+167	ADAMTSL3	ADAMTS-like 3	5	12	0	4416	1	1
+168	EPHB1	EPH receptor B1	4	12	0	4416	1	1
+169	HDLBP	high density lipoprotein binding protein (vigilin)	0	12	0	4416	1	1
+170	NOTCH2	Notch homolog 2 (Drosophila)	4	12	0	4416	1	1
+171	PAK7	p21(CDKN1A)-activated kinase 7	1	12	0	4416	1	1
+172	TGFBR2	transforming growth factor, beta receptor II (70/80kDa)	3	12	0	4416	1	1
+173	ADAMTS18	ADAM metallopeptidase with thrombospondin type 1 motif, 18	1	11	0	4048	1	1
+174	BAI3	brain-specific angiogenesis inhibitor 3	8	11	0	4048	1	1
+175	IKBKAP	inhibitor of kappa light polypeptide gene enhancer in B-cells, kinase complex-associated protein	1	11	0	4048	1	1
+176	MLL	myeloid/lymphoid or mixed-lineage leukemia (trithorax homolog, Drosophila)	5	11	0	4048	1	1
+177	MLL3	myeloid/lymphoid or mixed-lineage leukemia 3	7	11	0	4048	1	1
+178	NTRK1	neurotrophic tyrosine kinase, receptor, type 1	4	11	0	4048	1	1
+179	SMAD2	SMAD family member 2	0	11	0	4048	1	1
+180	SMG1		1	11	0	4048	1	1
+181	TRIO	triple functional domain (PTPRF interacting)	2	11	0	4048	1	1
+182	UBR4	ubiquitin protein ligase E3 component n-recognin 4	8	11	0	4048	1	1
+183	AKAP9	A kinase (PRKA) anchor protein (yotiao) 9	5	10	0	3680	1	1
+184	ANK2	ankyrin 2, neuronal	8	10	0	3680	1	1
+185	EPHA6	EPH receptor A6	2	10	0	3680	1	1
+186	FGFR1	fibroblast growth factor receptor 1 (fms-related tyrosine kinase 2, Pfeiffer syndrome)	0	10	0	3680	1	1
+187	FGFR4	fibroblast growth factor receptor 4	1	10	0	3680	1	1
+188	INSRR	insulin receptor-related receptor	6	10	0	3680	1	1
+189	NBN	nibrin	0	10	0	3680	1	1
+190	NOTCH4	Notch homolog 4 (Drosophila)	5	10	0	3680	1	1
+191	NTRK2	neurotrophic tyrosine kinase, receptor, type 2	1	10	0	3680	1	1
+192	PDGFRB	platelet-derived growth factor receptor, beta polypeptide	3	10	0	3680	1	1
+193	PIK3C2G	phosphoinositide-3-kinase, class 2, gamma polypeptide	0	10	0	3680	1	1
+194	SERPINA11	serpin peptidase inhibitor, clade A (alpha-1 antiproteinase, antitrypsin), member 11	0	10	0	3680	1	1
+195	SLC12A3	solute carrier family 12 (sodium/chloride transporters), member 3	2	10	0	3680	1	1
+196	SLC4A3	solute carrier family 4, anion exchanger, member 3	1	10	0	3680	1	1
+197	SUFU	suppressor of fused homolog (Drosophila)	0	10	0	3680	1	1
+198	TGM1	transglutaminase 1 (K polypeptide epidermal type I, protein-glutamine-gamma-glutamyltransferase)	2	10	0	3680	1	1
+199	TRIM36	tripartite motif-containing 36	3	10	0	3680	1	1

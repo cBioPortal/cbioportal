@@ -1,0 +1,5 @@
+Cancers	cases_CGH.txt	cases_complete.txt	cases_sequenced.txt	cases_normal_mRNA.txt	cases_mRNA.txt	cases_all.txt
+brca	373	3	4	0	434	474
+gbm	430	3	3	0	439	470
+laml			5			0
+ov	481	3	3	0	538	538

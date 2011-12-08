@@ -34,9 +34,9 @@ import org.mskcc.cgds.web_api.GetNetwork;
 import org.mskcc.cgds.web_api.GetMutSig;
 import org.mskcc.cgds.web_api.GetProfileData;
 import org.mskcc.cgds.web_api.GetProteinArrayData;
-import org.mskcc.cgds.web_api.GetTypesOfCancer;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
+import org.mskcc.cgds.util.WebserviceParserUtils;
 
 /**
  * Core Web Service.
@@ -76,7 +76,7 @@ public class WebService extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        System.out.println("Starting up the Cancer Genomics Data Server...");
+        System.out.println("Starting up the Web Service API...");
         System.out.println("Reading in init parameters from web.xml");
         DatabaseProperties dbProperties = DatabaseProperties.getInstance();
         ServletConfig config = this.getServletConfig();
@@ -100,6 +100,7 @@ public class WebService extends HttpServlet {
      * @throws ServletException Servlet Error.
      * @throws IOException      IO Error.
      */
+    @Override
     protected void doGet(HttpServletRequest httpServletRequest,
                          HttpServletResponse httpServletResponse) throws ServletException, IOException {
         processClient(httpServletRequest, httpServletResponse);
@@ -113,6 +114,7 @@ public class WebService extends HttpServlet {
      * @throws ServletException Servlet Error.
      * @throws IOException      IO Error.
      */
+    @Override
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
         processClient(httpServletRequest, httpServletResponse);
@@ -262,6 +264,12 @@ public class WebService extends HttpServlet {
 
     private void getProteinArrayInfo(HttpServletRequest httpServletRequest,
                                      PrintWriter writer) throws DaoException, ProtocolException {
+        String cancerStudyId = getCancerStudyId(httpServletRequest);
+        if (cancerStudyId == null) {
+            outputMissingParameterError(writer, CANCER_STUDY_ID);
+            return;
+        }
+        
         String geneList = httpServletRequest.getParameter(GENE_LIST);
         ArrayList<String> targetGeneList;
         if (geneList == null || geneList.length() == 0) {
@@ -271,20 +279,25 @@ public class WebService extends HttpServlet {
         }
 
         String type = httpServletRequest.getParameter(PROTEIN_ARRAY_TYPE);
-        writer.print(GetProteinArrayData.getProteinArrayInfo(targetGeneList, type));
+        writer.print(GetProteinArrayData.getProteinArrayInfo(cancerStudyId, targetGeneList, type));
     }
 
     private void getProteinArrayData(HttpServletRequest httpServletRequest,
                                      PrintWriter writer) throws DaoException, ProtocolException {
         String arrayId = httpServletRequest.getParameter(PROTEIN_ARRAY_ID);
+        String cancerStudyId = null;
         if (arrayId == null || arrayId.length() == 0) {
-            throw new ProtocolException("Missing Parameter:  " + PROTEIN_ARRAY_ID);
+            cancerStudyId = getCancerStudyIDs(httpServletRequest).iterator().next();
         }
         ArrayList<String> targetCaseIds = null;
         if (null != httpServletRequest.getParameter(CASE_LIST)
                 || null != httpServletRequest.getParameter(CASE_SET_ID))
-            targetCaseIds = getCaseList(httpServletRequest);
-        writer.print(GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayId.split(" ")), targetCaseIds));
+            targetCaseIds = WebserviceParserUtils.getCaseList(httpServletRequest);
+        String arrayInfo = httpServletRequest.getParameter("array_info");
+        boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
+        writer.print(GetProteinArrayData.getProteinArrayData(cancerStudyId, 
+                arrayId==null?null : Arrays.asList(arrayId.split("[ ,]+")), 
+                targetCaseIds, includeArrayInfo));
     }
 
     private void getTypesOfCancer(PrintWriter writer) throws DaoException, ProtocolException {
@@ -293,8 +306,8 @@ public class WebService extends HttpServlet {
         writer.print(out);
     }
 
-    private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) throws DaoException,
-            ProtocolException {
+    private void getCancerStudies(HttpServletRequest httpServletRequest, PrintWriter writer) 
+            throws DaoException, ProtocolException {
         String out = GetTypesOfCancer.getCancerStudies();
         writer.print(out);
     }
@@ -342,7 +355,7 @@ public class WebService extends HttpServlet {
 
     private void getProfileData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
-        ArrayList<String> caseList = getCaseList(request);
+        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = getGeneticProfileId(request);
         ArrayList<String> targetGeneList = getGeneList(request);
@@ -353,7 +366,7 @@ public class WebService extends HttpServlet {
                             "but not both at once!");
         }
 
-        Boolean suppressMondrianHeader = new Boolean(request.getParameter(SUPPRESS_MONDRIAN_HEADER));
+        Boolean suppressMondrianHeader = Boolean.parseBoolean(request.getParameter(SUPPRESS_MONDRIAN_HEADER));
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 caseList, suppressMondrianHeader);
         String out = getProfileData.getRawContent();
@@ -362,7 +375,7 @@ public class WebService extends HttpServlet {
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        HashSet<String> caseSet = new HashSet<String>(getCaseList(request));
+        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
         String out = GetClinicalData.getClinicalData(caseSet);
         writer.print(out);
     }
@@ -375,32 +388,30 @@ public class WebService extends HttpServlet {
     private void getMutSig(HttpServletRequest request, PrintWriter writer)
                throws DaoException {
            String cancerStudyID = getCancerStudyId(request);
-           if ((cancerStudyID == null) || (cancerStudyID.length() == 0))
+           if ((cancerStudyID == null) || (cancerStudyID.length() == 0)) {
                writer.print("Please enter a Cancer Type");
-           String q_value_threshold = request.getParameter(Q_VALUE_THRESHOLD);
-           String gene_list = request.getParameter(GENE_LIST);
+           }
+           String qValueThreshold = request.getParameter(Q_VALUE_THRESHOLD);
+           String geneList = request.getParameter(GENE_LIST);
            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyID);
            int cancerID = cancerStudy.getInternalId();
-           if (q_value_threshold == null && gene_list == null) {
-               StringBuffer output = GetMutSig.GetAMutSig(cancerID);
+           if (qValueThreshold == null && geneList == null) {
+               StringBuffer output = GetMutSig.getMutSig(cancerID);
                writer.print(output);
-           }
-           else if (q_value_threshold != null && gene_list == null) {
-               StringBuffer output = GetMutSig.GetAMutSig(cancerID, q_value_threshold, true);
+           } else if (qValueThreshold != null && geneList == null) {
+               StringBuffer output = GetMutSig.getMutSig(cancerID, qValueThreshold, true);
                writer.print(output);
-           }
-           else if (q_value_threshold == null && gene_list != null) {
-               StringBuffer output = GetMutSig.GetAMutSig(cancerID, gene_list, false);
+           } else if (qValueThreshold == null && geneList != null) {
+               StringBuffer output = GetMutSig.getMutSig(cancerID, geneList, false);
                writer.print(output);
-           }
-           else {
+           } else {
                writer.print("Invalid command. Please input a valid Q-Value Threshold, or Gene List.");
            }
        }
 
     private void getMutationData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        ArrayList<String> caseList = getCaseList(request);
+        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = getGeneticProfileId(request);
         String geneticProfileId = geneticProfileIdList.get(0);
@@ -418,7 +429,9 @@ public class WebService extends HttpServlet {
         ArrayList<String> targetGeneList = new ArrayList<String>();
         for (String gene : genes) {
             gene = gene.trim();
-            if (gene.length() == 0) continue;
+            if (gene.length() == 0) {
+                continue;
+            }
             targetGeneList.add(gene);
         }
         return targetGeneList;
@@ -449,31 +462,6 @@ public class WebService extends HttpServlet {
             geneticProfileIdList.add(geneticProfileId);
         }
         return geneticProfileIdList;
-    }
-
-    private ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
-            DaoException {
-        String cases = request.getParameter(CASE_LIST);
-        String caseSetId = request.getParameter(CASE_SET_ID);
-
-        ArrayList<String> caseList = new ArrayList<String>();
-        if (caseSetId != null) {
-            DaoCaseList dao = new DaoCaseList();
-            CaseList selectedCaseList = dao.getCaseListByStableId(caseSetId);
-            if (selectedCaseList == null) {
-                throw new ProtocolException("Invalid " + CASE_SET_ID + ":  " + caseSetId + ".");
-            }
-            caseList = selectedCaseList.getCaseList();
-        } else if (cases != null) {
-            for (String _case : cases.split("[\\s,]+")) {
-                _case = _case.trim();
-                if (_case.length() == 0) continue;
-                caseList.add(_case);
-            }
-        } else {
-            throw new ProtocolException(CASE_SET_ID + " or " + CASE_LIST + " must be specified.");
-        }
-        return caseList;
     }
 
     private void outputMissingParameterError(PrintWriter writer, String missingParameter) {
@@ -541,15 +529,15 @@ public class WebService extends HttpServlet {
 
         // a genetic_profile_id is explicitly provided, as in getProfileData
         if (null != request.getParameter(GENETIC_PROFILE_ID)) {
-            ArrayList<String> genetic_profile_ids = getGeneticProfileId(request);
-            for (String genetic_profile_id : genetic_profile_ids) {
+            ArrayList<String> geneticProfileIds = getGeneticProfileId(request);
+            for (String geneticProfileId : geneticProfileIds) {
 
-                if (genetic_profile_id == null) {
+                if (geneticProfileId == null) {
                     return null;
                 }
 
                 DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
-                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(genetic_profile_id);
+                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
                 if (aGeneticProfile != null &&
                         DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
@@ -578,11 +566,13 @@ public class WebService extends HttpServlet {
         String caseList = request.getParameter(WebService.CASE_LIST);
         if (caseList != null) {
             DaoCase aDaoCase = new DaoCase();
-            for (String _case : caseList.split("[\\s,]+")) {
-                _case = _case.trim();
-                if (_case.length() == 0) continue;
+            for (String aCase : caseList.split("[\\s,]+")) {
+                aCase = aCase.trim();
+                if (aCase.length() == 0) {
+                    continue;
+                }
 
-                int profileId = aDaoCase.getProfileIdForCase(_case);
+                int profileId = aDaoCase.getProfileIdForCase(aCase);
                 if (DaoCase.NO_SUCH_PROFILE_ID == profileId) {
                     return null;
                 }

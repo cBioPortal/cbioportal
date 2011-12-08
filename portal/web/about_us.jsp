@@ -1,11 +1,8 @@
 <%
     Config globalConfig = Config.getInstance();
     String aboutHtml = globalConfig.getProperty("about");
-    String siteTitle = globalConfig.getProperty("skin.title");
+    String siteTitle = SkinUtil.getTitle();
 
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
     if (aboutHtml == null) {
         aboutHtml = "content/about_us.html";
     } else {
@@ -16,6 +13,7 @@
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::About Us"); %>
@@ -23,7 +21,7 @@
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 
     <div id="main">
-    <table cellspacing="2px">
+      <table cellspacing="2px">
         <tr>
             <td>
                 <h1>About Us</h1>

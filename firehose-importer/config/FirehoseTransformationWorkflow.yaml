@@ -1,0 +1,123 @@
+# FirehoseTransformationWorkflow TABLE
+# this config file describes the relationship between Firehose input files, subroutines in CreateDataFiles.pm, 
+# and cgds output files.
+# it contains two sections, 
+# 1) a sequence of subroutine names and their parameters, 
+# and 2) a list of interdependencies between subroutines
+#
+# this file is read by FirehoseTransformationWorkflow.pm
+# 
+# in particular, if a given Firehose input file exists, then ConvertFirehoseData.pm will call the associated subroutine to 
+# generate the cgds file.
+# also, ConvertFirehoseData.pm will optionally download from the NCI the list of Firehose files identified here
+
+# each subroutine entry is of the form
+#- subC:
+#    outfile: outfileC
+#    arguments: optional args
+#    dirsAndFiles:
+#        - dirC1 fileC1
+#        - dirC2 fileC2
+# where subC is the subroutine's name, 
+# outfile is the output file it will make, and
+# dirsAndFiles is the list of directories, input files in the directory and optional args that
+# are processed when the subroutine (e.g., subC) executes
+# 
+# directories are relative to the cancer's Firehose data and CGDS import directories
+# components in <>, such as <CANCER>, <date> and <version> indicate varying substrings; ALL CAPS INDICATES CAPITALIZATION
+# YAML ignores # comment lines and whitespace
+
+# subroutines and their properties:
+---
+# copy number
+- create_data_CNA:
+    outfile: data_CNA.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_thresholded.by_genes.txt
+
+# log2 copy number
+- create_data_log2CNA:
+    outfile: data_log2CNA.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_data_by_genes.txt
+
+# both mRNA and miRNA expression
+# this subroutine and create_data_mRNA_median and create_data_miRNA must all produce cgds files with the same name: data_expression_median.txt
+- create_data_both_mRNA_miRNA:
+    outfile: data_expression_median.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
+ 
+# mRNA expression (Agilent array); will do nothing if both mRNA and miRNA data are present
+- create_data_mRNA_median:
+    outfile: data_expression_median.txt
+    dirsAndFiles:
+       - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+
+# mRNA expression (RNA Seq)
+- create_data_RNA_seq_mRNA_median:
+    outfile: data_RNA_Seq_expression_median.txt
+    dirsAndFiles:
+      - gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version> <CANCER>.rnaseq.txt
+
+# miRNA; also will do nothing if both mRNA and miRNA data are present
+- create_data_miRNA:
+    outfile: data_expression_median.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
+ 
+# uses maf files
+- create_data_mutations_extended:
+    outfile: data_mutations_extended.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version> <CANCER>.maf.annotated
+ 
+# Zscores with Giovanni's program (Agilent array)
+- create_data_mRNA_median_Zscores:
+    outfile: data_mRNA_median_Zscores.txt
+    dirsAndFiles:
+       - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_thresholded.by_genes.txt 
+       - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+
+# Zscores with Giovanni's program (RNA Seq)
+- create_data_RNA_seq_mRNA_median_Zscores:
+    outfile: data_RNA_Seq_mRNA_median_Zscores.txt
+    dirsAndFiles:
+      - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_thresholded.by_genes.txt 
+      - gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version> <CANCER>.rnaseq.txt
+
+# obtain per-cancer gene 'whitelist' from mutation significance file
+# since significantlyMutatedSomaticGenesWhitelist is not a data_* file, it won't have a meta file created, and won't be loaded into the cgds dbms
+# the arguments (e.g., 0.1,50) are q-value,n-percentage thresholds for selecting genes in the  significantlyMutatedSomaticGenesWhitelist.txt
+# which will be used to filter the maf file
+# the test refers to the previously processed maf file, which has 20 cases
+- create_mutation_white_list:
+    outfile: significantlyMutatedSomaticGenesWhitelist.txt
+    arguments: 0.1,50
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version> <CANCER>.sig_genes.txt
+
+# include clinical in the list; CGDS filename is a guess
+# create_data_clinical
+#    gdac.broadinstitute.org_<CANCER>.Clinical_Pick_Tier1.Level_4.<date><version> <CANCER>.clin.merged.picked.txt 
+#    data_clinical.txt
+
+# create a data methylation file
+# Present the beta value for the most anti-correlated probe on a gene.
+- create_data_methylation:
+    outfile: data_methylation.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Correlate_Methylation_vs_mRNA.Level_4.<date><version> Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
+        - gdac.broadinstitute.org_<CANCER>.Merge_methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.<date><version> <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
+
+# .seg file required for igv linking
+- create_igv_seg:
+    outfile: <CANCER>.seg
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version> <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
+
+---
+# dependencies
+- create_data_mRNA_median precluded_by create_data_both_mRNA_miRNA 
+- create_data_miRNA precluded_by create_data_both_mRNA_miRNA 

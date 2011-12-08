@@ -1,263 +1,229 @@
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.util.MutationCounter" %>
+<%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
+<%@ page import="org.mskcc.portal.model.ExtendedMutationMap" %>
+<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.SequenceCenterUtil" %>
-<%@ page import="org.mskcc.portal.util.UrlFixer" %>
-<%@ page import="org.mskcc.portal.mapback.Brca1" %>
-<%@ page import="org.mskcc.portal.mapback.MapBack" %>
-<%@ page import="org.mskcc.portal.mapback.Brca2" %>
+<%@ page import="org.mskcc.portal.util.MutationCounter" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.io.IOException" %>
+
+
 <%
-    int numGenesWithMutationDetails = 0;
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
-                mutationMap, mergedCaseList);
-        if (mutationCounter.getMutationRate() > 0) {
-            numGenesWithMutationDetails++;
+    ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
+            request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
+    ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
+            mergedProfile.getCaseIdList());
+
+    out.println("<div class='section' id='mutation_details'>");
+
+    if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
+        outputOmaHeader(out);
+        for (GeneWithScore geneWithScore : geneWithScoreList) {
+            outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
         }
+    } else {
+        outputNoMutationDetails(out);
     }
+    out.println("</div>");
 %>
 
-<% if (numGenesWithMutationDetails > 0) { %>
-<div class="section" id="mutation_details">
-    <% if (numGenesWithMutationDetails > 0) {
-        //out.println ("* Details regarding germline mutations cannot be publicly displayed and are " +
-        //        "currently listed as [FILTERED].<BR>");
-        out.println("** Predicted functional impact (via " +
-         "<a href=\"http://mutationassessor.org\">Mutation Assessor</a>)" +
-          " is provided for missense mutations only.  ");
+<style type="text/css" title="currentStyle"> 
+        .mutation_datatables_filter {
+                width: 40%;
+                float: right;
+                padding-top:5px;
+                padding-bottom:5px;
+                padding-right:5px;
+        }
+        .mutation_datatables_info {
+                width: 55%;
+                float: left;
+                padding-left:5px;
+                padding-top:7px;
+                font-size:90%;
+        }
+</style>
+
+<script type="text/javascript">
+    jQuery.fn.dataTableExt.oSort['aa-change-col-asc']  = function(a,b) {
+        var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        
+        if (ares) {
+            if (bres) {
+                var ia = parseInt(ares[1]);
+                var ib = parseInt(bres[1]);
+                return ia==ib ? 0 : (ia<ib ? -1:1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bres) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? -1:1);
+            }
+        }
+    };
+
+    jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
+        var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        
+        if (ares) {
+            if (bres) {
+                var ia = parseInt(ares[1]);
+                var ib = parseInt(bres[1]);
+                return ia==ib ? 0 : (ia<ib ? 1:-1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bres) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? 1:-1);
+            }
+        }
+    };
+    
+    function assignValueToPredictedImpact(str) {
+        if (str=="Low") {
+            return 1;
+        } else if (str=="Medium") {
+            return 2;
+        } else if (str=="High") {
+            return 3;
+        } else {
+            return 0;
+        }
+    }
+    
+    jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
+        var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
+        var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+        
+        if (av>0) {
+            if (bv>0) {
+                return av==bv ? 0 : (av<bv ? -1:1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bv>0) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? 1:-1);
+            }
+        }
+    };
+    
+    jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
+        var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
+        var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+        
+        if (av>0) {
+            if (bv>0) {
+                return av==bv ? 0 : (av<bv ? 1:-1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bv>0) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? -1:1);
+            }
+        }
+    };
+
+    //  Place mutation_details_table in a JQuery DataTable
+    $(document).ready(function(){
+        <%
+        for (GeneWithScore geneWithScore : geneWithScoreList) {
+            if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
+              $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+                  "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
+                  "bPaginate": false,
+                  "bFilter": true,
+                  "aoColumns":[
+                      null,
+                      null,
+                      null,
+                      null,
+                      null,
+                      {"sType": 'aa-change-col'},
+                      {"sType": 'predicted-impact-col'},
+                      null,
+                      null
+                  ]
+              } );
+            <% } %>
+        <% } %>
+    });
+</script>
+
+
+<%!
+    private void outputGeneTable(GeneWithScore geneWithScore,
+            ExtendedMutationMap mutationMap, JspWriter out, 
+            ArrayList<String> mergedCaseList) throws IOException {
+        MutationTableUtil mutationTableUtil = new MutationTableUtil(geneWithScore.getGene());
+        MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
+                mutationMap);
+
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
+            outputHeader(out, geneWithScore, mutationCounter);
+            out.println("<table cellpadding='0' cellspacing='0' border='0' " +
+                    "class='display mutation_details_table' " +
+                    "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
+                    +"'>");
+
+            //  Table column headers
+            out.println("<thead>");
+            out.println(mutationTableUtil.getTableHeaderHtml() + "<BR>");
+            out.println("</thead>");
+
+            //  Mutations are sorted by case
+            out.println("<tbody>");
+            for (String caseId : mergedCaseList) {
+                ArrayList<ExtendedMutation> mutationList =
+                        mutationMap.getExtendedMutations(geneWithScore.getGene(), caseId);
+                if (mutationList != null && mutationList.size() > 0) {
+                    for (ExtendedMutation mutation : mutationList) {
+                        out.println(mutationTableUtil.getDataRowHtml(mutation));
+                    }
+                }
+            }
+            out.println("</tbody>");
+
+            //  Table column footer
+            out.println("<tfoot>");
+            out.println(mutationTableUtil.getTableHeaderHtml());
+            out.println("</tfoot>");
+
+            out.println("</table><p><br>");
+            out.println(mutationTableUtil.getTableFooterMessage());
+            out.println("<br>");
+        }
+    }
+
+    private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
+            MutationCounter mutationCounter) throws IOException {
+        out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
+        out.println(mutationCounter.getTextSummary());
+        out.println("</h4>");
+    }
+
+    private void outputNoMutationDetails(JspWriter out) throws IOException {
+        out.println("<p>There are no mutation details available for the gene set entered.</p>");
         out.println("<br><br>");
     }
 
-    %>
-<div class="map">
-<% }else {
-        out.println("<div class=\"section\" id=\"mutation_details\">");
-        out.println("<p>There are no mutation details available for the gene set entered.</p>");
+    private void outputOmaHeader(JspWriter out) throws IOException {
+        out.println("** Predicted functional impact (via " +
+                "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
+                " is provided for missense mutations only.  ");
         out.println("<br><br>");
-        out.println("</div>");
-} %>
-    <%
-        numGenesWithMutationDetails = 0;
-        for (GeneWithScore geneWithScore : geneWithScoreList) {
-            MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
-                    mutationMap, mergedCaseList);
-            if (mutationCounter.getMutationRate() > 0) {
-                numGenesWithMutationDetails++;
-                out.print("<h5>" + geneWithScore.getGene().toUpperCase() + ": ");
-                out.print("[");
-                if (mutationCounter.getGermlineMutationRate() > 0) {
-                    out.print("Germline Mutation Rate:  ");
-                    out.print(percentFormat.format(mutationCounter.getGermlineMutationRate()));
-                }
-                if (mutationCounter.getGermlineMutationRate() > 0
-                        && mutationCounter.getSomaticMutationRate() > 0) {
-                    out.print(", ");
-                }
-                if (mutationCounter.getSomaticMutationRate() > 0) {
-                    out.print("Somatic Mutation Rate:  ");
-                    out.print(percentFormat.format(mutationCounter.getSomaticMutationRate()));
-                }
-                if (mutationCounter.getGermlineMutationRate() <=0 && mutationCounter.getSomaticMutationRate() <=0) {
-                    out.print("Mutation Rate:  ");
-                    out.print(percentFormat.format(mutationCounter.getMutationRate()));
-                }
-                out.print("]");
-                out.println("</h5>");
-                out.println("<table width='100%' cellspacing='0px'>");
-                out.println("<tr>");
-                
-
-                out.println("<thead>");
-                out.println("<td>Case ID</td>");
-                out.println("<td>Mutation Status</td>");
-                out.println("<td>Mutation Type</td>");
-                out.println("<td>Validation Status</td>");
-                out.println("<td>Sequencing Center</td>");
-                out.println("<td>Amino Acid Change</td>");
-                out.println("<td>Predicted Functional Impact**</td>");
-                out.println("<td>Alignment</td>");
-                out.println("<td>Structure</td>");
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")
-                    || geneWithScore.getGene().equalsIgnoreCase("BRCA2")) {
-                    out.println("<td>Nucleotide Position *</td>");
-                }
-                out.println("</thead>");
-
-
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")
-                    || (geneWithScore.getGene().equalsIgnoreCase("BRCA2"))) {
-                    out.println ("<th>Details</th>");
-                }
-
-                out.println("</tr>");
-                int masterRowCounter = 0;
-                for (String caseId : mergedCaseList) {
-                    ArrayList<ExtendedMutation> mutationList =
-                            mutationMap.getMutations(geneWithScore.getGene(), caseId);
-                    if (mutationList != null && mutationList.size() > 0) {
-                        int numRows = mutationList.size();
-                        String bgcolor = "";
-                        String bgheadercolor = "#B9B9FC";
-
-                        if (masterRowCounter % 2 == 0) {
-                            //bgcolor = "#bbbbbb";
-                            bgcolor = "#eeeeee";
-                            bgheadercolor = "#dddddd";
-                        }
-
-
-                        out.println("<tr bgcolor='" + bgcolor + "'>");
-
-                        masterRowCounter++;
-                        out.println("<td style=\"border-bottom:1px solid #AEAEFF; background:"+bgheadercolor+ ";\" rowspan='" + numRows + "'>" + caseId);
-                        if (numRows > 1) {
-                            out.println("<br><br>" + numRows + " mutations");
-                        }
-                        out.println("</td>");
-                        int rowCounter = 0;
-                        String newCell = "";
-                        for (ExtendedMutation mutation : mutationList) {
-
-                            if (rowCounter > 0) {
-                                out.println("<tr bgcolor='" + bgcolor + "'>");
-                            }
-
-                            if (rowCounter == numRows-1){
-                                newCell = "<td class='last_mut'>";
-                            } else {
-                                newCell = "<td>";
-                            }
-
-
-                            out.println(newCell);
-
-                            if (mutation.getMutationStatus().equalsIgnoreCase("somatic")) {
-                                out.println("<span class='somatic'>");
-                            } else if (mutation.getMutationStatus().equalsIgnoreCase("germline")) {
-                                out.println("<span class='germline'>");
-                            } else {
-                                out.println("<span>");
-                            }
-                            out.println(mutation.getMutationStatus());
-                            out.println("</span></td>");
-                            out.println(newCell + mutation.getMutationType() + "</td>");
-                            out.println(newCell);
-                            if (mutation.getValidationStatus().equalsIgnoreCase("valid")) {
-                                out.println("<span class='valid'>");
-
-                            } else {
-                                out.println("<span>");
-                            }
-                            out.println(mutation.getValidationStatus());
-                            out.println("</span:></td>");
-                            String center = SequenceCenterUtil.getSequencingCenterAbbrev
-                                    (mutation.getCenter());
-                                    out.println(newCell + center + "</td>");
-                            out.println(newCell + mutation.getAminoAcidChange() + "</td>");
-
-                            String faScore = mutation.getFunctionalImpactScore();
-
-                            String href = "";
-                            String xVarLink;
-                            if( !mutation.getLinkXVar().equalsIgnoreCase("na")){
-                               xVarLink = UrlFixer.fixVarLink(mutation.getLinkXVar());
-                               href = "<a href=\"" + xVarLink + "\">";
-                            }
-                            
-                            out.println(newCell);
-                            String impact = "";
-                            if (faScore.equalsIgnoreCase("H")) {
-                               impact = "<span class='high'>" + href + "High";
-                            } else if (faScore.equalsIgnoreCase("M")) {
-                                impact = "<span class='medium'>" + href + "Medium";
-                            } else if (faScore.equalsIgnoreCase("L")) {
-                                impact = "<span class='low'>" + href + "Low";
-                            } else if (faScore.equals("N")) {
-                                impact = "<span class='neutral'>" + href + "Neutral";
-                            } else {
-                                impact = "<span></span>";
-                            }
-                            if( !href.equals("") ){
-                               impact = impact + "</a>";
-                            }
-                            out.println( impact + "</span>" + "</td>");
-
-                            out.println(newCell);
-                            if (mutation.getLinkMsa() != null && mutation.getLinkMsa().length() > 0) {
-                               if (!mutation.getLinkMsa().equalsIgnoreCase("NA")) {
-                                    String urlMsa = UrlFixer.fixVarLink(mutation.getLinkMsa());
-                                    out.println("<a href=\"" + urlMsa + "\">Alignment</a>");
-                               } else {
-                                    out.println("&nbsp;");
-                               }
-                            } else {
-                                out.println("&nbsp;");
-                            }
-
-                            out.println("</td>");
-                            out.println(newCell);
-                            if (mutation.getLinkPdb() != null && mutation.getLinkPdb().length() > 0) {
-                               if( !mutation.getLinkPdb().equalsIgnoreCase("NA") ){
-                                  String urlPdb = UrlFixer.fixVarLink(mutation.getLinkPdb());
-                                  out.println("<a href=\"" + urlPdb + "\">Structure</a>");
-                               } else {
-                                    out.println("&nbsp;");
-                               }
-                            } else {
-                                out.println("&nbsp;");
-                            }
-                            out.println("</td>");
-                            
-                            // TODO: remove gene-specific code and generalize 
-                            if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")) {
-                                out.println(newCell);
-                                if (mutation.getChr() != null && mutation.getChr().length() > 0) {
-                                    out.println (mutation.getChr() + ":" + mutation.getStartPosition()
-                                        + "-" + mutation.getEndPosition());
-                                    Brca1 brca1 = new Brca1();
-                                    MapBack mapBack = new MapBack(brca1, mutation.getEndPosition());
-                                    long ntPosition = mapBack.getNtPositionWhereMutationOccurs();
-                                    out.print ("<BR>NT Position:  " + ntPosition);
-                                    if (ntPosition >= 185 && ntPosition <= 188) {
-                                        out.println ("<BR><b>Known BRCA1 185/187DelAG Founder Mutation</b>");
-                                    } else if (ntPosition >= 5382 && ntPosition <= 5385) {
-                                        out.println ("<BR><b>Known BRCA1 5382/5385 insC Founder Mutation</b>");
-                                    }
-                                }
-                                out.println("</td>");
-                            } else if (geneWithScore.getGene().equalsIgnoreCase("BRCA2")) {
-                                out.println(newCell);
-                                if (mutation.getChr() != null && mutation.getChr().length() > 0) {
-                                    out.println (mutation.getChr() + ":" + mutation.getStartPosition()
-                                        + "-" + mutation.getEndPosition());
-                                    Brca2 brca2 = new Brca2();
-                                    MapBack mapBack = new MapBack(brca2, mutation.getEndPosition());
-                                    long ntPosition = mapBack.getNtPositionWhereMutationOccurs();
-                                    if (ntPosition == 6174) {
-                                        out.println ("<BR><b>Known BRCA2 6174delT founder mutation.</b></a>");
-                                    }
-                                }
-                                out.println("</td>");
-                            }
-                            //out.println("</td>");
-
-                            out.println("</tr>");
-                            rowCounter++;
-                        }
-                    }
-                }
-                out.println("</table><P>");
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA1")) {
-                    out.println("* Known BRCA1 185/187DelAG and 5382/5385 insC founder mutations are shown in bold.");
-                }
-                if (geneWithScore.getGene().equalsIgnoreCase("BRCA2")) {
-                    out.println("* Known BRCA2 6174delT founder mutation are shown in bold.");
-                }
-            }
-        }
-    %>
-    <% if (numGenesWithMutationDetails > 0) {
-        out.println("</div></div>");      //end map div, end section div
-    } %>
+    }
+%>

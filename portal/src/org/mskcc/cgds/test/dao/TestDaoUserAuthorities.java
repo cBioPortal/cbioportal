@@ -8,9 +8,11 @@ import org.mskcc.cgds.dao.DaoUserAuthorities;
 import org.mskcc.cgds.scripts.ResetDatabase;
 
 import junit.framework.TestCase;
-import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * JUnit test for DaoUserAuthorities class.
+ */
 public class TestDaoUserAuthorities extends TestCase {
 
    public void testDaoUserAuthorities() throws Exception {

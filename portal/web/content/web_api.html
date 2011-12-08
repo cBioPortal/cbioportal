@@ -1,67 +1,3 @@
-<div class="toc">
-<ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#the-cgds-r-package">The CGDS R Package</a></li>
-<li><a href="#basic-query-syntax">Basic Query Syntax</a></li>
-<li><a href="#response-header-and-error-messages">Response Header and Error Messages</a></li>
-<li><a href="#deprecated-api">Deprecated API</a></li>
-<li><a href="#commands">Commands</a><ul>
-<li><a href="#get-all-types-of-cancer">Get All Types of Cancer</a><ul>
-<li><a href="#description">Description</a></li>
-<li><a href="#query-format">Query Format</a></li>
-<li><a href="#response-format">Response Format</a></li>
-<li><a href="#example">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-all-cancer-studies">Get All Cancer Studies</a><ul>
-<li><a href="#description_1">Description</a></li>
-<li><a href="#query-format_1">Query Format</a></li>
-<li><a href="#response-format_1">Response Format</a></li>
-<li><a href="#example_1">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</a><ul>
-<li><a href="#description_2">Description</a></li>
-<li><a href="#query-format_2">Query Format</a></li>
-<li><a href="#response-format_2">Response Format</a></li>
-<li><a href="#example_2">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</a><ul>
-<li><a href="#description_3">Description</a></li>
-<li><a href="#query-format_3">Query Format</a></li>
-<li><a href="#response-format_3">Response Format</a></li>
-<li><a href="#example_3">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-profile-data">Get Profile Data</a><ul>
-<li><a href="#description_4">Description</a></li>
-<li><a href="#query-format_4">Query Format</a><ul>
-<li><a href="#response-format-1">Response Format 1</a></li>
-<li><a href="#response-format-2">Response Format 2</a></li>
-</ul>
-</li>
-<li><a href="#examples">Examples</a></li>
-</ul>
-</li>
-<li><a href="#get-extended-mutation-data">Get Extended Mutation Data</a><ul>
-<li><a href="#description_5">Description</a></li>
-<li><a href="#query-format_5">Query Format</a></li>
-<li><a href="#response-format_4">Response Format</a></li>
-<li><a href="#example_4">Example</a></li>
-</ul>
-</li>
-<li><a href="#get-clinical-data">Get Clinical Data</a><ul>
-<li><a href="#description_6">Description</a></li>
-<li><a href="#query-format_6">Query Format</a></li>
-<li><a href="#response-format_5">Response Format</a></li>
-<li><a href="#example_5">Example</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
 <h1 id="introduction">Introduction</h1>
 <p>The Cancer Genomic Data Server (CGDS) web service interface provides direct programmatic access to all genomic data stored within the server.  This enables you to easily access data from your favorite programming language, such as Python, Java, Perl, R or MatLab.  The CGDS web service is REST-based, meaning that client applications create a query consisting of parameters appended to a URL, and receive back either either text or an XML response.  For CGDS, all responses are currently tab-delimited text.  Clients of the CGDS web service can issue the following types of queries:</p>
 <ul>
@@ -70,16 +6,17 @@
 <li>What case sets are available for cancer study X?  For example, what case sets are available for TCGA Glioblastoma?</li>
 </ul>
 <p>Additionally, clients can easily retrieve "slices" of genomic data.  For example, a client can retrieve all mutation data from PTEN and EGFR in the TCGA Glioblastoma data.</p>
+<p>Please note that the example queries below are accurate, but they are not guaranteed to return data, as our database is constantly being updated.</p>
 <h1 id="the-cgds-r-package">The CGDS R Package</h1>
 <p>If you are interested in accessing CGDS via R, please check out our <a href="cgds_r.jsp">CGDS-R library</a>.</p>
 <h1 id="basic-query-syntax">Basic Query Syntax</h1>
-<p>All web queries are available at: <a href="http://cbio.mskcc.org/cgx/webservice.do">http://cbio.mskcc.org/cgx/webservice.do</a>. All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:</p>
+<p>All web queries are available at: <a href="webservice.do">webservice.do</a>. All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:</p>
 <ul>
 <li><strong>cmd</strong> = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.</li>
 <li>optional additional parameters, depending of the command (see below).</li>
 </ul>
 <p>For example, the following query will request all case lists for the TCGA GBM data:</p>
-<p><a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
 <h1 id="response-header-and-error-messages">Response Header and Error Messages</h1>
 <p>The first line of each response begins with a hash mark (#), and will contain data regarding the server status.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
@@ -135,7 +72,7 @@
 <li><strong>description:</strong>  short description of the cancer study.</li>
 </ul>
 <h3 id="example_1">Example</h3>
-<p>Get all Cancer Studies: <a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getCancerStudies">webservice.do?cmd=getCancerStudies</a></p>
+<p>Get all Cancer Studies: <a href="webservice.do?cmd=getCancerStudies">webservice.do?cmd=getCancerStudies</a></p>
 <h2 id="get-all-genetic-profiles-for-a-specific-cancer-study">Get All Genetic Profiles for a Specific Cancer Study</h2>
 <h3 id="description_2">Description</h3>
 <p>Retrieves meta-data regarding all genetic profiles, e.g. mutation or copy number profiles, stored about a specific cancer study.</p>
@@ -163,7 +100,7 @@
 <li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
 </ul>
 <h3 id="example_2">Example</h3>
-<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm</a></p>
 <h2 id="get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</h2>
 <h3 id="description_3">Description</h3>
 <p>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
@@ -183,7 +120,7 @@
 <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
 </ul>
 <h3 id="example_3">Example</h3>
-<p>Get all Case Lists for Glioblastoma (TCGA): <a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Case Lists for Glioblastoma (TCGA): <a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
 <h2 id="get-profile-data">Get Profile Data</h2>
 <h3 id="description_4">Description</h3>
 <p>Retrieves genomic profile data for one or more genes.</p>
@@ -196,11 +133,11 @@
 </ul>
 <p>You can either:</p>
 <ul>
-<li>Specify multiple genes and a single genetic profile ID. Example: <a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
-<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR</a></li>
+<li>Specify multiple genes and a single genetic profile ID. Example: <a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=BRCA1+BRCA2+TP53</a></li>
+<li>Specify a single gene and multiple genetic profile IDs. Example: <a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR">webservice.do?cmd=getProfileData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&amp;gene_list=EGFR</a></li>
 </ul>
 <h4 id="response-format-1">Response Format 1</h4>
-<p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a 2x2 matrix with the following columns:</p>
+<p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
 <li><strong>GENE_ID</strong>:  Entrez Gene ID <br />
 </li>
@@ -208,7 +145,7 @@
 <li><strong>Columns 3 - N</strong>:  Data for each case</li>
 </ol>
 <h4 id="response-format-2">Response Format 2</h4>
-<p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a 2x2 matrix with the following columns:</p>
+<p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
 <li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID. <br />
 </li>
@@ -251,7 +188,7 @@
 </ul>
 <h3 id="example_4">Example</h3>
 <p>Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:</p>
-<p><a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
+<p><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN">webservice.do?cmd=getMutationData&amp;case_set_id=gbm_all&amp;genetic_profile_id=gbm_mutations&amp;gene_list=EGFR+PTEN</a></p>
 <h2 id="get-clinical-data">Get Clinical Data</h2>
 <h3 id="description_6">Description</h3>
 <p>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</p>
@@ -272,4 +209,70 @@
 </ul>
 <h3 id="example_5">Example</h3>
 <p>Get Clinical Data for All TCGA Ovarian Cases:</p>
-<p><a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<p><a href="webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all">webservice.do?cmd=getClinicalData&amp;case_set_id=ova_all</a></p>
+<h2 id="get-proteinphosphoprotein-antibody-information">Get Protein/Phosphoprotein Antibody Information</h2>
+<h3 id="description_7">Description</h3>
+<p>Retrieves informations on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.</p>
+<h3 id="query-format_7">Query Format</h3>
+<ul>
+<li><strong>cmd</strong>=getProteinArrayInfo (required)</li>
+<li><strong>cancer_study_id</strong>= [cancer study ID] (required)</li>
+<li><strong>protein_array_type</strong>= [protein_level or phosphorylation]</li>
+<li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs]. Multiple genes must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+</ul>
+<h3 id="response-format_6">Response Format</h3>
+<p>You will receive a tab-delimited matrix with the following 4 columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+</ul>
+<h3 id="example_6">Example</h3>
+<ul>
+<li>Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread</a></li>
+<li>Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation</a></li>
+<li>Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=protein_level&amp;gene_list=ERBB2+TP53">webservice.do?cmd=getProteinArrayInfo&amp;cancer_study_id=coadread&amp;protein_array_type=phosphorylation&amp;gene_list=ERBB2+TP53</a></li>
+</ul>
+<h2 id="get-rppa-based-proteomics-data">Get RPPA-based Proteomics Data</h2>
+<h3 id="description_8">Description</h3>
+<p>Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein arrays (RPPA).</p>
+<h3 id="query-format_8">Query Format</h3>
+<ul>
+<li><strong>cmd</strong>=getProteinArrayData (required)</li>
+<li><strong>case_set_id</strong>= [case set ID] (required)</li>
+<li><strong>protein_array_id</strong>= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+<li><strong>array_info</strong>= [1 or 0]. If 1, antibody information will also be exported. </li>
+</ul>
+<h4 id="response-format-1_1">Response Format 1</h4>
+<p>If the parameter of array_info is not specified or it is not 1, you will receive a tab-delimited matrix with the following columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>Columns 2 - N</strong>: Data for each case.</li>
+</ul>
+<h4 id="response-format-2_1">Response Format 2</h4>
+<p>If the parameter of array_info is 1, you will receive a tab-delimited matrix with the following columns:</p>
+<ul>
+<li><strong>ARRAY_ID</strong>: The protein array ID.</li>
+<li><strong>ARRAY_TYPE</strong>: The protein array antibody type, i.e. protein_level or phosphorylation.</li>
+<li><strong>GENE</strong>: The targeted gene name (HUGO gene symbol).</li>
+<li><strong>RESIDUE</strong>: The targeted resdue(s).</li>
+<li><strong>Columns 5 - N</strong>: Data for each case.</li>
+</ul>
+<h3 id="example_7">Example</h3>
+<ul>
+<li>Get All RPPA Data in TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA</a></li>
+<li>Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;protein_array_id=GBL9017366+GBL9017365">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;protein_array_id=GBL9017366+GBL9017365</a></li>
+<li>Get All RPPA Data with antibody information in TCGA Colorectal Cases: <a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;array_info=1">webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_RPPA&amp;array_info=1</a></li>
+</ul>
+<h1 id="linking-to-us">Linking to Us</h1>
+<p>Once you have a cancer_study_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:</p>
+<ul>
+<li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
+<li><strong>gene_list</strong>=[a comma separated list of HUGO gene symbols] (required)</li>
+<li><strong>report</strong>=[report to display;  can be one of:  full (default), oncoprint_html]</li>
+</ul>
+<p>For example, the following links to the TCGA GBM data for EGFR and NF1:</p>
+<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1</a></p>
+<p>This link displays the same data as an Oncoprint only:</p>
+<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html</a></p>

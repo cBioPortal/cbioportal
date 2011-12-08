@@ -11,58 +11,62 @@ import org.mskcc.cgds.model.TypeOfCancer;
 import org.mskcc.cgds.model.CancerStudy;
 
 /**
- * Get all the types of cancer in the dbms.
+ * Get Types of Cancer and Cancer Studies.
  * Used by the Web API.
  * 
- * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * @author Ethan Cerami, Arthur Goldberg.
  */
 public class GetTypesOfCancer {
 
+    /**
+     * Gets all Types of Cancer.
+     *
+     * @return Tab-Delimited Text.
+     * @throws DaoException Database AccessException.
+     * @throws ProtocolException Protocol Error.
+     */
     public static String getTypesOfCancer() throws DaoException, ProtocolException {
-
         ArrayList<TypeOfCancer> typeOfCancerList = DaoTypeOfCancer.getAllTypesOfCancer();
-        StringBuffer buf = new StringBuffer();
-        if (typeOfCancerList.size() > 0) {
-
+        StringBuilder buf = new StringBuilder();
+        if (typeOfCancerList == null || typeOfCancerList.isEmpty()) {
+            throw new ProtocolException ("No Types of Cancer Available.");
+        } else {
             buf.append("type_of_cancer_id\tname\n");
             for (TypeOfCancer typeOfCancer : typeOfCancerList) {
-                buf.append(typeOfCancer.getTypeOfCancerId() + "\t");
-                buf.append(typeOfCancer.getName() + "\n");
+                buf.append(typeOfCancer.getTypeOfCancerId()).append(WebApiUtil.TAB);
+                buf.append(typeOfCancer.getName()).append(WebApiUtil.NEW_LINE);
             }
             return buf.toString();
-        } else {
-            throw new ProtocolException ("No Types of Cancer Available.\n");
         }
     }
 
     /**
-     * Gets all Cancer Studies stored in Remote CGDS Server.
+     * Gets all Cancer Studies.
      *
-     * @return ArrayList of CancerStudy Objects.
-     * @throws DaoException Database Access Exception.
+     * @return Tab-Delimited Text.
+     * @throws DaoException Database Access Error.
+     * @throws ProtocolException Protocol Error.
      */
-    public static String getCancerStudies() throws DaoException {
+    public static String getCancerStudies() throws DaoException, ProtocolException {
         ArrayList<CancerStudy> cancerStudyList = DaoCancerStudy.getAllCancerStudies();
 
-        //  Before returning the list, sort it alphabetically
-        Collections.sort(cancerStudyList, new CancerStudiesComparator());
+        if (cancerStudyList == null || cancerStudyList.isEmpty()) {
+            throw new ProtocolException ("No Cancer Studies Available.");
+        } else {
+            //  Before returning the list, sort it alphabetically
+            Collections.sort(cancerStudyList, new CancerStudiesComparator());
 
-        //  Then, insert "All" Cancer Types at beginning
-        ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-        CancerStudy allCancerStudy = new CancerStudy("All Cancer Types", "All Cancer Types",
-                "all", "all", true);
-        finalCancerStudiesList.add(allCancerStudy);
-        finalCancerStudiesList.addAll(cancerStudyList);
+            StringBuilder buf = new StringBuilder();
+            buf.append("cancer_study_id\tname\tdescription\n");
 
-        StringBuffer buf = new StringBuffer();
-        buf.append("cancer_study_id\tname\tdescription\n");
-        for (CancerStudy cancerStudy : finalCancerStudiesList) {
-            // changed to output stable identifier, instead of internal integer identifer.
-            buf.append(cancerStudy.getCancerStudyStableId() + "\t");
-            buf.append(cancerStudy.getName() + "\t");
-            buf.append(cancerStudy.getDescription() + "\n");
+            //  Iterate through all cancer studies
+            for (CancerStudy cancerStudy : cancerStudyList) {
+                buf.append(cancerStudy.getCancerStudyStableId()).append(WebApiUtil.TAB);
+                buf.append(cancerStudy.getName()).append(WebApiUtil.TAB);
+                buf.append(cancerStudy.getDescription()).append(WebApiUtil.NEW_LINE);
+            }
+            return buf.toString();
         }
-        return buf.toString();
     }
 }
 

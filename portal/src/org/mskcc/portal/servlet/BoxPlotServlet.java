@@ -11,8 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
+
+import org.owasp.validator.html.PolicyException;
 
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
@@ -30,24 +34,46 @@ public class BoxPlotServlet extends HttpServlet {
     public static final String XLABEL = "xlabel";
     public static final String YLABEL = "ylabel";
     public static final String FORMAT = "format";
+
+    private static ServletXssUtil servletXssUtil;
+
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
+            servletXssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            throw new ServletException (e);
+        }
+    }
     
     /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> 
+     * methods.
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
         try {
             // get data
-            String format = request.getParameter(FORMAT);
-            String strData = request.getParameter(DATA);
-            String xlabel = request.getParameter(XLABEL);
-            String ylabel = request.getParameter(YLABEL);
-            String width = request.getParameter(PLOT_WIDTH);
-            String height = request.getParameter(PLOT_HEIGHT);
+            String format = servletXssUtil.getCleanInput(request, FORMAT);
+            String strData = servletXssUtil.getCleanInput(request, DATA);
+            String xlabel = servletXssUtil.getCleanInput(request, XLABEL);
+            String ylabel = servletXssUtil.getCleanInput(request, YLABEL);
+            String width = servletXssUtil.getCleanInput(request, PLOT_WIDTH);
+            String height = servletXssUtil.getCleanInput(request, PLOT_HEIGHT);
+            
+            xlabel = WordUtils.wrap(StringEscapeUtils.unescapeHtml(xlabel), 60, "\\n", false);
+            ylabel = StringEscapeUtils.unescapeHtml(ylabel);
 
             if (format == null || !format.equals("pdf")) {
                 format = "png"; // default is png
@@ -57,15 +83,17 @@ public class BoxPlotServlet extends HttpServlet {
             List<String> tags = new ArrayList<String>();
 
             for (String groupData : strData.split(";")) {
-                if (groupData.isEmpty())
+                if (groupData.isEmpty()) {
                     continue;
-                
+                }
+
                 int ix = groupData.indexOf(':');
-                if (ix==-1 || ix==groupData.length()-1)
+                if (ix == -1 || ix == groupData.length() - 1) {
                     continue;
-                
-                String group = groupData.substring(0,ix);
-                for (String value : groupData.substring(ix+1).split(",")) {
+                }
+
+                String group = groupData.substring(0, ix);
+                for (String value : groupData.substring(ix + 1).split(",")) {
                     values.add(Double.parseDouble(value));
                     tags.add(group);
                 }
@@ -73,7 +101,7 @@ public class BoxPlotServlet extends HttpServlet {
 
             StringBuilder plot = new StringBuilder();
 
-            String tmpfile = "tmp"+ request.getRequestedSessionId()
+            String tmpfile = "tmp" + request.getRequestedSessionId()
                     + String.valueOf(System.currentTimeMillis() + "." + format);
 
             plot.append("library(Cairo);\n");
@@ -110,8 +138,8 @@ public class BoxPlotServlet extends HttpServlet {
             plot.append("stripchart(data~group, add=T, pch=16, vertical=T, method='jitter', jitter=0.1);\n");
             plot.append ("dev.off();\n");
 
-            logger.info("Call to R Follows:");
-            logger.info(plot.toString());
+            logger.debug("Call to R Follows:");
+            logger.debug(plot.toString());
             
             //response.getWriter().print(plot);
 

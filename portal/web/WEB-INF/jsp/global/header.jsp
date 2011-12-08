@@ -22,25 +22,14 @@
 
 <center>
 <div id="page_wrapper">
-<table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
+<table width=100% cellpadding="0px" cellspacing="5px" border="0px">
   <tr valign="top">
     <td colspan="3">
 	 <div id="header_wrapper">
     <div id="header">
 
-        <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
-    	<tr>
-	        <td class="logo" width="250px"><a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"/></a></td>
-            <td class="logo" width="330px"><a href="index.do"><img src="<%= SkinUtil.getHeaderImage() %>" alt="Main Logo"/></a></td>
-            <td class="logo" width="200px"><img src="<%= SkinUtil.getTagLineImage() %>" alt="Tag Line"/>
-                <%
-                   if (SkinUtil.usersMustAuthenticate()) {
-                %>
-                <nobr><span style="float:right;font-size:10px;">You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.</span></nobr>
-                <% } %>
-            </td>
-        </tr>
-        </table>
+       <jsp:include page="header_bar.jsp" flush="true" />
+        
        <table width="100%">
         <tr>
             <td class="navigation">
@@ -51,29 +40,36 @@
 					<li class="internal" id="results">
 					    <a href="#">Results</a>
 					</li>
-                    <!--
                     <li class="internal">
-					   	<a href="video.jsp">Tutorial</a>
+					   	<a href="tutorial.jsp">Tutorial</a>
 					</li>
-					-->
-					<li class="internal">
-					   	<a href="news.jsp">News</a>
-					</li>
-					<li class="internal">
+                    <% if (SkinUtil.showNewsTab()) { %>
+                        <li class="internal">
+                            <a href="news.jsp">News</a>
+                        </li>
+                    <% } %>
+                    <li class="internal">
 					  	<a href="faq.jsp">FAQ</a>
 					</li>
-                    <li class="internal">
-					   	<a href="data_sets.jsp">Data Sets</a>
-					</li>
+                    <% if (SkinUtil.showDataTab()) { %>
+                        <li class="internal">
+                            <a href="data_sets.jsp">Data Sets</a>
+                        </li>
+                    <% } %>
                     <li class="internal">
 					   	<a href="about_us.jsp">About</a>
 					</li>
-                    <li class="internal">
-					   	<a href="web_api.jsp">Web API</a>
-					</li>
-					<li class="internal">
-					   	<a href="cgds_r.jsp">R Package</a>
-					</li>
+                    <%
+                        //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
+                        if (!SkinUtil.usersMustAuthenticate()) {
+                    %>
+                        <li class="internal">
+                            <a href="web_api.jsp">Web API</a>
+                        </li>
+                        <li class="internal">
+                            <a href="cgds_r.jsp">R/MATLAB</a>
+                        </li>
+                    <% } %>
                     <li class="internal">
                         <a href="networks.jsp">Networks</a>
                     </li>
@@ -98,5 +94,5 @@
   </tr>
 
   <tr valign="top">
-    <td>
+    <td width="70%">
         <div id="content">

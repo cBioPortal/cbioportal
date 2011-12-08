@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	  <title>cBio Cancer Genomics Portal::OpenID Login</title>
+	  <title><%= SkinUtil.getTitle() %>::OpenID Login</title>
 
 	  <!-- Simple OpenID Selector -->
 	  <link type="text/css" rel="stylesheet" href="css/openid.css" />
@@ -20,11 +20,7 @@
 
 <%
     Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-
-    if (siteTitle == null) {
-		siteTitle = "cBio Cancer Genomics Portal";
-	}
+    String siteTitle = SkinUtil.getTitle();
 %>
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
@@ -52,16 +48,22 @@
         </div>
     <% } %>
        <br>
-       <table cellspacing="2px">
+       <table cellspacing="2px" width="100%">
 	     <tr>
 	       <td>
 	         <!-- Simple OpenID Selector -->
-	         <form action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
+	         <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
 	           <input type="hidden" name="action" value="verify" />
                <p/>
                <fieldset>
-	             <legend>Access to this portal is only available to authorized users.  To request access,
-                 please send email to:  <%= SkinUtil.getEmailContact() %>.</legend>
+	             <legend>
+                     Login to Portal:
+                 </legend>
+                 <p>
+                     <span style="font-size:145%">
+                     <%= SkinUtil.getAuthorizationMessage() %>
+                     </span>
+                 </p>
 	             <div id="openid_choice">
 	               <p>Please click your account provider:</p>
 	               <div id="openid_btns"></div>

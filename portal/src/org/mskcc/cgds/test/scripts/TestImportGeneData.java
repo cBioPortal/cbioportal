@@ -9,6 +9,9 @@ import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 
+/**
+ * JUnit tests for ImportGeneData class.
+ */
 public class TestImportGeneData extends TestCase {
 
     public void testImportGeneData() throws Exception {
@@ -21,9 +24,9 @@ public class TestImportGeneData extends TestCase {
         parser.importData();
 
         CanonicalGene gene = daoGene.getGene(35);
-        assertEquals("ACADS", gene.getHugoGeneSymbol());
+        assertEquals("ACADS", gene.getHugoGeneSymbolAllCaps());
         gene = daoGene.getGene(112);
-        assertEquals("ADCY6", gene.getHugoGeneSymbol());
+        assertEquals("ADCY6", gene.getHugoGeneSymbolAllCaps());
 
         gene = daoGene.getGene("ACYP1");
         assertEquals(97, gene.getEntrezGeneId());

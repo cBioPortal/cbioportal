@@ -2,7 +2,6 @@ package org.mskcc.cgds.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -34,11 +33,8 @@ public class GeneticProfileReader {
     * @throws IOException
     *            if the description file cannot be read
     * @throws DaoException
-    * @throws FileNotFoundException
-    *            if the description file cannot be found
     */
-   public static GeneticProfile loadGeneticProfile(File file /*, int updateAction*/ ) throws IOException, DaoException,
-            FileNotFoundException {
+   public static GeneticProfile loadGeneticProfile(File file /*, int updateAction*/ ) throws IOException, DaoException {
       GeneticProfile geneticProfile = loadGeneticProfileFromMeta(file);
       DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
       GeneticProfile existingGeneticProfile = daoGeneticProfile.getGeneticProfileByStableId(geneticProfile
@@ -93,10 +89,8 @@ public class GeneticProfileReader {
     * @throws IOException
     *            if the description file cannot be read
     * @throws DaoException
-    * @throws FileNotFoundException
-    *            if the description file cannot be found
     */
-   public static GeneticProfile loadGeneticProfileFromMeta(File file) throws IOException, DaoException, FileNotFoundException {
+   public static GeneticProfile loadGeneticProfileFromMeta(File file) throws IOException, DaoException {
       Properties properties = new Properties();
       properties.load(new FileInputStream(file));
       

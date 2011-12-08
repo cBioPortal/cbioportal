@@ -1,20 +1,16 @@
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
 %>
 
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::CGDS R Library"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
    <div id="main">
-    <table cellspacing="2px">
+       <table cellspacing="2px">
         <tr>
             <td>
             <h1>R/MATLAB Packages</h1>

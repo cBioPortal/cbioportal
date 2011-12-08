@@ -3,10 +3,14 @@
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/jquery.address-1.4.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/global-tabs.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
 <script type="text/javascript" src="js/mailme.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/jquery.quovolver.mini.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 
 <!-- Google Analytics -->
 <script type="text/javascript">

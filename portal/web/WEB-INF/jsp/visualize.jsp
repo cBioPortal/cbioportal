@@ -67,10 +67,9 @@
     ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
     Config globalConfig = Config.getInstance();
-    String siteTitle = globalConfig.getProperty("skin.title");
-    if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
-    }
+    String siteTitle = SkinUtil.getTitle();
+    String bitlyUser = SkinUtil.getBitlyUser();
+    String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
@@ -79,8 +78,6 @@
         computeLogOddsRatio = true;
     }
 
-    ExtendedMutationMap mutationMap = (ExtendedMutationMap)
-            request.getAttribute(QueryBuilder.MUTATION_MAP);
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
@@ -93,36 +90,9 @@
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
-<script type="text/javascript">
-
-    function getTinyURL(longURL, success) {
-        var API = 'http://json-tinyurl.appspot.com/?url=',
-        URL = API + encodeURIComponent(longURL) + '&callback=?';
-
-	    $.getJSON(URL, function(data){
-        	success && success(data.tinyurl);
-        });
-    }
-
-    function shrinkURL(longURL){
-        getTinyURL(longURL, function(tinyurl){
-            $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
-        });
-    }
-
-
-</script>
-
-<html>
 
 <jsp:include page="global/header.jsp" flush="true" />
 
-	<table>
-        <tr>
-            <td>
-
-            <div id="results_container">
-            
              <%   String smry = "";
                       
                     out.println ("<p><div class='gene_set_summary'>Gene Set / Pathway is altered in "
@@ -181,9 +151,18 @@
                 out.println ("</div>");
             } else { %>
 
-            <a href="" id="toggle_query_form">
+             <script type="text/javascript">
+             $(document).ready(function(){
+
+                 // Init Tool Tips
+                 $("#toggle_query_form").tipTip();
+
+             });
+             </script>
+
+            <p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>Modify Query</a>
+            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
             <p/>
 
             <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
@@ -222,38 +201,38 @@
                         }
                     }
 
-                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of Genomic Alterations'>Summary</a></li>");
+                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of genomic alterations'>Summary</a></li>");
 
                     if (includeNetworks) {
-                        out.println ("<li><a href='#network' class='result-tab' title='Network Visualization and Analysis'>"
+                        out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
                         + "Network</a></li>");
                     }
 
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple Plots, including CNA v. mRNA Expression'>"
+                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
                         + "Plots</a></li>");
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival' class='result-tab' title='Survival Analysis and Kaplan Meir curves'>"
+                        out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
 
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                        out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual Exclusivity and Co-occurrence Analysis'>"
+                        out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                         + "Mutual Exclusivity</a></li>");
                     }
 
                     if (showMutTab){
-                        out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation Details, including mutation type, "
+                        out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutation Details</a></li>");
                     }
                     
                     if (rppaExists) {
-                        out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) Data'>"
+                        out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) data'>"
                         + "RPPA Data</a></li>");
                     }
 
-                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed Event Map of all Genomic Alterations'>"
+                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed event map of all genomic alterations'>"
                         + "Event Map</a></li>");
                     %>
 
@@ -261,7 +240,7 @@
 
                     <%
                     out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Data Download</a></li>");
-                    out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or Generate a URL for Email'>Bookmark/Email</a></li>");
+                    out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark/Email</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
 
                     out.println ("</ul>");
@@ -273,9 +252,14 @@
 
                     String longLink = buf.toString();
                     out.println("<br><br>");
-                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='http://tinyurl.com/'>TinyURL.com</a> service below:<BR>");
-                    out.println("<BR><form><input type=\"button\" onClick=\"shrinkURL('"+longLink+"')\" value=\"Get TinyURL\"></form>");
-                    out.println("<div id='tinyurl'></div>");
+                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                    out.println("<div id='bitly'></div>");
+
+					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
+					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
+					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
+					//out.println("<a href='http://goo.gl/'>Google</a>.");
                     out.println("</div>");
                 }
 
@@ -329,16 +313,9 @@
             <% } %>
             
             </div> <!-- end tabs div -->
-            </div>  <!-- end results container -->
             <% } %>
-            </td>
-        </tr>
-    </table>
     </div>
     </td>
-   <!-- <td width="172">
-    
-    </td>   -->
   </tr>
   <tr>
     <td colspan="3">

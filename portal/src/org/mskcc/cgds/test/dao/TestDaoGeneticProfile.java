@@ -9,6 +9,9 @@ import org.mskcc.cgds.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 
+/**
+ * JUnit tests for DaoGeneticProfile class.
+ */
 public class TestDaoGeneticProfile extends TestCase {
 
     public void testDaoGeneticProfile() throws DaoException {

@@ -1,4 +1,6 @@
-<%@ page import="org.mskcc.portal.util.Config" %><%
+<%@ page import="org.mskcc.portal.util.Config" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%
     Config globalConfig = Config.getInstance();
     String dataSetsRightColumn = globalConfig.getProperty("data_sets_right_column");
     if (dataSetsRightColumn == null) {
@@ -16,19 +18,21 @@
 %>
 
 <div id="right_side">
-<!--
-<h3>Getting Started</h3>
+<% if (SkinUtil.showRightNavDataSets()) {%>
+    <h3>Data Sets</h3>
+    <jsp:include page="<%= dataSetsRightColumn%>" flush="true" />
+<% } %>
 
-	<p>New to the portal?</p>
+<% if (SkinUtil.showRightNavExamples()) {%>
+    <h3>Example Queries</h3>
+    <jsp:include page="<%= examplesHtml %>" flush="true" />
 
-    <p>Check out our <a href="video.jsp">video tutorial</a>.</p>
--->
-<h3>Data Sets</h3>
+    <h3>What's New</h3>
 
- <jsp:include page="<%= dataSetsRightColumn%>" flush="true" />
+    <P>Check out our new network visualization
+    options.  Available under the <b>network</b> tab on all result pages.
+<% } %>
 
-<h3>Example Queries</h3>
-
- <jsp:include page="<%= examplesHtml %>" flush="true" />    
-
+    <h3>What People are Saying</h3>
+    <jsp:include page="../testimonials.jsp" flush="true" />
 </div>

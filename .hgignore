@@ -8,12 +8,14 @@ portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
+portal/checkstyle_report.xml
 \.orig\..*$
 \.orig$
 \.chg\..*$
 \.rej$
 \.conflict\~$
 .DS_Store
+cgds-data
 cgds/CGDS.ipr
 cgds/CGDS.iws
 cgds/Cgds.iml
@@ -21,3 +23,8 @@ cgds/build
 cgds/data
 .idea/
 ^cgds/nbproject$
+cBioPortal.ipr
+cBioPortal.iws
+cbio-cancer-genomics-portal.iml
+my-properties-files/
+cron-job-properties-files/

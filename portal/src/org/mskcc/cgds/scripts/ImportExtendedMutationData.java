@@ -12,6 +12,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Import an extended mutation file.
@@ -28,17 +30,26 @@ public class ImportExtendedMutationData{
     private File mutationFile;
     private int geneticProfileId;
     private HashMap <String, Integer> headerMap;
-    private static String NOT_AVAILABLE = "NA";
+    private static final String NOT_AVAILABLE = "NA";
     private MutationFilter myMutationFilter;
+	private static final List<String> validChrValues;
+	static {
+		validChrValues = new ArrayList<String>();
+		for (int lc = 1; lc<24; lc++) {
+			validChrValues.add(Integer.toString(lc));
+			validChrValues.add("CHR" + Integer.toString(lc));
+		}
+		validChrValues.add("X");
+		validChrValues.add("CHRX");
+		validChrValues.add("Y");
+		validChrValues.add("CHRY");
+		validChrValues.add("NA");
+		validChrValues.add("MT"); // mitochondria
+	}
     
     /**
      * construct an ImportExtendedMutationData with no white lists.
      * Filter mutations according to the no argument MutationFilter().
-     * <p>
-     * 
-     * @param mutationFile
-     * @param geneticProfileId
-     * @param pMonitor
      */
     public ImportExtendedMutationData(File mutationFile, int geneticProfileId, 
              ProgressMonitor pMonitor) {
@@ -51,56 +62,22 @@ public class ImportExtendedMutationData{
    }
     
     /**
-     * Construct an ImportExtendedMutationData with a germline whitelist.
-     * Filter mutations according to the 2 argument MutationFilter().
-     * <p>
-     * 
-     * @param mutationFile
-     * @param geneticProfileId
-     * @param pMonitor
-     * @param germline_white_list_file  Optional germline whitelist containing Gene symbols; null if not provided.
-     */
-    public ImportExtendedMutationData( File mutationFile, 
-             int geneticProfileId, 
-             ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germline_white_list_file ) throws IllegalArgumentException {
-       this( mutationFile, geneticProfileId, pMonitor,
-                acceptRemainingMutationsBool, germline_white_list_file, (String[]) null );
-   }
-
-    /**
      * Construct an ImportExtendedMutationData with germline and somatic whitelists.
      * Filter mutations according to the 2 argument MutationFilter().
-     * <p>
-     * 
-     * @param mutationFile
-     * @param geneticProfileId
-     * @param pMonitor
-     * @param germline_white_list_file  Optional germline whitelist containing Gene symbols; null if not provided.
-     * @param listOfSomaticWhitelists   Zero or more somatic whitelists, containing Gene symbols.
      */
     public ImportExtendedMutationData( File mutationFile, 
              int geneticProfileId, 
              ProgressMonitor pMonitor,
-             boolean acceptRemainingMutationsBool,
-             String germline_white_list_file,
-             String... listOfSomaticWhitelists ) throws IllegalArgumentException {
+             String germline_white_list_file) throws IllegalArgumentException {
        this.mutationFile = mutationFile;
        this.geneticProfileId = geneticProfileId;
        this.pMonitor = pMonitor;
 
        // create MutationFilter
-       myMutationFilter = new MutationFilter(
-                acceptRemainingMutationsBool,
-                germline_white_list_file,
-                listOfSomaticWhitelists );
+       myMutationFilter = new MutationFilter(germline_white_list_file);
    }
 
     public void importData() throws IOException, DaoException {
-       
-       // System.out.println( myMutationFilter.toString() );
-       
         HashSet <String> sequencedCaseSet = new HashSet<String>();
 
         FileReader reader = new FileReader(mutationFile);
@@ -150,8 +127,6 @@ public class ImportExtendedMutationData{
 
                 String caseId = null;
                 try {
-                   // TODO: IMHO case ID processing should be handled by a central utility class, as case IDs are widely used
-                   // also, they're changing to opaque codes
                     caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
                 } catch( ArrayIndexOutOfBoundsException e) {
                     caseId = barCode;
@@ -163,6 +138,12 @@ public class ImportExtendedMutationData{
                 String center = getField( parts, "Center" );
                 String sequencer = getField(parts, "Sequencer");
                 String chr = getField( parts, "Chromosome");
+
+				if (!validChrValues.contains(chr.toUpperCase())) {
+                    pMonitor.logWarning("Skipping entry with chromosome value: " + chr );
+					line = buf.readLine();
+					continue;
+				}
 
                 long startPosition = 0;
                 try {
@@ -209,22 +190,24 @@ public class ImportExtendedMutationData{
                     long entrezGeneId = Long.parseLong(entrezGeneIdStr);
                     gene = daoGene.getGene(entrezGeneId);
                 } catch(NumberFormatException e) {
-                   pMonitor.logWarning("Entrez Gene ID not an integer: " + entrezGeneIdStr );
+                    pMonitor.logWarning("Entrez Gene ID not an integer: " + entrezGeneIdStr );
                 }
-   				if(gene == null) {
+                
+                if(gene == null) {
                     // If Entrez Gene ID Fails, try Symbol.
-                    gene = daoGene.getGene(geneSymbol);
-                    if(gene == null) {
-                        pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol);
+                }
+                    
+                if(gene == null) {
+                    pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
                             + entrezGeneIdStr + "]. Ignoring it "
                             + "and all mutation data associated with it!");
-                    }
-   				} else {
+                } else {
                     ExtendedMutation mutation = new ExtendedMutation();
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);
-                    mutation.setEntrezGeneId(gene.getEntrezGeneId());
-                    mutation.setCenter(center);
+                    mutation.setGene(gene);
+                    mutation.setSequencingCenter(center);
                     mutation.setSequencer(sequencer);
                     mutation.setAminoAcidChange(aminoAcidChange);
                     mutation.setMutationType(mutationType);
@@ -241,7 +224,6 @@ public class ImportExtendedMutationData{
 
                     //  Filter out Mutations
                     if( myMutationFilter.acceptMutation( mutation )) {
-                        // System.out.println( "accept: " + mutation.keyFieldsToString() );
                         // add record to db
                         daoMutation.addMutation(mutation);
                     }
@@ -257,7 +239,7 @@ public class ImportExtendedMutationData{
            
     }
     
-    private int getHeaderIndex( String headerName ) throws IllegalArgumentException {
+    private int getHeaderIndex( String headerName ) {
         if( headerMap.containsKey(headerName)) {
             return headerMap.get(headerName);
         } else {
@@ -267,7 +249,7 @@ public class ImportExtendedMutationData{
     
     // try one of several column names
     // TODO: one notification if the column isn't available
-    private int getHeaderIndex( String[] possibleHeaderNames ) throws IllegalArgumentException {       
+    private int getHeaderIndex( String[] possibleHeaderNames ) {       
        StringBuffer sb = new StringBuffer();
        
        for( String possibleHeader : possibleHeaderNames ){
@@ -276,7 +258,8 @@ public class ImportExtendedMutationData{
           }
           sb.append( possibleHeader + ", " );
        }
-       throw new IllegalArgumentException( "MAF file does not contain any of these columns:  " + sb.substring(0, sb.length() - 2 ) );
+       throw new IllegalArgumentException( "MAF file does not contain any of these columns:  "
+               + sb.substring(0, sb.length() - 2 ) );
    }
 
     private String transformOMAScore( String omaScore) {

@@ -24,7 +24,7 @@ import java.util.*;
  * 
  * java ComputeZscoreUnit <copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]
  * 
- * The output is written onto a file named "zscores.txt"
+ * The output is written onto a file named "output_file"
  * 
  * Any number of columns may precede the data. However, the following must be satisfied: 
  * 
@@ -379,6 +379,8 @@ public class ComputeZScoreUnit{
                map.put(id,tmp);  
             }else{
                // remove duplicate ids, and report a warning
+               // TODO: this is a subtle bug; if a gene appears an even number of times in the input, then it doesn't appear in the output;
+               // if it appears an odd number, then the last one appears in the output; fix by creating a list of dupes
                map.remove(id);
                warning( "duplicate entry for gene " + id + " in <CopyNumberFile>, '" + file + "'.");
             }

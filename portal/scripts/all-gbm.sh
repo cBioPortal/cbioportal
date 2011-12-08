@@ -19,7 +19,7 @@ rm -v $CGDS_DATA_HOME/gbm/processed_*
 
 # Load mRNA Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_mRNA.txt --meta $CGDS_DATA_HOME/gbm/meta_mRNA.txt --dbmsAction clobber
-./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_mRNA_median_Zscores --meta $CGDS_DATA_HOME/gbm/meta_median_Zscores.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_mRNA_median_Zscores.txt --meta $CGDS_DATA_HOME/gbm/meta_mRNA_median_Zscores.txt --dbmsAction clobber
 
 # Import Methylation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/gbm/data_methylation.txt --meta $CGDS_DATA_HOME/gbm/meta_methylation.txt --dbmsAction clobber

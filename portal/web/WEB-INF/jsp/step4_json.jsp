@@ -30,6 +30,7 @@ if (step4ErrorMsg != null) {
     <P/>
     <script type="text/javascript">
         function validateGenes() {
+            $("#gene_list").val($("#gene_list").val().replace("  ", ""));
             $("#genestatus").html("<img src='images/ajax-loader2.gif'> <small>Validating gene symbols...</small>");
             $("#main_submit").attr("disabled", "disabled");
 
@@ -39,8 +40,11 @@ if (step4ErrorMsg != null) {
             if( content.search(":") > -1 ) {
                 var lines = content.split("\n");
                 for(var i=0; i < lines.length; i++) {
-                    var values = lines[i].split(":");
-                    genes.push(values[0].trim());
+                    var tokens = lines[i].split(";");
+                    for(var j=0; j < tokens.length; j++) {
+                        var values = tokens[j].split(":");
+                        genes.push(values[0].trim());
+                    }
                 }
             } else {
                 var values = content.split(" ");
@@ -157,6 +161,9 @@ if (step4ErrorMsg != null) {
                                      state.click(function(){
                                           $(this).toggleClass('ui-state-active');
                                           geneName = $(this).attr("name");
+                                          $("#gene_list").val($("#gene_list").val().replace(" " + geneName, ""));
+                                          $("#gene_list").val($("#gene_list").val().replace(geneName + " ", ""));
+                                          $("#gene_list").val($("#gene_list").val().replace(geneName + "\n", ""));
                                           $("#gene_list").val($("#gene_list").val().replace(geneName, ""));
                                           setTimeout(validateGenes, 500);
                                      });
@@ -209,7 +216,7 @@ if (step4ErrorMsg != null) {
                                 var invalidSpan = $("<span>")
                                   .addClass("ui-icon ui-icon-notice");
                                 var invalidText = $("<span>").addClass("text");
-                                invalidText.html("Invalid gene symbols.");
+                                invalidText.html("<b>Invalid gene symbols.</b>");
 
                                 invalidState.attr("title", "Please edit the gene symbols").tipTip();
 
@@ -247,7 +254,7 @@ if (step4ErrorMsg != null) {
 				var self = this;
 				var select = this.element.hide();
                 var defaultText = select.children("option:first").text();
-				var input = $("<input size='60'>")
+				var input = $("<input size='80'>")
 					.insertAfter(select)
 					.autocomplete({
 						source: function(request, response) {
@@ -308,7 +315,8 @@ if (step4ErrorMsg != null) {
 					input.focus();
 
 					return false;
-				});
+				}).attr("title", "Click to see the example gene sets")
+				.tipTip();
 
 			}
 		});
@@ -338,7 +346,8 @@ if (step4ErrorMsg != null) {
 	</style>
 
 
-<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols" required name='<%= QueryBuilder.GENE_LIST %>'><%
+<textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
+name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
         out.println(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
     }

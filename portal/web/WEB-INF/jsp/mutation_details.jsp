@@ -45,20 +45,122 @@
 </style>
 
 <script type="text/javascript">
+    jQuery.fn.dataTableExt.oSort['aa-change-col-asc']  = function(a,b) {
+        var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        
+        if (ares) {
+            if (bres) {
+                var ia = parseInt(ares[1]);
+                var ib = parseInt(bres[1]);
+                return ia==ib ? 0 : (ia<ib ? -1:1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bres) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? -1:1);
+            }
+        }
+    };
 
-//  Place mutation_details_table in a JQuery DataTable
-$(document).ready(function(){
-    <%
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-          $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
-              "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
-              "bPaginate": false,
-              "bFilter": true
-          } );
+    jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
+        var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+        
+        if (ares) {
+            if (bres) {
+                var ia = parseInt(ares[1]);
+                var ib = parseInt(bres[1]);
+                return ia==ib ? 0 : (ia<ib ? 1:-1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bres) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? 1:-1);
+            }
+        }
+    };
+    
+    function assignValueToPredictedImpact(str) {
+        if (str=="Low") {
+            return 1;
+        } else if (str=="Medium") {
+            return 2;
+        } else if (str=="High") {
+            return 3;
+        } else {
+            return 0;
+        }
+    }
+    
+    jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
+        var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
+        var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+        
+        if (av>0) {
+            if (bv>0) {
+                return av==bv ? 0 : (av<bv ? -1:1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bv>0) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? 1:-1);
+            }
+        }
+    };
+    
+    jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
+        var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
+        var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+        
+        if (av>0) {
+            if (bv>0) {
+                return av==bv ? 0 : (av<bv ? 1:-1);
+            } else {
+                return -1;
+            }
+        } else {
+            if (bv>0) {
+                return 1;
+            } else {
+                return a==b ? 0 : (a<b ? -1:1);
+            }
+        }
+    };
+
+    //  Place mutation_details_table in a JQuery DataTable
+    $(document).ready(function(){
+        <%
+        for (GeneWithScore geneWithScore : geneWithScoreList) {
+            if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
+              $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+                  "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
+                  "bPaginate": false,
+                  "bFilter": true,
+                  "aoColumns":[
+                      null,
+                      null,
+                      null,
+                      null,
+                      null,
+                      {"sType": 'aa-change-col'},
+                      {"sType": 'predicted-impact-col'},
+                      null,
+                      null
+                  ]
+              } );
+            <% } %>
         <% } %>
-    <% } %>
-});
+    });
 </script>
 
 

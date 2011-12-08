@@ -25,7 +25,6 @@ rm -v $CGDS_DATA_HOME/prostate/processed_*
 
 # Imports MRNA Expression Data Files
 ./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_mRNA.txt --meta $CGDS_DATA_HOME/prostate/meta_mRNA.txt --dbmsAction clobber
-./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_microRNA.txt --meta $CGDS_DATA_HOME/prostate/meta_miRNA.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_mRNA_ZbyNorm.txt --meta $CGDS_DATA_HOME/prostate/meta_mRNA_ZbyNorm.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_mRNA_outliers.txt --meta $CGDS_DATA_HOME/prostate/meta_mRNA_outliers.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/prostate/data_microRNA_ZbyNorm.txt --meta $CGDS_DATA_HOME/prostate/meta_miRNA_ZbyNorm.txt --dbmsAction clobber

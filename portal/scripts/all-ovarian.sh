@@ -24,6 +24,7 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 # Imports Copy Number Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_CNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_CNA.txt --dbmsAction clobber
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_CNA_RAE.txt --meta $CGDS_DATA_HOME/ovarian/meta_CNA_RAE.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_log2CNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_log2CNA.txt --dbmsAction clobber
 
 # Imports MRNA Expression Data Files
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_mRNA_median.txt --meta $CGDS_DATA_HOME/ovarian/meta_mRNA_median.txt --dbmsAction clobber
@@ -32,8 +33,8 @@ rm -v $CGDS_DATA_HOME/ovarian/processed_*
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_mRNA_unified_Zscores.txt --meta $CGDS_DATA_HOME/ovarian/meta_mRNA_unified_Zscores.txt --dbmsAction clobber
 
 # Imports microRNA Expression Data Files
-./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_miRNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_miRNA.txt --dbmsAction clobber
-./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_miRNA_median_Zscores.txt --meta $CGDS_DATA_HOME/ovarian/meta_miRNA_median_Zscores.txt --dbmsAction clobber
+#./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_miRNA.txt --meta $CGDS_DATA_HOME/ovarian/meta_miRNA.txt --dbmsAction clobber
+#./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_miRNA_median_Zscores.txt --meta $CGDS_DATA_HOME/ovarian/meta_miRNA_median_Zscores.txt --dbmsAction clobber
 
 # Import Methylation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_methylation.txt --meta $CGDS_DATA_HOME/ovarian/meta_methylation.txt --dbmsAction clobber

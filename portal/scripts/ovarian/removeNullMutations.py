@@ -1,4 +1,5 @@
-#! /usr/bin/python
+#! /usr/bin/env python
+
 import sys
 
 file = open (sys.argv[1])

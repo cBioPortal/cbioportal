@@ -1,3 +1,10 @@
+# December 12, 2011
+
+* Added data from the TCGA colorectal cancer project
+* Added support for RNA-Seq based expression data (colorectal cancer)
+* Added support for log2 copy-number data (available on the Plots tab)
+* Updated GBM copy-number, expression, and methylation data
+
 # November 14, 2011
 
 * New and improved mutation details, with sorting and filtering capabilities.

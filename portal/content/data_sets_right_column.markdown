@@ -4,15 +4,20 @@
     <td><b>Cases</b></td>
 </tr>
 <tr>
+    <td>Colon/Rectum</td>
+    <td>537</td>
+</tr>
+</tr>
+<tr>
     <td>GBM</td>
     <td>206</td>
 </tr>
 <tr>
-    <td>Ovarian</td>
+    <td>Ovary</td>
     <td>489</td>
 </tr>
 <tr>
-    <td>Prostate Cancer</td>
+    <td>Prostate</td>
     <td>230</td>
 </tr>
 <tr>
@@ -20,4 +25,4 @@
     <td>207</td>
 </tr>
 </table>
-<p>Last update: December 22, 2010.  <a href="data_sets.jsp">More...</a></p>
+<p>Last update: December 12, 2011.  <a href="data_sets.jsp">More...</a></p>

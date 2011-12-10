@@ -1,5 +1,7 @@
 function drawMutationDiagram(mutationDiagram)
 {
+  sequenceColors = [ "rgb(211, 215, 207)", "rgb(186, 189, 182)" ];
+  scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
   domainColors = [ "rgb(166, 206, 227)", "rgb(31, 120, 180)", "rgb(178, 223, 138)", "rgb(51, 160, 44)" ];
   domainStrokeColors = [ "rgb(145, 181, 199)", "rgb(27, 105, 158)", "rgb(156, 195, 121)", "rgb(44, 140, 38)" ];
   mutationColors = [ "rgb(251, 154, 153)", "rgb(227, 26, 28)", "rgb(253, 191, 111)", "rgb(255, 127, 0)" ];
@@ -29,16 +31,76 @@ function drawMutationDiagram(mutationDiagram)
 
   // sequence
   svg.append("svg:rect")
-    .attr("x", x)
-    .attr("y", c - 6)
-    .attr("width", scaleHoriz(mutationDiagram.length, w, l))
-    .attr("height", 13)
-    .attr("class", "sequence")
-    .attr("title", mutationDiagram.label + " (1 - " + mutationDiagram.length + ")")
-    .style("fill", "rgb(120, 120, 120)")
-    .style("stroke", "none")
-    //.append("svg:title")
-    //  .text(mutationDiagram.label + " (1 - " + mutationDiagram.length + ")");
+   .attr("x", x)
+   .attr("y", c - 6)
+   .attr("width", scaleHoriz(Math.max(l, 100), w, l))
+   .attr("height", 13)
+   //.attr("class", "sequence")
+   //.attr("title", mutationDiagram.label + " (1 - " + mutationDiagram.length + ")")
+   .style("fill", sequenceColors[0])
+   .style("stroke", "none")
+   .append("svg:title")
+     .text(mutationDiagram.label + " (1 - " + l + ")");
+
+  for (i = 100; i < l; i += 200) {
+    svg.append("svg:rect")
+      .attr("x", x + scaleHoriz(i, w, l))
+      .attr("y", c - 6)
+      .attr("width", scaleHoriz(Math.min(l - i, 100), w, l))
+      .attr("height", 13)
+      //.attr("class", "sequence")
+      //.attr("title", mutationDiagram.label + " (1 - " + mutationDiagram.length + ")")
+      .style("fill", sequenceColors[1])
+      .style("stroke", "none")
+      .append("svg:title")
+        .text(mutationDiagram.label + " (1 - " + l + ")");
+  }
+
+  // sequence scale
+  sequenceScaleY = c + 20;
+
+  svg.append("svg:line")
+    .attr("x1", x)
+    .attr("y1", sequenceScaleY + 4)
+    .attr("x2", x)
+    .attr("y2", sequenceScaleY)
+    .style("stroke", scaleColors[0])
+    .style("stroke-width", 1);
+
+  svg.append("svg:line")
+    .attr("x1", x)
+    .attr("y1", sequenceScaleY)
+    .attr("x2", x + scaleHoriz(l, w, l))
+    .attr("y2", sequenceScaleY)
+    .style("stroke", scaleColors[0])
+    .style("stroke-width", 1);
+
+  svg.append("svg:line")
+    .attr("x1", x + scaleHoriz(l, w, l))
+    .attr("y1", sequenceScaleY)
+    .attr("x2", x + scaleHoriz(l, w, l))
+    .attr("y2", sequenceScaleY + 4)
+    .style("stroke", scaleColors[0])
+    .style("stroke-width", 1);
+
+  for (i = 0; i < l; i += 100) {
+    svg.append("svg:line")
+      .attr("x1", x + scaleHoriz(i, w, l))
+      .attr("y1", sequenceScaleY)
+      .attr("x2", x + scaleHoriz(i, w, l))
+      .attr("y2", sequenceScaleY + 2)
+      .style("stroke", scaleColors[0])
+      .style("stroke-width", 1);
+  }
+
+  svg.append("svg:text")
+    .attr("x", x + scaleHoriz(l, w, l))
+    .attr("y", sequenceScaleY + 16)
+    .attr("text-anchor", "middle")
+    .style("fill", scaleColors[1])
+    .style("font-size", "11px")
+    .style("font-family", "sans-serif")
+    .text(l + " aa");
 
   // domains
   for (i = 0, size = mutationDiagram.domains.length; i < size; i++)
@@ -47,27 +109,34 @@ function drawMutationDiagram(mutationDiagram)
     domainY = c - 10;
     domainW = scaleHoriz(mutationDiagram.domains[i].end - mutationDiagram.domains[i].start, w, l);
     domainH = 20;
+    label = mutationDiagram.domains[i].label;
 
     svg.append("svg:rect")
       .attr("x", domainX)
       .attr("y", domainY)
       .attr("width", domainW)
       .attr("height", domainH)
-      .attr("class", "domain")
-      .attr("title", mutationDiagram.domains[i].label + " (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")")
+      //.attr("class", "domain")
+      //.attr("title", mutationDiagram.domains[i].label + " (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")")
       .style("fill", domainColors[i % 4])
       .style("stroke-width", "1")
       .style("stroke", domainStrokeColors[i % 4])
-      //.append("svg:title")
-      //  .text(mutationDiagram.domains[i].label + " (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
+      .append("svg:title")
+        .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
 
-    svg.append("svg:text")
-      .attr("x", domainX + (domainW / 2))
-      .attr("y", domainY + domainH + 14)
-      .attr("text-anchor", "middle")
-      .style("font-size", "11px")
-      .style("font-family", "sans-serif")
-      .text(mutationDiagram.domains[i].label);
+
+    if ((label.length * 5) < domainW) {
+      svg.append("svg:text")
+        .attr("x", domainX + (domainW / 2))
+        //.attr("y", domainY + domainH + 14)
+        .attr("y", domainY + domainH - 5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "11px")
+        .style("font-family", "sans-serif")
+        .text(label)
+        .append("svg:title")
+          .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
+    }
   }
 
   // mutation scale
@@ -93,7 +162,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY)
       .attr("x2", scaleX + scaleW)
       .attr("y2", scaleY)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     svg.append("svg:line")
@@ -101,7 +170,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY)
       .attr("x2", scaleX + scaleW)
       .attr("y2", scaleY - scaleH)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     svg.append("svg:line")
@@ -109,7 +178,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY - scaleH)
       .attr("x2", scaleX)
       .attr("y2", scaleY - scaleH)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     // scale major ticks
@@ -118,7 +187,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY - (maxCount / 2) * per)
       .attr("x2", scaleX + scaleW)
       .attr("y2", scaleY - (maxCount / 2) * per)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     // scale minor ticks
@@ -127,7 +196,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY - (maxCount / 4) * per)
       .attr("x2", scaleX + scaleW)
       .attr("y2", scaleY - (maxCount / 4) * per)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     svg.append("svg:line")
@@ -135,7 +204,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y1", scaleY - ((3 * maxCount) / 4) * per)
       .attr("x2", scaleX + scaleW)
       .attr("y2", scaleY - ((3 * maxCount) / 4) * per)
-      .style("stroke", "rgb(80, 80, 80")
+      .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
     // scale labels
@@ -143,7 +212,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("x", scaleX - 8)
       .attr("y", scaleY + 4)
       .attr("text-anchor", "middle")
-      .style("fill", "rgb(80, 80, 80)")
+      .style("fill", scaleColors[1])
       .style("font-size", "11px")
       .style("font-family", "sans-serif")
       .text("0");
@@ -152,7 +221,7 @@ function drawMutationDiagram(mutationDiagram)
       .attr("x", scaleX - 8)
       .attr("y", scaleY + 4 - (maxCount * per))
       .attr("text-anchor", "middle")
-      .style("fill", "rgb(80, 80, 80)")
+      .style("fill", scaleColors[1])
       .style("font-size", "11px")
       .style("font-family", "sans-serif")
       .text(maxCount);
@@ -173,12 +242,12 @@ function drawMutationDiagram(mutationDiagram)
         .attr("y1", y1)
         .attr("x2", x2)
         .attr("y2", y2)
-        .attr("class", "mutation")
-        .attr("title", mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")")
+        //.attr("class", "mutation")
+        //.attr("title", mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")")
         .style("stroke", mutationColors[i % 4])
         .style("stroke-width", 2)
-        //.append("svg:title")
-        //  .text(mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")");
+        .append("svg:title")
+          .text(mutationDiagram.mutations[i].label + " mutation (" + mutationDiagram.mutations[i].count + ")");
     }
     else
     {
@@ -190,11 +259,11 @@ function drawMutationDiagram(mutationDiagram)
           .attr("cx", x2)
           .attr("cy", y1 - (j * per) - per/2)
           .attr("r", per/2)
-          .attr("class", "mutation")
-          .attr("title", mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")")
+          //.attr("class", "mutation")
+          //.attr("title", mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")")
           .style("fill", mutationColors[i % 4])
-          //.append("svg:title")
-          //  .text(mutationDiagram.mutations[i].label + " (" + mutationDiagram.mutations[i].count + ")");
+          .append("svg:title")
+            .text(mutationDiagram.mutations[i].label + " mutation (" + mutationDiagram.mutations[i].count + ")");
       }
     }
 
@@ -211,9 +280,9 @@ function drawMutationDiagram(mutationDiagram)
     }
   }
 
-  $(".sequence").tipTip();
-  $(".domain").tipTip();
-  $(".mutation").tipTip();
+  //$(".sequence").tipTip();
+  //$(".domain").tipTip();
+  //$(".mutation").tipTip();
 }
 
 function scaleHoriz(x, w, l)

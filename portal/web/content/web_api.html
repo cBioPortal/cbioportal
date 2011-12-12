@@ -16,7 +16,7 @@
 <li>optional additional parameters, depending of the command (see below).</li>
 </ul>
 <p>For example, the following query will request all case lists for the TCGA GBM data:</p>
-<p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p><a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm</a></p>
 <h1 id="response-header-and-error-messages">Response Header and Error Messages</h1>
 <p>The first line of each response begins with a hash mark (#), and will contain data regarding the server status.  For example:</p>
 <pre><code> # CGDS Kernel:  Data served up fresh at:  Wed Oct 27 13:02:30 EDT 2010
@@ -100,7 +100,7 @@
 <li><strong>show_profile_in_analysis_tab</strong>:  a boolean flag used for internal purposes (you can safely ignore it).</li>
 </ul>
 <h3 id="example_2">Example</h3>
-<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Genetic Profiles for Glioblastoma (TCGA): <a href="webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=gbm">webservice.do?cmd=getGeneticProfiles&amp;cancer_study_id=gbm</a></p>
 <h2 id="get-all-case-lists-for-a-specific-cancer-study">Get All Case Lists for a Specific Cancer Study</h2>
 <h3 id="description_3">Description</h3>
 <p>Retrieves meta-data regarding all case lists stored about a specific cancer study.  For example, a within a particular study, only some cases may have sequence data, and another subset of cases may have been sequenced and treated with a specific therapeutic protocol.  Multiple case lists may be associated with each cancer study, and this method enables you to retrieve meta-data regarding all of these case lists.</p>
@@ -120,7 +120,7 @@
 <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
 </ul>
 <h3 id="example_3">Example</h3>
-<p>Get all Case Lists for Glioblastoma (TCGA): <a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=tcga_gbm</a></p>
+<p>Get all Case Lists for Glioblastoma (TCGA): <a href="webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm">webservice.do?cmd=getCaseLists&amp;cancer_study_id=gbm</a></p>
 <h2 id="get-profile-data">Get Profile Data</h2>
 <h3 id="description_4">Description</h3>
 <p>Retrieves genomic profile data for one or more genes.</p>
@@ -273,6 +273,6 @@
 <li><strong>report</strong>=[report to display;  can be one of:  full (default), oncoprint_html]</li>
 </ul>
 <p>For example, the following links to the TCGA GBM data for EGFR and NF1:</p>
-<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1</a></p>
+<p><a href="link.do?cancer_study_id=gbm&amp;gene_list=EGFR,NF1">link.do?cancer_study_id=gbm&amp;gene_list=EGFR,NF1</a></p>
 <p>This link displays the same data as an Oncoprint only:</p>
-<p><a href="link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html">link.do?cancer_study_id=tcga_gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html</a></p>
+<p><a href="link.do?cancer_study_id=gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html">link.do?cancer_study_id=gbm&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html</a></p>

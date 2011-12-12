@@ -13,7 +13,7 @@
 
 # Load mRNA and microRNA Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/coadread/data_expression_median.txt --meta $CGDS_DATA_HOME/coadread/meta_expression_median.txt --dbmsAction clobber
-./importProfileData.pl --data $CGDS_STAGING_HOME/coadread/data_mRNA_median_Zscores.txt --meta $CGDS_STAGING_HOME/coadread/meta_mRNA_median_Zscores.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/coadread/data_mRNA_median_Zscores.txt --meta $CGDS_DATA_HOME/coadread/meta_mRNA_median_Zscores.txt --dbmsAction clobber
 
 # Load Methylation Data
-./importProfileData.pl --data $CGDS_STAGING_HOME/coadread/data_methylation.txt --meta $CGDS_STAGING_HOME/coadread/meta_methylation.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/coadread/data_methylation.txt --meta $CGDS_DATA_HOME/coadread/meta_methylation.txt --dbmsAction clobber

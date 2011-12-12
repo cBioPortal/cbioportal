@@ -314,9 +314,11 @@ sub download_from_firehose{
 		# get rid of unused subdirs
 		remove_tree( "$downloadLocation/$cancer/analyses", "$downloadLocation/$cancer/stddata/" ); 
 
-		# if this is an overlapping cancer, we need to rename cancer type to tumor_type_gdac
+		# if this is an overlapping cancer, we need to rename cancer
+		# type to tumor_type_gdac and create tumor_type_tcga
 		unless ($cancer  ~~ @overlappingCancers) {
 			system( "mv $cancerSubdir $cancerSubdir_gdac" );
+			system( "mkdir $cancerSubdir_tcga" );
 		}
     }
 }

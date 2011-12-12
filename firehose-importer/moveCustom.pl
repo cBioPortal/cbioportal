@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # file: moveCustom.pl
-# author: Arthur Goldberg, goldberg@cbio.mskcc.org
+# author: Arthur Goldberg, goldberg@cbio.mskcc.org, Benjamin Gross grossb@cbio.mskcc.org
 
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ my $usage = <<EOT;
 usage:
 moveCustom.pl
 
-Given a set of maf files in a directory, move them into a Firehose data set.
+Given a set of custom files in a directory, move them into a Firehose data set.
 
 --DeepFirehoseDirectory <Firehose Directory>        # required; directory which stores firehose data
 --customFileType                                    # indicator of the custom file type to move (Agilent MRNA, RNA Seq, CNA, MAF)
@@ -25,14 +25,6 @@ Given a set of maf files in a directory, move them into a Firehose data set.
 --customFilesToMoveFile <file containing pairs of custom_file cancer_type>
                                                     # required; 
 EOT
-
-# args:
-# on laptop, for testing:
-# --DeepFirehoseDirectory /Users/goldbera/Data/firehose/data/copyOfCurrent/data
-# --customDirectory /Users/goldbera/Documents/workspace/cgds/data/MAFs --RunDate 20110327 
-# --customFilesToMoveFile /Users/goldbera/Data/firehose/data/copyOfCurrent/specialMAFs.txt
-# on buri:
-# --DeepFirehoseDirectory /scratch/data/goldberg/firehoseData/tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/tcga4yeo/other/gdacs/gdacbroad --customDirectory /home/goldberg/workspace/sander/cgds/data/MAFs --RunDate 20110421 --customFilesToMoveFile /home/goldberg/workspace/sander/import_and_convert_Firehose_data/config/specialMAFs.txt
 
 my( $customDirectory, $customFileType, $DeepFirehoseDirectory, $runDate, $customFilesToMoveFile );
 
@@ -74,17 +66,29 @@ sub main{
 	my $destDir = $customFileProperties->{$customFileType}->[0];
 	my $destFile = $customFileProperties->{$customFileType}->[1];
 
-	print "destDir: $destDir\n";
-	print "destFile: $destFile\n";
-    	
 	foreach my $customFile (keys %customFilesToMove){
-	    moveCustomFile( $customFile, $customFilesToMove{$customFile}, $destDir, $destFile );
+	  # this may be a tumor type which has no source in
+	  # the firehose output - if so, lets create a directory
+	  createTumorTypeDirectory( $customFilesToMove{$customFile} );
+	  # move custom file
+	  moveCustomFile( $customFile, $customFilesToMove{$customFile}, $destDir, $destFile );
 	}
+}
+
+sub createTumorTypeDirectory{
+  my( $cancer ) = @_;
+  
+  my $tumorTypeDirectory = File::Spec->catfile( $DeepFirehoseDirectory, $cancer, $runDate . '00' );
+  unless ( -d $tumorTypeDirectory) {
+	print "cannot find dir to put file, making: $tumorTypeDirectory\n";
+	File::Util->new->make_dir($tumorTypeDirectory);
+  }
 }
 
 sub moveCustomFile{
 	my( $customFile, $cancer, $destDir, $destFile ) = @_;
-	my $fromFile = File::Spec->catdir( $customDirectory, $customFile );
+	my @directories = ( $customDirectory, $cancer );
+	my $fromFile = File::Spec->catdir( @directories, $customFile );
 
     my $CancersFirehoseDataDir = File::Spec->catfile( $DeepFirehoseDirectory, $cancer, $runDate . '00' );
 
@@ -140,7 +144,7 @@ sub getNextVersionOfFile{
 		$customFileDir =~ s/<CANCER>/$cancer_UC/;
 		my $dateVersion = $runDate . "00.0.0";
 		$customFileDir =~ s/<date><version>/$dateVersion/;
-		print "cannot find dir to put customFile file, making: $customFileDir\n";
+		print "cannot find dir to put custom file, making: $customFileDir\n";
 		$nextDir = File::Util->new->make_dir($customFileDir);
 		# latest dir/file did not exist, we need to set latestFile properly here
 		$latestFile = $fileNamePattern;

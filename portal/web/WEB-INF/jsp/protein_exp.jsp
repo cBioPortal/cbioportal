@@ -319,6 +319,9 @@
                         oTable.fnFilter( $(this).val(), 3);
                 } );
                 
+                // widen the rppa data
+                $('table#protein_expr').css("width","100%");
+                
                 $('div#protein_expr_wait').remove();
                 $('table#protein_expr_wrapper').show();
             }

@@ -146,16 +146,11 @@
                   "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
                   "bPaginate": false,
                   "bFilter": true,
-                  "aoColumns":[
-                      null,
-                      null,
-                      null,
-                      null,
-                      null,
-                      {"sType": 'aa-change-col'},
-                      {"sType": 'predicted-impact-col'},
-                      null,
-                      null
+                  "aoColumnDefs":[
+                      {"sType": 'aa-change-col',
+                              "aTargets": [ 5 ]},
+                      {"sType": 'predicted-impact-col',
+                              "aTargets": [ 6 ]}
                   ]
               } );
             <% } %>

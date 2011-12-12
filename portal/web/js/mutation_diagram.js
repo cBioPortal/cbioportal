@@ -91,19 +91,21 @@ function drawMutationDiagram(mutationDiagram)
       .style("stroke-width", 1);
 
     // sequence scale labels
-    svg.append("svg:text")
-      .attr("x", x + scaleHoriz(i, w, l))
-      .attr("y", sequenceScaleY + 17)
-      .attr("text-anchor", "middle")
-      .style("fill", scaleColors[1])
-      .style("font-size", "11px")
-      .style("font-family", "sans-serif")
-      .text(i);
+    if (scaleHoriz(l - i, w, l) > 30) { 
+      svg.append("svg:text")
+        .attr("x", x + scaleHoriz(i, w, l))
+        .attr("y", sequenceScaleY + 17)
+        .attr("text-anchor", "middle")
+        .style("fill", scaleColors[1])
+        .style("font-size", "11px")
+        .style("font-family", "sans-serif")
+        .text(i);
+    }
   }
 
   svg.append("svg:text")
     .attr("x", x + scaleHoriz(l, w, l))
-    .attr("y", sequenceScaleY + 16)
+    .attr("y", sequenceScaleY + 17)
     .attr("text-anchor", "middle")
     .style("fill", scaleColors[1])
     .style("font-size", "11px")

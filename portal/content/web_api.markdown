@@ -22,7 +22,7 @@ All web queries are available at: [webservice.do](webservice.do). All calls to t
 
 For example, the following query will request all case lists for the TCGA GBM data:
 
-[webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+[webservice.do?cmd=getCaseLists&cancer_study_id=gbm](webservice.do?cmd=getCaseLists&cancer_study_id=gbm)
 
 # Response Header and Error Messages
 
@@ -123,7 +123,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm](webservice.do?cmd=getGeneticProfiles&cancer_study_id=tcga_gbm)
+Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm](webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -148,7 +148,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm](webservice.do?cmd=getCaseLists&cancer_study_id=tcga_gbm)
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=gbm](webservice.do?cmd=getCaseLists&cancer_study_id=gbm)
 
 ## Get Profile Data
 
@@ -328,8 +328,8 @@ Once you have a cancer\_study\_id, it is very easy to create stable links from y
 
 For example, the following links to the TCGA GBM data for EGFR and NF1:
 
-[link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1](link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1)
+[link.do?cancer_study_id=gbm&gene_list=EGFR,NF1](link.do?cancer_study_id=gbm&gene_list=EGFR,NF1)
 
 This link displays the same data as an Oncoprint only:
 
-[link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=tcga_gbm&gene_list=EGFR,NF1&report=oncoprint_html)
+[link.do?cancer_study_id=gbm&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=gbm&gene_list=EGFR,NF1&report=oncoprint_html)

@@ -1,8 +1,10 @@
 # December 12, 2011
 
 * Added data from the TCGA colorectal cancer project
-* Added support for RNA-Seq based expression data (colorectal cancer)
-* Added support for log2 copy-number data (available on the Plots tab)
+* Added support for three new data types:
+  * Reverse-phase protein array data (colorectal cancer, ovarian cancer, GBM)
+  * RNA-Seq based expression data (colorectal cancer)
+  * log2 copy-number data (available on the Plots tab)
 * Updated GBM copy-number, expression, and methylation data
 
 # November 14, 2011

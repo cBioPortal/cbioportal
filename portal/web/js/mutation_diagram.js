@@ -1,6 +1,6 @@
 function drawMutationDiagram(mutationDiagram)
 {
-  sequenceColors = [ "rgb(211, 215, 207)", "rgb(186, 189, 182)" ];
+  sequenceColor = "rgb(186, 189, 182)";
   scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
   domainColors = [ "rgb(166, 206, 227)", "rgb(31, 120, 180)", "rgb(178, 223, 138)", "rgb(51, 160, 44)" ];
   domainStrokeColors = [ "rgb(145, 181, 199)", "rgb(27, 105, 158)", "rgb(156, 195, 121)", "rgb(44, 140, 38)" ];
@@ -37,31 +37,17 @@ function drawMutationDiagram(mutationDiagram)
    .attr("height", 13)
    //.attr("class", "sequence")
    //.attr("title", mutationDiagram.label + " (1 - " + mutationDiagram.length + ")")
-   .style("fill", sequenceColors[0])
+   .style("fill", sequenceColor)
    .style("stroke", "none")
    .append("svg:title")
      .text(mutationDiagram.label + " (1 - " + l + ")");
-
-  for (i = 100; i < l; i += 200) {
-    svg.append("svg:rect")
-      .attr("x", x + scaleHoriz(i, w, l))
-      .attr("y", c - 6)
-      .attr("width", scaleHoriz(Math.min(l - i, 100), w, l))
-      .attr("height", 13)
-      //.attr("class", "sequence")
-      //.attr("title", mutationDiagram.label + " (1 - " + mutationDiagram.length + ")")
-      .style("fill", sequenceColors[1])
-      .style("stroke", "none")
-      .append("svg:title")
-        .text(mutationDiagram.label + " (1 - " + l + ")");
-  }
 
   // sequence scale
   sequenceScaleY = c + 20;
 
   svg.append("svg:line")
     .attr("x1", x)
-    .attr("y1", sequenceScaleY + 4)
+    .attr("y1", sequenceScaleY + 6)
     .attr("x2", x)
     .attr("y2", sequenceScaleY)
     .style("stroke", scaleColors[0])
@@ -79,11 +65,12 @@ function drawMutationDiagram(mutationDiagram)
     .attr("x1", x + scaleHoriz(l, w, l))
     .attr("y1", sequenceScaleY)
     .attr("x2", x + scaleHoriz(l, w, l))
-    .attr("y2", sequenceScaleY + 4)
+    .attr("y2", sequenceScaleY + 6)
     .style("stroke", scaleColors[0])
     .style("stroke-width", 1);
 
-  for (i = 0; i < l; i += 100) {
+  // sequence scale minor ticks
+  for (i = 50; i < l; i += 100) {
     svg.append("svg:line")
       .attr("x1", x + scaleHoriz(i, w, l))
       .attr("y1", sequenceScaleY)
@@ -91,6 +78,27 @@ function drawMutationDiagram(mutationDiagram)
       .attr("y2", sequenceScaleY + 2)
       .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
+  }
+
+  // sequence scale major ticks
+  for (i = 0; i < l; i += 100) {
+    svg.append("svg:line")
+      .attr("x1", x + scaleHoriz(i, w, l))
+      .attr("y1", sequenceScaleY)
+      .attr("x2", x + scaleHoriz(i, w, l))
+      .attr("y2", sequenceScaleY + 4)
+      .style("stroke", scaleColors[0])
+      .style("stroke-width", 1);
+
+    // sequence scale labels
+    svg.append("svg:text")
+      .attr("x", x + scaleHoriz(i, w, l))
+      .attr("y", sequenceScaleY + 17)
+      .attr("text-anchor", "middle")
+      .style("fill", scaleColors[1])
+      .style("font-size", "11px")
+      .style("font-family", "sans-serif")
+      .text(i);
   }
 
   svg.append("svg:text")
@@ -129,7 +137,7 @@ function drawMutationDiagram(mutationDiagram)
       svg.append("svg:text")
         .attr("x", domainX + (domainW / 2))
         //.attr("y", domainY + domainH + 14)
-        .attr("y", domainY + domainH - 5)
+        .attr("y", domainY + domainH - 6)
         .attr("text-anchor", "middle")
         .style("font-size", "11px")
         .style("font-family", "sans-serif")
@@ -181,7 +189,7 @@ function drawMutationDiagram(mutationDiagram)
       .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
-    // scale major ticks
+    // mutation scale major ticks
     svg.append("svg:line")
       .attr("x1", scaleX + scaleW - 4)
       .attr("y1", scaleY - (maxCount / 2) * per)
@@ -190,7 +198,7 @@ function drawMutationDiagram(mutationDiagram)
       .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
-    // scale minor ticks
+    // mutation scale minor ticks
     svg.append("svg:line")
       .attr("x1", scaleX + scaleW - 2)
       .attr("y1", scaleY - (maxCount / 4) * per)
@@ -207,7 +215,7 @@ function drawMutationDiagram(mutationDiagram)
       .style("stroke", scaleColors[0])
       .style("stroke-width", 1);
 
-    // scale labels
+    // mutation scale labels
     svg.append("svg:text")
       .attr("x", scaleX - 8)
       .attr("y", scaleY + 4)

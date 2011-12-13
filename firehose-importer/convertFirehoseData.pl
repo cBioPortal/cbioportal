@@ -62,7 +62,6 @@ convertFirehoseData.pl
 --Clean                                         # if set, remove exising output from CGDSDataDirectory 
 --Cancers <file containing cancers to process and their meta data>
                                                 # required; name of file listing cancers to process, and their descriptions; other cancers will be ignored
---OverlappingCancers <file containing cancers that overlap between gdac and public portals>
 --Genes <gene file>                             # required; name of file listing genes with Symbol to ID mapping; typically gene_info at ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz 
 --miRNAfile <name of miRNA file>                # file containing miRNA mappings
 --firehoseTransformationWorkflowFile            # file containing Workflow dependencies
@@ -77,9 +76,8 @@ EOT
 # globals
 # command line options
 my( $FirehoseURL, $FirehoseURLUserid, $FirehoseURLPassword, 
-    $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean,
-	$Cancers, $OverlappingCancers, $Genes, $miRNAfile,
-	$firehoseTransformationWorkflowFile, $codeForCGDS, 
+    $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean, $Cancers, $Genes, 
+    $miRNAfile, $firehoseTransformationWorkflowFile, $codeForCGDS,
     $CreateCopyOfFirehoseData, $Limit, $Summary );
 
 # todo: document
@@ -148,7 +146,6 @@ sub process_command_line{
 	    "CGDSDataDirectory=s" => \$CGDSDataDirectory,      
 	    "Clean" => \$Clean,      
 	    "Cancers=s" => \$Cancers, 
-	    "OverlappingCancers=s" => \$OverlappingCancers, 
         "Genes=s" => \$Genes,
         "miRNAfile=s" => \$miRNAfile,
         "firehoseTransformationWorkflowFile=s" => \$firehoseTransformationWorkflowFile,
@@ -196,7 +193,7 @@ sub initialize{
 
 sub download_from_firehose{
 
-    localVerifyArgumentsAreDefined( qw( FirehoseURLUserid FirehoseURLPassword OverlappingCancers) );
+    localVerifyArgumentsAreDefined( qw( FirehoseURLUserid FirehoseURLPassword ) );
     
     # get just the tar-zipped directories we need, which is somewhat complicated
     # 1) get the date of the most recent run; we assume all cancers were processed on the most recent date
@@ -210,7 +207,6 @@ sub download_from_firehose{
     my @args = ( '--recursive', '-e', 'robots=off', '--no-parent', '--no-verbose', 
         "--user=$FirehoseURLUserid", "--password=$FirehoseURLPassword", 
         "--directory-prefix=$FirehoseDirectory", "$URLofLATEST_RUN");
-    my @overlappingCancers = listCancers( $OverlappingCancers );
     
     # todo: figure out why this fails to login when run in Eclipse, but works OK on the command line
     runSystem( 'wget', undef, @args ); # /usr/local/bin/    
@@ -313,13 +309,6 @@ sub download_from_firehose{
 
 		# get rid of unused subdirs
 		remove_tree( "$downloadLocation/$cancer/analyses", "$downloadLocation/$cancer/stddata/" ); 
-
-		# if this is an overlapping cancer, we need to rename cancer
-		# type to tumor_type_gdac and create tumor_type_tcga
-		unless ($cancer  ~~ @overlappingCancers) {
-			system( "mv $cancerSubdir $cancerSubdir_gdac" );
-			system( "mkdir $cancerSubdir_tcga" );
-		}
     }
 }
 

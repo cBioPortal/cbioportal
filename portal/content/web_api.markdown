@@ -22,7 +22,7 @@ All web queries are available at: [webservice.do](webservice.do). All calls to t
 
 For example, the following query will request all case lists for the TCGA GBM data:
 
-[webservice.do?cmd=getCaseLists&cancer_study_id=gbm](webservice.do?cmd=getCaseLists&cancer_study_id=gbm)
+[webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga](webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga)
 
 # Response Header and Error Messages
 
@@ -123,7 +123,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm](webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm)
+Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm_tcga](webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm_tcga)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -148,7 +148,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=gbm](webservice.do?cmd=getCaseLists&cancer_study_id=gbm)
+Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga](webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga)
 
 ## Get Profile Data
 
@@ -279,9 +279,9 @@ You will receive a tab-delimited matrix with the following 4 columns:
 
 ### Example
 
-* Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread)
-* Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation)
-* Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=phosphorylation&gene_list=ERBB2+TP53](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread&protein_array_type=protein_level&gene_list=ERBB2+TP53)
+* Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga)
+* Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation)
+* Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation&gene_list=ERBB2+TP53](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=protein_level&gene_list=ERBB2+TP53)
 
 ## Get RPPA-based Proteomics Data
 
@@ -328,8 +328,8 @@ Once you have a cancer\_study\_id, it is very easy to create stable links from y
 
 For example, the following links to the TCGA GBM data for EGFR and NF1:
 
-[link.do?cancer_study_id=gbm&gene_list=EGFR,NF1](link.do?cancer_study_id=gbm&gene_list=EGFR,NF1)
+[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1)
 
 This link displays the same data as an Oncoprint only:
 
-[link.do?cancer_study_id=gbm&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=gbm&gene_list=EGFR,NF1&report=oncoprint_html)
+[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1&report=oncoprint_html)

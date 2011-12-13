@@ -1,1 +1,1 @@
-data_CNA.txt lusc
+LUSC.cna.txt lusc

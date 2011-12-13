@@ -41,7 +41,7 @@
 					    <a href="#">Results</a>
 					</li>
                     <li class="internal">
-					   	<a href="tutorial.jsp">Tutorial</a>
+					   	<a href="tutorial.jsp">Tutorials</a>
 					</li>
                     <% if (SkinUtil.showNewsTab()) { %>
                         <li class="internal">

@@ -166,7 +166,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     if (mutationProfileId != null && cnaProfileId != null) {
 						// we want to use gistic skin col group
-						String skinColGroup = cancerTypeId.replace("_tcga", "_gistic");
+						String skinColGroup = cancerTypeId + "_gistic";
 						url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + skinColGroup
                         + "," + mutationProfileId);
 						url1.append("&legendPos=topleft");

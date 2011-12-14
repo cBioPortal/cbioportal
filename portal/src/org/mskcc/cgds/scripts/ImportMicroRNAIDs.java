@@ -83,15 +83,24 @@ public class ImportMicroRNAIDs {
      */
     private void removePreviousMicroRNARecord(DaoGeneOptimized daoGene, List<CanonicalGene> mirnas) {
         for (CanonicalGene mirna : mirnas) {
+            Set<String> aliases = new HashSet<String>();
+            aliases.addAll(mirna.getAliases());;
             for (String mirnaid : mirna.getAliases()) {
                 List<CanonicalGene> pres = new ArrayList<CanonicalGene>(daoGene.guessGene(mirnaid));
                 for (CanonicalGene pre : pres) {
                     try {
                         daoGene.deleteGene(pre);
+                        aliases.add(pre.getStandardSymbol());
+                        aliases.add(Long.toString(pre.getEntrezGeneId()));
+                        aliases.addAll(pre.getAliases());
                     } catch (DaoException e) {
                         e.printStackTrace();
                     }
                 }
+            }
+            if(aliases.size()>2) {
+                System.out.println(aliases.toString());
+                mirna.setAliases(aliases);
             }
         }
         

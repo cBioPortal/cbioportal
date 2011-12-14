@@ -39,7 +39,7 @@ public class ImportMicroRNAIDs {
         String line = buf.readLine(); // skip first line
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         
-        int faceEntrezId = -1;
+        int fakeEntrezId = -1;
         
         List<CanonicalGene> mirnas = new ArrayList<CanonicalGene>();
         
@@ -58,7 +58,7 @@ public class ImportMicroRNAIDs {
                     aliases.add(parts[1]);
                 }
                 
-                CanonicalGene mirna = new CanonicalGene(faceEntrezId--, geneSymbol,
+                CanonicalGene mirna = new CanonicalGene(fakeEntrezId--, geneSymbol,
                         aliases);
                 mirnas.add(mirna);
             }
@@ -99,8 +99,6 @@ public class ImportMicroRNAIDs {
 
 
     public static void main(String[] args) throws Exception {
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.deleteAllRecords();
         if (args.length == 0) {
             System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
             System.exit(1);

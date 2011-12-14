@@ -113,7 +113,7 @@
 
 # .seg file required for igv linking
 - create_igv_seg:
-    outfile: <CANCER>.seg
+    outfile: <CANCER>_tcga.seg
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version> <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
 

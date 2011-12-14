@@ -154,7 +154,7 @@ sub process_command_line{
         "CreateCopyOfFirehoseData=s" => \$CreateCopyOfFirehoseData,
         "Limit=i" => \$Limit,
         "Summary=s" => \$Summary,
-		"SkipCaseList=s" => \$SkipCaseList,
+		"SkipCaseList" => \$SkipCaseList,
 	);
 
 	# make sure necessary arguments are set	

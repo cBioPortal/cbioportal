@@ -54,7 +54,7 @@ sub create_cgds_input_files{
 	$GenesFile, $runDate, $SkipCaseList ) = @_;
     
 	my $fileUtil = File::Util->new();
-print "!!!!!!!!!!!!!!!!!!!! $SkipCaseList\n";
+
     # iterate through cancers specified in Cancers file
     my @cancersFile = $fileUtil->load_file( $Cancers, '--as-lines');
     
@@ -77,7 +77,9 @@ print "!!!!!!!!!!!!!!!!!!!! $SkipCaseList\n";
         $runSummary->{$cancerInputDirectory} = {};
         
         # create directories for CGDS input files
-        $fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory, 'case_lists' ), '--if-not-exists' );
+		unless (defined( $SkipCaseList )) {
+		  $fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory, 'case_lists' ), '--if-not-exists' );
+		}
         
         # process the cancer
         CreateCancersCGDSinput( $globalHash, $cancer, $name,
@@ -87,7 +89,7 @@ print "!!!!!!!!!!!!!!!!!!!! $SkipCaseList\n";
     }
     clean_up( $runSummary, $Summary ); 
     print "\n";
-}
+  }
 
 # create a cancer's CGDS input files
 # params:

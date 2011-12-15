@@ -99,7 +99,6 @@ public class ImportMicroRNAIDs {
                 }
             }
             if(aliases.size()>2) {
-                System.out.println(aliases.toString());
                 mirna.setAliases(aliases);
             }
         }

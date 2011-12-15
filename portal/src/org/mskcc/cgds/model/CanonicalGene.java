@@ -65,6 +65,10 @@ public class CanonicalGene extends Gene {
     public void setHugoGeneSymbol(String hugoGeneSymbol) {
         this.hugoGeneSymbol = hugoGeneSymbol;
     }
+    
+    public boolean isMicroRNA() {
+        return hugoGeneSymbol.startsWith("mir-") || hugoGeneSymbol.startsWith("let-");
+    }
 
     @Override
     public String toString() {

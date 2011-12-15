@@ -22,7 +22,7 @@ import java.util.*;
  * 
  * The syntax is simple:
  * 
- * java ComputeZscoreUnit <copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]
+ * java NormalizeExpressionLevels <copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]
  * 
  * The output is written onto a file named "output_file"
  * 
@@ -54,7 +54,7 @@ import java.util.*;
  * @author Arthur Goldberg  goldberg@cbio.mskcc.org
  * 
  */
-public class ComputeZScoreUnit{
+public class NormalizeExpressionLevels{
 
    static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
    static int SAMPLES;
@@ -469,12 +469,12 @@ public class ComputeZScoreUnit{
    }
 
    private static void fatalError(String msg){
-      System.err.println( "ComputeZScoreUnit: Fatal error: " + msg );
+      System.err.println( "NormalizeExpressionLevels: Fatal error: " + msg );
       System.exit(1);
    }
    
    private static void warning(String msg){
-      System.err.println( "ComputeZScoreUnit: " + msg );
+      System.err.println( "NormalizeExpressionLevels: " + msg );
    }
    
    public static String join(Collection<String> s, String delimiter) {

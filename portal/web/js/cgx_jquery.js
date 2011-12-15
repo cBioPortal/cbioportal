@@ -2,12 +2,14 @@ $(document).ready(function(){
        
     setUpPopEye();
     setUpTabs();
-    rotateTestimonials();
-
+    setUpTestimonials();
+    
 });
 
 
-
+/*
+ * Set up results tabs
+ */
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
@@ -15,6 +17,28 @@ function setUpTabs() {
     $('#tabs').show();
 }
 
+/*
+ * Determine position and behavior of testimonials
+ * based on current page
+ */
+function setUpTestimonials() {
+    // If we are on 'view all' page (what_people_are_saying.jsp),
+    // hide testimonial section in right column
+    if ($('#all_testimonials').length > 0){
+        $('#rotating_testimonials').hide();
+    } else {
+        // If we are not on 'view all' page, testimonials appear
+        // in right column. Append link to 'view all' to each
+        // blockquote. This is done to ensure link falls
+        // directly beneath each quote, as quote lengths differ
+        $('#testimonials blockquote').append("<br><a href=\"what_people_are_saying.jsp\">View All</a>");
+        rotateTestimonials();
+    }
+}
+
+/*
+ * Rotate testimonials in right column
+ */
 function rotateTestimonials() {
     // use quovolver plugin to rotate testimonials
 
@@ -25,6 +49,9 @@ function rotateTestimonials() {
     $('#testimonials > blockquote').quovolver(animationSpeed, duration);
 }
 
+/*
+ * Set up preview images on home page
+ */
 
 function setUpPopEye(){
 

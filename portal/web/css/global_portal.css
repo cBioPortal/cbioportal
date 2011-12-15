@@ -837,18 +837,37 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
   font-size:80%;
 }
 
-#testimonials {
+/* section of right column containing user testimonials,
+aka, "what people are saying" */
+#rotating_testimonials #testimonials {
     height: 300px;
 }
 
+/* float link to "view all" on right */
+#rotating_testimonials a {
+    float: right;
+}
+
+/* individual testimonials */
 #testimonials blockquote {
     width: 80%;
-    margin-left: 5px;
+    margin-left: 13px;
     padding-top: 0px;
+    background-image: url("../images/openquote.png");
+    background-position: 0px 10px;
+    background-repeat: no-repeat;
     border: 1px dashed transparent; /*setting transparent border prevents scroll bar from 'jumping'
                                       between fade in/fade out of each quote */ 
 }
 
+/* actual quote from user */
+#testimonials blockquote p {
+    background-image: url("../images/closequote.png");
+    background-repeat: no-repeat;
+    background-position: right bottom;
+}
+
+/* name and intitution of user */
 #testimonials blockquote cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
 
 #login_header {

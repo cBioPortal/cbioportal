@@ -33,6 +33,10 @@
     options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
 
-    <h3>What People are Saying</h3>
-    <jsp:include page="../testimonials.jsp" flush="true" />
+    <div id="rotating_testimonials">
+        <h3>What People are Saying</h3>
+        <jsp:include page="../testimonials.jsp" flush="true" />
+
+    </div>
+
 </div>

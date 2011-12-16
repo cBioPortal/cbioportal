@@ -164,6 +164,7 @@ sub generate_case_lists{
 # $codeForCGDS: dir of CGDS code 
 # $GenesFile: file with gene data
 # $runDate: [optional] rundate of Firehose (dir name below $cancer)
+# $SkipCaseList         if defined, skip case list generation
 sub CreateCancersCGDSinput{
     my( $globalHash, $cancer, $name, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $runSummary, 
         $codeForCGDS, $runDate, $SkipCaseList ) = @_;

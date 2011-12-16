@@ -1,11 +1,8 @@
 package org.mskcc.portal.servlet;
 
-import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
@@ -28,7 +25,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all

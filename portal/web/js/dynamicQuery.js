@@ -406,6 +406,16 @@ function addMetaDataToPage() {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
+    var cancerTypeContainer = $("#select_cancer_type");
+    var hasMutationHeader = $("<option value='' disabled='disabled'>-- with mutation data --</option>")
+                            .appendTo(cancerTypeContainer);
+    var hasMutationHeaderRemove = hasMutationHeader;
+    var noMutationHeader = $("<option value='' disabled='disabled'>-- without mutation data --</option>")
+                            .appendTo(cancerTypeContainer);
+    var noMutationHeaderRemove = noMutationHeader;
+
+    var noMutCancerCounter = 0;
+
     //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
 
@@ -418,10 +428,27 @@ function addMetaDataToPage() {
         }
         if (addCancerStudy) {
             console.log("Adding Cancer Study:  " + cancer_study.name);
-            $("#select_cancer_type").append("<option value='" + key + "'>" + cancer_study.name + "</option>");
+            var newOption = "<option value='" + key + "'>" + cancer_study.name + "</option>";
+            if(key == "all") {
+                cancerTypeContainer.prepend(newOption);
+            } else {
+                if(cancer_study.has_mutation_data) {
+                    hasMutationHeader.after(newOption);
+                    hasMutationHeader = newOption;
+                } else {
+                    noMutationHeader.after(newOption);
+                    noMutationHeader = newOption;
+                    noMutCancerCounter += 1;
+                }
+            }
         }
-        
+
     });  //  end 1st for each cancer study loop
+
+    hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
+    if(noMutCancerCounter == 0) {
+        noMutationHeaderRemove.remove();
+    }
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){
@@ -451,12 +478,12 @@ function addMetaDataToPage() {
 
     //  Set things up, based on currently selected gene set id
     if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
-        $("#select_gene_set").val(window.gene_set_id_selected);    
+        $("#select_gene_set").val(window.gene_set_id_selected);
     } else {
         $("#select_gene_set").val("user-defined-list");
     }
-
     //  Set things up, based on all currently selected genomic profiles
+
     //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
     $("input:[name*=genetic_profile_ids]").each(function(index) {
         //  val() is the value that or stable ID of the genetic profile ID

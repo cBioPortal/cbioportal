@@ -69,7 +69,8 @@ convertFirehoseData.pl
 --CreateCopyOfFirehoseData                      # optional directory; if provided, copy of necessary Firehose data will be created and stored here
 --Limit                                         # lines per file for copy of Firehose data
 --Summary                                       # file in which to output run data summary; relative to CGDSDataDirectory; optional -- if not provided, is convertFirehoseData.out
---SkipCaseList                                  # if defined, case list generation is skipped
+--SkipCaseList                                  # if set, case list generation is skipped
+--GenerateCaseListOnly                          # if set, generates case lists only
 EOT
 
 # todo: HIGH: should make 1) download and cleanup stand-alone (Niki wants a modified one to get all), 2) make copy firehose data stand-alone
@@ -79,7 +80,7 @@ EOT
 my( $FirehoseURL, $FirehoseURLUserid, $FirehoseURLPassword, 
     $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean, $Cancers, $Genes, 
     $miRNAfile, $firehoseTransformationWorkflowFile, $codeForCGDS,
-    $CreateCopyOfFirehoseData, $Limit, $Summary, $SkipCaseList );
+    $CreateCopyOfFirehoseData, $Limit, $Summary, $SkipCaseList, $GenerateCaseListOnly );
 
 # todo: document
 my $fileUtil;
@@ -126,6 +127,11 @@ sub main{
 		exit;
     }
 
+	if ( defined( $GenerateCaseListOnly )){
+	  generate_case_lists( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $runDate );
+	  exit;
+	}
+
 	create_cgds_input_files( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $firehoseTransformationWorkflow, $codeForCGDS, 
         $Genes, $runDate, $SkipCaseList );
 	print timing(), "create_cgds_input_files complete.\n";
@@ -155,6 +161,7 @@ sub process_command_line{
         "Limit=i" => \$Limit,
         "Summary=s" => \$Summary,
 		"SkipCaseList" => \$SkipCaseList,
+		"GenerateCaseListOnly" => \$GenerateCaseListOnly,
 	);
 
 	# make sure necessary arguments are set	

@@ -43,11 +43,11 @@
 
 # both mRNA and miRNA expression
 # this subroutine and create_data_mRNA_median and create_data_miRNA must all produce cgds files with the same name: data_expression_median.txt
-- create_data_both_mRNA_miRNA:
-    outfile: data_expression_median.txt
-    dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
-        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
+#- create_data_both_mRNA_miRNA:
+#    outfile: data_expression_median.txt
+#    dirsAndFiles:
+#        - gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version> <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
+#        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  
 # mRNA expression (Agilent array); will do nothing if both mRNA and miRNA data are present
 - create_data_mRNA_median:
@@ -63,7 +63,7 @@
 
 # miRNA; also will do nothing if both mRNA and miRNA data are present
 - create_data_miRNA:
-    outfile: data_expression_median.txt
+    outfile: data_expression_microrna.txt
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  
@@ -119,5 +119,5 @@
 
 ---
 # dependencies
-- create_data_mRNA_median precluded_by create_data_both_mRNA_miRNA 
-- create_data_miRNA precluded_by create_data_both_mRNA_miRNA 
+#- create_data_mRNA_median precluded_by create_data_both_mRNA_miRNA 
+#- create_data_miRNA precluded_by create_data_both_mRNA_miRNA 

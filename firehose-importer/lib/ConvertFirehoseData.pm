@@ -380,7 +380,13 @@ sub createMetaFile{
             'profile_description'          => 'Methylation beta-values for genes in <cases> cases. For genes with multiple methylation probes, the probe least correlated with expression.',
             'profile_name'                 => 'Methylation'
         },
-
+        'expression_microrna' => {
+            'stable_id'                    => '<cancer>_tcga_mrna', 
+            'genetic_alteration_type'      => 'MICRO_RNA_EXPRESSION',
+            'show_profile_in_analysis_tab' => 'true',
+            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',
+            'profile_name'                 => 'mRNA expression (microarray)'
+        },
     };
 
     my $metaFilename = $dataFilename;
@@ -487,6 +493,15 @@ sub create_case_lists{
             'case_list_description' =>
               'All (Next-Gen) sequenced samples (<cases> samples)',
         },
+        'cases_microrna.txt' => {
+            'FirehoseFile'          => '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_microrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
+            'case_list_description' =>
+              'All samples with microRNA data (<cases> samples)',
+        },
     };
 
     # create CGDS case lists - THESE USED WHEN GENERATING CASE LISTS FROM STAGING FILES DIRECTORY
@@ -559,6 +574,15 @@ sub create_case_lists{
             'case_list_name'        => 'Sequenced Tumors',
             'case_list_description' =>
               'All (Next-Gen) sequenced samples (<cases> samples)',
+        },
+        'cases_microrna.txt' => {
+            'FirehoseFile'          => 'data_expression_microrna.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_microrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
+            'case_list_description' =>
+              'All samples with microRNA data (<cases> samples)',
         },
     };
 

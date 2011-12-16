@@ -1,16 +1,18 @@
 package org.mskcc.portal.servlet;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.model.GeneSet;
 import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.remote.GetMutationData;
 import org.mskcc.portal.util.GeneSetUtil;
 import org.mskcc.portal.util.XDebug;
 
@@ -84,6 +86,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
+                jsonCancerStudySubMap.put("has_mutation_data", hasMutationData(geneticProfiles));
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
             }
 
@@ -108,5 +111,23 @@ public class PortalMetaDataJSON extends HttpServlet {
         } catch (DaoException e) {
             throw new ServletException(e);
         }
+    }
+
+    /* TODO: Add a tag to cancer study in order to get rid of redundant code execution.
+        During the talk it was decided not to use an additional tag for each cancer
+        study, so we need a rather ugly solution. This won't be hurting us much for now
+        but could result in performance issues if the portal ever gets heavy load traffic.
+     */
+    private boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) throws DaoException {
+        DaoMutation daoMutation = DaoMutation.getInstance();
+
+        for(GeneticProfile profile: geneticProfiles) {
+            for(CanonicalGene gene: daoMutation.getGenesInProfile(profile.getGeneticProfileId())) {
+                if( !daoMutation.getMutations(profile.getGeneticProfileId(), gene.getEntrezGeneId()).isEmpty() )
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

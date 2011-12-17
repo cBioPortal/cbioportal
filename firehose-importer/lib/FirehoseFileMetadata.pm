@@ -36,8 +36,8 @@ my $fileProperties = {
         example => 'data_expression_median.txt',
         structure => 'profile',
         numHeaderRows => 1,
-        geneIDcol => undef,
-        geneSymbolCol => 'Gene',
+        geneIDcol => 'Gene_ID',
+        geneSymbolCol => undef,
     },
     '<CANCER>.rnaseq.txt' => {
         example => 'KIRC.rnaseq.txt',

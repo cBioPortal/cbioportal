@@ -50,5 +50,14 @@ sub main{
 		}
 		print "\ncopying:\n", "from: $fromDirectory\n", "  to: $toDirectory\n";
 		system( "cp -r $fromDirectory $toDirectory"); 
+		# remove cvs
+		my $cvsDirectory = "$toDirectory/CVS";
+		if ( -d $cvsDirectory ) {
+		  system( "rm -rf $toDirectory/CVS");
+		}
+		$cvsDirectory = "$toDirectory/case_lists/CVS";
+		if ( -d $cvsDirectory ) {
+		  system( "rm -rf $toDirectory/case_lists/CVS");
+		}
     }
 }

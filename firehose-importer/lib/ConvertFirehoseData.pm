@@ -124,12 +124,21 @@ sub generate_case_lists{
 
 		# make a $FirehoseFileMetadata_objects ref - one for each Firehose file
 		my $FirehoseFileMetadata_objects = [];
-		
+		my @skipFiles = ("data_mRNA_median_Zscores.txt", "data_RNA_Seq_mRNA_median_Zscores.txt",
+						 "data_miRNA_median_Zscores.txt", "data_mRNA_unified_Zscores.txt",
+						 "data_mRNA.txt", "data_mrna.txt", "data_mRNA_unified.txt",
+						 "data_mRNA_ZbyNorm.txt", "data_mRNA_ZbyNormals.txt", 
+						 "data_mRNA_outliers.txt", "data_mRNA_outlier.txt",
+						 "data_miRNA.txt", "data_microRNA_ZbyNorm.txt",
+						 "data_microRNA.txt", "data_microRNA_outliers.txt",
+						 "data_CNA_consensus.txt", "data_CNA_RAE.txt",
+						 "data_brca1_binary_methylation.txt", "",
+						 "data_protein.txt", "data_miRNA.txt");
 		# interate over all data_*.txt files in CancersCGDSinputDir
 		my @allDataFiles = $fileUtil->list_dir( $CancersCGDSinputDir, '--pattern=data_.*\.txt$' );
         foreach my $dataFile ( @allDataFiles ) {
 		  # we don't make case lists from these files
-		  if ($dataFile =~ /_Zscores/) {
+		  if ( grep( /$dataFile/, @skipFiles)) {
 			next;
 		  }
 		  my $FullDataFile = File::Spec->catfile( $CancersCGDSinputDir, $dataFile);

@@ -1,0 +1,9 @@
+data_mutations_extended.txt coadread_tcga
+data_mutations_extended.txt ov_tcga
+data_mutations_extended.txt lusc_tcga
+data_mutations_extended.txt luad_tcga
+data_mutations_extended.txt ucec_tcga
+data_mutations_extended.txt gbm_tcga
+data_mutations_extended.txt kirc_tcga
+data_mutations_extended.txt laml_tcga
+data_mutations_extended.txt brca_tcga

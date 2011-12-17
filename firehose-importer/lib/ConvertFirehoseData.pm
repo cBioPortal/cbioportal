@@ -19,7 +19,7 @@ package ConvertFirehoseData;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw( create_cgds_input_files createMetaFile ); 
+@EXPORT = qw( create_cgds_input_files generate_case_lists createMetaFile ); 
 
 use strict;
 use warnings;
@@ -48,9 +48,10 @@ use FirehoseTransformationWorkflow;
 # $codeForCGDS          directory storing cgds code
 # $GenesFile            file containing genes (gene info file from NCBI)
 # $runDate              date of file run - name for the suffix of the data dirs
+# $SkipCaseList         if defined, skip case list generation
 sub create_cgds_input_files{
 	my( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $FirehoseXformWorkflow, $codeForCGDS, 
-	$GenesFile, $runDate ) = @_;
+	$GenesFile, $runDate, $SkipCaseList ) = @_;
     
 	my $fileUtil = File::Util->new();
 
@@ -70,20 +71,94 @@ sub create_cgds_input_files{
         my( $cancer, $name ) = split( /\s*:\s*/, $line );
         print "\nProcessing $cancer ($name):\n";
 
+		my $cancerInputDirectory = $cancer . '_tcga';
+
         # summary: create column with abbreviation
-        $runSummary->{$cancer} = {};
+        $runSummary->{$cancerInputDirectory} = {};
         
         # create directories for CGDS input files
-        $fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancer, 'case_lists' ), '--if-not-exists' );
+		unless (defined( $SkipCaseList )) {
+		  $fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory, 'case_lists' ), '--if-not-exists' );
+		}
         
         # process the cancer
         CreateCancersCGDSinput( $globalHash, $cancer, $name,
            File::Spec->catfile( $CancerDataDir, $cancer, $runDirectory ),
-           File::Spec->catfile( $CGDSDataDirectory, $cancer), 
-           $FirehoseXformWorkflow, $runSummary, $codeForCGDS, $runDate );
+           File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory), 
+           $FirehoseXformWorkflow, $runSummary, $codeForCGDS, $runDate, $SkipCaseList );
     }
     clean_up( $runSummary, $Summary ); 
     print "\n";
+  }
+
+# Used to interate over the given CGDSDataDirectory and generate case lists.
+
+# $Cancers              pathname of file storing list of cancers
+# $Summary              pathname of file in which to store summary of ConvertFirehoseData run
+# $CGDSDataDirectory    directory storing cgds files
+sub generate_case_lists{
+  my( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $runDate ) = @_;
+
+	my $fileUtil = File::Util->new();
+
+    # iterate through cancers specified in Cancers file
+    my @cancersFile = $fileUtil->load_file( $Cancers, '--as-lines');
+    
+    # hash storing summary of cgds file creation
+    my $runSummary = {};
+    
+    foreach my $line (@cancersFile){
+        my( $cancer, $name ) = split( /\s*:\s*/, $line );
+        print "\nProcessing $cancer ($name):\n";
+
+		my $cancerInputDirectory = $cancer . '_tcga';
+
+        # summary: create column with abbreviation
+        $runSummary->{$cancerInputDirectory} = {};
+
+		my $CancersFirehoseDataDir = File::Spec->catfile( $CancerDataDir, $cancer, $runDirectory );
+		my $CancersCGDSinputDir = File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory);
+
+        # create directories for CGDS input files
+		$fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory, 'case_lists' ), '--if-not-exists' );
+
+		# make a $FirehoseFileMetadata_objects ref - one for each Firehose file
+		my $FirehoseFileMetadata_objects = [];
+		my @skipFiles = ("data_mRNA_median_Zscores.txt", "data_RNA_Seq_mRNA_median_Zscores.txt",
+						 "data_miRNA_median_Zscores.txt", "data_mRNA_unified_Zscores.txt",
+						 "data_mRNA.txt", "data_mrna.txt", "data_mRNA_unified.txt",
+						 "data_mRNA_ZbyNorm.txt", "data_mRNA_ZbyNormals.txt", 
+						 "data_mRNA_outliers.txt", "data_mRNA_outlier.txt",
+						 "data_miRNA.txt", "data_microRNA_ZbyNorm.txt",
+						 "data_microRNA.txt", "data_microRNA_outliers.txt",
+						 "data_CNA_consensus.txt", "data_CNA_RAE.txt",
+						 "data_brca1_binary_methylation.txt", "",
+						 "data_protein.txt", "data_miRNA.txt");
+		# interate over all data_*.txt files in CancersCGDSinputDir
+		my @allDataFiles = $fileUtil->list_dir( $CancersCGDSinputDir, '--pattern=data_.*\.txt$' );
+        foreach my $dataFile ( @allDataFiles ) {
+		  # we don't make case lists from these files
+		  if ( grep( /$dataFile/, @skipFiles)) {
+			next;
+		  }
+		  my $FullDataFile = File::Spec->catfile( $CancersCGDSinputDir, $dataFile);
+		  my $cTable = Data::CTable->new( { _CacheOnRead   => 0 }, $FullDataFile );
+		  my $ffmHandle;
+		  # get a FirehoseFileMetadata object, which provides the set of genes and cases for the Firehose file
+		  $ffmHandle = FirehoseFileMetadata->new( $dataFile, $FullDataFile, $cTable );
+		  if( defined( $ffmHandle )){
+			push @{ $FirehoseFileMetadata_objects }, $ffmHandle;
+		  }
+		}
+		
+        # process the cancer
+        create_case_lists( $cancer,
+						   $CancersFirehoseDataDir, $CancersCGDSinputDir,
+						   $FirehoseFileMetadata_objects, $runDate, $runSummary, defined );
+    }
+    clean_up( $runSummary, $Summary ); 
+    print "\n";
+  
 }
 
 # create a cancer's CGDS input files
@@ -98,144 +173,19 @@ sub create_cgds_input_files{
 # $codeForCGDS: dir of CGDS code 
 # $GenesFile: file with gene data
 # $runDate: [optional] rundate of Firehose (dir name below $cancer)
+# $SkipCaseList         if defined, skip case list generation
 sub CreateCancersCGDSinput{
     my( $globalHash, $cancer, $name, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $runSummary, 
-        $codeForCGDS, $runDate ) = @_;
+        $codeForCGDS, $runDate, $SkipCaseList ) = @_;
         
     # create CGDS input data and meta files
     my $FirehoseFileMetadata_objects = create_data_and_meta_files( $globalHash, $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, 
         $FirehoseXformWorkflow, $codeForCGDS, $runDate );
 
-    # create CGDS case lists
-    # TODO put in config file
-    my $case_list_FileProperties = {
-        # a case list file is generated from most Firehose files
-    	# this hash defines the properties of the case list files generated
-    	# key: name of case list file
-    	# FirehoseFile: suffix of Firehose file name
-        # in the following fields, these patterns are replaced: 
-            # <cancer> -> 'the cancer's abbreviation'
-            # <cases> -> 'the number of cases in the file'
-        # xformFunc: a function to call that transforms each case name
-
-        # these fields (keys) describe the given field in the case list file: stable_id, cancer_study_identifier, case_list_name, case_list_description
-        'cases_CGH.txt' => {
-            'FirehoseFile'          => 'all_thresholded.by_genes.txt',
-            'xformFunc'               => undef,
-            'stable_id'             => '<cancer>_acgh',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Tumors aCGH',
-            'case_list_description' =>
-              'All tumors with aCGH data (<cases> samples)',
-        },
-        'cases_log2CNA.txt' => {
-            'FirehoseFile'          => 'all_data_by_genes.txt',
-            'xformFunc'               => undef,
-            'stable_id'             => '<cancer>_log2CNA',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Tumors log2 copy-number',
-            'case_list_description' =>
-              'All tumors with log2 copy-number data (<cases> samples)',
-        },
-        'cases_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
-            'xformFunc'               => undef,
-            'stable_id'             => '<cancer>_mrna',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
-            'case_list_description' =>
-              'All samples with mRNA expression data (<cases> samples)',
-        },
-        'cases_RNA_Seq_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.rnaseq.txt',
-            'xformFunc'               => undef,
-            'stable_id'             => '<cancer>_rna_seq_mrna',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
-            'case_list_description' =>
-              'All samples with mRNA expression data (<cases> samples)',
-        },
-        'cases_normal_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
-            'xformFunc'               => \&matchedNormalCaseID,  # the CASE-IDs sub that identifies normals            
-            # todo: someday firehose will include normals data
-
-            'stable_id'             => '<cancer>_normal_mrna',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Normal Samples with mRNA',
-            'case_list_description' =>
-              'All normal samples with mRNA expression data (<cases> samples)',
-        },
-        'cases_sequenced.txt' => {
-            'FirehoseFile'          => '<CANCER>.maf.annotated',
-            'xformFunc'               => \&tumorCaseID,     # the CASE-IDs sub that identifies solid tumors, e.g. TCGA-04-1331-01 
-            # todo: eventually treat recurrent tumors differently
-
-            'stable_id'             => '<cancer>_sequenced',
-            'cancer_study_identifier'        => '<cancer>',
-            'case_list_name'        => 'Sequenced Tumors',
-            'case_list_description' =>
-              'All (Next-Gen) sequenced samples (<cases> samples)',
-        },
-    };
-        
-    create_one_to_one_case_lists( $FirehoseFileMetadata_objects, $runSummary, File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'), 
-        $cancer, $case_list_FileProperties, 
-        [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
-    
-    # create cases_all.txt
-    create_many_to_one_case_lists( 
-        $FirehoseFileMetadata_objects,
-        $runSummary,
-        File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'),
-        'cases_all.txt',
-        $cancer,
-        # todo: make these table/config file driven
-        [ qw( 
-            all_thresholded.by_genes.txt
-            all_data_by_genes.txt
-            <CANCER>.rnaseq.txt
-            <CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt
-            <CANCER>.maf.annotated
-         ) ],
-        'union',
-        {
-            cancer_study_identifier =>  '<cancer>',
-            stable_id => '<cancer>_all',
-            case_list_name =>  'All Tumors',
-            case_list_description =>  'All tumor samples (<cases> samples)',
-        }
-    );
-
-	# if rna seq data exists use it
-	my $mRNAExpressionMedianFile = "<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt";
-	my $rnaSeqExpressionFile = getLastestVersionOfFile( $CancersFirehoseDataDir, "gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>", "<CANCER>.rnaseq.txt", $cancer, $runDate );
-	if ( defined( $rnaSeqExpressionFile ) ) {
-	  $mRNAExpressionMedianFile = "<CANCER>.rnaseq.txt";
+	# create case lists
+	unless (defined( $SkipCaseList )) {
+	  create_case_lists( $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseFileMetadata_objects, $runDate, $runSummary );
 	}
-
-    # create cases_complete.txt
-    create_many_to_one_case_lists( 
-        $FirehoseFileMetadata_objects,
-        $runSummary,
-        File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'),
-        'cases_complete.txt',
-        $cancer,
-        # todo: make these table/config file driven
-        [ $mRNAExpressionMedianFile,
-		  qw( 
-            all_thresholded.by_genes.txt
-            all_data_by_genes.txt
-            <CANCER>.maf.annotated
-         ) ],
-        'intersection',
-        {
-            cancer_study_identifier =>  '<cancer>',
-            stable_id => '<cancer>_3way_complete',
-            case_list_name =>  'All Complete Tumors',
-            case_list_description =>  'All tumor samples that have mRNA, CNA and sequencing data (<cases> samples)',
-        }
-    );
 
     # create cancer-type name file
     createCancerTypeNameFile( $FirehoseFileMetadata_objects, $cancer, $name, $CancersCGDSinputDir );    
@@ -244,7 +194,7 @@ sub CreateCancersCGDSinput{
 # create CGDS input data files (and their meta files) as indicated in FirehoseTransformationWorkflow config file
 sub create_data_and_meta_files{
     my( $globalHash, $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $codeForCGDS, $runDate ) = @_;
-#print Dumper $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $codeForCGDS, $runDate;
+	#print Dumper $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $codeForCGDS, $runDate;
     unless( -d $CancersFirehoseDataDir ){
         warn "\nNo data available for $cancer.\n";
         return;
@@ -368,8 +318,8 @@ sub callCGDSsub{
 
 # CREATE META FILE for a given data type
 # meta_* files contain, e.g. in meta_mRNA_median.txt; see $Utilities::metaFilePrefix
-# cancer_study_identifier: ova
-# stable_id: ova_mrna_median
+# cancer_study_identifier: ov_tcga
+# stable_id: ova_tcga_mrna_median
 # profile_name: mRNA expression (microarray)
 # profile_description: mRNA expression values, median values from all 3 mRNA expression platforms
 # genetic_alteration_type: MRNA_EXPRESSION
@@ -383,42 +333,42 @@ sub createMetaFile{
     # thus, we can map multiple data files to a single profile by giving them the same 'genetic_alteration_type', as we do here for mRNA_median and miRNA
     my $metaFileData = {
         'expression_median' => {
-            'stable_id'                    => '<cancer>_mrna',  # todo: change to _rna; might work
+            'stable_id'                    => '<cancer>_tcga_mrna',  # todo: change to _rna; might work
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'false',
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (Agilent microarray).',
             'profile_name'                 => 'mRNA expression (microarray)'
         },
         'RNA_Seq_expression_median' => {
-            'stable_id'                    => '<cancer>_rna_seq_mrna',  # todo: change to _rna; might work
+            'stable_id'                    => '<cancer>_tcga_rna_seq_mrna',  # todo: change to _rna; might work
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'false',
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (RNA Seq RPKM).',
             'profile_name'                 => 'mRNA expression (RNA Seq RPKM)'
         },
         'mRNA_median_Zscores' => {
-            'stable_id'                    => '<cancer>_mrna_median_Zscores',
+            'stable_id'                    => '<cancer>_tcga_mrna_median_Zscores',
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'true',
             'profile_description'          => 'mRNA z-Scores (Agilent microarray) compared to the expression distribution of each gene tumors that are diploid for this gene.',
             'profile_name'                 => 'mRNA Expression z-Scores (microarray)'
         },
         'RNA_Seq_mRNA_median_Zscores' => {
-            'stable_id'                    => '<cancer>_rna_seq_mrna_median_Zscores',
+            'stable_id'                    => '<cancer>_tcga_rna_seq_mrna_median_Zscores',
             'genetic_alteration_type'      => 'MRNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'true',
             'profile_description'          => 'mRNA z-Scores (RNA Seq RPKM) compared to the expression distribution of each gene tumors that are diploid for this gene.',
             'profile_name'                 => 'mRNA Expression z-Scores (RNA Seq RPKM)'
         },
         'mutations_extended' => {
-            'stable_id'               => '<cancer>_mutations',
+            'stable_id'               => '<cancer>_tcga_mutations',
             'genetic_alteration_type' => 'MUTATION_EXTENDED',
             'profile_description'     => 'Mutation data from whole exome sequencing.',
             'profile_name'            => 'Mutations',
             'show_profile_in_analysis_tab' => 'true',
         },
         'CNA' => {
-            'stable_id'               => '<cancer>_gistic',
+            'stable_id'               => '<cancer>_tcga_gistic',
             'genetic_alteration_type' => 'COPY_NUMBER_ALTERATION',
             'profile_description'     =>
                 'Putative copy-number calls on <cases> cases determined using GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',
@@ -426,20 +376,26 @@ sub createMetaFile{
             'show_profile_in_analysis_tab' => 'true',
         },
         'log2CNA' => {
-            'stable_id'               => '<cancer>_log2CNA',
+            'stable_id'               => '<cancer>_tcga_log2CNA',
             'genetic_alteration_type' => 'COPY_NUMBER_ALTERATION',
             'profile_description'     => 'Log2 copy-number values for each gene (from Affymetrix SNP6).',
             'profile_name' => 'Log2 copy-number values',
             'show_profile_in_analysis_tab' => 'false',
         },
         'methylation' => {
-            'stable_id'                     => '<cancer>_methylation',
+            'stable_id'                     => '<cancer>_tcga_methylation',
             'genetic_alteration_type'      => 'METHYLATION',
             'show_profile_in_analysis_tab' => 'false',
             'profile_description'          => 'Methylation beta-values for genes in <cases> cases. For genes with multiple methylation probes, the probe least correlated with expression.',
             'profile_name'                 => 'Methylation'
         },
-
+        'expression_microrna' => {
+            'stable_id'                    => '<cancer>_tcga_mrna', 
+            'genetic_alteration_type'      => 'MICRO_RNA_EXPRESSION',
+            'show_profile_in_analysis_tab' => 'true',
+            'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',
+            'profile_name'                 => 'mRNA expression (microarray)'
+        },
     };
 
     my $metaFilename = $dataFilename;
@@ -454,7 +410,7 @@ sub createMetaFile{
         warn "Error: No properties for type '$key'";
         return;
     }
-    my $fileContent = 'cancer_study_identifier: ' . $cancer . "\n";
+    my $fileContent = 'cancer_study_identifier: ' . $cancer . "_tcga" . "\n";
     foreach my $prop (keys %{$metaProperties}){
         $fileContent .= "$prop: " . $metaProperties -> {$prop} . "\n";
     }
@@ -471,6 +427,245 @@ sub createMetaFile{
 # SUBS TO CREATE CASE LISTS
 
 # TODO: HIGH: UNIT TEST
+
+sub create_case_lists{
+    my( $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseFileMetadata_objects, $runDate, $runSummary, $fromStagingFiles) = @_;
+
+    # create CGDS case lists
+    # TODO put in config file
+    my $case_list_FileProperties = {
+        # a case list file is generated from most Firehose files
+    	# this hash defines the properties of the case list files generated
+    	# key: name of case list file
+    	# FirehoseFile: suffix of Firehose file name
+        # in the following fields, these patterns are replaced: 
+            # <cancer> -> 'the cancer's abbreviation'
+            # <cases> -> 'the number of cases in the file'
+        # xformFunc: a function to call that transforms each case name
+
+        # these fields (keys) describe the given field in the case list file: stable_id, cancer_study_identifier, case_list_name, case_list_description
+        'cases_CGH.txt' => {
+            'FirehoseFile'          => 'all_thresholded.by_genes.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_acgh',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors aCGH',
+            'case_list_description' =>
+              'All tumors with aCGH data (<cases> samples)',
+        },
+        'cases_log2CNA.txt' => {
+            'FirehoseFile'          => 'all_data_by_genes.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_log2CNA',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors log2 copy-number',
+            'case_list_description' =>
+              'All tumors with log2 copy-number data (<cases> samples)',
+        },
+        'cases_mRNA.txt' => {
+            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
+            'case_list_description' =>
+              'All samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_RNA_Seq_mRNA.txt' => {
+            'FirehoseFile'          => '<CANCER>.rnaseq.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_rna_seq_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
+            'case_list_description' =>
+              'All samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_normal_mRNA.txt' => {
+            'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
+            'xformFunc'               => \&matchedNormalCaseID,  # the CASE-IDs sub that identifies normals            
+            # todo: someday firehose will include normals data
+
+            'stable_id'             => '<cancer>_tcga_normal_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Normal Samples with mRNA',
+            'case_list_description' =>
+              'All normal samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_sequenced.txt' => {
+            'FirehoseFile'          => '<CANCER>.maf.annotated',
+            'xformFunc'               => \&tumorCaseID,     # the CASE-IDs sub that identifies solid tumors, e.g. TCGA-04-1331-01 
+            # todo: eventually treat recurrent tumors differently
+
+            'stable_id'             => '<cancer>_tcga_sequenced',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Sequenced Tumors',
+            'case_list_description' =>
+              'All (Next-Gen) sequenced samples (<cases> samples)',
+        },
+        'cases_microrna.txt' => {
+            'FirehoseFile'          => '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_microrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
+            'case_list_description' =>
+              'All samples with microRNA data (<cases> samples)',
+        },
+    };
+
+    # create CGDS case lists - THESE USED WHEN GENERATING CASE LISTS FROM STAGING FILES DIRECTORY
+    # TODO put in config file
+    my $case_list_FileProperties2 = {
+        # a case list file is generated from most Firehose files
+    	# this hash defines the properties of the case list files generated
+    	# key: name of case list file
+    	# FirehoseFile: suffix of Firehose file name
+        # in the following fields, these patterns are replaced: 
+            # <cancer> -> 'the cancer's abbreviation'
+            # <cases> -> 'the number of cases in the file'
+        # xformFunc: a function to call that transforms each case name
+
+        # these fields (keys) describe the given field in the case list file: stable_id, cancer_study_identifier, case_list_name, case_list_description
+        'cases_CGH.txt' => {
+            'FirehoseFile'          => 'data_CNA.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_acgh',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors aCGH',
+            'case_list_description' =>
+              'All tumors with aCGH data (<cases> samples)',
+        },
+        'cases_log2CNA.txt' => {
+            'FirehoseFile'          => 'data_log2CNA.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_log2CNA',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors log2 copy-number',
+            'case_list_description' =>
+              'All tumors with log2 copy-number data (<cases> samples)',
+        },
+        'cases_mRNA.txt' => {
+            'FirehoseFile'          => 'data_expression_median.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
+            'case_list_description' =>
+              'All samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_RNA_Seq_mRNA.txt' => {
+            'FirehoseFile'          => 'data_RNA_Seq_expression_median.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_rna_seq_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
+            'case_list_description' =>
+              'All samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_normal_mRNA.txt' => {
+            'FirehoseFile'          => 'data_expression_median.txt',
+            'xformFunc'               => \&matchedNormalCaseID,  # the CASE-IDs sub that identifies normals            
+            # todo: someday firehose will include normals data
+
+            'stable_id'             => '<cancer>_tcga_normal_mrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Normal Samples with mRNA',
+            'case_list_description' =>
+              'All normal samples with mRNA expression data (<cases> samples)',
+        },
+        'cases_sequenced.txt' => {
+            'FirehoseFile'          => 'data_mutations_extended.txt',
+            'xformFunc'               => \&tumorCaseID,     # the CASE-IDs sub that identifies solid tumors, e.g. TCGA-04-1331-01 
+            # todo: eventually treat recurrent tumors differently
+
+            'stable_id'             => '<cancer>_tcga_sequenced',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Sequenced Tumors',
+            'case_list_description' =>
+              'All (Next-Gen) sequenced samples (<cases> samples)',
+        },
+        'cases_microrna.txt' => {
+            'FirehoseFile'          => 'data_expression_microrna.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_microrna',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
+            'case_list_description' =>
+              'All samples with microRNA data (<cases> samples)',
+        },
+    };
+
+	if ( defined( $fromStagingFiles)) {
+	  $case_list_FileProperties = $case_list_FileProperties2;
+	}
+        
+    create_one_to_one_case_lists( $FirehoseFileMetadata_objects, $runSummary, File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'), 
+        $cancer, $case_list_FileProperties, 
+        [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
+    
+	my $cghSource = 'all_thresholded.by_genes.txt';
+	my $log2CNASource = 'all_data_by_genes.txt';
+	my $rnaSEQSource = '<CANCER>.rnaseq.txt';
+	my $mrnaSource = '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt';
+	my $sequencedSource = '<CANCER>.maf.annotated';
+
+	if ( defined( $fromStagingFiles)) {
+	  $cghSource = 'data_CNA.txt';
+	  $log2CNASource = 'data_log2CNA.txt';
+	  $rnaSEQSource = 'data_RNA_Seq_expression_median.txt';
+	  $mrnaSource = 'data_expression_median.txt';
+	  $sequencedSource = 'data_mutations_extended.txt';
+	}
+
+    # create cases_all.txt
+    create_many_to_one_case_lists( 
+        $FirehoseFileMetadata_objects,
+        $runSummary,
+        File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'),
+        'cases_all.txt',
+        $cancer,
+        # todo: make these table/config file driven
+        [ $cghSource, $log2CNASource, $rnaSEQSource, $mrnaSource, $sequencedSource ],
+        'union',
+        {
+            cancer_study_identifier =>  '<cancer>_tcga',
+            stable_id => '<cancer>_tcga_all',
+            case_list_name =>  'All Tumors',
+            case_list_description =>  'All tumor samples (<cases> samples)',
+        }
+    );
+
+	# if rna seq data exists use it instead of agilent file
+	if ( defined( $fromStagingFiles)) {
+	  if ( -e File::Spec->catfile( $CancersCGDSinputDir, 'data_RNA_Seq_expression_median.txt')) {
+		$mrnaSource = 'data_RNA_Seq_expression_median.txt';
+	  }
+	}
+	else {
+	  my $rnaSeqExpressionFile = getLastestVersionOfFile( $CancersFirehoseDataDir, "gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>", "<CANCER>.rnaseq.txt", $cancer, $runDate );
+	  if ( defined( $rnaSeqExpressionFile ) ) {
+		$mrnaSource = "<CANCER>.rnaseq.txt";
+	  }
+	}
+
+    # create cases_complete.txt
+    create_many_to_one_case_lists( 
+        $FirehoseFileMetadata_objects,
+        $runSummary,
+        File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'),
+        'cases_complete.txt',
+        $cancer,
+        # todo: make these table/config file driven
+        [ $mrnaSource, $cghSource, $log2CNASource, $sequencedSource ],
+        'intersection',
+        {
+            cancer_study_identifier =>  '<cancer>_tcga',
+            stable_id => '<cancer>_tcga_3way_complete',
+            case_list_name =>  'All Complete Tumors',
+            case_list_description =>  'All tumor samples that have mRNA, CNA and sequencing data (<cases> samples)',
+        }
+    );
+}
 
 # given a set of Firehose files, create a corresponding case list file that contains the intersection or union of cases in the firehose files
 sub create_many_to_one_case_lists{
@@ -522,11 +717,11 @@ sub create_many_to_one_case_lists{
         }
         @cases = sort( FirehoseFileMetadata::intersection_of_case_lists( @FirehoseFileMetadata_objects_of_interest) );
     }
-    
+
     my $numCases = scalar( @cases );
     
     # summary: enter size of case list
-    $runSummary->{$cancer}->{$CGDS_filename} = $numCases;
+    $runSummary->{$cancer . '_tcga'}->{$CGDS_filename} = $numCases;
     
     # don't make empty case lists
     if( 0 == $numCases){
@@ -627,7 +822,7 @@ sub create_one_to_one_case_lists{
             my $numCases = scalar( @cases );
             
             # summary: enter size of case list
-            $runSummary->{$cancer}->{$potential_case_list_file} = $numCases;
+            $runSummary->{$cancer . '_tcga'}->{$potential_case_list_file} = $numCases;
             
             # don't make 0-length lists
             if( 0 == $numCases ){
@@ -663,7 +858,7 @@ sub create_one_to_one_case_lists{
 # create cancer-type name file
 # cancer-type name files contain, e.g. in ovarian.txt: 
 # cancer_type_id: ova
-# cancer_study_identifier:  ova
+# cancer_study_identifier:  ov_tcga
 # name:  Serous Ovarian Cancer (TCGA)
 # description:  <a href="http://cancergenome.nih.gov/">The Cancer Genome Atlas (TCGA)</a> Serous Ovarian Cancer project. 489 cases.<br> <i>Manuscript under review.</i> <a href="http://tcga-data.nci.nih.gov/tcga/">Raw data via the TCGA Data Portal</a>.
 sub createCancerTypeNameFile{
@@ -677,7 +872,7 @@ sub createCancerTypeNameFile{
     }
     
     my $fileContent = "type_of_cancer: " . $cancer . "\n"; 
-    $fileContent .= "cancer_study_identifier: " . $cancer . "\n";
+    $fileContent .= "cancer_study_identifier: " . $cancer . "_tcga" . "\n";
     $fileContent .= 'name: ';
     if( defined( $name ) ){
         $fileContent .= $name . "\n"; 
@@ -701,7 +896,7 @@ sub createCancerTypeNameFile{
         $fileContent .= "description: TBD\n";
     }
     
-    my $filename = File::Spec->catfile( $CancersCGDSinputDir, $cancer . '.txt' );
+    my $filename = File::Spec->catfile( $CancersCGDSinputDir, $cancer . "_tcga" . '.txt' );
     # write with permissions -rw-r--r--
     File::Util->new()->write_file( 'file' => $filename, 'content' => $fileContent, 'bitmask' => 0644 );
     print "wrote: $filename\n";

@@ -428,7 +428,7 @@ function addMetaDataToPage() {
         }
         if (addCancerStudy) {
             console.log("Adding Cancer Study:  " + cancer_study.name);
-            var newOption = "<option value='" + key + "'>" + cancer_study.name + "</option>";
+            var newOption = $("<option value='" + key + "'>" + cancer_study.name + "</option>");
             if(key == "all") {
                 cancerTypeContainer.prepend(newOption);
             } else {

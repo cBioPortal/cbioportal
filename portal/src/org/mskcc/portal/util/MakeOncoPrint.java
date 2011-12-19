@@ -41,8 +41,6 @@ public class MakeOncoPrint {
      * @param profileList               List of all Genomic Profiles.
 	 * @param includeCaseSetDescription Include case set description boolean.
 	 * @param includeLegend             Include legend boolean.
-	 * @param includeIGVLinks           Include IGV links boolean.
-	 * @param cancerStudy               Cancer Study Identifier - used for IGV links.
      * @throws IOException IO Error.
      */
     public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
@@ -52,9 +50,7 @@ public class MakeOncoPrint {
 									   HashSet<String> geneticProfileIdSet,
 									   ArrayList<GeneticProfile> profileList,
 									   boolean includeCaseSetDescription,
-									   boolean includeLegend,
-									   boolean includeIGVLinks,
-									   String cancerStudyIdentifier
+									   boolean includeLegend
     ) throws IOException {
         StringBuffer out = new StringBuffer();
 
@@ -158,7 +154,7 @@ public class MakeOncoPrint {
                 writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
 								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
 								   out, spacing, padding, width, height, includeCaseSetDescription,
-								   includeLegend, includeIGVLinks, cancerStudyIdentifier);
+								   includeLegend);
                 break;          // exit the switch
         }
         return out.toString();
@@ -231,8 +227,6 @@ public class MakeOncoPrint {
      * @param height                    Height.
 	 * @param includeCaseSetDescription Include case set description boolean.
 	 * @param includeLegend             Include legend boolean.
-	 * @param includeIGVLinks           Include IGV links boolean.
-	 * @param cancerStudy               Cancer Study Identifier - used for IGV links.
      */
     static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
 								   GeneticEvent matrix[][],
@@ -242,8 +236,7 @@ public class MakeOncoPrint {
 								   StringBuffer out,
 								   int cellspacing, int cellpadding, int width, int height,
 								   boolean includeCaseSetDescription,
-								   boolean includeLegend,
-								   boolean includeIGVLinks, String cancerStudyIdentifier
+								   boolean includeLegend
 		) {
 
         out.append("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n" +
@@ -300,18 +293,6 @@ public class MakeOncoPrint {
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
 			String gene = rowEvent.getGene().toUpperCase();
-
-			if (includeIGVLinks) {
-				String igvURL = GlobalProperties.getIGVUrl();
-				if (igvURL != null) {
-					igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg") + gene;
-					StringBuilder igvLinkBuilder = new StringBuilder();
-					igvLinkBuilder.append("<div style=\"text-align:left\"><a target=\"_blank\" href=\"");
-					igvLinkBuilder.append(igvURL);
-					igvLinkBuilder.append("\"><font color=\"#1974b8\" size=\"1\">" + gene + "</font></a><div>");
-					gene = igvLinkBuilder.toString();
-				}
-			}
 
             // new row
             out.append("<tr>");

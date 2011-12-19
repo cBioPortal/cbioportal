@@ -470,9 +470,6 @@ public class QueryBuilder extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
 		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
-		String igvURL = GlobalProperties.getIGVUrl();
-		// following is hack until we have better way to exclude igv links (or we get seg file for tumor type)
-		boolean includeIGVLinks = (igvURL != null && !cancerStudyIdentifier.toLowerCase().equals("laml"));
         writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -485,8 +482,7 @@ public class QueryBuilder extends HttpServlet {
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
 												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true,
-												 includeIGVLinks, cancerStudyIdentifier);
+												 geneticProfileIdSet, profileList, true, true);
         writer.write(out);
         
         // TODO: hacky way for su2c
@@ -499,20 +495,6 @@ public class QueryBuilder extends HttpServlet {
                     + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
 		}
 
-		// links to igv
-
-		if (includeIGVLinks) {
-			igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg");
-			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
-			if (geneList != null && geneList.size() > 0) {
-				igvURL += StringUtils.join(geneList,"%20");
-				writer.write("<div style=\"text-align:left\"><a target=\"_blank\" href=\"");
-				writer.write(igvURL);
-				writer.write("\"><font color=\"#1974b8\" size=\"1\">Integrative Genomics Viewer</font>" +
-							 "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-			}
-		}
-        
         writer.write ("</body>\n");
         writer.write ("</html>\n");
         writer.flush();

@@ -16,8 +16,8 @@ public class DaoSangerCensus {
     private static DaoSangerCensus daoSangerCensus;
     private HashMap<String, SangerCancerGene> geneCensus;
 
-    public static DaoSangerCensus getInstance() {
-        if (daoSangerCensus == null) {
+    public static DaoSangerCensus getInstance() throws DaoException {
+        if (daoSangerCensus == null || daoSangerCensus.getCancerGeneSet().size() == 0) {
             daoSangerCensus = new DaoSangerCensus();
         }
         return daoSangerCensus;

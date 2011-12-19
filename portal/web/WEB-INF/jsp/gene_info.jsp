@@ -10,9 +10,8 @@
 <%
 DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
 HashMap<String, SangerCancerGene> censusMap = daoSangerCensus.getCancerGeneSet();
-out.println ("Size of Census Map:  " + censusMap.size());
-int numCancerGenes = getNumCancerGenes(out, geneWithScoreList, censusMap);
-if (numCancerGenes > 1) {
+int numCancerGenes = getNumCancerGenes(geneWithScoreList, censusMap);
+if (numCancerGenes > 0) {
     out.println ("<P><B>" + numCancerGenes + "</B> of your query genes are known cancer genes, as cataloged"
         + " by the <a href='http://www.sanger.ac.uk/genetics/CGP/Census/'>Sanger Cancer Gene Census</a>:");
 %>
@@ -53,16 +52,12 @@ if (numCancerGenes > 1) {
 </div>
 
 <%!
-    private int getNumCancerGenes(JspWriter out, ArrayList <GeneWithScore> geneWithScoreList,
+    private int getNumCancerGenes(ArrayList <GeneWithScore> geneWithScoreList,
             HashMap<String, SangerCancerGene> censusMap) throws IOException {
         int numCancerGenes = 0;
         for (GeneWithScore geneWithScore : geneWithScoreList) {
-            out.println ("Checking:  " + geneWithScore.getGene().trim());
             if (censusMap.containsKey(geneWithScore.getGene().trim())) {
                 numCancerGenes++;
-                out.println ("YES");
-            } else {
-                out.println ("NO");
             }
         }
         return numCancerGenes;

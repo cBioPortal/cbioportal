@@ -17,7 +17,7 @@ if (numCancerGenes > 0) {
 %>
 <p>
 <div class="map">
-<table width=95%>
+<table width=98%>
     <tr>
         <th>Gene</th>
         <th>Tumor Types (Somatic)</th>
@@ -29,7 +29,7 @@ if (numCancerGenes > 0) {
 
     if (censusMap.containsKey(geneWithScore.getGene().trim())) {
         SangerCancerGene cancerGene = censusMap.get(geneWithScore.getGene());
-        out.println ("<tr><td><a href='http://www.ncbi.nlm.nih.gov/gene/"
+        out.println ("<tr bgcolor=#FFFFFF><td><a href='http://www.ncbi.nlm.nih.gov/gene/"
                + cancerGene.getGene().getEntrezGeneId()
                + "'>" + cancerGene.getGene().getHugoGeneSymbolAllCaps() + "</a></td>");
         ArrayList <String> tumorTypesSomatic = cancerGene.getTumorTypesSomaticMutationList();

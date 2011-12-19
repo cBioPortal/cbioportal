@@ -134,11 +134,12 @@ sub generate_case_lists{
 						 "data_CNA_consensus.txt", "data_CNA_RAE.txt",
 						 "data_brca1_binary_methylation.txt", "",
 						 "data_protein.txt", "data_miRNA.txt");
+		my %filesToSkip = map { $_ => 1 } @skipFiles;
 		# interate over all data_*.txt files in CancersCGDSinputDir
 		my @allDataFiles = $fileUtil->list_dir( $CancersCGDSinputDir, '--pattern=data_.*\.txt$' );
         foreach my $dataFile ( @allDataFiles ) {
 		  # we don't make case lists from these files
-		  if ( grep( /$dataFile/, @skipFiles)) {
+		  if ( exists($filesToSkip{$dataFile})) {
 			next;
 		  }
 		  my $FullDataFile = File::Spec->catfile( $CancersCGDSinputDir, $dataFile);
@@ -604,14 +605,12 @@ sub create_case_lists{
         [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
     
 	my $cghSource = 'all_thresholded.by_genes.txt';
-	my $log2CNASource = 'all_data_by_genes.txt';
 	my $rnaSEQSource = '<CANCER>.rnaseq.txt';
 	my $mrnaSource = '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt';
 	my $sequencedSource = '<CANCER>.maf.annotated';
 
 	if ( defined( $fromStagingFiles)) {
 	  $cghSource = 'data_CNA.txt';
-	  $log2CNASource = 'data_log2CNA.txt';
 	  $rnaSEQSource = 'data_RNA_Seq_expression_median.txt';
 	  $mrnaSource = 'data_expression_median.txt';
 	  $sequencedSource = 'data_mutations_extended.txt';
@@ -625,7 +624,7 @@ sub create_case_lists{
         'cases_all.txt',
         $cancer,
         # todo: make these table/config file driven
-        [ $cghSource, $log2CNASource, $rnaSEQSource, $mrnaSource, $sequencedSource ],
+        [ $cghSource, $rnaSEQSource, $mrnaSource, $sequencedSource ],
         'union',
         {
             cancer_study_identifier =>  '<cancer>_tcga',
@@ -656,7 +655,7 @@ sub create_case_lists{
         'cases_complete.txt',
         $cancer,
         # todo: make these table/config file driven
-        [ $mrnaSource, $cghSource, $log2CNASource, $sequencedSource ],
+        [ $mrnaSource, $cghSource, $sequencedSource ],
         'intersection',
         {
             cancer_study_identifier =>  '<cancer>_tcga',
@@ -875,7 +874,7 @@ sub createCancerTypeNameFile{
     $fileContent .= "cancer_study_identifier: " . $cancer . "_tcga" . "\n";
     $fileContent .= 'name: ';
     if( defined( $name ) ){
-        $fileContent .= $name . "\n"; 
+        $fileContent .= $name . " (TCGA, Provisional)"  . "\n"; 
         
         # TCGA<full cancer name here>.<# of samples>   samples.
 		# remove methylation data from array before getting union

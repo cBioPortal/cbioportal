@@ -12,3 +12,6 @@
 
 # Load up Cancer Types
 ./importTypesOfCancer.pl $CGDS_DATA_HOME/cancers.txt
+
+# Load up Sanger Cancer Gene Census
+./importSangerCensus.pl ../sample_data/genes/sanger_gene_census.txt

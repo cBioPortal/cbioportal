@@ -46,7 +46,7 @@ if (numCancerGenes > 1) {
 <br>
 <% } else {
     out.println ("<p>None of your query genes are known cancer genes, as cataloged"
-        + "by the <a href='http://www.sanger.ac.uk/genetics/CGP/Census/'>Sanger Cancer Gene Census</a>.");
+        + " by the <a href='http://www.sanger.ac.uk/genetics/CGP/Census/'>Sanger Cancer Gene Census</a>.");
 } %>
 </div>
 

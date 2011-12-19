@@ -804,7 +804,7 @@ sub create_data_mRNA_median_Zscores{
     ###########
     # preprocess gene ids so that cgds finds as many zScore genes as possible 
     # for each input file, read file, map, write to temp file
-    # give temp files to ComputeZScoreUnit
+    # give temp files to NormalizeExpressionLevels
     my $tmpDir = File::Spec->tmpdir();
 
     # 1) combine Hugo_Symbol and Entrez_Gene_Id in all_thresholded.by_genes.txt into a 'best' gene ID
@@ -822,7 +822,7 @@ sub create_data_mRNA_median_Zscores{
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.ComputeZScoreUnit " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
 }
 
 # sub to create data_RNA_seq_mRNA_median_Zscores.txt
@@ -846,7 +846,7 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
     ###########
     # preprocess gene ids so that cgds finds as many zScore genes as possible 
     # for each input file, read file, map, write to temp file
-    # give temp files to ComputeZScoreUnit
+    # give temp files to NormalizeExpressionLevels
     my $tmpDir = File::Spec->tmpdir();
 
     # 1) combine Hugo_Symbol and Entrez_Gene_Id in all_thresholded.by_genes.txt into a 'best' gene ID
@@ -864,7 +864,7 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.ComputeZScoreUnit " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
 }
 
 # create <CANCER>.seg

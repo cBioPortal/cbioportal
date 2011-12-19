@@ -4,7 +4,7 @@
 <%@ page import="org.mskcc.cgds.dao.DaoSangerCensus" %>
 <%@ page import="org.mskcc.cgds.model.SangerCancerGene" %>
 <%@ page import="java.io.IOException" %>
-<div class="frequency_section" id="frequency_plot">
+<div class="frequency_section" id="gene_info">
 <p><h4>Sanger Cancer Gene Census Information:</h4>
 
 <%
@@ -44,6 +44,7 @@ if (numCancerGenes > 0) {
     }
 } %>
 </table>
+</div>
 <br>
 <% } else {
     out.println ("<p>None of your query genes are known cancer genes, as cataloged"

@@ -511,7 +511,7 @@ public class QueryBuilder extends HttpServlet {
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
 												 caseSetList, caseSetId,
 												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true, false, "");
+												 geneticProfileIdSet, profileList, true, true);
         PrintWriter writer = response.getWriter();
         writer.write(out);
         writer.flush();

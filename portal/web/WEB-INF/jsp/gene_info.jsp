@@ -10,6 +10,7 @@
 <%
 DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
 HashMap<String, SangerCancerGene> censusMap = daoSangerCensus.getCancerGeneSet();
+out.println ("Size of Census Map:  " + censusMap.size());
 int numCancerGenes = getNumCancerGenes(geneWithScoreList, censusMap);
 if (numCancerGenes > 1) {
     out.println ("<P><B>" + numCancerGenes + "</B> of your query genes are known cancer genes, as cataloged"
@@ -26,6 +27,7 @@ if (numCancerGenes > 1) {
         <th>Mutation Types</th>
     </tr>
 <% for (GeneWithScore geneWithScore : geneWithScoreList) {
+
     if (censusMap.containsKey(geneWithScore.getGene())) {
         SangerCancerGene cancerGene = censusMap.get(geneWithScore.getGene());
         out.println ("<tr><td><a href='http://www.ncbi.nlm.nih.gov/gene/"

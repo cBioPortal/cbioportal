@@ -268,6 +268,7 @@
             <div class="section" id="summary">
             <%@ include file="fingerprint.jsp" %>
             <%@ include file="frequency_plot.jsp" %>
+            <%@ include file="gene_info.jsp" %>
             </div>
 
 

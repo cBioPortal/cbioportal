@@ -62,13 +62,13 @@ public class DaoSangerCensus {
     }
 
     public HashMap<String, SangerCancerGene> getCancerGeneSet() throws DaoException {
-        if (geneCensus == null) {
+        if (geneCensus == null || geneCensus.size() == 0) {
             geneCensus = lookUpCancerGeneSet();
         }
         return geneCensus;
     }
 
-    public HashMap<String, SangerCancerGene> lookUpCancerGeneSet() throws DaoException {
+    private HashMap<String, SangerCancerGene> lookUpCancerGeneSet() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

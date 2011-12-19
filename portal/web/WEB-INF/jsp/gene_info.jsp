@@ -11,7 +11,7 @@
 DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
 HashMap<String, SangerCancerGene> censusMap = daoSangerCensus.getCancerGeneSet();
 out.println ("Size of Census Map:  " + censusMap.size());
-int numCancerGenes = getNumCancerGenes(geneWithScoreList, censusMap);
+int numCancerGenes = getNumCancerGenes(out, geneWithScoreList, censusMap);
 if (numCancerGenes > 1) {
     out.println ("<P><B>" + numCancerGenes + "</B> of your query genes are known cancer genes, as cataloged"
         + " by the <a href='http://www.sanger.ac.uk/genetics/CGP/Census/'>Sanger Cancer Gene Census</a>:");

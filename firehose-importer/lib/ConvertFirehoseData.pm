@@ -512,6 +512,15 @@ sub create_case_lists{
             'case_list_description' =>
               'All samples with microRNA data (<cases> samples)',
         },
+        'cases_methylation.txt' => {
+            'FirehoseFile'          => '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_methylation',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with methylation data',
+            'case_list_description' =>
+              'All samples with methylation data (<cases> samples)',
+        },
     };
 
     # create CGDS case lists - THESE USED WHEN GENERATING CASE LISTS FROM STAGING FILES DIRECTORY
@@ -594,6 +603,15 @@ sub create_case_lists{
             'case_list_description' =>
               'All samples with microRNA data (<cases> samples)',
         },
+        'cases_methylation.txt' => {
+            'FirehoseFile'          => 'data_methylation.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_tcga_methylation',
+            'cancer_study_identifier'        => '<cancer>_tcga',
+            'case_list_name'        => 'Tumors with methylation data',
+            'case_list_description' =>
+              'All samples with methylation data (<cases> samples)',
+        },
     };
 
 	if ( defined( $fromStagingFiles)) {
@@ -608,12 +626,14 @@ sub create_case_lists{
 	my $rnaSEQSource = '<CANCER>.rnaseq.txt';
 	my $mrnaSource = '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt';
 	my $sequencedSource = '<CANCER>.maf.annotated';
+	my $methylationSource = '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt';
 
 	if ( defined( $fromStagingFiles)) {
 	  $cghSource = 'data_CNA.txt';
 	  $rnaSEQSource = 'data_RNA_Seq_expression_median.txt';
 	  $mrnaSource = 'data_expression_median.txt';
 	  $sequencedSource = 'data_mutations_extended.txt';
+	  $methylationSource = 'data_methylation.txt';
 	}
 
     # create cases_all.txt
@@ -624,7 +644,7 @@ sub create_case_lists{
         'cases_all.txt',
         $cancer,
         # todo: make these table/config file driven
-        [ $cghSource, $rnaSEQSource, $mrnaSource, $sequencedSource ],
+        [ $cghSource, $rnaSEQSource, $mrnaSource, $sequencedSource, $methylationSource ],
         'union',
         {
             cancer_study_identifier =>  '<cancer>_tcga',

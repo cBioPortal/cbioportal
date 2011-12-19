@@ -12,6 +12,16 @@
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
 
+    ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
+                           cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
+    for(CancerStudy cancerStudy: cancerStudies) {
+        if(cancerStudy.hasMutationData()) {
+            cancerStudiesWithMutations.add(cancerStudy);
+        } else {
+            cancerStudiesWithOutMutations.add(cancerStudy);
+        }
+    }
+
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
@@ -98,7 +108,15 @@
                 </script>
 
                 <div id="accordion">
-                    <% outputCancerStudies(cancerStudies, out); %>
+                    <h2 class="cross_cancer_header">Studies with Mutation Data</h2>
+                    <% outputCancerStudies(cancerStudiesWithMutations, out); %>
+                    <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
+                    %>
+                    <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
+                    <%
+                            outputCancerStudies(cancerStudiesWithOutMutations, out);
+                       }
+                     %>
                 </div>
 
             </div>

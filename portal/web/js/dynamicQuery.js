@@ -407,10 +407,10 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     var cancerTypeContainer = $("#select_cancer_type");
-    var hasMutationHeader = $("<option value='' disabled='disabled'>-- with mutation data --</option>")
+    var hasMutationHeader = $("<option value='' disabled='disabled'>-- studies with mutation data --</option>")
                             .appendTo(cancerTypeContainer);
     var hasMutationHeaderRemove = hasMutationHeader;
-    var noMutationHeader = $("<option value='' disabled='disabled'>-- without mutation data --</option>")
+    var noMutationHeader = $("<option value='' disabled='disabled'>-- studies without mutation data --</option>")
                             .appendTo(cancerTypeContainer);
     var noMutationHeaderRemove = noMutationHeader;
 
@@ -445,7 +445,7 @@ function addMetaDataToPage() {
 
     });  //  end 1st for each cancer study loop
 
-    hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
+    // hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
     if(noMutCancerCounter == 0) {
         noMutationHeaderRemove.remove();
     }

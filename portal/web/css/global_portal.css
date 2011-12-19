@@ -1158,3 +1158,7 @@ padding:4px;
 #mutation_details td {
   font-size:100%;
 }
+
+h2.cross_cancer_header {
+    text-align: center;
+}

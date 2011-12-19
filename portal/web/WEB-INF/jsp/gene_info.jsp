@@ -28,7 +28,7 @@ if (numCancerGenes > 1) {
     </tr>
 <% for (GeneWithScore geneWithScore : geneWithScoreList) {
 
-    if (censusMap.containsKey(geneWithScore.getGene())) {
+    if (censusMap.containsKey(geneWithScore.getGene().trim())) {
         SangerCancerGene cancerGene = censusMap.get(geneWithScore.getGene());
         out.println ("<tr><td><a href='http://www.ncbi.nlm.nih.gov/gene/"
                + cancerGene.getGene().getEntrezGeneId()
@@ -53,12 +53,16 @@ if (numCancerGenes > 1) {
 </div>
 
 <%!
-    private int getNumCancerGenes(ArrayList <GeneWithScore> geneWithScoreList,
-            HashMap<String, SangerCancerGene> censusMap) {
+    private int getNumCancerGenes(JspWriter out, ArrayList <GeneWithScore> geneWithScoreList,
+            HashMap<String, SangerCancerGene> censusMap) throws IOException {
         int numCancerGenes = 0;
         for (GeneWithScore geneWithScore : geneWithScoreList) {
-            if (censusMap.containsKey(geneWithScore.getGene())) {
+            out.println ("Checking:  " + geneWithScore.getGene().trim());
+            if (censusMap.containsKey(geneWithScore.getGene().trim())) {
                 numCancerGenes++;
+                out.println ("YES");
+            } else {
+                out.println ("NO");
             }
         }
         return numCancerGenes;

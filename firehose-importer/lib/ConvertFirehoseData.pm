@@ -556,7 +556,7 @@ sub create_case_lists{
         },
         'cases_mRNA.txt' => {
             'FirehoseFile'          => 'data_expression_median.txt',
-            'xformFunc'               => undef,
+            'xformFunc'               => \&tumorCaseID,
             'stable_id'             => '<cancer>_tcga_mrna',
             'cancer_study_identifier'        => '<cancer>_tcga',
             'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
@@ -574,7 +574,7 @@ sub create_case_lists{
         },
         'cases_normal_mRNA.txt' => {
             'FirehoseFile'          => 'data_expression_median.txt',
-            'xformFunc'               => \&matchedNormalCaseID,  # the CASE-IDs sub that identifies normals            
+            'xformFunc'               => \&normalTissueCaseID,  # the CASE-IDs sub that identifies normals            
             # todo: someday firehose will include normals data
 
             'stable_id'             => '<cancer>_tcga_normal_mrna',
@@ -605,7 +605,7 @@ sub create_case_lists{
         },
         'cases_methylation.txt' => {
             'FirehoseFile'          => 'data_methylation.txt',
-            'xformFunc'               => undef,
+            'xformFunc'               => \&tumorCaseID,
             'stable_id'             => '<cancer>_tcga_methylation',
             'cancer_study_identifier'        => '<cancer>_tcga',
             'case_list_name'        => 'Tumors with methylation data',
@@ -736,6 +736,9 @@ sub create_many_to_one_case_lists{
         }
         @cases = sort( FirehoseFileMetadata::intersection_of_case_lists( @FirehoseFileMetadata_objects_of_interest) );
     }
+
+	# remove normals which may have gotten in via expression or methlylation data
+	@cases = grep( {tumorCaseID( $_ )} @cases );
 
     my $numCases = scalar( @cases );
     

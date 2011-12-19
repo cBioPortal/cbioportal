@@ -194,6 +194,9 @@ sub new {
 
 	# get list of cases
 	my $cases = [];
+	# we want to add normal tissue case id's if we are processing expression or methylation files
+	my $addNormalTissueCaseIDs = (($filenamePattern eq 'data_expression_median.txt') ||
+								  ($filenamePattern eq 'data_methylation.txt'));
     # profile files:
     if( $properties->{structure} eq 'profile' ){
 
@@ -202,6 +205,9 @@ sub new {
 	        if( tumorCaseID( $f ) ){
                 push @{$cases}, $f;
 	        }
+			if($addNormalTissueCaseIDs && normalTissueCaseID( $f ) ) {
+			  push @{$cases}, $f;
+			}
 	    }
 	    $self->{CASES} = $cases;
     }    

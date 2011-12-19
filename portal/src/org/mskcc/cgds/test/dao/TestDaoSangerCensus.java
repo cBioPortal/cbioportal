@@ -17,13 +17,12 @@ import java.util.HashMap;
 public class TestDaoSangerCensus extends TestCase {
 
     public void testDaoMutation() throws DaoException {
-        ResetDatabase.resetDatabase();
-
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene brca1 = new CanonicalGene(675, "BRCA1");
         daoGene.addGene(brca1);
 
         DaoSangerCensus daoCensus = DaoSangerCensus.getInstance();
+        daoCensus.deleteAllRecords();
         daoCensus.addGene(brca1, true, true, "CML, ALL, T-ALL", "AML, leukemia, breast",
                 "Familial neuroblastoma", "L, E, M", "T, Mis, A", "BCR, ETV6, NUP214", true,
                 "Cardio-facio-cutaneous syndrome");

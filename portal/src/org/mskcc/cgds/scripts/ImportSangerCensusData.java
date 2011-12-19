@@ -29,6 +29,7 @@ public class ImportSangerCensusData {
     public void importData() throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         DaoSangerCensus daoCensus = DaoSangerCensus.getInstance();
+        daoCensus.deleteAllRecords();
         FileReader reader = new FileReader(censusFile);
         BufferedReader buf = new BufferedReader(reader);
         buf.readLine();   //  Skip Header Line

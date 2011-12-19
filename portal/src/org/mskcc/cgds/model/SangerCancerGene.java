@@ -129,7 +129,7 @@ public class SangerCancerGene {
         SangerCancerGeneAbbreviationMap abbrevMap = SangerCancerGeneAbbreviationMap.getInstance();
         ArrayList <String> partList = new ArrayList<String>();
         for (String part:  parts) {
-            String translation = abbrevMap.getTranslation(part);
+            String translation = abbrevMap.getTranslation(part.trim());
             if (translation != null) {
                 partList.add(translation);
             } else {

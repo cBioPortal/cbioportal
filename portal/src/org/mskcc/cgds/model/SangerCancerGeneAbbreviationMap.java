@@ -53,7 +53,7 @@ public class SangerCancerGeneAbbreviationMap {
         abbreviationMap.put("M", "mesenchymal");
         abbreviationMap.put("MALT", "mucosa-associated lymphoid tissue lymphoma");
         abbreviationMap.put("MDS", "myelodysplastic syndrome");
-        abbreviationMap.put("Mis", "Missense");
+        abbreviationMap.put("Mis", "missense");
         abbreviationMap.put("MLCLS", "mediastinal large cell lymphoma with sclerosis");
         abbreviationMap.put("MM", "multiple myeloma");
         abbreviationMap.put("MPD", "Myeloproliferative disorder");

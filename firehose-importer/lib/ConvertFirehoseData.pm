@@ -624,6 +624,15 @@ sub create_case_lists{
             'case_list_description' =>
               'All samples with methylation data (<cases> samples)',
         },
+        'cases_rppa.txt' => {
+            'FirehoseFile'          => 'data_rppa.txt',
+            'xformFunc'               => undef,
+            'stable_id'             => '<cancer>_<cancer_center>_rppa',
+            'cancer_study_identifier'        => '<cancer>_<cancer_center>',
+            'case_list_name'        => 'Tumors with RPPA data',
+            'case_list_description' =>
+              'Tumors with reverse phase protein array (RPPA) data for about 200 antibodies (<cases> samples)',
+        },
     };
 
 	if ( defined( $fromStagingFiles)) {
@@ -639,6 +648,7 @@ sub create_case_lists{
 	my $mrnaSource = '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt';
 	my $sequencedSource = '<CANCER>.maf.annotated';
 	my $methylationSource = '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt';
+	my $rppaSource = 'data_rppa.txt';
 
 	if ( defined( $fromStagingFiles)) {
 	  $cghSource = 'data_CNA.txt';
@@ -657,7 +667,7 @@ sub create_case_lists{
         $cancer,
 		$cancerCenter,
         # todo: make these table/config file driven
-        [ $cghSource, $rnaSEQSource, $mrnaSource, $sequencedSource, $methylationSource ],
+        [ $cghSource, $rnaSEQSource, $mrnaSource, $sequencedSource, $methylationSource, $rppaSource ],
         'union',
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',

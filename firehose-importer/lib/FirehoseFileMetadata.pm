@@ -127,6 +127,14 @@ my $fileProperties = {
     'Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt' => {
         structure => 'unstructured'
     },
+    # the following type is used when running generate case lists on already created staging files
+	'data_rppa.txt' => {
+        example => 'data_rppa.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'sample',
+        geneSymbolCol => undef,
+    },
 };
 
 sub new {

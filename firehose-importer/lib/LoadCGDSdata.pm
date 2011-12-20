@@ -64,6 +64,7 @@ sub run{
 		$Cancers,            # full filename of cancers file
 		$GeneFile,            # full filename of gene file
 		$miRNAfile,           # full filename of miRNAs file
+		$rppafile,           # full filename of rppa antibodies file
         $nameOfPerCancerGermlineWhitelist,  # base filename of per cancer germline whitelist file, if any
         $nameOfPerCancerSomaticWhitelist,   # base filename of per cancer somatic whitelist file, if any
 		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cgds.scripts.ImportProfileData
@@ -73,7 +74,7 @@ sub run{
 
 	# check that required options are set
 	my $util = Utilities->new( "" );
-	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile );
+	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile);
 
 	my $cmdLineCP = set_up_classpath( $cgdsHome );
 	
@@ -94,6 +95,9 @@ sub run{
 	
 	# Load up all microRNA IDs
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMicroRnaData " . $miRNAfile );  
+
+	# Load up RPPA -Antibodies
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinArrayInfo " . $rppafile );  
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );
@@ -156,6 +160,15 @@ sub load_cancer_data{
 	        importCancersData( $cgdsHome, $theCGDSinputFiles, File::Spec->catfile( $theCGDSinputFiles, $cancerDataDir ),
 	           $cancerDataDir, $cmdLineCP, $nameOfPerCancerGermlineWhitelist,
 	           $nameOfPerCancerSomaticWhitelist, $loadMutationArguments  );
+
+			# import rppa
+			my @pathToRPPADataFile = ( $theCGDSinputFiles, $cancerDataDir );
+			my $fullCanonicalRPPADataFile = File::Spec->catfile( @pathToRPPADataFile, 'data_rppa.txt' );
+			if ( $fileUtil->existent($fullCanonicalRPPADataFile) ) {
+			  print "importingRPPAData: $fullCanonicalRPPADataFile\n";
+			  system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinDataArray " . $fullCanonicalRPPADataFile . ' ' . $cancerDataDir ); 
+			}
+
 	        print "timestamp: ", timing(), "Loading $cancerDataDir complete.\n";
 
 	    }

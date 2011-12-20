@@ -87,7 +87,9 @@ while ($line = <IN3>) {
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n";
+		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$30</td>\n"; }
+		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">8</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[6]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
@@ -99,6 +101,10 @@ while ($line = <IN3>) {
 		print OUT2 "<td class=\"Tips1\" title=\"$cancers{$study[0]}\">$study[0] ($study[1])</td>\n";
 		print OUT2 "<td style=\"text-align: right;\">$data[9]</td>\n";
 		print OUT2 "</tr>\n";
+		print OUT2 "<tr>\n";
+		print OUT2 "<td><b>Total</b></td>\n";
+		print OUT2 "<td><b>$all_count</b></td>\n";
+		print OUT2 "</tr>\n";
 	}
 }
 
@@ -108,11 +114,11 @@ print OUT1 "</table>";
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
 
-print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on the Firehose run from $dateOut.</p>";
+print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
 print OUT2 "</table>\n";
 #print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
-print OUT2 "Based on the Firehose run from $dateOut.</p>";
+print OUT2 "Five published studies & the Firehose run from $dateOut.</p>";
 
 close (IN1);
 close (IN2);

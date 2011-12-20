@@ -36,7 +36,7 @@ open (IN3,"convertFirehoseData.out");
 open (OUT1,">data_sets_public.html");
 open (OUT2,">data_sets_public_right_column.markdown");
 
-print OUT1 "<P><p>The portal currently contains data from 16 cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
+print OUT1 "<P><p>The portal currently contains data from 18 cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
 #print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bordercolor=\"#808080\">\n";
 print OUT1 "<table>\n";
 print OUT1 "\t<tr>\n";
@@ -125,3 +125,4 @@ close (IN2);
 close (IN3);
 close (OUT1);
 close (OUT2);
+

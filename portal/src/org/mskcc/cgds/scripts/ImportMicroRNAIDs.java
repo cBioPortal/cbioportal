@@ -54,8 +54,15 @@ public class ImportMicroRNAIDs {
                 String geneSymbol = parts[2];
                 Set<String> aliases = new HashSet<String>();
                 aliases.add(parts[0]);
+                if (parts[0].startsWith("hsa-")) {
+                    aliases.add(parts[0].substring(4));
+                }
+                
                 if (!parts[0].equalsIgnoreCase(parts[1])) {
                     aliases.add(parts[1]);
+                }
+                if (parts[1].startsWith("hsa-")) {
+                    aliases.add(parts[1].substring(4));
                 }
                 
                 CanonicalGene mirna = new CanonicalGene(fakeEntrezId--, geneSymbol,
@@ -84,15 +91,19 @@ public class ImportMicroRNAIDs {
     private void removePreviousMicroRNARecord(DaoGeneOptimized daoGene, List<CanonicalGene> mirnas) {
         for (CanonicalGene mirna : mirnas) {
             Set<String> aliases = new HashSet<String>();
-            aliases.addAll(mirna.getAliases());;
+            aliases.addAll(mirna.getAliases());
             for (String mirnaid : mirna.getAliases()) {
+                if (!mirnaid.toLowerCase().contains("-mir-")) {
+                    continue;
+                }
+                
                 List<CanonicalGene> pres = new ArrayList<CanonicalGene>(daoGene.guessGene(mirnaid));
                 for (CanonicalGene pre : pres) {
+                    aliases.add(pre.getStandardSymbol());
+                    aliases.add(Long.toString(pre.getEntrezGeneId()));
+                    aliases.addAll(pre.getAliases());
                     try {
                         daoGene.deleteGene(pre);
-                        aliases.add(pre.getStandardSymbol());
-                        aliases.add(Long.toString(pre.getEntrezGeneId()));
-                        aliases.addAll(pre.getAliases());
                     } catch (DaoException e) {
                         e.printStackTrace();
                     }

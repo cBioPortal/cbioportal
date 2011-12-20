@@ -67,7 +67,8 @@ public class CanonicalGene extends Gene {
     }
     
     public boolean isMicroRNA() {
-        return hugoGeneSymbol.startsWith("mir-") || hugoGeneSymbol.startsWith("let-");
+        String hugo = getHugoGeneSymbolAllCaps();
+        return hugo.startsWith("MIR-") || hugo.startsWith("LET-");
     }
 
     @Override

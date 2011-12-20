@@ -105,7 +105,7 @@ while ($line = <IN3>) {
 		print OUT2 "</tr>\n";
 		print OUT2 "<tr>\n";
 		print OUT2 "<td><b>Total</b></td>\n";
-		print OUT2 "<td><b>$all_count</b></td>\n";
+		print OUT2 "<td><b><a href=\"data_sets.jsp\">$all_count</a></b></td>\n";
 		print OUT2 "</tr>\n";
 	}
 }
@@ -116,10 +116,9 @@ print OUT1 "</table>";
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
 
-print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
+print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
 print OUT2 "</table>\n";
-#print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
 print OUT2 "Five published studies & the Firehose run from $dateOut.</p>";
 
 close (IN1);

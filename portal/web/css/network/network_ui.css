@@ -357,8 +357,8 @@
 
 #network_tabs .tabs-button
 {
-	padding-top: 9px;
-	padding-bottom: 9px;
+	padding-top: 7px;
+	padding-bottom: 7px;
 	width: 26px;
 }
 
@@ -433,8 +433,8 @@
 
 #genes_tab #control_area
 {
-	margin-top: 1.35em;
-	margin-bottom: 0.35em;
+	margin-top: 1em;
+	margin-bottom: 0.10em;
 }
 
 #genes_tab #control_area table
@@ -446,7 +446,7 @@
 #genes_tab #weight_slider_area
 {
 	padding-top: 8px;
-	padding-bottom: 8px;
+	padding-bottom: 0px;
 }
 
 #genes_tab #affinity_slider_area
@@ -461,7 +461,7 @@
 {
 	margin-left: 20px;
 	margin-right: 75px;
-	font-size: 1.3em;
+	font-size: 1em;
 }
 
 #genes_tab #slider_area .slider-value

@@ -22,6 +22,11 @@
         }
     }
 
+    // Now let's reorder the loads
+    cancerStudies.clear();
+    cancerStudies.addAll(cancerStudiesWithMutations);
+    cancerStudies.addAll(cancerStudiesWithOutMutations);
+
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 

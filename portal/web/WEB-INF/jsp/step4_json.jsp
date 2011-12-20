@@ -347,10 +347,9 @@ if (step4ErrorMsg != null) {
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
-        out.println(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
+        out.print(org.mskcc.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
     }
-%>
-</textarea>
+%></textarea>
 
 <p id="genestatus"></p>
 

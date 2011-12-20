@@ -2,7 +2,7 @@
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 
 
-<div class="section" id="igv">
+<div class="section" id="igv_tab">
     <table>
         <tr>
             <td style="padding-right:25px; vertical-align:top;"><img src="images/IGVlogo.png" alt=""/></td>

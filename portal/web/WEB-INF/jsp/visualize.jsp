@@ -252,7 +252,7 @@
 
                     <%
                     if (showIGVtab){
-                        out.println ("<li><a href='#igv' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
                     }
                     out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Data Download</a></li>");
                     out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark/Email</a></li>");

@@ -24,6 +24,8 @@
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cgds.dao.DaoGeneticProfile" %>
+
 
 <%
     ArrayList<GeneticProfile> profileList =
@@ -41,9 +43,19 @@
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+
+    String stableID = cancerTypeId + "_gistic";
+    boolean showIGVtab = true;
+    DaoGeneticProfile dgp = new DaoGeneticProfile();
+    if (dgp.getGeneticProfileByStableId(stableID) == null){
+        showIGVtab = false;
+    } 
+
+
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
              (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
@@ -239,6 +251,9 @@
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
+                    if (showIGVtab){
+                        out.println ("<li><a href='#igv' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+                    }
                     out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Data Download</a></li>");
                     out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark/Email</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
@@ -273,6 +288,10 @@
 
 
             <%@ include file="plots_tab.jsp" %>
+
+            <% if (showIGVtab) { %>
+              <%@ include file="igv.jsp" %>
+            <% } %>
                     
             <%
                 if (clinicalDataList != null && clinicalDataList.size() > 0) { %>

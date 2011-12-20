@@ -36,7 +36,7 @@ open (IN3,"convertFirehoseData.out");
 open (OUT1,">data_sets_public.html");
 open (OUT2,">data_sets_public_right_column.markdown");
 
-print OUT1 "<P><p>The portal currently contains data from 16 cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
+print OUT1 "<P><p>The portal currently contains data from 18 cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
 #print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bordercolor=\"#808080\">\n";
 print OUT1 "<table>\n";
 print OUT1 "\t<tr>\n";
@@ -83,11 +83,15 @@ while ($line = <IN3>) {
 		elsif ($data[0] eq "GBM_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$gbm_tcga_link"; }
 		else { print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$study[0]} ($study[1])</b></td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[9]</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n";
+		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$91</td>\n"; }
+		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n";
+		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$30</td>\n"; }
+		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">8</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[6]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
@@ -99,6 +103,10 @@ while ($line = <IN3>) {
 		print OUT2 "<td class=\"Tips1\" title=\"$cancers{$study[0]}\">$study[0] ($study[1])</td>\n";
 		print OUT2 "<td style=\"text-align: right;\">$data[9]</td>\n";
 		print OUT2 "</tr>\n";
+		print OUT2 "<tr>\n";
+		print OUT2 "<td><b>Total</b></td>\n";
+		print OUT2 "<td><b>$all_count</b></td>\n";
+		print OUT2 "</tr>\n";
 	}
 }
 
@@ -108,14 +116,15 @@ print OUT1 "</table>";
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
 
-print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on the Firehose run from $dateOut.</p>";
+print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
 print OUT2 "</table>\n";
 #print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
-print OUT2 "Based on the Firehose run from $dateOut.</p>";
+print OUT2 "Five published studies & the Firehose run from $dateOut.</p>";
 
 close (IN1);
 close (IN2);
 close (IN3);
 close (OUT1);
 close (OUT2);
+

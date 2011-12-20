@@ -83,7 +83,9 @@ while ($line = <IN3>) {
 		elsif ($data[0] eq "GBM_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$gbm_tcga_link"; }
 		else { print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$study[0]} ($study[1])</b></td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[9]</b></td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n";
+		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$91</td>\n"; }
+		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
@@ -114,7 +116,7 @@ print OUT1 "</table>";
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
 
-print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
+print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
 print OUT2 "</table>\n";
 #print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";

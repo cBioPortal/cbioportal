@@ -31,6 +31,10 @@ skin.blurb=The cBio Cancer Genomics Portal provides <b>visualization</b>, <b>ana
 # To prevent obvious scrapping by spammers, use at and dot syntax;  see example below.
 skin.email_contact=cancergenomics at cbio dot mskcc dot org
 
+# Skin Data Sets
+data_sets=data_sets_public.html
+data_sets_right_column=data_sets_public_right_column.html
+
 # Indicates whether R and RServe are Installed
 r_installed=true
 

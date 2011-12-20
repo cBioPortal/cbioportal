@@ -48,6 +48,7 @@ print OUT1 "\t\t<th>Tumor mRNA (RNA-Seq)</th>\n";
 print OUT1 "\t\t<th>Tumor mRNA (microarray)</th>\n";
 print OUT1 "\t\t<th>Normal mRNA</th>\n";
 print OUT1 "\t\t<th>Methylation</th>\n";
+print OUT1 "\t\t<th>RPPA</th>\n";
 print OUT1 "\t\t<th>Complete</th>\n";
 print OUT1 "\t</tr>\n\n";
 
@@ -69,7 +70,7 @@ while ($line = <IN3>) {
 	$data[0] =~ tr/a-z/A-Z/;
 	@study = split (/_/,$data[0]);
 
-	unless ($data[9]==0) {
+	unless ($data[10]==0) {
       if ($line_ct++ % 2) {
         print OUT1 "\t<tr>\n";
       }
@@ -82,30 +83,27 @@ while ($line = <IN3>) {
 		elsif ($data[0] eq "OV_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$ov_tcga_link"; }
 		elsif ($data[0] eq "GBM_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$gbm_tcga_link"; }
 		else { print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$study[0]} ($study[1])</b></td>\n"; }
-		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[9]</b></td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[10]</b></td>\n";
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$91</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
-		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[4]</td>\n";
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">$30</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">8</td>\n"; }
-		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[9]</td>\n"; }
+		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
-		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[6]</b></td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[7]</b></td>\n";
 		print OUT1 "\t</tr>\n\n";
-		$all_count = $all_count + $data[9];
+		$all_count = $all_count + $data[10];
 	}
 	
-	unless ($data[9]==0) {
+	unless ($data[10]==0) {
 		print OUT2 "<tr>\n";
 		print OUT2 "<td class=\"Tips1\" title=\"$cancers{$study[0]}\">$study[0] ($study[1])</td>\n";
-		print OUT2 "<td style=\"text-align: right;\">$data[9]</td>\n";
-		print OUT2 "</tr>\n";
-		print OUT2 "<tr>\n";
-		print OUT2 "<td><b>Total</b></td>\n";
-		print OUT2 "<td><b>$all_count</b></td>\n";
+		print OUT2 "<td style=\"text-align: right;\">$data[10]</td>\n";
 		print OUT2 "</tr>\n";
 	}
 }

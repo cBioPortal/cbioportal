@@ -1,19 +1,19 @@
-Cancers	cases_methylation.txt	cases_CGH.txt	cases_log2CNA.txt	cases_RNA_Seq_mRNA.txt	cases_mRNA.txt	cases_complete.txt	cases_sequenced.txt	cases_normal_mRNA.txt	cases_all.txt
-blca_tcga		35	35						35
-brca_tcga	314	700	700		530			0	727
-cesc_tcga		36	36						36
-coadread_tcga	236	519	519	244	224	193	224	0	538
-gbm_tcga	288	501	501		503	122	145	0	548
-hnsc_tcga		127	127						127
-kirc_tcga	219	489	489	309	72			0	496
-lgg_tcga		58	58		27			0	58
-lihc_tcga		53	53						53
-luad_tcga	128	172	172		33			0	234
-lusc_tcga	133	179	194	179	155			0	212
-ov_tcga	489	489	481		489	316	316	8	489
-paad_tcga		14	14						14
-prad_mskcc		194			150	35	43	0	216
-sarc_mskcc		207			149	24	35	0	207
-stad_tcga		149	149						149
-thca_tcga		85	85						85
-ucec_tcga	117	283	283		54			0	286
+Cancers	cases_rppa.txt	cases_methylation.txt	cases_CGH.txt	cases_log2CNA.txt	cases_RNA_Seq_mRNA.txt	cases_mRNA.txt	cases_sequenced.txt	cases_complete.txt	cases_normal_mRNA.txt	cases_all.txt
+blca_tcga			35	35						35
+brca_tcga	410	314	700	700		530			0	730
+cesc_tcga			36	36						36
+coadread_tcga	463	236	519	519	244	224	224	193	0	575
+gbm_tcga	215	288	501	501		503	145	122	0	577
+hnsc_tcga			127	127						127
+kirc_tcga	454	219	489	489	309	72			0	501
+lgg_tcga			58	58		27			0	58
+lihc_tcga			53	53						53
+luad_tcga		128	172	172		33			0	234
+lusc_tcga		133	179	194	179	155			0	212
+ov_tcga	412	489	489	481		489	316	316	8	563
+paad_tcga			14	14						14
+prad_mskcc			194			150	43	35	0	216
+sarc_mskcc			207			149	35	24	0	207
+stad_tcga			149	149						149
+thca_tcga			85	85						85
+ucec_tcga	200	117	283	283		54			0	323

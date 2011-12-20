@@ -1022,7 +1022,7 @@ cursor: default;
 
 /* Accordion Panel H1 */
 .accordion_panel h1 {
-    font-size: 135%;
+    font-size: 105%;
     padding-bottom: 5px;
     padding-top: 10px;
     color: #444444;
@@ -1160,5 +1160,7 @@ padding:4px;
 }
 
 h2.cross_cancer_header {
-    text-align: center;
+    text-align: right;
+    padding-right:  2px;
+    font-size:125%;
 }

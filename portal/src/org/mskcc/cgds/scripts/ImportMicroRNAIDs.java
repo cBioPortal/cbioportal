@@ -52,17 +52,12 @@ public class ImportMicroRNAIDs {
                 String parts[] = line.split("\t");
                 
                 String geneSymbol = parts[2];
+                
                 Set<String> aliases = new HashSet<String>();
-                aliases.add(parts[0]);
-                if (parts[0].startsWith("hsa-")) {
-                    aliases.add(parts[0].substring(4));
-                }
+                setAliases(parts[0],aliases);
                 
                 if (!parts[0].equalsIgnoreCase(parts[1])) {
-                    aliases.add(parts[1]);
-                }
-                if (parts[1].startsWith("hsa-")) {
-                    aliases.add(parts[1].substring(4));
+                    setAliases(parts[1],aliases);
                 }
                 
                 CanonicalGene mirna = new CanonicalGene(fakeEntrezId--, geneSymbol,
@@ -82,6 +77,27 @@ public class ImportMicroRNAIDs {
         }        
     }
     
+    private void setAliases(String hsa, Set<String> aliases) {
+        aliases.add(hsa);
+        if (hsa.startsWith("hsa-")) {
+            String mir = hsa.substring(4).toUpperCase();
+            aliases.add(mir);
+            aliases.add(getHUGOInNCBIFile(mir));
+        }
+    }
+    
+    private String getHUGOInNCBIFile(String mir) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MIR");
+        if (mir.startsWith("LET")) {
+            sb.append("LET");
+        }
+        
+        int ix = mir.indexOf("-");
+        sb.append(mir.substring(ix+1));
+        return sb.toString();
+    }
+    
     /**
      * 
      * @param daoGene
@@ -93,15 +109,14 @@ public class ImportMicroRNAIDs {
             Set<String> aliases = new HashSet<String>();
             aliases.addAll(mirna.getAliases());
             for (String mirnaid : mirna.getAliases()) {
-                if (!mirnaid.toLowerCase().contains("-mir-")) {
-                    continue;
-                }
-                
                 List<CanonicalGene> pres = new ArrayList<CanonicalGene>(daoGene.guessGene(mirnaid));
                 for (CanonicalGene pre : pres) {
-                    aliases.add(pre.getStandardSymbol());
-                    aliases.add(Long.toString(pre.getEntrezGeneId()));
-                    aliases.addAll(pre.getAliases());
+                    if (!pre.getHugoGeneSymbolAllCaps().startsWith("MIR")) {
+                        continue;
+                    }
+//                    aliases.add(pre.getStandardSymbol());
+//                    aliases.add(Long.toString(pre.getEntrezGeneId()));
+//                    aliases.addAll(pre.getAliases());
                     try {
                         daoGene.deleteGene(pre);
                     } catch (DaoException e) {
@@ -115,7 +130,6 @@ public class ImportMicroRNAIDs {
         }
         
     }
-
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {

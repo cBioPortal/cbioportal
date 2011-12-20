@@ -867,8 +867,12 @@ aka, "what people are saying" */
     background-position: right bottom;
 }
 
-/* name and intitution of user */
-#testimonials blockquote cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
+/* name and institution of user */
+
+cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
+
+#rotating_testimonials blockquote cite { font-size: 11px; }
+
 
 #login_header {
   height: 50px;

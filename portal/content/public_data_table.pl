@@ -119,10 +119,7 @@ $dateOut = "$2/$3/$1";
 
 print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
-#print OUT2 "</table>\n";
-#print OUT2 "\n<p>Last update: $m/$d/$y.<br><a href=\"data_sets.jsp\">More...</a></p>";
-#print OUT2 "Five published studies & the Firehose run from $dateOut.</p>";
-print OUT2 "<P>Total number of samples: <b><a href='data_sets.jsp'>$all_count</a>.</b><br><br>Based on five published studies & the Firehose run from $dateOut.</p>\n";
+print OUT2 "<P>The Portal contains data from <b>$all_count tumors from 18 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>\n";
 print OUT2 "<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n";
 print OUT2 "<script type='text/javascript'>\n";
 print OUT2 "google.load('visualization', '1.0', {'packages':['corechart']});\n";

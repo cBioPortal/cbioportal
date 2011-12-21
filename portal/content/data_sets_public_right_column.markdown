@@ -24,7 +24,7 @@ data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 35],
 ['Sarcoma (Multiple subtypes) (MSKCC)', 207],
 ['Stomach Adenocarcinoma (TCGA)', 149],
 ['Thyroid Carcinoma (TCGA)', 85],
-['Uterine Corpus Endometrioid Carcinoma (TCGA)', 323],
+['Uterine Corpus Endometrioid Carcinoma (TCGA)', 323]
 ]);
 var options = {
 'backgroundColor':'#F1F6FE',

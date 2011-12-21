@@ -119,6 +119,9 @@ $dateOut = "$2/$3/$1";
 
 print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Firehose run from $dateOut.</p>";
 
+# Lop off the last comma (otherwise, chart will not load in Internet Explorer).
+$pie_data = substr ($pie_data, 0, -2)."\n";
+
 #print OUT2 "</table>\n";
 print OUT2 "<P>The Portal contains data for <b>$all_count tumors from $cancer_count cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>\n";
 print OUT2 "<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n";
@@ -148,3 +151,4 @@ close (IN2);
 close (IN3);
 close (OUT1);
 close (OUT2);
+#print $pie_data;

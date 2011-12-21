@@ -183,7 +183,7 @@ public class MakeOncoPrint {
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
-            x = 120;
+            x = 160;
             out.append("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
                     "font-size = \"16\">\n"
                     + rowEvent.getGene().toUpperCase() + "</text>");

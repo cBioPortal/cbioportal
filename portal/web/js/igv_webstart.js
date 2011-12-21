@@ -79,7 +79,7 @@ function timeoutHandler() {
 //        hostname += (":" + port);
 //    }
     // note: context_path is set in stylesAndScripts.jsp
-    var webstart_url = "http://www.broadinstitute.org/igv/projects/dev/igv.php";
+    var webstart_url = "http://www.broadinstitute.org/igv/projects/current/igv.php";
 
     if (sessionURL) {
         webstart_url += "?sessionURL=" + sessionURL;

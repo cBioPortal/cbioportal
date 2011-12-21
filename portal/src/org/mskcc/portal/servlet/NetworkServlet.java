@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Map;
@@ -93,6 +94,10 @@ public class NetworkServlet extends HttpServlet {
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
             Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
+            int nMiRNA = filterMiRNA(queryGenes);
+            if (nMiRNA>0) {
+                messages.append("MicroRNAs were excluded from the network query. ");
+            }
 
             //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
 
@@ -294,6 +299,25 @@ public class NetworkServlet extends HttpServlet {
             writeMsg("Error loading network. Please report this to cancergenomics@cbio.mskcc.org!\n"+e.toString(), res);
             res.getWriter().write("<graphml></graphml>");
         }
+    }
+    
+    private int filterMiRNA(Set<String> queryGenes) {
+        int n = 0;
+        try {
+            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+            for (Iterator<String> it = queryGenes.iterator(); it.hasNext();) {
+                String symbol = it.next();
+                CanonicalGene gene = daoGeneOptimized.getGene(symbol);
+                if (gene.isMicroRNA()) {
+                    it.remove();
+                    n++;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return n;
     }
     
     private boolean pruneNetwork(Network network, String netSize) {

@@ -32,7 +32,8 @@ function setUpTestimonials() {
         // blockquote. This is done to ensure link falls
         // directly beneath each quote, as quote lengths differ
         $('#testimonials blockquote').append("<br><a href=\"what_people_are_saying.jsp\">View All</a>");
-        rotateTestimonials();
+        //rotateTestimonials();
+	displayRandomTestimonial();
     }
 }
 
@@ -47,6 +48,15 @@ function rotateTestimonials() {
     // set duration of each testimonial; quovolver default is 6000
     var duration = 8000;
     $('#testimonials > blockquote').quovolver(animationSpeed, duration);
+}
+
+function displayRandomTestimonial() {
+    $('#testimonials blockquote').hide()
+    
+    var numTestimonials = $('#testimonials > blockquote').length;
+    var ran = Math.floor(Math.random()*numTestimonials) + 1;
+    $('#testimonials blockquote:nth-child(' + ran + ')').show();
+
 }
 
 /*

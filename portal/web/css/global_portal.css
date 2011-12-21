@@ -840,7 +840,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 /* section of right column containing user testimonials,
 aka, "what people are saying" */
 #rotating_testimonials #testimonials {
-    height: 300px;
+    height: 350px;
 }
 
 /* float link to "view all" on right */
@@ -853,19 +853,19 @@ aka, "what people are saying" */
     width: 80%;
     margin-left: 13px;
     padding-top: 0px;
-    background-image: url("../images/openquote.png");
+    /*background-image: url("../images/openquote.png");
     background-position: 0px 10px;
-    background-repeat: no-repeat;
-    border: 1px dashed transparent; /*setting transparent border prevents scroll bar from 'jumping'
+    background-repeat: no-repeat;*/
+    border: 1px dashed testimonials; /*setting transparent border prevents scroll bar from 'jumping'
                                       between fade in/fade out of each quote */ 
 }
 
 /* actual quote from user */
-#testimonials blockquote p {
+/*#testimonials blockquote p {
     background-image: url("../images/closequote.png");
     background-repeat: no-repeat;
     background-position: right bottom;
-}
+}*/
 
 /* name and institution of user */
 
@@ -1166,6 +1166,8 @@ h2.cross_cancer_header {
     padding-left:  5px;
     font-size:125%;
 }
+<<<<<<< local
+=======
 
 .section ul {
   padding-top:10px;
@@ -1174,4 +1176,4 @@ h2.cross_cancer_header {
 
 .section h4 {
   padding-bottom:5px;
-}
+}>>>>>>> other

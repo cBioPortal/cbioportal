@@ -1,80 +1,41 @@
-<table width=150>
-<tr>
-<td><b>Cancer</b></th>
-<td align=right><b>Cases</b></th>
-</tr>
-
-<tr>
-<td class="Tips1" title="Bladder Urothelial Carcinoma">BLCA (TCGA)</td>
-<td style="text-align: right;">35</td>
-</tr>
-<tr>
-<td class="Tips1" title="Breast Invasive Carcinoma">BRCA (TCGA)</td>
-<td style="text-align: right;">730</td>
-</tr>
-<tr>
-<td class="Tips1" title="Cervical Squamous Cell Carcinoma">CESC (TCGA)</td>
-<td style="text-align: right;">36</td>
-</tr>
-<tr>
-<td class="Tips1" title="Colon and Rectum Adenocarcinoma">COADREAD (TCGA)</td>
-<td style="text-align: right;">575</td>
-</tr>
-<tr>
-<td class="Tips1" title="Glioblastoma Multiforme">GBM (TCGA)</td>
-<td style="text-align: right;">577</td>
-</tr>
-<tr>
-<td class="Tips1" title="Head and Neck Squamous Cell Carcinoma">HNSC (TCGA)</td>
-<td style="text-align: right;">127</td>
-</tr>
-<tr>
-<td class="Tips1" title="Kidney Renal Clear Cell Carcinoma">KIRC (TCGA)</td>
-<td style="text-align: right;">501</td>
-</tr>
-<tr>
-<td class="Tips1" title="Brain Lower Grade Glioma">LGG (TCGA)</td>
-<td style="text-align: right;">58</td>
-</tr>
-<tr>
-<td class="Tips1" title="Liver Hepatocellular Carcinoma">LIHC (TCGA)</td>
-<td style="text-align: right;">53</td>
-</tr>
-<tr>
-<td class="Tips1" title="Lung Adenocarcinoma">LUAD (TCGA)</td>
-<td style="text-align: right;">234</td>
-</tr>
-<tr>
-<td class="Tips1" title="Lung Squamous Cell Carcinoma">LUSC (TCGA)</td>
-<td style="text-align: right;">212</td>
-</tr>
-<tr>
-<td class="Tips1" title="Ovarian Serous Cystadenocarcinoma">OV (TCGA)</td>
-<td style="text-align: right;">563</td>
-</tr>
-<tr>
-<td class="Tips1" title="Pancreatic Adenocarcinoma">PAAD (TCGA)</td>
-<td style="text-align: right;">14</td>
-</tr>
-<tr>
-<td class="Tips1" title="Prostate">PRAD (MSKCC)</td>
-<td style="text-align: right;">216</td>
-</tr>
-<tr>
-<td class="Tips1" title="Sarcoma">SARC (MSKCC)</td>
-<td style="text-align: right;">207</td>
-</tr>
-<tr>
-<td class="Tips1" title="Stomach Adenocarcinoma">STAD (TCGA)</td>
-<td style="text-align: right;">149</td>
-</tr>
-<tr>
-<td class="Tips1" title="Thyroid Carcinoma">THCA (TCGA)</td>
-<td style="text-align: right;">85</td>
-</tr>
-<tr>
-<td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC (TCGA)</td>
-<td style="text-align: right;">323</td>
-</tr>
-</table>
-Five published studies & the Firehose run from 10/26/2011.</p>
+<P>The Portal contains data for <b>4695 tumors from 18 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+google.load('visualization', '1.0', {'packages':['corechart']});
+google.setOnLoadCallback(drawChart);
+function drawChart() {
+var data = new google.visualization.DataTable();
+data.addColumn('string', 'Cancer Study');
+data.addColumn('number', 'Samples');
+data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 35],
+['Breast Invasive Carcinoma (TCGA)', 730],
+['Cervical Squamous Cell Carcinoma (TCGA)', 36],
+['Colon and Rectum Adenocarcinoma (TCGA)', 575],
+['Glioblastoma Multiforme (TCGA)', 577],
+['Head and Neck Squamous Cell Carcinoma (TCGA)', 127],
+['Kidney Renal Clear Cell Carcinoma (TCGA)', 501],
+['Brain Lower Grade Glioma (TCGA)', 58],
+['Liver Hepatocellular Carcinoma (TCGA)', 53],
+['Lung Adenocarcinoma (TCGA)', 234],
+['Lung Squamous Cell Carcinoma (TCGA)', 212],
+['Ovarian Serous Cystadenocarcinoma (TCGA)', 563],
+['Pancreatic Adenocarcinoma (TCGA)', 14],
+['Prostate Adenocarcinoma (MSKCC)', 216],
+['Sarcoma (Multiple subtypes) (MSKCC)', 207],
+['Stomach Adenocarcinoma (TCGA)', 149],
+['Thyroid Carcinoma (TCGA)', 85],
+['Uterine Corpus Endometrioid Carcinoma (TCGA)', 323]
+]);
+var options = {
+'backgroundColor':'#F1F6FE',
+'is3D':false,
+'pieSliceText':'percentage',
+'width':300,
+'legend':{'position':'none'},
+'left':0,'top':0,
+'height':300};
+var chart = new google.visualization.PieChart(document.getElementById('chart_div1'));
+chart.draw(data, options);
+}
+</script>
+<div id='chart_div1'></div>

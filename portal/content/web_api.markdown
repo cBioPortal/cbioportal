@@ -165,8 +165,8 @@ Retrieves genomic profile data for one or more genes.
 
 You can either:
 
-* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53](webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=BRCA1+BRCA2+TP53)
-* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR](webservice.do?cmd=getProfileData&case_set_id=gbm_all&genetic_profile_id=gbm_cna_consensus,gbm_cna_rae&gene_list=EGFR)
+* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53)
+* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR)
 
 #### Response Format 1
 
@@ -226,7 +226,7 @@ A tab-delimited file with the following columns:
 
 Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
 
-[webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN](webservice.do?cmd=getMutationData&case_set_id=gbm_all&genetic_profile_id=gbm_mutations&gene_list=EGFR+PTEN)
+[webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN](webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN)
 
 ## Get Clinical Data
 
@@ -254,7 +254,7 @@ A tab-delimited file with the following columns:
 
 Get Clinical Data for All TCGA Ovarian Cases:
 
-[webservice.do?cmd=getClinicalData&case_set_id=ova_all](webservice.do?cmd=getClinicalData&case_set_id=ova_all)
+[webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all](webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all)
 
 ## Get Protein/Phosphoprotein Antibody Information
 
@@ -314,9 +314,9 @@ If the parameter of array_info is 1, you will receive a tab-delimited matrix wit
 
 ### Example
 
-* Get All RPPA Data in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA)
-* Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&protein_array_id=GBL9017366+GBL9017365)
-* Get All RPPA Data with antibody information in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_RPPA&array_info=1)
+* Get All RPPA Data in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA)
+* Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365)
+* Get All RPPA Data with antibody information in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1)
 
 # Linking to Us
 

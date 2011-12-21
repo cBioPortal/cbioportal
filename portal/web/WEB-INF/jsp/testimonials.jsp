@@ -10,6 +10,16 @@
 <div id="testimonials">
     <blockquote>
 	    <p>
+            &nbsp;&nbsp;Whenever bench scientists ask me how they can look at TCGA data, I've never
+            had a good answer for them. Now I do. The cBio Portal meets a critical need--it is the
+            interface that the cancer research community needs to access the wealth of TCGA. Even as a
+            computational biologist, I use it to follow-up on genes of interest. It makes querying
+            the data much less painful.
+        </p>
+        <cite>&ndash; Postdoctoral Fellow, Oregon Health & Science University</cite>
+    </blockquote>
+    <blockquote>
+	    <p>
             &nbsp;&nbsp;I would like to congratulate you and the team of the cBio portal.
             It's just an amazing tool to work with, and we at Mass General really appreciate it.
         </p>
@@ -19,9 +29,9 @@
     <blockquote>
         <p>
             &nbsp;&nbsp;As a bench biologist with primary aim of determining gene aberrations in GBM, I found
-            your site absolutely fantastic! Thank you! <br>
-            I have to reiterate how awesome and user-friendly your group has made this site - finally
-            accomplishing the goal of having data easily accessible and meaningful.
+            your site absolutely fantastic! Thank you! I have to reiterate how awesome and user-friendly
+            your group has made this site - finally accomplishing the goal of having data easily accessible
+            and meaningful.
         </p>
         <cite>&ndash; Sr. Research Associate at Knight Cancer Institute/OHSU</cite>
     </blockquote>
@@ -31,7 +41,7 @@
             &nbsp;&nbsp;Thank you for your incredible resource that has helped greatly in accessing the TCGA
             genomics data.
         </p>
-        <cite>&ndash; Postdoctoral Fellow,<br>Johns Hopkins University School of Medicine<br>
+        <cite>&ndash; Postdoctoral Fellow, Johns Hopkins University School of Medicine<br>
             Dept Radiation Oncology and Molecular Radiation Sciences
         </cite>
     </blockquote>

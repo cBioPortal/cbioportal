@@ -292,13 +292,18 @@ function cancerStudySelected() {
     $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_cancer_type").val();
+
+    while( cancerStudyId == "" ) {
+        $("#select_cancer_type option:selected").next().attr('selected','selected');
+        cancerStudyId = $("#select_cancer_type").val();
+    }
+
     if (cancerStudyId=='all'){
         crossCancerStudySelected();
         return;
     }
 
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
-
 
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");

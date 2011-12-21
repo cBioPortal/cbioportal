@@ -1,21 +1,21 @@
 # December 22, 2011
 
-* Fourteen new [TCGA](http://cancergenome.nih.gov/) cancer studies added.  This includes complete data for TCGA Colorectal Carcinoma
+* Fourteen new [TCGA](http://cancergenome.nih.gov/) cancer studies:  This includes complete data for TCGA Colorectal Carcinoma
 and provisional data for thirteen other cancer types in the TCGA production pipeline.  Please note that data from these
-thirteen new cancer types are considered provisional, not final and do not yet include mutation data.
-As per NCI guidelines, candidate mutation data cannot be redistributed until they have been validated.  
+thirteen new cancer types are provisional, not final and do not yet include mutation data.
+As per NCI guidelines, preliminary mutation data cannot be redistributed until they have been validated.  
 
 ![TCGA](http://cancergenome.nih.gov/PublishedContent/Images/SharedItems/Images/tcga_logo.png)
 
-* Added support for four new data types:
-    * Reverse-phase protein array data.
+* Four new data types:
+    * Reverse-phase protein array (RPPA) data.
     * microRNA expression and copy-number (including support for multiple loci)
     * RNA-Seq based expression data.
     * log2 copy-number data.
 * Updated TCGA GBM copy-number, expression, and methylation data.
-* Added a new gene validation service.  You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
-* Links to IGV for visualization of DNA copy-number
-* Added two new [Tutorials](tutorial.jsp) to get you quickly started in using the portal.
+* New gene validation service.  You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
+* Links to IGV for visualization of DNA copy-number changes
+* Two new [Tutorials](tutorial.jsp) to get you quickly started in using the portal.
 
 # November 14, 2011
 

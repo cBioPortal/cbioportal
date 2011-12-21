@@ -424,6 +424,19 @@ table td {
     padding-left:10px;
 }
 
+#gene_info {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+
 .oncoprint TH{
     font: 11px verdana, arial, helvetica, sans-serif;
     border: none;

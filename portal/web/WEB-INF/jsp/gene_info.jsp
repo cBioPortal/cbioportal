@@ -4,7 +4,7 @@
 <%@ page import="org.mskcc.cgds.dao.DaoSangerCensus" %>
 <%@ page import="org.mskcc.cgds.model.SangerCancerGene" %>
 <%@ page import="java.io.IOException" %>
-<div class="frequency_section" id="gene_info">
+<div id="gene_info">
 <p><h4>Sanger Cancer Gene Census Information:</h4>
 
 <%

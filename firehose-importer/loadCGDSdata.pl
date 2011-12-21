@@ -23,6 +23,7 @@ loadCGDSdata.pl usage:
 --Genes <name of gene file>         name of file containing gene mappings
 --miRNAfile <name of miRNA file>    name of file containing miRNA mappings
 --rppafile <name of RPPA antibody file>    name of file containing RPPA antibodies
+--sangerfile <name of Sanger Census  file>    name of file containing Sanger Census data
 --universalSomaticWhitelist         optional, full filename of file containing universal somatic whitelist
 
 --nameOfPerCancerSomaticWhitelist   optional, name of file containing per-cancer somatic whitelists, to be loaded if present
@@ -51,6 +52,7 @@ my $Cancers;
 my $GeneFile;
 my $miRNAfile;
 my $rppafile;
+my $sangerfile;
 my $MutationFilter;
 my $universalSomaticWhitelist;
 my $nameOfPerCancerSomaticWhitelist;
@@ -64,13 +66,14 @@ GetOptions (
 	"GeneFile=s" => \$GeneFile,
 	"miRNAfile=s" => \$miRNAfile,
 	"rppafile=s" => \$rppafile,
+	"sangerfile=s" => \$sangerfile,
 	"universalSomaticWhitelist=s" => \$universalSomaticWhitelist,
 	"nameOfPerCancerSomaticWhitelist=s" => \$nameOfPerCancerSomaticWhitelist,
 	"nameOfPerCancerGermlineWhitelist=s" => \$nameOfPerCancerGermlineWhitelist,
 	"acceptRemainingMutations" => \$acceptRemainingMutations,
 	);
 
-my @args = ( $codeForCGDS, $CGDSDataDirectory, $Cancers, $GeneFile, $miRNAfile, $rppafile ); 
+my @args = ( $codeForCGDS, $CGDSDataDirectory, $Cancers, $GeneFile, $miRNAfile, $rppafile, $sangerfile ); 
 if( defined( $nameOfPerCancerGermlineWhitelist )){
     push @args, $nameOfPerCancerGermlineWhitelist;
 }else{

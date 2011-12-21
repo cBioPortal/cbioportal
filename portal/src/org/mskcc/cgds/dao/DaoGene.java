@@ -337,6 +337,48 @@ class DaoGene {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
+    
+    /**
+     * 
+     * @param entrezGeneId 
+     */
+    public void deleteGene(long entrezGeneId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("DELETE FROM gene WHERE ENTREZ_GENE_ID=?");
+            pstmt.setLong(1, entrezGeneId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+        
+        deleteGeneAlias(entrezGeneId);
+    }
+    
+    /**
+     * 
+     * @param entrezGeneId 
+     */
+    public void deleteGeneAlias(long entrezGeneId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("DELETE FROM gene_alias WHERE ENTREZ_GENE_ID=?");
+            pstmt.setLong(1, entrezGeneId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 
     /**
      * Deletes all Gene Records in the Database.

@@ -65,6 +65,7 @@ sub run{
 		$GeneFile,            # full filename of gene file
 		$miRNAfile,           # full filename of miRNAs file
 		$rppafile,           # full filename of rppa antibodies file
+		$sangerfile,           # full filename of sanger census file
         $nameOfPerCancerGermlineWhitelist,  # base filename of per cancer germline whitelist file, if any
         $nameOfPerCancerSomaticWhitelist,   # base filename of per cancer somatic whitelist file, if any
 		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cgds.scripts.ImportProfileData
@@ -74,7 +75,7 @@ sub run{
 
 	# check that required options are set
 	my $util = Utilities->new( "" );
-	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile);
+	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile );
 
 	my $cmdLineCP = set_up_classpath( $cgdsHome );
 	
@@ -94,10 +95,13 @@ sub run{
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportGeneData " . $GeneFile ); 
 	
 	# Load up all microRNA IDs
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMicroRnaData " . $miRNAfile );  
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMicroRNAIDs " . $miRNAfile );  
 
 	# Load up RPPA -Antibodies
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinArrayInfo " . $rppafile );  
+
+	# Load up Sanger Data
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportSangerCensusData " . $sangerfile );  
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );

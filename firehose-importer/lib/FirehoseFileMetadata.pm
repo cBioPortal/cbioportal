@@ -40,8 +40,8 @@ my $fileProperties = {
         geneSymbolCol => undef,
     },
     # the following type is used when running generate case lists on already created staging files
-	'data_expression_microrna.txt' => {
-        example => 'data_expression_microrna.txt',
+	'data_expression_miRNA.txt' => {
+        example => 'data_expression_miRNA.txt',
         structure => 'profile',
         numHeaderRows => 1,
         geneIDcol => 'miRNA',

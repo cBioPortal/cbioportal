@@ -39,6 +39,14 @@ my $fileProperties = {
         geneIDcol => 'Gene_ID',
         geneSymbolCol => undef,
     },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_microrna.txt' => {
+        example => 'data_expression_microrna.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'miRNA',
+        geneSymbolCol => undef,
+    },
     '<CANCER>.rnaseq.txt' => {
         example => 'KIRC.rnaseq.txt',
         structure => 'profile',

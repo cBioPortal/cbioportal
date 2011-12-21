@@ -1,4 +1,4 @@
-<P>Total number of samples: <b><a href='data_sets.jsp'>4695</a>.</b><br><br>Based on five published studies & the Firehose run from 10/26/2011.</p>
+<P>The Portal contains data from <b>4695 tumors from 18 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type='text/javascript'>
 google.load('visualization', '1.0', {'packages':['corechart']});
@@ -20,8 +20,8 @@ data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 35],
 ['Lung Squamous Cell Carcinoma (TCGA)', 212],
 ['Ovarian Serous Cystadenocarcinoma (TCGA)', 563],
 ['Pancreatic Adenocarcinoma (TCGA)', 14],
-['Prostate (MSKCC)', 216],
-['Sarcoma (MSKCC)', 207],
+['Prostate Adenocarcinoma (MSKCC)', 216],
+['Sarcoma (Multiple subtypes) (MSKCC)', 207],
 ['Stomach Adenocarcinoma (TCGA)', 149],
 ['Thyroid Carcinoma (TCGA)', 85],
 ['Uterine Corpus Endometrioid Carcinoma (TCGA)', 323],

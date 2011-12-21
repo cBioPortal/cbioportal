@@ -701,3 +701,7 @@
 	align: left;
 	white-space: nowrap;
 }
+
+#network_tabs ul {
+  font-size:12px !important;
+}

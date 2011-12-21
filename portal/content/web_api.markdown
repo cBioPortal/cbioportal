@@ -70,7 +70,7 @@ A tab-delimited file with two columns:
 
 ### Example
 
-Get all Types of Cancer: [webservice.do?cmd=getTypesOfCancer](http://cbio.mskcc.org/cgx/webservice.do?cmd=getTypesOfCancer)
+[Get all Types of Cancer.](http://cbio.mskcc.org/cgx/webservice.do?cmd=getTypesOfCancer)
 
 ## Get All Cancer Studies
 
@@ -92,7 +92,7 @@ A tab-delimited file with three columns:
 
 ### Example
 
-Get all Cancer Studies: [webservice.do?cmd=getCancerStudies](webservice.do?cmd=getCancerStudies)
+[Get all Cancer Studies.](webservice.do?cmd=getCancerStudies)
 
 ## Get All Genetic Profiles for a Specific Cancer Study
 
@@ -123,7 +123,7 @@ A tab-delimited file with six columns:
 
 ### Example
 
-Get all Genetic Profiles for Glioblastoma (TCGA): [webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm_tcga](webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm_tcga)
+[Get all Genetic Profiles for Glioblastoma (TCGA).](webservice.do?cmd=getGeneticProfiles&cancer_study_id=gbm_tcga)
 
 ## Get All Case Lists for a Specific Cancer Study
 
@@ -148,7 +148,7 @@ A tab-delimited file with five columns:
 
 ### Example
 
-Get all Case Lists for Glioblastoma (TCGA): [webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga](webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga)
+[Get all Case Lists for Glioblastoma (TCGA).](webservice.do?cmd=getCaseLists&cancer_study_id=gbm_tcga)
 
 ## Get Profile Data
 
@@ -165,8 +165,8 @@ Retrieves genomic profile data for one or more genes.
 
 You can either:
 
-* Specify multiple genes and a single genetic profile ID. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53)
-* Specify a single gene and multiple genetic profile IDs. Example: [webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR)
+* [Specify multiple genes and a single genetic profile ID.](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53)
+* [Specify a single gene and multiple genetic profile IDs.](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR)
 
 #### Response Format 1
 
@@ -224,9 +224,7 @@ A tab-delimited file with the following columns:
 
 ### Example
 
-Get Extended Mutation Data for EGFR and PTEN in TCGA GBM:
-
-[webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN](webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN)
+[Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.](webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN)
 
 ## Get Clinical Data
 
@@ -252,9 +250,7 @@ A tab-delimited file with the following columns:
 
 ### Example
 
-Get Clinical Data for All TCGA Ovarian Cases:
-
-[webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all](webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all)
+[Get Clinical Data for All TCGA Ovarian Cases.](webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all)
 
 ## Get Protein/Phosphoprotein Antibody Information
 
@@ -279,9 +275,9 @@ You will receive a tab-delimited matrix with the following 4 columns:
 
 ### Example
 
-* Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga)
-* Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation)
-* Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation&gene_list=ERBB2+TP53](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=protein_level&gene_list=ERBB2+TP53)
+* [Get Information on RPPA Antibodies Measuring TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga)
+* [Get Information on RPPA Phosphoprotein Antibodies Measuring TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=phosphorylation)
+* [Get Information on ERBB2 and TP53 RPPA Protein Antibodies Measuring TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayInfo&cancer_study_id=coadread_tcga&protein_array_type=protein_level&gene_list=ERBB2+TP53)
 
 ## Get RPPA-based Proteomics Data
 
@@ -314,9 +310,9 @@ If the parameter of array_info is 1, you will receive a tab-delimited matrix wit
 
 ### Example
 
-* Get All RPPA Data in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA)
-* Get RPPA data in TCGA Colorectal Cases for Specific Antibodies: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365)
-* Get All RPPA Data with antibody information in TCGA Colorectal Cases: [webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1)
+* [Get All RPPA Data in TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA)
+* [Get RPPA data in TCGA Colorectal Cases for Specific Antibodies.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365)
+* [Get All RPPA Data with antibody information in TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1)
 
 # Linking to Us
 

@@ -1018,8 +1018,7 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
-    min-width: 780px;
-    max-width: 1000px;
+    width: 780px;
 }
 
 /* Accordion Panel H1 */

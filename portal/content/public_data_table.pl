@@ -117,7 +117,7 @@ print OUT1 "</table>";
 $date =~ /(\d\d\d\d)(\d\d)(\d\d)/;
 $dateOut = "$2/$3/$1";
 
-print OUT1 "<br>Total number of samples: <b><a href=\"data_sets.jsp\">$all_count</a></b><br><br>Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from $dateOut.</p>";
+print OUT1 "<br>Total number of samples: <b>$all_count</b><br><br>Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from $dateOut.</p>";
 
 # Lop off the last comma (otherwise, chart will not load in Internet Explorer).
 $pie_data = substr ($pie_data, 0, -2)."\n";
@@ -136,7 +136,8 @@ printf OUT2 ("data.addRows([%s]);\n", $pie_data);
 print OUT2 "var options = {\n";
 print OUT2 "'backgroundColor':'#F1F6FE',\n";
 print OUT2 "'is3D':false,\n";
-print OUT2 "'pieSliceText':'percentage',\n";
+print OUT2 "'pieSliceText':'value',\n";
+print OUT2 "'tooltip':{'text':'value'},\n";
 print OUT2 "'width':300,\n";
 print OUT2 "'legend':{'position':'none'},\n";
 print OUT2 "'left':0,'top':0,\n";

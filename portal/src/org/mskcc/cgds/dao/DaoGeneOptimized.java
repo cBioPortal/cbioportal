@@ -46,6 +46,20 @@ public class DaoGeneOptimized {
         return ret;
     }
     
+    public void deleteGene(CanonicalGene gene) throws DaoException {
+        DaoGene daoGene = DaoGene.getInstance();
+        daoGene.deleteGene(gene.getEntrezGeneId());
+        geneSymbolMap.remove(gene.getHugoGeneSymbolAllCaps());
+        for (String alias : gene.getAliases()) {
+            String aliasUp = alias.toUpperCase();
+            List<CanonicalGene> genes = geneAliasMap.get(aliasUp);
+            genes.remove(gene);
+            if (genes.isEmpty()) {
+                geneAliasMap.remove(aliasUp);
+            }
+        }
+    }
+    
     private void cacheGene(CanonicalGene gene) {
         geneSymbolMap.put(gene.getHugoGeneSymbolAllCaps(), gene);
         entrezIdMap.put(gene.getEntrezGeneId(), gene);

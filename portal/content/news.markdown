@@ -14,7 +14,8 @@ As per NCI guidelines, preliminary mutation data cannot be redistributed until t
     * log2 copy-number data.
 * Updated TCGA GBM copy-number, expression, and methylation data.
 * New gene validation service.  You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
-* Links to IGV for visualization of DNA copy-number changes
+* Links to IGV for visualization of DNA copy-number changes.
+* Background information from the [Sanger Cancer Gene Census](http://www.sanger.ac.uk/genetics/CGP/Census/).
 * Two new [Tutorials](tutorial.jsp) to get you quickly started in using the portal.
 
 # November 14, 2011

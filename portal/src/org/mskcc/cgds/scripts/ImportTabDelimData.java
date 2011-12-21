@@ -157,30 +157,35 @@ public class ImportTabDelimData {
                         logger.debug("Ignoring gene ID:  " + geneId);
                     } else {
                         //  Assume we are dealing with Entrez Gene Ids or Symbols.
-                        CanonicalGene gene = daoGene.getNonAmbiguousGene(geneId);
+                        List<CanonicalGene> genes = daoGene.guessGene(geneId);
 
                         //  If no target line is specified or we match the target, process.
                         if (targetLine == null || method.equals(targetLine)) {
-                            if (gene == null) {
-
+                            if (genes.isEmpty()) {
                                 //  if gene is null, we might be dealing with a micro RNA ID
-                                if (geneId.startsWith("hsa")) {
-                                    if (microRnaIdSet.contains(geneId)) {
-                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
-                                        numRecordsStored++;
-                                    } else {
+                                if (geneId.toLowerCase().contains("-mir-")) {
+//                                    if (microRnaIdSet.contains(geneId)) {
+//                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
+//                                        numRecordsStored++;
+//                                    } else {
                                         pMonitor.logWarning("microRNA is not known to me:  [" + geneId
                                             + "]. Ignoring it "
                                             + "and all tab-delimited data associated with it!");
-                                    }
+//                                    }
                                 } else {
                                     pMonitor.logWarning("Gene not found:  [" + geneId
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
                                 }
-                            } else {
-                                storeGeneticAlterations(values, daoGeneticAlteration, gene);
+                            } else if (genes.size()==1) {
+                                storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
                                 numRecordsStored++;
+                            } else {
+                                for (CanonicalGene gene : genes) {
+                                    if (gene.isMicroRNA()) { // for micro rna, duplicate the data
+                                        storeGeneticAlterations(values, daoGeneticAlteration, gene);
+                                    }
+                                }
                             }
                         }
                     }

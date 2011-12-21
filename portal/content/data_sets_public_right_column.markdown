@@ -1,4 +1,4 @@
-<P>The Portal contains data for <b>4695 tumors from 18 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
+<P>The Portal contains data for <b>4695 tumor samples from 18 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type='text/javascript'>
 google.load('visualization', '1.0', {'packages':['corechart']});
@@ -29,7 +29,8 @@ data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 35],
 var options = {
 'backgroundColor':'#F1F6FE',
 'is3D':false,
-'pieSliceText':'percentage',
+'pieSliceText':'value',
+'tooltip':{'text':'value'},
 'width':300,
 'legend':{'position':'none'},
 'left':0,'top':0,

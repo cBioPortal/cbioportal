@@ -150,17 +150,12 @@ public class CancerStudy {
      * Checks if there is any mutation data associated with this cancer study.
      *
      * @return true if there is mutation data
-     * @throws DaoException database read error
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-
-        for(GeneticProfile profile: geneticProfiles) {
-            for(CanonicalGene gene: daoMutation.getGenesInProfile(profile.getGeneticProfileId())) {
-                if( !daoMutation.getMutations(profile.getGeneticProfileId(), gene.getEntrezGeneId()).isEmpty() )
-                    return true;
-            }
+    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) {
+        for(GeneticProfile geneticProfile: geneticProfiles) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
+                return true;
         }
 
         return false;

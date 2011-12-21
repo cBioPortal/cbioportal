@@ -41,7 +41,7 @@ if (step4ErrorMsg != null) {
                     var tokens = lines[i].split(";");
                     for(var j=0; j < tokens.length; j++) {
                         var values = tokens[j].split(":");
-                        genes.push(values[0].trim());
+                        genes.push($.trim(values[0]));
                     }
                 }
             } else {
@@ -49,7 +49,7 @@ if (step4ErrorMsg != null) {
                 for(var i=0; i < values.length; i++) {
                     var values2 = values[i].split("\n");
                     for(var j=0; j < values2.length; j++) {
-                        genes.push(values2[j].trim());
+                        genes.push($.trim(values2[j]));
                     }
                 }
             }
@@ -240,7 +240,7 @@ if (step4ErrorMsg != null) {
         $(document).ready(function() {
 		    $("#gene_list").data("timerid", null).bind('keyup', function(e) {
                 clearTimeout(jQuery(this).data('timerid'));
-                jQuery(this).data('timerid', setTimeout(validateGenes, 1000));
+                jQuery(this).data('timerid', setTimeout(validateGenes, 500));
     		});
 
             $("#select_gene_set").combobox();

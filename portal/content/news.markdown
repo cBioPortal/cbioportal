@@ -5,7 +5,7 @@ and provisional data for thirteen other cancer types in the TCGA production pipe
 thirteen new cancer types are provisional, not final and do not yet include mutation data.
 As per NCI guidelines, preliminary mutation data cannot be redistributed until they have been validated.  
 
-![TCGA](http://cancergenome.nih.gov/PublishedContent/Images/SharedItems/Images/tcga_logo.png)
+<center>![TCGA](http://cancergenome.nih.gov/PublishedContent/Images/SharedItems/Images/tcga_logo.png)</center>
 
 * Four new data types:
     * Reverse-phase protein array (RPPA) data.

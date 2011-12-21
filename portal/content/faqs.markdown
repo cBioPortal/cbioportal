@@ -53,6 +53,9 @@ The order of genes in the OncoPrint is determined by the order entered into the 
 
 We support and test on the following web browsers:  Internet Explorer 7.0 and above, Firefox 3.0 and above, Safari and Google Chrome.  Note hover that SVG images, which are used for downloadable OncoPrints, are not supported by Internet Explorer versions older than 9. If you notice any other incompatibilities, please let us know.
 
+# How can I query for microRNAs?
+You can input either precusor or mature miRNA IDs. Since one precusor ID may correspond to multiple mature IDs and vise versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After input a precusor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.
+
 # What are mRNA and microRNA Z-Scores?
 
 For mRNA and microRNA expression data, we typically compute the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is either all tumors that are diploid for the gene in question, or, when available, normal adjacent tissue. The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.

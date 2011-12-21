@@ -45,7 +45,7 @@ sub main{
 		my $toDirectory = File::Spec->catdir(( $publicStagingFilesDirectory, $cancerDirectory ));
 		$f->make_dir( $toDirectory, '--if-not-exists' );
 		# iterate over all .txt files in from dir
-		my @allDataFiles = $f->list_dir( $fromDirectory, '--pattern=data_.*\.txt$' );
+		my @allDataFiles = $f->list_dir( $fromDirectory, '--pattern=.*\.txt$' );
 		foreach my $dataFile ( @allDataFiles ) {
 		  my $FullDataFile = File::Spec->catfile( $fromDirectory, $dataFile);
 		  print "\ncopying:\n", "from: $FullDataFile\n", "  to: $toDirectory\n";

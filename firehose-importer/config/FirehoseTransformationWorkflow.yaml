@@ -63,7 +63,7 @@
 
 # miRNA; also will do nothing if both mRNA and miRNA data are present
 - create_data_miRNA:
-    outfile: data_expression_microrna.txt
+    outfile: data_expression_miRNA.txt
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  

@@ -40,12 +40,28 @@ my $fileProperties = {
         geneSymbolCol => undef,
     },
     # the following type is used when running generate case lists on already created staging files
-	'data_expression_microrna.txt' => {
-        example => 'data_expression_microrna.txt',
+	'data_expression_miRNA.txt' => {
+        example => 'data_expression_miRNA.txt',
         structure => 'profile',
         numHeaderRows => 1,
         geneIDcol => 'miRNA',
         geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_miRNA_median_Zscores.txt' => {
+        example => 'data_miRNA_median_Zcores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_merged_median_Zscores.txt' => {
+        example => 'data_expression_merged_median_Zscores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
     },
     '<CANCER>.rnaseq.txt' => {
         example => 'KIRC.rnaseq.txt',

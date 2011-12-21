@@ -607,8 +607,8 @@ sub create_case_lists{
             'case_list_description' =>
               'All (Next-Gen) sequenced samples (<cases> samples)',
         },
-        'cases_microrna.txt' => {
-            'FirehoseFile'          => 'data_expression_microrna.txt',
+        'cases_miRNA.txt' => {
+            'FirehoseFile'          => 'data_expression_miRNA.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_microrna',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',

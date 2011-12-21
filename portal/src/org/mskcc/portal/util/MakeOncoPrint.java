@@ -298,7 +298,7 @@ public class MakeOncoPrint {
             out.append("<tr>");
 
             // output cell with gene name, CSS does left justified
-            out.append("<td>" + gene + "</td>\n");
+            out.append("<td nowrap=\"nowrap\">" + gene + "</td>\n");
 
             // output total % altered, right justified
             out.append("<td style=\" text-align: right\">");

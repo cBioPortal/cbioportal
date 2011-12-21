@@ -166,7 +166,7 @@ sub load_cancer_data{
 			my $fullCanonicalRPPADataFile = File::Spec->catfile( @pathToRPPADataFile, 'data_rppa.txt' );
 			if ( $fileUtil->existent($fullCanonicalRPPADataFile) ) {
 			  print "importingRPPAData: $fullCanonicalRPPADataFile\n";
-			  system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinDataArray " . $fullCanonicalRPPADataFile . ' ' . $cancerDataDir ); 
+			  system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinArrayData " . $fullCanonicalRPPADataFile . ' ' . $cancerDataDir ); 
 			}
 
 	        print "timestamp: ", timing(), "Loading $cancerDataDir complete.\n";
@@ -190,7 +190,12 @@ sub importCancersData{
             loadCGDScancerMutationDataFile( $cgdsHome, $directory, File::Spec->catfile( $directory, $dataFile ), 
                 $cmdLineCP, 
                 $nameOfPerCancerGermlineWhitelist, $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );
-        }else{
+        }
+		# handle rppa data separately
+		elsif ( $dataFile =~ /rppa/i ) {
+		  next;
+		}
+		else{
             loadCGDScancerProfileDataFile( $cgdsHome, File::Spec->catfile( $directory, $dataFile ), $cmdLineCP );
         }
     }

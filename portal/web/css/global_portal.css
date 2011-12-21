@@ -1187,3 +1187,17 @@ h2.cross_cancer_header {
 .section h4 {
   padding-bottom:5px;
 }
+
+.exp_error_box {
+    margin-bottom: .5em;
+}
+
+.exp_error_button {
+    float: left;
+    margin-right: .3em;
+}
+
+.exp_error_text {
+    font-weight:bold;
+    font-size: 90%;
+}

@@ -1165,14 +1165,12 @@ h2.cross_cancer_header {
     padding-left:  5px;
     font-size:125%;
 }
-<<<<<<< local
-=======
 
 .section ul {
   padding-top:10px;
-  font-size:14px !important;
+  font-size:16px !important;
 }
 
 .section h4 {
   padding-bottom:5px;
-}>>>>>>> other
+}

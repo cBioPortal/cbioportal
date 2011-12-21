@@ -102,7 +102,7 @@ while ($line = <IN3>) {
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\"><b>85</b></td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\"><b>149</b></td>\n"; }
-		else { print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[7]</b></td>\n";
+		else { print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[7]</b></td>\n"; }
 		print OUT1 "\t</tr>\n\n";
 		$all_count = $all_count + $data[11];
 	}

@@ -1,5 +1,7 @@
  [TOC]
 
+<BR/>
+
 # What is the cBio Cancer Genomics Portal?
 
 The portal stores genomic data from large scale, integrated cancer genomic data sets. It allows explorative data analysis (e.g.: Is my gene of interest altered in a specific cancer type? How frequently is EGFR amplified in glioblastoma? Do mutations of BRCA1 and BRCA2 in ovarian cancer co-occur?) and provides simple download of small data slices (user-defined gene and sample sets, no need to download entire data sets).
@@ -39,7 +41,9 @@ For genes with multiple probes, we only include methylation data from the probe 
 
 # What are OncoPrints?
 
-OncoPrints are compact means of visualizing distinct genomic alterations, including somatic mutations, copy number alterations, and mRNA expression changes across a set of cases.  They are extremely useful for visualizing gene set and pathway alterations across a set of cases, and for visually identifying trends, such as trends in mutual exclusivity or co-occurence between gene pairs within a gene set. Individual genes are represented as rows, and individual cases or patients are represented as columns. ![Example OncoPrint](images/oncoprint_example.png)
+OncoPrints are compact means of visualizing distinct genomic alterations, including somatic mutations, copy number alterations, and mRNA expression changes across a set of cases.  They are extremely useful for visualizing gene set and pathway alterations across a set of cases, and for visually identifying trends, such as trends in mutual exclusivity or co-occurence between gene pairs within a gene set. Individual genes are represented as rows, and individual cases or patients are represented as columns. 
+
+![Example OncoPrint](images/previews/gbm_oncoprint.png)
 
 # Can I change the order of genes in the OncoPrint?
 

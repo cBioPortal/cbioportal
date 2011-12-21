@@ -17,6 +17,8 @@ As per NCI guidelines, preliminary mutation data cannot be redistributed until t
 * __Links to IGV__ for visualization of DNA copy-number changes.
 * Background information from the [Sanger Cancer Gene Census](http://www.sanger.ac.uk/genetics/CGP/Census/).
 * Two __new [Tutorials](tutorial.jsp)__ to get you quickly started in using the portal.
+<BR/>
+<BR/>
 
 # November 14, 2011
 
@@ -24,6 +26,8 @@ As per NCI guidelines, preliminary mutation data cannot be redistributed until t
 * In collaboration with Bilkent University, we have added a __new Network tab__ to our results pages.  The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
 
 <center>![GBM Network](images/previews/ova_network.png)</center>
+<BR/>
+<BR/>
 
 # September 3, 2011
 
@@ -32,6 +36,8 @@ As per NCI guidelines, preliminary mutation data cannot be redistributed until t
 * The code for the cBio Portal has now been fully open sourced, and made available at [Google Code](http://code.google.com/p/cbio-cancer-genomics-portal/).  If you would like to join our open source efforts and make the portal even better, drop us an email.
 
 <center>![Cross Cancer Query](images/previews/cross_cancer.png)</center>
+<BR/>
+<BR/>
 
 # March 2, 2011
 
@@ -44,6 +50,8 @@ New plotting features and other improvements:
 * [Networks](networks.jsp) for pathway analysis are now available for download.
 
 <center>![Survival Analysis](images/previews/ova_survival_60_percent.png)</center>
+<BR/>
+<BR/>
 
 # December 15, 2010
 
@@ -56,6 +64,8 @@ only view amplifications of EGFR, and ignore deletions.
 * Improved performance.
 * [Frequently Asked Questions](faq.jsp) document released.
 * Updated [Video Tutorial](video.jsp).
+<BR/>
+<BR/>
 
 # November 4, 2010
 

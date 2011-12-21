@@ -960,17 +960,15 @@ cite { font-style: italic; display: block; text-align: left; text-transform: non
 }
 
 #right_side A:link {
-	color: #1974b8; text-decoration: underline;
+	color: #1974b8;
 }
 #right_side A:visited {
-	color: #1974b8; text-decoration: underline;
+	color: #1974b8;
 }
 #right_side A:active {
-	color: #1974b8; text-decoration: underline;
+	color: #1974b8;
 }
-#right_side A:hover {
-	color: #1974b8; font-weight: bold;
-}
+
 #content A:link {
 	COLOR: #1974b8; text-decoration: none;
 }

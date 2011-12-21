@@ -140,7 +140,8 @@ sub generate_case_lists{
 						   "data_microRNA.txt", "data_microRNA_outliers.txt",
 						   "data_CNA_consensus.txt", "data_CNA_RAE.txt",
 						   "data_brca1_binary_methylation.txt", "",
-						   "data_protein.txt", "data_miRNA.txt");
+						   "data_protein.txt", "data_miRNA.txt",
+						   "data_miRNA_median_Zscores.txt", "data_expression_merged_median_Zscores.txt");
 		  my %filesToSkip = map { $_ => 1 } @skipFiles;
 		  # interate over all data_*.txt files in CancersCGDSinputDir
 		  my @allDataFiles = $fileUtil->list_dir( $CancersCGDSinputDir, '--pattern=data_.*\.txt$' );
@@ -399,7 +400,7 @@ sub createMetaFile{
             'profile_name'                 => 'Methylation'
         },
         'expression_microrna' => {
-            'stable_id'                    => '<cancer>_tcga_mrna', 
+            'stable_id'                    => '<cancer>_tcga_mirna', 
             'genetic_alteration_type'      => 'MICRO_RNA_EXPRESSION',
             'show_profile_in_analysis_tab' => 'true',
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',

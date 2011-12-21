@@ -1171,3 +1171,7 @@ h2.cross_cancer_header {
   padding-top:10px;
   font-size:14px !important;
 }
+
+.section h4 {
+  padding-bottom:5px;
+}

@@ -30,6 +30,7 @@ drop table IF EXISTS mutation_frequency;
 drop table IF EXISTS micro_rna_alteration;
 drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
+drop table if EXISTS sanger_cancer_census;
 
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
@@ -326,3 +327,21 @@ CREATE TABLE `protein_array_cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `sanger_cancer_census`
+--
+
+CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
+  `ENTREZ_GENE_ID` bigint(20) NOT NULL,
+  `CANCER_SOMATIC_MUT` tinyint(1) NOT NULL,
+  `CANCER_GERMLINE_MUT` tinyint(1) NOT NULL,
+  `TUMOR_TYPES_SOMATIC_MUT` text NOT NULL,
+  `TUMOR_TYPES_GERMLINE_MUT` text NOT NULL,
+  `CANCER_SYNDROME` text NOT NULL,
+  `TISSUE_TYPE` text NOT NULL,
+  `MUTATION_TYPE` text NOT NULL,
+  `TRANSLOCATION_PARTNER` text NOT NULL,
+  `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
+  `OTHER_DISEASE` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';

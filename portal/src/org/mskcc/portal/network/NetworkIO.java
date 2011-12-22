@@ -125,14 +125,7 @@ public final class NetworkIO {
             Node node = new Node(strs[0]);
             for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
                 if (nodeHeaders[i].equals("PARTICIPANT_TYPE")) {
-                    NodeType type;
-                    if (strs[i].equals("ProteinReference")) {
-                        type = NodeType.PROTEIN;
-                    } else if (strs[i].equals("SmallMoleculeReference")) {
-                        type = NodeType.SMALL_MOLECULE;
-                    } else {
-                        type = NodeType.UNKNOWN;
-                    }
+                    NodeType type = NodeType.getByCpath2Keyword(strs[i]);
                     node.setType(type);
                 } else {
                     node.setAttribute(nodeHeaders[i], strs[i]);
@@ -209,6 +202,10 @@ public final class NetworkIO {
         }
         
         if (interaction.equals("STATE_CHANGE")) {
+            return true;
+        }
+        
+        if (interaction.equals("GENERIC_OF")) {
             return true;
         }
         

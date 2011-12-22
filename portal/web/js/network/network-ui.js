@@ -113,6 +113,7 @@ function initNetworkUI(vis)
 
 	_initMainMenu();
 	_initDialogs();
+	_initPropsUI();
 	_initSliders();
 	_initTooltipStyle();
 	
@@ -186,7 +187,7 @@ function updateSelectedGenes(evt)
 	_vis.deselect("nodes");
 	
 	// collect id's of selected node's on the tab
-	$("#genes_tab select option").each(
+	$("#gene_list_area select option").each(
 		function(index)
 		{
 			if ($(this).is(":selected"))
@@ -738,18 +739,19 @@ function showGeneDetails(evt)
  */
 function updateGenesTab(evt)
 {
-	// do not perform any action if the selection is due to the genes tab
+	var selected = _vis.selected("nodes");
+	
+	// do not perform any action on the gene list,
+	// if the selection is due to the genes tab
 	if(!_selectFromTab)
-	{
-		var selected = _vis.selected("nodes");
-		
+	{	
 		if (_isIE())
 		{
-			_setComponentVis($("#genes_tab select"), false);
+			_setComponentVis($("#gene_list_area select"), false);
 		}
 		
 		// deselect all options
-		$("#genes_tab select option").each(
+		$("#gene_list_area select option").each(
 			function(index)
 			{
 				$(this).removeAttr("selected");
@@ -764,8 +766,41 @@ function updateGenesTab(evt)
 		
 		if (_isIE())
 		{
-			_setComponentVis($("#genes_tab select"), true);
+			_setComponentVis($("#gene_list_area select"), true);
 		}
+	}
+	
+	// also update Re-submit button
+	if (selected.length > 0)
+	{
+		// enable the button
+		$("#re-submit_query").button("enable");
+	}
+	else
+	{
+		// disable the button
+		$("#re-submit_query").button("disable");
+	}
+}
+
+function reRunQuery()
+{
+	// TODO get the list of currently interested genes
+	var currentGenes = "";
+	var nodeMap = _selectedElementsMap("nodes");
+	
+	for (var key in nodeMap)
+	{
+		currentGenes += nodeMap[key].data.label + " ";
+	}
+	
+	if (currentGenes.length > 0)
+	{
+		// update the list of seed genes for the query
+		$("#main_form #gene_list").val(currentGenes);
+		
+		// re-run query by performing click action on the submit button
+		$("#main_form #main_submit").click();
 	}
 }
 
@@ -775,11 +810,19 @@ function updateGenesTab(evt)
  */
 function searchGene()
 {
-	var query = $("#genes_tab #search").val();
+	var query = $("#genes_tab #search_box").val();
+	
+	// do not perform search for an empty string
+	if (query.length == 0)
+	{
+		return;
+	}
 	
 	var genes = _visibleGenes();
 	var matched = new Array();
 	var i;
+	
+	// linear search for the input text
 	
 	for (i=0; i < genes.length; i++)
 	{
@@ -1929,7 +1972,7 @@ function _initDialogs()
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 280,
-		height: 135});
+		height: 140});
 }
 
 /**
@@ -1938,8 +1981,8 @@ function _initDialogs()
 function _initSliders()
 {
 	// add key listeners for input fields
-	$("#weight_slider_field").keypress(_keyPressedForSlider);
-	$("#affinity_slider_field").keypress(_keyPressedForSlider);
+	$("#weight_slider_field").keypress(_keyPressListener);
+	$("#affinity_slider_field").keypress(_keyPressListener);
 	
 	// show gene filtering slider	
 	$("#weight_slider_bar").slider(
@@ -1997,8 +2040,8 @@ function _adjustIE()
 	if (_isIE())
 	{
 		// this is required to position scrollbar on IE
-		var width = $("#help_tab").width();
-		$("#help_tab").width(width * 1.15);
+		//var width = $("#help_tab").width();
+		//$("#help_tab").width(width * 1.15);
 	}
 }
 
@@ -2110,13 +2153,13 @@ function _affinitySliderChange(event, ui)
 }
 
 /**
- * Key listener for input fields next to sliders.
+ * Key listener for input fields on the genes tab.
  * Updates the slider values (and filters if necessary), if the input
  * value is valid.
  * 
  * @param event		event triggered the action
  */
-function _keyPressedForSlider(event)
+function _keyPressListener(event)
 {
 	var input;
 	
@@ -2180,6 +2223,10 @@ function _keyPressedForSlider(event)
 			$("#affinity_slider_bar").slider("option",
 				"value",
 				Math.round(input * 100));
+		}
+		else if (event.target.id == "search_box")
+		{
+			searchGene();
 		}
 	}
 }
@@ -2249,6 +2296,7 @@ function _refreshGenesTab()
 function _initGenesTab()
 {
 	// init buttons
+	
 	$("#filter_genes").button({icons: {primary: 'ui-icon-circle-minus'},
 		text: false});
 	
@@ -2263,6 +2311,16 @@ function _initGenesTab()
 	
 	$("#update_edges").button({icons: {primary: 'ui-icon-refresh'},
 		text: false});
+	
+	// re-submit button is initially disabled
+	$("#re-submit_query").button({icons: {primary: 'ui-icon-play'},
+		text: false,
+		disabled: true});
+	
+	// $("#re-run_query").button({label: "Re-run query with selected genes"});
+	
+	// apply tiptip to all buttons on the network tabs
+	$("#network_tabs button").tipTip({edgeOffset:8});
 }
 
 
@@ -2276,9 +2334,9 @@ function _refreshGenesTab()
 	var geneList = _visibleGenes();
 	
 	// clear old content
-	$("#genes_tab select").remove();
+	$("#gene_list_area select").remove();
 	
-	$("#genes_tab").append('<select multiple></select>');
+	$("#gene_list_area").append('<select multiple></select>');
 		
 	// add new content
 	
@@ -2298,7 +2356,7 @@ function _refreshGenesTab()
 			classContent = 'class="not-in-query" ';
 		}
 		
-		$("#genes_tab select").append(
+		$("#gene_list_area select").append(
 			'<option id="' + safeId + '" ' +
 			classContent + 
 			'value="' + geneList[i].data.id + '" ' + '>' + 
@@ -2310,6 +2368,7 @@ function _refreshGenesTab()
 		
 		// TODO qtip does not work with Chrome&IE because of the restrictions of
 		// the <select><option> structure.
+		/*
 		var qtipOpts =
 		{
 			content: "id: " + safeId,
@@ -2335,18 +2394,20 @@ function _refreshGenesTab()
 				//name: 'cream' // preset 'cream' style
 			}
 		};
+		*/
 		
+		// TODO try tipTip?
 		//$("#genes_tab #" + safeId).qtip(qtipOpts);
 	}
 	
 	// add change listener to the select box
-	$("#genes_tab select").change(updateSelectedGenes);
+	$("#gene_list_area select").change(updateSelectedGenes);
 	
 	if (_isIE())
 	{
 		// listeners on <option> elements do not work in IE, therefore add 
 		// double click listener to the select box
-		$("#genes_tab select").dblclick(showGeneDetails);
+		$("#gene_list_area select").dblclick(showGeneDetails);
 		
 		// TODO if multiple genes are selected, double click always shows
 		// the first selected genes details in IE
@@ -2501,11 +2562,14 @@ function _initControlFunctions()
 	$("#default_layout_settings").click(defaultSettings);
 	
 	$("#search_genes").click(searchGene);
+	$("#genes_tab #search_box").keypress(_keyPressListener);
 	$("#filter_genes").click(filterSelectedGenes);
 	$("#crop_genes").click(filterNonSelected);
 	$("#unhide_genes").click(_unhideAll);
+	$("#re-submit_query").click(reRunQuery);
 	
 	$("#update_edges").click(updateEdges);
+	
 	
 	// add listener for double click action
 	
@@ -2887,6 +2951,14 @@ function _openProperties()
 {	
 	_updatePropsUI();
 	$("#settings_dialog").dialog("open").height("auto");
+}
+
+/**
+ * Initializes the layout settings panel.
+ */
+function _initPropsUI()
+{
+	$("#fd_layout_settings tr").tipTip();
 }
 
 /**

@@ -32,4 +32,11 @@
     <P>Check out our new network visualization
     options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
+
+    <div id="rotating_testimonials">
+        <h3>What People are Saying</h3>
+        <jsp:include page="../testimonials.jsp" flush="true" />
+
+    </div>
+
 </div>

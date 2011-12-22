@@ -1,16 +1,18 @@
 package org.mskcc.portal.servlet;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.model.GeneSet;
 import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.remote.GetMutationData;
 import org.mskcc.portal.util.GeneSetUtil;
 import org.mskcc.portal.util.XDebug;
 
@@ -84,6 +86,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
+                jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
             }
 
@@ -109,4 +112,5 @@ public class PortalMetaDataJSON extends HttpServlet {
             throw new ServletException(e);
         }
     }
+
 }

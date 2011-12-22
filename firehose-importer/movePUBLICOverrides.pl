@@ -43,21 +43,16 @@ sub main{
 		my $fromDirectory = File::Spec->catdir(( $publicOverridesDirectory, $cancerDirectory ));
 		# construct to directory
 		my $toDirectory = File::Spec->catdir(( $publicStagingFilesDirectory, $cancerDirectory ));
-		# if $toDirectory exists, overwrite
-		if ( -d $toDirectory) {
-		  print "\ndestination directory exists, removing:\n", "  to: $toDirectory\n";
-		  system( "rm -rf $toDirectory"); 
+		$f->make_dir( $toDirectory, '--if-not-exists' );
+		# iterate over all .txt files in from dir
+		my @allDataFiles = $f->list_dir( $fromDirectory, '--pattern=.*\.txt$' );
+		foreach my $dataFile ( @allDataFiles ) {
+		  my $FullDataFile = File::Spec->catfile( $fromDirectory, $dataFile);
+		  print "\ncopying:\n", "from: $FullDataFile\n", "  to: $toDirectory\n";
+		  system( "cp $FullDataFile $toDirectory"); 
 		}
-		print "\ncopying:\n", "from: $fromDirectory\n", "  to: $toDirectory\n";
-		system( "cp -r $fromDirectory $toDirectory"); 
-		# remove cvs
-		my $cvsDirectory = "$toDirectory/CVS";
-		if ( -d $cvsDirectory ) {
-		  system( "rm -rf $toDirectory/CVS");
-		}
-		$cvsDirectory = "$toDirectory/case_lists/CVS";
-		if ( -d $cvsDirectory ) {
-		  system( "rm -rf $toDirectory/case_lists/CVS");
-		}
+		# cp seg file
+		print "\ncopying:\n", "from: $fromDirectory/*.seg\n", "  to: $toDirectory\n";
+		system( "cp $fromDirectory/*.seg $toDirectory"); 
     }
 }

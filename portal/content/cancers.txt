@@ -12,7 +12,7 @@ lusc : Lung Squamous Cell Carcinoma
 ov : Ovarian Serous Cystadenocarcinoma
 paad : Pancreatic Adenocarcinoma
 prad : Prostate Adenocarcinoma
-sarc : Sarcoma (Multiple Subtypes)
+sarc : Sarcoma (Multiple subtypes)
 stad : Stomach Adenocarcinoma
 thca : Thyroid Carcinoma
 ucec : Uterine Corpus Endometrioid Carcinoma

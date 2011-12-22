@@ -39,6 +39,30 @@ my $fileProperties = {
         geneIDcol => 'Gene_ID',
         geneSymbolCol => undef,
     },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_miRNA.txt' => {
+        example => 'data_expression_miRNA.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'miRNA',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_miRNA_median_Zscores.txt' => {
+        example => 'data_miRNA_median_Zcores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_merged_median_Zscores.txt' => {
+        example => 'data_expression_merged_median_Zscores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
     '<CANCER>.rnaseq.txt' => {
         example => 'KIRC.rnaseq.txt',
         structure => 'profile',
@@ -126,6 +150,14 @@ my $fileProperties = {
     },
     'Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt' => {
         structure => 'unstructured'
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_rppa.txt' => {
+        example => 'data_rppa.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'sample',
+        geneSymbolCol => undef,
     },
 };
 

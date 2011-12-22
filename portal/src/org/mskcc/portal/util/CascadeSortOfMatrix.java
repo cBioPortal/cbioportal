@@ -15,6 +15,7 @@ import static org.junit.Assert.assertArrayEquals;
  * row i, the elements in row i+1 are sorted, etc. Used to present the data in our
  * 'CancerPrint's.
  * 
+ * TODO: To scale for large datasets, convert matrix into a set of columns, and radix sort.
  * @author Arthur Goldberg  goldberg@cbio.mskcc.org
  */
 public class CascadeSortOfMatrix {

@@ -15,17 +15,17 @@
 	    	<ul id="topology_menu">
 	    		<li>
 	    			<a id="hide_selected" onclick="handleMenuEvent('hide_selected')">
-	    				Hide
+	    				Hide Selected
 	    			</a>
 	    		</li>
 	    		<li>
 	    			<a id="hide_non_selected" onclick="handleMenuEvent('hide_non_selected')">
-	    				Crop
+	    				Show Only Selected
 	    			</a>
 	    		</li>
 	    		<li>
 	    			<a id="unhide_all" onclick="handleMenuEvent('unhide_all')">
-	    				Unhide
+	    				Show All
 	    			</a>
 	    		</li>
 	    		<li>
@@ -110,7 +110,7 @@
 
 <div id="settings_dialog" class="hidden-network-ui" title="Layout Properties">
 	<div id="fd_layout_settings" class="content ui-widget-content">
-		<table align="center">
+		<table>
 			<tr title="The gravitational constant. Negative values produce a repulsive force.">
 				<td align="right">
 					<label>Gravitation</label>

@@ -1,42 +1,70 @@
 <div class="toc">
 <ul>
 <li><a href="#what-is-the-cbio-cancer-genomics-portal">What is the cBio Cancer Genomics Portal?</a></li>
+<li><a href="#how-do-i-get-started">How do I get started?</a></li>
 <li><a href="#what-data-types-are-in-the-portal">What data types are in the portal?</a></li>
+<li><a href="#how-is-the-cbio-cancer-genomics-portal-different-from-the-tcga-data-portal">How is the cBio Cancer Genomics Portal different from the TCGA Data Portal?</a></li>
+<li><a href="#why-do-some-cancer-studies-have-mutation-data-and-others-do-not">Why do some cancer studies have mutation data and others do not?</a></li>
+<li><a href="#does-the-portal-contain-cancer-study-x">Does the portal contain cancer study X?</a></li>
 <li><a href="#what-kind-of-clinical-data-is-stored-in-the-portal">What kind of clinical data is stored in the portal?</a></li>
-<li><a href="#does-the-portal-contain-methylation-data-for-all-tumor-types">Does the portal contain methylation data for all tumor types?</a></li>
-<li><a href="#is-methylation-data-available-for-all-genes">Is methylation data available for all genes?</a></li>
 <li><a href="#does-the-portal-store-raw-or-probe-level-data">Does the portal store raw or probe-level data?</a></li>
-<li><a href="#what-are-oncoprints">What are Oncoprints?</a></li>
-<li><a href="#can-i-change-the-order-of-genes-in-the-oncoprint">Can I change the order of genes in the Oncoprint?</a></li>
+<li><a href="#which-methylation-probe-is-used-for-genes-with-multiple-probes">Which methylation probe is used for genes with multiple probes?</a></li>
+<li><a href="#what-are-oncoprints">What are OncoPrints?</a></li>
+<li><a href="#can-i-change-the-order-of-genes-in-the-oncoprint">Can I change the order of genes in the OncoPrint?</a></li>
 <li><a href="#does-the-portal-work-on-all-browsers-and-operating-systems">Does the portal work on all browsers and operating systems?</a></li>
+<li><a href="#how-can-i-query-micrornas-in-the-portal">How can I query microRNAs in the portal?</a></li>
 <li><a href="#what-are-mrna-and-microrna-z-scores">What are mRNA and microRNA Z-Scores?</a></li>
-<li><a href="#what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</a></li>
 <li><a href="#what-is-gistic-what-is-rae">What is GISTIC?  What is RAE?</a></li>
+<li><a href="#what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</a></li>
+<li><a href="#how-do-i-analyze-my-own-data-sets-in-the-cbio-portal">How do I analyze my own data sets in the cBio Portal?</a></li>
+<li><a href="#is-the-cbio-portal-open-source">Is the cBio Portal open source?</a></li>
+<li><a href="#how-do-i-cite-the-portal">How do I cite the portal?</a></li>
+<li><a href="#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">How do I get updates on new portal developments and new data sets?</a></li>
 </ul>
 </div>
+<BR/>
+
 <h1 id="what-is-the-cbio-cancer-genomics-portal">What is the cBio Cancer Genomics Portal?</h1>
 <p>The portal stores genomic data from large scale, integrated cancer genomic data sets. It allows explorative data analysis (e.g.: Is my gene of interest altered in a specific cancer type? How frequently is EGFR amplified in glioblastoma? Do mutations of BRCA1 and BRCA2 in ovarian cancer co-occur?) and provides simple download of small data slices (user-defined gene and sample sets, no need to download entire data sets).</p>
+<h1 id="how-do-i-get-started">How do I get started?</h1>
+<p>We have recently posted <a href="tutorial.jsp">two mini-tutorials</a> to get you up and running.</p>
 <h1 id="what-data-types-are-in-the-portal">What data types are in the portal?</h1>
-<p>The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "homozygously deleted" or "amplified"), mRNA and microRNA expression data, non-synonymous mutations, and clinical data.</p>
+<p>The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "homozygously deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited clinical data related to survival. For a complete breakdown of available data types per cancer study go to the <a href="data_sets.jsp">Data Sets Page</a>.</p>
+<h1 id="how-is-the-cbio-cancer-genomics-portal-different-from-the-tcga-data-portal">How is the cBio Cancer Genomics Portal different from the TCGA Data Portal?</h1>
+<p>The cBio portal is an exploratory analysis tool for exploring large-scale cancer genomic data sets.  You can quickly view genomic alterations across a set of patients, across a set of cancer types, perform survival analysis and perform network analysis.  By contrast, the <a href="http://tcga-data.nci.nih.gov/tcga/tcgaHome2.jsp">TCGA Data Portal</a> aims to be the definitive place for full-download and access to all data generated by TCGA.  If you want to explore a pathway of interest in one or more cancer types, the cBio portal is probably where you want to start.  However, if you want to download raw mRNA expression files or full segmented copy number files, the TCGA Data Portal is probably where you want to start.</p>
+<h1 id="why-do-some-cancer-studies-have-mutation-data-and-others-do-not">Why do some cancer studies have mutation data and others do not?</h1>
+<p>We store mutation data for published cancer studies, such as the TCGA Glioblastoma and TCGA Ovarian.
+We do not, however store mutation data for provisional cancer data sets generated by TCGA.  This is because provisional studies contain preliminary somatic mutations, which per NCI guidelines cannot be redistributed until they have been validated.  As each cancer study is published and finalized by the TCGA, we will import the corresponding mutation data.</p>
+<h1 id="does-the-portal-contain-cancer-study-x">Does the portal contain cancer study X?</h1>
+<p>Check out the <a href="data_sets.jsp">Data Sets Page</a> for the complete set of cancer studies currently stored in the portal.  If you do not see your specific cancer study of interest, please contact us directly, and we will let you know if it's in the queue.</p>
 <h1 id="what-kind-of-clinical-data-is-stored-in-the-portal">What kind of clinical data is stored in the portal?</h1>
 <p>The portal currently stores overall and disease-free survival data, when available.</p>
-<h1 id="does-the-portal-contain-methylation-data-for-all-tumor-types">Does the portal contain methylation data for all tumor types?</h1>
-<p>No, methylation data was not generated for the prostate cancer and sarcoma studies. We are working on adding methylation data for the GBM study, and it is available for the ovarian cancer study.</p>
-<h1 id="is-methylation-data-available-for-all-genes">Is methylation data available for all genes?</h1>
-<p>We only include methylation data from probes that show anti-correlation between the methylation signal and the gene's expression. For genes with multiple probes, we include the one with the strongest anti-correlation.</p>
 <h1 id="does-the-portal-store-raw-or-probe-level-data">Does the portal store raw or probe-level data?</h1>
 <p>No, the portal only contains gene-level data. Data for different isoforms of a given gene are merged. Raw and probe-level data for all date sets is available via NCBI GEO or through the TCGA Data Portal. See the cancer type description on the main query page for links to the raw data.</p>
-<h1 id="what-are-oncoprints">What are Oncoprints?</h1>
-<p>OncoPrints are compact means of visualizing distinct genomic alterations, including somatic mutations, copy number alterations, and mRNA expression changes across a set of cases.  They are extremely useful for visualizing gene set and pathway alterations across a set of cases, and for visually identifying trends, such as trends in mutual exclusivity or co-occurence between gene pairs within a gene set. Individual genes are represented as rows, and individual cases or patients are represented as columns. <img alt="Example OncoPrint" src="images/oncoprint_example.png" /></p>
-<h1 id="can-i-change-the-order-of-genes-in-the-oncoprint">Can I change the order of genes in the Oncoprint?</h1>
-<p>The order of genes in the Oncoprint is determined by the order entered into the initial query field. Simply change the initial gene order, resubmit your query, and the change will be reflected in the Oncoprint.</p>
+<h1 id="which-methylation-probe-is-used-for-genes-with-multiple-probes">Which methylation probe is used for genes with multiple probes?</h1>
+<p>For genes with multiple probes, we only include methylation data from the probe with the strongest negative correlation between the methylation signal and the gene's expression.</p>
+<h1 id="what-are-oncoprints">What are OncoPrints?</h1>
+<p>OncoPrints are compact means of visualizing distinct genomic alterations, including somatic mutations, copy number alterations, and mRNA expression changes across a set of cases.  They are extremely useful for visualizing gene set and pathway alterations across a set of cases, and for visually identifying trends, such as trends in mutual exclusivity or co-occurence between gene pairs within a gene set. Individual genes are represented as rows, and individual cases or patients are represented as columns. </p>
+<p><img alt="Example OncoPrint" src="images/previews/gbm_oncoprint.png" /></p>
+<h1 id="can-i-change-the-order-of-genes-in-the-oncoprint">Can I change the order of genes in the OncoPrint?</h1>
+<p>The order of genes in the OncoPrint is determined by the order entered into the initial query field. Simply change the initial gene order, resubmit your query, and the change will be reflected in the OncoPrint.</p>
 <h1 id="does-the-portal-work-on-all-browsers-and-operating-systems">Does the portal work on all browsers and operating systems?</h1>
-<p>The portal should work on all major browsers and operating systems. We have tested it using current versions of Firefox, Safari, and Chrome, in Mac OS X and Windows. However, SVG images, which are used for downloadable oncoprints, are not supported by Internet Explorer versions older than 9. If you notice any other incompatibilities, please let us know.</p>
+<p>We support and test on the following web browsers:  Internet Explorer 7.0 and above, Firefox 3.0 and above, Safari and Google Chrome.  Note hover that SVG images, which are used for downloadable OncoPrints, are not supported by Internet Explorer versions older than 9. If you notice any other incompatibilities, please let us know.</p>
+<h1 id="how-can-i-query-micrornas-in-the-portal">How can I query microRNAs in the portal?</h1>
+<p>You can input either precusor or mature miRNA IDs. Since one precusor ID may correspond to multiple mature IDs and vise versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After entering a precusor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.</p>
 <h1 id="what-are-mrna-and-microrna-z-scores">What are mRNA and microRNA Z-Scores?</h1>
 <p>For mRNA and microRNA expression data, we typically compute the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is either all tumors that are diploid for the gene in question, or, when available, normal adjacent tissue. The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.</p>
-<h1 id="what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</h1>
-<p>These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.</p>
 <h1 id="what-is-gistic-what-is-rae">What is GISTIC?  What is RAE?</h1>
 <p>Copy number data sets within the portal are generated by <a href="http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431">GISTIC</a> or <a href="http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837">RAE</a>
 algorithms.  Both algorithms attempt to identify significantly altered regions of amplification or deletion across sets of patients. Both algorithms also generate putative gene/patient copy number specific calls, which are then input into the portal.<br />
 </p>
+<h1 id="what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</h1>
+<p>These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.</p>
+<h1 id="how-do-i-analyze-my-own-data-sets-in-the-cbio-portal">How do I analyze my own data sets in the cBio Portal?</h1>
+<p>Currently, we do not support uploading of user data sets into the cBio Portal.  However, the cBio Portal is open source software and you may want to consider deploying your own local instance of the cBio portal.  This may require some assistance from a system administrator.  To ease installation, we have also created a <a href="http://code.google.com/p/cbio-cancer-genomics-portal/wiki/AmazonEc2AMI">Amazon Machine Image (AMI) for rapid deployment to Amazon Web Services</a>.  A complete set of administration documents are available on our <a href="http://code.google.com/p/cbio-cancer-genomics-portal/w/list">wiki</a></p>
+<h1 id="is-the-cbio-portal-open-source">Is the cBio Portal open source?</h1>
+<p>Yes.  The cBio Portal is available under a <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License</a>.  You can download our code and sample data sets at <a href="http://code.google.com/p/cbio-cancer-genomics-portal/">Google code</a>.  If you are interested in contributing, please contact us directly.</p>
+<h1 id="how-do-i-cite-the-portal">How do I cite the portal?</h1>
+<p>We are finalizing a portal paper right now.  In the meantime, you can cite us by URL:  The cBio Cancer Genomics Portal (http://www.cbioportal.org/).</p>
+<h1 id="how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">How do I get updates on new portal developments and new data sets?</h1>
+<p>The best option is to follow us on <a href="https://twitter.com/cbioportal">Twitter</a>.  We tweet each time we add a new feature or a new data set.</p>

@@ -95,6 +95,11 @@
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PortalMetaDataJSON</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>plot</servlet-name>
@@ -238,6 +243,11 @@
     <servlet-mapping>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <url-pattern>/CheckGeneSymbol.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -183,7 +183,7 @@ public class MakeOncoPrint {
 
         for (int i = 0; i < matrix.length; i++) {
             GeneticEvent rowEvent = matrix[i][0];
-            x = 120;
+            x = 160;
             out.append("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
                     "font-size = \"16\">\n"
                     + rowEvent.getGene().toUpperCase() + "</text>");
@@ -298,7 +298,7 @@ public class MakeOncoPrint {
             out.append("<tr>");
 
             // output cell with gene name, CSS does left justified
-            out.append("<td>" + gene + "</td>\n");
+            out.append("<td nowrap=\"nowrap\">" + gene + "</td>\n");
 
             // output total % altered, right justified
             out.append("<td style=\" text-align: right\">");

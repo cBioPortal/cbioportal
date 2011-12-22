@@ -65,7 +65,7 @@ $(document).ready(function(){
 
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
-       chooseAction();
+       return chooseAction();
     });
 
     //  Set up an Event Handler for the Query / Data Download Tabs
@@ -225,11 +225,49 @@ function reviewCurrentSelections(){
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction() {
-    if ($("#select_cancer_type").val() == 'all'){
-       $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+    var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
+    $("#exp_error_box").remove();
+
+    if ($("#select_cancer_type").val() == 'all') {
+        $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+
+        if ( haveExpInQuery ) {
+            createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");
+            return false;
+        }
     } else {
-       $("#main_form").get(0).setAttribute('action','index.do');
+        $("#main_form").get(0).setAttribute('action','index.do');
+
+        if ( haveExpInQuery ) {
+            var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
+
+            if( expCheckBox.length > 0 && expCheckBox.attr('checked') == false) {
+                    createAnEXPError("Expression specified in the list of genes, but not selected in the" +
+                                        " Genetic Profile Checkboxes.");
+                    return false;
+            } else if( expCheckBox.length == 0 ) {
+                createAnEXPError("Expression specified in the list of genes, but not selected in the" +
+                                    " Genetic Profile Checkboxes.");
+                return false;
+            }
+        }
+
+        return true;
     }
+}
+
+function createAnEXPError(errorText) {
+    var errorBox = $("<div id='exp_error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+    var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
+    var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
+    var errorTextBox = $("<span>").addClass("exp_error_text");
+
+    errorButton.appendTo(errorBox);
+    strongErrorText.appendTo(errorTextBox);
+    errorTextBox.appendTo(errorBox);
+
+    errorBox.insertBefore("#gene_list");
+    errorBox.slideDown();
 }
 
 //  Triggered when a genomic profile radio button is selected
@@ -292,13 +330,18 @@ function cancerStudySelected() {
     $("#main_submit").attr("disabled",false);
 
     var cancerStudyId = $("#select_cancer_type").val();
+
+    while( cancerStudyId == "" ) {
+        $("#select_cancer_type option:selected").next().attr('selected','selected');
+        cancerStudyId = $("#select_cancer_type").val();
+    }
+
     if (cancerStudyId=='all'){
         crossCancerStudySelected();
         return;
     }
 
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
-
 
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
@@ -406,6 +449,16 @@ function addMetaDataToPage() {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
+    var cancerTypeContainer = $("#select_cancer_type");
+    var hasMutationHeader = $("<option value='' disabled='disabled'>-- studies with mutation data --</option>")
+                            .appendTo(cancerTypeContainer);
+    var hasMutationHeaderRemove = hasMutationHeader;
+    var noMutationHeader = $("<option value='' disabled='disabled'>-- studies without mutation data --</option>")
+                            .appendTo(cancerTypeContainer);
+    var noMutationHeaderRemove = noMutationHeader;
+
+    var noMutCancerCounter = 0;
+
     //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
 
@@ -418,16 +471,37 @@ function addMetaDataToPage() {
         }
         if (addCancerStudy) {
             console.log("Adding Cancer Study:  " + cancer_study.name);
-            $("#select_cancer_type").append("<option value='" + key + "'>" + cancer_study.name + "</option>");
+            var newOption = $("<option value='" + key + "'>" + cancer_study.name + "</option>");
+            if(key == "all") {
+                cancerTypeContainer.prepend(newOption);
+            } else {
+                if(cancer_study.has_mutation_data) {
+                    hasMutationHeader.after(newOption);
+                    hasMutationHeader = newOption;
+                } else {
+                    noMutationHeader.after(newOption);
+                    noMutationHeader = newOption;
+                    noMutCancerCounter += 1;
+                }
+            }
         }
-        
+
     });  //  end 1st for each cancer study loop
+
+    // hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
+    if(noMutCancerCounter == 0) {
+        noMutationHeaderRemove.remove();
+    }
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){
         $("#select_gene_set").append("<option value='" + key + "'>"
                 + gene_set.name + "</option>");
     });  //  end for each gene set loop
+
+    // Set the placeholder for the autocomplete select box
+    $("#example_gene_set").children("span:first").children("input:first")
+        .attr("placeholder", $("#select_gene_set").children("option:first").text());
 
     //  Set things up, based on currently selected cancer type
     jQuery.each(json.cancer_studies,function(key,cancer_study){
@@ -447,12 +521,12 @@ function addMetaDataToPage() {
 
     //  Set things up, based on currently selected gene set id
     if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
-        $("#select_gene_set").val(window.gene_set_id_selected);    
+        $("#select_gene_set").val(window.gene_set_id_selected);
     } else {
         $("#select_gene_set").val("user-defined-list");
     }
-
     //  Set things up, based on all currently selected genomic profiles
+
     //  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
     $("input:[name*=genetic_profile_ids]").each(function(index) {
         //  val() is the value that or stable ID of the genetic profile ID

@@ -108,9 +108,10 @@
 	There are a number of options to better deal with complex networks:
 	<ul>
 		<li>
-			<span class="bold">Hide/Crop:</span> 
-			Selected nodes can be hidden using "Hide" in the "Topology" menu. 
-			Alternatively, you can select the set of nodes that you would like to view and hide the rest of the network using "Crop" in the "Topology" menu.
+			<span class="bold">Hide Selected/Crop:</span>
+			Selected nodes can be hidden using either "Hide Selected" in the "Topology" menu or "Hide Selected" button on the "Genes" tab.
+			Alternatively, you can select the set of nodes that you would like to view and hide the rest of the network 
+			using either "Show Only Selected" in the "Topology" menu or "Show Only Selected" button on the "Genes" tab.
 		</li>
 		<li>
 			<span class="bold">Filter by Interaction Type or Source:</span> 

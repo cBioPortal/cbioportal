@@ -1,5 +1,5 @@
 # Load up the Bladder Meta Data File
-./importCancerStudy.pl $CGDS_DATA_HOME/bladder/bladder.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/bladder/blca_mskcc.txt
 
 # Imports All Case Lists
 ./importCaseList.pl $CGDS_DATA_HOME/bladder/case_lists

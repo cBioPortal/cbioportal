@@ -1,5 +1,5 @@
 # Load up the Breast Meta Data File
-./importCancerStudy.pl $CGDS_DATA_HOME/breast/breast.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/breast/brca_scand.txt
 
 # Imports All Case Lists
 ./importCaseList.pl $CGDS_DATA_HOME/breast/case_lists

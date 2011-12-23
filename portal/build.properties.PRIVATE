@@ -30,6 +30,9 @@ skin.right_nav.show_examples=false
 manager.username=tomcat
 manager.password=tomcat
 
+# Indicates whether to include networks
+include_networks=true
+
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 r_installed=true
 authenticate=true

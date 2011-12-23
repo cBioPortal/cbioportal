@@ -15,3 +15,7 @@
 
 # Imports mRNA Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_expression.txt --meta $CGDS_DATA_HOME/bladder/meta_expression.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_expression_Zscores.txt --meta $CGDS_DATA_HOME/bladder/meta_expression_Zscores.txt --dbmsAction clobber
+
+# Imports Methylation Data
+./importProfileData.pl --data $CGDS_DATA_HOME/bladder/data_methylation.txt --meta $CGDS_DATA_HOME/bladder/meta_methylation.txt --dbmsAction clobber

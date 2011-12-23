@@ -48,14 +48,16 @@
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
-    String stableID = cancerTypeId + "_gistic";
-    boolean showIGVtab = true;
+    boolean showIGVtab = false;
     DaoGeneticProfile dgp = new DaoGeneticProfile();
-    if (dgp.getGeneticProfileByStableId(stableID) == null){
-        showIGVtab = false;
-    } 
-
-
+	String[] cnaTypes = {"_gistic", "_cna", "_consensus"};
+	for (int lc = 1; lc < cnaTypes.length; lc++) {
+		String cnaProfileID = cancerTypeId + cnaTypes[lc];
+		if (dgp.getGeneticProfileByStableId(cnaProfileID) != null){
+			showIGVtab = true;
+			break;
+	    }
+	}	
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
              (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),

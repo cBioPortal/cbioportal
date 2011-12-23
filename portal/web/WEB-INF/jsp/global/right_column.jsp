@@ -33,10 +33,11 @@
     options.  Available under the <b>network</b> tab on all result pages.
 <% } %>
 
+<% if (SkinUtil.showRightNavTestimonials()) {%>
     <div id="rotating_testimonials">
         <h3>What People are Saying</h3>
         <jsp:include page="../testimonials.jsp" flush="true" />
 
     </div>
-
+<% } %>
 </div>

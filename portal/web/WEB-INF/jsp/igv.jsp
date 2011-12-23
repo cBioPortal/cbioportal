@@ -1,6 +1,9 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
-
+<%@ page import="org.mskcc.portal.util.GlobalProperties" %>
+<%
+		String segFileURL = GlobalProperties.getSegfileUrl();
+%>
 
 <div class="section" id="igv_tab">
     <table>
@@ -64,7 +67,7 @@
             var segFile = cancerTypeId + ".seg";
 
             var port = 60151;
-            var dataUrl = "http://cbio.mskcc.org/cancergenomics/public-portal/" + segFile;
+            var dataUrl = "<%= segFileURL %>" + segFile;
             var genomeID = "hg18";
             var mergeFlag = false;
             var locusString = genes;

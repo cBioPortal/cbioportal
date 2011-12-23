@@ -17,6 +17,8 @@ public class SkinUtil {
             "skin.right_nav.show_data_sets";
     private static final String PROPERTY_SKIN_RIGHT_NAV_SHOW_EXAMPLES =
             "skin.right_nav.show_examples";
+    private static final String PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS =
+            "skin.right_nav.show_testimonials";
     private static final String PROPERTY_SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     private static final String PROPERTY_AUTHENTICATION_REQUIRED = "authenticate";
     private static final String PROPERTY_BITLY_USER = "bitly.user";
@@ -151,6 +153,16 @@ public class SkinUtil {
     public static boolean showRightNavExamples() {
         Config config = Config.getInstance();
         String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_EXAMPLES);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
+    /**
+     * Determines whether we should show examples in the right nav bar.
+     * @return true or false
+     */
+    public static boolean showRightNavTestimonials() {
+        Config config = Config.getInstance();
+        String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 

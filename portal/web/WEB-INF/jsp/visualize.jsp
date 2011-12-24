@@ -51,7 +51,7 @@
     boolean showIGVtab = false;
     DaoGeneticProfile dgp = new DaoGeneticProfile();
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
-	for (int lc = 1; lc < cnaTypes.length; lc++) {
+	for (int lc = 0; lc < cnaTypes.length; lc++) {
 		String cnaProfileID = cancerTypeId + cnaTypes[lc];
 		if (dgp.getGeneticProfileByStableId(cnaProfileID) != null){
 			showIGVtab = true;

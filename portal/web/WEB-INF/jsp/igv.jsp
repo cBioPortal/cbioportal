@@ -23,7 +23,8 @@
 			  encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
 		  }
 		  catch(UnsupportedEncodingException e) {
-			  // should not get here - UTF-8 is ubiquitous these days
+			  // encode ourselves
+			  encodedGeneList = Joiner.on('%20').join(onlyGenesList);
 		  }
 	  }
 %>

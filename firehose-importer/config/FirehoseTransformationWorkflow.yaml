@@ -59,7 +59,7 @@
 - create_data_RNA_seq_mRNA_median:
     outfile: data_RNA_Seq_expression_median.txt
     dirsAndFiles:
-      - gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version> <CANCER>.rnaseq.txt
+       - gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version> <CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 
 # miRNA; also will do nothing if both mRNA and miRNA data are present
 - create_data_miRNA:

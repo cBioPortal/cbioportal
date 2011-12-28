@@ -1,8 +1,31 @@
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="com.google.common.base.Joiner" %>
+<%@ page import="java.io.UnsupportedEncodingException" %>
+<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.portal.util.GlobalProperties" %>
 <%
-		String segFileURL = GlobalProperties.getSegfileUrl();
+	  // get URL to seg file used as parameter to IGV
+	  String segFileURL = GlobalProperties.getSegfileUrl();
+
+      // construct gene list parameter to IGV
+      // use geneWithScoreList so we don't get any OQL
+      List<String> onlyGenesList = new ArrayList<String>();
+      for (GeneWithScore geneWithScore : geneWithScoreList) {
+		  onlyGenesList.add(geneWithScore.getGene());
+	  }
+      String encodedGeneList = "";
+      if (onlyGenesList.size() > 0) {
+		  try {
+			  encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
+		  }
+		  catch(UnsupportedEncodingException e) {
+			  // should not get here - UTF-8 is ubiquitous these days
+		  }
+	  }
 %>
 
 <div class="section" id="igv_tab">
@@ -29,7 +52,7 @@
                 </p>
 
                 <br>
-                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= cancerTypeId %>','<%= geneList %>')"><img src="images/webstart.jpg" alt=""/></a>
+                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= cancerTypeId %>','<%= encodedGeneList %>')"><img src="images/webstart.jpg" alt=""/></a>
                 <br>
 
                 <p>

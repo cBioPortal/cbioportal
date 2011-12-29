@@ -71,6 +71,7 @@ convertFirehoseData.pl
 --Summary                                       # file in which to output run data summary; relative to CGDSDataDirectory; optional -- if not provided, is convertFirehoseData.out
 --SkipCaseList                                  # if set, case list generation is skipped
 --GenerateCaseListOnly                          # if set, generates case lists only
+--DownloadRunDate                               # if set, the run date of the firehose data to download
 EOT
 
 # todo: HIGH: should make 1) download and cleanup stand-alone (Niki wants a modified one to get all), 2) make copy firehose data stand-alone
@@ -80,7 +81,7 @@ EOT
 my( $FirehoseURL, $FirehoseURLUserid, $FirehoseURLPassword, 
     $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean, $Cancers, $Genes, 
     $miRNAfile, $firehoseTransformationWorkflowFile, $codeForCGDS,
-    $CreateCopyOfFirehoseData, $Limit, $Summary, $SkipCaseList, $GenerateCaseListOnly );
+    $CreateCopyOfFirehoseData, $Limit, $Summary, $SkipCaseList, $GenerateCaseListOnly, $DownloadRunDate );
 
 # todo: document
 my $fileUtil;
@@ -162,6 +163,7 @@ sub process_command_line{
         "Summary=s" => \$Summary,
 		"SkipCaseList" => \$SkipCaseList,
 		"GenerateCaseListOnly" => \$GenerateCaseListOnly,
+		"DownloadRunDate=s" => \$DownloadRunDate,
 	);
 
 	# make sure necessary arguments are set	
@@ -220,12 +222,18 @@ sub download_from_firehose{
     # todo: figure out why this fails to login when run in Eclipse, but works OK on the command line
     runSystem( 'wget', undef, @args ); # /usr/local/bin/    
     
-    my @latestRunFiles = grep( /$latestRunFile/, $fileUtil->list_dir( $FirehoseDirectory, '--recurse', '--files-only'  ) );
-    unless( defined( $latestRunFiles[0] )){
+	my $mostRecentRunDate;
+	if ( defined( $DownloadRunDate)) {
+	  $mostRecentRunDate = $DownloadRunDate . "00";
+	}
+	else {
+	  my @latestRunFiles = grep( /$latestRunFile/, $fileUtil->list_dir( $FirehoseDirectory, '--recurse', '--files-only'  ) );
+	  unless( defined( $latestRunFiles[0] )){
     	die "Could not find $latestRunFile";
-    }
-    my @d = $fileUtil->load_file( $latestRunFiles[0], '--as-lines');
-    my $mostRecentRunDate = $d[1];
+	  }
+	  my @d = $fileUtil->load_file( $latestRunFiles[0], '--as-lines');
+	  $mostRecentRunDate = $d[1];
+	}
 
     # 2) get the list of cancers available by parsing the index file
     @args = ( '-e', 'robots=off', '--no-parent', '--no-verbose', 

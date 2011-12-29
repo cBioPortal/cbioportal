@@ -63,12 +63,12 @@ my $fileProperties = {
         geneIDcol => undef,
         geneSymbolCol => 'geneSymbol',
     },
-    '<CANCER>.rnaseq.txt' => {
-        example => 'KIRC.rnaseq.txt',
+    '<CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' => {
+        example => 'BRCA.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
         structure => 'profile',
-        numHeaderRows => 1,
+        numHeaderRows => 2,
         geneIDcol => undef,
-        geneSymbolCol => 'Symbol',
+        geneSymbolCol => 'Hybridization REF',
     },
     # the following type is used when running generate case lists on already created staging files
 	'data_RNA_Seq_expression_median.txt' => {

@@ -42,7 +42,7 @@ my( $customDirectory, $customFileType, $DeepFirehoseDirectory, $runDate, $custom
 # map - key is customFileType, value is gdac dir - file pair
 my $customFileProperties = {
 	'AGILENT-MRNA' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version>', '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt'],
-	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>', '<CANCER>_rnaseq.txt'],
+	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>', '<CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt'],
 	'CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_thresholded.by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
 };
@@ -106,15 +106,16 @@ sub moveGDACOverridesFile{
     print `cmp  $fromFile $toFile`;
 
 	# if using custom CNA, lets now copy over Log2CNA
-	if ( $customFileType eq "CNA"  && defined($latestVersionOfLog2CNAFile) )
-	{
-	  my $newLog2CNAFile = File::Spec->catfile( $customFileDir, "all_data_by_genes.txt" );
-	  print "\ncopying Log2CNA:\n", "from: $latestVersionOfLog2CNAFile\n", "  to: $newLog2CNAFile\n";
-	  system( "cp $latestVersionOfLog2CNAFile $newLog2CNAFile"); 
-	  print `cmp  $latestVersionOfLog2CNAFile $newLog2CNAFile`;
-	}
-	else {
-	  warn "Copying custom CNA and cannot find Log2CNA data\n";
+	if ( $customFileType eq "CNA") {
+	  if (defined($latestVersionOfLog2CNAFile) ) {
+		my $newLog2CNAFile = File::Spec->catfile( $customFileDir, "all_data_by_genes.txt" );
+		print "\ncopying Log2CNA:\n", "from: $latestVersionOfLog2CNAFile\n", "  to: $newLog2CNAFile\n";
+		system( "cp $latestVersionOfLog2CNAFile $newLog2CNAFile"); 
+		print `cmp  $latestVersionOfLog2CNAFile $newLog2CNAFile`;
+	  }
+	  else {
+		warn "Copying custom CNA and cannot find Log2CNA data\n";
+	  }
 	}
 	
 	# must also create an empty directory in which the sig_genes.txt file will be created    

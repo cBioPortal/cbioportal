@@ -197,7 +197,7 @@ sub create_data_mRNA_median{
 }
 
 # create data_rna_seq_expression_median.txt for RNA-Seq mRNA
-# source file: <cancer>.rnaseq.txt
+# source file: <CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 # data transformation:
 # Convert case ID
 # Convert 'Symbol' to Gene_ID
@@ -215,7 +215,7 @@ sub create_data_RNA_seq_mRNA_median{
     $data->col('Gene_ID');
     
     # convert geneIDs
-    $self->mapDataToGeneID( $firehoseFile, $data, 'Symbol', 'Gene_ID' );
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Gene_ID' );
 
     # rename 'Symbol' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
@@ -826,7 +826,7 @@ sub create_data_mRNA_median_Zscores{
 }
 
 # sub to create data_RNA_seq_mRNA_median_Zscores.txt
-# source file: <cancer>.rnaseq.txt
+# source file: <CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 # data transformation:
 # Giovanni's Z-score program
 # inputs CNA and median expression profile files
@@ -857,7 +857,7 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 
     # 2) map Hugo_Symbol in <CANCER>.medianexp.txt into a 'best' gene ID 
     # todo: make a "real" temp file; avoid concurency collisions
-    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.rnaseq.txt' );
+    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' );
     $self->create_data_RNA_seq_mRNA_median( $globalHash, [ $FirehoseMRNA_File ], [ $MRNA_FileCtable ], $tmpFirehoseMRNA_File );
 
     my $cmdLineCP = set_up_classpath( $codeForCGDS );

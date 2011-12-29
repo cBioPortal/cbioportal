@@ -70,8 +70,15 @@ sub create_data_CNA{
     $self->mapDataToGeneID( $firehoseFile, $data, 'Gene Symbol', 'Locus ID' );
  
     # drop cols
-    $data->col_delete( "Gene Symbol" );
     $data->col_delete( "Cytoband" );
+
+	# rename cols
+	$data->col_rename ( "Gene Symbol" => "Hugo_Symbol" );
+	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
+
+    # set column order
+    my @cols = ( 'Entrez_Gene_Id', 'Hugo_Symbol', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    $data->fieldlist_set( \@cols );
     
     # convert case-ID headers
     convert_case_ID_headers( $firehoseFile, $data );
@@ -101,8 +108,15 @@ sub create_data_log2CNA{
     $self->mapDataToGeneID( $firehoseFile, $data, 'Gene Symbol', 'Locus ID' );
  
     # drop cols
-    $data->col_delete( "Gene Symbol" );
     $data->col_delete( "Cytoband" );
+
+	# rename cols
+	$data->col_rename ( "Gene Symbol" => "Hugo_Symbol" );
+	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
+
+    # set column order
+    my @cols = ( 'Entrez_Gene_Id', 'Hugo_Symbol', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    $data->fieldlist_set( \@cols );
     
     # convert case-ID headers
     convert_case_ID_headers( $firehoseFile, $data );
@@ -180,17 +194,20 @@ sub create_data_mRNA_median{
 
     # Ignore row 2; rows count from 0, and header row doesn't count
     $data->row_delete( 0 );
-    
+
     # create Gene_ID column
-    $data->col('Gene_ID');
-    
+    $data->col('Entrez_Gene_Id');
+
     # convert geneIDs
-    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Gene_ID' );
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Entrez_Gene_Id' );
 
     # rename 'Hybridization REF' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
-    my @cols = ( 'Gene_ID', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    my @cols = ( 'Entrez_Gene_Id', 'Hybridization REF', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
     $data->fieldlist_set( \@cols );
+
+	# rename col
+	$data->col_rename( "Hybridization REF" => "Hugo_Symbol" );
     
     # write CGDS file
     $data->write( $CGDSfile );
@@ -200,7 +217,7 @@ sub create_data_mRNA_median{
 # source file: <CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 # data transformation:
 # Convert case ID
-# Convert 'Symbol' to Gene_ID
+# Convert 'Hybridiation REFSymbol' to Gene_ID
 sub create_data_RNA_seq_mRNA_median{
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
     
@@ -212,16 +229,32 @@ sub create_data_RNA_seq_mRNA_median{
     convert_case_ID_headers( $firehoseFile, $data );
 
     # create Gene_ID column
-    $data->col('Gene_ID');
-    
-    # convert geneIDs
-    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Gene_ID' );
+    $data->col('Entrez_Gene_Id');
+
+    # convert geneIDs (mapDataToGeneID supports rna seq data file gene_symbol|id
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Entrez_Gene_Id' );
+
+	# rna seq data file has combination gene_symbol|id
+	# replace gene_symbol|id with gene symbol
+	my $Gene_Symbols = $data->col('Hybridization REF');
+    my $rows = $data->all();
+    foreach my $rowNum (@{$rows}) {
+	  if( defined( $Gene_Symbols ) && defined( $Gene_Symbols->[$rowNum] )){
+		my $gene_symbol = $Gene_Symbols->[$rowNum];
+		if ($gene_symbol =~ /(\w+)\|\d+/) {
+		  $Gene_Symbols->[$rowNum] = $1;
+		}
+	  }
+	}
 
     # rename 'Symbol' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
-    my @cols = ( 'Gene_ID', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    my @cols = ( 'Entrez_Gene_Id', 'Hybridization REF', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
     $data->fieldlist_set( \@cols );
     
+	# rename col
+	$data->col_rename( "Hybridization REF" => "Hugo_Symbol" );
+
     # write CGDS file
     $data->write( $CGDSfile );
 }
@@ -428,7 +461,7 @@ sub create_data_mutations_extended{
     }
 	
     # subselect and reorder columns 
-    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  
+    $data->fieldlist_set( [ qw( Entrez_Gene_Id Hugo_Symbol Center Tumor_Sample_Barcode  
         Verification_Status Validation_Status Mutation_Status 
          Sequencer Chromosome Start_position End_position Variant_Classification
         MA:variant MA:FImpact MA:link.var MA:link.MSA MA:link.PDB  ) ] );
@@ -566,7 +599,7 @@ sub create_data_methylation{
     # add Entrez Gene ID
     $methylation__humanmethylation27_Ctable->col('Entrez_Gene_Id');
     # set column order
-    my @cols = ( 'Gene', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$methylation__humanmethylation27_Ctable->fieldlist()} ); 
+    my @cols = ( 'Entrez_Gene_Id', 'Gene', grep {tumorCaseID($_)} @{$methylation__humanmethylation27_Ctable->fieldlist()} ); 
     $methylation__humanmethylation27_Ctable->fieldlist_set( \@cols );
 
     # instantiate Gene and Entrez_Gene_Id columns
@@ -584,6 +617,9 @@ sub create_data_methylation{
 
     # remove Hybridization_REF column
     $methylation__humanmethylation27_Ctable->col_delete( 'Hybridization_REF' );
+
+	# rename cols
+	$methylation__humanmethylation27_Ctable->col_rename ( "Gene" => "Hugo_Symbol" );
 
     # write CGDS file with methylation( Gene, caseID )
     $methylation__humanmethylation27_Ctable->write( $CGDSfile );    

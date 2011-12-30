@@ -77,7 +77,7 @@ sub create_data_CNA{
 	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
 
     # set column order
-    my @cols = ( 'Entrez_Gene_Id', 'Hugo_Symbol', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    my @cols = ( 'Hugo_Symbol', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
     $data->fieldlist_set( \@cols );
     
     # convert case-ID headers
@@ -115,7 +115,7 @@ sub create_data_log2CNA{
 	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
 
     # set column order
-    my @cols = ( 'Entrez_Gene_Id', 'Hugo_Symbol', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    my @cols = ( 'Hugo_Symbol', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
     $data->fieldlist_set( \@cols );
     
     # convert case-ID headers
@@ -203,7 +203,7 @@ sub create_data_mRNA_median{
 
     # rename 'Hybridization REF' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
-    my @cols = ( 'Entrez_Gene_Id', 'Hybridization REF', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    my @cols = ( 'Hybridization REF', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
     $data->fieldlist_set( \@cols );
 
 	# rename col
@@ -249,7 +249,7 @@ sub create_data_RNA_seq_mRNA_median{
 
     # rename 'Symbol' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
-    my @cols = ( 'Entrez_Gene_Id', 'Hybridization REF', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    my @cols = ( 'Hybridization REF', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
     $data->fieldlist_set( \@cols );
     
 	# rename col
@@ -461,7 +461,7 @@ sub create_data_mutations_extended{
     }
 	
     # subselect and reorder columns 
-    $data->fieldlist_set( [ qw( Entrez_Gene_Id Hugo_Symbol Center Tumor_Sample_Barcode  
+    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  
         Verification_Status Validation_Status Mutation_Status 
          Sequencer Chromosome Start_position End_position Variant_Classification
         MA:variant MA:FImpact MA:link.var MA:link.MSA MA:link.PDB  ) ] );
@@ -599,7 +599,7 @@ sub create_data_methylation{
     # add Entrez Gene ID
     $methylation__humanmethylation27_Ctable->col('Entrez_Gene_Id');
     # set column order
-    my @cols = ( 'Entrez_Gene_Id', 'Gene', grep {tumorCaseID($_)} @{$methylation__humanmethylation27_Ctable->fieldlist()} ); 
+    my @cols = ( 'Gene', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$methylation__humanmethylation27_Ctable->fieldlist()} ); 
     $methylation__humanmethylation27_Ctable->fieldlist_set( \@cols );
 
     # instantiate Gene and Entrez_Gene_Id columns

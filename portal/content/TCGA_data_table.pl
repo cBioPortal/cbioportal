@@ -73,34 +73,45 @@ while ($line = <IN3>) {
 	@study = split (/_/,$data[0]);
 
 	unless ($data[10]==0) {
-      if ($line_ct++ % 2) {
-        print OUT1 "\t<tr>\n";
-      }
-      else {
-		print OUT1 "\t<tr class=\"rowcolor\">\n";
-      }
+		if ($line_ct++ % 2) {
+			print OUT1 "\t<tr>\n";
+		}
+		else {
+			print OUT1 "\t<tr class=\"rowcolor\">\n";
+		}
 #		print OUT1 "\t\t<td><b>$study[0] ($study[1])</b></td>\n";
+	  
+		# cancer study
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: left;\">$prad_mskcc_link"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: left;\">$sarc_mskcc_link"; }
 		elsif ($data[0] eq "OV_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$ov_tcga_link"; }
 		elsif ($data[0] eq "GBM_TCGA") { print OUT1 "\t\t<td style=\"text-align: left;\">$gbm_tcga_link"; }
 		else { print OUT1 "\t\t<td style=\"text-align: left;\"><b>$cancers{$study[0]} ($study[1])</b></td>\n"; }
+		# all
 		$pie_data .= "['$cancers{$study[0]} ($study[1])', $data[10]],\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[10]</b></td>\n";
+		# sequenced
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">91</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
-		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
+		# cgh
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		# rna-seq
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
+		# mRNA
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
+		# normal
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">30</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">8</td>\n"; }
 		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[9]</td>\n"; }
+		# methylation
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[2]</td>\n";
+		# rppa
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[1]</td>\n";
+		# complete
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\"><b>85</b></td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\"><b>149</b></td>\n"; }
-		else { print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[7]</b></td>\n"; }
+		else { print OUT1 "\t\t<td style=\"text-align: center;\"><b>$data[8]</b></td>\n"; }
 		print OUT1 "\t</tr>\n\n";
 		$all_count = $all_count + $data[10];
 	}

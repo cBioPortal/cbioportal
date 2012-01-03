@@ -92,11 +92,11 @@
 # the arguments (e.g., 0.1,50) are q-value,n-percentage thresholds for selecting genes in the  significantlyMutatedSomaticGenesWhitelist.txt
 # which will be used to filter the maf file
 # the test refers to the previously processed maf file, which has 20 cases
-- create_mutation_white_list:
-    outfile: significantlyMutatedSomaticGenesWhitelist.txt
-    arguments: 0.1,50
-    dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version> <CANCER>.sig_genes.txt
+#- create_mutation_white_list:
+#    outfile: significantlyMutatedSomaticGenesWhitelist.txt
+#    arguments: 0.1,50
+#    dirsAndFiles:
+#        - gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version> <CANCER>.sig_genes.txt
 
 # include clinical in the list; CGDS filename is a guess
 # create_data_clinical

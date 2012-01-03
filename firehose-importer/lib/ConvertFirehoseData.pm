@@ -487,7 +487,7 @@ sub create_case_lists{
               'All samples with mRNA expression data (<cases> samples)',
         },
         'cases_RNA_Seq_mRNA.txt' => {
-            'FirehoseFile'          => '<CANCER>.rnaseq.txt',
+            'FirehoseFile'          => '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_rna_seq_mrna',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
@@ -645,7 +645,7 @@ sub create_case_lists{
         [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
     
 	my $cghSource = 'all_thresholded.by_genes.txt';
-	my $rnaSEQSource = '<CANCER>.rnaseq.txt';
+	my $rnaSEQSource = '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt';
 	my $mrnaSource = '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt';
 	my $sequencedSource = '<CANCER>.maf.annotated';
 	my $methylationSource = '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt';
@@ -685,9 +685,9 @@ sub create_case_lists{
 	  }
 	}
 	else {
-	  my $rnaSeqExpressionFile = getLastestVersionOfFile( $CancersFirehoseDataDir, "gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version>", "<CANCER>.rnaseq.txt", $cancer, $runDate );
+	  my $rnaSeqExpressionFile = getLastestVersionOfFile( $CancersFirehoseDataDir, "gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>", "<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt", $cancer, $runDate );
 	  if ( defined( $rnaSeqExpressionFile ) ) {
-		$mrnaSource = "<CANCER>.rnaseq.txt";
+		$mrnaSource = "<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt";
 	  }
 	}
 
@@ -740,7 +740,7 @@ sub create_many_to_one_case_lists{
         # substitute <CANCER> with this cancer, uppercased 
         my $cancerUC = uc( $cancer );
         $possibleFirehoseFile =~ s/<CANCER>/$cancerUC/g;
-        
+
         if( exists( $file_to_FirehoseFileMetadata_object{ $possibleFirehoseFile} ) ){
             push @FirehoseFileMetadata_objects_of_interest, $file_to_FirehoseFileMetadata_object{ $possibleFirehoseFile}; 
             # print "Found $possibleFirehoseFile\n";

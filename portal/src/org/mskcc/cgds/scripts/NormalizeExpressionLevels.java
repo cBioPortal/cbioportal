@@ -130,7 +130,8 @@ public class NormalizeExpressionLevels{
          ArrayList<String> outputLine = new ArrayList<String>(); 
 
          // header contains only ids of tumor samples
-         outputLine.add("GeneSymbol");
+         outputLine.add("Hugo_Symbol");
+         outputLine.add("Entrez_Gene_Id");
          for(int i=firstSamplePosition;i<samples.length;i++)
             if(!normalSamples.contains(samples[i]))
                outputLine.add(samples[i]);
@@ -155,6 +156,7 @@ public class NormalizeExpressionLevels{
             
             values = line.split("\t");
             String id = values[0];  // gene identifier in 1st column
+			String entrezGeneID = values[1];
             
             // ignore gene's data if its copy number status is unknown
             if(geneCopyNumberStatus.containsKey(id)){
@@ -178,6 +180,7 @@ public class NormalizeExpressionLevels{
                   
                   outputLine.clear();
                   outputLine.add(id);
+                  outputLine.add(entrezGeneID);
 
                   for(int k =0;k<zscores.length;k++)
 
@@ -193,6 +196,7 @@ public class NormalizeExpressionLevels{
                }else{
                   outputLine.clear();
                   outputLine.add(id);
+                  outputLine.add(entrezGeneID);
                   for(int k =0;k<SAMPLES;k++)
                      outputLine.add( NOT_AVAILABLE );
                   out.println( join( outputLine, "\t") );
@@ -201,6 +205,7 @@ public class NormalizeExpressionLevels{
             }else{
                outputLine.clear();
                outputLine.add(id);
+			   outputLine.add(entrezGeneID);
                for(int k =0;k<SAMPLES;k++)
                   outputLine.add( NOT_AVAILABLE );
                out.println( join( outputLine, "\t") );

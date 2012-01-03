@@ -59,13 +59,13 @@
 - create_data_RNA_seq_mRNA_median:
     outfile: data_RNA_Seq_expression_median.txt
     dirsAndFiles:
-      - gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version> <CANCER>.rnaseq.txt
+       - gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version> <CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 
 # miRNA; also will do nothing if both mRNA and miRNA data are present
-- create_data_miRNA:
-    outfile: data_expression_miRNA.txt
-    dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
+#- create_data_miRNA:
+#    outfile: data_expression_microrna.txt
+#    dirsAndFiles:
+#        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  
 # uses maf files
 - create_data_mutations_extended:
@@ -85,7 +85,7 @@
     outfile: data_RNA_Seq_mRNA_median_Zscores.txt
     dirsAndFiles:
       - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_thresholded.by_genes.txt 
-      - gdac.broadinstitute.org_<CANCER>.RNA_Seq.<date><version> <CANCER>.rnaseq.txt
+      - gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version> <CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
 
 # obtain per-cancer gene 'whitelist' from mutation significance file
 # since significantlyMutatedSomaticGenesWhitelist is not a data_* file, it won't have a meta file created, and won't be loaded into the cgds dbms

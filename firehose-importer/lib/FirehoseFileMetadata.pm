@@ -63,8 +63,8 @@ my $fileProperties = {
         geneIDcol => undef,
         geneSymbolCol => 'geneSymbol',
     },
-    '<CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' => {
-        example => 'BRCA.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
+    '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' => {
+        example => 'BRCA.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
         structure => 'profile',
         numHeaderRows => 2,
         geneIDcol => undef,

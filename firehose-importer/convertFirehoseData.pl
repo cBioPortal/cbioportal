@@ -261,7 +261,8 @@ sub download_from_firehose{
 
         foreach my $dirAndFile ( @{$FirehoseDirectoriesAndFiles} ) {
             my( $FirehoseDirPattern, $FirehoseFilePattern ) = @{$dirAndFile}; 
-
+			# RNA-SEQ files come in two flavors
+			$FirehoseDirPattern =~ s/<RNA-SEQ-PLATFORM>/*/g;
 	        # wildcard for each '<name>' pattern
 	        $FirehoseDirPattern =~ s/<\w+>/*/g;
 	        # wildcard at the end to get md5

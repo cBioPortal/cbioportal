@@ -42,7 +42,7 @@ my( $customDirectory, $customFileType, $DeepFirehoseDirectory, $runDate, $custom
 # map - key is customFileType, value is gdac dir - file pair
 my $customFileProperties = {
 	'AGILENT-MRNA' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version>', '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt'],
-	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>', '<CANCER>.rnaseq__illuminahiseq_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt'],
+	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>', '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>__unc_edu__Level_3__gene_expression__data.data.txt'],
 	'CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_thresholded.by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
 };
@@ -131,9 +131,20 @@ sub moveGDACOverridesFile{
 # get a lexicographically later version of a file
 sub getNextVersionOfFile{
     my( $CancersFirehoseDataDir, $directoryNamePattern, $fileNamePattern, $cancer, $runDate ) =@_;
+	$directoryNamePattern =~ s/<RNA-SEQ-PLATFORM>/hiseq/;
+	$fileNamePattern =~ s/<RNA-SEQ-PLATFORM>/hiseq/;
     my $latestVersion = getLastestVersionOfFile( $CancersFirehoseDataDir, $directoryNamePattern, $fileNamePattern, $cancer, $runDate );
     my($volume, $latestDir, $latestFile ) = File::Spec->splitpath( $latestVersion );
     my $nextDir = $latestDir;
+	# if we are processing RNA-SEQ and didn't find illuminahiseq,
+	# check for illuminaga before creating a new version of illuminahiseq
+	unless ( -d $nextDir && $directoryNamePattern =~ /rnaseq/ ) {
+	  $directoryNamePattern =~ s/hiseq/ga/;
+	  $fileNamePattern =~ s/hiseq/ga/;
+	  $latestVersion = getLastestVersionOfFile( $CancersFirehoseDataDir, $directoryNamePattern, $fileNamePattern, $cancer, $runDate );
+	  ($volume, $latestDir, $latestFile ) = File::Spec->splitpath( $latestVersion );
+	  $nextDir = $latestDir;
+	}
 	unless ( -d $nextDir) {
 		my $customFileDir = File::Spec->catfile($CancersFirehoseDataDir, $directoryNamePattern);
 		my $cancer_UC = uc( $cancer );

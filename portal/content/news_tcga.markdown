@@ -1,11 +1,20 @@
+# January 4, 2011
+
+* Now __19 tumor types__, all data updated to the __latest Firehose run__ (November 28).
+* Support for __microRNA__ expression and copy-number (including multiple loci).
+* New __gene symbol validation__ service.  You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
+* Improved __links to IGV__ for visualization of DNA copy-number changes.
+* Background information from the [Sanger Cancer Gene Census](http://www.sanger.ac.uk/genetics/CGP/Census/).
+* Two __new [Tutorials](tutorial.jsp)__ to get you quickly started in using the portal.
+
 # December 5, 2011
 
 New data types and updated data:
 
-* Added support for RNA-Seq expression data (COADREAD, KIRC, LUSC)
-* Added support for log2 copy-number data (available on the Plots tab)
-* Updated LAML and LUSC MAF files
-* Updated LUSC case lists (reflecting the manuscript sample set)
+* Added support for RNA-Seq expression data (COADREAD, KIRC, LUSC).
+* Added support for log2 copy-number data (available on the Plots tab).
+* Updated LAML and LUSC MAF files.
+* Updated LUSC case lists (reflecting the manuscript sample set).
 
 # November 15, 2011
 
@@ -25,11 +34,11 @@ Another major update, with the following new features and data:
 
 This release adds the following new data:
 
-* Based on the September Firehose run with new tumor types (Bladder, Liver, Low grade glioma)
-* Latest MAF files from the COADREAD and LUSC analysis working groups
-* Mutation Assessor links for all missense mutations
-* RPPA data for kidney clear cell and endometrial cancer
-* GBM case lists for transcriptional subtypes and CIMP
+* Based on the September Firehose run with new tumor types (Bladder, Liver, Low grade glioma).
+* Latest MAF files from the COADREAD and LUSC analysis working groups.
+* Mutation Assessor links for all missense mutations.
+* RPPA data for kidney clear cell and endometrial cancer.
+* GBM case lists for transcriptional subtypes and CIMP.
 
 # September 12, 2011
 

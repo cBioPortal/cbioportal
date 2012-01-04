@@ -1,4 +1,2 @@
 COADREAD.rnaseq.txt coadread
-KIRC.rnaseq.txt kirc
 LUSC.rnaseq.txt lusc
-UCEC.rnaseq.txt ucec

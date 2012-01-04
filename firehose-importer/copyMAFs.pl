@@ -27,9 +27,6 @@ EOT
 
 my( $DeepFirehoseDirectory, $DestinationDirectory, $RunDate, $Host, $User );
 
-# make sure to put the customFile file in the proper gdac directory, 
-# because that's what convertFirehoseData.pl will use via getLastestVersionOfFile()
-
 main();
 sub main{
 	

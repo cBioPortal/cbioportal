@@ -82,8 +82,7 @@ sub main{
 sub moveGDACOverridesFile{
 	my( $customFile, $cancer, $destDir, $destFile ) = @_;
 	# in override dir, cancer directory is called <CANCER>_tcga
-	my @directories = ( $customDirectory, $cancer . '_tcga' );
-	my $fromFile = File::Spec->catdir( @directories, $customFile );
+	my $fromFile = File::Spec->catdir( ($customDirectory, $cancer . '_tcga' ), $customFile );
 
     my $CancersFirehoseDataDir = File::Spec->catfile( $DeepFirehoseDirectory, $cancer, $runDate . '00' );
 

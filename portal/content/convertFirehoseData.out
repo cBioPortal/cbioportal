@@ -2,7 +2,7 @@ Cancers	cases_rppa.txt	cases_methylation.txt	cases_CGH.txt	cases_log2CNA.txt	cas
 blca_tcga			35	35						35
 brca_tcga	410	314	700	700	219	530	507	178	0	730
 cesc_tcga			36	36						36
-coadread_tcga	463	236	519	519	77	224	224	65	0	574
+coadread_tcga	463	236	519	519	244	224	224	193	0	575
 gbm_tcga	215	288	501	501		500	372	319	0	577
 hnsc_tcga			127	127	4					127
 kirc_tcga	454	219	489	489	333	72	327	270	0	502

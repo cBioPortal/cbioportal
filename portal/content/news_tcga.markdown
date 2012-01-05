@@ -1,4 +1,4 @@
-# January 4, 2011
+# January 5, 2011
 
 * Now __19 tumor types__, all data updated to the __latest Firehose run__ (November 28).
 * Support for __microRNA__ expression and copy-number (including multiple loci).

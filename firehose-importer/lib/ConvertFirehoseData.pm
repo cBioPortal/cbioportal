@@ -264,6 +264,11 @@ sub create_data_and_meta_files{
             # todo: should turn CTable caching on, but cache files in a tmp dir
             # todo: important optimization; since some firehose files are used multiple times, avoid duplicating them in $FirehoseFileMetadata_objects
 
+			# if we are processing an rna seq, we need to preprocess the file
+			if ($FullFirehoseFile =~ /rnaseq/) {
+			  $FullFirehoseFile = preprocessRNASEQ($FullFirehoseFile, $firehoseFile, $cancer );
+			}
+
             # first disable CTable progress messages; sigh, doesn't work
             # Data::CTable->progress_class(0); 
             my $cTable = Data::CTable->new( { _CacheOnRead   => 0 }, $FullFirehoseFile );

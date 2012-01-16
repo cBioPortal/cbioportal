@@ -27,7 +27,7 @@ public final class MutationDiagramModule extends AbstractModule {
 
     @Provides
     CacheLoader<String, List<Domain>> createCacheLoader() {
-        return new UniProtDasCacheLoader();
+        return new PfamGraphicsCacheLoader();
     }
 
     @Provides

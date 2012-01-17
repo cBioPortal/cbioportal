@@ -30,7 +30,7 @@ open (IN2,"LATEST_RUN.txt");
 <IN2>;
 $line = <IN2>;
 chomp $line;
-@data=split(/00/,$line);
+@data=split(/00$/,$line);
 $date=$data[0];
 
 open (IN3,"convertFirehoseData.out");

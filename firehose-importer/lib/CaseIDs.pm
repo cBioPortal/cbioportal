@@ -2,7 +2,7 @@ package CaseIDs;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(convertCaseID convert_case_ID_headers tumorCaseID matchedNormalCaseID 
-    normalTissueCaseID recurrentTumorCaseID tcgaHeaderPattern );
+    normalTissueCaseID recurrentTumorCaseID tcgaHeaderPattern getCaseCount );
 
 use File::Spec;
 use strict;
@@ -173,6 +173,20 @@ sub convert_case_ID_headers{
             }
         }
     }
+}
+
+# returns numbers of cases in cTable
+sub getCaseCount{
+  my( $cTable ) =  @_;
+
+  my $toReturn = 0;
+  foreach my $f ( @{$cTable->fieldlist()} ){
+	if( tumorCaseID( $f ) ){
+	  $toReturn++;
+	}
+  }
+
+  return $toReturn;
 }
 
 1;

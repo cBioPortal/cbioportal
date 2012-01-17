@@ -898,6 +898,12 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 
     my $cmdLineCP = set_up_classpath( $codeForCGDS );
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
+	my $caseCount = getCaseCount($MRNA_FileCtable);
+	# if we have less cases then DEFAULT_MIN_NUM_DIPLOIDS defined in NormalizeExpressionLevels
+	# we have to use the optional min_number_of_diploids argument otherwise the class throws an exception
+	if ($caseCount < 10) {
+	  $files = $files . " $caseCount";
+	}
 
     # run the zScore java program
     runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );

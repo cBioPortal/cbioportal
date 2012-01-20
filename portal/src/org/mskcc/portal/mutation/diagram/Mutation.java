@@ -6,7 +6,7 @@ import org.json.simple.JSONObject;
 /**
  * Mutation.
  */
-final class Mutation implements JSONAware {
+public final class Mutation implements JSONAware {
     private final String label;
     private final int location;
     private final int count;

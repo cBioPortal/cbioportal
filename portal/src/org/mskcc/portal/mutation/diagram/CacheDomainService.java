@@ -33,8 +33,8 @@ public final class CacheDomainService implements DomainService {
     }
 
     /** {@inheritDoc} */
-    public List<Domain> getDomains(String uniProtId) {
-        checkNotNull(uniProtId, "uniProdId must not be null");
+    public List<Domain> getDomains(final String uniProtId) {
+        checkNotNull(uniProtId, "uniProtId must not be null");
         try {
             return cache.get(uniProtId);
         }

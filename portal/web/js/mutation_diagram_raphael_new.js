@@ -11,9 +11,10 @@ function drawMutationDiagram(sequences)
   c = (2 * h) / 3;
   mutationDiagram = sequences[0];
   l = mutationDiagram.length;
+  id = mutationDiagram.metadata.hugoGeneSymbol;
   label = mutationDiagram.metadata.identifier;
 
-  var paper = Raphael("diagram_" + label, 700, 220);
+  var paper = Raphael("mutation_diagram_" + id, 700, 220);
 
   // label
   paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "16px", "font-family": "sans-serif"});
@@ -48,12 +49,12 @@ function drawMutationDiagram(sequences)
 
     // sequence scale labels
     if (scaleHoriz(l - i, w, l) > 30) { 
-      paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 14, i)
+      paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 16, i)
         .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
     }
   }
 
-  paper.text(x + scaleHoriz(l, w, l), sequenceScaleY + 14, l + " aa")
+  paper.text(x + scaleHoriz(l, w, l), sequenceScaleY + 16, l + " aa")
    .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
 
   // regions
@@ -73,8 +74,8 @@ function drawMutationDiagram(sequences)
 //        .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
 
 
-    if ((regionLabel.length * 5) < regionW) {
-      paper.text(regionX + (regionW / 2), regionY + regionH - 9, regionLabel)
+    if ((regionLabel != null) && ((regionLabel.length * 5) < regionW)) {
+      paper.text(regionX + (regionW / 2), regionY + regionH - 6, regionLabel)
         .attr({"text-anchor": "middle", "font-size": "11px", "font-family": "sans-serif"});
 //        .append("svg:title")
 //          .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
@@ -92,7 +93,7 @@ function drawMutationDiagram(sequences)
   }
 
   scaleX = x - 15;
-  scaleY = c - 12;
+  scaleY = c - 8;
   per = (h / 3) / maxCount;
   scaleH = maxCount * per;
   scaleW = scaleHoriz(8, w, l);
@@ -121,10 +122,10 @@ function drawMutationDiagram(sequences)
 
     // mutation scale labels
     paper.text(scaleX - 8, scaleY, 0)
-      .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
+      .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
 
     paper.text(scaleX - 8, scaleY - (maxCount * per), maxCount)
-      .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
+      .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
   }
 
   // mutation histograms/pileups

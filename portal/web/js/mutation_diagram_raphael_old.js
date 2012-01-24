@@ -13,7 +13,7 @@ function drawMutationDiagram(mutationDiagram)
   c = (2 * h) / 3;
   l = mutationDiagram.length;
 
-  var paper = Raphael("diagram_" + mutationDiagram.label, 700, 220);
+  var paper = Raphael("mutation_diagram_" + mutationDiagram.label, 700, 220);
 
   // label
   paper.text(10, 26, mutationDiagram.label).attr({"text-anchor": "start", "font-size": "16px", "font-family": "sans-serif"});

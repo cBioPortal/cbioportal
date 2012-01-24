@@ -1,6 +1,7 @@
 package org.mskcc.portal.mutation.diagram.pfam;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -48,6 +49,8 @@ public final class MutationDiagramDataServlet extends HttpServlet {
         List<Sequence> sequences = featureService.getFeatures(uniProtId);
         if (!sequences.isEmpty()) {
             Sequence sequence = sequences.get(0);
+            sequence.getMetadata().put("hugoGeneSymbol", hugoGeneSymbol);
+            sequence.getMetadata().put("uniProtId", uniProtId);
             List<Mutation> mutations = mutationService.getMutations(hugoGeneSymbol);
 
             for (Mutation mutation : mutations) {
@@ -59,6 +62,7 @@ public final class MutationDiagramDataServlet extends HttpServlet {
                 markup.setHeadStyle("diamond");
                 markup.setV_align("top");
                 markup.setType("mutation");
+                markup.setMetadata(new HashMap<String, Object>());
                 markup.getMetadata().put("count", mutation.getCount());
                 markup.getMetadata().put("type", mutation.getLabel());
                 markup.getMetadata().put("description", "Mutation: " + mutation.getLabel() + " (N=" + mutation.getCount() + ")");

@@ -28,7 +28,7 @@
 %>
 <script type="text/javascript" src="js/d3/d3.js"></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
-<script type="text/javascript" src="js/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/mutation_diagram_d3_old.js"></script>
 <script type="text/javascript">
 //  Place mutation_details_table in a JQuery DataTable
 $(document).ready(function(){

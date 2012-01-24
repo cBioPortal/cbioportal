@@ -48,10 +48,9 @@ use FirehoseTransformationWorkflow;
 # $codeForCGDS          directory storing cgds code
 # $GenesFile            file containing genes (gene info file from NCBI)
 # $runDate              date of file run - name for the suffix of the data dirs
-# $SkipCaseList         if defined, skip case list generation
 sub create_cgds_input_files{
 	my( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $FirehoseXformWorkflow, $codeForCGDS, 
-	$GenesFile, $runDate, $SkipCaseList ) = @_;
+	$GenesFile, $runDate ) = @_;
     
 	my $fileUtil = File::Util->new();
 
@@ -76,16 +75,11 @@ sub create_cgds_input_files{
         # summary: create column with abbreviation
         $runSummary->{$cancerInputDirectory} = {};
         
-        # create directories for CGDS input files
-		unless (defined( $SkipCaseList )) {
-		  $fileUtil->make_dir( File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory, 'case_lists' ), '--if-not-exists' );
-		}
-        
         # process the cancer
         CreateCancersCGDSinput( $globalHash, $cancer, $name,
            File::Spec->catfile( $CancerDataDir, $cancer, $runDirectory ),
            File::Spec->catfile( $CGDSDataDirectory, $cancerInputDirectory), 
-           $FirehoseXformWorkflow, $runSummary, $codeForCGDS, $runDate, $SkipCaseList );
+           $FirehoseXformWorkflow, $runSummary, $codeForCGDS, $runDate );
     }
     clean_up( $runSummary, $Summary ); 
     print "\n";
@@ -183,19 +177,13 @@ sub generate_case_lists{
 # $codeForCGDS: dir of CGDS code 
 # $GenesFile: file with gene data
 # $runDate: [optional] rundate of Firehose (dir name below $cancer)
-# $SkipCaseList         if defined, skip case list generation
 sub CreateCancersCGDSinput{
     my( $globalHash, $cancer, $name, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseXformWorkflow, $runSummary, 
-        $codeForCGDS, $runDate, $SkipCaseList ) = @_;
+        $codeForCGDS, $runDate ) = @_;
         
     # create CGDS input data and meta files
     my $FirehoseFileMetadata_objects = create_data_and_meta_files( $globalHash, $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, 
         $FirehoseXformWorkflow, $codeForCGDS, $runDate );
-
-	# create case lists
-	unless (defined( $SkipCaseList )) {
-	  create_case_lists( $cancer, $CancersFirehoseDataDir, $CancersCGDSinputDir, $FirehoseFileMetadata_objects, $runDate, $runSummary );
-	}
 
     # create cancer-type name file
     createCancerTypeNameFile( $FirehoseFileMetadata_objects, $cancer, $name, $CancersCGDSinputDir );    
@@ -294,6 +282,11 @@ sub create_data_and_meta_files{
                 }
                 
             }
+
+			# if we just processed an rna seq file, we need to delete the tmp file that was made
+			if ($FullFirehoseFile =~ /rnaseq/) {
+			  File::Remove->remove($FullFirehoseFile);
+			}
         }
         
         my $FirehoseDirAndFiles =  englishList( @explicitFiles );            

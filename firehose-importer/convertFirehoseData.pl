@@ -69,7 +69,6 @@ convertFirehoseData.pl
 --CreateCopyOfFirehoseData                      # optional directory; if provided, copy of necessary Firehose data will be created and stored here
 --Limit                                         # lines per file for copy of Firehose data
 --Summary                                       # file in which to output run data summary; relative to CGDSDataDirectory; optional -- if not provided, is convertFirehoseData.out
---SkipCaseList                                  # if set, case list generation is skipped
 --GenerateCaseListOnly                          # if set, generates case lists only
 --DownloadRunDate                               # if set, the run date of the firehose data to download
 EOT
@@ -81,7 +80,7 @@ EOT
 my( $FirehoseURL, $FirehoseURLUserid, $FirehoseURLPassword, 
     $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean, $Cancers, $Genes, 
     $miRNAfile, $firehoseTransformationWorkflowFile, $codeForCGDS,
-    $CreateCopyOfFirehoseData, $Limit, $Summary, $SkipCaseList, $GenerateCaseListOnly, $DownloadRunDate );
+    $CreateCopyOfFirehoseData, $Limit, $Summary, $GenerateCaseListOnly, $DownloadRunDate );
 
 # todo: document
 my $fileUtil;
@@ -134,7 +133,7 @@ sub main{
 	}
 
 	create_cgds_input_files( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $firehoseTransformationWorkflow, $codeForCGDS, 
-        $Genes, $runDate, $SkipCaseList );
+        $Genes, $runDate );
 	print timing(), "create_cgds_input_files complete.\n";
 }
 
@@ -161,7 +160,6 @@ sub process_command_line{
         "CreateCopyOfFirehoseData=s" => \$CreateCopyOfFirehoseData,
         "Limit=i" => \$Limit,
         "Summary=s" => \$Summary,
-		"SkipCaseList" => \$SkipCaseList,
 		"GenerateCaseListOnly" => \$GenerateCaseListOnly,
 		"DownloadRunDate=s" => \$DownloadRunDate,
 	);

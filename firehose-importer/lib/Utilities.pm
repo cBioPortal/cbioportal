@@ -399,15 +399,18 @@ sub preprocessRNASEQ{
   my $firehose_fh = $f->open_handle('file' => $FullFirehoseFile, 'mode' => 'read' );
   while (<$firehose_fh>) {
 	chomp;
-	my $line = $_;
 	$lc = 0;
+	my $line = $_;
+	my $file_contents = '';
 	# first line contains samples
 	if ($line =~ /^Hybridization REF/) {
-	  print $tmp_fh "Hybridization REF\t";
+	  $file_contents .= sprintf("Hybridization REF\t");
 	  @fields = split(/\t/, $line);
 	  shift(@fields);
-	  map { print $tmp_fh "$_\t"} grep {not ++$lc % $RPKM_COLUMN} @fields;
-	  print $tmp_fh "\n";
+	  map { $file_contents .= sprintf("%s\t", $_) } grep {not ++$lc % $RPKM_COLUMN} @fields;
+	  # zap off last tab in string
+	  $file_contents = substr($file_contents, 0, -1);
+	  print $tmp_fh "$file_contents\n";
 	}
 	# we take this entire line
 	elsif ($line =~ /^gene/) {
@@ -417,9 +420,11 @@ sub preprocessRNASEQ{
 	# and then take every third column (RPKM)
 	else {
 	  @fields = split(/\t/, $line);
-	  printf ($tmp_fh "%s\t", shift(@fields));
-	  map { print $tmp_fh "$_\t"} grep {not ++$lc % $RPKM_COLUMN} @fields;
-	  print $tmp_fh "\n";
+	  $file_contents .= sprintf("%s\t", shift(@fields));
+	  map { $file_contents .= sprintf("%s\t", $_) } grep {not ++$lc % $RPKM_COLUMN} @fields;
+	  # zap off last tab in string
+	  $file_contents = substr($file_contents, 0, -1);
+	  print $tmp_fh "$file_contents\n";
 	}
   } 
   close ($firehose_fh);

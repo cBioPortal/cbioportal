@@ -10,6 +10,7 @@ use warnings;
 use File::Spec;
 use File::Util;
 use File::Temp qw/ tempfile /;
+use File::Remove;
 use Data::Dumper;
 use Data::CTable;
 
@@ -859,6 +860,9 @@ sub create_data_mRNA_median_Zscores{
 
     # run the zScore java program
     runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+
+	File::Remove->remove($tmpFirehoseGistic_File);
+	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
 # sub to create data_RNA_seq_mRNA_median_Zscores.txt
@@ -907,6 +911,9 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 
     # run the zScore java program
     runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+
+	File::Remove->remove($tmpFirehoseGistic_File);
+	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
 # create <CANCER>.seg

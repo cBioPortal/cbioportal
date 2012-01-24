@@ -58,8 +58,10 @@ public final class MutationDiagramDataServlet extends HttpServlet {
                 markup.setLineColour("#666");
                 markup.setHeadStyle("diamond");
                 markup.setV_align("top");
+                markup.setType("mutation");
+                markup.getMetadata().put("count", mutation.getCount());
+                markup.getMetadata().put("type", mutation.getLabel());
                 markup.getMetadata().put("description", "Mutation: " + mutation.getLabel() + " (N=" + mutation.getCount() + ")");
-                markup.getMetadata().put("type", "Mutation: " + mutation.getLabel() + " (N=" + mutation.getCount() + ")");
                 markup.getMetadata().put("start", mutation.getLocation());
                 markup.getMetadata().put("database", "cBio Portal");
 

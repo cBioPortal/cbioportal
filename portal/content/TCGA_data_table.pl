@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use Getopt::Long;
+
+my ($CancerFile, $LatestRunFile, $ConverterSummaryFile);
 my ($y, $m, $d) = (localtime)[5,4,3];
 
 $y += 1900;
@@ -13,7 +16,20 @@ $ov_tcga_link = "<a href=\"http:\/\/www.nature.com/nature/journal/v474/n7353/ful
 
 $pie_data = "";
 
-open (IN1,"cancers.txt");
+# Get Args
+GetOptions("CancerFile=s" => \$CancerFile,
+		   "LatestRunFile=s" => \$LatestRunFile,
+		   "ConverterSummaryFile=s" => \$ConverterSummaryFile);
+
+foreach my $arg (qw(CancerFile LatestRunFile ConverterSummaryFile)) {
+  if (!eval 'defined($' . $arg . ')') {
+	print STDERR "Error: $arg is required\n";
+	print STDERR "usage: TCGA_data_table.pl --CancerFile <cancer list> --LatestRunFile <firehose LATEST_RUN> --ConverterSummaryFile <convertFirehoseData.out>\n";
+	exit(1);
+  }
+}
+
+open (IN1, $CancerFile);
 
 $cancer_count = 0;
 while ($line = <IN1>) {
@@ -26,14 +42,14 @@ while ($line = <IN1>) {
 }
 
 
-open (IN2,"LATEST_RUN.txt");
+open (IN2, $LatestRunFile);
 <IN2>;
 $line = <IN2>;
 chomp $line;
 @data=split(/00$/,$line);
 $date=$data[0];
 
-open (IN3,"convertFirehoseData.out");
+open (IN3, $ConverterSummaryFile);
 
 open (OUT1,">data_sets_tcga.html");
 open (OUT2,">data_sets_tcga_right_column.markdown");

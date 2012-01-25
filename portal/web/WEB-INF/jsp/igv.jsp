@@ -7,6 +7,8 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cgds.dao.DaoGeneOptimized" %>
+<%@ page import="org.mskcc.cgds.model.CanonicalGene" %>
 <%
 	  // get URL to seg file used as parameter to IGV
 	  String segFileURL = GlobalProperties.getSegfileUrl();
@@ -15,16 +17,20 @@
       // use geneWithScoreList so we don't get any OQL
       List<String> onlyGenesList = new ArrayList<String>();
       for (GeneWithScore geneWithScore : geneWithScoreList) {
-		  onlyGenesList.add(geneWithScore.getGene());
-	  }
+          CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(geneWithScore.getGene());
+           
+          if (gene!=null && !gene.isMicroRNA()) {
+              onlyGenesList.add(geneWithScore.getGene());
+          }
+      }
       String encodedGeneList = "";
       if (onlyGenesList.size() > 0) {
-		  try {
-			  encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
-		  }
-		  catch(UnsupportedEncodingException e) {
-		  }
-	  }
+          try {
+              encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
+          }
+          catch(UnsupportedEncodingException e) {
+          }
+      }
 %>
 
 <div class="section" id="igv_tab">

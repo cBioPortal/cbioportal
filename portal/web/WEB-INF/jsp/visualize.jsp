@@ -102,6 +102,7 @@
                 || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
+    String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 
 

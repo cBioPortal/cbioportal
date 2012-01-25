@@ -392,13 +392,17 @@ public class QueryBuilder extends HttpServlet {
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
 
+			// pulled the setting of showAlteredColumns outside of (output != null)
+			// so we can get the oncoprint here and avoid another call to QueryBuilder.java from
+			// visualize JSP.
+			String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
+			boolean showAlteredColumnsBool = false;
+			if( showAlteredColumns != null && showAlteredColumns.equals("true")) {
+				showAlteredColumnsBool = true;
+			}
+
             if (output != null) {
 
-                String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
-                boolean showAlteredColumnsBool = false;
-                if( showAlteredColumns != null && showAlteredColumns.equals("true")) {
-                    showAlteredColumnsBool = true;
-                }
                 if (output.equalsIgnoreCase("svg")) {
                     outputSvg(response, geneListStr, mergedProfile, caseSetList, caseSetId,
                             zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
@@ -418,6 +422,14 @@ public class QueryBuilder extends HttpServlet {
                             zScoreThreshold, clinicalDataList, format, response);
                 }
             } else {
+				// get oncoprint here and store in session 
+				// to avoid another call to QueryBuilder.java from visualize.jsp
+				String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
+																   zScoreThreshold, MakeOncoPrint.OncoPrintType.HTML,
+																   showAlteredColumnsBool, geneticProfileIdSet,
+																   profileList, true, true);
+				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
+				
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
                 RequestDispatcher dispatcher =

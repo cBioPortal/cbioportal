@@ -42,16 +42,17 @@
 
     }
 
-    String fullURL = tempUri.toString() + "output=html&";
-
     %>
             <! -- CHECKBOX FOR SHOW ALTERED --><input type="checkbox" name="showAlteredColumns" value="true">Only show altered cases.
 
             </form>
 
-    <p>
-        <object data="<%= fullURL%>" class=oncoprint TYPE="text/html" WIDTH=800 HEIGHT=<%= height %> ></object>
-    </p>
+    <%
+		//out.println("<div class=\"oncoprint\" style=\"width:800px;height:" + height + "px;\">");
+		out.println("<div style=\"width:800px;height:" + height + "px;\">");
+        out.println(oncoprintHTML);
+        out.println("</div>");
+    %>
 
 
         <!-- TODO: http://www.w3.org/TR/REC-html40/struct/objects.html#adef-width-IMG "All IMG and OBJECT attributes that concern visual alignment and presentation have been deprecated in favor of style sheets." -->

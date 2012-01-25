@@ -1,3 +1,9 @@
+# January 26, 2011
+
+* All data updated to the __latest Firehose run__ (December 30).
+* __New RNA-Seq expression data__ for many tumor types.
+* Updated LUSC MAF file.
+
 # January 5, 2011
 
 * Now __19 tumor types__, all data updated to the __latest Firehose run__ (November 28).

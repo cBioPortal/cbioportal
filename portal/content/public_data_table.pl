@@ -86,6 +86,7 @@ while ($line = <IN3>) {
 
 	chomp $line;
 	@data = split (/\t/,$line);
+	$id = $data[0];
 	$data[0] =~ tr/a-z/A-Z/;
 	@study = split (/_/,$data[0]);
 
@@ -107,7 +108,7 @@ while ($line = <IN3>) {
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">91</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
 		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><a href=\"http:\/\/cbio.mskcc.org/cancergenomics/public-portal/$id.seg\">$data[3]</a></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">30</td>\n"; }
@@ -173,3 +174,5 @@ close (IN3);
 close (OUT1);
 close (OUT2);
 #print $pie_data;
+
+

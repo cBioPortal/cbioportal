@@ -36,6 +36,7 @@ while ($line = <IN1>) {
 	$cancer_count++;
 	chomp $line;
 	@data = split (/ \: /,$line);
+	$id = $data[0];
 	$data[0] =~ tr/a-z/A-Z/;
 	$cancers{$data[0]} = $data[1];
 #	print "$data[0]\t$data[1]\n";
@@ -54,7 +55,9 @@ open (IN3, $ConverterSummaryFile);
 open (OUT1,">data_sets_tcga.html");
 open (OUT2,">data_sets_tcga_right_column.markdown");
 
-print OUT1 "<P><p>The portal currently contains data from the following TCGA cancer genomics studies. The table below lists the number of available samples per data type and tumor.<br><br>\n";
+print OUT1 "<P><p>The portal currently contains data from the following TCGA cancer genomics studies. 
+				  The table below lists the number of available samples per data type and tumor.
+				  <br><br>\n";
 #print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bordercolor=\"#808080\">\n";
 print OUT1 "<table>\n";
 print OUT1 "\t<tr>\n";
@@ -112,7 +115,7 @@ while ($line = <IN3>) {
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
 		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
 		# cgh
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><a href=\"http:\/\/cbio.mskcc.org/cancergenomics/gdac-portal/$id.seg\">$data[3]</a></td>\n";
 		# rna-seq
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
 		# mRNA
@@ -185,3 +188,4 @@ close (IN3);
 close (OUT1);
 close (OUT2);
 #print $pie_data;
+

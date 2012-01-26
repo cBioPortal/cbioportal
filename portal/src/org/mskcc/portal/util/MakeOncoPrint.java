@@ -151,10 +151,10 @@ public class MakeOncoPrint {
                 int width = 6;
                 int height = 17;
 
-                writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
-								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-								   out, spacing, padding, width, height, includeCaseSetDescription,
-								   includeLegend);
+                writeHTMLOncoPrint2(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
+									theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
+									out, spacing, padding, width, height, includeCaseSetDescription,
+									includeLegend);
                 break;          // exit the switch
         }
         return out.toString();
@@ -228,6 +228,37 @@ public class MakeOncoPrint {
 	 * @param includeCaseSetDescription Include case set description boolean.
 	 * @param includeLegend             Include legend boolean.
      */
+    static void writeHTMLOncoPrint2(ArrayList<CaseList> caseSets, String caseSetId,
+									GeneticEvent matrix[][],
+									int numColumnsToShow, boolean showAlteredColumns,
+									OncoPrintSpecification theOncoPrintSpecification,
+									ProfileDataSummary dataSummary,
+									StringBuffer out,
+									int cellspacing, int cellpadding, int width, int height,
+									boolean includeCaseSetDescription,
+									boolean includeLegend) {
+
+		out.append("<script type=\"text/javascript\" src=\"js/raphael.min.js\"></script>\n");
+		
+	}
+
+    /**
+     * Generates an OncoPrint in HTML.
+     * @param caseSets                  List of all Case Sets.
+     * @param caseSetId                 Selected Case Set ID.
+     * @param matrix                    Matrix of Genomic Events.
+     * @param numColumnsToShow          Number of Columns to Show.
+     * @param showAlteredColumns        Flag to show only altered columns.
+     * @param theOncoPrintSpecification The OncoPrint Spec. Object.
+     * @param dataSummary               Data Summary Object.
+     * @param out                       HTML Out.
+     * @param cellspacing               Cellspacing.
+     * @param cellpadding               Cellpadding.
+     * @param width                     Width.
+     * @param height                    Height.
+	 * @param includeCaseSetDescription Include case set description boolean.
+	 * @param includeLegend             Include legend boolean.
+     */
     static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
 								   GeneticEvent matrix[][],
 								   int numColumnsToShow, boolean showAlteredColumns,
@@ -239,16 +270,6 @@ public class MakeOncoPrint {
 								   boolean includeLegend
 		) {
 
-        out.append("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n" +
-                "<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>") ;
-
-
-        /*out.append("<script type=\"text/javascript\">\n"+
-                    "$(document).ready(function(){  \n" +
-                    "$(\".oncoprint_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 25});\n" +
-                    "});\n" +
-                    "</script>\n");
-        */
         out.append("<div class=\"oncoprint\">\n");
         if (includeCaseSetDescription) {
             for (CaseList caseSet : caseSets) {

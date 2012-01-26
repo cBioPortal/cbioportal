@@ -2,7 +2,7 @@
 
 * All data updated to the __latest Firehose run__ (December 30).
 * __New RNA-Seq expression data__ for many tumor types.
-* Updated LUSC MAF file.
+* New bladder cancer mutation data and small updates to the lung squamous mutation data.
 
 # January 5, 2011
 

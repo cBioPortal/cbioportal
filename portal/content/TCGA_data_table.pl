@@ -84,6 +84,7 @@ print OUT1 "\t</tr>\n\n";
 <IN3>;
 $line_ct = 0;
 $all_count = 0;
+my $cancerStudy;
 
 while ($line = <IN3>) {
 
@@ -115,7 +116,8 @@ while ($line = <IN3>) {
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
 		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[7]</td>\n"; }
 		# cgh
-		print OUT1 "\t\t<td style=\"text-align: center;\"><a href=\"http:\/\/cbio.mskcc.org/cancergenomics/gdac-portal/$id.seg\">$data[3]</a></td>\n";
+        $cancerStudy = $id . '_tcga.seg';
+		print OUT1 "\t\t<td style=\"text-align: center;\"><a href=\"http:\/\/cbio.mskcc.org/cancergenomics/gdac-portal/$cancerStudy\">$data[3]</a></td>\n";
 		# rna-seq
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
 		# mRNA

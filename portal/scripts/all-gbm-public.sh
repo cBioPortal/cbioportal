@@ -1,3 +1,9 @@
+#################################################
+# WARNING - these scripts should not be used
+# to create a Public Portal within the cBio Lab.
+# The firehose converter should be used instead.
+################################################
+
 # Load up the GBM_TCGA Meta Data File
 ./importCancerStudy.pl $CGDS_DATA_HOME/gbm_tcga/gbm_tcga.txt
 

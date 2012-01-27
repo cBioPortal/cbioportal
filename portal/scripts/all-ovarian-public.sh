@@ -1,3 +1,9 @@
+#################################################
+# WARNING - these scripts should not be used
+# to create a Public Portal within the cBio Lab.
+# The firehose converter should be used instead.
+################################################
+
 # Load up the Ovarian Meta Data File
 ./importCancerStudy.pl $CGDS_DATA_HOME/ov_tcga/ov_tcga.txt
 

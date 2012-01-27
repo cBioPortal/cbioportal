@@ -42,7 +42,6 @@ popeye=preview_su2c.jsp
 skin.right_nav.show_testimonials=true
 
 global_css=global_portal.css
-special_css=su2c_portal.css
 step_image_suffix=_su2c
 
 # Authentication Props

@@ -1,20 +1,20 @@
 # First, verify if all symbols in the sample genesets are latest
-./verifyGeneSets.pl $CGDS_DATA_HOME/human_genes.txt
+./verifyGeneSets.pl $CGDS_DATA_HOME/reference-data/human_genes.txt
 
 # Clear the Database
 ./resetDb.pl
 
 # Load up Entrez Genes
-./importGenes.pl $CGDS_DATA_HOME/human_genes.txt
+./importGenes.pl $CGDS_DATA_HOME/reference-data/human_genes.txt
 
 # Load up MicroRNA IDs
-./importMicroRNAIDs.pl $CGDS_DATA_HOME/id_mapping_mirbase.txt
-
-# Load up all microRNA IDs
-#./importMicroRna.pl $CGDS_DATA_HOME/microRNA/microRNAs.txt
+./importMicroRNAIDs.pl $CGDS_DATA_HOME/reference-data/id_mapping_mirbase.txt
 
 # Load up Cancer Types
-./importTypesOfCancer.pl $CGDS_DATA_HOME/cancers.txt
+./importTypesOfCancer.pl $CGDS_DATA_HOME/reference-data/public-cancers.txt
 
 # Load up Sanger Cancer Gene Census
-./importSangerCensus.pl ../sample_data/genes/sanger_gene_census.txt
+./importSangerCensus.pl $CGDS_DATA_HOME/reference-data/sanger_gene_census.txt
+
+# RPPA
+./importProteinArrayInfo.pl $CGDS_DATA_HOME/reference-data/RPPA_antibody_list.txt

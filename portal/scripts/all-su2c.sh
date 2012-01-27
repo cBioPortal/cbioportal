@@ -1,8 +1,7 @@
 ./init.sh
-./all-ovarian-su2c.sh
 
-# import ovarian protein data
-./importProfileData.pl --data $CGDS_DATA_HOME/ovarian/data_protein.txt --meta $CGDS_DATA_HOME/ovarian/meta_protein.txt --dbmsAction clobber
+# ovarian
+./all-ovarian-su2c.sh
 
 # gdac-breast
 ./all-breast-gdac.sh

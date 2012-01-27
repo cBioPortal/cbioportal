@@ -4,10 +4,10 @@
 ./all-ovarian-su2c.sh
 
 # gdac-breast
-./all-breast-gdac.sh
+./all-breast-su2c.sh
 
 # gdac-endometrial
-./all-ucec-gdac.sh
+./all-ucec-su2c.sh
 
 # Gray cell line
 ./all-Gray-cell-line.sh

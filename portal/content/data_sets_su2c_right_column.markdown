@@ -6,7 +6,7 @@
 
 <tr>
 <td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
-<td style="text-align: right;">727</td>
+<td style="text-align: right;">813</td>
 </tr>
 
 <tr>
@@ -16,11 +16,11 @@
 
 <tr>
 <td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">489</td>
+<td style="text-align: right;">568</td>
 </tr>
 <tr>
 <td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
-<td style="text-align: right;">284</td>
+<td style="text-align: right;">373</td>
 </tr>
 </table>
 

@@ -29,7 +29,7 @@ manager.password=tomcat
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 ucsc_cancer_genomics.url=https://genome-cancer.ucsc.edu/hgHeatmap/#?
-segfile.url=http://cbio.mskcc.org/cancergenomics/su2c-portal/
+segfile.url=http://cbio.mskcc.org/cancergenomics/su2c-portal/seg/
 r_installed=true
 include_networks=true
 about=about_us_su2c.html

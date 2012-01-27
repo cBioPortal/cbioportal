@@ -10,4 +10,4 @@
 ./all-ucec-su2c.sh
 
 # Gray cell line
-./all-Gray-cell-line.sh
+./all-gray-cell-line-su2c.sh

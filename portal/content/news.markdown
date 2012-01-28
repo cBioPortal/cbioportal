@@ -1,3 +1,8 @@
+# January 30, 2011
+
+* Updated data for several TCGA cancer studies
+* Some small bug-fixes
+
 # December 22, 2011
 
 * __Fourteen new [TCGA](http://cancergenome.nih.gov/) cancer studies__:  This includes complete data for TCGA Colorectal Carcinoma

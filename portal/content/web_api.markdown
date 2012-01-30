@@ -256,7 +256,7 @@ A tab-delimited file with the following columns:
 
 ### Description
 
-Retrieves informations on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.
+Retrieves information on antibodies used by reverse-phase protein arrays (RPPA) to measure protein/phosphoprotein levels.
 
 ### Query Format
 * **cmd**=getProteinArrayInfo (required)

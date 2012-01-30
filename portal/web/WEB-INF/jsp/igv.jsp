@@ -39,11 +39,13 @@
             <td style="padding-right:25px; vertical-align:top;"><img src="images/IGVlogo.png" alt=""/></td>
             <td style="vertical-align:top">
 
+				<P>Use the <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics
+                Viewer (IGV)</a> to explore and visualize copy number data.
                 <p>
                     The <a href="http://www.broadinstitute.org/igv/home">Integrative Genomics
                     Viewer (IGV)</a> is a high-performance visualization tool for interactive exploration
-                    of large, integrated datasets. It supports a wide variety of data types including
-                    sequence alignments, microarrays, and genomic annotations.
+                    of large, integrated datasets. It supports a wide variety of data types including sequence alignments, 
+					gene expression, copy number amplifications and deletions, mutations, and genomic annotations
                 </p>
 
                 <p>Clicking the launch button below will:</p>

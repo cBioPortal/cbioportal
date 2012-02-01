@@ -38,6 +38,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/private-portal/
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 r_installed=true
 authenticate=true
+authorization=true
 
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]

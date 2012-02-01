@@ -4,11 +4,12 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
 import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.portal.remote.GetCancerTypes;
+import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.validator.gene.GeneValidator;
 import org.mskcc.portal.validator.gene.GeneValidationException;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -18,6 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.
@@ -28,6 +33,9 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
     private ServletXssUtil servletXssUtil;
 
+	// class which process access control to cancer studies
+	private AccessControl accessControl;
+
     /**
      * Initializes the servlet.
      */
@@ -35,6 +43,9 @@ public class CrossCancerStudyServlet extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
+			ApplicationContext context = 
+				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+			accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException(e);
         }
@@ -63,7 +74,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
-                    GetCancerTypes.ALL_CANCER_STUDIES_ID);
+                    AccessControl.ALL_CANCER_STUDIES_ID);
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
@@ -80,8 +91,9 @@ public class CrossCancerStudyServlet extends HttpServlet {
             dispatchToIndexJSP(httpServletRequest, httpServletResponse);
         } catch (DaoException e) {
             throw new ServletException(e);
-        }
-
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
+		}
     }
 
     private void dispatchToResultsJSP(HttpServletRequest httpServletRequest,
@@ -98,8 +110,8 @@ public class CrossCancerStudyServlet extends HttpServlet {
         dispatcher.forward(httpServletRequest, httpServletResponse);
     }
 
-    private ArrayList<CancerStudy> getCancerStudiesWithData() throws DaoException {
-        ArrayList<CancerStudy> candidateCancerStudyList = GetCancerTypes.getCancerStudies();
+    private ArrayList<CancerStudy> getCancerStudiesWithData() throws DaoException, ProtocolException {
+		List<CancerStudy> candidateCancerStudyList = accessControl.getCancerStudies();
         ArrayList<CancerStudy> finalCancerStudyList = new ArrayList<CancerStudy>();
 
         //  Only include cancer studies that have default CNA and/or default mutation

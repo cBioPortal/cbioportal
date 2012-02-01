@@ -32,6 +32,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/
 
 r_installed=true
 authenticate=true
+authorization=false
 include_networks=true
 
 faq=faq_tcga.html

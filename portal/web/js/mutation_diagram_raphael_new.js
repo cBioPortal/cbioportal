@@ -46,11 +46,15 @@ function drawMutationDiagram(sequences)
     paper.path("M" + (x + scaleHoriz(i, w, l)) + " " + sequenceScaleY +
                "L" + (x + scaleHoriz(i, w, l)) + " " + (sequenceScaleY + 4))
       .attr({"stroke": scaleColors[0], "stroke-width": 1});
+  }
 
-    // sequence scale labels
-    if (scaleHoriz(l - i, w, l) > 30) { 
-      paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 16, i)
-        .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
+  // sequence scale labels
+  for (i = 0; i < l; i += 100) {
+    if ((l < 1000) || ((i % 500) == 0)) {
+      if (scaleHoriz(l - i, w, l) > 30) { 
+        paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 16, i)
+          .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
+      }
     }
   }
 

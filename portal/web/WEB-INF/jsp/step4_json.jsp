@@ -28,12 +28,21 @@ if (step4ErrorMsg != null) {
     <P/>
     <script type="text/javascript">
         function validateGenes() {
-            $("#gene_list").val($("#gene_list").val().replace("  ", ""));
+            $("#gene_list").val($("#gene_list").val().replace("  ", " "));
             $("#genestatus").html("<img src='images/ajax-loader2.gif'> <small>Validating gene symbols...</small>");
             $("#main_submit").attr("disabled", "disabled");
 
             var genes = [];
             var content = $("#gene_list").val();
+
+            if( content.toUpperCase().search("DATATYPES") > -1 ) {
+                var endOfStatement = content.search(";");
+                if( endOfStatement < 0 ) {
+                    endOfStatement = content.search("\n");
+                }
+
+                content = content.substring(endOfStatement+1);
+            }
 
             if( content.search(":") > -1 ) {
                 var lines = content.split("\n");

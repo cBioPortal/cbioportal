@@ -35,8 +35,8 @@ skin.right_nav.show_testimonials=true
 skin.email_contact=cancergenomics at cbio dot mskcc dot org
 
 # Skin Data Sets
-data_sets=data_sets_public.html
-data_sets_right_column=data_sets_public_right_column.html
+skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
+skin.data_sets_footer=Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from 12/30/2011.
 
 # Indicates whether R and RServe are Installed
 r_installed=true

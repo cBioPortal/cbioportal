@@ -44,7 +44,9 @@ my $customFileProperties = {
 	'AGILENT-MRNA' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version>', '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt'],
 	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>', '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt'],
 	'CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_thresholded.by_genes.txt'],
+	'LOG2CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_data_by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
+	'SEG' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version>', '<CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv'],
 };
 
 main();
@@ -94,6 +96,14 @@ sub moveGDACOverridesFile{
 	  print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
 	}
 
+	# if we are using custom Log2CNA, we will need to move over cna,
+	# lets get latest version before we get next version
+	my $latestVersionOfCNAFile;
+	if ( $customFileType eq "LOG2CNA" ) {
+	  $latestVersionOfCNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_thresholded.by_genes.txt", $cancer, $runDate );
+	  print "latest version of CNA: $latestVersionOfCNAFile\n";
+	}
+
     my( $customFileDir, $customFileFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
 																  $destDir, $destFile,
 																  $cancer, $runDate );
@@ -114,6 +124,19 @@ sub moveGDACOverridesFile{
 	  }
 	  else {
 		warn "Copying custom CNA and cannot find Log2CNA data\n";
+	  }
+	}
+
+	# if using custom LOG2CNA, lets now copy over cna
+	if ( $customFileType eq "LOG2CNA") {
+	  if (defined($latestVersionOfCNAFile) ) {
+		my $newCNAFile = File::Spec->catfile( $customFileDir, "all_thresholded.by_genes.txt" );
+		print "\ncopying cna:\n", "from: $latestVersionOfCNAFile\n", "  to: $newCNAFile\n";
+		system( "cp $latestVersionOfCNAFile $newCNAFile"); 
+		print `cmp  $latestVersionOfCNAFile $newCNAFile`;
+	  }
+	  else {
+		warn "Copying custom Log2CNA and cannot find CNA data\n";
 	  }
 	}
 	

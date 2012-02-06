@@ -79,17 +79,6 @@ public class NetworkServlet extends HttpServlet {
             
             String xd = req.getParameter("xdebug");
             boolean logXDebug = xd!=null && xd.equals("1");
-                
-            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
-                    = getMapQueryGeneAlterationCaseNumber(req);
-            
-            String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
-            
-            if (logXDebug) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
-                        false, false, encodedQueryAlteration)
-                        +"\" target=\"_blank\">NetworkServlet URL</a>");
-            }
 
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
@@ -105,7 +94,7 @@ public class NetworkServlet extends HttpServlet {
             
             Network network;
             xdebug.startTimer();
-            if (netSrc.equalsIgnoreCase("cpath2")) {
+            if ("cpath2".equalsIgnoreCase(netSrc)) {
                 network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
                 if (logXDebug) {
                     xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
@@ -141,14 +130,16 @@ public class NetworkServlet extends HttpServlet {
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
+                
+            // get cancer study id
+            // if cancer study id is null, return the current network
+            String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
-            if (network.countNodes()!=0) {                
+            if (network.countNodes()!=0 && cancerTypeId!=null) {
+            
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
-                
-                // get cancer study id
-                String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
                 
                 // Get case ids
                 Set<String> targetCaseIds = getCaseIds(req, cancerTypeId);
@@ -160,6 +151,9 @@ public class NetworkServlet extends HttpServlet {
                 double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
 
                 xdebug.startTimer();
+                
+                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                        = getMapQueryGeneAlterationCaseNumber(req);
                 
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
                 
@@ -228,6 +222,14 @@ public class NetworkServlet extends HttpServlet {
                     }
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
+                }
+
+                String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
+
+                if (logXDebug) {
+                    xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
+                            false, false, encodedQueryAlteration)
+                            +"\" target=\"_blank\">NetworkServlet URL</a>");
                 }
                 
                 messages.append("Download the complete network in ");

@@ -21,9 +21,6 @@ function drawMutationDiagram(sequences)
 
   // sequence
   paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13).attr({"fill": sequenceColor, "stroke": "none"});
-    // for native SVG tooltips:
-    //    .append("svg:title")
-    //      .text(mutationDiagram.label + " (1 - " + l + ")");
 
   // sequence scale
   sequenceScaleY = c + 20;
@@ -74,15 +71,10 @@ function drawMutationDiagram(sequences)
 
     paper.rect(regionX, regionY, regionW, regionH)
       .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
-//      .append("svg:title")
-//        .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
-
 
     if ((regionLabel != null) && ((regionLabel.length * 5) < regionW)) {
       paper.text(regionX + (regionW / 2), regionY + regionH - 6, regionLabel)
         .attr({"text-anchor": "middle", "font-size": "11px", "font-family": "sans-serif"});
-//        .append("svg:title")
-//          .text(label + " domain (" + mutationDiagram.domains[i].start + " - " + mutationDiagram.domains[i].end + ")");
     }
   }
 
@@ -90,7 +82,7 @@ function drawMutationDiagram(sequences)
   maxCount = 0;
   for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
   {
-    if ((mutationDiagram.markups[i].type == "mutation") && (parseInt(mutationDiagram.markups[i].metadata.count) > maxCount))
+    if ((mutationDiagram.markups[i].type == "mutation") && (parseInt(mutationDiagram.markups[i].metadata.count) >= maxCount))
     {
       maxCount = mutationDiagram.markups[i].metadata.count;
     }
@@ -133,6 +125,7 @@ function drawMutationDiagram(sequences)
   }
 
   // mutation histograms/pileups
+  labelShown = false;
   for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
   {
     if (mutationDiagram.markups[i].type == "mutation")
@@ -147,8 +140,6 @@ function drawMutationDiagram(sequences)
         paper.path("M" + x1 + " " + y1 +
                    "L" + x2 + " " + y2)
          .attr({"stroke": mutationDiagram.markups[i].lineColour, "stroke-width": 2});
-//        .append("svg:title")
-//          .text(mutationDiagram.mutations[i].label + " mutation (" + mutationDiagram.mutations[i].count + ")");
       }
       else
       {
@@ -156,24 +147,20 @@ function drawMutationDiagram(sequences)
         y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
         for (j = 0, count = mutationDiagram.markups[i].metadata.count; j < count; j++)
         {
-            paper.circle(x2, y1 - (j * per) - (per / 2), per / 2)
-                .attr({"fill": mutationDiagram.markups[i].colour, "stroke": "none"});
-//          .append("svg:title")
-//            .text(mutationDiagram.mutations[i].label + " mutation (" + mutationDiagram.mutations[i].count + ")");
+          paper.circle(x2, y1 - (j * per) - (per / 2), per / 2)
+            .attr({"fill": mutationDiagram.markups[i].colour, "stroke": "none"});
         }
       }
 
-      if (mutationDiagram.markups[i].metadata.type && (maxCount == mutationDiagram.markups[i].metadata.count))
+      if (mutationDiagram.markups[i].metadata.type && (maxCount == mutationDiagram.markups[i].metadata.count) && !labelShown)
       {
         paper.text(x1, y2 - 8, mutationDiagram.markups[i].metadata.type)
           .attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif"});
+
+        labelShown = true;
       }
     }
   }
-
-  //$(".sequence").tipTip();
-  //$(".domain").tipTip();
-  //$(".mutation").tipTip();
 }
 
 function scaleHoriz(x, w, l)

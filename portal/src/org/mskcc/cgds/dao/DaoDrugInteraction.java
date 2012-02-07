@@ -91,7 +91,7 @@ public class DaoDrugInteraction {
         return getInteractions(Collections.singleton(gene));
     }
 
-    public ArrayList<DrugInteraction> getInteractions(Collection<CanonicalGene> genes) throws DaoException {
+    public ArrayList<DrugInteraction> getInteractions(Collection<?> genes) throws DaoException {
         ArrayList<DrugInteraction> interactionList = new ArrayList<DrugInteraction>();
         if (genes.isEmpty())
             return interactionList;
@@ -104,8 +104,14 @@ public class DaoDrugInteraction {
             con = JdbcUtil.getDbConnection();
             Set<Long> entrezGeneIds = new HashSet<Long>();
 
-            for (CanonicalGene gene : genes)
-                entrezGeneIds.add(gene.getEntrezGeneId());
+            for (Object gene : genes) {
+                if(gene instanceof CanonicalGene)
+                    entrezGeneIds.add(((CanonicalGene) gene).getEntrezGeneId());
+                else if(gene instanceof Long)
+                    entrezGeneIds.add((Long) gene);
+                else
+                    entrezGeneIds.add(Long.parseLong(gene.toString()));
+            }
 
             String idStr = "(" + StringUtils.join(entrezGeneIds, ",") + ")";
 

@@ -320,7 +320,7 @@ public final class NetworkIO {
     private static void classifyNodes(Network net, Set<Node> seedNodes) {
         for (Node seed : seedNodes) {
             seed.setAttribute("IN_QUERY", "true");
-            seed.setAttribute("IN_MEDIUM", "true");
+            //seed.setAttribute("IN_MEDIUM", "true");
         }
         
         for (Node node:  net.getNodes()) {
@@ -330,23 +330,23 @@ public final class NetworkIO {
 
             node.setAttribute("IN_QUERY", "false"); //TODO: remove this
 
-//            if (seedNodes.size()==1) {
-//                // mark linker nodes that has degree of 2 or more
-//                if (net.getDegree(node)>=2) {
-//                    node.addAttribute("IN_MEDIUM", "true");
+////            if (seedNodes.size()==1) {
+////                // mark linker nodes that has degree of 2 or more
+////                if (net.getDegree(node)>=2) {
+////                    node.addAttribute("IN_MEDIUM", "true");
+////                }
+////            } else {
+//                //  mark linker nodes that links to at least 2 seed genes
+//                int seedDegree = 0;
+//                for (Node neighbor : net.getNeighbors(node)) {
+//                    if (seedNodes.contains(neighbor)) {
+//                        if (++seedDegree >= 2) {
+//                            node.setAttribute("IN_MEDIUM", "true");
+//                            break;
+//                        }
+//                    }
 //                }
-//            } else {
-                //  mark linker nodes that links to at least 2 seed genes
-                int seedDegree = 0;
-                for (Node neighbor : net.getNeighbors(node)) {
-                    if (seedNodes.contains(neighbor)) {
-                        if (++seedDegree >= 2) {
-                            node.setAttribute("IN_MEDIUM", "true");
-                            break;
-                        }
-                    }
-                }
-//            }
+////            }
         }
     }
     

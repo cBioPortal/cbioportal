@@ -36,126 +36,24 @@
 
 <script type="text/javascript" src="js/network/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/network/network-ui.js"></script>
+<script type="text/javascript" src="js/network/network-viz.js"></script>
 
 <script type="text/javascript">
-            function send2cytoscapeweb(graphml) {
-                var div_id = "cytoscapeweb";
-
-                var visual_style = {
-                    global: {
-                        backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
-                        tooltipDelay: 250
-                    },
-                    nodes: {
-						shape: {
-						   discreteMapper: {
-								attrName: "type",
-								entries: [
-									{ attrValue: "Protein", value: "ELLIPSE" },
-									{ attrValue: "SmallMolecule", value: "DIAMOND" },
-									{ attrValue: "Drug", value: "HEXAGON" },
-									{ attrValue: "Unknown", value: "TRIANGLE" }
-								]
-							}
-						},
-                        borderWidth: 1,
-						borderColor: {
-							discreteMapper: {
-								attrName: "type",
-								entries: [
-									{ attrValue: "Protein", value: "#000000" },
-									{ attrValue: "SmallMolecule", value: "#000000" },
-									{ attrValue: "Drug", value: "#000000" },
-									{ attrValue: "Unknown", value: "#000000" }
-								]
-							}
-						},
-                        size: {
-                            defaultValue: 25,
-                            continuousMapper: { attrName: "weight", minValue: 25, maxValue: 75 }
-                        },
-                        color: {
-                            discreteMapper: {
-                                attrName: "type",
-                                entries: [
-									{ attrValue: "Protein", value: "#FFFFFF" },
-									{ attrValue: "SmallMolecule", value: "#FFFFFF" }, //#D7AC85
-                                    { attrValue: "Drug", value: "#FFA500" },
-									{ attrValue: "Unknown", value: "#FFFFFF" } //#69A19E
-                                ]
-                            }
-                        },
-                        labelHorizontalAnchor: "center",
-                        labelVerticalAnchor: "bottom",
-                        labelFontSize: 10,
-                        selectionGlowColor: "#f6f779",
-						selectionGlowOpacity: 0.8,
-						hoverGlowColor: "#cbcbcb", //#ffff33
-						hoverGlowOpacity: 1.0,
-						hoverGlowStrength: 8,
-						tooltipFont: "Verdana",
-	                    tooltipFontSize: 12,
-	                    tooltipFontColor: "#EE0505",
-	                    tooltipBackgroundColor: "#000000",
-	                    tooltipBorderColor: "#000000"
-                    },
-                    edges: {
-                        width: 1,
-						mergeWidth: 2,
-						mergeColor: "#666666",
- 						targetArrowShape: {
-                     		defaultValue: "NONE",
- 							discreteMapper: {
- 								attrName: "type",
- 								entries: [
- 									{ attrValue: "STATE_CHANGE", value: "DELTA" },
-                                    { attrValue: "DRUG_TARGET", value: "T" } ]
-         					}
-                     	},
-						color: {
-							defaultValue: "#A583AB", // color of all other types
-							discreteMapper: {
-								attrName: "type",
-								entries: [
-									{ attrValue: "IN_SAME_COMPONENT", value: "#CD976B" },
-									{ attrValue: "REACTS_WITH", value: "#7B7EF7" },
-									{ attrValue: "DRUG_TARGET", value: "#A52A2A" },
-									{ attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
-        					}
-        				}                    	
-					}
-				};
-
-                // initialization options
-                var options = {
-                    swfPath: "swf/CytoscapeWeb",
-                    flashInstallerPath: "swf/playerProductInstall"
-                };
-
-                var vis = new org.cytoscapeweb.Visualization(div_id, options);
-
-                vis.ready(function() {
-                	// init UI of the network tab
-                	initNetworkUI(vis);
-                	
-                    // set the style programmatically
-                    document.getElementById("color").onclick = function(){
-                        vis.visualStyle(visual_style);
-                    };
-                });
-
-                var draw_options = {
-                    // your data goes here
-                    network: graphml,
-                    edgeLabelsVisible: false,
-                    edgesMerged: true,
-                    layout: "ForceDirected",
-                    visualStyle: visual_style,
-                    panZoomControlVisible: true
-                };
-
-                vis.draw(draw_options);
-            };
+            // show messages in graphml
+            function showNetworkMessage(graphml, divNetMsg) {
+                var msgbegin = "<!--messages begin:";
+                var ix1 = graphml.indexOf(msgbegin);
+                if (ix1==-1) {
+                    $(divNetMsg).hide();
+                } else {
+                    ix1 += msgbegin.length;
+                    var ix2 = graphml.indexOf("messages end-->",ix1);
+                    var msgs = $.trim(graphml.substring(ix1,ix2));
+                    if (msgs) {
+                        $(divNetMsg).append(msgs.replace(/\n/g,"<br/>\n"));
+                    }
+                }    
+            }
             
             function showXDebug(graphml) {
                 if (<%=useXDebug%>) {
@@ -163,23 +61,10 @@
                     var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
                     var ix2 = graphml.indexOf("xdebug messages end-->",ix1);
                     var xdebugmsgs = $.trim(graphml.substring(ix1,ix2));
-                    $("div#cytoscapeweb").css('height','70%');
-                    $("td#vis_content").append("\n<div id='network_xdebug'>"
+                    $("#cytoscapeweb").css('height','70%');
+                    $("#vis_content").append("\n<div id='network_xdebug'>"
                         +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
                 }
-            }
-            
-            function showMessage(graphml) {
-                var msgbegin = "<!--messages begin:";
-                var ix1 = graphml.indexOf(msgbegin);
-                if (ix1==-1) {
-                    $("div#netmsg").hide();
-                } else {
-                    ix1 += msgbegin.length;
-                    var ix2 = graphml.indexOf("messages end-->",ix1);
-                    var msgs = $.trim(graphml.substring(ix1,ix2));
-                    $("div#netmsg").append(msgs.replace(/\n/g,"<br/>\n"));
-                }    
             }
             
             window.onload = function() {
@@ -189,7 +74,7 @@
                      <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
-                     heat_map:$("textarea#heat_map").html(),
+                     heat_map:$("#heat_map").html(),
                      xdebug:'<%=useXDebug%>',
                      netsrc:'<%=netSrc%>',
                      linkers:'<%=nLinker%>',
@@ -206,33 +91,12 @@
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         }
-                        send2cytoscapeweb(graphml);
+                        send2cytoscapeweb(graphml,"cytoscapeweb");
                         showXDebug(graphml);
-                        showMessage(graphml);
+                        showNetworkMessage(graphml,"#netmsg");
                     }
                 );
             }
         </script>
 
-<div class="section" id="network">
-    <div id="netmsg" style="margin-bottom: 12px"></div>
-	<table id="network_wrapper">
-		<tr><td>
-			<div>
-				<jsp:include page="network_menu.jsp"/>
-			</div>
-		</td></tr>
-		<tr>
-			<td id="vis_content">
-				<div id="cytoscapeweb">
-					<img src="images/ajax-loader.gif"/>
-				</div>
-			</td>
-			<td>
-				<div>
-					<jsp:include page="network_tabs.jsp"/>
-				</div>
-			</td>
-		</tr>
-	</table>
-</div>
+<jsp:include page="network_div.jsp"/>

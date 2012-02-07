@@ -13,6 +13,7 @@ function drawMutationDiagram(sequences)
   l = mutationDiagram.length;
   id = mutationDiagram.metadata.hugoGeneSymbol;
   label = mutationDiagram.metadata.identifier;
+  title = mutationDiagram.metadata.identifier + ", " + mutationDiagram.metadata.description + " (" + l + "aa)";
 
   var paper = Raphael("mutation_diagram_" + id, 700, 220);
 
@@ -20,7 +21,8 @@ function drawMutationDiagram(sequences)
   paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "16px", "font-family": "sans-serif"});
 
   // sequence
-  paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13).attr({"fill": sequenceColor, "stroke": "none"});
+  paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
+    .attr({"fill": sequenceColor, "stroke": "none", "title": title});
 
   // sequence scale
   sequenceScaleY = c + 20;
@@ -68,13 +70,15 @@ function drawMutationDiagram(sequences)
     regionFillColor = mutationDiagram.regions[i].colour;
     regionStrokeColor = darken(regionFillColor);
     regionLabel = mutationDiagram.regions[i].text;
+    regionMetadata = mutationDiagram.regions[i].metadata;
+    regionTitle = regionMetadata.identifier + " " + regionMetadata.type.toLowerCase() + ", " + regionMetadata.description + " (" + mutationDiagram.regions[i].start + " - " + mutationDiagram.regions[i].end + ")";
 
     paper.rect(regionX, regionY, regionW, regionH)
-      .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
+      .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor, "title": regionTitle});
 
     if ((regionLabel != null) && ((regionLabel.length * 5) < regionW)) {
       paper.text(regionX + (regionW / 2), regionY + regionH - 6, regionLabel)
-        .attr({"text-anchor": "middle", "font-size": "11px", "font-family": "sans-serif"});
+        .attr({"text-anchor": "middle", "font-size": "11px", "font-family": "sans-serif", "title": regionTitle});
     }
   }
 
@@ -134,12 +138,13 @@ function drawMutationDiagram(sequences)
       y1 = c - 12;
       x2 = x1;
       y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
+      mutationTitle = mutationDiagram.markups[i].metadata.type + " mutation (" + mutationDiagram.markups[i].metadata.count + ")";
 
       if (maxCount > 4)
       {
         paper.path("M" + x1 + " " + y1 +
                    "L" + x2 + " " + y2)
-         .attr({"stroke": mutationDiagram.markups[i].lineColour, "stroke-width": 2});
+          .attr({"stroke": mutationDiagram.markups[i].lineColour, "stroke-width": 2, "title": mutationTitle});
       }
       else
       {
@@ -148,14 +153,14 @@ function drawMutationDiagram(sequences)
         for (j = 0, count = mutationDiagram.markups[i].metadata.count; j < count; j++)
         {
           paper.circle(x2, y1 - (j * per) - (per / 2), per / 2)
-            .attr({"fill": mutationDiagram.markups[i].colour, "stroke": "none"});
+            .attr({"fill": mutationDiagram.markups[i].colour, "stroke": darken(mutationDiagram.markups[i].colour), "title": mutationTitle});
         }
       }
 
       if (mutationDiagram.markups[i].metadata.type && (maxCount == mutationDiagram.markups[i].metadata.count) && !labelShown)
       {
         paper.text(x1, y2 - 8, mutationDiagram.markups[i].metadata.type)
-          .attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif"});
+          .attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif", "title": mutationTitle});
 
         labelShown = true;
       }

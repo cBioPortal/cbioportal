@@ -11,8 +11,10 @@ public class TestDaoDrug extends TestCase {
         ResetDatabase.resetDatabase();
 
         DaoDrug daoDrug = DaoDrug.getInstance();
-        Drug drug = new Drug("Dummy:1", "MyDrug", "description", "synonym1, synonym2", "this is an xref", "DUMMY");
-        Drug drug2 = new Drug("Dummy:2", "MyDrug2", "description2", "synonym1, synonym2", "this is an xref2", "BLA");
+        Drug drug = new Drug("Dummy:1", "MyDrug", "description",
+                "synonym,synonym2", "this is an xref", "DUMMY", true, "B01AE02");
+        Drug drug2 = new Drug("Dummy:2", "MyDrug2", "description2",
+                "synonym", "this is an xref2", "BLA", false, "L01XX29");
 
         assertEquals(daoDrug.addDrug(drug), 1);
         assertEquals(daoDrug.addDrug(drug2), 1);
@@ -21,12 +23,15 @@ public class TestDaoDrug extends TestCase {
         assertNotNull(tmpDrug);
         assertEquals(tmpDrug.getName(), "MyDrug");
         assertEquals(tmpDrug.getDescription(), "description");
-        assertEquals(tmpDrug.getSynonyms(), "synonym1, synonym2");
+        assertEquals(tmpDrug.getSynonyms(), "synonym,synonym2");
         assertEquals(tmpDrug.getResource(), "DUMMY");
+        assertTrue(tmpDrug.isApprovedFDA());
+        assertEquals("B01AE02", drug.getATCCode());
 
         Drug tmpDrug2 = daoDrug.getDrug("Dummy:2");
         assertNotNull(tmpDrug2);
         assertEquals(tmpDrug2.getName(), "MyDrug2");
+        assertFalse(tmpDrug2.isApprovedFDA());
 
         assertNull(daoDrug.getDrug("Dummy:BLABLA"));
 

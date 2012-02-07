@@ -38,7 +38,7 @@ drop table IF EXISTS protein_array_data;
 drop table IF EXISTS protein_array_cancer_study;
 
 drop table IF EXISTS drug;
-drop table IF EXISTS drug_interactions;
+drop table IF EXISTS drug_interaction;
 
 --
 -- Database: `cgds`
@@ -352,13 +352,13 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `drug_interactions`
+-- Table structure for table `drug_interaction`
 --
 
-CREATE TABLE `drug_interactions` (
-  `DRUG` bigint(20) NOT NULL,
+CREATE TABLE `drug_interaction` (
+  `DRUG` char(30) NOT NULL,
   `TARGET` bigint(20) NOT NULL,
-  `INTERACTION_TYPE` varchar(256) NOT NULL,
+  `INTERACTION_TYPE` char(50) NOT NULL,
   `DATA_SOURCE` varchar(256) NOT NULL,
   `EXPERIMENT_TYPES` varchar(1024) DEFAULT NULL,
   `PMIDS` varchar(1024) DEFAULT NULL
@@ -371,12 +371,14 @@ CREATE TABLE `drug_interactions` (
 --
 
 CREATE TABLE IF NOT EXISTS `drug` (
-  `DRUG_ID` char(255) NOT NULL,
-  `DRUG_RESOURCE` varchar(255) NOT NULL,
+  `DRUG_ID` char(30) NOT NULL,
+  `DRUG_RESOURCE` varchar(30) NOT NULL,
   `DRUG_NAME` varchar(255) NOT NULL,
   `DRUG_SYNONYMS` varchar(255) DEFAULT NULL,
   `DRUG_DESCRIPTION` varchar(255) DEFAULT NULL,
   `DRUG_XREF` varchar(255) DEFAULT NULL,
+  `DRUG_APPROVED` integer(1) DEFAULT 0,
+  `DRUG_ATC_CODE` varchar(255) DEFAULT NULL,
   PRIMARY KEY  (`DRUG_ID`),
   KEY `DRUG_NAME` (`DRUG_NAME`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;

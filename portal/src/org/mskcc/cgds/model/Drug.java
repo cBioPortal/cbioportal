@@ -11,17 +11,29 @@ public class Drug {
     private String synonyms;
     private String externalReference;
     private String resource;
+    private boolean isApprovedFDA;
+    private String ATCCode;
 
     public Drug() {
     }
 
-    public Drug(String id, String name, String description, String synonyms, String xref, String resource) {
+    public Drug(String id,
+                String name,
+                String description,
+                String synonyms,
+                String externalReference,
+                String resource,
+                boolean approvedFDA,
+                String ATCCode) {
+
         this.id = id;
         this.name = name;
         this.description = description;
         this.synonyms = synonyms;
-        this.externalReference = xref;
+        this.externalReference = externalReference;
         this.resource = resource;
+        isApprovedFDA = approvedFDA;
+        this.ATCCode = ATCCode;
     }
 
     public String getId() {
@@ -70,5 +82,21 @@ public class Drug {
 
     public void setResource(String resource) {
         this.resource = resource;
+    }
+
+    public boolean isApprovedFDA() {
+        return isApprovedFDA;
+    }
+
+    public void setApprovedFDA(boolean approvedFDA) {
+        isApprovedFDA = approvedFDA;
+    }
+
+    public String getATCCode() {
+        return ATCCode;
+    }
+
+    public void setATCCode(String ATCCode) {
+        this.ATCCode = ATCCode;
     }
 }

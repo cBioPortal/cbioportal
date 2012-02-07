@@ -1,3 +1,4 @@
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
 <%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
 <%@ page import="org.mskcc.portal.model.ExtendedMutationMap" %>
@@ -5,8 +6,9 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
-
+<%@ page import="java.io.StringWriter" %>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
@@ -38,7 +40,7 @@ $(document).ready(function(){
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
           $.ajax({ url: "mutation_diagram_data.json",
               dataType: "json",
-              data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>" },
+              data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>", mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>" },
               success: drawMutationDiagram,
               type: "POST"});
           $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
@@ -52,6 +54,20 @@ $(document).ready(function(){
 
 
 <%!
+
+private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+   ObjectMapper objectMapper = new ObjectMapper();
+   StringWriter stringWriter = new StringWriter();
+   List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
+   try {
+     objectMapper.writeValue(stringWriter, mutations);
+   }
+   catch (Exception e) {
+     // ignore
+   }
+   return stringWriter.toString().replace("\"", "\\\"");
+}
+
     private void outputGeneTable(GeneWithScore geneWithScore,
             ExtendedMutationMap mutationMap, JspWriter out, 
             ArrayList<String> mergedCaseList) throws IOException {

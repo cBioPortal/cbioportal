@@ -5,21 +5,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
+import org.apache.log4j.Logger;
 import org.mskcc.cgds.model.ExtendedMutation;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Pileup of one or mutations at a single location.
  */
 final class Pileup {
+    private static final Logger logger = Logger.getLogger(Pileup.class);
     private final String label;
     private final int location;
     private final int count;
@@ -69,46 +71,25 @@ final class Pileup {
         checkNotNull(mutations, "mutations must not be null");
 
         List<Pileup> pileups = Lists.newArrayList();
+        SetMultimap<Integer, String> labels = HashMultimap.create();
         ListMultimap<Integer, ExtendedMutation> mutationsByLocation = ArrayListMultimap.create();
         for (ExtendedMutation mutation : mutations) {
-            mutationsByLocation.put((int) mutation.getStartPosition(), mutation);
-        }
-        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet()) {
-            int count = count(entry.getValue());
-            if (count > 0) {
-                String label = createLabel(entry.getValue());
-                int location = entry.getKey();
-                pileups.add(new Pileup(label, location, count));
+            String label = mutation.getAminoAcidChange();
+            try {
+                int location = Integer.valueOf(label.replaceAll("[A-Z*]+", ""));
+                labels.put(location, label);
+                mutationsByLocation.put(location, mutation);
+            }
+            catch (NumberFormatException e) {
+                logger.warn("ignoring extended mutation " + label + ", no location information");
             }
         }
-        return ImmutableList.copyOf(pileups);
-    }
-
-    /**
-     * Return the count of mutations suitable for display in the specified collection of mutations.
-     *
-     * @param mutations collection of mutations, must not be null
-     * @return the count of mutations suitable for display in the specified collection of mutations
-     */
-    static int count(final Collection<ExtendedMutation> mutations) {
-        checkNotNull(mutations, "mutations must not be null");
-        // todo:  check caseId, mutationType, etc.
-        return mutations.size();
-    }
-
-    /**
-     * Return a label for the specified collection of mutations.
-     *
-     * @param mutations collection of mutations, must not be null
-     * @return a label for the specified collection of mutations
-     */
-    static String createLabel(final Collection<ExtendedMutation> mutations) {
-        checkNotNull(mutations, "mutations must not be null");
-        SortedSet<String> labels = Sets.newTreeSet();
-        for (ExtendedMutation mutation : mutations) {
-            // todo: check caseId, mutationType, etc.
-            labels.add(mutation.getAminoAcidChange());
+        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet()) {
+            int location = entry.getKey();
+            String label = Joiner.on("/").join(labels.get(location));
+            int count = entry.getValue().size();
+            pileups.add(new Pileup(label, location, count));
         }
-        return Joiner.on("/").join(labels);
+        return ImmutableList.copyOf(pileups);
     }
 }

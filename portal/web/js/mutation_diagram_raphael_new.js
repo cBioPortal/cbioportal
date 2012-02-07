@@ -134,11 +134,11 @@ function drawMutationDiagram(sequences)
   {
     if (mutationDiagram.markups[i].type == "mutation")
     {
-      x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
+      x1 = x + scaleHoriz(mutationDiagram.markups[i].metadata.location, w, l);
       y1 = c - 12;
       x2 = x1;
       y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
-      mutationTitle = mutationDiagram.markups[i].metadata.type + " mutation (" + mutationDiagram.markups[i].metadata.count + ")";
+      mutationTitle = mutationDiagram.markups[i].metadata.label + " mutation (" + mutationDiagram.markups[i].metadata.count + ")";
 
       if (maxCount > 4)
       {
@@ -157,9 +157,9 @@ function drawMutationDiagram(sequences)
         }
       }
 
-      if (mutationDiagram.markups[i].metadata.type && (maxCount == mutationDiagram.markups[i].metadata.count) && !labelShown)
+      if (mutationDiagram.markups[i].metadata.label && (maxCount == mutationDiagram.markups[i].metadata.count) && !labelShown)
       {
-        paper.text(x1, y2 - 8, mutationDiagram.markups[i].metadata.type)
+        paper.text(x1, y2 - 8, mutationDiagram.markups[i].metadata.label)
           .attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif", "title": mutationTitle});
 
         labelShown = true;

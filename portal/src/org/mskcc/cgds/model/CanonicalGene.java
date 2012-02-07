@@ -11,7 +11,7 @@ public class CanonicalGene extends Gene {
     private String hugoGeneSymbol;
     private Set<String> aliases;
     private double somaticMutationFrequency;
-    
+
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
         this(entrezGeneId, hugoGeneSymbol, null);
     }

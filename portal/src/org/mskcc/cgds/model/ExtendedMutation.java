@@ -1,5 +1,7 @@
 package org.mskcc.cgds.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -70,6 +72,7 @@ public class ExtendedMutation {
         return mutationStatus;
     }
 
+    @JsonIgnore
     public boolean isGermlineMutation() {
         return getMutationStatus() != null && getMutationStatus().equalsIgnoreCase(GERMLINE);
     }
@@ -202,18 +205,22 @@ public class ExtendedMutation {
         this.sequencer = sequencer;
     }
 
+    @JsonIgnore
     public void setGene(CanonicalGene gene) {
         this.gene = gene;
     }
 
+    @JsonIgnore
     public CanonicalGene getGene() {
         return gene;
     }
 
+    @JsonIgnore
     public long getEntrezGeneId() {
         return gene.getEntrezGeneId();
     }
 
+    @JsonIgnore
     public String getGeneSymbol() {
         return gene.getHugoGeneSymbolAllCaps();
     }

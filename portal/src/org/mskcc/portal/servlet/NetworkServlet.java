@@ -520,6 +520,11 @@ public class NetworkServlet extends HttpServlet {
                     }
 
                     for (String type : strs[j].split(";")) {
+                        type = type.trim();
+                        if (type.isEmpty()) {
+                            continue;
+                        }
+                        
                         // add to specific type
                         Integer num = map.get(type);
                         if (num==null) {

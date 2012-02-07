@@ -78,7 +78,7 @@ public final class MutationDiagramDataServletTest {
 
         dataServlet.doPost(request, response);
         verify(response).setContentType("application/json");
-        assertEquals("[{\"length\":42,\"markups\":null,\"motifs\":null,\"regions\":null,\"metadata\":null,\"options\":null}]", stringWriter.toString());
+        assertEquals("[{\"length\":42,\"markups\":null,\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter.toString());
     }
 
     @Test

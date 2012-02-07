@@ -49,6 +49,9 @@ public final class MutationDiagramDataServlet extends HttpServlet {
         List<Sequence> sequences = featureService.getFeatures(uniProtId);
         if (!sequences.isEmpty()) {
             Sequence sequence = sequences.get(0);
+            if (sequence.getMetadata() == null) {
+                sequence.setMetadata(new HashMap<String, Object>());
+            }
             sequence.getMetadata().put("hugoGeneSymbol", hugoGeneSymbol);
             sequence.getMetadata().put("uniProtId", uniProtId);
             List<Mutation> mutations = mutationService.getMutations(hugoGeneSymbol);

@@ -115,6 +115,7 @@ $(document).ready(function(){
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'></div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

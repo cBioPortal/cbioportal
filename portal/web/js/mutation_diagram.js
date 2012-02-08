@@ -1,5 +1,15 @@
-function drawMutationDiagram(sequences)
-{
+// usage: log('inside coolFunc',this,arguments);
+// http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+window.log = function(){
+  log.history = log.history || [];   // store logs to an array for reference
+  log.history.push(arguments);
+  if(this.console){
+    console.log( Array.prototype.slice.call(arguments) );
+  }
+};
+
+function drawMutationDiagram(sequences) {
+  MAX_OFFSET = 4;
   sequenceColor = "rgb(186, 189, 182)";
   scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
   mutationColors = [ "rgb(251, 154, 153)", "rgb(227, 26, 28)", "rgb(253, 191, 111)", "rgb(255, 127, 0)" ];
@@ -50,7 +60,7 @@ function drawMutationDiagram(sequences)
   // sequence scale labels
   for (i = 0; i < l; i += 100) {
     if ((l < 1000) || ((i % 500) == 0)) {
-      if (scaleHoriz(l - i, w, l) > 30) { 
+      if (scaleHoriz(l - i, w, l) > 30) {
         paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 16, i)
           .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
       }
@@ -61,8 +71,7 @@ function drawMutationDiagram(sequences)
    .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
 
   // regions
-  for (i = 0, size = mutationDiagram.regions.length; i < size; i++)
-  {
+  for (i = 0, size = mutationDiagram.regions.length; i < size; i++) {
     regionX = x + scaleHoriz(mutationDiagram.regions[i].start, w, l);
     regionY = c - 10;
     regionW = scaleHoriz(mutationDiagram.regions[i].end - mutationDiagram.regions[i].start, w, l);
@@ -73,13 +82,24 @@ function drawMutationDiagram(sequences)
     regionMetadata = mutationDiagram.regions[i].metadata;
     regionTitle = regionMetadata.identifier + " " + regionMetadata.type.toLowerCase() + ", " + regionMetadata.description + " (" + mutationDiagram.regions[i].start + " - " + mutationDiagram.regions[i].end + ")";
 
-    paper.rect(regionX, regionY, regionW, regionH)
-      .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor, "title": regionTitle});
+	//  Region Rectangle
+    regionRect = paper.rect(regionX, regionY, regionW, regionH)
+      .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
+ 	addMouseOver(regionRect.node, regionTitle, id);
 
-    if ((regionLabel != null) && ((regionLabel.length * 5) < regionW)) {
-      paper.text(regionX + (regionW / 2), regionY + regionH - 6, regionLabel)
-        .attr({"text-anchor": "middle", "font-size": "11px", "font-family": "sans-serif", "title": regionTitle});
-    }
+	//  Region Label (only if it fits)
+    if ((regionLabel != null) && ((regionLabel.length * 10) < regionW)) {
+		currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, regionLabel)
+		.attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
+		addMouseOver(currentText.node, regionTitle, id);
+    } else {
+		truncatedLabel = regionLabel.substring(0,3) + "..";
+		if (truncatedLabel.length * 6 < regionW) {
+			currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, truncatedLabel)
+			.attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
+			addMouseOver(currentText.node, regionTitle, id);
+		}
+	}
   }
 
   // mutation scale
@@ -91,6 +111,7 @@ function drawMutationDiagram(sequences)
       maxCount = mutationDiagram.markups[i].metadata.count;
     }
   }
+  maxCount = maxCount + MAX_OFFSET;
 
   scaleX = x - 15;
   scaleY = c - 8;
@@ -98,8 +119,6 @@ function drawMutationDiagram(sequences)
   scaleH = maxCount * per;
   scaleW = scaleHoriz(8, w, l);
 
-  if (maxCount > 4)
-  {
     paper.path("M" + scaleX + " " + scaleY +
                "L" + (scaleX + scaleW) + " " + scaleY +
                "L" + (scaleX + scaleW) + " " + (scaleY - scaleH) +
@@ -126,46 +145,57 @@ function drawMutationDiagram(sequences)
 
     paper.text(scaleX - 8, scaleY - (maxCount * per), maxCount)
       .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
-  }
 
   // mutation histograms/pileups
   labelShown = false;
+	for (i = 0, size = mutationDiagram.markups.length; i < size; i++) {
+		if (mutationDiagram.markups[i].type == "mutation")	{
+			x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
+			y1 = c - 12;
+			x2 = x1;
+			y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
+			if (mutationDiagram.markups[i].metadata.count == 1) {
+				countText = "(" + mutationDiagram.markups[i].metadata.count + " mutation)";
+			} else {
+				countText = "(" + mutationDiagram.markups[i].metadata.count + " mutations)";
+			}
+			mutationTitle = "Amino Acid Change:  " + mutationDiagram.markups[i].metadata.label + " " + countText;
+
+			p = paper.path("M" + x1 + " " + y1 +
+				"L" + x2 + " " + y2)
+				.attr({"stroke": mutationDiagram.markups[i].lineColour, "stroke-width": 2});
+				addMouseOver(p.node, mutationTitle, id);
+
+			//  Draws the Label for the Max Count
+			if (mutationDiagram.markups[i].metadata.label && (maxCount == mutationDiagram.markups[i].metadata.count + MAX_OFFSET) && !labelShown) {
+				paper.text(x1, y2 - 12, mutationDiagram.markups[i].metadata.label)
+				.attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif"});
+				labelShown = true;
+			}
+		}
+	}
+
+  //  Add Lollipop Heads to make it easier to select specific mutations
   for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
   {
     if (mutationDiagram.markups[i].type == "mutation")
     {
-      x1 = x + scaleHoriz(mutationDiagram.markups[i].metadata.location, w, l);
+      x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
       y1 = c - 12;
       x2 = x1;
       y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
-      mutationTitle = mutationDiagram.markups[i].metadata.label + " mutation (" + mutationDiagram.markups[i].metadata.count + ")";
+	 	if (mutationDiagram.markups[i].metadata.count == 1) {
+			countText = "(" + mutationDiagram.markups[i].metadata.count + " mutation)";
+		} else {
+			countText = "(" + mutationDiagram.markups[i].metadata.count + " mutations)";
+		}
+		mutationTitle = "Amino Acid Change:  " + mutationDiagram.markups[i].metadata.label + " " + countText;
 
-      if (maxCount > 4)
-      {
-        paper.path("M" + x1 + " " + y1 +
-                   "L" + x2 + " " + y2)
-          .attr({"stroke": mutationDiagram.markups[i].lineColour, "stroke-width": 2, "title": mutationTitle});
-      }
-      else
-      {
-        per = (h / 3) / 8;
-        y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
-        for (j = 0, count = mutationDiagram.markups[i].metadata.count; j < count; j++)
-        {
-          paper.circle(x2, y1 - (j * per) - (per / 2), per / 2)
-            .attr({"fill": mutationDiagram.markups[i].colour, "stroke": darken(mutationDiagram.markups[i].colour), "title": mutationTitle});
-        }
-      }
-
-      if (mutationDiagram.markups[i].metadata.label && (maxCount == mutationDiagram.markups[i].metadata.count) && !labelShown)
-      {
-        paper.text(x1, y2 - 8, mutationDiagram.markups[i].metadata.label)
-          .attr({"fill": mutationDiagram.markups[i].lineColour, "font-size": "11px", "font-family": "sans-serif", "title": mutationTitle});
-
-        labelShown = true;
-      }
-    }
-  }
+		lollipop = paper.circle(x2, y2-1, 3, 3)
+			.attr({"fill": regionFillColor, "stroke-width": 1, "stroke": "red", "fill": "red"});
+			addMouseOver(lollipop.node, mutationTitle, id);
+	}
+	}
 }
 
 function scaleHoriz(x, w, l)
@@ -178,4 +208,15 @@ function darken(color)
   rgb = Raphael.getRGB(color);
   hsb = Raphael.rgb2hsb(rgb.r, rgb.g, rgb.b);
   return Raphael.hsb(hsb.h, hsb.s, Math.max(0, hsb.b - (hsb.b * 0.20)));
+}
+
+function addMouseOver(node, txt, id){
+	node.style.cursor = "default"
+	node.onmouseover = function () {
+		$('#mutation_diagram_details_' + id).html(txt)
+	};
+
+	node.onmouseout = function () {
+		$('#mutation_diagram_details_' + id).html("Roll-over in the diagram above to view details.");
+	};
 }

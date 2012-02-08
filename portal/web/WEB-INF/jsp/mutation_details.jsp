@@ -28,10 +28,8 @@
     }
     out.println("</div>");
 %>
-<!--<script type="text/javascript" src="js/d3/d3.js"></script>-->
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
-<script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
-<script type="text/javascript" src="js/mutation_diagram_raphael_new.js"></script>
+<script type="text/javascript" src="js/mutation_diagram.js"></script>
 <script type="text/javascript">
 //  Place mutation_details_table in a JQuery DataTable
 $(document).ready(function(){
@@ -55,18 +53,18 @@ $(document).ready(function(){
 
 <%!
 
-private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
-   ObjectMapper objectMapper = new ObjectMapper();
-   StringWriter stringWriter = new StringWriter();
-   List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
-   try {
-     objectMapper.writeValue(stringWriter, mutations);
-   }
-   catch (Exception e) {
-     // ignore
-   }
-   return stringWriter.toString().replace("\"", "\\\"");
-}
+    private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
+        try {
+            objectMapper.writeValue(stringWriter, mutations);
+        }
+        catch (Exception e) {
+            // ignore
+        }
+        return stringWriter.toString().replace("\"", "\\\"");
+    }
 
     private void outputGeneTable(GeneWithScore geneWithScore,
             ExtendedMutationMap mutationMap, JspWriter out, 

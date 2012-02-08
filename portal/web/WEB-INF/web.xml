@@ -32,7 +32,7 @@
         </filter-mapping>
 
         <listener>
-          <listener-class>org.mskcc.portal.mutation.diagram.pfam.MutationDiagramServletConfig</listener-class>
+          <listener-class>org.mskcc.portal.mut_diagram.servlet.MutationDiagramServletConfig</listener-class>
         </listener>
 
     <servlet>

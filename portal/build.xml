@@ -348,22 +348,4 @@
   <target name="move" description="Moves file to Tomcat Directory for Deployment">
     <copy file="${war.dir}/cgx.war" todir="/Library/Tomcat/Home/webapps/" />
   </target>
-
-  <target name="targets" description="Describes available ant targets">
-    <echo>check - Runs Checkstyle on all source code</echo>
-    <echo>check-validator-code - Runs Checkstyle on Validator Package Only</echo>
-    <echo>clean - Deletes all build files and starts fresh</echo>
-    <echo>compile [default] - Compile all Java source files</echo>
-    <echo>compile-tests - Compile all JUnit Tests</echo>
-    <echo>install - Installs application to local development servlet container</echo>
-    <echo>jar - Creates binary JAR distribution</echo>
-    <echo>list - Lists installed applications on servlet container</echo>
-    <echo>move - Moves file to Tomcat Directory for Deployment</echo>
-    <echo>prepare</echo>
-    <echo>reload - Reloads application on servlet container</echo>
-    <echo>remove - Removes application on servlet container</echo>
-    <echo>targets - Describes available ant targets</echo>
-    <echo>test - Runs all JUnit Tests</echo>
-    <echo>war - Creates binary WAR distribution</echo>
-  </target>
 </project>

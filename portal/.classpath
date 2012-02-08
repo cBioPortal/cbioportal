@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="lib/jasypt-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/jopt-simple-3.2.jar"/>
-	<classpathentry kind="lib" path="lib/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jstl-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
@@ -65,7 +64,6 @@
 	<classpathentry kind="lib" path="lib/spring/spring-security-web-3.1.0.RC2.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-tx-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-web-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/jdas-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/powermock-mockito-1.4.10-full.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.15.0-GA.jar"/>

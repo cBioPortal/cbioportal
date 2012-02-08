@@ -1112,3 +1112,11 @@ padding:4px;
 .percent_altered {
     color:green;
 }
+
+.mutation_diagram_details {
+    font-size: 90%;
+    font-family:arial;
+    background-color:#eeeeee;
+    width:40%;
+    padding:10px;
+}

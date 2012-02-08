@@ -71,5 +71,6 @@
 	<classpathentry kind="lib" path="lib/guice-servlet-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-lgpl-1.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-lgpl-1.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/json_simple-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

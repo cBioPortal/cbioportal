@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.mskcc.cgds.model.ExtendedMutation;
@@ -16,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
 /**
  * Pileup of one or mutations at a single location.
@@ -89,8 +91,11 @@ public final class Pileup {
         for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet()) {
             int location = entry.getKey();
             String label = Joiner.on("/").join(labels.get(location));
-            int count = entry.getValue().size();
-            pileups.add(new Pileup(label, location, count));
+            Set<String> caseIds = Sets.newHashSet();
+            for (ExtendedMutation mutation : entry.getValue()) {
+                caseIds.add(mutation.getCaseId() + ":" + mutation.getAminoAcidChange());
+            }
+            pileups.add(new Pileup(label, location, caseIds.size()));
         }
         return ImmutableList.copyOf(pileups);
     }

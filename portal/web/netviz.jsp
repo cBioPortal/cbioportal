@@ -82,12 +82,12 @@ GraphML:<br>
 &lt;graphml&gt;
 &lt;key id="label" for="node" attr.name="label" attr.type="string"/&gt;
 &lt;key id="type" for="all" attr.name="type" attr.type="string"/&gt;
-&lt;key id="PERCENT_MUTATED" for="node" attr.name="PERCENT_MUTATED" attr.type="double"/&gt;
+&lt;key id="IN_QUERY" for="node" attr.name="IN_QUERY" attr.type="string"/&gt;
 &lt;key id="RELATIONSHIP_XREF" for="node" attr.name="RELATIONSHIP_XREF" attr.type="string"/&gt;
-&lt;key id="PERCENT_ALTERED" for="node" attr.name="PERCENT_ALTERED" attr.type="double"/&gt;
+&lt;key id="PERCENT_MUTATED" for="node" attr.name="PERCENT_MUTATED" attr.type="double"/&gt;
 &lt;key id="PERCENT_CNA_HOMOZYGOUSLY_DELETED" for="node" attr.name="PERCENT_CNA_HOMOZYGOUSLY_DELETED" attr.type="double"/&gt;
 &lt;key id="PERCENT_CNA_AMPLIFIED" for="node" attr.name="PERCENT_CNA_AMPLIFIED" attr.type="double"/&gt;
-&lt;key id="IN_QUERY" for="node" attr.name="IN_QUERY" attr.type="string"/&gt;
+&lt;key id="PERCENT_ALTERED" for="node" attr.name="PERCENT_ALTERED" attr.type="double"/&gt;
 &lt;key id="EXPERIMENTAL_TYPE" for="edge" attr.name="EXPERIMENTAL_TYPE" attr.type="string"/&gt;
 &lt;key id="INTERACTION_DATA_SOURCE" for="edge" attr.name="INTERACTION_DATA_SOURCE" attr.type="string"/&gt;
 &lt;key id="INTERACTION_PUBMED_ID" for="edge" attr.name="INTERACTION_PUBMED_ID" attr.type="string"/&gt;

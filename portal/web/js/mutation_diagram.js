@@ -28,7 +28,7 @@ function drawMutationDiagram(sequences) {
   var paper = Raphael("mutation_diagram_" + id, 700, 220);
 
   // label
-  paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "16px", "font-family": "sans-serif"});
+  paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
   // sequence
   paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)

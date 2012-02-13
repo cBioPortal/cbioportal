@@ -44,7 +44,7 @@
 	text-decoration: none;
 	background-color: #e6e6e6;
 	background-repeat: no-repeat;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 #network_menu li
@@ -229,6 +229,20 @@
 	text-align: center;
 	font-size: 9pt;
 }
+
+/* quick info text */
+#quick_info_div
+{
+	padding-top: 9px;
+	white-space: nowrap;
+}
+
+#quick_info_label
+{
+	margin-left: 20px;
+	font-weight: bold;
+}
+
 
 /*
  * ######################################################## 

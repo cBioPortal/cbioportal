@@ -48,7 +48,7 @@
 		</div>
 		<div id="gene_list_area">
 		</div>
-		<div class="footer">
+		<div class="footer" id="network-resubmit-query">
 			<table>
         		<tr>
         			<td>

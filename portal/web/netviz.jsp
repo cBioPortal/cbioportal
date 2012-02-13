@@ -62,6 +62,8 @@ if (graphml!=null) {
         if (msgs) {
             $("#netmsg").append(msgs);
         }
+        
+        $("#network-resubmit-query").remove();
     });
 </script>
 

@@ -163,7 +163,8 @@ sub convert_case_ID_headers{
     foreach my $f ( @{$cTable->fieldlist()} ){
 
         if( tumorCaseID( $f ) ){
-            if( defined( $cTable->{ convertCaseID( $f ) } ) ){
+		  my $convertedCaseID = convertCaseID($f);
+            if( defined( $cTable->{ $convertedCaseID } ) && ($f ne $convertedCaseID) ){
                 # delete column
                 warn "Deleting column with duplicate case $f in $file.\n";
                 $cTable->col_delete( $f );      

@@ -1556,6 +1556,7 @@ function _setVisibility(visible)
 		if ($("#network_menu_div").hasClass("hidden-network-ui"))
 		{
 			$("#network_menu_div").removeClass("hidden-network-ui");
+			$("#quick_info_div").removeClass("hidden-network-ui");
 			$("#network_tabs").removeClass("hidden-network-ui");
 			$("#node_inspector").removeClass("hidden-network-ui");
 			$("#edge_inspector").removeClass("hidden-network-ui");
@@ -1569,6 +1570,7 @@ function _setVisibility(visible)
 		if (!$("#network_menu_div").hasClass("hidden-network-ui"))
 		{
 			$("#network_menu_div").addClass("hidden-network-ui");
+			$("#quick_info_div").addClass("hidden-network-ui");
 			$("#network_tabs").addClass("hidden-network-ui");
 			$("#node_inspector").addClass("hidden-network-ui");
 			$("#edge_inspector").addClass("hidden-network-ui");

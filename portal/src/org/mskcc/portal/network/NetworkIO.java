@@ -363,7 +363,7 @@ public final class NetworkIO {
         return node;
     }
 
-    private static Node addDrugNode(Network net, Drug drug) {
+    private static Node addDrugNode(Network net, Drug drug) throws DaoException {
         Node node = net.getNodeById(drug.getId());
         if (node != null) {
             return node;
@@ -377,9 +377,25 @@ public final class NetworkIO {
         node.setAttribute("FDA_APPROVAL", drug.isApprovedFDA());
         node.setAttribute("DESCRIPTION", drug.getDescription());
         node.setAttribute("SYNONYMS", drug.getSynonyms());
+        node.setAttribute("TARGETS", createDrugTargetList(drug));
 
         net.addNode(node);
         return node;
+    }
+
+    private static String createDrugTargetList(Drug drug) throws DaoException {
+        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        String targets = "";
+
+        for (DrugInteraction interaction : daoDrugInteraction.getTargets(drug)) {
+            CanonicalGene gene = daoGeneOptimized.getGene(interaction.getTargetGene());
+            targets += gene.getStandardSymbol() + ";";
+        }
+        if(targets.length() > 0)
+            targets = targets.substring(0, targets.length()-1);
+
+        return targets;
     }
 
     private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws DaoException {

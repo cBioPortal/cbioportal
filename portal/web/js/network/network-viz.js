@@ -13,7 +13,6 @@ function send2cytoscapeweb(graphml, div_id) {
                                                     entries: [
                                                             { attrValue: "Protein", value: "ELLIPSE" },
                                                             { attrValue: "SmallMolecule", value: "DIAMOND" },
-                                                            { attrValue: "Drug", value: "HEXAGON" },
                                                             { attrValue: "Unknown", value: "TRIANGLE" }
                                                     ]
                                             }
@@ -25,7 +24,6 @@ function send2cytoscapeweb(graphml, div_id) {
                                                     entries: [
                                                             { attrValue: "Protein", value: "#000000" },
                                                             { attrValue: "SmallMolecule", value: "#000000" },
-                                                            { attrValue: "Drug", value: "#000000" },
                                                             { attrValue: "Unknown", value: "#000000" }
                                                     ]
                                             }
@@ -40,7 +38,6 @@ function send2cytoscapeweb(graphml, div_id) {
                     entries: [
                                                             { attrValue: "Protein", value: "#FFFFFF" },
                                                             { attrValue: "SmallMolecule", value: "#FFFFFF" }, //#D7AC85
-                                                            { attrValue: "Drug", value: "#FFA500" },
                                                             { attrValue: "Unknown", value: "#FFFFFF" } //#69A19E
                     ]
                 }
@@ -68,8 +65,7 @@ function send2cytoscapeweb(graphml, div_id) {
                                             discreteMapper: {
                                                     attrName: "type",
                                                     entries: [
-                                                            { attrValue: "STATE_CHANGE", value: "DELTA" },
-                                                            { attrValue: "DRUG_TARGET", value: "T" }]
+                                                            { attrValue: "STATE_CHANGE", value: "DELTA" } ]
                                     }
             },
                                     color: {
@@ -79,7 +75,6 @@ function send2cytoscapeweb(graphml, div_id) {
                                                     entries: [
                                                             { attrValue: "IN_SAME_COMPONENT", value: "#CD976B" },
                                                             { attrValue: "REACTS_WITH", value: "#7B7EF7" },
-                                                            { attrValue: "DRUG_TARGET", value: "#A52A2A" },
                                                             { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
                                     }
                             }                    	

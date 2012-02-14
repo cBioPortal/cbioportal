@@ -1,6 +1,5 @@
 package org.mskcc.cgds.scripts.drug.internal;
 
-import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import ca.drugbank.DrugType;
 import ca.drugbank.Drugs;
@@ -12,20 +11,16 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.model.DrugInteraction;
 import org.mskcc.cgds.scripts.drug.AbstractDrugInfoImporter;
 import org.mskcc.cgds.scripts.drug.DrugDataResource;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 public class DrugBankImporter extends AbstractDrugInfoImporter {
     Map<BigInteger, List<CanonicalGene>> geneMap = new HashMap<BigInteger, List<CanonicalGene>>();
@@ -88,7 +83,7 @@ public class DrugBankImporter extends AbstractDrugInfoImporter {
         String synonyms = "";
         for (Object o : list) {
             String synonym = o.toString();
-            synonyms += synonym + ",";
+            synonyms += synonym + ";";
         }
         if(synonyms.length() > 0)
             synonyms = synonyms.substring(0, synonyms.length()-1);

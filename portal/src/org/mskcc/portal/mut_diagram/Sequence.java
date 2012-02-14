@@ -1,5 +1,8 @@
 package org.mskcc.portal.mut_diagram;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,14 +12,14 @@ import java.util.Map;
 public final class Sequence {
     private int length;
     private List<Markup> markups;
-    private List<Motif> motifs;
+    private List<Motif> motifs; 
     private List<Region> regions;
     private Map<String, Object> metadata;
     private Options options;
 
     public void setLength(final int length) {
         this.length = length;
-    }
+    }   
 
     public int getLength() {
         return length;
@@ -60,5 +63,47 @@ public final class Sequence {
 
     public Options getOptions() {
         return options;
+    }
+
+    Sequence deepCopy() {
+        Sequence sequence = new Sequence();
+        sequence.setLength(length);
+        if (markups != null) {
+            sequence.setMarkups(newArrayList(markups));
+        }
+        if (metadata != null) {
+            sequence.setMetadata(newHashMap(metadata));
+        }
+        if (motifs != null) {
+            sequence.setMotifs(newArrayList(motifs));
+        }
+        if (options != null) {
+            Options copy = new Options();
+            copy.setBaseUrl(options.getBaseUrl());
+            sequence.setOptions(copy);
+        }
+        if (regions != null) {
+            sequence.setRegions(newArrayList(regions));
+        }
+        return sequence;
+    }
+
+    /**
+     * Return a deep copy of this sequence with the additional list of markups.
+     *
+     * @param markups list of markups to add
+     * @return a deep copy of this sequence with the additional list of markups
+     */
+    public Sequence withMarkups(final List<Markup> markups) {
+        Sequence sequence = deepCopy();
+        if (markups != null && !markups.isEmpty()) {
+            if (sequence.getMarkups() == null) {
+                sequence.setMarkups(newArrayList(markups));
+            }
+            else {
+                sequence.getMarkups().addAll(markups);
+            }
+        }
+        return sequence;
     }
 }

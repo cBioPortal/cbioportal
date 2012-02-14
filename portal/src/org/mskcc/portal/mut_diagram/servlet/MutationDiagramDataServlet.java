@@ -1,10 +1,13 @@
 package org.mskcc.portal.mut_diagram.servlet;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,6 +39,7 @@ public final class MutationDiagramDataServlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(MutationDiagramDataServlet.class);
     /** Default serial version UID. */
     private static final long serialVersionUID = 1L;
+    private static final List<Sequence> EMPTY = Collections.emptyList();
 
     private final ObjectMapper objectMapper;
     private final FeatureService featureService;
@@ -52,41 +56,50 @@ public final class MutationDiagramDataServlet extends HttpServlet {
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         // todo:  check and sanitize hugoGeneSymbol and mutations if necessary
         String hugoGeneSymbol = request.getParameter("hugoGeneSymbol");
-        List<ExtendedMutation> mutations = readMutations(request.getParameter("mutations"));
+
         List<String> uniProtIds = idMappingService.getUniProtIds(hugoGeneSymbol);
-
-        String uniProtId = uniProtIds.get(0); // uh oh
-        List<Sequence> sequences = featureService.getFeatures(uniProtId);
-        if (!sequences.isEmpty()) {
-            Sequence sequence = sequences.get(0);
-            if (sequence.getMetadata() == null) {
-                sequence.setMetadata(new HashMap<String, Object>());
-            }
-            sequence.getMetadata().put("hugoGeneSymbol", hugoGeneSymbol);
-            sequence.getMetadata().put("uniProtId", uniProtId);
-
-            for (Pileup pileup : Pileup.pileup(mutations)) {
-                Markup markup = new Markup();
-                markup.setDisplay("true");
-                markup.setStart(pileup.getLocation());
-                markup.setEnd(pileup.getLocation());
-                markup.setColour(ImmutableList.of("#f36"));
-                markup.setLineColour("#666");
-                markup.setHeadStyle("diamond");
-                markup.setV_align("top");
-                markup.setType("mutation");
-                markup.setMetadata(new HashMap<String, Object>());
-                markup.getMetadata().put("count", pileup.getCount());
-                markup.getMetadata().put("label", pileup.getLabel());
-                markup.getMetadata().put("location", pileup.getLocation());
-                if (sequence.getMarkups() == null) {
-                    sequence.setMarkups(new ArrayList<Markup>());
-                }
-                System.out.println("adding markup for pileup " + pileup.getLabel());
-                sequence.getMarkups().add(markup);
-            }
-            System.out.println("sequence markups " + sequence.getMarkups());
+        if (uniProtIds.isEmpty()) {
+            writeSequencesToResponse(EMPTY, response);
+            return;
         }
+
+        String uniProtId = uniProtIds.get(0);
+        List<Sequence> sequences = featureService.getFeatures(uniProtId);
+        if (sequences.isEmpty()) {
+            writeSequencesToResponse(EMPTY, response);
+            return;
+        }
+
+        Sequence sequence = sequences.get(0);
+        if (sequence.getMetadata() == null) {
+            Map<String, Object> metadata = newHashMap();
+            sequence.setMetadata(metadata);
+        }
+        sequence.getMetadata().put("hugoGeneSymbol", hugoGeneSymbol);
+        sequence.getMetadata().put("uniProtId", uniProtId);
+ 
+        List<Markup> markups = newArrayList();
+        List<ExtendedMutation> mutations = readMutations(request.getParameter("mutations"));
+        for (Pileup pileup : Pileup.pileup(mutations)) {
+            Markup markup = new Markup();
+            markup.setDisplay("true");
+            markup.setStart(pileup.getLocation());
+            markup.setEnd(pileup.getLocation());
+            markup.setColour(ImmutableList.of("#f36"));
+            markup.setLineColour("#666");
+            markup.setHeadStyle("diamond");
+            markup.setV_align("top");
+            markup.setType("mutation");
+            markup.setMetadata(new HashMap<String, Object>());
+            markup.getMetadata().put("count", pileup.getCount());
+            markup.getMetadata().put("label", pileup.getLabel());
+            markup.getMetadata().put("location", pileup.getLocation());
+            markups.add(markup);
+        }
+        writeSequencesToResponse(ImmutableList.of(sequence.withMarkups(markups)), response);
+    }
+
+    private void writeSequencesToResponse(final List<Sequence> sequences, final HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         objectMapper.writeValue(response.getWriter(), sequences);
     }

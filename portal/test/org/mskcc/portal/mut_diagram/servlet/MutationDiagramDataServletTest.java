@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -124,6 +125,19 @@ public final class MutationDiagramDataServletTest {
         dataServlet.doPost(request, response);
         verify(response).setContentType("application/json");
         assertEquals("[{\"length\":42,\"markups\":null,\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter.toString());
+    }
+
+    @Test
+    public void testDoPostEmptyUniProtIds() throws Exception {
+        when(request.getParameter("hugoGeneSymbol")).thenReturn("PIK3CA");
+        when(request.getParameter("mutations")).thenReturn(mutationsJson);
+        when(idMappingService.getUniProtIds("PIK3CA")).thenReturn(Collections.<String>emptyList());
+        StringWriter stringWriter = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+
+        dataServlet.doPost(request, response);
+        verify(response).setContentType("application/json");
+        assertEquals("[]", stringWriter.toString());
     }
 
     @Test

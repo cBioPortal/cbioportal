@@ -10,6 +10,7 @@ The cBio Cancer Genomics Portal is developed and maintained by the [Computationa
  * Anders Jacobsen, MSKCC
  * Jianjiong Gao, MSKCC
  * Erik Larsson, MSKCC
+ * B. Arman Aksoy, MSKCC
  * Selcuk Onur Sumer, Bilkent University
  * Sinan Sonlu, Bilkent University
  * Ugur Dogrusoz, Bilkent University

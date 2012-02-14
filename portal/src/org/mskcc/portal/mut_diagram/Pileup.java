@@ -77,14 +77,18 @@ public final class Pileup {
         ListMultimap<Integer, ExtendedMutation> mutationsByLocation = ArrayListMultimap.create();
         for (ExtendedMutation mutation : mutations) {
             String label = mutation.getAminoAcidChange();
+            String tempLabel = null;
             if (label != null) {
                 try {
-                    int location = Integer.valueOf(label.replaceAll("[A-Z*]+", ""));
+                    tempLabel = label.replaceAll("[A-Z*]+", "");
+                    tempLabel = tempLabel.replaceAll("[a-z*]+", "");
+                    tempLabel = tempLabel.replace(".", "");
+                    int location = Integer.valueOf(tempLabel);
                     labels.put(location, label);
                     mutationsByLocation.put(location, mutation);
                 }
                 catch (NumberFormatException e) {
-                    logger.warn("ignoring extended mutation " + label + ", no location information");
+                    logger.warn("ignoring extended mutation " + tempLabel + ", no location information");
                 }
             }
         }

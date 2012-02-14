@@ -17,19 +17,19 @@ removeStagingFiles.pl
 
 Remove a set of staging files from the staging directory.
 
---publicStagingFilesDirectory # directory which stores staging files
+--stagingFilesDirectory # directory which stores staging files
 --filesToRemoveFile         # file containing cancer_type for custom files
 
 EOT
 
-my( $publicOverridesDirectory, $publicStagingFilesDirectory, $filesToRemoveFile );
+my( $stagingFilesDirectory, $filesToRemoveFile );
 
 main();
 sub main{
 	
     # process arg list
     GetOptions (
-        "publicStagingFilesDirectory=s" => \$publicStagingFilesDirectory,
+        "stagingFilesDirectory=s" => \$stagingFilesDirectory,
         "filesToRemoveFile=s" => \$filesToRemoveFile );
 
     my %customFilesToMove;
@@ -38,7 +38,7 @@ sub main{
     foreach (@tmp){
     	my( $stagingFile, $cancerDirectory ) = split( /\s+/, $_ );
 		# construct file to remove
-		my @directories = ( $publicStagingFilesDirectory, $cancerDirectory );
+		my @directories = ( $stagingFilesDirectory, $cancerDirectory );
 		my $stagingFileToRemove = File::Spec->catfile( @directories, $stagingFile );
 		# if file to remove exists, delete
 		if ( -e $stagingFileToRemove ) {

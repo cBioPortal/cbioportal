@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -61,6 +62,8 @@ public final class MutationDiagramDataServletTest {
         dataServlet = new MutationDiagramDataServlet(objectMapper, featureService, idMappingService);
 
         extendedMutation = new ExtendedMutation(new CanonicalGene(42, "PIK3CA"), "validationStatus", "mutationStatus", "mutationType");
+        extendedMutation.setAminoAcidChange("A123K");
+        extendedMutation.setCaseId("caseId");
         try {
             mutationsJson = objectMapper.writeValueAsString(new ExtendedMutation[] { extendedMutation });
             emptyMutationsJson = objectMapper.writeValueAsString(new ExtendedMutation[0]);
@@ -136,7 +139,40 @@ public final class MutationDiagramDataServletTest {
 
         dataServlet.doPost(request, response);
         verify(response).setContentType("application/json");
-        assertEquals("[{\"length\":42,\"markups\":null,\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter.toString());
+        // todo: expected values should be read from a file
+        assertEquals("[{\"length\":42,\"markups\":[{\"start\":123,\"end\":123,\"href\":null,\"colour\":[\"#f36\"],\"lineColour\":\"#666\",\"display\":\"true\",\"residue\":null,\"type\":\"mutation\",\"headStyle\":\"diamond\",\"v_align\":\"top\",\"metadata\":{\"count\":1,\"location\":123,\"label\":\"A123K\"}}],\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter.toString());
+    }
+
+    @Test
+    public void testDoPostTwiceWithDifferentMutations() throws Exception {
+        String alternateMutationsJson = null;
+        ExtendedMutation alternateMutation = new ExtendedMutation(new CanonicalGene(42, "PIK3CA"), "validationStatus", "mutationStatus", "mutationType");
+        alternateMutation.setAminoAcidChange("K345G");
+        alternateMutation.setCaseId("caseId");
+        try {
+            alternateMutationsJson = objectMapper.writeValueAsString(new ExtendedMutation[] { alternateMutation });
+        }
+        catch (Exception e) {
+            fail(e.getMessage());
+        }
+
+        when(request.getParameter("hugoGeneSymbol")).thenReturn("PIK3CA");
+        // return A123K the first call, K345G the second
+        when(request.getParameter("mutations")).thenReturn(mutationsJson).thenReturn(alternateMutationsJson);
+        when(idMappingService.getUniProtIds("PIK3CA")).thenReturn(ImmutableList.of("P42336"));
+        Sequence sequence = new Sequence();
+        sequence.setLength(42);
+        when(featureService.getFeatures("P42336")).thenReturn(ImmutableList.of(sequence));
+        StringWriter stringWriter0 = new StringWriter();
+        StringWriter stringWriter1 = new StringWriter();
+        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter0)).thenReturn(new PrintWriter(stringWriter1));
+
+        dataServlet.doPost(request, response);
+        dataServlet.doPost(request, response);
+        verify(response, times(2)).setContentType("application/json");
+        assertEquals("[{\"length\":42,\"markups\":[{\"start\":123,\"end\":123,\"href\":null,\"colour\":[\"#f36\"],\"lineColour\":\"#666\",\"display\":\"true\",\"residue\":null,\"type\":\"mutation\",\"headStyle\":\"diamond\",\"v_align\":\"top\",\"metadata\":{\"count\":1,\"location\":123,\"label\":\"A123K\"}}],\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter0.toString());
+        assertEquals("[{\"length\":42,\"markups\":[{\"start\":345,\"end\":345,\"href\":null,\"colour\":[\"#f36\"],\"lineColour\":\"#666\",\"display\":\"true\",\"residue\":null,\"type\":\"mutation\",\"headStyle\":\"diamond\",\"v_align\":\"top\",\"metadata\":{\"count\":1,\"location\":345,\"label\":\"K345G\"}}],\"motifs\":null,\"regions\":null,\"metadata\":{\"hugoGeneSymbol\":\"PIK3CA\",\"uniProtId\":\"P42336\"},\"options\":null}]", stringWriter1.toString());
+
     }
 
     @Test

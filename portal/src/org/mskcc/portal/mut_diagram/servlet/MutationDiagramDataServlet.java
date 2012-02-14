@@ -1,6 +1,7 @@
 package org.mskcc.portal.mut_diagram.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,8 +79,13 @@ public final class MutationDiagramDataServlet extends HttpServlet {
                 markup.getMetadata().put("count", pileup.getCount());
                 markup.getMetadata().put("label", pileup.getLabel());
                 markup.getMetadata().put("location", pileup.getLocation());
+                if (sequence.getMarkups() == null) {
+                    sequence.setMarkups(new ArrayList<Markup>());
+                }
+                System.out.println("adding markup for pileup " + pileup.getLabel());
                 sequence.getMarkups().add(markup);
             }
+            System.out.println("sequence markups " + sequence.getMarkups());
         }
         response.setContentType("application/json");
         objectMapper.writeValue(response.getWriter(), sequences);

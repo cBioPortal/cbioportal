@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# file: movePUBLICOverrides.pl
+# file: moveOverrides.pl
 # author: Benjamin Gross
 
 use strict;
@@ -13,36 +13,36 @@ use FirehoseTransformationWorkflow;
 
 my $usage = <<EOT;
 usage:
-movePUBLICOverrides.pl
+moveOverrides.pl
 
-Move a set of public overrides into the public staging directory.
+Move a set of public (private)  overrides into the public (private) staging directory.
 
---publicOverridesDirectory    # directory containing overrides
---publicStagingFilesDirectory # directory which stores staging files
---publicOverridesFile         # file containing cancer_type for custom files
+--overridesDirectory    # directory containing overrides
+--stagingFilesDirectory # directory which stores staging files
+--overridesFile         # file containing cancer_type for custom files
 
 EOT
 
-my( $publicOverridesDirectory, $publicStagingFilesDirectory, $publicOverridesFile );
+my( $overridesDirectory, $stagingFilesDirectory, $overridesFile );
 
 main();
 sub main{
 	
     # process arg list
     GetOptions (
-        "publicOverridesDirectory=s" => \$publicOverridesDirectory,
-        "publicStagingFilesDirectory=s" => \$publicStagingFilesDirectory,
-        "publicOverridesFile=s" => \$publicOverridesFile );
+        "overridesDirectory=s" => \$overridesDirectory,
+        "stagingFilesDirectory=s" => \$stagingFilesDirectory,
+        "overridesFile=s" => \$overridesFile );
 
     my %customFilesToMove;
     my $f = File::Util->new();
-    my @tmp = $f->load_file( $publicOverridesFile, '--as-lines' );
+    my @tmp = $f->load_file( $overridesFile, '--as-lines' );
     foreach (@tmp){
     	my $cancerDirectory = $_;
 		# construct from directory
-		my $fromDirectory = File::Spec->catdir(( $publicOverridesDirectory, $cancerDirectory ));
+		my $fromDirectory = File::Spec->catdir(( $overridesDirectory, $cancerDirectory ));
 		# construct to directory
-		my $toDirectory = File::Spec->catdir(( $publicStagingFilesDirectory, $cancerDirectory ));
+		my $toDirectory = File::Spec->catdir(( $stagingFilesDirectory, $cancerDirectory ));
 		$f->make_dir( $toDirectory, '--if-not-exists' );
 		# iterate over all .txt files in from dir
 		my @allDataFiles = $f->list_dir( $fromDirectory, '--pattern=.*\.txt$' );

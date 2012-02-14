@@ -37,6 +37,9 @@ drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
 drop table IF EXISTS protein_array_cancer_study;
 
+drop table IF EXISTS drug;
+drop table IF EXISTS drug_interaction;
+
 --
 -- Database: `cgds`
 --
@@ -345,3 +348,39 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `drug_interaction`
+--
+
+CREATE TABLE `drug_interaction` (
+  `DRUG` char(30) NOT NULL,
+  `TARGET` bigint(20) NOT NULL,
+  `INTERACTION_TYPE` char(50) NOT NULL,
+  `DATA_SOURCE` varchar(256) NOT NULL,
+  `EXPERIMENT_TYPES` varchar(1024) DEFAULT NULL,
+  `PMIDS` varchar(1024) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `drug`
+--
+
+CREATE TABLE IF NOT EXISTS `drug` (
+  `DRUG_ID` char(30) NOT NULL,
+  `DRUG_RESOURCE` varchar(30) NOT NULL,
+  `DRUG_NAME` varchar(255) NOT NULL,
+  `DRUG_SYNONYMS` varchar(255) DEFAULT NULL,
+  `DRUG_DESCRIPTION` varchar(255) DEFAULT NULL,
+  `DRUG_XREF` varchar(255) DEFAULT NULL,
+  `DRUG_APPROVED` integer(1) DEFAULT 0,
+  `DRUG_ATC_CODE` varchar(255) DEFAULT NULL,
+  PRIMARY KEY  (`DRUG_ID`),
+  KEY `DRUG_NAME` (`DRUG_NAME`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------

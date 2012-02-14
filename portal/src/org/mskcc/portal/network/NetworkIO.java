@@ -1,11 +1,12 @@
 
 package org.mskcc.portal.network;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoInteraction;
+import org.mskcc.cgds.dao.*;
+import org.mskcc.cgds.model.Drug;
+import org.mskcc.cgds.model.DrugInteraction;
 import org.mskcc.cgds.model.Interaction;
 import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cgds.scripts.drug.AbstractDrugInfoImporter;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.remote.ConnectionManager;
 
@@ -172,6 +173,10 @@ public final class NetworkIO {
         if (interaction==null) {
             return false;
         }
+
+        if (interaction.equals(AbstractDrugInfoImporter.DRUG_INTERACTION_TYPE)) {
+            return true;
+        }
         
         if (interaction.equals("COMPONENT_OF")) {
             return true;
@@ -222,7 +227,7 @@ public final class NetworkIO {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList = daoInteraction.getInteractions(entrezHugoMap.keySet());
+        List<Interaction> interactionList = daoInteraction.getInteractions(seedGenes);
         Network net = new Network();
         for (Interaction interaction : interactionList) {
             long geneA = interaction.getGeneA();
@@ -253,6 +258,37 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
             net.addEdge(edge, geneAID, geneBID);
+        }
+
+        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
+        DaoDrug daoDrug = DaoDrug.getInstance();
+        for(DrugInteraction interaction: daoDrugInteraction.getInteractions(seedGenes)) {
+            String drugID = interaction.getDrug();
+            Long targetGene = interaction.getTargetGene();
+            String geneID = Long.toString(targetGene);
+
+            addDrugNode(net, daoDrug.getDrug(drugID));
+            addNode(net, geneID, entrezToHugo(entrezHugoMap, targetGene));
+
+            String interactionType = interaction.getInteractionType();
+            String pubmed = interaction.getPubMedIDs();
+            String source = interaction.getDataSource();
+
+            String exp = interaction.getExperimentTypes();
+            boolean isDirected = isEdgeDirected(interactionType);
+            Edge edge = new Edge(isDirected, interactionType);
+
+            if (pubmed!=null) {
+                edge.addAttribute("INTERACTION_PUBMED_ID", pubmed);
+            }
+            if (source!=null) {
+                edge.addAttribute("INTERACTION_DATA_SOURCE", source);
+            }
+            if (exp!=null) {
+                edge.addAttribute("EXPERIMENTAL_TYPE", exp);
+            }
+
+            net.addEdge(edge, drugID, geneID);
         }
         
         Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
@@ -326,7 +362,42 @@ public final class NetworkIO {
         net.addNode(node);
         return node;
     }
-    
+
+    private static Node addDrugNode(Network net, Drug drug) throws DaoException {
+        Node node = net.getNodeById(drug.getId());
+        if (node != null) {
+            return node;
+        }
+
+        node = new Node(drug.getId());
+        node.setType(NodeType.DRUG);
+        node.setAttribute("NAME", drug.getName());
+        node.setAttribute("RELATIONSHIP_XREF", drug.getResource() + ":" + drug.getId());
+        node.setAttribute("ATC_CODE", drug.getATCCode());
+        node.setAttribute("FDA_APPROVAL", drug.isApprovedFDA());
+        node.setAttribute("DESCRIPTION", drug.getDescription());
+        node.setAttribute("SYNONYMS", drug.getSynonyms());
+        node.setAttribute("TARGETS", createDrugTargetList(drug));
+
+        net.addNode(node);
+        return node;
+    }
+
+    private static String createDrugTargetList(Drug drug) throws DaoException {
+        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        String targets = "";
+
+        for (DrugInteraction interaction : daoDrugInteraction.getTargets(drug)) {
+            CanonicalGene gene = daoGeneOptimized.getGene(interaction.getTargetGene());
+            targets += gene.getStandardSymbol() + ";";
+        }
+        if(targets.length() > 0)
+            targets = targets.substring(0, targets.length()-1);
+
+        return targets;
+    }
+
     private static Map<Long,String> getEntrezHugoMap(Set<String> genes) throws DaoException {
         Map<Long,String> map = new HashMap<Long,String>(genes.size());
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();

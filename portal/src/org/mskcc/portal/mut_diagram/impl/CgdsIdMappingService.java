@@ -12,8 +12,6 @@ import org.mskcc.cgds.dao.DaoUniProtIdMapping;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.portal.mut_diagram.IdMappingService;
 
-import com.google.inject.Inject;
-
 /**
  * Implementation of IdMappingService that reads from the CGDS data source.
  */
@@ -21,7 +19,6 @@ public final class CgdsIdMappingService implements IdMappingService {
     private static final Logger logger = Logger.getLogger(CgdsIdMappingService.class);
     private final DaoGeneOptimized geneDao;
 
-    @Inject
     public CgdsIdMappingService(final DaoGeneOptimized geneDao) {
         this.geneDao = geneDao;
     }

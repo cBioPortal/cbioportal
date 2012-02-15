@@ -100,17 +100,10 @@
 
     <!-- Copy over all third-party libs -->
     <!-- Exclude servlet.jar See Servlet Spec 2.3, section 9.7.2 -->
-    <!-- Exclude mockito-*.jar, required only for unit tests -->
-    <!-- Exclude powermock-*.jar and transitive deps, required only for unit tests -->
     <copy todir="${build.dir}/WEB-INF/lib">
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
         <exclude name="servlet.jar" />
-        <exclude name="mockito-all-1.8.5.jar" />
-        <exclude name="cglib-nodep-2.2.jar" />
-        <exclude name="javassist-3.15.0-GA.jar" />
-        <exclude name="objenesis-1.2.jar" />
-        <exclude name="powermock-mockito-1.4.10-full.jar" />
       </fileset>
       <fileset dir="${spring.lib.dir}">
         <include name="*.jar" />

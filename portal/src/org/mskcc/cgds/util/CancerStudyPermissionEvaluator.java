@@ -137,7 +137,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 			}
 		}
 
-		// a user has permission to access the all cancer study (all they have access to)
+		// a user has permission to access the 'all' cancer study (everybody does)
 		if (stableStudyID.equalsIgnoreCase(AccessControl.ALL_CANCER_STUDIES_ID)) {
 			return true;
 		}
@@ -145,6 +145,14 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		if (grantedAuthorities.contains(AccessControl.ALL_CANCER_STUDIES_ID.toUpperCase())) {
 			if (log.isDebugEnabled()) {
 				log.debug("hasPermission(), user has access to ALL cancer studies, return true");
+			}
+			return true;
+		}
+		// if a user has access to 'all_tcga', simply return true
+		if (grantedAuthorities.contains(AccessControl.ALL_TCGA_CANCER_STUDIES_ID.toUpperCase()) &&
+			stableStudyID.toUpperCase().endsWith("_TCGA")) {
+			if (log.isDebugEnabled()) {
+				log.debug("hasPermission(), user has access to ALL_TCGA cancer studies return true");
 			}
 			return true;
 		}

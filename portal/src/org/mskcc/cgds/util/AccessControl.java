@@ -18,6 +18,7 @@ import java.util.List;
 public interface AccessControl {
 
     public static final String ALL_CANCER_STUDIES_ID = "all";
+    public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
 
     /**
      * Gets Cancer Studies. Used by QueryBuilder.

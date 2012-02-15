@@ -70,7 +70,7 @@ FULLNAME_KEY = "fullname"
 INST_EMAIL_KEY = "institutionalemailaddress"
 OPENID_EMAIL_KEY = "gmailaddressorotheropenidaddresssuchasyahooemailaddress"
 STATUS_KEY = "statusapprovedorblank"
-AUTHORITIES_KEY = "authoritiesallorsemicolondelimitedcancerstudylist"
+AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"

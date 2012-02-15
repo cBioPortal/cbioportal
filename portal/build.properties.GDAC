@@ -29,11 +29,11 @@ manager.username=tomcat
 manager.password=tomcat
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
-segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/
+segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 r_installed=true
 authenticate=true
-authorization=false
+authorization=true
 include_networks=true
 
 faq=faq_tcga.html

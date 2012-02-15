@@ -2,6 +2,7 @@ package org.mskcc.portal.mut_diagram.servlet;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -20,21 +21,23 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.CollectionType;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.mut_diagram.FeatureService;
 import org.mskcc.portal.mut_diagram.IdMappingService;
 import org.mskcc.portal.mut_diagram.Markup;
 import org.mskcc.portal.mut_diagram.Pileup;
 import org.mskcc.portal.mut_diagram.Sequence;
+import org.mskcc.portal.mut_diagram.impl.CacheFeatureService;
+import org.mskcc.portal.mut_diagram.impl.CgdsIdMappingService;
+import org.mskcc.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Mutation diagram data servlet.
  */
-@Singleton
 public final class MutationDiagramDataServlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(MutationDiagramDataServlet.class);
     /** Default serial version UID. */
@@ -45,11 +48,19 @@ public final class MutationDiagramDataServlet extends HttpServlet {
     private final FeatureService featureService;
     private final IdMappingService idMappingService;
 
-    @Inject
-    public MutationDiagramDataServlet(final ObjectMapper objectMapper, final FeatureService featureService, final IdMappingService idMappingService) {
-        this.objectMapper = objectMapper;
-        this.featureService = featureService;
-        this.idMappingService = idMappingService;
+    public MutationDiagramDataServlet() {
+        objectMapper = new ObjectMapper();
+        objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        PfamGraphicsCacheLoader cacheLoader = new PfamGraphicsCacheLoader(objectMapper);
+        featureService = new CacheFeatureService(cacheLoader);
+
+        try {
+            idMappingService = new CgdsIdMappingService(DaoGeneOptimized.getInstance());
+        }
+        catch (DaoException e) {
+            throw new RuntimeException("could not create id mapping service", e);
+        }
     }
 
     @Override

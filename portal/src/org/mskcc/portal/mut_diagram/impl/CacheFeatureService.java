@@ -12,7 +12,6 @@ import org.mskcc.portal.mut_diagram.Sequence;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
-import com.google.inject.Inject;
 
 /**
  * Implementation of FeatureService based on CacheBuilder.
@@ -27,7 +26,6 @@ public final class CacheFeatureService implements FeatureService {
      *
      * @param cacheLoader cache loader, must not be null
      */
-    @Inject
     public CacheFeatureService(final CacheLoader<String, List<Sequence>> cacheLoader) {
         checkNotNull(cacheLoader, "cacheLoader must not be null");
         cache = CacheBuilder.newBuilder().build(cacheLoader);

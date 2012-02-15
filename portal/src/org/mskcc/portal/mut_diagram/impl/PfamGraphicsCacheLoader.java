@@ -12,19 +12,17 @@ import org.mskcc.portal.mut_diagram.Sequence;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
 
 /**
  * Feature service cache loader that calls the Pfam graphics service.
  */
-final class PfamGraphicsCacheLoader extends CacheLoader<String, List<Sequence>> {
+public final class PfamGraphicsCacheLoader extends CacheLoader<String, List<Sequence>> {
     private static final Logger logger = Logger.getLogger(PfamGraphicsCacheLoader.class);
     static final String URL_PREFIX = "http://pfam.sanger.ac.uk/protein/";
     static final String URL_SUFFIX = "/graphic";
     private final ObjectMapper objectMapper;
 
-    @Inject
-    PfamGraphicsCacheLoader(final ObjectMapper objectMapper) {
+    public PfamGraphicsCacheLoader(final ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

@@ -96,8 +96,8 @@ public final class MutationDiagramDataServlet extends HttpServlet {
             markup.setDisplay("true");
             markup.setStart(pileup.getLocation());
             markup.setEnd(pileup.getLocation());
-            markup.setColour(ImmutableList.of("#f36"));
-            markup.setLineColour("#666");
+            markup.setColour(ImmutableList.of("#b40000"));
+            markup.setLineColour("#babdb6");
             markup.setHeadStyle("diamond");
             markup.setV_align("top");
             markup.setType("mutation");

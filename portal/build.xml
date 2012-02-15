@@ -310,6 +310,27 @@
     <fail if="junit_test_failed" message="One or more JUnit tests failed" />
   </target>
 
+  <!-- ==================== Run Single Test Target ================================= -->
+  <target name="test-onetime" depends="compile-tests" description="Runs a single JUnit Test, specify with -Djunit.onetime=...Test.java">
+    <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
+      <formatter type="brief" usefile="false" />
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${junit.dir}">
+        <fileset dir="${src.dir}">
+          <include name="${junit.onetime}" />
+        </fileset>
+        <fileset dir="${test-src.dir}">
+          <include name="${junit.onetime}" />
+        </fileset>
+      </batchtest>
+      <classpath>
+        <path refid="compile.classpath" />
+        <pathelement location="${junit.dir}/classes" />
+      </classpath>
+    </junit>
+    <fail if="junit_test_failed" message="One or more JUnit tests failed" />
+  </target>
+
   <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">
      <exec dir="db" executable="mysql">
         <arg value='-u ${db.user}'/>

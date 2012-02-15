@@ -105,7 +105,7 @@ sub generate_case_lists{
         my( $cancer, $name ) = split( /\s*:\s*/, $line );
         print "\nProcessing $cancer ($name):\n";
 
-		my @possibleCancerCenter = ("tcga", "mskcc");
+		my @possibleCancerCenter = ("tcga", "mskcc", "scand");
 		foreach my $possibleCancerCenter (@possibleCancerCenter) {
 
 		  my $cancerInputDirectory = $cancer . "_"  . $possibleCancerCenter;
@@ -134,7 +134,9 @@ sub generate_case_lists{
 						   "data_microRNA.txt", "data_microRNA_outliers.txt",
 						   "data_CNA_consensus.txt", "data_CNA_RAE.txt",
 						   "data_brca1_binary_methylation.txt", "",
-						   "data_protein.txt", "data_miRNA.txt",
+						   "data_protein.txt", "data_miRNA.txt", "data_expression_Zscores.txt",
+						   "data_mRNA_DBCG.txt", "data_mRNA_DBCG_Z.txt", "data_mRNA_FW_MDG.txt",
+						   "data_mRNA_MicMa.txt", "data_data_mRNA_ULL.txt",
 						   "data_miRNA_median_Zscores.txt", "data_expression_merged_median_Zscores.txt");
 		  my %filesToSkip = map { $_ => 1 } @skipFiles;
 		  # interate over all data_*.txt files in CancersCGDSinputDir

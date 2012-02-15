@@ -177,7 +177,7 @@ function drawMutationDiagram(sequences) {
 
       addMouseOver(p.node, mutationTitle, id);
 
-      lollipop = paper.circle(x2, y2-1, 3, 3)
+      lollipop = paper.circle(x2, y2, 3, 3)
         .attr({"fill": lollipopFillColor, "stroke": lollipopStrokeColor, "stroke-width": 0.5});
 
       addMouseOver(lollipop.node, mutationTitle, id);

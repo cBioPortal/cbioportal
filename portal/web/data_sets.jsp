@@ -19,7 +19,7 @@
    String siteTitle = SkinUtil.getTitle();
    String dataSetsHeader = SkinUtil.getDataSetsHeader();
    String dataSetsFooter = SkinUtil.getDataSetsFooter();
-   DataSetsUtil dataSetsUtil = DataSetsUtil.getInstance();
+   DataSetsUtil dataSetsUtil = new DataSetsUtil();
 
    // get list of cancer study stats to process
    List<CancerStudyStats> cancerStudyStats = null;

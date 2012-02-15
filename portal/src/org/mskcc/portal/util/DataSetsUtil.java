@@ -19,15 +19,11 @@ import java.util.HashSet;
 import java.util.ArrayList;
 
 /**
- * Utility Class to help generate Data Sets Page.  Make this a singleton 
- * so we only compute stats once at instatiation.
+ * Utility Class to help generate Data Sets Page.
  *
  * @author Benjamin Gross.
  */
 public class DataSetsUtil {
-
-	// ref to our one and only instance
-	private static DataSetsUtil dataSetsUtil = null;
 
 	// ref to our access control object
 	private static AccessControl accessControl = initializeAccessControl();
@@ -42,18 +38,20 @@ public class DataSetsUtil {
 	private DaoCaseList daoCaseList;
 
 	/**
-	 * Method to return singleton.
+	 * Constructor (private).
 	 */
-    public static DataSetsUtil getInstance() {
+	public DataSetsUtil() {
 
-		// contruct instance if needed
-        if (dataSetsUtil == null) {
-            dataSetsUtil = new DataSetsUtil();
-        }
-
-		// outta here
-        return dataSetsUtil;
-    }
+		try {
+			daoCaseList = new DaoCaseList();
+			// totalNumberOfSamples will be set while computing stats
+			totalNumberOfSamples = 0;
+			cancerStudyStats = computeCancerStudyStats();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Returns the cancer study stats.
@@ -68,22 +66,6 @@ public class DataSetsUtil {
      * @return Integer
 	 */
 	public Integer getTotalNumberOfSamples() { return totalNumberOfSamples; }
-
-	/**
-	 * Constructor (private).
-	 */
-	private DataSetsUtil() {
-
-		try {
-			daoCaseList = new DaoCaseList();
-			// totalNumberOfSamples will be set while computing stats
-			totalNumberOfSamples = 0;
-			cancerStudyStats = computeCancerStudyStats();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Routine which constructs and returns a list of CancerStudyStats

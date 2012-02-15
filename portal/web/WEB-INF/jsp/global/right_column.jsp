@@ -16,7 +16,7 @@
    DataSetsUtil dataSetsUtil = null;
    List<CancerStudyStats> cancerStudyStats = null;
    if (SkinUtil.showRightNavDataSets()) {
-	   dataSetsUtil = DataSetsUtil.getInstance();
+	   dataSetsUtil = new DataSetsUtil();
 	   try {
 		   cancerStudyStats = dataSetsUtil.getCancerStudyStats();
 	   }

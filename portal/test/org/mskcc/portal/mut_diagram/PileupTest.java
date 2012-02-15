@@ -252,4 +252,20 @@ public final class PileupTest {
         assertEquals(123, pileup.getLocation());
         assertEquals(2, pileup.getCount());
     }
+
+    @Test
+    public void testPileupsLowercasePDotSAnimoAcidPosition() {
+        ExtendedMutation mutation = new ExtendedMutation();
+        mutation.setAminoAcidChange("p.S310F");
+        mutation.setCaseId("caseId");
+
+        List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation));
+        assertNotNull(pileups);
+        assertEquals(1, pileups.size());
+        Pileup pileup = pileups.get(0);
+
+        assertEquals("p.S310F", pileup.getLabel());
+        assertEquals(310, pileup.getLocation());
+        assertEquals(1, pileup.getCount());
+    }
 }

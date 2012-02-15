@@ -3,23 +3,17 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.dao.DaoGeneticAlteration;
+import org.mskcc.cgds.dao.DaoMutation;
+import org.mskcc.cgds.model.*;
 import org.mskcc.portal.network.Network;
 import org.mskcc.portal.network.NetworkIO;
 import org.mskcc.portal.network.NetworkUtils;
@@ -28,15 +22,6 @@ import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
 
 /**
  * Retrieving 
@@ -257,6 +242,12 @@ public class NetworkServlet extends HttpServlet {
                 res.setContentType("text/"+(sif?"plain":"xml"));
             }
             
+            String gzip = req.getParameter("gzip");
+            boolean isGzip = gzip != null && gzip.equalsIgnoreCase("on");
+            if (isGzip) {
+                res.setHeader("Content-Encoding", "gzip");
+            }
+            
             NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
@@ -293,9 +284,15 @@ public class NetworkServlet extends HttpServlet {
                 writeMsg(messages.toString(), res);
             }
             
-            PrintWriter writer = res.getWriter();
-            writer.write(graph);
-            writer.flush();
+            if (isGzip) {
+                GZIPOutputStream out = new GZIPOutputStream(res.getOutputStream());
+                out.write(graph.getBytes());
+                out.close();
+            } else {
+                PrintWriter writer = res.getWriter();
+                writer.write(graph);
+                writer.close();
+            }
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to cancergenomics@cbio.mskcc.org!\n"+e.toString(), res);

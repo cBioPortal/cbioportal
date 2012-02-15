@@ -37,22 +37,24 @@
 		</td>
 	</tr>
 </table>
-
+    
 
 
 <%
 String graphml = request.getParameter("graphml");
-if (graphml!=null) {
+    if (graphml!=null) {
     //graphml = graphml.replaceAll("\"","\\\\\"").replaceAll("\r?\n","\\\\n");
-    graphml = StringEscapeUtils.escapeJavaScript(graphml);
-    
+        graphml = StringEscapeUtils.escapeJavaScript(graphml);
+
     String msgs = request.getParameter("msg");
-    if (msgs!=null) {
-        msgs = StringEscapeUtils.escapeJavaScript(msgs);
-    }
+        if (msgs!=null) {
+            msgs = StringEscapeUtils.escapeJavaScript(msgs);
+        }
 %>
 
 <script type="text/javascript">
+    //alert('< %=ResponseUtil.getResponseString(request.getInputStream())%>');
+    //alert('< %=graphml%>');
     $(document).ready(function(){
         var graphml = "<%=graphml%>";
         //graphml = '<graphml><graph><node id="n0"/></graph></graphml>';
@@ -76,7 +78,7 @@ if (graphml!=null) {
 <br/>
 Messages:
 <textarea rows="4" cols="50" id="msg" name="msg">
-Below is a sample network.
+<b>Below is a sample network.</b>
 </textarea>
 <br/>
 GraphML:<br>
@@ -1471,7 +1473,8 @@ GraphML:<br>
 &lt;/graph&gt;
 &lt;/graphml&gt;
 </textarea><br>
-<input type="submit" value="Submit" />
+<!--input type="file" name="graphml.gz"/-->
+<input type="submit" name="submit" value="Submit" />
 </form>
 </div>
 <%

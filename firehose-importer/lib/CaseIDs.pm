@@ -33,6 +33,8 @@ my $recurrentTumorCaseID = '^(TCGA-\w\w-\w\w\w\w\-02)|^(TCGA-\w\w-\w\w\w\w\-01R)
 # mskcc studies
 my $tumorPatternProstateMSKCC = '^(PCA\d\d\d\d)$';
 my $tumorPatternSarcomaMSKCC = '^(PT\w+)$';
+my $tumorPatternBladderMSKCC = '^(BL\w+)$';
+my $tumorPatternBreastScand = '^(BC\w+)$';
 
 # convert case ID to MSKCC format
 # truncate case IDs to TCGA-xx-xxxx
@@ -99,6 +101,14 @@ sub convertCaseID{
         $rv = $1;
     }
 
+    if( $caseID =~ /$tumorPatternBladderMSKCC/ ){ 
+        $rv = $1;
+    }
+
+    if( $caseID =~ /$tumorPatternBreastScand/ ){ 
+        $rv = $1;
+    }
+
     if( $caseID =~ /$normalTissueCaseID/ ){ 
         $rv = $1;
     }
@@ -131,7 +141,9 @@ sub tumorCaseID{
         $caseID =~ /$truncatedCaseID/ ||
         $caseID =~ /$tumorPatternOvMAF/ ||
 		$caseID =~ /$tumorPatternProstateMSKCC/ ||
-		$caseID =~ /$tumorPatternSarcomaMSKCC/ ); 
+		$caseID =~ /$tumorPatternSarcomaMSKCC/  ||
+		$caseID =~ /$tumorPatternBladderMSKCC/  ||
+		$caseID =~ /$tumorPatternBreastScand/); 
 }
 
 # sub to identify normal blood case-IDs

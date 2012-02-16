@@ -9,6 +9,7 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+drop table IF EXISTS uniprot_id_mapping;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS users;
 drop table IF EXISTS authorities;
@@ -145,6 +146,18 @@ CREATE TABLE IF NOT EXISTS `gene_alias` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `GENE_ALIAS` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`,`GENE_ALIAS`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `uniprot_id_mapping`
+--
+
+CREATE TABLE IF NOT EXISTS `uniprot_id_mapping` (
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `UNIPROT_ID` varchar(255) NOT NULL,
+  PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

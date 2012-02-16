@@ -26,6 +26,9 @@
   <!-- The java source directory-->
   <property name="src.dir" value="${basedir}/src" />
 
+  <!-- The junit test source directory-->
+  <property name="test-src.dir" value="${basedir}/test" />
+
   <!-- The web source directory -->
   <property name="web.dir" value="${basedir}/web" />
 
@@ -176,6 +179,9 @@
     <mkdir dir="${build.dir}/WEB-INF" />
     <mkdir dir="${build.dir}/WEB-INF/classes" />
     <mkdir dir="${build.dir}/META-INF" />
+    <mkdir dir="${junit.dir}" />
+    <mkdir dir="${junit.dir}/classes" />
+    <mkdir dir="${junit.dir}/reports" />
 
     <!-- Copy static content of this web application -->
     <copy todir="${build.dir}">
@@ -268,20 +274,54 @@
     <remove url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}" />
   </target>
 
+  <target name="compile-tests" depends="compile" description="Compiles all JUnit Tests">
+    <mkdir dir="${junit.dir}/classes" />
+    <javac srcdir="${test-src.dir}" destdir="${junit.dir}/classes" debug="${compile.debug}" deprecation="${compile.deprecation}" optimize="${compile.optimize}">
+      <classpath refid="compile.classpath" />
+    </javac>
+  </target>
+
   <!-- ==================== Test Target ================================= -->
-  <target depends="compile" description="Runs all JUnit Tests" name="test">
-    <delete dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}/reports" />
+  <target name="test" depends="compile-tests" description="Runs all JUnit Tests">
     <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
       <formatter type="brief" usefile="false" />
       <formatter type="xml" />
       <batchtest fork="yes" todir="${junit.dir}">
-        <fileset dir="${src.dir}" includes="**/Test*.java" />
+        <fileset dir="${src.dir}">
+          <include name="**/Test*.java" />
+        </fileset>
+        <fileset dir="${test-src.dir}">
+          <include name="**/*Test.java" />
+          <exclude name="**/Abstract*.java" />
+        </fileset>
       </batchtest>
-      <classpath refid="compile.classpath" />
+      <classpath>
+        <path refid="compile.classpath" />
+        <pathelement location="${junit.dir}/classes" />
+      </classpath>
     </junit>
-    <fail if="junit_test_failed" message="One or more JUnit  tests failed" />
+    <fail if="junit_test_failed" message="One or more JUnit tests failed" />
+  </target>
+
+  <!-- ==================== Run Single Test Target ================================= -->
+  <target name="test-onetime" depends="compile-tests" description="Runs a single JUnit Test, specify with -Djunit.onetime=...Test.java">
+    <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
+      <formatter type="brief" usefile="false" />
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${junit.dir}">
+        <fileset dir="${src.dir}">
+          <include name="${junit.onetime}" />
+        </fileset>
+        <fileset dir="${test-src.dir}">
+          <include name="${junit.onetime}" />
+        </fileset>
+      </batchtest>
+      <classpath>
+        <path refid="compile.classpath" />
+        <pathelement location="${junit.dir}/classes" />
+      </classpath>
+    </junit>
+    <fail if="junit_test_failed" message="One or more JUnit tests failed" />
   </target>
 
   <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">

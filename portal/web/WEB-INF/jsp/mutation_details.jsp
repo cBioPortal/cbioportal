@@ -1,3 +1,4 @@
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
 <%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
 <%@ page import="org.mskcc.portal.model.ExtendedMutationMap" %>
@@ -5,8 +6,12 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.io.StringWriter" %>
 
+<script type="text/javascript" src="js/raphael/raphael.js"></script>
+<script type="text/javascript" src="js/mutation_diagram.js"></script>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
@@ -156,10 +161,40 @@
             <% } %>
         <% } %>
     });
+    
+    //  Place mutation_details_table in a JQuery DataTable
+    $(document).ready(function(){
+    <%
+    for (GeneWithScore geneWithScore : geneWithScoreList) {
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
+          $.ajax({ url: "mutation_diagram_data.json",
+              dataType: "json",
+              data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>", mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>" },
+              success: drawMutationDiagram,
+              type: "POST"});
+          $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+              "bPaginate": false,
+              "bFilter": true
+          } );
+    });         
 </script>
 
 
 <%!
+
+    private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
+        try {
+            objectMapper.writeValue(stringWriter, mutations);
+        }
+        catch (Exception e) {
+            // ignore
+        }
+        return stringWriter.toString().replace("\"", "\\\"");
+    }
+
     private void outputGeneTable(GeneWithScore geneWithScore,
             ExtendedMutationMap mutationMap, JspWriter out, 
             ArrayList<String> mergedCaseList) throws IOException {
@@ -208,6 +243,8 @@
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
+        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>Roll-over in the diagram above to view details.</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

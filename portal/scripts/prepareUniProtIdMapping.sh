@@ -1,15 +1,20 @@
 #!/bin/bash
 
 echo "downloading idmapping.dat from uniprot.org..."
-wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz
+wget -P /tmp/ ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz
 
 echo "extracting UniProt --> GeneID mapping..."
-gunzip HUMAN_9606_idmapping.dat.gz
-grep GeneID HUMAN_9606_idmapping.dat > uniprot_to_geneId.dat
-awk '{print $3"\t"$1}' uniprot_to_geneId.dat | sort -n > uniprot_id_mapping.txt
+gunzip /tmp/HUMAN_9606_idmapping.dat.gz
+grep GeneID /tmp/HUMAN_9606_idmapping.dat > /tmp/uniprot_to_geneId.dat
+awk '{print $3"\t"$1}' /tmp/uniprot_to_geneId.dat | sort -n > /tmp/uniprot_id_mapping.txt
 #echo "found " `wc -l uniprot_id_mapping.txt` " mappings for " `cut -f 1 uniprot_id_mapping.txt | sort -u | wc -l` " entrez gene ids"
 
 echo "copying to ../sample_data/genes/uniprot_id_mapping.txt..."
-cp uniprot_id_mapping.txt ../sample_data/genes/
+cp /tmp/uniprot_id_mapping.txt ../sample_data/genes/
+
+echo "cleaning up /tmp..."
+rm -f /tmp/HUMAN_9606_idmapping.dat
+rm -f /tmp/uniprot_to_geneId.dat
+rm -f /tmp/uniprot_id_mapping.txt
 
 echo "done."

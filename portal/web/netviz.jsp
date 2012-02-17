@@ -1,5 +1,10 @@
+<%@ page import="java.io.BufferedReader" %>
+<%@ page import="java.io.InputStreamReader" %>
+<%@ page import="java.util.zip.GZIPInputStream" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.portal.util.FileUploadRequestWrapper" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
 <html>
 <body>
 
@@ -37,19 +42,36 @@
 		</td>
 	</tr>
 </table>
-    
-
-
 <%
 String graphml = request.getParameter("graphml");
-    if (graphml!=null) {
-    //graphml = graphml.replaceAll("\"","\\\\\"").replaceAll("\r?\n","\\\\n");
-        graphml = StringEscapeUtils.escapeJavaScript(graphml);
+
+// if graphml is not posted, look for uploaded file
+if ((graphml==null||graphml.isEmpty()) && request instanceof FileUploadRequestWrapper) {
+    FileUploadRequestWrapper fileUploadRequestWrapper = (FileUploadRequestWrapper)request;
+    FileItem fileItem = fileUploadRequestWrapper.getFileItem("graphml");
+    if (fileItem!=null) {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(new GZIPInputStream(fileItem.getInputStream())));
+            StringBuilder builder = new StringBuilder();
+            for (String line=bufferedReader.readLine(); line!=null; line=bufferedReader.readLine()) {
+                builder.append(line);
+            }
+        graphml = builder.toString();
+        } catch (Exception e) {
+            // in txt format?
+            graphml = fileItem.getString();
+        }
+    }
+}
+
+if (graphml!=null&&!graphml.isEmpty()) {
+    graphml = StringEscapeUtils.escapeJavaScript(graphml);
 
     String msgs = request.getParameter("msg");
-        if (msgs!=null) {
-            msgs = StringEscapeUtils.escapeJavaScript(msgs);
-        }
+    if (msgs!=null) {
+        msgs = StringEscapeUtils.escapeJavaScript(msgs);
+    }
 %>
 
 <script type="text/javascript">
@@ -74,15 +96,15 @@ String graphml = request.getParameter("graphml");
 } else {
 %>
 <div align="left">
-<form name="input" action="netviz.jsp" method="post">
+<form name="input" action="netviz.jsp" enctype="multipart/form-data" method="post">
 <br/>
 Messages:
-<textarea rows="4" cols="50" id="msg" name="msg">
+<textarea rows="4" cols="30" id="msg" name="msg">
 <b>Below is a sample network.</b>
 </textarea>
 <br/>
 GraphML:<br>
-<textarea rows="20" cols="50" id="graphml" name="graphml">
+<textarea rows="10" cols="530" id="graphml" name="graphml">
 &lt;graphml&gt;
 &lt;key id="label" for="node" attr.name="label" attr.type="string"/&gt;
 &lt;key id="type" for="all" attr.name="type" attr.type="string"/&gt;
@@ -1473,7 +1495,8 @@ GraphML:<br>
 &lt;/graph&gt;
 &lt;/graphml&gt;
 </textarea><br>
-<!--input type="file" name="graphml.gz"/-->
+Or upload a file in format of graphml or gzipped graphml<br>
+<input type="file" name="graphml"/><br>
 <input type="submit" name="submit" value="Submit" />
 </form>
 </div>

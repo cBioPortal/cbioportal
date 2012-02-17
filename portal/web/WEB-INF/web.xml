@@ -240,4 +240,27 @@
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>
+    
+    <filter>
+        <filter-name>FileUpload</filter-name>
+        <display-name>File Upload</display-name>
+        <description>
+            Applied to file upload requests.
+            Wraps the request, allowing it to be used as a regular request, 
+            'as if' it were parsed by the Servlet API.
+        </description>
+        <filter-class>org.mskcc.portal.util.FileUploadFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- Required by the Apache FileUpload tool. -->
+    <listener>
+        <listener-class>
+            org.apache.commons.fileupload.servlet.FileCleanerCleanup
+        </listener-class>
+    </listener>
 </web-app>

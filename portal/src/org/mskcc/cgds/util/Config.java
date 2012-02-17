@@ -41,9 +41,20 @@ public class Config {
 
     /**
      * Determines if users must authenticate or not.
+	 *
      * @return true or false.
      */
     public boolean usersMustAuthenticate() {
 		return new Boolean(properties.getProperty("authenticate"));
     }
+
+	/**
+	 * Determines if users must be authorized to access a 
+	 * particular cancer study.
+	 *
+	 * @return true or false.
+	 */
+	public boolean usersMustBeAuthorized() {
+		return new Boolean(properties.getProperty("authorization"));
+	}
 }

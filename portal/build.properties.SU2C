@@ -34,18 +34,21 @@ r_installed=true
 include_networks=true
 about=about_us_su2c.html
 news=news_su2c.html
-data_sets=data_sets_su2c.html
-data_sets_right_column=data_sets_su2c_right_column.html
 examples_right_column=examples_su2c.html
 faq=faq_su2c.html
 popeye=preview_su2c.jsp
 skin.right_nav.show_testimonials=true
+
+# Skin Data Sets
+skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
+skin.data_sets_footer=
 
 global_css=global_portal.css
 step_image_suffix=_su2c
 
 # Authentication Props
 authenticate=true
+authorization=false
 
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]

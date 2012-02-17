@@ -1,28 +1,73 @@
 <%@ page import="org.mskcc.portal.util.Config" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.portal.util.DataSetsUtil" %> 
+<%@ page import="org.mskcc.cgds.model.CancerStudyStats" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
 <%
-    Config globalConfig = Config.getInstance();
-    String dataSetsRightColumn = globalConfig.getProperty("data_sets_right_column");
-    if (dataSetsRightColumn == null) {
-        dataSetsRightColumn = "../../../content/data_sets_right_column.html";
-    } else {
-        dataSetsRightColumn = "../../../content/" + dataSetsRightColumn;
-    }
-    String examplesHtml = globalConfig.getProperty("examples_right_column");
-    if (examplesHtml == null) {
-        examplesHtml = "../../../content/examples.html";
-    } else {
-        examplesHtml = "../../../content/" + examplesHtml;
-    }
+   Config globalConfig = Config.getInstance();
+   String examplesHtml = globalConfig.getProperty("examples_right_column");
+   if (examplesHtml == null) {
+	   examplesHtml = "../../../content/examples.html";
+   } else {
+	   examplesHtml = "../../../content/" + examplesHtml;
+   }
 
+   DataSetsUtil dataSetsUtil = null;
+   List<CancerStudyStats> cancerStudyStats = null;
+   if (SkinUtil.showRightNavDataSets()) {
+	   dataSetsUtil = new DataSetsUtil();
+	   try {
+		   cancerStudyStats = dataSetsUtil.getCancerStudyStats();
+	   }
+	   catch (Exception e) {
+		   cancerStudyStats = new ArrayList<CancerStudyStats>();
+	   }
+   }
 %>
 
 <div id="right_side">
-<% if (SkinUtil.showRightNavDataSets()) {%>
+<%
+if (SkinUtil.showRightNavDataSets()) {
+%>
     <h3>Data Sets</h3>
-    <jsp:include page="<%= dataSetsRightColumn%>" flush="true" />
-<% } %>
-
+<%
+    out.println("<P>The Portal contains data for <b>" + dataSetsUtil.getTotalNumberOfSamples() + " tumor samples from " +
+                     cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");
+%>
+    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+    google.load('visualization', '1.0', {'packages':['corechart']});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Cancer Study');
+        data.addColumn('number', 'Samples');
+<%
+    out.println("data.addRows([");
+    for (CancerStudyStats stats : cancerStudyStats) {
+        out.println("['" + stats.getStudyName() + "', " + stats.getAll() + "],");
+    }
+    out.println("]);");
+%>
+    var options = {
+        'backgroundColor' : '#F1F6FE',
+        'is3D' : false,
+        'pieSliceText' : 'value',
+        'tooltip':{'text' : 'value'},
+        'width' : 300,
+        'legend' : {'position' : 'none'},
+        'left' : 0,'top' : 0,
+        'height' : 300
+    };
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div1'));
+    chart.draw(data, options);
+}
+    </script>
+    <div id='chart_div1'></div>
+<%
+    } // if showRightNavDataSets
+%>
 <% if (SkinUtil.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
     <jsp:include page="<%= examplesHtml %>" flush="true" />

@@ -162,7 +162,7 @@
         <% } %>
     });
     
-    //  Place mutation_details_table in a JQuery DataTable
+    //  Set up Mutation Diagrams
     $(document).ready(function(){
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
@@ -172,10 +172,8 @@
               data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>", mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>" },
               success: drawMutationDiagram,
               type: "POST"});
-          $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
-              "bPaginate": false,
-              "bFilter": true
-          } );
+        <% } %>
+    <% } %>
     });         
 </script>
 

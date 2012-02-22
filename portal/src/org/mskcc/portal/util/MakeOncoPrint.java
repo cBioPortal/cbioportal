@@ -238,8 +238,33 @@ public class MakeOncoPrint {
 									boolean includeCaseSetDescription,
 									boolean includeLegend) {
 
+		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael.min.js\"></script>\n");
-		
+
+		// output header (case set description, % altered)
+		writeHTMLOncoPrintHeader(out, matrix, dataSummary, caseSetId, caseSets,
+								 includeCaseSetDescription, showAlteredColumns,
+								 cellspacing, cellpadding);
+
+		// output oncoprint
+		out.append("<div id=\"oncoprintDiv\">\n");
+		out.append("</div>");
+
+		// output oncoprint
+		out.append("<div id=\"oncoprintDiv\">\n");
+		out.append("</div>");
+
+		// output legend
+		if (includeLegend) {
+			out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\">\n");
+			out.append("<table cellspacing='" + cellspacing +
+					   "' cellpadding='" + cellpadding + "'>\n");
+            out.append("<tr>\n");
+            writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
+						columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
+            out.append("</table>\n");
+            out.append("</div>\n");
+		}
 	}
 
     /**
@@ -605,4 +630,54 @@ public class MakeOncoPrint {
         // TODO: throw exception
         return "shouldNotBeReached"; // never reached
     }
+
+	static void writeHTMLOncoPrintHeader(StringBuffer out,
+										 GeneticEvent matrix[][], ProfileDataSummary dataSummary,
+										 String caseSetId, ArrayList<CaseList> caseSets,
+										 boolean includeCaseSetDescription, boolean showAlteredColumns,
+										 int cellspacing, int cellpadding) {
+
+		// lets output header/summary info
+        out.append("<div id=\"oncoprint_header\" class=\"oncoprint\">\n");
+        if (includeCaseSetDescription) {
+            for (CaseList caseSet : caseSets) {
+                if (caseSetId.equals(caseSet.getStableId())) {
+                    out.append(
+                            "<p>Case Set: " + caseSet.getName()
+                                    + ":  " + caseSet.getDescription() + "</p>");
+                }
+            }
+        }
+        // stats on pct alteration
+        out.append("<p>Altered in " + dataSummary.getNumCasesAffected() + " (" +
+                alterationValueToString(dataSummary.getPercentCasesAffected())
+                + ") of cases." + "</p>");
+
+        // output table header
+        out.append(
+                "\n<table cellspacing='" + cellspacing +
+                        "' cellpadding='" + cellpadding +
+                        "'>\n" +
+                        "<thead>\n"
+        );
+
+        int columnWidthOfLegend = 80;
+        //  heading that indicates columns are cases
+        // span multiple columns like legend
+        String caseHeading;
+        int numCases = matrix[0].length;
+        String rightArrow =  " &rarr;";
+        if (showAlteredColumns) {
+            caseHeading = pluralize(dataSummary.getNumCasesAffected(), " case")
+                    + " with altered genes, out of " + pluralize(numCases, " total case") + rightArrow;
+        } else {
+            caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
+        }
+
+        out.append("\n<tr><th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
+                + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
+        out.append("</thead>");
+        out.append("</table>");
+		out.append("</div>"); // oncoprint header
+	}
 }

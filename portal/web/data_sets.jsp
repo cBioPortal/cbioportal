@@ -29,9 +29,9 @@
    catch (Exception e) {
 	   cancerStudyStats = new ArrayList<CancerStudyStats>();
    }
-  
+
    // we may have to insert num cancer studies in header
-   if (dataSetsHeader.indexOf("<NUM_CANCER_STUDIES>") > 0) {
+   if (dataSetsHeader.indexOf("<NUM_CANCER_STUDIES>") != -1) {
       dataSetsHeader = dataSetsHeader.replace("<NUM_CANCER_STUDIES>", Integer.toString(cancerStudyStats.size()));
    }
 %>

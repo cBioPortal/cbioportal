@@ -105,7 +105,7 @@ sub run{
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportSangerCensusData " . $sangerfile );  
 
 	# Load up UniProt ID Mapping (for Mutation Diagrams)
-	system ("$CGDS_HOME/scripts/importUniProtIdMapping.pl " . $uniprotMappingFile );
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );

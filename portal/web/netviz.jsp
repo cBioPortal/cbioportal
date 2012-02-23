@@ -1546,11 +1546,13 @@ GraphML:<br>
 </textarea><br>
 Or upload a file in format of graphml or gzipped graphml<br>
 <input type="file" name="graphml"/><br>
+Format:<br/>
 <select name="format">
   <option value="graphml">GraphML</option>
   <option value="graphml.gz.base64">GraphML.GZ.Base64</option>
   <option value="graphml.gz">GraphML.GZ (only for uploaded file)</option>
 </select>
+<br/>
 <input type="submit" name="submit" value="Submit" />
 </form>
 </div>

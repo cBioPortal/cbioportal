@@ -1,10 +1,13 @@
 <%@ page import="java.io.BufferedReader" %>
+<%@ page import="java.io.ByteArrayInputStream" %>
+<%@ page import="java.io.InputStream" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.util.zip.GZIPInputStream" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
 <%@ page import="org.mskcc.portal.util.FileUploadRequestWrapper" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.codec.binary.Base64" %>
 <html>
 <body>
 
@@ -42,25 +45,71 @@
 		</td>
 	</tr>
 </table>
+<script type="text/javascript">
+    //alert('< %=org.mskcc.portal.util.ResponseUtil.getResponseString(request.getInputStream())%>');
+</script>
+                        
 <%
-String graphml = request.getParameter("graphml");
+String format = request.getParameter("format");
+String graphml = null;
 
-// if graphml is not posted, look for uploaded file
-if ((graphml==null||graphml.isEmpty()) && request instanceof FileUploadRequestWrapper) {
-    FileUploadRequestWrapper fileUploadRequestWrapper = (FileUploadRequestWrapper)request;
-    FileItem fileItem = fileUploadRequestWrapper.getFileItem("graphml");
-    if (fileItem!=null) {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(new GZIPInputStream(fileItem.getInputStream())));
-            StringBuilder builder = new StringBuilder();
-            for (String line=bufferedReader.readLine(); line!=null; line=bufferedReader.readLine()) {
-                builder.append(line);
+if (format!=null) {
+    graphml = request.getParameter("graphml");
+    if (graphml!=null&&!graphml.isEmpty()) {
+        if (!format.equalsIgnoreCase("graphml")) {
+            try {
+                byte[] bytes = null;
+                if (format.equalsIgnoreCase("graphml.gz")) {
+                    bytes = graphml.getBytes();
+                } else if (format.equalsIgnoreCase("graphml.gz.base64")) {
+                    bytes = Base64.decodeBase64(graphml.getBytes());
+                }
+
+                if (bytes!=null) {
+                    BufferedReader bufferedReader = new BufferedReader(
+                            new InputStreamReader(new GZIPInputStream(
+                                new ByteArrayInputStream(bytes))));
+                    StringBuilder builder = new StringBuilder();
+                    for (String line=bufferedReader.readLine(); line!=null;
+                            line=bufferedReader.readLine()) {
+                        builder.append(line);
+                    }
+                    graphml = builder.toString();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        graphml = builder.toString();
-        } catch (Exception e) {
-            // in txt format?
-            graphml = fileItem.getString();
+        }
+    } else if (request instanceof FileUploadRequestWrapper) {
+        // if graphml is not posted, look for uploaded file
+        FileUploadRequestWrapper fileUploadRequestWrapper = (FileUploadRequestWrapper)request;
+        FileItem fileItem = fileUploadRequestWrapper.getFileItem("graphml");
+        if (fileItem!=null) {
+            if (format.equalsIgnoreCase("graphml")) {
+                graphml = fileItem.getString();
+            } else {
+                try {
+                    InputStream is = null;
+                    if (format.equalsIgnoreCase("graphml.gz")) {
+                        is = fileItem.getInputStream();
+                    } else if (format.equalsIgnoreCase("graphml.gz.base64")) {
+                        is = new ByteArrayInputStream(Base64.decodeBase64(fileItem.getString().getBytes()));
+                    }
+
+                    if (is!=null) {
+                        BufferedReader bufferedReader = new BufferedReader(
+                                new InputStreamReader(new GZIPInputStream(is)));
+                        StringBuilder builder = new StringBuilder();
+                        for (String line=bufferedReader.readLine(); line!=null;
+                                line=bufferedReader.readLine()) {
+                            builder.append(line);
+                        }
+                        graphml = builder.toString();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
@@ -82,10 +131,10 @@ if (graphml!=null&&!graphml.isEmpty()) {
         //graphml = '<graphml><graph><node id="n0"/></graph></graphml>';
         send2cytoscapeweb(graphml,"cytoscapeweb");
         
+        <%if(msgs!=null){%>
         var msgs = "<br/><%=msgs%>";
-        if (msgs) {
-            $("#netmsg").append(msgs);
-        }
+        $("#netmsg").append(msgs);
+        <%}%>
         
         $("#network-resubmit-query").remove();
     });
@@ -1497,6 +1546,11 @@ GraphML:<br>
 </textarea><br>
 Or upload a file in format of graphml or gzipped graphml<br>
 <input type="file" name="graphml"/><br>
+<select name="format">
+  <option value="graphml">GraphML</option>
+  <option value="graphml.gz.base64">GraphML.GZ.Base64</option>
+  <option value="graphml.gz">GraphML.GZ (only for uploaded file)</option>
+</select>
 <input type="submit" name="submit" value="Submit" />
 </form>
 </div>

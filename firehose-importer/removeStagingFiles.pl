@@ -22,7 +22,7 @@ Removes all data_mutations_extended.txt (MAFs) from the given staging area as we
 
 EOT
 
-my( $stagingFilesDirectory, $overridesDirectory );
+my($stagingFilesDirectory, $overridesDirectory);
 
 main();
 sub main{
@@ -33,7 +33,7 @@ sub main{
         "overridesDirectory=s" => \$overridesDirectory );
 
     my $f = File::Util->new();
-	my @allCancerDirs = $f->list_dir( $stagingFilesDirectory, '--dirs-only' );
+	my @allCancerDirs = $f->list_dir($stagingFilesDirectory, '--dirs-only');
     foreach (@allCancerDirs){
 		# construct staging files cancer directory
     	my $cancerDirectory = $_;
@@ -41,9 +41,9 @@ sub main{
 
 		# remove the MAF if found
 		my $toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'data_mutations_extended.txt');
-		if ( -e $toRemove ) {
+		if (-e $toRemove) {
 			print "removing MAF from staging area: $toRemove\n";
-			system( "rm -f $toRemove" ); 
+			system("rm -f $toRemove"); 
 		}
 
 		# construct case list directories
@@ -52,14 +52,14 @@ sub main{
 
 		if (-d $stagingAreaCaseListDirectory) {
 			# remove any case lists in the staging area that exist in the override area - these are custom lists
-			my @allCaseListFiles = $f->list_dir( $stagingAreaCaseListDirectory, '--pattern=.*\.txt$' );
+			my @allCaseListFiles = $f->list_dir($stagingAreaCaseListDirectory, '--pattern=.*\.txt$');
 			foreach my $caseListFile ( @allCaseListFiles ) {
 				# check if exists in overrides
 				my $caseListInOverrides = File::Spec->catfile($overrideCaseListDirectory, $caseListFile);
 				if (-e $caseListInOverrides) {
 					print "removing case list file from staging area: $caseListInOverrides\n";
 					my $toRemove = File::Spec->catfile($stagingAreaCaseListDirectory, $caseListFile);
-					system( "rm -f $toRemove" ); 
+					system("rm -f $toRemove"); 
 				}
 			}
 		}

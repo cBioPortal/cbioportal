@@ -31,7 +31,7 @@
    }
 
    // we may have to insert num cancer studies in header
-   if (dataSetsHeader.indexOf("<NUM_CANCER_STUDIES>") != -1) {
+   if (dataSetsHeader != null && dataSetsHeader.indexOf("<NUM_CANCER_STUDIES>") != -1) {
       dataSetsHeader = dataSetsHeader.replace("<NUM_CANCER_STUDIES>", Integer.toString(cancerStudyStats.size()));
    }
 %>
@@ -46,7 +46,9 @@
            <div class="markdown">
            <p>
 			  <%
-				 out.println("<p>" + dataSetsHeader + "<br><br></p>");
+			     if (dataSetsHeader != null) {
+				     out.println("<p>" + dataSetsHeader + "<br><br></p>");
+                 }
 				 out.println("<table>");
 				 out.println("<tr>");
 				 out.println("<th>CancerStudy</th>");
@@ -126,7 +128,9 @@
 				 }
 				 out.println("</table>");
 				 out.println("<br>Total number of samples: <b>" + dataSetsUtil.getTotalNumberOfSamples() + "</b>");
-				 out.println("<br><br>" + dataSetsFooter + "</p>");
+				 if (dataSetsFooter != null) {
+				     out.println("<br><br>" + dataSetsFooter + "</p>");
+                 }
 			  %>
 			</p>
           </div> 

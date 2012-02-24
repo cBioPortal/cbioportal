@@ -30,6 +30,10 @@ function drawMutationDiagram(sequences) {
   // label
   paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
+  // label for y-axis
+  yaxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+  yaxis.rotate(270);
+
   // sequence
   paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
     .attr({"fill": sequenceColor, "stroke": "none", "title": title});
@@ -206,10 +210,10 @@ function darken(color) {
 function addMouseOver(node, txt, id){
   node.style.cursor = "default"
   node.onmouseover = function () {
-    $('#mutation_diagram_details_' + id).html(txt)
+    $('#mutation_diagram_details_' + id).html(txt+"<BR>&nbsp;<BR>&nbsp;")
   };
 
   node.onmouseout = function () {
-    $('#mutation_diagram_details_' + id).html("Roll-over in the diagram above to view details.");
+    $('#mutation_diagram_details_' + id).html("The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<br>&nbsp;");
   };
 }

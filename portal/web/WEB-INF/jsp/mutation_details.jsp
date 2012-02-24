@@ -22,7 +22,6 @@
     out.println("<div class='section' id='mutation_details'>");
 
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
-        outputOmaHeader(out);
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
         }
@@ -202,6 +201,7 @@
 
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
             outputHeader(out, geneWithScore, mutationCounter);
+            outputOmaHeader(out);
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +
                     "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
@@ -242,7 +242,7 @@
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>Roll-over in the diagram above to view details.</div>");
+        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<BR>Domain details derived from <a href='http://pfam.sanger.ac.uk/'>Pfam</a>.</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {
@@ -251,9 +251,9 @@
     }
 
     private void outputOmaHeader(JspWriter out) throws IOException {
-        out.println("** Predicted functional impact (via " +
+        out.println("<br>** Predicted functional impact (via " +
                 "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
                 " is provided for missense mutations only.  ");
-        out.println("<br><br>");
+        out.println("<br>");
     }
 %>

@@ -2,6 +2,7 @@
 
 * All data updated to the __latest Firehose run__ (January 24).
 * Validated mutation data for colorectal cancer.
+* Updated mutation data for several TCGA studies.
 * New feature: __Mutation Diagrams__ that show mutations in the context of protein domains.
 <center>![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)</center>
 

@@ -198,7 +198,6 @@ if (step4ErrorMsg != null) {
 
                           if( allValid ) {
                                 $("#main_submit").removeAttr("disabled").removeAttr("title")
-                                    .attr("title", "Click to submit.").tipTip();
 
                                 if( symbolResults.length > 0
                                     && !(symbolResults[0].name == "" && symbolResults[0].symbols.length == 0) ) {

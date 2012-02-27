@@ -1,3 +1,4 @@
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cgds.model.ExtendedMutation" %>
 <%@ page import="org.mskcc.portal.html.MutationTableUtil" %>
 <%@ page import="org.mskcc.portal.model.ExtendedMutationMap" %>
@@ -5,8 +6,12 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.util.MutationCounter" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.io.StringWriter" %>
 
+<script type="text/javascript" src="js/raphael/raphael.js"></script>
+<script type="text/javascript" src="js/mutation_diagram.js"></script>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
@@ -17,7 +22,6 @@
     out.println("<div class='section' id='mutation_details'>");
 
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
-        outputOmaHeader(out);
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
         }
@@ -156,10 +160,38 @@
             <% } %>
         <% } %>
     });
+    
+    //  Set up Mutation Diagrams
+    $(document).ready(function(){
+    <%
+    for (GeneWithScore geneWithScore : geneWithScoreList) {
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
+          $.ajax({ url: "mutation_diagram_data.json",
+              dataType: "json",
+              data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>", mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>" },
+              success: drawMutationDiagram,
+              type: "POST"});
+        <% } %>
+    <% } %>
+    });         
 </script>
 
 
 <%!
+
+    private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringWriter stringWriter = new StringWriter();
+        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
+        try {
+            objectMapper.writeValue(stringWriter, mutations);
+        }
+        catch (Exception e) {
+            // ignore
+        }
+        return stringWriter.toString().replace("\"", "\\\"");
+    }
+
     private void outputGeneTable(GeneWithScore geneWithScore,
             ExtendedMutationMap mutationMap, JspWriter out, 
             ArrayList<String> mergedCaseList) throws IOException {
@@ -169,6 +201,7 @@
 
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
             outputHeader(out, geneWithScore, mutationCounter);
+            outputOmaHeader(out);
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +
                     "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
@@ -208,6 +241,8 @@
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
+        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<BR>Domain details derived from <a href='http://pfam.sanger.ac.uk/'>Pfam</a>.</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {
@@ -216,9 +251,9 @@
     }
 
     private void outputOmaHeader(JspWriter out) throws IOException {
-        out.println("** Predicted functional impact (via " +
+        out.println("<br>** Predicted functional impact (via " +
                 "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
                 " is provided for missense mutations only.  ");
-        out.println("<br><br>");
+        out.println("<br>");
     }
 %>

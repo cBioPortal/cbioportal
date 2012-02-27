@@ -66,6 +66,7 @@ sub run{
 		$miRNAfile,           # full filename of miRNAs file
 		$rppafile,           # full filename of rppa antibodies file
 		$sangerfile,           # full filename of sanger census file
+		$uniprotMappingFile,   # full filename of uniprot mapping file
         $nameOfPerCancerGermlineWhitelist,  # base filename of per cancer germline whitelist file, if any
         $nameOfPerCancerSomaticWhitelist,   # base filename of per cancer somatic whitelist file, if any
 		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cgds.scripts.ImportProfileData
@@ -75,7 +76,7 @@ sub run{
 
 	# check that required options are set
 	my $util = Utilities->new( "" );
-	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile );
+	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile, $uniprotMappingFile );
 
 	my $cmdLineCP = set_up_classpath( $cgdsHome );
 	
@@ -102,6 +103,9 @@ sub run{
 
 	# Load up Sanger Data
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportSangerCensusData " . $sangerfile );  
+
+	# Load up UniProt ID Mapping (for Mutation Diagrams)
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );

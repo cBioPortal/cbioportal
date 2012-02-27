@@ -23,7 +23,7 @@ Move a set of public (private)  overrides into the public (private) staging dire
 
 EOT
 
-my( $overridesDirectory, $stagingFilesDirectory, $overridesFile );
+my($overridesDirectory, $stagingFilesDirectory, $overridesFile);
 
 main();
 sub main{
@@ -36,23 +36,27 @@ sub main{
 
     my %customFilesToMove;
     my $f = File::Util->new();
-    my @tmp = $f->load_file( $overridesFile, '--as-lines' );
+    my @tmp = $f->load_file($overridesFile, '--as-lines');
     foreach (@tmp){
     	my $cancerDirectory = $_;
 		# construct from directory
-		my $fromDirectory = File::Spec->catdir(( $overridesDirectory, $cancerDirectory ));
+		my $fromDirectory = File::Spec->catdir($overridesDirectory, $cancerDirectory);
 		# construct to directory
-		my $toDirectory = File::Spec->catdir(( $stagingFilesDirectory, $cancerDirectory ));
-		$f->make_dir( $toDirectory, '--if-not-exists' );
-		# iterate over all .txt files in from dir
-		my @allDataFiles = $f->list_dir( $fromDirectory, '--pattern=.*\.txt$' );
-		foreach my $dataFile ( @allDataFiles ) {
-		  my $FullDataFile = File::Spec->catfile( $fromDirectory, $dataFile);
-		  print "\ncopying:\n", "from: $FullDataFile\n", "  to: $toDirectory\n";
-		  system( "cp $FullDataFile $toDirectory"); 
+		my $toDirectory = File::Spec->catdir($stagingFilesDirectory, $cancerDirectory);
+		# if toDirectory exists, remove it
+		if (-d $toDirectory) {
+		  system("rm -rf $toDirectory");
 		}
-		# cp seg file
-		print "\ncopying:\n", "from: $fromDirectory/*.seg\n", "  to: $toDirectory\n";
-		system( "cp $fromDirectory/*.seg $toDirectory"); 
+		print "\ncopying directory:\n", "source: $fromDirectory\n", "  target: $toDirectory\n";
+		system("cp -r $fromDirectory $toDirectory");
+		# remove CVS directories
+		my $cvsDir = File::Spec->catdir($toDirectory, 'CVS');
+		if (-d $cvsDir) {
+		  system("rm -rf $cvsDir");
+		}
+		$cvsDir = File::Spec->catdir($toDirectory, 'case_lists', 'CVS');
+		if (-d $cvsDir) {
+		  system("rm -rf $cvsDir");
+		}
     }
 }

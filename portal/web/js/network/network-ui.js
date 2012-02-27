@@ -83,7 +83,7 @@ var _geneWeightThreshold;
 var _maxAlterationPercent;
 
 // CytoscapeWeb.Visualization instance
-var _vis;
+var _vis = null;
 
 
 /**
@@ -96,9 +96,11 @@ function initNetworkUI(vis)
 {
 	_vis = vis;
 	_linkMap = _xrefArray();
+	
+	// init filter arrays
 	_alreadyFiltered = new Array();
 	_filteredBySlider = new Array();
-	_filteredByIsolation = new Array();
+	_filteredByIsolation = new Array();	
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
 	
@@ -1877,7 +1879,14 @@ function _initMainMenu()
 	$("#show_edge_legend").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
-	
+	_updateMenuCheckIcons();
+}
+
+/**
+ * Updates check icons of the checkable menu items.
+ */
+function _updateMenuCheckIcons()
+{
 	if (_autoLayout)
 	{
 		$("#auto_layout").addClass(CHECKED_CLASS);
@@ -2295,6 +2304,9 @@ function _refreshGenesTab()
 }
 */
 
+/**
+ * Initializes Genes tab.
+ */
 function _initGenesTab()
 {
 	// init buttons
@@ -2412,7 +2424,7 @@ function _refreshGenesTab()
 		$("#gene_list_area select").dblclick(showGeneDetails);
 		
 		// TODO if multiple genes are selected, double click always shows
-		// the first selected genes details in IE
+		// the first selected gene's details in IE
 	}
 }
 
@@ -2526,7 +2538,6 @@ function _refreshRelationsTab()
 	//		</td>
 	// </tr>
 }
-
 
 /**
  * Creates a map (an array) with <command, function> pairs. Also, adds listener

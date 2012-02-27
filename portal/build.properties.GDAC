@@ -22,7 +22,8 @@ skin.email_contact=cbioportal at googlegroups dot com
 skin.blurb=<b>Data in this portal is based on the 26 October 2011 Broad Firehose run of TCGA data.  Additional mutation files have been added from each disease working group.</b>
 skin.authorization_message=Access to this portal is only available to authorized users who are involved in TCGA-funded work or are active participants of the TCGA Disease Working Groups or Analysis Working Groups.  [<a href="http://bit.ly/gdac-form">Request Access</a>].
 skin.right_nav.show_testimonials=true
-
+skin.data_sets_header=The portal currently contains data from the following TCGA cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
+skin.data_sets_footer=Based on the Firehose run from 12/30/2011.
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
@@ -32,14 +33,13 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 
 r_installed=true
 authenticate=true
+authorization=true
 include_networks=true
 
 faq=faq_tcga.html
 about=about_us.html
 news=news_tcga.html
-data_sets=data_sets_tcga.html
 examples_right_column=examples_tcga.html
-data_sets_right_column=data_sets_tcga_right_column.html
 
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]

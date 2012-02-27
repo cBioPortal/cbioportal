@@ -494,7 +494,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
     Raphael cannot draw text correctly.  Chaning to [position: absolute; left: -9999px]
     fixes the problem.
 */
-.ui-tabs .ui-tabs-hide { position: absolute; left: -9999px }
+.ui-tabs .ui-tabs-hide { position: absolute; left: -9999px; top: -9999px }
 
 /*
  * jQuery UI Datepicker 1.8.14

@@ -36,7 +36,7 @@ skin.email_contact=cbioportal at googlegroups dot com
 
 # Skin Data Sets
 skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
-skin.data_sets_footer=Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from 12/30/2011.
+skin.data_sets_footer=Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from 1/24/2012.
 
 # Indicates whether R and RServe are Installed
 r_installed=true

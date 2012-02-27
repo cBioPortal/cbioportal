@@ -19,6 +19,7 @@
    String siteTitle = SkinUtil.getTitle();
    String dataSetsHeader = SkinUtil.getDataSetsHeader();
    String dataSetsFooter = SkinUtil.getDataSetsFooter();
+   String segFileURL = globalConfig.getProperty("segfile.url");
    DataSetsUtil dataSetsUtil = new DataSetsUtil();
 
    // get list of cancer study stats to process
@@ -91,8 +92,7 @@
 					 out.println("<td style=\"text-align: center;\">" + sequenced + "</td>");
 					 // aCGH
 					 String aCGH = (stats.getACGH() == 0) ? "" :
-						 ("<a href=\"http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/" +
-						  stableID + ".seg\">" + stats.getACGH() + "</a>");
+						 ("<a href=\"" + segFileURL + stableID + ".seg\">" + stats.getACGH() + "</a>");
 					 out.println("<td style=\"text-align: center;\">" + aCGH  + "</td>");
 					 // RNA-Seq
 					 String rnaSEQ = (stats.getRNASEQ() != 0) ? stats.getRNASEQ().toString() : "";

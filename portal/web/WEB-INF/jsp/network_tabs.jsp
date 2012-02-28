@@ -27,7 +27,8 @@
 	    		</div>
     		</div>
     		<div id="control_area">
-    			<table><tr>
+    			<table>
+    			<tr>
     				<td>
 						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
 					</td>
@@ -43,22 +44,21 @@
 					<td>
 						<button id="search_genes" class="tabs-button" title="Search"></button>
 					</td>
-				</tr></table>
+				</tr>
+				</table>
+				<table id="network-resubmit-query">
+					<tr>
+	        			<td>
+	        				<label class="button-text">Submit New Query</label>
+	        			</td>
+	        			<td>
+	        				<button id="re-submit_query" class="tabs-button" title="Submit New Query with Genes Selected Below"></button>
+	        			</td>
+	        		</tr>
+        		</table>
 			</div>			
 		</div>
 		<div id="gene_list_area">
-		</div>
-		<div class="footer">
-			<table>
-        		<tr>
-        			<td>
-        				<label class="button-text">Re-Submit Query</label>
-        			</td>
-        			<td>
-        				<button id="re-submit_query" class="tabs-button" title="Re-Submit Query with Selected Genes"></button>
-        			</td>
-        		</tr>
-        	</table>
 		</div>
     </div>
     <div id="relations_tab">

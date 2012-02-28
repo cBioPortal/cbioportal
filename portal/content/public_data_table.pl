@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use Fcntl qw/:seek/;
 use Getopt::Long;
 
 my ($CancerFile, $LatestRunFile, $ConverterSummaryFile);
@@ -30,10 +31,7 @@ foreach my $arg (qw(CancerFile LatestRunFile ConverterSummaryFile)) {
 }
 
 open (IN1, $CancerFile);
-
-$cancer_count = 0;
 while ($line = <IN1>) {
-	$cancer_count++;
 	chomp $line;
 	@data = split (/ \: /,$line);
 	$data[0] =~ tr/a-z/A-Z/;
@@ -46,7 +44,7 @@ open (IN2, $LatestRunFile);
 <IN2>;
 $line = <IN2>;
 chomp $line;
-@data=split(/00/,$line);
+@data=split(/00$/,$line);
 $date=$data[0];
 
 open (IN3, $ConverterSummaryFile);
@@ -54,7 +52,15 @@ open (IN3, $ConverterSummaryFile);
 open (OUT1,">data_sets_public.html");
 open (OUT2,">data_sets_public_right_column.markdown");
 
-print OUT1 "<P><p>The portal currently contains data from 18 cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
+# compute cancer count from summary file, not cancer file (becauese cancer file does not take into account multiple studies per tumor type
+my $cancer_count = -1; # first line in file is summary, start at -1
+while ($line = <IN3>) {
+    $cancer_count++;
+}
+# reset file pointer to start for processing below
+seek IN3, 0, SEEK_SET
+
+print OUT1 "<P><p>The portal currently contains data from $cancer_count cancer genomics studies. The table below lists the number of available samples per cancer study and data type.<br><br>\n";
 #print OUT1 "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" bordercolor=\"#808080\">\n";
 print OUT1 "<table>\n";
 print OUT1 "\t<tr>\n";
@@ -86,6 +92,7 @@ while ($line = <IN3>) {
 
 	chomp $line;
 	@data = split (/\t/,$line);
+	$id = $data[0];
 	$data[0] =~ tr/a-z/A-Z/;
 	@study = split (/_/,$data[0]);
 
@@ -107,7 +114,7 @@ while ($line = <IN3>) {
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">91</td>\n"; }
 		elsif ($data[0] eq "SARC_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">207</td>\n"; }
 		else { print OUT1 "\t\t<td style=\"text-align: center;\">$data[8]</td>\n"; }
-		print OUT1 "\t\t<td style=\"text-align: center;\">$data[3]</td>\n";
+		print OUT1 "\t\t<td style=\"text-align: center;\"><a href=\"http:\/\/cbio.mskcc.org/cancergenomics/public-portal/seg/$id.seg\">$data[3]</a></td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[5]</td>\n";
 		print OUT1 "\t\t<td style=\"text-align: center;\">$data[6]</td>\n";
 		if ($data[0] eq "PRAD_MSKCC") { print OUT1 "\t\t<td style=\"text-align: center;\">30</td>\n"; }
@@ -173,3 +180,5 @@ close (IN3);
 close (OUT1);
 close (OUT2);
 #print $pie_data;
+
+

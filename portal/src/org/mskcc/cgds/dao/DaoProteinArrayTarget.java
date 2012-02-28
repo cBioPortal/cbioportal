@@ -64,6 +64,24 @@ public class DaoProteinArrayTarget {
         }
     }
     
+    public int deleteProteinArrayTarget(String proteinArrayId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("DELETE FROM protein_array_target WHERE `PROTEIN_ARRAY_ID`=?");
+            pstmt.setString(1, proteinArrayId);
+            int rows = pstmt.executeUpdate();
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
     public Collection<Long> getEntrezGeneIdOfArray(String arrayId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

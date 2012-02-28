@@ -108,6 +108,10 @@
 	</ul>
 </div>
 
+<div id="quick_info_div" class="hidden-network-ui">
+	<label id="quick_info_label">Double-click nodes/edges for details</label>
+</div>
+
 <div id="settings_dialog" class="hidden-network-ui" title="Layout Properties">
 	<div id="fd_layout_settings" class="content ui-widget-content">
 		<table>

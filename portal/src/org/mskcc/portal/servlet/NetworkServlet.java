@@ -3,23 +3,17 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.dao.DaoGeneticAlteration;
+import org.mskcc.cgds.dao.DaoMutation;
+import org.mskcc.cgds.model.*;
 import org.mskcc.portal.network.Network;
 import org.mskcc.portal.network.NetworkIO;
 import org.mskcc.portal.network.NetworkUtils;
@@ -28,15 +22,6 @@ import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
 
 /**
  * Retrieving 
@@ -79,17 +64,6 @@ public class NetworkServlet extends HttpServlet {
             
             String xd = req.getParameter("xdebug");
             boolean logXDebug = xd!=null && xd.equals("1");
-                
-            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
-                    = getMapQueryGeneAlterationCaseNumber(req);
-            
-            String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
-            
-            if (logXDebug) {
-                xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
-                        false, false, encodedQueryAlteration)
-                        +"\" target=\"_blank\">NetworkServlet URL</a>");
-            }
 
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
@@ -105,7 +79,7 @@ public class NetworkServlet extends HttpServlet {
             
             Network network;
             xdebug.startTimer();
-            if (netSrc.equalsIgnoreCase("cpath2")) {
+            if ("cpath2".equalsIgnoreCase(netSrc)) {
                 network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
                 if (logXDebug) {
                     xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
@@ -141,14 +115,16 @@ public class NetworkServlet extends HttpServlet {
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
+                
+            // get cancer study id
+            // if cancer study id is null, return the current network
+            String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
-            if (network.countNodes()!=0) {                
+            if (network.countNodes()!=0 && cancerTypeId!=null) {
+            
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
-                
-                // get cancer study id
-                String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
                 
                 // Get case ids
                 Set<String> targetCaseIds = getCaseIds(req, cancerTypeId);
@@ -160,6 +136,9 @@ public class NetworkServlet extends HttpServlet {
                 double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
 
                 xdebug.startTimer();
+                
+                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+                        = getMapQueryGeneAlterationCaseNumber(req);
                 
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
                 
@@ -229,6 +208,14 @@ public class NetworkServlet extends HttpServlet {
                     xdebug.stopTimer();
                     xdebug.logMsg(this, "Prune network. Took "+xdebug.getTimeElapsed()+"ms");
                 }
+
+                String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
+
+                if (logXDebug) {
+                    xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
+                            false, false, encodedQueryAlteration)
+                            +"\" target=\"_blank\">NetworkServlet URL</a>");
+                }
                 
                 messages.append("Download the complete network in ");
                 messages.append("<a href=\"");
@@ -253,6 +240,12 @@ public class NetworkServlet extends HttpServlet {
                 messages.append("In order to open this file in Cytoscape, please install GraphMLReader plugin.");
             } else {
                 res.setContentType("text/"+(sif?"plain":"xml"));
+            }
+            
+            String gzip = req.getParameter("gzip");
+            boolean isGzip = gzip != null && gzip.equalsIgnoreCase("on");
+            if (isGzip) {
+                res.setHeader("Content-Encoding", "gzip");
             }
             
             NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
@@ -291,9 +284,15 @@ public class NetworkServlet extends HttpServlet {
                 writeMsg(messages.toString(), res);
             }
             
-            PrintWriter writer = res.getWriter();
-            writer.write(graph);
-            writer.flush();
+            if (isGzip) {
+                GZIPOutputStream out = new GZIPOutputStream(res.getOutputStream());
+                out.write(graph.getBytes());
+                out.close();
+            } else {
+                PrintWriter writer = res.getWriter();
+                writer.write(graph);
+                writer.close();
+            }
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to cancergenomics@cbio.mskcc.org!\n"+e.toString(), res);
@@ -518,6 +517,11 @@ public class NetworkServlet extends HttpServlet {
                     }
 
                     for (String type : strs[j].split(";")) {
+                        type = type.trim();
+                        if (type.isEmpty()) {
+                            continue;
+                        }
+                        
                         // add to specific type
                         Integer num = map.get(type);
                         if (num==null) {

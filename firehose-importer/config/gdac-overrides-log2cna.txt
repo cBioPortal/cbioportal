@@ -1,0 +1,2 @@
+KIRC.log2CNA.txt kirc
+LUSC.log2CNA.txt lusc

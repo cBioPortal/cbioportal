@@ -1201,3 +1201,12 @@ h2.cross_cancer_header {
     font-weight:bold;
     font-size: 90%;
 }
+
+.mutation_diagram_details {
+    font-size: 90%;
+    font-family:arial;
+    background-color:#eeeeee;
+    width:50%;
+    padding:10px;
+    margin-left:25px;
+}

@@ -174,7 +174,7 @@
              });
              </script>
 
-            <p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
+            <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
             <p/>

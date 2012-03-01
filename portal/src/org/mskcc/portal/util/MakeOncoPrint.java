@@ -239,23 +239,32 @@ public class MakeOncoPrint {
 									boolean includeLegend) {
 
 		// include some javascript libs
-		out.append("<script type=\"text/javascript\" src=\"js/raphael.min.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
 
 		// output header (case set description, % altered)
 		writeHTMLOncoPrintHeader(out, matrix, dataSummary, caseSetId, caseSets,
 								 includeCaseSetDescription, showAlteredColumns,
 								 cellspacing, cellpadding);
 
-		// output oncoprint
-		out.append("<div id=\"oncoprintDiv\">\n");
-		out.append("</div>");
+		out.append("<script type=\"text/javascript\">\n");
+		// output longest label variable
+		out.append(writeLongestLabelVariable(matrix, dataSummary, "LONGEST_LABEL"));
+		// output genetic alternation variable
+		out.append(writeGeneticAlterationVariable(matrix, numColumnsToShow, "GENETIC_ALTERATIONS_SORTED"));
+		// on document ready, create canvas, draw OncoPrint
+		out.append(writeDocumentReadyJavascript("oncoprint", "canvas",
+												"GENETIC_ALTERATIONS_SORTED",
+												matrix.length, numColumnsToShow,
+												"metrics", "LONGEST_LABEL"));
+		out.append("</script>\n");
 
-		// output oncoprint
-		out.append("<div id=\"oncoprintDiv\">\n");
-		out.append("</div>");
+		// div where oncoprint lives
+		out.append("<div id=\"oncoprint\" class=\"oncoprint\"></div>\n");
 
 		// output legend
-		if (includeLegend) {
+		if (false && includeLegend) {
+			int columnWidthOfLegend = 80;
 			out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\">\n");
 			out.append("<table cellspacing='" + cellspacing +
 					   "' cellpadding='" + cellpadding + "'>\n");
@@ -674,10 +683,158 @@ public class MakeOncoPrint {
             caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
         }
 
-        out.append("\n<tr><th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
-                + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
-        out.append("</thead>");
-        out.append("</table>");
-		out.append("</div>"); // oncoprint header
+        out.append("<tr>\n<th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
+				   + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n");
+		out.append("</tr>\n");
+        out.append("</thead>\n");
+        out.append("</table>\n");
+		out.append("</div>\n"); // oncoprint header
+	}
+
+	/**
+	 * Creates javascript that represents genetic alteration matrix.
+	 */
+	static String writeGeneticAlterationVariable2(GeneticEvent matrix[][], int numColumnsToShow, String varName) {
+
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = [\n");
+		for (int i = 0; i < matrix.length; i++) {
+			GeneticEvent rowEvent = matrix[i][0];
+			String gene = rowEvent.getGene().toUpperCase();
+			builder.append("\t\t\t{\n\t\t\t \"hugoGeneSymbol\" : \"" + gene + "\",\n");
+			builder.append("\t\t\t \"alterations\" : [\n");
+			for (int j = 0; j < numColumnsToShow; j++) {
+                GeneticEvent event = matrix[i][j];
+                // get level of each datatype; concatenate to make image name
+                // color could later could be in configuration file
+                String cnaName = event.getCnaValue().name().toUpperCase();
+                String mrnaName = event.getMrnaValue().name().toUpperCase();
+				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
+				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
+				builder.append("\t\t\t\t{\"sample\" : " + j + ", " + "\"alteration\" : " + alterationSettings + "},\n");
+            }
+			// zap off last ',\n'
+			builder.delete(builder.length()-2, builder.length());
+			builder.append("]\n\t\t\t},\n");
+		}
+		// zap off last ',\n'
+		builder.delete(builder.length()-2, builder.length());
+		builder.append("\n\t]\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates javascript that represents genetic alteration matrix.
+	 */
+	static String writeGeneticAlterationVariable(GeneticEvent matrix[][], int numColumnsToShow, String varName) {
+
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'" + varName + "' : [\n");
+		for (int i = 0; i < matrix.length; i++) {
+			GeneticEvent rowEvent = matrix[i][0];
+			String gene = rowEvent.getGene().toUpperCase();
+			builder.append("\t\t\t\t{\n\t\t\t\t \"hugoGeneSymbol\" : \"" + gene + "\",\n");
+			builder.append("\t\t\t\t \"alterations\" : [\n");
+			for (int j = 0; j < numColumnsToShow; j++) {
+                GeneticEvent event = matrix[i][j];
+                // get level of each datatype; concatenate to make image name
+                // color could later could be in configuration file
+                String cnaName = event.getCnaValue().name().toUpperCase();
+                String mrnaName = event.getMrnaValue().name().toUpperCase();
+				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
+				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
+				builder.append("\t\t\t\t\t{\"sample\" : " + j + ", " + "\"alteration\" : " + alterationSettings + "},\n");
+            }
+			// zap off last ',\n'
+			builder.delete(builder.length()-2, builder.length());
+			builder.append("]\n\t\t\t\t},\n");
+		}
+		// zap off last ',\n'
+		builder.delete(builder.length()-2, builder.length());
+		builder.append("\n\t\t\t]\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget: function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates javascript var which contains longest label length
+	 */
+	static String writeLongestLabelVariable(GeneticEvent matrix[][], ProfileDataSummary dataSummary, String varName) {
+
+		String longestLabel = MakeOncoPrint.getLongestLabel(matrix, dataSummary);
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'" + varName + "' : '" + longestLabel + "'\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget: function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates javascript var which contains longest label length
+	 */
+	static String writeDocumentReadyJavascript(String canvasParent, String canvasID,
+											   String geneticAlterationsVarName, int numGenes, int numSamples,
+											   String metricsVarName, String longestLabelLengthVarName) {
+
+		StringBuilder builder = new StringBuilder();
+
+		// jquery on document ready
+		builder.append("\t$(document).ready(function() {\n");
+		// setup default metrics
+		builder.append("\t\tvar " + metricsVarName + " = CreateMetrics();\n");
+		// create canvas
+		builder.append("\t\tvar " + canvasID + " = CreateCanvas(" + canvasParent + ", " +
+					 numGenes + ", " + numSamples + ", " + metricsVarName + ", " + longestLabelLengthVarName + ");\n");
+		// draw oncoprint
+		builder.append("\t\tDrawOncoPrint(" + canvasID + ", " + metricsVarName + ", " + longestLabelLengthVarName + ");\n");
+		// end on document ready
+		builder.append("\t});\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Computes length in pixel of gene and % altered
+	 */
+	private static String getLongestLabel(GeneticEvent matrix[][], ProfileDataSummary dataSummary) {
+
+		// this font/size corresponds to .oncoprint td specified in global_portal.css
+		java.awt.image.BufferedImage image =
+			new java.awt.image.BufferedImage(100, 100, java.awt.image.BufferedImage.TYPE_INT_RGB);
+		java.awt.Font portalFont = new java.awt.Font("verdana", java.awt.Font.PLAIN, 12);
+		java.awt.FontMetrics fontMetrics = image.getGraphics().getFontMetrics(portalFont);
+                
+		int maxWidth = 0;
+		String longestLabel = null;
+        for (int lc = 0; lc < matrix.length; lc++) {
+            GeneticEvent rowEvent = matrix[lc][0];
+			String gene = rowEvent.getGene().toUpperCase();
+			String alterationValue =
+				alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+			String label = gene + alterationValue;
+			int width = fontMetrics.stringWidth(label);
+			if (width > maxWidth) {
+				maxWidth = width;
+				longestLabel = label;
+			}
+		}
+		
+		// outta here
+		return longestLabel;
 	}
 }

@@ -39,32 +39,91 @@
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $("#toggle_query_form").tipTip();
+<%
+    //  Iterate through each Cancer Study
+    //  For each cancer study, init AJAX
+    //  Fix: Chain the AJAX calls not to make Chrome (14) crash
+    String studiesList = "";
+    String studiesNames = "";
+    assert(cancerStudies.size() > 0);
+    for (CancerStudy cancerStudy:  cancerStudies) {
+        studiesList += "'" + cancerStudy.getCancerStudyStableId() + "',";
+        studiesNames += "'" + cancerStudy.getName() + "',";
+    }
+    studiesList = studiesList.substring(0, studiesList.length()-1);
+    studiesNames = studiesNames.substring(0, studiesNames.length()-1);
+%>
 
-        <%
-        //  Iterate through each Cancer Study
-        //  For each cancer study, init AJAX
-        //  Fix: Chain the AJAX calls not to make Chrome (14) crash
-        String studiesList = "";
-        assert(cancerStudies.size() > 0);
-        for (CancerStudy cancerStudy:  cancerStudies)
-            studiesList += "'" + cancerStudy.getCancerStudyStableId() + "',";
-        studiesList = studiesList.substring(0, studiesList.length()-1);
-        %>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+
+    $(document).ready(function() {
+        var histogramData = new google.visualization.DataTable();
+        var histogramChart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
 
         var cancerStudies = [<%=studiesList%>];
+        var cancerStudyNames = [<%=studiesNames%>];
+
+        histogramData.addColumn('string', 'Cancer Study');
+        histogramData.addColumn('number', 'Percent Alteration');
+
+        for(var i=0; i < cancerStudies.length; i++) {
+            histogramData.addRow([cancerStudyNames[i], 0]);
+        }
+
+        drawChart();
+
+        $("#toggle_query_form").tipTip();
+
         loadStudiesWithIndex(0);
 
         function loadStudiesWithIndex(bundleIndex) {
-            if(bundleIndex >= cancerStudies.length)
+            if(bundleIndex >= cancerStudies.length) {
                 return;
+            }
 
             var cancerID = cancerStudies[bundleIndex];
-            $("#study_" + cancerID).load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=' + cancerID,
-                                            function() { loadStudiesWithIndex(bundleIndex+1)});
+            $("#study_" + cancerID)
+                .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=' + cancerID,
+                        function() {
+
+                            setTimeout(function() {
+                                    var content = $("#percent_altered_" + cancerID).html();
+                                    var tokens = content.split(" ");
+                                    var percent = tokens[2].substring(0, tokens[2].length-1) * 1.0;
+                                    histogramData.setValue(bundleIndex, 1, percent);
+                                    if( bundleIndex % 4 == 0 || bundleIndex+1 == cancerStudies.length)
+                                        drawChart();
+                            }, 760);
+
+                            loadStudiesWithIndex(bundleIndex+1);
+                        }
+                 );
         }
+
+       function drawChart() {
+            var options = {
+              title: 'Percent Sample Alteration for each Cancer Study',
+              hAxis: {title: 'Cancer Study'},
+              animation: {
+                duration: 750,
+                easing: 'linear',
+              },
+              legend: {
+                position: 'none'
+              },
+              hAxis: {
+                slantedTextAngle: 45,
+              },
+              vAxis: {
+                maxValue: 100,
+                minValue: 0
+              }
+            };
+
+            histogramChart.draw(histogramData, options);
+       }
     });
 </script>
 
@@ -97,6 +156,10 @@
                     <%@ include file="query_form.jsp" %>
                 </div>
 
+                <!--<h2 class="cross_cancer_header">Alteration Histogram</h2>-->
+                <div id="chart_div" style="width: 900px; height: 400px;"></div>
+                <br/>
+
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>
 
                 <script>
@@ -111,6 +174,7 @@
                         }).next().hide();
                     });
                 </script>
+
 
                 <div id="accordion">
                     <h2 class="cross_cancer_header">Studies with Mutation Data</h2>

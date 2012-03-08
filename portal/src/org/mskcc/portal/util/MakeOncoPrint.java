@@ -275,23 +275,23 @@ public class MakeOncoPrint {
 		out.append(writeOncoPrintHeaderVariables(matrix, dataSummary, caseSets, caseSetId, "HEADER_VARIABLES"));
 		// output longest label variable
 		out.append(writeJavascriptConstVariable("LONGEST_LABEL", getLongestLabel(matrix, dataSummary)));
-		// output genetic alternation variable
+		// output genetic alteration variable for oncoprint body
 		out.append(writeOncoPrintGeneticAlterationVariable(matrix, dataSummary, "GENETIC_ALTERATIONS_SORTED"));
-		// on document ready, draw oncoprint
-		out.append(writeOncoPrintDocumentReadyJavascript("oncoprint", "canvas", "GENETIC_ALTERATIONS_SORTED",
-														 matrix.length, matrix[0].length, "properties", "LONGEST_LABEL",
-														 "oncoprint_header", "HEADER_VARIABLES"));
-		out.append("</script>\n");
-		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
-		out.append("<div id=\"oncoprint\" class=\"oncoprint\"></div>\n");
-
-		out.append("<script type=\"text/javascript\">\n");
+		// output lengend footnote
 		String legendFootnote = getLegendFootnote(theOncoPrintSpecification.getUnionOfPossibleLevels());
 		out.append(writeJavascriptConstVariable("LEGEND_FOOTNOTE", legendFootnote));
+		// output genetic alteration variable for oncoprint legend
 		out.append(writeOncoPrintLegendGeneticAlterationVariable("GENETIC_ALTERATIONS_LEGEND",
 																 theOncoPrintSpecification.getUnionOfPossibleLevels()));
-		out.append(writeOncoPrintLegendDocumentReadyJavascript("oncoprint_legend", "GENETIC_ALTERATIONS_LEGEND", "LEGEND_FOOTNOTE"));
+		// on document ready, draw oncoprint header, oncoprint, oncoprint legend
+		out.append(writeOncoPrintDocumentReadyJavascript("oncoprint",
+														 "oncoprint_header", "oncoprint_body", "oncoprint_legend",
+														 "LONGEST_LABEL", "HEADER_VARIABLES",
+														 "GENETIC_ALTERATIONS_SORTED", "GENETIC_ALTERATIONS_LEGEND",
+														 "LEGEND_FOOTNOTE"));
 		out.append("</script>\n");
+		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
+		out.append("<div id=\"oncoprint_body\" class=\"oncoprint\"></div>\n");
 		out.append("<br>\n");
 		out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\"></div>\n");
 	}
@@ -535,73 +535,47 @@ public class MakeOncoPrint {
 	 * Creates javascript which invokes (via jquery) OncoPrint drawing 
 	 * when document is ready.
 	 *
-	 * @param oncoPrintCanvasParent String
-	 * @param canvasID String
-	 * @param geneticAlterationsVarName String
-	 * @param numGenes int
-	 * @param numSamples int
-	 * @param propertiesVarName String
+	 * @param oncoprintReferenceVarName String
+	 * @param headerElement String
+	 * @param bodyElement String
+	 * @param legendElement String
 	 * @param logestLabelVarName String
-	 * @param oncoPrintHeaderCanvasParent String
-	 * @param oncoPrintHeaderVariablesVarName String
+	 * @param headerVariablesVarName String
+	 * @param geneticAlterationsVarName String
+	 * @param geneticAlterationsLegendVarName String
+	 * @param legendFootnoteVarName String
 	 *
 	 * @return String
 	 */
-	static String writeOncoPrintDocumentReadyJavascript(String oncoPrintCanvasParent, String canvasID,
-														String geneticAlterationsVarName,
-														int numGenes, int numSamples,
-														String propertiesVarName,
+	static String writeOncoPrintDocumentReadyJavascript(String oncoprintReferenceVarName,
+														String headerElement,
+														String bodyElement,
+														String legendElement,
 														String longestLabelVarName,
-														String oncoPrintHeaderCanvasParent,
-														String oncoPrintHeaderVariablesVarName) {
+														String headerVariablesVarName,
+														String geneticAlterationsVarName,
+														String geneticAlterationsLegendVarName,
+														String legendFootnoteVarName) {
 
 		StringBuilder builder = new StringBuilder();
 
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
 		// setup default properties
-		builder.append("\t\tvar " + propertiesVarName + " = CreateProperties(true);\n");
-		// set longest label length
-		builder.append("\t\tSetLongestLabelLength(" + 
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'));\n");
-		// oncoprint heading
-		builder.append("\t\tDrawOncoPrintHeader(" + oncoPrintHeaderCanvasParent + ", " +
-   					   oncoPrintHeaderVariablesVarName  + ", " + propertiesVarName + ");\n");
-		// create canvas
-		builder.append("\t\tvar " + canvasID + " = CreateCanvas(" + oncoPrintCanvasParent + ", " +
-					   numGenes + ", " + numSamples + ", " + propertiesVarName + ");\n");
+		builder.append("\t\tvar " + oncoprintReferenceVarName + " = OncoPrintInit(" +
+					   headerElement + ", " + bodyElement + ", " + legendElement + ");\n");
+		// oncoprint header
+		builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   headerVariablesVarName + ");\n");
 		// draw oncoprint
-		builder.append("\t\tDrawOncoPrint(" + canvasID + ", " +
-					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
-					   propertiesVarName + ");\n");
-		// end on document ready
-		builder.append("\t});\n");
-
-		// outta here
-		return builder.toString();
-	}
-
-	/**
-	 * Creates javascript which invokes (via jquery) OncoPrint Legend drawing 
-	 * when document is ready.
-	 *
-	 * @param canvasParent String
-	 * @param geneticAlterationsVarName String
-	 * @param legendFootnoteVarName String
-	 *
-	 * @return String
-	 */
-	static String writeOncoPrintLegendDocumentReadyJavascript(String canvasParent,
-															  String geneticAlterationsVarName,
-															  String legendFootnoteVarName) {
-
-		StringBuilder builder = new StringBuilder();
-
-		// jquery on document ready
-		builder.append("\t$(document).ready(function() {\n");
-		// draw oncoprint legend
-		builder.append("\t\tDrawOncoPrintLegend(" + canvasParent + ", " +
-					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
+		builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'));\n");
+		// draw legend
+		builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   geneticAlterationsLegendVarName  + ".get('" + geneticAlterationsLegendVarName + "'), " +
    					   legendFootnoteVarName  + ".get('" + legendFootnoteVarName + "'));\n");
 		// end on document ready
 		builder.append("\t});\n");

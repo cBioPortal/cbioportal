@@ -89,132 +89,95 @@ var DEFAULTS = (function() {
 		};
 })();
 
-// stores the length of the longest
-// label (gene & % alteration) in the OncoPrint
-var LONGEST_LABEL_LENGTH = 0;
-
 /*
- * Create default metrics.
+ * Initializes the OncoPrintSystem
  *
- * useDefaults - indicates if we want to use defaults
+ * headerElement - DOM element where we header canvas
+ * bodyElement - DOM element where we append oncoprint canvas
+ * legendElement - DOM element where we append legend canvas
  *
  */
-function CreateProperties(useDefaults) {
+function OncoPrintInit(headerElement, bodyElement, legendElement) {
 
-	if (useDefaults) {
-		return {
-			// general defaults
-			'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
-			'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
-			'alteration_vertical_padding'       : DEFAULTS.get('ALTERATION_VERTICAL_PADDING'),
-			'alteration_horizontal_padding'     : DEFAULTS.get('ALTERATION_HORIZONTAL_PADDING'),
-			// mrna
-			'mrna_wireframe_width_scale_factor' : DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR'),
-			// mutation	
-			'mutation_height_scale_factor'      : DEFAULTS.get('MUTATION_HEIGHT_SCALE_FACTOR'),
-			// use object for override coordinates flag
-			'use_immediate_coordinates'         : false,
-			// general sample properties
-			'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY')
-		};
-	}
-}
-
-/*
- * Computes the length of the given label
- * and sets global LONGEST_LABEL_LENGTH.
- *
- * longestLabel - longest label string
- *
- */
-function SetLongestLabelLength(longestLabel) {
-
-	// create scratch paper for drawing
-	var scratchCanvas = Raphael(0,0, 1, 1);
-	// draw text and set attributes
-	var text = scratchCanvas.text(0,0, longestLabel);
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	// get the bounding box
-	var boundingBox = text.getBBox();
-	// set LONGEST_LABEL_LENGTH -
-	// include the space between gene and % altered and first genetic alteration box
-	LONGEST_LABEL_LENGTH = boundingBox.width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
-	// remove the text element, scratch canvas we used to compute width
-	text.remove();
-	scratchCanvas.remove();
-}
-
-/*
- * Create a canvas for drawing.
- *
- * parentID - DOM element where we append canvas
- * numGenes - number of genes in the OncoPrint
- * numSamples - number of samples in the OncoPrint
- * properties - object which contains metric information
- *
- */
-function CreateCanvas(parentID, numGenes, numSamples, properties) {
-
-	// get dimensions for canvas
-	var dimension = getOncoPrintCanvasDimension(numGenes, numSamples, properties);
-	// create canvas
-	var canvas = Raphael(parentID, dimension.width, dimension.height);
-	// outta here
-	return canvas;
+	return {
+		// setup canvases - these will be resized later
+		'header_canvas'                     : Raphael(headerElement, 1, 1),
+		'body_canvas'                       : Raphael(bodyElement, 1, 1),
+		'legend_canvas'                     : Raphael(legendElement, 1, 1),
+		// longest label length
+		'longest_label_length'              : 0,
+		// general styles
+		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
+		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
+		'alteration_vertical_padding'       : DEFAULTS.get('ALTERATION_VERTICAL_PADDING'),
+		'alteration_horizontal_padding'     : DEFAULTS.get('ALTERATION_HORIZONTAL_PADDING'),
+		// mrna styles
+		'mrna_wireframe_width_scale_factor' : DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR'),
+		// mutation	styles
+		'mutation_height_scale_factor'      : DEFAULTS.get('MUTATION_HEIGHT_SCALE_FACTOR'),
+		// use object for override coordinates flag
+		'use_immediate_coordinates'         : false,
+		// general sample properties
+		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY')
+	};
 }
 
 /*
  * Draws the OncoPrint header.
  *
- * parentID - DOM element where we append canvas
+ * oncoprint - opaque reference to oncoprint system
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * headerVariables - various header strings
- * properties - object which contains properties information
  *
  * Note: headerVariables is a JSON object literal that is
  * created by:
  * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
  *
  */
-function DrawOncoPrintHeader(parentID, headerVariables, properties) {
+function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables) {
 
 	// vars used below
 	var x, y;
 	var text;
 
-	// create canvas 
+	// set longest label length
+	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// resize canvas 
  	var dimension = getOncoPrintHeaderCanvasSize(headerVariables);
-	var canvas = Raphael(parentID, dimension.width, dimension.height);
+	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
+	oncoprint.header_canvas.clear();
 
 	// render case list description
 	x = 0;
 	y = dimension.text_height / 2;
-	text = canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
 
 	// render altered stats
 	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
 
 	// % altered column heading
-	x = LONGEST_LABEL_LENGTH - DEFAULTS.get('LABEL_PADDING') * 2;
+	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
 	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
 
 	// samples column heading
-	x = LONGEST_LABEL_LENGTH;
-	if (properties.altered_samples_only) {
-		text = canvas.text(x, y, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
+	x = oncoprint.longest_label_length;
+	if (oncoprint.altered_samples_only) {
+		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
 	}
 	else {
-		text = canvas.text(x, y, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
 	}
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
@@ -225,38 +188,48 @@ function DrawOncoPrintHeader(parentID, headerVariables, properties) {
  * Draw an OncoPrint for the entire set of genetic
  * alterations on the given canvas using the given style.
  *
- * canvas - canvas to draw on
+ * oncoprint - opaque reference to oncoprint system
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * geneticAlterations - the set of geneticAlterations to draw
- * properties - object which contains metric information
  *
  * Note: geneticAlterations is a JSON object literal that is
  * created by:
  * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
-function DrawOncoPrint(canvas, geneticAlterations, properties) {
+function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 
 	// this is so row/col values are used in computation of x,y coords
-	properties.use_immediate_coordinates = false;
+	oncoprint.use_immediate_coordinates = false;
+
+	// set longest label length
+	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// resize canvas
+	var dimension = getOncoPrintBodyCanvasSize(oncoprint,
+											   geneticAlterations.length,
+											   geneticAlterations[0].alterations.length);
+	oncoprint.body_canvas.setSize(dimension.width, dimension.height);
+	oncoprint.body_canvas.clear();
 
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
 		var alteration = geneticAlterations[lc];
 		// draw label first
-		drawLabel(canvas, lc, alteration.hugoGeneSymbol, alteration.percentAltered, properties);
+		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
 		// for this gene, interate over all samples
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
-			if (properties.altered_samples_only &&
+			if (oncoprint.altered_samples_only &&
 				$.inArray(thisSampleAlteration.sample, alteration.alteredSamples) == -1) {
 				continue;
 			}
 			// first draw MRNA "background"
-			drawMRNA(canvas, lc, lc2, thisSampleAlteration.alteration, properties);
+			drawMRNA(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
 			// then draw CNA "within"
-			drawCNA(canvas, lc, lc2, thisSampleAlteration.alteration, properties);
+			drawCNA(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
 			// finally draw mutation square "on top"
-			drawMutation(canvas, lc, lc2, thisSampleAlteration.alteration, properties);
+			drawMutation(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
 		}
 	}
 }
@@ -264,7 +237,8 @@ function DrawOncoPrint(canvas, geneticAlterations, properties) {
 /*
  * Draws a lengend for the given union of geneticAlterations.
  *
- * parentID - DOM element where we append canvas
+ * oncoprint - opaque reference to oncoprint system
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * geneticAlterations - the set of geneticAlterations to draw
  * legendFootnote - footnote to the legend
  *
@@ -273,30 +247,33 @@ function DrawOncoPrint(canvas, geneticAlterations, properties) {
  * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintLegendGeneticAlterationVariable()
  *
  */
-function DrawOncoPrintLegend(parentID, geneticAlterations, legendFootnote) {
+function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legendFootnote) {
 
-	// create canvas 
- 	var dimension = getOncoPrintLegendCanvasSize(geneticAlterations, legendFootnote);
-	var canvas = Raphael(parentID, dimension.width, dimension.height);
+	// set longest label length
+	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// resize canvas 
+ 	var dimension = getOncoPrintLegendCanvasSize(oncoprint, geneticAlterations, legendFootnote);
+	oncoprint.legend_canvas.setSize(dimension.width, dimension.height);
+	oncoprint.legend_canvas.clear();
 
 	// this is so row/col values are used directly
-	properties = CreateProperties(true);
-	properties.use_immediate_coordinates = true;
+	oncoprint.use_immediate_coordinates = true;
 
 	// interate over all genomic alterations in legend
-	var x = LONGEST_LABEL_LENGTH;
-	var y = properties.alteration_height / 2;
+	var x = oncoprint.longest_label_length;
+	var y = oncoprint.alteration_height / 2;
 	var legendSpacing = DEFAULTS.get('LEGEND_SPACING');
 	var legendPadding = DEFAULTS.get('LEGEND_PADDING');
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
 		var alteration = geneticAlterations[lc];
 		// only one of the following will render
-		drawMRNA(canvas, 0, x, alteration.alteration, properties);
-		drawCNA(canvas, 0, x, alteration.alteration, properties);
-		drawMutation(canvas, 0, x, alteration.alteration, properties);
+		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
+		drawCNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
+		drawMutation(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		// render description
-		x = x + properties.alteration_width + legendSpacing;
-		var description = canvas.text(x, y, alteration.label);
+		x = x + oncoprint.alteration_width + legendSpacing;
+		var description = oncoprint.legend_canvas.text(x, y, alteration.label);
 		description.attr('font', DEFAULTS.get('LABEL_FONT'));
 		description.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		description.attr('text-anchor', 'start');
@@ -305,9 +282,9 @@ function DrawOncoPrintLegend(parentID, geneticAlterations, legendFootnote) {
 
 	// tack on legend footnote
 	if (legendFootnote.length > 0) {
-		x = LONGEST_LABEL_LENGTH;
-		y = properties.alteration_height + DEFAULTS.get('LEGEND_FOOTNOTE_SPACING');
-		var footnote = canvas.text(x, y, legendFootnote);
+		x = oncoprint.longest_label_length;
+		y = oncoprint.alteration_height + DEFAULTS.get('LEGEND_FOOTNOTE_SPACING');
+		var footnote = oncoprint.legend_canvas.text(x, y, legendFootnote);
 		footnote.attr('font', DEFAULTS.get('LABEL_FONT'));
 		footnote.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		footnote.attr('text-anchor', 'start');
@@ -321,26 +298,26 @@ function DrawOncoPrintLegend(parentID, geneticAlterations, legendFootnote) {
 *******************************************************************************/
 
 /*
- * Computes dimensions of OncoPrint canvas with given properties.
+ * Computes the length (pixels) of the given label.
  *
- * numGenes - number of genes in oncoprint
- * numSamples - number of samples in oncoprint
- * properties - object which contains metric information
+ * label - label string
  *
  */
-function getOncoPrintCanvasDimension(numGenes, numSamples, properties) {
+function getLabelLength(label) {
 
-	// we want enough space for each alteration w/padding.  remove padding on the right/bottom
-	var canvasHeight = (numGenes *
-						(properties.alteration_height + properties.alteration_vertical_padding) -
-						properties.alteration_vertical_padding);
-	var canvasWidth = (LONGEST_LABEL_LENGTH +
-					   numSamples *
-					   (properties.alteration_width + properties.alteration_horizontal_padding) -
-					   properties.alteration_horizontal_padding);
-
+	// create scratch paper for drawing
+	var scratchCanvas = Raphael(0,0, 1, 1);
+	// draw text and set attributes
+	var text = scratchCanvas.text(0,0, label);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	// include the space between gene and % altered and first genetic alteration box
+	var labelLength = text.getBBox().width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
+	// cleanup
+	text.remove();
+	scratchCanvas.remove();
+	
 	// outta here
-	return { 'width' : canvasWidth, 'height' : canvasHeight };
+	return labelLength;
 }
 
 /*
@@ -393,18 +370,42 @@ function getOncoPrintHeaderCanvasSize(headerVariables) {
 }
 
 /*
+ * Computes dimensions of OncoPrint canvas with given oncoprint.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * numGenes - number of genes in oncoprint
+ * numSamples - number of samples in oncoprint
+ *
+ */
+function getOncoPrintBodyCanvasSize(oncoprint, numGenes, numSamples) {
+
+	// we want enough space for each alteration w/padding.  remove padding on the right/bottom
+	var canvasHeight = (numGenes *
+						(oncoprint.alteration_height + oncoprint.alteration_vertical_padding) -
+						oncoprint.alteration_vertical_padding);
+	var canvasWidth = (oncoprint.longest_label_length +
+					   numSamples *
+					   (oncoprint.alteration_width + oncoprint.alteration_horizontal_padding) -
+					   oncoprint.alteration_horizontal_padding);
+
+	// outta here
+	return { 'width' : canvasWidth, 'height' : canvasHeight };
+}
+
+/*
  * Computes dimensions of the OncoPrint Legend canvas.
  *
+ * oncoprint - opaque reference to oncoprint system
  * geneticAlterations - the genetic alterations in the legend
  * legendFootnote - the footnote in the legend
  *
  */
-function getOncoPrintLegendCanvasSize(geneticAlterations, legendFootnote) {
+function getOncoPrintLegendCanvasSize(oncoprint, geneticAlterations, legendFootnote) {
 
 	// setup some vars used below
 	var text;
 	var boundingBox;
-	var canvasWidth = LONGEST_LABEL_LENGTH;
+	var canvasWidth = oncoprint.longest_label_length;
 	var alterationWidth = DEFAULTS.get('ALTERATION_WIDTH');
 	var canvasHeight = DEFAULTS.get('ALTERATION_HEIGHT');
 	var legendSpacing = DEFAULTS.get('LEGEND_SPACING');
@@ -446,28 +447,27 @@ function getOncoPrintLegendCanvasSize(geneticAlterations, legendFootnote) {
 }
 
 /*
- * Draws a on the given canvas at row row.
+ * Draws a gene label on the body_canvas at row row.
  *
- * canvas - canvas to draw on
+ * oncoprint - opaque reference to oncoprint system
  * row - the vertical position to draw the text
  * geneSymbol - the gene symbol to render
  * percentAltered - the percent altered string
- * properties - object which contains property information
  *
  */
-function drawLabel(canvas, row, geneSymbol, percentAltered, properties) {
+function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 
 	// compute starting coordinates
-	var x = getXCoordinate(0, properties) - DEFAULTS.get('LABEL_PADDING');
-	var y = getYCoordinate(row, properties) + properties.alteration_height / 2;
+	var x = getXCoordinate(oncoprint, 0) - DEFAULTS.get('LABEL_PADDING');
+	var y = getYCoordinate(oncoprint, row) + oncoprint.alteration_height / 2;
 	// render % altered
-	var text = canvas.text(x, y, percentAltered);
+	var text = oncoprint.body_canvas.text(x, y, percentAltered);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
 	// render gene symbol
 	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
-	text = canvas.text(x, y, geneSymbol);
+	text = oncoprint.body_canvas.text(x, y, geneSymbol);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
@@ -476,20 +476,20 @@ function drawLabel(canvas, row, geneSymbol, percentAltered, properties) {
 /*
  * Draws an mRNA genomic alteration at given row & col.
  *
+ * oncoprint - opaque reference to oncoprint system
  * canvas - canvas to draw on
  * row - the vertical position to draw the alteration
  * column - the horizontal position to draw the alteration
  * alterationSettings - the genomic alteration
- * properties - object which contains property information
  *
  */
-function drawMRNA(canvas, row, column, alterationSettings, properties) {
+function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 
 	// compute starting coordinates
-	var y = getYCoordinate(row, properties);
-	var	x = getXCoordinate(column, properties);
+	var y = getYCoordinate(oncoprint, row);
+	var	x = getXCoordinate(oncoprint, column);
 	// create canvas rect
-	var rect = canvas.rect(x, y, properties.alteration_width, properties.alteration_height);
+	var rect = canvas.rect(x, y, oncoprint.alteration_width, oncoprint.alteration_height);
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
 	// choose fill color based on alteration type
@@ -507,24 +507,24 @@ function drawMRNA(canvas, row, column, alterationSettings, properties) {
 /*
  * Draws a CNA genomic alteration at given row & col.
  *
+ * oncoprint - opaque reference to oncoprint system
  * canvas - canvas to draw on
  * row - the vertical position to draw the alteration
  * column - the horizontal position to draw the alteration
  * alterationSettings - the genomic alteration
- * properties - object which contains property information
  *
  */
-function drawCNA(canvas, row, column, alterationSettings, properties) {
+function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
 
 	// compute starting coordinates
-	var y = getYCoordinate(row, properties);
-	var x = getXCoordinate(column, properties);
+	var y = getYCoordinate(oncoprint, row);
+	var x = getXCoordinate(oncoprint, column);
 	// create canvas rect
-	var mrnaWireframeWidth = getMRNAWireframeWidth(properties);
+	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
 	var rect = canvas.rect(x + mrnaWireframeWidth,
 						   y + mrnaWireframeWidth,
-						   properties.alteration_width - mrnaWireframeWidth * 2,
-						   properties.alteration_height - mrnaWireframeWidth * 2);
+						   oncoprint.alteration_width - mrnaWireframeWidth * 2,
+						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
 	// choose fill color based on alteration type
@@ -551,26 +551,26 @@ function drawCNA(canvas, row, column, alterationSettings, properties) {
 /*
  * Draws a mutation genomic alteration at given row & col.
  *
+ * oncoprint - opaque reference to oncoprint system
  * canvas - canvas to draw on
  * row - the vertical position to draw the alteration
  * column - the horizontal position to draw the alteration
  * alterationSettings - the genomic alteration
- * properties - object which contains property information
  *
  */
-function drawMutation(canvas, row, column, alterationSettings, properties) {
+function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 
 	// only render if we have a mutation
 	if (alterationSettings & MUTATED) {
 		// compute starting coordinates
-		var y = getYCoordinate(row, properties);
-		var x = getXCoordinate(column, properties);
+		var y = getYCoordinate(oncoprint, row);
+		var x = getXCoordinate(oncoprint, column);
 		// create canvas rect -
 		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
-		var mrnaWireframeWidth = getMRNAWireframeWidth(properties);
-		var mutationRectDimensions = getMutationRectDimensions(properties);
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
 		var rect = canvas.rect(x + mrnaWireframeWidth / 2,
-							   y + properties.alteration_height / 2 - mutationRectDimensions.height / 2,
+							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
 							   mutationRectDimensions.width, mutationRectDimensions.height);
 		// without this we get thin black border around rect
 		rect.attr('stroke', 'none'); 
@@ -583,58 +583,57 @@ function drawMutation(canvas, row, column, alterationSettings, properties) {
  * For the given column (sample) return the x coordinate
  *
  * column - sample we are processing
- * properties - object which contains property information
  *
  */
-function getXCoordinate(column, properties) {
+function getXCoordinate(oncoprint, column) {
 
-	if (properties.use_immediate_coordinates) {
+	if (oncoprint.use_immediate_coordinates) {
 		return column;
 	}
 	else {
-		return (column * (properties.alteration_width + properties.alteration_horizontal_padding)
-				+ LONGEST_LABEL_LENGTH);
+		return (column * (oncoprint.alteration_width + oncoprint.alteration_horizontal_padding)
+				+ oncoprint.longest_label_length);
 	}
 }
 
 /*
  * For the given row (gene) return the y coordinate
  *
+ * oncoPrint - opaque reference to oncoprint system
  * row - gene we are processing
- * properties - object which contains property information
  *
  */
-function getYCoordinate(row, properties) {
+function getYCoordinate(oncoprint, row) {
 
-	if (properties.use_immediate_coordinates) {
+	if (oncoprint.use_immediate_coordinates) {
 		return row;
 	}
 	else {
-		return row * (properties.alteration_height + properties.alteration_vertical_padding);
+		return row * (oncoprint.alteration_height + oncoprint.alteration_vertical_padding);
 	}
 }
 
 /**
  * Computes the width of the mRNA wireframe.
  *
- * properties - object which contains property information
+ * oncoprint - opaque reference to oncoprint system
  *
  */
-function getMRNAWireframeWidth(properties) {
+function getMRNAWireframeWidth(oncoprint) {
 
-	return properties.alteration_width * properties.mrna_wireframe_width_scale_factor;
+	return oncoprint.alteration_width * oncoprint.mrna_wireframe_width_scale_factor;
 }
 
 /**
  * Computes the dimension of the mutation rect
  *
- * properties - object which contains property information
+ * oncoprint - opaque reference to oncoprint system
  *
  */
-function getMutationRectDimensions(properties) {
+function getMutationRectDimensions(oncoprint) {
 
-	var width = properties.alteration_width - getMRNAWireframeWidth(properties);
-	var height = properties.alteration_height * properties.mutation_height_scale_factor;
+	var width = oncoprint.alteration_width - getMRNAWireframeWidth(oncoprint);
+	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };
 }

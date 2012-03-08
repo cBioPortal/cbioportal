@@ -19,8 +19,10 @@ import java.util.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class MakeOncoPrint {
-    public static int CELL_WIDTH = 8;
-    public static int CELL_HEIGHT = 18;
+    public static int CELL_WIDTH = 8; 
+    public static int CELL_HEIGHT = 18;  // also used in fingerprint.jsp
+	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";
+	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 
     // support OncoPrints in both SVG and HTML; only HTML will have extra textual info,
     // such as legend, %alteration
@@ -142,19 +144,11 @@ public class MakeOncoPrint {
                 break;          // exit the switch
 
             case HTML:
-                int spacing = 0;
-                int padding = 1;
-
-                // the images are 4x bigger than this, which is necessary to create the necessary
-                // design; but width and height scale them down, so that the OncoPrint fits
-                // TODO: move these constants elsewhere, or derive from images directly
-                int width = 6;
-                int height = 17;
-
-                writeHTMLOncoPrint2(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
-									theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-									out, spacing, padding, width, height, includeCaseSetDescription,
-									includeLegend);
+                writeHTMLOncoPrint(out,
+								   matrix,
+								   dataSummary,
+								   caseSets, caseSetId,
+								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification());
                 break;          // exit the switch
         }
         return out.toString();
@@ -212,390 +206,6 @@ public class MakeOncoPrint {
     }
 
     /**
-     * Generates an OncoPrint in HTML.
-     * @param caseSets                  List of all Case Sets.
-     * @param caseSetId                 Selected Case Set ID.
-     * @param matrix                    Matrix of Genomic Events.
-     * @param numColumnsToShow          Number of Columns to Show.
-     * @param showAlteredColumns        Flag to show only altered columns.
-     * @param theOncoPrintSpecification The OncoPrint Spec. Object.
-     * @param dataSummary               Data Summary Object.
-     * @param out                       HTML Out.
-     * @param cellspacing               Cellspacing.
-     * @param cellpadding               Cellpadding.
-     * @param width                     Width.
-     * @param height                    Height.
-	 * @param includeCaseSetDescription Include case set description boolean.
-	 * @param includeLegend             Include legend boolean.
-     */
-    static void writeHTMLOncoPrint2(ArrayList<CaseList> caseSets, String caseSetId,
-									GeneticEvent matrix[][],
-									int numColumnsToShow, boolean showAlteredColumns,
-									OncoPrintSpecification theOncoPrintSpecification,
-									ProfileDataSummary dataSummary,
-									StringBuffer out,
-									int cellspacing, int cellpadding, int width, int height,
-									boolean includeCaseSetDescription,
-									boolean includeLegend) {
-
-		// include some javascript libs
-		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
-		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
-
-		// output header (case set description, % altered)
-		writeHTMLOncoPrintHeader(out, matrix, dataSummary, caseSetId, caseSets,
-								 includeCaseSetDescription, showAlteredColumns,
-								 cellspacing, cellpadding);
-
-		out.append("<script type=\"text/javascript\">\n");
-		// output longest label variable
-		out.append(writeLongestLabelVariable(matrix, dataSummary, "LONGEST_LABEL"));
-		// output genetic alternation variable
-		out.append(writeGeneticAlterationVariable(matrix, numColumnsToShow, "GENETIC_ALTERATIONS_SORTED"));
-		// on document ready, create canvas, draw OncoPrint
-		out.append(writeDocumentReadyJavascript("oncoprint", "canvas",
-												"GENETIC_ALTERATIONS_SORTED",
-												matrix.length, numColumnsToShow,
-												"metrics", "LONGEST_LABEL"));
-		out.append("</script>\n");
-
-		// div where oncoprint lives
-		out.append("<div id=\"oncoprint\" class=\"oncoprint\"></div>\n");
-
-		// output legend
-		if (false && includeLegend) {
-			int columnWidthOfLegend = 80;
-			out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\">\n");
-			out.append("<table cellspacing='" + cellspacing +
-					   "' cellpadding='" + cellpadding + "'>\n");
-            out.append("<tr>\n");
-            writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
-						columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
-            out.append("</table>\n");
-            out.append("</div>\n");
-		}
-	}
-
-    /**
-     * Generates an OncoPrint in HTML.
-     * @param caseSets                  List of all Case Sets.
-     * @param caseSetId                 Selected Case Set ID.
-     * @param matrix                    Matrix of Genomic Events.
-     * @param numColumnsToShow          Number of Columns to Show.
-     * @param showAlteredColumns        Flag to show only altered columns.
-     * @param theOncoPrintSpecification The OncoPrint Spec. Object.
-     * @param dataSummary               Data Summary Object.
-     * @param out                       HTML Out.
-     * @param cellspacing               Cellspacing.
-     * @param cellpadding               Cellpadding.
-     * @param width                     Width.
-     * @param height                    Height.
-	 * @param includeCaseSetDescription Include case set description boolean.
-	 * @param includeLegend             Include legend boolean.
-     */
-    static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
-								   GeneticEvent matrix[][],
-								   int numColumnsToShow, boolean showAlteredColumns,
-								   OncoPrintSpecification theOncoPrintSpecification,
-								   ProfileDataSummary dataSummary,
-								   StringBuffer out,
-								   int cellspacing, int cellpadding, int width, int height,
-								   boolean includeCaseSetDescription,
-								   boolean includeLegend
-		) {
-
-        out.append("<div class=\"oncoprint\">\n");
-        if (includeCaseSetDescription) {
-            for (CaseList caseSet : caseSets) {
-                if (caseSetId.equals(caseSet.getStableId())) {
-                    out.append(
-                            "<p>Case Set: " + caseSet.getName()
-                                    + ":  " + caseSet.getDescription() + "</p>");
-                }
-            }
-        }
-
-        // stats on pct alteration
-        out.append("<p>Altered in " + dataSummary.getNumCasesAffected() + " (" +
-                alterationValueToString(dataSummary.getPercentCasesAffected())
-                + ") of cases." + "</p>");
-
-        // output table header
-        out.append(
-                "\n<table cellspacing='" + cellspacing +
-                        "' cellpadding='" + cellpadding +
-                        "'>\n" +
-                        "<thead>\n"
-        );
-
-        int columnWidthOfLegend = 80;
-        //  heading that indicates columns are cases
-        // span multiple columns like legend
-        String caseHeading;
-        int numCases = matrix[0].length;
-        String rightArrow =  " &rarr;";
-        if (showAlteredColumns) {
-            caseHeading = pluralize(dataSummary.getNumCasesAffected(), " case")
-                    + " with altered genes, out of " + pluralize(numCases, " total case") + rightArrow;
-        } else {
-            caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
-        }
-
-        out.append("\n<tr><th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
-                + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
-        out.append("</thead>");
-
-        for (int i = 0; i < matrix.length; i++) {
-            GeneticEvent rowEvent = matrix[i][0];
-			String gene = rowEvent.getGene().toUpperCase();
-
-            // new row
-            out.append("<tr>");
-
-            // output cell with gene name, CSS does left justified
-            out.append("<td nowrap=\"nowrap\">" + gene + "</td>\n");
-
-            // output total % altered, right justified
-            out.append("<td style=\" text-align: right\">");
-            out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene())));
-            out.append("</td>\n");
-
-            // for each case
-            for (int j = 0; j < numColumnsToShow; j++) {
-                GeneticEvent event = matrix[i][j];
-
-                // get level of each datatype; concatenate to make image name
-                // color could later could be in configuration file
-                GeneticEventImpl.CNA CNAlevel = event.getCnaValue();
-                GeneticEventImpl.MRNA MRNAlevel = event.getMrnaValue();
-
-                // construct filename of icon representing this gene's genetic alteration event
-                StringBuffer iconFileName = new StringBuffer();
-
-                // TODO: fix; IMHO this is wrong; diploid should be different from None
-                String cnaName = CNAlevel.name();
-                if (cnaName.equals("None")) {
-                    cnaName = "diploid";
-                }
-                iconFileName.append(cnaName);
-                iconFileName.append("-");
-
-                iconFileName.append(MRNAlevel.name());
-                iconFileName.append("-");
-
-                if (event.isMutated()) {
-                    iconFileName.append("mutated");
-                } else {
-                    iconFileName.append("normal");
-                }
-                iconFileName.append(".png");
-
-
-
-                out.append("<td class='op_data_cell'>"
-
-                        + IMG(iconFileName.toString(), width, height, event.caseCaseId())
-
-                        // temporary tooltip = event.toString()+"\n"+event.caseCaseId()
-                        //+ IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
-                        + "</td>\n");
-
-            }
-
-            // TODO: learn how to fix: maybe Caitlin knows
-            // ugly hack to make table wide enough to fit legend
-            for (int c = numColumnsToShow; c < columnWidthOfLegend; c++) {
-                out.append("<td></td>\n");
-            }
-
-        }
-        out.append ("\n");
-
-        // write table with legend
-        out.append("</tr>");
-        if (includeLegend) {
-            out.append("<tr>");
-            writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
-                    columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
-
-            out.append("</table>");
-            out.append("</div>");
-        }
-    }
-
-    // pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
-    static String pluralize(int num, String s) {
-        if (num == 1) {
-            return new String(num + s);
-        } else {
-            return new String(num + s + "s");
-        }
-    }
-
-    /**
-     * format percentage
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value
-     * @return
-     */
-    static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
-        }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
-    }
-
-    // directory containing images
-    static String imageDirectory = "images/oncoPrint/";
-
-    static String IMG(String theImage, int width, int height) {
-        return IMG(theImage, width, height, null);
-    }
-
-    static String IMG(String theImage, int width, int height, String toolTip) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<img src='" + imageDirectory + theImage +
-                "' alt='" + theImage + // TODO: FOR PRODUCTION; real ALT, should be description of genetic alteration
-                "' width='" + width + "' height='" + height+"'");
-        if (null != toolTip) {
-            sb.append(" class=\"oncoprint_help\" title=\"" + toolTip + "\"");
-        }
-        return sb.append("/>").toString();
-    }
-
-    /**
-     * write legend for HTML OncoPrint
-     *
-     * @param out         writer for the output
-     * @param width       width of an icon
-     * @param height      height of an icon
-     * @param cellspacing TABLE attribute
-     * @param cellpadding TABLE attribute
-     * @param horizontalSpaceAfterDescription
-     *                    blank space, in pixels, after each description
-     */
-    public static void writeLegend(StringBuffer out, OncoPrintGeneDisplaySpec allPossibleAlterations,
-            int colsIndented, int colspan, int width, int height,
-            int cellspacing, int cellpadding,
-            int horizontalSpaceAfterDescription, float gap) {
-
-        int rowHeight = (int) ((1.0 + gap) * height);
-
-        // indent in enclosing table
-        // for horiz alignment, skip colsIndented columns
-        for (int i = 0; i < colsIndented; i++) {
-            out.append("<td></td>");
-        }
-
-        // TODO: FIX; LOOKS BAD WHEN colspan ( == number of columns == cases) is small
-        out.append("<td colspan='" + colspan + "'>");
-
-        // output table header
-        out.append(
-                "\n<table cellspacing='" + cellspacing +
-                        "' cellpadding='" + cellpadding + "'>" +
-                        "\n<tbody>");
-
-        out.append("\n<tr>");
-
-        /*
-        * TODO: make this data driven; use enumerations
-        */
-        // { "amplified-notShown-normal", "Amplification" }
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.Amplified)) {
-            outputLegendEntry(out, "amplified-notShown-normal", "Amplification",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-        // { "homoDeleted-notShown-normal", "Homozygous Deletion" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.HomozygouslyDeleted)) {
-            outputLegendEntry(out, "homoDeleted-notShown-normal", "Homozygous Deletion",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-        // { "Gained-notShown-normal", "Gain" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.Gained)) {
-            outputLegendEntry(out, "Gained-notShown-normal", "Gain",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "HemizygouslyDeleted-notShown-normal", "Hemizygous Deletion" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.HemizygouslyDeleted)) {
-            outputLegendEntry(out, "HemizygouslyDeleted-notShown-normal", "Hemizygous Deletion",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-upRegulated-normal", "Up-regulation" },
-        ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations
-                .getResultDataTypeSpec(GeneticDataTypes.Expression);
-        if (null != theResultDataTypeSpec &&
-                (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-upRegulated-normal", "Up-regulation", rowHeight,
-                    width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-downRegulated-normal", "Down-regulation" },
-        theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec
-                (GeneticDataTypes.Expression);
-        if (null != theResultDataTypeSpec &&
-                (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-downRegulated-normal", "Down-regulation",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-notShown-mutated", "Mutation" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
-            outputLegendEntry(out, "diploid-notShown-mutated", "Mutation", rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        out.append("</tr>\n");
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) {
-            out.append("<tr>\n");
-            out.append("<td colspan='" + colspan / 4
-                    + "' style=\"vertical-align:bottom\" >"
-                    + "<div class=\"tiny\"> Copy number alterations are putative.<br/></div></td>\n");
-            out.append("</tr>");
-        }
-        out.append("</tbody></table></td></tr>");
-    }
-
-    private static void outputLegendEntry(StringBuffer out, String imageName,
-            String imageDescription, int rowHeight, int width, int height,
-            int horizontalSpaceAfterDescription) {
-        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
-                + IMG(imageName + ".png", width, height));
-        out.append("</td>\n");
-        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
-                + imageDescription);
-
-        // add some room after description
-        out.append("</td>\n");
-        out.append("<td width='" + horizontalSpaceAfterDescription + "'></td>\n");
-
-    }
-
-    /**
      * Gets the Correct Copy Number color for OncoPrint.
      */
     private static String getCopyNumberStyle(GeneticEvent event) {
@@ -640,94 +250,152 @@ public class MakeOncoPrint {
         return "shouldNotBeReached"; // never reached
     }
 
-	static void writeHTMLOncoPrintHeader(StringBuffer out,
-										 GeneticEvent matrix[][], ProfileDataSummary dataSummary,
-										 String caseSetId, ArrayList<CaseList> caseSets,
-										 boolean includeCaseSetDescription, boolean showAlteredColumns,
-										 int cellspacing, int cellpadding) {
+    /**
+     * Generates an OncoPrint in HTML.
+	 *
+	 * @param out StringBuffer
+	 * @param matrix GeneticEvent[][]
+	 * @param dataSummary ProfileDataSummary
+     * @param caseSets List<CaseList>
+     * @param caseSetId String
+     * @param theOncoPrintSpecification OncoPrintSpecification
+     */
+    static void writeHTMLOncoPrint(StringBuffer out,
+								   GeneticEvent matrix[][],
+								   ProfileDataSummary dataSummary,
+								   List<CaseList> caseSets, String caseSetId,
+								   OncoPrintSpecification theOncoPrintSpecification) {
 
-		// lets output header/summary info
-        out.append("<div id=\"oncoprint_header\" class=\"oncoprint\">\n");
-        if (includeCaseSetDescription) {
-            for (CaseList caseSet : caseSets) {
-                if (caseSetId.equals(caseSet.getStableId())) {
-                    out.append(
-                            "<p>Case Set: " + caseSet.getName()
-                                    + ":  " + caseSet.getDescription() + "</p>");
-                }
-            }
-        }
-        // stats on pct alteration
-        out.append("<p>Altered in " + dataSummary.getNumCasesAffected() + " (" +
-                alterationValueToString(dataSummary.getPercentCasesAffected())
-                + ") of cases." + "</p>");
+		// include some javascript libs
+		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
 
-        // output table header
-        out.append(
-                "\n<table cellspacing='" + cellspacing +
-                        "' cellpadding='" + cellpadding +
-                        "'>\n" +
-                        "<thead>\n"
-        );
+		out.append("<script type=\"text/javascript\">\n");
+		// output oncoprint variables
+		out.append(writeOncoPrintHeaderVariables(matrix, dataSummary, caseSets, caseSetId, "HEADER_VARIABLES"));
+		// output longest label variable
+		out.append(writeJavascriptConstVariable("LONGEST_LABEL", getLongestLabel(matrix, dataSummary)));
+		// output genetic alternation variable
+		out.append(writeOncoPrintGeneticAlterationVariable(matrix, dataSummary, "GENETIC_ALTERATIONS_SORTED"));
+		// on document ready, draw oncoprint
+		out.append(writeOncoPrintDocumentReadyJavascript("oncoprint", "canvas", "GENETIC_ALTERATIONS_SORTED",
+														 matrix.length, matrix[0].length, "properties", "LONGEST_LABEL",
+														 "oncoprint_header", "HEADER_VARIABLES"));
+		out.append("</script>\n");
+		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
+		out.append("<div id=\"oncoprint\" class=\"oncoprint\"></div>\n");
 
-        int columnWidthOfLegend = 80;
-        //  heading that indicates columns are cases
-        // span multiple columns like legend
-        String caseHeading;
-        int numCases = matrix[0].length;
-        String rightArrow =  " &rarr;";
-        if (showAlteredColumns) {
-            caseHeading = pluralize(dataSummary.getNumCasesAffected(), " case")
-                    + " with altered genes, out of " + pluralize(numCases, " total case") + rightArrow;
-        } else {
-            caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
-        }
-
-        out.append("<tr>\n<th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
-				   + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n");
-		out.append("</tr>\n");
-        out.append("</thead>\n");
-        out.append("</table>\n");
-		out.append("</div>\n"); // oncoprint header
+		out.append("<script type=\"text/javascript\">\n");
+		String legendFootnote = getLegendFootnote(theOncoPrintSpecification.getUnionOfPossibleLevels());
+		out.append(writeJavascriptConstVariable("LEGEND_FOOTNOTE", legendFootnote));
+		out.append(writeOncoPrintLegendGeneticAlterationVariable("GENETIC_ALTERATIONS_LEGEND",
+																 theOncoPrintSpecification.getUnionOfPossibleLevels()));
+		out.append(writeOncoPrintLegendDocumentReadyJavascript("oncoprint_legend", "GENETIC_ALTERATIONS_LEGEND", "LEGEND_FOOTNOTE"));
+		out.append("</script>\n");
+		out.append("<br>\n");
+		out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\"></div>\n");
 	}
 
 	/**
-	 * Creates javascript that represents genetic alteration matrix.
+	 * Creates javascript variable for header variables.
+	 *
+	 * @param matrix[][] GeneticEvent
+     * @param caseSets List<CaseList>
+     * @param caseSetId String
+	 * @param dataSummary ProfileDataSummary
+	 * @param varName String
+	 *
+	 * @return String
 	 */
-	static String writeGeneticAlterationVariable2(GeneticEvent matrix[][], int numColumnsToShow, String varName) {
-
-		StringBuilder builder = new StringBuilder("\tvar " + varName + " = [\n");
-		for (int i = 0; i < matrix.length; i++) {
-			GeneticEvent rowEvent = matrix[i][0];
-			String gene = rowEvent.getGene().toUpperCase();
-			builder.append("\t\t\t{\n\t\t\t \"hugoGeneSymbol\" : \"" + gene + "\",\n");
-			builder.append("\t\t\t \"alterations\" : [\n");
-			for (int j = 0; j < numColumnsToShow; j++) {
-                GeneticEvent event = matrix[i][j];
-                // get level of each datatype; concatenate to make image name
-                // color could later could be in configuration file
-                String cnaName = event.getCnaValue().name().toUpperCase();
-                String mrnaName = event.getMrnaValue().name().toUpperCase();
-				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
-				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
-				builder.append("\t\t\t\t{\"sample\" : " + j + ", " + "\"alteration\" : " + alterationSettings + "},\n");
-            }
-			// zap off last ',\n'
-			builder.delete(builder.length()-2, builder.length());
-			builder.append("]\n\t\t\t},\n");
-		}
+	static String writeOncoPrintHeaderVariables(GeneticEvent matrix[][],
+												ProfileDataSummary dataSummary,
+												List<CaseList> caseSets,
+												String caseSetId,
+												String varName) {
+		// output case set description
+		String caseSetDescription = getCaseSetDescription(caseSetId, caseSets);
+		String alteredStats = ("Altered in " + dataSummary.getNumCasesAffected() + " (" +
+							   alterationValueToString(dataSummary.getPercentCasesAffected())
+							   + ") of cases.");
+		String percentAlteredColumnHeading = PERCENT_ALTERED_COLUMN_HEADING;
+		String allSamplesColumnHeading = "All " + pluralize(matrix[0].length, " case") + " -->";
+		String alteredSamplesColumnHeading = (pluralize(dataSummary.getNumCasesAffected(), " case")
+											  + " with altered genes, out of " + pluralize(matrix[0].length, " total case") + " -->");
+															
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'CASE_SET_DESCRIPTION' : \"" + caseSetDescription + "\",\n");
+		builder.append("\t\t\t'ALTERED_STATS' : \"" + alteredStats + "\",\n");
+		builder.append("\t\t\t'PERCENT_ALTERED_COLUMN_HEADING' : \"" + percentAlteredColumnHeading + "\",\n");
+		builder.append("\t\t\t'ALL_SAMPLES_COLUMN_HEADING' : \"" + allSamplesColumnHeading + "\",\n");
+		builder.append("\t\t\t'ALTERED_SAMPLES_COLUMN_HEADING' : \"" + alteredSamplesColumnHeading + "\",\n");
 		// zap off last ',\n'
 		builder.delete(builder.length()-2, builder.length());
-		builder.append("\n\t]\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
 
 		// outta here
 		return builder.toString();
 	}
 
-	/**
-	 * Creates javascript that represents genetic alteration matrix.
+    /**
+	 * pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
+	 *
+	 * @param num  The count.
+	 * @param s The string to pluralize.
+	 *
+	 * @return String
 	 */
-	static String writeGeneticAlterationVariable(GeneticEvent matrix[][], int numColumnsToShow, String varName) {
+    static String pluralize(int num, String s) {
+        if (num == 1) {
+            return new String(num + s);
+        } else {
+            return new String(num + s + "s");
+        }
+    }
+
+    /**
+     * Format percentage.
+	 *
+     * <p/>
+     * if value == 0 return "--"
+     * case value
+     * 0: return "--"
+     * 0<value<=0.01: return "<1%"
+     * 1<value: return "<value>%"
+     *
+     * @param value double
+	 *
+     * @return String
+     */
+    static String alterationValueToString(double value) {
+
+        // in oncoPrint show 0 percent as 0%, not --
+        if (0.0 < value && value <= 0.01) {
+            return "<1%";
+        }
+
+        // if( 1.0 < value ){
+        Formatter f = new Formatter();
+        f.format("%.0f", value * 100.0);
+        return f.out().toString() + "%";
+    }
+
+	/**
+	 * Creates javascript that represents genetic alteration matrix used for OncoPrint rendering.
+	 *
+	 * @param matrix[][] GeneticEvent
+	 * @param dataSummary ProfileDataSummary
+	 * @param varName String
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintGeneticAlterationVariable(GeneticEvent matrix[][],
+														  ProfileDataSummary dataSummary,
+														  String varName) {
 
 		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
 		builder.append("\t\tvar private = {\n");
@@ -735,28 +403,54 @@ public class MakeOncoPrint {
 		for (int i = 0; i < matrix.length; i++) {
 			GeneticEvent rowEvent = matrix[i][0];
 			String gene = rowEvent.getGene().toUpperCase();
-			builder.append("\t\t\t\t{\n\t\t\t\t \"hugoGeneSymbol\" : \"" + gene + "\",\n");
-			builder.append("\t\t\t\t \"alterations\" : [\n");
-			for (int j = 0; j < numColumnsToShow; j++) {
+			String alterationValue =
+				alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+			builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
+			builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
+			builder.append("\t\t\t\t 'alterations' : [\n");
+			// used to track altered samples
+			ArrayList<Integer> samplesAltered = new ArrayList<Integer>();
+			for (int j = 0; j < matrix[0].length; j++) {
                 GeneticEvent event = matrix[i][j];
+				if (dataSummary.isGeneAltered(event.getGene(), event.caseCaseId())) {
+					samplesAltered.add(j);
+				}
                 // get level of each datatype; concatenate to make image name
                 // color could later could be in configuration file
                 String cnaName = event.getCnaValue().name().toUpperCase();
                 String mrnaName = event.getMrnaValue().name().toUpperCase();
 				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
 				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
-				builder.append("\t\t\t\t\t{\"sample\" : " + j + ", " + "\"alteration\" : " + alterationSettings + "},\n");
+				builder.append("\t\t\t\t\t{ 'sample' : " + j + ", " + "'alteration' : " + alterationSettings + "},\n");
             }
 			// zap off last ',\n'
 			builder.delete(builder.length()-2, builder.length());
-			builder.append("]\n\t\t\t\t},\n");
+			builder.append("],\n");
+			// print list of altered samples
+			builder.append("\t\t\t\t 'alteredSamples' : [\n\t\t\t\t\t");
+			int sampleCt = 0;
+			for (Integer sample : samplesAltered) {
+				builder.append(sample + ", ");
+				if (++sampleCt % 10 == 0) {
+					builder.append("\n\t\t\t\t\t");
+				}
+			}
+			// zap off last '\n\t\t\t\t\t' or ', '
+			if (builder.lastIndexOf("\n\t\t\t\t\t") == builder.length()-6) {
+				builder.delete(builder.length()-6, builder.length());
+			}
+			else {
+				builder.delete(builder.length()-2, builder.length());
+			}
+			builder.append("]\n");
+			builder.append("\t\t\t\t},\n");
 		}
 		// zap off last ',\n'
 		builder.delete(builder.length()-2, builder.length());
 		builder.append("\n\t\t\t]\n");
 		builder.append("\t\t};\n");
 		builder.append("\t\treturn {\n");
-		builder.append("\t\t\tget: function(name) { return private[name]; }\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
 		builder.append("\t\t};\n");
 		builder.append("\t})();\n");
 
@@ -765,17 +459,71 @@ public class MakeOncoPrint {
 	}
 
 	/**
-	 * Creates javascript var which contains longest label length
+	 * Gets the legend footnote (if any).
+	 *
+	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
+	 *
+	 * @return String
 	 */
-	static String writeLongestLabelVariable(GeneticEvent matrix[][], ProfileDataSummary dataSummary, String varName) {
+	static String getLegendFootnote(OncoPrintGeneDisplaySpec allPossibleAlterations) {
 
-		String longestLabel = MakeOncoPrint.getLongestLabel(matrix, dataSummary);
+        return (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) ?
+			COPY_NUMBER_ALTERATION_FOOTNOTE  : "";
+	}
+
+	/**
+	 * Creates javascript that represents genetic alteration matrix used for legend rendering.
+	 *
+	 * @param varName String
+	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintLegendGeneticAlterationVariable(String varName,
+																OncoPrintGeneDisplaySpec allPossibleAlterations) {
+
 		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+
 		builder.append("\t\tvar private = {\n");
-		builder.append("\t\t\t'" + varName + "' : '" + longestLabel + "'\n");
+		builder.append("\t\t\t'" + varName + "' : [\n");
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Amplification\",\n");
+			builder.append("\t\t\t\t 'alteration' : AMPLIFIED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Homozygous Deletion\",\n");
+			builder.append("\t\t\t\t 'alteration' : HOMODELETED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Gain\",\n");
+			builder.append("\t\t\t\t 'alteration' : GAINED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Hemizygous Deletion\",\n");
+			builder.append("\t\t\t\t 'alteration' : HEMIZYGOUSLYDELETED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+		}
+        ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
+        if (theResultDataTypeSpec != null) {
+			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation\",\n");
+				builder.append("\t\t\t\t 'alteration' : DIPLOID | UPREGULATED | NORMAL\n\t\t\t\t},\n");
+			}
+			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation\",\n");
+				builder.append("\t\t\t\t 'alteration' : DIPLOID | DOWNREGULATED | NORMAL\n\t\t\t\t},\n");
+			}
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Mutation\",\n");
+			builder.append("\t\t\t\t 'alteration' : DIPLOID | NOTSHOWN | MUTATED\n\t\t\t\t},\n");
+		}
+
+		// zap off last ',\n'
+		builder.delete(builder.length()-2, builder.length());
+		builder.append("\n\t\t\t]\n");
 		builder.append("\t\t};\n");
 		builder.append("\t\treturn {\n");
-		builder.append("\t\t\tget: function(name) { return private[name]; }\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
 		builder.append("\t\t};\n");
 		builder.append("\t})();\n");
 
@@ -784,23 +532,48 @@ public class MakeOncoPrint {
 	}
 
 	/**
-	 * Creates javascript var which contains longest label length
+	 * Creates javascript which invokes (via jquery) OncoPrint drawing 
+	 * when document is ready.
+	 *
+	 * @param oncoPrintCanvasParent String
+	 * @param canvasID String
+	 * @param geneticAlterationsVarName String
+	 * @param numGenes int
+	 * @param numSamples int
+	 * @param propertiesVarName String
+	 * @param logestLabelVarName String
+	 * @param oncoPrintHeaderCanvasParent String
+	 * @param oncoPrintHeaderVariablesVarName String
+	 *
+	 * @return String
 	 */
-	static String writeDocumentReadyJavascript(String canvasParent, String canvasID,
-											   String geneticAlterationsVarName, int numGenes, int numSamples,
-											   String metricsVarName, String longestLabelLengthVarName) {
+	static String writeOncoPrintDocumentReadyJavascript(String oncoPrintCanvasParent, String canvasID,
+														String geneticAlterationsVarName,
+														int numGenes, int numSamples,
+														String propertiesVarName,
+														String longestLabelVarName,
+														String oncoPrintHeaderCanvasParent,
+														String oncoPrintHeaderVariablesVarName) {
 
 		StringBuilder builder = new StringBuilder();
 
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
-		// setup default metrics
-		builder.append("\t\tvar " + metricsVarName + " = CreateMetrics();\n");
+		// setup default properties
+		builder.append("\t\tvar " + propertiesVarName + " = CreateProperties(true);\n");
+		// set longest label length
+		builder.append("\t\tSetLongestLabelLength(" + 
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'));\n");
+		// oncoprint heading
+		builder.append("\t\tDrawOncoPrintHeader(" + oncoPrintHeaderCanvasParent + ", " +
+   					   oncoPrintHeaderVariablesVarName  + ", " + propertiesVarName + ");\n");
 		// create canvas
-		builder.append("\t\tvar " + canvasID + " = CreateCanvas(" + canvasParent + ", " +
-					 numGenes + ", " + numSamples + ", " + metricsVarName + ", " + longestLabelLengthVarName + ");\n");
+		builder.append("\t\tvar " + canvasID + " = CreateCanvas(" + oncoPrintCanvasParent + ", " +
+					   numGenes + ", " + numSamples + ", " + propertiesVarName + ");\n");
 		// draw oncoprint
-		builder.append("\t\tDrawOncoPrint(" + canvasID + ", " + metricsVarName + ", " + longestLabelLengthVarName + ");\n");
+		builder.append("\t\tDrawOncoPrint(" + canvasID + ", " +
+					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
+					   propertiesVarName + ");\n");
 		// end on document ready
 		builder.append("\t});\n");
 
@@ -809,7 +582,88 @@ public class MakeOncoPrint {
 	}
 
 	/**
-	 * Computes length in pixel of gene and % altered
+	 * Creates javascript which invokes (via jquery) OncoPrint Legend drawing 
+	 * when document is ready.
+	 *
+	 * @param canvasParent String
+	 * @param geneticAlterationsVarName String
+	 * @param legendFootnoteVarName String
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintLegendDocumentReadyJavascript(String canvasParent,
+															  String geneticAlterationsVarName,
+															  String legendFootnoteVarName) {
+
+		StringBuilder builder = new StringBuilder();
+
+		// jquery on document ready
+		builder.append("\t$(document).ready(function() {\n");
+		// draw oncoprint legend
+		builder.append("\t\tDrawOncoPrintLegend(" + canvasParent + ", " +
+					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
+   					   legendFootnoteVarName  + ".get('" + legendFootnoteVarName + "'));\n");
+		// end on document ready
+		builder.append("\t});\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates javascript var which contains longest label.
+	 *
+	 * @param matrix[][] GeneticEvent
+	 * @param dataSummary ProfileDataSummary
+	 * @param longestLabelVarName String
+	 *
+	 * @return String
+	 */
+	static String writeJavascriptConstVariable(String varName, String varValue) {
+
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'" + varName + "' : \"" + varValue + "\"\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Constructs the OncoPrint case set description.
+	 *
+     * @param caseSetId String
+	 * @param caseSets List<CaseList>
+	 *
+	 * @return String
+	 */
+	static String getCaseSetDescription(String caseSetId, List<CaseList> caseSets) {
+
+		StringBuilder builder = new StringBuilder();
+		for (CaseList caseSet : caseSets) {
+			if (caseSetId.equals(caseSet.getStableId())) {
+				builder.append("Case Set: " + caseSet.getName() +
+							   ":  " + caseSet.getDescription());
+			}
+		}
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Computes the longest (in pixels) gene, % altered string pairing.
+	 *
+	 * @param matrix[][] GeneticEvent
+	 * @param dataSummary ProfileDataSummary
+	 *
+	 * @return String
 	 */
 	private static String getLongestLabel(GeneticEvent matrix[][], ProfileDataSummary dataSummary) {
 

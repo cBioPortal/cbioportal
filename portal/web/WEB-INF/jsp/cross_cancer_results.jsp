@@ -163,7 +163,10 @@
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>
 
                 <script>
+
                     jQuery(document).ready(function() {
+                        $(".sortable").sortable({connectWith: '.sortable'});
+
                         $('#accordion .head').click(function() {
                             //  This toggles the next element, right after head,
                             //  which is the accordion ajax panel
@@ -172,20 +175,26 @@
                             jQuery(".ui-icon", this).toggle();
                             return false;
                         }).next().hide();
+
+                        $(".movable-icon").tipTip();
                     });
                 </script>
 
 
                 <div id="accordion">
                     <h2 class="cross_cancer_header">Studies with Mutation Data</h2>
+                    <div class="sortable">
                     <% outputCancerStudies(cancerStudiesWithMutations, out); %>
                     <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
                     %>
+                    </div>
+                    <div class="sortable">
                     <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
                     <%
                             outputCancerStudies(cancerStudiesWithOutMutations, out);
                        }
                      %>
+                    </div>
                 </div>
 
             </div>
@@ -222,6 +231,8 @@
             out.println("<span class='ui-icon ui-icon-triangle-1-s'"
                     + " style='float:left;display:none;'></span>");
             out.println(cancerStudy.getName());
+            out.println("<span class='ui-icon ui-icon-arrowthick-2-n-s movable-icon' style='float:right;'"
+                    + " title='You can drag this box and drop it to anywhere on the list.'></span>");
             out.println("<span class='percent_altered' id='percent_altered_" + cancerStudy.getCancerStudyStableId()
                     + "' style='float:right'><img src='images/ajax-loader2.gif'></span>");
             out.println("</h1>");

@@ -19,8 +19,6 @@ import java.util.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class MakeOncoPrint {
-    public static int CELL_WIDTH = 8; 
-    public static int CELL_HEIGHT = 18;  // also used in fingerprint.jsp
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 
@@ -162,7 +160,7 @@ public class MakeOncoPrint {
 														 "GENETIC_ALTERATIONS_SORTED", "GENETIC_ALTERATIONS_LEGEND",
 														 "LEGEND_FOOTNOTE"));
 		out.append("</script>\n");
-		out.append(writeHTMLControls("ONCOPRINT", "LONGEST_LABEL", "GENETIC_ALTERATIONS_SORTED"));
+		out.append(writeHTMLControls("ONCOPRINT", "LONGEST_LABEL", "HEADER_VARIABLES", "GENETIC_ALTERATIONS_SORTED"));
 		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"oncoprint_body\" class=\"oncoprint\"></div>\n");
 		out.append("<br>\n");
@@ -243,40 +241,18 @@ public class MakeOncoPrint {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
 			builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
 			builder.append("\t\t\t\t 'alterations' : [\n");
-			// used to track altered samples
-			ArrayList<Integer> samplesAltered = new ArrayList<Integer>();
 			for (int j = 0; j < matrix[0].length; j++) {
                 GeneticEvent event = matrix[i][j];
-				if (dataSummary.isGeneAltered(event.getGene(), event.caseCaseId())) {
-					samplesAltered.add(j);
-				}
                 // get level of each datatype; concatenate to make image name
                 // color could later could be in configuration file
                 String cnaName = event.getCnaValue().name().toUpperCase();
                 String mrnaName = event.getMrnaValue().name().toUpperCase();
 				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
 				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
-				builder.append("\t\t\t\t\t{ 'sample' : " + j + ", " + "'alteration' : " + alterationSettings + "},\n");
+				builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " + "'alteration' : " + alterationSettings + "},\n");
             }
 			// zap off last ',\n'
 			builder.delete(builder.length()-2, builder.length());
-			builder.append("],\n");
-			// print list of altered samples
-			builder.append("\t\t\t\t 'alteredSamples' : [\n\t\t\t\t\t");
-			int sampleCt = 0;
-			for (Integer sample : samplesAltered) {
-				builder.append(sample + ", ");
-				if (++sampleCt % 10 == 0) {
-					builder.append("\n\t\t\t\t\t");
-				}
-			}
-			// zap off last '\n\t\t\t\t\t' or ', '
-			if (builder.lastIndexOf("\n\t\t\t\t\t") == builder.length()-6) {
-				builder.delete(builder.length()-6, builder.length());
-			}
-			else {
-				builder.delete(builder.length()-2, builder.length());
-			}
 			builder.append("]\n");
 			builder.append("\t\t\t\t},\n");
 		}
@@ -412,12 +388,14 @@ public class MakeOncoPrint {
 	 * Creates OncoPRINTHTML code.
 	 *
 	 * @param oncoprintReferenceVarName String
-	 * @param longestLabelVarName,
+	 * @param longestLabelVarName String
+	 * @param headerVariablesVarName String
 	 *
 	 * @return String
 	 */
 	static String writeHTMLControls(String oncoprintReferenceVarName,
 									String longestLabelVarName,
+									String headerVariablesVarName,
 									String geneticAlterationsVarName) {
 
 		String formID = "oncoprintForm";
@@ -442,8 +420,11 @@ public class MakeOncoPrint {
 		// show altered checkbox
 		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
-					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   headerVariablesVarName + "); " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "')); return true;\"" +
 					   ">Only show altered cases.\n");
 

@@ -212,6 +212,9 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 	oncoprint.body_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.body_canvas.clear();
 
+	// used to filter out unaltered samples in loop belowe
+	var unalteredSample = (NONE | NOTSHOWN | NORMAL);
+
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
 		var alteration = geneticAlterations[lc];
@@ -221,8 +224,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 		var samplePos = -1;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
-			if (oncoprint.altered_samples_only &&
-				$.inArray(thisSampleAlteration.sample, alteration.alteredSamples) == -1) {
+			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
 				continue;
 			}
 			++samplePos;

@@ -137,117 +137,15 @@ public class MakeOncoPrint {
 
         // support both SVG and HTML oncoPrints
         switch (theOncoPrintType) {
-
-            case SVG:
-                writeSVGOncoPrint(matrix, numColumnsToShow,
-                        out, mergedCaseList, geneWithScoreList);
-                break;          // exit the switch
-
             case HTML:
-                writeHTMLOncoPrint(out,
-								   matrix,
-								   dataSummary,
-								   caseSets, caseSetId,
-								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification());
+                writeOncoPrint(out,
+							   matrix,
+							   dataSummary,
+							   caseSets, caseSetId,
+							   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification());
                 break;          // exit the switch
         }
         return out.toString();
-    }
-
-    static void writeSVGOncoPrint(GeneticEvent matrix[][], int numColumnsToShow,
-            StringBuffer out, ArrayList<String> mergedCaseList,
-            ArrayList<GeneWithScore> geneWithScoreList) {
-
-        int windowWidth = 300 + (CELL_WIDTH * mergedCaseList.size());
-        int windowHeight = 50 + (CELL_HEIGHT * geneWithScoreList.size());
-
-        out.append("<?xml version=\"1.0\"?>\n" +
-                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
-                "    \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                "<svg onload=\"init(evt)\" xmlns=\"http://www.w3.org/2000/svg\" " +
-                "version=\"1.1\" \n" +
-                "    width=\"" + windowWidth + "\" height=\"" + windowHeight + "\">\n");
-
-
-        //  Output One Gene per Row
-        int x = 0;
-        int y = 25;
-
-        out.append("<g font-family=\"Verdana\">");
-
-        for (int i = 0; i < matrix.length; i++) {
-            GeneticEvent rowEvent = matrix[i][0];
-            x = 160;
-            out.append("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
-                    "font-size = \"16\">\n"
-                    + rowEvent.getGene().toUpperCase() + "</text>");
-            for (int j = 0; j < numColumnsToShow; j++) {
-                GeneticEvent event = matrix[i][j];
-                String style = getCopyNumberStyle(event);
-                String mRNAStyle = getMRNAStyle(event);
-
-                boolean isMutated = event.isMutated();
-                int block_height = CELL_HEIGHT - 2;
-                out.append("\n<rect x=\"" + x + "\" y=\"" + y
-                        + "\" width=\"5\" stroke='" + mRNAStyle + "' height=\""
-                        + block_height + "\" fill=\"" + style + "\"\n" +
-                        " fill-opacity=\"1.0\"/>");
-                if (isMutated) {
-                    out.append("\n<rect x='" + x + "' y='" + (y + 5)
-                            + "' fill='green' width='5' height='6'/>");
-                }
-
-                x += CELL_WIDTH;
-            }
-            y += CELL_HEIGHT;
-        }
-        out.append("</g>");
-        out.append("</svg>\n");
-    }
-
-    /**
-     * Gets the Correct Copy Number color for OncoPrint.
-     */
-    private static String getCopyNumberStyle(GeneticEvent event) {
-
-        switch (event.getCnaValue()) {
-            case amplified:
-                return "red";
-            case Gained:
-                return "lightpink";
-            case HemizygouslyDeleted:
-                return "lightblue";
-            case homoDeleted:
-                return "blue";
-            case diploid:
-            case None:
-                return "lightgray";
-        }
-        // TODO: throw exception
-        return "shouldNotBeReached"; // never reached
-    }
-
-    /**
-     * Gets the Correct mRNA color.
-     * Displayed in the rectangle boundary.
-     */
-    private static String getMRNAStyle(GeneticEvent event) {
-
-        switch (event.getMrnaValue()) {
-
-            case upRegulated:
-                // if the mRNA is UpRegulated, then pink boundary;
-                // see colors at http://www.december.com/html/spec/colorsafecodes.html
-                return "#FF9999";
-            case notShown:
-                // white is the default, not showing mRNA expression level
-                return "white";
-            case downRegulated:
-                // downregulated, then blue boundary
-                return "#6699CC";
-        }
-        // TODO: throw exception
-        return "shouldNotBeReached"; // never reached
     }
 
     /**
@@ -260,16 +158,15 @@ public class MakeOncoPrint {
      * @param caseSetId String
      * @param theOncoPrintSpecification OncoPrintSpecification
      */
-    static void writeHTMLOncoPrint(StringBuffer out,
-								   GeneticEvent matrix[][],
-								   ProfileDataSummary dataSummary,
-								   List<CaseList> caseSets, String caseSetId,
-								   OncoPrintSpecification theOncoPrintSpecification) {
+    static void writeOncoPrint(StringBuffer out,
+							   GeneticEvent matrix[][],
+							   ProfileDataSummary dataSummary,
+							   List<CaseList> caseSets, String caseSetId,
+							   OncoPrintSpecification theOncoPrintSpecification) {
 
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
-
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(matrix, dataSummary, caseSets, caseSetId, "HEADER_VARIABLES"));
@@ -284,16 +181,18 @@ public class MakeOncoPrint {
 		out.append(writeOncoPrintLegendGeneticAlterationVariable("GENETIC_ALTERATIONS_LEGEND",
 																 theOncoPrintSpecification.getUnionOfPossibleLevels()));
 		// on document ready, draw oncoprint header, oncoprint, oncoprint legend
-		out.append(writeOncoPrintDocumentReadyJavascript("oncoprint",
+		out.append(writeOncoPrintDocumentReadyJavascript("ONCOPRINT",
 														 "oncoprint_header", "oncoprint_body", "oncoprint_legend",
 														 "LONGEST_LABEL", "HEADER_VARIABLES",
 														 "GENETIC_ALTERATIONS_SORTED", "GENETIC_ALTERATIONS_LEGEND",
 														 "LEGEND_FOOTNOTE"));
 		out.append("</script>\n");
+		out.append(writeHTMLControls("ONCOPRINT", "LONGEST_LABEL", "GENETIC_ALTERATIONS_SORTED"));
 		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"oncoprint_body\" class=\"oncoprint\"></div>\n");
 		out.append("<br>\n");
 		out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\"></div>\n");
+
 	}
 
 	/**
@@ -340,49 +239,6 @@ public class MakeOncoPrint {
 		// outta here
 		return builder.toString();
 	}
-
-    /**
-	 * pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
-	 *
-	 * @param num  The count.
-	 * @param s The string to pluralize.
-	 *
-	 * @return String
-	 */
-    static String pluralize(int num, String s) {
-        if (num == 1) {
-            return new String(num + s);
-        } else {
-            return new String(num + s + "s");
-        }
-    }
-
-    /**
-     * Format percentage.
-	 *
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value double
-	 *
-     * @return String
-     */
-    static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
-        }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
-    }
 
 	/**
 	 * Creates javascript that represents genetic alteration matrix used for OncoPrint rendering.
@@ -456,19 +312,6 @@ public class MakeOncoPrint {
 
 		// outta here
 		return builder.toString();
-	}
-
-	/**
-	 * Gets the legend footnote (if any).
-	 *
-	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
-	 *
-	 * @return String
-	 */
-	static String getLegendFootnote(OncoPrintGeneDisplaySpec allPossibleAlterations) {
-
-        return (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) ?
-			COPY_NUMBER_ALTERATION_FOOTNOTE  : "";
 	}
 
 	/**
@@ -559,10 +402,12 @@ public class MakeOncoPrint {
 
 		StringBuilder builder = new StringBuilder();
 
+		// declare the oncoprint ref outside .ready so it is accessilble by page widgets
+		builder.append("\tvar " + oncoprintReferenceVarName + " = null;\n");
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
 		// setup default properties
-		builder.append("\t\tvar " + oncoprintReferenceVarName + " = OncoPrintInit(" +
+		builder.append("\t\t" + oncoprintReferenceVarName + " = OncoPrintInit(" +
 					   headerElement + ", " + bodyElement + ", " + legendElement + ");\n");
 		// oncoprint header
 		builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
@@ -580,6 +425,52 @@ public class MakeOncoPrint {
 		// end on document ready
 		builder.append("\t});\n");
 
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates OncoPRINTHTML code.
+	 *
+	 * @param oncoprintReferenceVarName String
+	 * @param longestLabelVarName,
+	 *
+	 * @return String
+	 */
+	static String writeHTMLControls(String oncoprintReferenceVarName,
+									String longestLabelVarName,
+									String geneticAlterationsVarName) {
+
+		String formID = "oncoprintForm";
+		StringBuilder builder = new StringBuilder();
+
+		// form start
+		builder.append("<form id=\"" + formID + "\" action=\"oncoprint_converter.svg\" method=\"POST\"" +
+					   "onsubmit=\"this.elements['longest_label_length'].value=GetLongestLabelLength(" + oncoprintReferenceVarName + "); "+ 
+					   "this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName + "); return true;\"" +
+					   " target=\"_blank\">\n");
+		// add some hidden elements
+		builder.append("<input type=hidden name=\"xml\">\n");
+		builder.append("<input type=hidden name=\"longest_label_length\">\n");
+		builder.append("<input type=hidden name=\"format\" value=\"svg\">\n");
+
+		// export SVG button
+		builder.append("<P>Get OncoPrint:&nbsp;&nbsp<input type=\"submit\" value=\"SVG\">\n");
+		
+		// include labels in oncoprint SVG checkbox
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"remove_gene_labels\" value=\"true\">Remove labels from OncoPrint SVG file.\n");
+
+		// show altered checkbox
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "')); return true;\"" +
+					   ">Only show altered cases.\n");
+
+		// form end
+		builder.append("</form>\n");
+	
 		// outta here
 		return builder.toString();
 	}
@@ -607,6 +498,62 @@ public class MakeOncoPrint {
 
 		// outta here
 		return builder.toString();
+	}
+
+    /**
+	 * pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
+	 *
+	 * @param num  The count.
+	 * @param s The string to pluralize.
+	 *
+	 * @return String
+	 */
+    static String pluralize(int num, String s) {
+        if (num == 1) {
+            return new String(num + s);
+        } else {
+            return new String(num + s + "s");
+        }
+    }
+
+    /**
+     * Format percentage.
+	 *
+     * <p/>
+     * if value == 0 return "--"
+     * case value
+     * 0: return "--"
+     * 0<value<=0.01: return "<1%"
+     * 1<value: return "<value>%"
+     *
+     * @param value double
+	 *
+     * @return String
+     */
+    static String alterationValueToString(double value) {
+
+        // in oncoPrint show 0 percent as 0%, not --
+        if (0.0 < value && value <= 0.01) {
+            return "<1%";
+        }
+
+        // if( 1.0 < value ){
+        Formatter f = new Formatter();
+        f.format("%.0f", value * 100.0);
+        return f.out().toString() + "%";
+    }
+
+	/**
+	 * Gets the legend footnote (if any).
+	 *
+	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
+	 *
+	 * @return String
+	 */
+	static String getLegendFootnote(OncoPrintGeneDisplaySpec allPossibleAlterations) {
+
+        return (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) ?
+			COPY_NUMBER_ALTERATION_FOOTNOTE  : "";
 	}
 
 	/**

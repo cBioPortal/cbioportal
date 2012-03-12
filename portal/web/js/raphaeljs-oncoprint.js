@@ -218,24 +218,26 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 		// draw label first
 		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
 		// for this gene, interate over all samples
+		var samplePos = -1;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
 			if (oncoprint.altered_samples_only &&
 				$.inArray(thisSampleAlteration.sample, alteration.alteredSamples) == -1) {
 				continue;
 			}
+			++samplePos;
 			// first draw MRNA "background"
-			drawMRNA(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
+			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// then draw CNA "within"
-			drawCNA(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
+			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// finally draw mutation square "on top"
-			drawMutation(oncoprint, oncoprint.body_canvas, lc, lc2, thisSampleAlteration.alteration);
+			drawMutation(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 		}
 	}
 }
 
 /*
- * Draws a lengend for the given union of geneticAlterations.
+ * Draws a legend for the given union of geneticAlterations.
  *
  * oncoprint - opaque reference to oncoprint system
  * longestLabel - the longest label in the oncoprint (saves us some leg-work)
@@ -289,6 +291,42 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 		footnote.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		footnote.attr('text-anchor', 'start');
 	}
+}
+
+/*
+ * For the given oncoprint reference, returns the SVG Dom as string
+ * for the body canvas.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function GetOncoPrintBodyXML(oncoprint) {
+
+	// outta here
+	return (new XMLSerializer()).serializeToString(oncoprint.body_canvas.canvas);
+}
+
+/*
+ * For the given oncoprint reference, returns the longest label length.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function GetLongestLabelLength(oncoprint) {
+
+	// outta here
+	return oncoprint.longest_label_length;
+}
+
+/*
+ * Toggles show altered samples only property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function ShowAlteredSamples(oncoprint, showAlteredSamples) {
+
+	oncoprint.altered_samples_only = showAlteredSamples;
 }
 
 /*******************************************************************************
@@ -636,4 +674,68 @@ function getMutationRectDimensions(oncoprint) {
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };
+}
+
+/**
+ * Converts an SVG DOM to a string.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * removeGeneLabels - export oncoprint without gene/alteration label
+ *
+ */
+function canvasToString(oncoprint, canvas, removeGeneLabels) {
+
+	var toReturn = '';
+	var xml = (new XMLSerializer()).serializeToString(canvas.canvas);
+
+	if (removeGeneLabels) {
+	}
+	else {
+		return xml;
+	}
+}
+
+function SvgToString(elem, out, indent) {
+
+   if (elem)
+   {
+      var attrs = elem.attributes;
+      var attr;
+      var i;
+      var childs = elem.childNodes;
+
+      for (i=0; i<indent; i++) out += "  ";
+      out += "<" + elem.nodeName;
+      for (i=attrs.length-1; i>=0; i--)
+      {
+         attr = attrs.item(i);
+         out += " " + attr.nodeName + "=\"" + attr.nodeValue+ "\"";
+      }
+
+      if (elem.hasChildNodes())
+      {
+         out += ">\n";
+         indent++;
+         for (i=0; i<childs.length; i++)
+         {
+            if (childs.item(i).nodeType == 1) // element node ..
+				SvgToString(childs.item(i), out, indent);
+            else if (childs.item(i).nodeType == 3) // text node ..
+            {
+               for (j=0; j<indent; j++) out += "  ";
+               out += childs.item(i).nodeValue + "\n";
+            }
+         }
+         indent--;
+         for (i=0; i<indent; i++) out += "  ";
+         out += "</" + elem.nodeName + ">\n";
+      }
+      else
+      {
+         out += " />\n";
+      }
+
+   }
+   return out;
 }

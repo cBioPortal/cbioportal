@@ -69,7 +69,6 @@ public class MakeOncoPrint {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
 
         ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
-        ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
         // TODO: make the gene sort order a user param, then call a method in ProfileDataSummary to sort
         GeneticEvent matrix[][] = ConvertProfileDataToGeneticEvents.convert
@@ -104,36 +103,6 @@ public class MakeOncoPrint {
             }
         }
         matrix = (GeneticEvent[][]) sorter.sort(matrix);
-
-        // optionally, show only columns with alterations
-        // depending on showAlteredColumns, find last column with alterations
-        int numColumnsToShow = matrix[0].length;
-
-        if (showAlteredColumns) {
-            // identify last column with an alteration
-            // make HTML OncoPrint: not called if there are no genes
-
-            // have oncoPrint shows nothing when no cases are modified
-            numColumnsToShow = 0;
-            firstAlteration:
-            {
-
-                // iterate through cases from the end, stopping at first case with alterations
-                // (the sort order could sort unaltered cases before altered ones)
-                for (int j = matrix[0].length - 1; 0 <= j; j--) {
-
-                    // check all genes to determine if a case is altered
-                    for (int i = 0; i < matrix.length; i++) {
-                        GeneticEvent event = matrix[i][j];
-                        if (dataSummary.isGeneAltered(event.getGene(), event.caseCaseId())) {
-
-                            numColumnsToShow = j + 1;
-                            break firstAlteration;
-                        }
-                    }
-                }
-            }
-        }
 
         // support both SVG and HTML oncoPrints
         switch (theOncoPrintType) {

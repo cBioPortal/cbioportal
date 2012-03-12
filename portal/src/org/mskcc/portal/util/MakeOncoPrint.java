@@ -164,6 +164,12 @@ public class MakeOncoPrint {
 							   List<CaseList> caseSets, String caseSetId,
 							   OncoPrintSpecification theOncoPrintSpecification) {
 
+		// oncoprint header
+		out.append("<div class=\"oncoprint_section\">\n");
+		out.append("<p><h4>OncoPrint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>(<a href=\"faq.jsp#what-are-oncoprints\">What are OncoPrints?</a>)</small></h4>\n");
+		out.append("<p></p>\n");
+		out.append("<div style=\"width:800px;\">");
+
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
@@ -193,6 +199,10 @@ public class MakeOncoPrint {
 		out.append("<br>\n");
 		out.append("<div id=\"oncoprint_legend\" class=\"oncoprint\"></div>\n");
 
+		// oncoprint footer
+		out.append("</div>\n");
+		out.append("<p>\n");
+		out.append("</div>\n");
 	}
 
 	/**

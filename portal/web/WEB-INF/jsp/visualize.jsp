@@ -284,7 +284,8 @@
                 %>
 
             <div class="section" id="summary">
-            <%@ include file="fingerprint.jsp" %>
+			<% //contents of fingerprint.jsp now come from attribute on request object %>
+			<% out.println(oncoprintHTML); %>
             <%@ include file="gene_info.jsp" %>
             </div>
 

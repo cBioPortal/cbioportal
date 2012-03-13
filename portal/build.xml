@@ -272,7 +272,7 @@
   </target>
 
   <!-- ==================== Test Target ================================= -->
-  <target name="test" description="Runs all JUnit Tests">
+  <target name="test" depends="compile" description="Runs all JUnit Tests">
     <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
       <formatter type="brief" usefile="false" />
       <formatter type="xml" />

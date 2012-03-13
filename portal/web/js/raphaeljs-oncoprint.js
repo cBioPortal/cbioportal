@@ -229,7 +229,8 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 			}
 			++samplePos;
 			// first draw MRNA "background"
-			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration,
+					 true, thisSampleAlteration.sample);
 			// then draw CNA "within"
 			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// finally draw mutation square "on top"
@@ -272,7 +273,7 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
 		var alteration = geneticAlterations[lc];
 		// only one of the following will render
-		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
+		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration, false, "");
 		drawCNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		drawMutation(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		// render description
@@ -521,9 +522,11 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
  * row - the vertical position to draw the alteration
  * column - the horizontal position to draw the alteration
  * alterationSettings - the genomic alteration
+ * createToolTip - if true, creates a tooltip with provide text
+ * toolTipText - text for tooltip
  *
  */
-function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
+function drawMRNA(oncoprint, canvas, row, column, alterationSettings, createToolTip, toolTipText) {
 
 	// compute starting coordinates
 	var y = getYCoordinate(oncoprint, row);
@@ -541,6 +544,8 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 	}
 	else if (alterationSettings & NOTSHOWN) {
 		rect.attr('fill', DEFAULTS.get('NOTSHOWN_COLOR'));
+	}
+	if (createToolTip) {
 	}
 }
 

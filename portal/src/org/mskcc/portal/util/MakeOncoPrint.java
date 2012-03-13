@@ -69,9 +69,12 @@ public class MakeOncoPrint {
         ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
 
         // TODO: make the gene sort order a user param, then call a method in ProfileDataSummary to sort
-        GeneticEvent matrix[][] = ConvertProfileDataToGeneticEvents.convert
-                (dataSummary, listOfGeneNames,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+        GeneticEvent sortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
+			(dataSummary, listOfGeneNames,
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+        GeneticEvent unsortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
+			(dataSummary, listOfGeneNames,
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
 
         //  Sort Columns via Cascade Sorter
         ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
@@ -95,18 +98,19 @@ public class MakeOncoPrint {
                 GeneticEventComparator.defaultMutationsSortOrder());
 
         CascadeSortOfMatrix sorter = new CascadeSortOfMatrix(comparator);
-        for (GeneticEvent[] row : matrix) {
+        for (GeneticEvent[] row : sortedMatrix) {
             for (GeneticEvent element : row) {
                 element.setGeneticEventComparator(comparator);
             }
         }
-        matrix = (GeneticEvent[][]) sorter.sort(matrix);
+        sortedMatrix = (GeneticEvent[][]) sorter.sort(sortedMatrix);
 
         // support both SVG and HTML oncoPrints
         switch (theOncoPrintType) {
             case HTML:
                 writeOncoPrint(out,
-							   matrix,
+							   unsortedMatrix,
+							   sortedMatrix,
 							   dataSummary,
 							   caseSets, caseSetId,
 							   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification());
@@ -119,14 +123,16 @@ public class MakeOncoPrint {
      * Generates an OncoPrint in HTML.
 	 *
 	 * @param out StringBuffer
-	 * @param matrix GeneticEvent[][]
+	 * @param unsortedMatrix GeneticEvent[][]
+	 * @param sortedMatrix GeneticEvent[][]
 	 * @param dataSummary ProfileDataSummary
      * @param caseSets List<CaseList>
      * @param caseSetId String
      * @param theOncoPrintSpecification OncoPrintSpecification
      */
     static void writeOncoPrint(StringBuffer out,
-							   GeneticEvent matrix[][],
+							   GeneticEvent unsortedMatrix[][],
+							   GeneticEvent sortedMatrix[][],
 							   ProfileDataSummary dataSummary,
 							   List<CaseList> caseSets, String caseSetId,
 							   OncoPrintSpecification theOncoPrintSpecification) {
@@ -142,11 +148,12 @@ public class MakeOncoPrint {
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
-		out.append(writeOncoPrintHeaderVariables(matrix, dataSummary, caseSets, caseSetId, "HEADER_VARIABLES"));
+		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, "HEADER_VARIABLES"));
 		// output longest label variable
-		out.append(writeJavascriptConstVariable("LONGEST_LABEL", getLongestLabel(matrix, dataSummary)));
-		// output genetic alteration variable for oncoprint body
-		out.append(writeOncoPrintGeneticAlterationVariable(matrix, dataSummary, "GENETIC_ALTERATIONS_SORTED"));
+		out.append(writeJavascriptConstVariable("LONGEST_LABEL", getLongestLabel(sortedMatrix, dataSummary)));
+		// output sorted genetic alteration variable for oncoprint body
+		out.append(writeOncoPrintGeneticAlterationVariable(unsortedMatrix, dataSummary, "GENETIC_ALTERATIONS_UNSORTED"));
+		out.append(writeOncoPrintGeneticAlterationVariable(sortedMatrix, dataSummary, "GENETIC_ALTERATIONS_SORTED"));
 		// output lengend footnote
 		String legendFootnote = getLegendFootnote(theOncoPrintSpecification.getUnionOfPossibleLevels());
 		out.append(writeJavascriptConstVariable("LEGEND_FOOTNOTE", legendFootnote));
@@ -160,7 +167,7 @@ public class MakeOncoPrint {
 														 "GENETIC_ALTERATIONS_SORTED", "GENETIC_ALTERATIONS_LEGEND",
 														 "LEGEND_FOOTNOTE"));
 		out.append("</script>\n");
-		out.append(writeHTMLControls("ONCOPRINT", "LONGEST_LABEL", "HEADER_VARIABLES", "GENETIC_ALTERATIONS_SORTED"));
+		out.append(writeHTMLControls("ONCOPRINT", "LONGEST_LABEL", "HEADER_VARIABLES", "GENETIC_ALTERATIONS_SORTED", "GENETIC_ALTERATIONS_UNSORTED"));
 		out.append("<div id=\"oncoprint_header\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"oncoprint_body\" class=\"oncoprint\"></div>\n");
 		out.append("<br>\n");
@@ -385,18 +392,21 @@ public class MakeOncoPrint {
 	}
 
 	/**
-	 * Creates OncoPRINTHTML code.
+	 * Creates OncoPrint Control (checkboxes, submit button, etc).
 	 *
 	 * @param oncoprintReferenceVarName String
 	 * @param longestLabelVarName String
 	 * @param headerVariablesVarName String
+	 * @param sortedGeneticAlterationsVarName String
+	 * @param unsortedGeneticAlterationsVarName String
 	 *
 	 * @return String
 	 */
 	static String writeHTMLControls(String oncoprintReferenceVarName,
 									String longestLabelVarName,
 									String headerVariablesVarName,
-									String geneticAlterationsVarName) {
+									String sortedGeneticAlterationsVarName,
+									String unsortedGeneticAlterationsVarName) {
 
 		String formID = "oncoprintForm";
 		StringBuilder builder = new StringBuilder();
@@ -417,16 +427,29 @@ public class MakeOncoPrint {
 		// include labels in oncoprint SVG checkbox
 		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"remove_gene_labels\" value=\"true\">Remove labels from OncoPrint SVG file.\n");
 
+		// some spacing
+		builder.append("<br><br>\n");
+
 		// show altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
 					   headerVariablesVarName + "); " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "')); return true;\"" +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); return true;\"" +
 					   ">Only show altered cases.\n");
+
+		// sort/unsort altered checkbox
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+					   "onClick=\"if (this.checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); } else {" +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); } return true;\"" +
+					   ">Unsort Samples.\n");
 
 		// form end
 		builder.append("</form>\n");
@@ -436,11 +459,10 @@ public class MakeOncoPrint {
 	}
 
 	/**
-	 * Creates javascript var which contains longest label.
+	 * Creates javascript var for given var name/value.
 	 *
-	 * @param matrix[][] GeneticEvent
-	 * @param dataSummary ProfileDataSummary
-	 * @param longestLabelVarName String
+	 * @param varName String
+	 * @param varValue Sting
 	 *
 	 * @return String
 	 */

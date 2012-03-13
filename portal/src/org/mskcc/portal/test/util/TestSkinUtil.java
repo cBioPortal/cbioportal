@@ -11,12 +11,6 @@ import org.mskcc.portal.util.SkinUtil;
 public class TestSkinUtil extends TestCase {
 
     public void test1() {
-        String contactEmail = SkinUtil.getEmailContact();
-        assertEquals("<span class=\"mailme\" title=\"Contact us\">cancergenomics at " +
-                "cbio dot mskcc dot org</span>", contactEmail);
-    }
-
-    public void test2() {
         assertEquals(true, SkinUtil.showNewsTab());
         assertEquals(true, SkinUtil.showDataTab());
         assertEquals(true, SkinUtil.showRightNavDataSets());

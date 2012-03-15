@@ -325,6 +325,7 @@ function GetLongestLabelLength(oncoprint) {
  * Toggles show altered samples only property.
  *
  * oncoprint - opaque reference to oncoprint system
+ * showAlteredSamples - flag indicating if only altered samples should be displayed
  *
  */
 function ShowAlteredSamples(oncoprint, showAlteredSamples) {
@@ -627,6 +628,7 @@ function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 /*
  * For the given column (sample) return the x coordinate
  *
+ * oncoprint - opaque reference to oncoprint system
  * column - sample we are processing
  *
  */
@@ -644,7 +646,7 @@ function getXCoordinate(oncoprint, column) {
 /*
  * For the given row (gene) return the y coordinate
  *
- * oncoPrint - opaque reference to oncoprint system
+ * oncoprint - opaque reference to oncoprint system
  * row - gene we are processing
  *
  */
@@ -681,68 +683,4 @@ function getMutationRectDimensions(oncoprint) {
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };
-}
-
-/**
- * Converts an SVG DOM to a string.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * removeGeneLabels - export oncoprint without gene/alteration label
- *
- */
-function canvasToString(oncoprint, canvas, removeGeneLabels) {
-
-	var toReturn = '';
-	var xml = (new XMLSerializer()).serializeToString(canvas.canvas);
-
-	if (removeGeneLabels) {
-	}
-	else {
-		return xml;
-	}
-}
-
-function SvgToString(elem, out, indent) {
-
-   if (elem)
-   {
-      var attrs = elem.attributes;
-      var attr;
-      var i;
-      var childs = elem.childNodes;
-
-      for (i=0; i<indent; i++) out += "  ";
-      out += "<" + elem.nodeName;
-      for (i=attrs.length-1; i>=0; i--)
-      {
-         attr = attrs.item(i);
-         out += " " + attr.nodeName + "=\"" + attr.nodeValue+ "\"";
-      }
-
-      if (elem.hasChildNodes())
-      {
-         out += ">\n";
-         indent++;
-         for (i=0; i<childs.length; i++)
-         {
-            if (childs.item(i).nodeType == 1) // element node ..
-				SvgToString(childs.item(i), out, indent);
-            else if (childs.item(i).nodeType == 3) // text node ..
-            {
-               for (j=0; j<indent; j++) out += "  ";
-               out += childs.item(i).nodeValue + "\n";
-            }
-         }
-         indent--;
-         for (i=0; i<indent; i++) out += "  ";
-         out += "</" + elem.nodeName + ">\n";
-      }
-      else
-      {
-         out += " />\n";
-      }
-
-   }
-   return out;
 }

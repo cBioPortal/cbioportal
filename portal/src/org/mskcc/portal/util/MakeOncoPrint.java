@@ -426,18 +426,21 @@ public class MakeOncoPrint {
 		builder.append("<P>Get OncoPrint:&nbsp;&nbsp<input type=\"submit\" value=\"SVG\">\n");
 		
 		// show altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
 					   headerVariablesVarName + "); " +
+					   "if (document.getElementById(\'unsortSamples\').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); } else {" +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); return true;\"" +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); } return true;\"" +
 					   ">Only show altered cases.\n");
 
 		// sort/unsort altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id=\"unsortSamples\" name=\"unsortSamples\" value=\"false\" " +
 					   "onClick=\"if (this.checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); } else {" +

@@ -385,6 +385,19 @@ public class MakeOncoPrint {
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
 					   geneticAlterationsLegendVarName  + ".get('" + geneticAlterationsLegendVarName + "'), " +
    					   legendFootnoteVarName  + ".get('" + legendFootnoteVarName + "'));\n");
+		// handle tooltip drawing when page is first loaded
+		builder.append("\t\tif ($(this).find(\"a\").attr(\"href\") == \"index.do\") { \n");
+		builder.append("\t\t\tDrawOncoPrintToolTipRegion(" + oncoprintReferenceVarName + ");\n");
+		builder.append("\t\t}\n");
+		// handle tooltip drawing when other tabs are clicked
+		builder.append("\t\t$(\"a\").click(function(event) {\n");
+		builder.append("\t\t\tif($(this).attr(\"id\") == \"summary_tab\") {\n");
+		builder.append("\t\t\t\tDrawOncoPrintToolTipRegion(" + oncoprintReferenceVarName + ");\n");
+		builder.append("\t\t\t}\n");
+		builder.append("\t\t\telse {\n");
+		builder.append("\t\t\t\tClearOncoPrintToolTipRegion(" + oncoprintReferenceVarName + ");\n");
+		builder.append("\t\t\t}\n");
+		builder.append("\t\t});\n");
 		// end on document ready
 		builder.append("\t});\n");
 

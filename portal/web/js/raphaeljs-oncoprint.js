@@ -79,6 +79,9 @@ var DEFAULTS = (function() {
 			'LEGEND_SPACING'                    : 5,  // space between alteration and description
 			'LEGEND_PADDING'                    : 15, // space between alteration / descriptions pairs
 			'LEGEND_FOOTNOTE_SPACING'           : 10, // space between alteration / descriptions pairs and footnote
+			// tooltip region
+			'TOOLTIP_REGION_WIDTH'              : 500, // width of tooltip region
+			'TOOLTIP_REGION_HEIGHT'             : 60, // height of tooltip region
 			// header
 			'HEADER_VERTICAL_PADDING'           : 10, // space between header sentences
             // general sample properties
@@ -104,6 +107,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'header_canvas'                     : Raphael(headerElement, 1, 1),
 		'body_canvas'                       : Raphael(bodyElement, 1, 1),
 		'legend_canvas'                     : Raphael(legendElement, 1, 1),
+		'tooltip_canvas'                    : null,
 		// longest label length
 		'longest_label_length'              : 0,
 		// general styles
@@ -293,6 +297,44 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 		footnote.attr('font', DEFAULTS.get('LABEL_FONT'));
 		footnote.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		footnote.attr('text-anchor', 'start');
+	}
+}
+
+/*
+ * Draws canvas used for "tooltips"
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function DrawOncoPrintToolTipRegion(oncoprint) {
+
+	if (oncoprint.tooltip_canvas == null) {
+		oncoprint.tooltip_canvas = Raphael(850, 375,
+										   DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
+										   DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
+	}
+	var rect = oncoprint.tooltip_canvas.rect(0, 0,
+											 DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
+											 DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
+	rect.attr('stroke', 'none'); 
+	rect.attr('fill', '#eeeeee');
+
+	var text = oncoprint.tooltip_canvas.text(25, 10, "ToolTip text will go in this region.");
+	text.attr('font', 'normal 10px arial');
+	text.attr('fill', '#000000');
+	text.attr('text-anchor', 'start');
+}
+
+/*
+ * Clears canvas used for "tooltips"
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function ClearOncoPrintToolTipRegion(oncoprint) {
+
+	if (oncoprint.tooltip_canvas != null) {
+		oncoprint.tooltip_canvas.clear();
 	}
 }
 

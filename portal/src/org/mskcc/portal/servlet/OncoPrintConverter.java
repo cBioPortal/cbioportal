@@ -104,10 +104,6 @@ public class OncoPrintConverter extends HttpServlet {
 			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
 		}
 
-		// get remove gene labels
-		String removeLabelsArg = servletXssUtil.getCleanInput(httpServletRequest, "remove_gene_labels");
-		Boolean removeGeneLabels = new Boolean(removeLabelsArg != null && removeLabelsArg.equals("true"));
-
 		// get longest label length
 		Integer longestLabelLength = new Integer(servletXssUtil.getCleanInput(httpServletRequest, "longest_label_length"));
 
@@ -115,7 +111,7 @@ public class OncoPrintConverter extends HttpServlet {
 		String xml = httpServletRequest.getParameter("xml");
 
 		// outta here
-		convertToSVG(httpServletResponse, xml, removeGeneLabels, longestLabelLength);
+		convertToSVG(httpServletResponse, xml, longestLabelLength);
 	}
 
 	/**
@@ -123,26 +119,14 @@ public class OncoPrintConverter extends HttpServlet {
 	 *
 	 * @param response HttpServletResponse
 	 * @param xml String
-	 * @param removeGeneLabels Boolean
 	 * @parma longestLabelLength Integer
 	 */
-	private void convertToSVG(HttpServletResponse response, String xml, Boolean removeGeneLabels, Integer longestLabelLength) throws ServletException {
+	private void convertToSVG(HttpServletResponse response, String xml, Integer longestLabelLength) throws ServletException {
 
 		try {
 			response.setContentType("application/svg+xml");
 			PrintWriter writer = response.getWriter();
 			try {
-				if (removeGeneLabels) {
-					// remove all text elements
-					xml = xml.replaceAll("<text.*</text>", "");
-					// adjust all x pos elements
-					Matcher matcher = svgXPosPattern.matcher(xml);
-					while (matcher.find()) {
-						xml = xml.replace(matcher.group(1),
-										  " x=\"" + (Integer.valueOf(matcher.group(2)) - longestLabelLength) + "\"");
-					}
-
-				}
 				writer.write(xml);
 			}
 			finally {

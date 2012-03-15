@@ -141,10 +141,11 @@ public class MakeOncoPrint {
 		out.append("<div class=\"oncoprint_section\">\n");
 		out.append("<p><h4>OncoPrint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>(<a href=\"faq.jsp#what-are-oncoprints\">What are OncoPrints?</a>)</small></h4>\n");
 		out.append("<p></p>\n");
-		out.append("<div style=\"width:800px;\">");
+		out.append("<div style=\"width:800px;\">\n");
 
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/raphael/popup.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
@@ -424,14 +425,8 @@ public class MakeOncoPrint {
 		// export SVG button
 		builder.append("<P>Get OncoPrint:&nbsp;&nbsp<input type=\"submit\" value=\"SVG\">\n");
 		
-		// include labels in oncoprint SVG checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"remove_gene_labels\" value=\"true\">Remove labels from OncoPrint SVG file.\n");
-
-		// some spacing
-		builder.append("<br><br>\n");
-
 		// show altered checkbox
-		builder.append("<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 

@@ -12,6 +12,7 @@ public class CaseList {
    private int               cancerStudyId;
    private String            name;
    private String            description;
+   private CaseListCategory  caseListCategory;
    private ArrayList<String> caseList;
 
    public CaseList() {
@@ -63,6 +64,14 @@ public class CaseList {
 
    public void setName(String name) {
       this.name = name;
+   }
+
+   public CaseListCategory getCaseListCategory() {
+       return caseListCategory;
+   }
+
+   public void setCaseListCategory(CaseListCategory caseListCategory) {
+       this.caseListCategory = caseListCategory;
    }
 
    public String getDescription() {

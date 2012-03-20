@@ -26,12 +26,14 @@ public class CaseList {
     * @param cancerStudyId
     * @param name
     */
-   public CaseList(String stableId, int caseListId, int cancerStudyId, String name ) {
+   public CaseList(String stableId, int caseListId, int cancerStudyId, String name,
+                   CaseListCategory caseListCategory) {
       super();
       this.stableId = stableId;
       this.caseListId = caseListId;
       this.cancerStudyId = cancerStudyId;
       this.name = name;
+      this.caseListCategory = caseListCategory;
    }
 
    public String getStableId() {

@@ -15,6 +15,7 @@ public enum CaseListCategory {
     ALL_CASES_WITH_METHYLATION_DATA("all_cases_with_methylation_data"),
     ALL_CASES_WITH_MRNA_ARRAY_DATA("all_cases_with_mrna_array_data"),
     ALL_CASES_WITH_MRNA_RNA_SEQ_DATA("all_cases_with_mrna_rnaseq_data"),
+    ALL_CASES_WITH_RPPA_DATA("all_cases_with_rppa_data"),
     ALL_CASES_WITH_MUTATION_AND_CNA_DATA("all_cases_with_mutation_and_cna_data"),
     ALL_CASES_WITH_MUTATION_AND_CNA_AND_MRNA_DATA("all_cases_with_mutation_and_cna_and_mrna"),
     OTHER("other");

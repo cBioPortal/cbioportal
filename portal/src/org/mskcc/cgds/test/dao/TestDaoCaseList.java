@@ -24,7 +24,7 @@ public class TestDaoCaseList extends TestCase {
         caseList.setDescription("Description0");
         caseList.setStableId("stable_0");
         caseList.setCancerStudyId(2);
-        caseList.setCaseListCategory(CaseListCategory.ALL_CNA);
+        caseList.setCaseListCategory(CaseListCategory.ALL_CASES_WITH_CNA_DATA);
         ArrayList<String> cases = new ArrayList<String>();
         cases.add("TCGA-1");
         cases.add("TCGA-2");
@@ -34,7 +34,7 @@ public class TestDaoCaseList extends TestCase {
         CaseList caseListFromDb = daoCaseList.getCaseListByStableId("stable_0");
         assertEquals("Name0", caseListFromDb.getName());
         assertEquals("Description0", caseListFromDb.getDescription());
-        assertEquals(CaseListCategory.ALL_CNA, caseListFromDb.getCaseListCategory());
+        assertEquals(CaseListCategory.ALL_CASES_WITH_CNA_DATA, caseListFromDb.getCaseListCategory());
         assertEquals("stable_0", caseListFromDb.getStableId());
         assertEquals(2, caseListFromDb.getCaseList().size());
     }

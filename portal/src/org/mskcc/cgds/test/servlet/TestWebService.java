@@ -191,7 +191,7 @@ public class TestWebService extends TestCase {
       DaoCaseList aDaoCaseList = new DaoCaseList();
       String exampleCaseSetId = "exampleID";
       int thisIsNotACancerStudyId = 5;
-      CaseList caseList = new CaseList( exampleCaseSetId, 0, thisIsNotACancerStudyId, "" );
+      CaseList caseList = new CaseList( exampleCaseSetId, 0, thisIsNotACancerStudyId, "", CaseListCategory.OTHER);
       ArrayList<String> t = new ArrayList<String>();
       caseList.setCaseList( t );
       aDaoCaseList.addCaseList(caseList);

@@ -9,10 +9,7 @@ import org.mskcc.cgds.dao.DaoGeneticProfileCases;
 import org.mskcc.cgds.dao.DaoProteinArrayInfo;
 import org.mskcc.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.model.ProteinArrayData;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.*;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
@@ -97,7 +94,8 @@ public class ImportProteinArrayData {
             return;
         }
         
-        CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"Tumors with RPPA data");
+        CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"Tumors with RPPA data",
+                CaseListCategory.ALL_CASES_WITH_RPPA_DATA);
         caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by " +
                 "reverse phase protein array.");
         caseList.setCaseList(cases);

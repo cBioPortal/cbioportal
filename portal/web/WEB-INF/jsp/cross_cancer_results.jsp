@@ -59,8 +59,19 @@
       google.load("visualization", "1", {packages:["corechart"]});
 
     $(document).ready(function() {
+        $("#chart_div2").toggle();
+        function toggleHistograms() {
+            $("#chart_div").toggle();
+            $("#chart_div2").toggle();
+            drawChart();
+        }
+        $("#hist_toggle_box").change( toggleHistograms );
+
         var histogramData = new google.visualization.DataTable();
+        var histogramData2 = new google.visualization.DataTable();
+
         var histogramChart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        var histogramChart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
 
         var cancerStudies = [<%=studiesList%>];
         var cancerStudyNames = [<%=studiesNames%>];
@@ -68,8 +79,13 @@
         histogramData.addColumn('string', 'Cancer Study');
         histogramData.addColumn('number', 'Percent Alteration');
 
+        histogramData2.addColumn('string', 'Cancer Study');
+        histogramData2.addColumn('number', 'Number of Unaltered Cases');
+        histogramData2.addColumn('number', 'Number of Altered Cases');
+
         for(var i=0; i < cancerStudies.length; i++) {
             histogramData.addRow([cancerStudyNames[i], 0]);
+            histogramData2.addRow([cancerStudyNames[i], 0, 0]);
         }
 
         drawChart();
@@ -89,10 +105,16 @@
                         function() {
 
                             setTimeout(function() {
-                                    var content = $("#percent_altered_" + cancerID).html();
-                                    var tokens = content.split(" ");
-                                    var percent = tokens[2].substring(0, tokens[2].length-1) * 1.0;
+                                    var content = $("#stats_percent_altered_" + cancerID).html();
+                                    var percent = content.substring(0, content.length-1) * 1.0;
                                     histogramData.setValue(bundleIndex, 1, percent);
+
+                                    var numUnaltered = $("#stats_num_all_" + cancerID).html();
+                                    histogramData2.setValue(bundleIndex, 1, numUnaltered * 1);
+
+                                    var numAltered = $("#stats_num_altered_" + cancerID).html();
+                                    histogramData2.setValue(bundleIndex, 2, numAltered * 1);
+
                                     if( bundleIndex % 4 == 0 || bundleIndex+1 == cancerStudies.length)
                                         drawChart();
                             }, 760);
@@ -106,6 +128,7 @@
             var options = {
               title: 'Percent Sample Alteration for each Cancer Study',
               hAxis: {title: 'Cancer Study'},
+              colors: ['#008000'],
               animation: {
                 duration: 750,
                 easing: 'linear',
@@ -123,6 +146,26 @@
             };
 
             histogramChart.draw(histogramData, options);
+
+            var options2 = {
+              title: 'Number of Altered Cases for each Cancer Study',
+              hAxis: {title: 'Cancer Study'},
+              colors: ['#dddddd', '#008000'],
+              animation: {
+                duration: 750,
+                easing: 'linear',
+              },
+              legend: {
+                position: 'bottom'
+              },
+              hAxis: {
+                slantedTextAngle: 45,
+              },
+              isStacked: true
+            };
+
+            histogramChart2.draw(histogramData2, options2);
+
        }
     });
 </script>
@@ -156,8 +199,15 @@
                     <%@ include file="query_form.jsp" %>
                 </div>
 
-                <!--<h2 class="cross_cancer_header">Alteration Histogram</h2>-->
+                <div id="historam_toggle" style="text-align: right; padding-right: 125px">
+                    <select id="hist_toggle_box">
+                        <option value="1">Show percent of altered cases</option>
+                        <option value="2">Show number of altered cases</option>
+                    </select>
+                </div>
                 <div id="chart_div" style="width: 900px; height: 400px;"></div>
+                <div id="chart_div2" style="width: 900px; height: 400px;"></div>
+                <br/>
                 <br/>
 
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>

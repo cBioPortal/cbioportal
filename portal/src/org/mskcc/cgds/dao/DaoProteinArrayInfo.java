@@ -76,6 +76,24 @@ public class DaoProteinArrayInfo {
         }
     }
     
+    public int deleteProteinArrayInfo(String arrayId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("DELETE FROM protein_array_info WHERE `PROTEIN_ARRAY_ID`=? ");
+            pstmt.setString(1, arrayId);
+            int rows = pstmt.executeUpdate();
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
     public int addProteinArrayCancerStudy(String arrayId, Set<Integer> cancerStudyIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

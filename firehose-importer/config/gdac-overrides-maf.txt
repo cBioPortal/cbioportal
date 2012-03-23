@@ -1,0 +1,9 @@
+BLCA.maf.annotated blca
+BRCA.maf.annotated  brca
+COADREAD.maf.annotated  coadread
+GBM.maf.annotated  gbm
+KIRC.maf.annotated kirc
+LAML.maf.annotated laml
+LUSC.maf.annotated  lusc
+OV.maf.annotated ov
+UCEC.maf.annotated  ucec

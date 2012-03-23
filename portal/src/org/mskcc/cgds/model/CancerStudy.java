@@ -1,6 +1,11 @@
 package org.mskcc.cgds.model;
 
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.util.EqualsUtil;
+import org.mskcc.portal.remote.GetGeneticProfiles;
+
+import java.util.ArrayList;
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -125,6 +130,48 @@ public class CancerStudy {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * Gets the genetic profiles.
+     * @return genetic profiles
+     * @throws DaoException database read error
+     */
+    public ArrayList<GeneticProfile> getGeneticProfiles() throws DaoException {
+        return GetGeneticProfiles.getGeneticProfiles(getCancerStudyStableId());
+    }
+
+    /* TODO: Add a tag to cancer study in order to get rid of redundant code execution.
+        During the talk it was decided not to use an additional tag for each cancer
+        study, so we need a rather ugly solution. This won't be hurting us much for now
+        but could result in performance issues if the portal ever gets heavy load traffic.
+     */
+    /**
+     * Checks if there is any mutation data associated with this cancer study.
+     *
+     * @return true if there is mutation data
+     * @param geneticProfiles genetic profiles to search mutations on
+     */
+    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) {
+        for(GeneticProfile geneticProfile: geneticProfiles) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Similar to:
+     * @see #hasMutationData(java.util.ArrayList)
+     * but this method grabs all the genetic profiles associated to the cancer study
+     * Utilizes @link #getGeneticProfiles()
+     *
+     * @return true if there is mutation data
+     * @throws DaoException database read error
+     */
+    public boolean hasMutationData() throws DaoException {
+        return hasMutationData(getGeneticProfiles());
     }
 
     /**

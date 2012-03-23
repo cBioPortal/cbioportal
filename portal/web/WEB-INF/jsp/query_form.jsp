@@ -63,6 +63,7 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        </form>
     </div>
 </div>
 

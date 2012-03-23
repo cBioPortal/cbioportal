@@ -34,9 +34,6 @@
         }
 </style>
 
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
-
 <script type="text/javascript">
     function parsePValue(str) {
         return parseFloat(str.replace(/<[^>]*>/g,""));
@@ -321,6 +318,9 @@
                 $('select#array_type_alteration_select').change( function () {
                         oTable.fnFilter( $(this).val(), 3);
                 } );
+                
+                // widen the rppa data
+                $('table#protein_expr').css("width","100%");
                 
                 $('div#protein_expr_wait').remove();
                 $('table#protein_expr_wrapper').show();

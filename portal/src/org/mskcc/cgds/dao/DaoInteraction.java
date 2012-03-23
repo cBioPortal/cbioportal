@@ -165,10 +165,13 @@ public class DaoInteraction {
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
             boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes)
         throws DaoException {
+        ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
+        if (entrezGeneIds.isEmpty()) {
+            return interactionList;
+        }
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         try {
             con = JdbcUtil.getDbConnection();
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";

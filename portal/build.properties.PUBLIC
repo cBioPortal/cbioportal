@@ -20,13 +20,23 @@ log.file.path=/srv/www/sander-tomcat/tomcat6/logs/public-portal.log
 # Pathway Commons:  cPath2 URL
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
+# Seg File URL
+segfile.url=http://cbio.mskcc.org/cancergenomics/public-portal/seg/
+
 # Skin Title and Blurb
 skin.title=cBio Cancer Genomics Portal
 skin.blurb=The cBio Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 
+# Skin Right Nav
+skin.right_nav.show_testimonials=true
+
 # Skin Email Contact
 # To prevent obvious scrapping by spammers, use at and dot syntax;  see example below.
-skin.email_contact=cancergenomics at cbio dot mskcc dot org
+skin.email_contact=cbioportal at googlegroups dot com
+
+# Skin Data Sets
+skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
+skin.data_sets_footer=Based on data from five published or submitted studies and the Broad Institute's TCGA Firehose run from 1/24/2012.
 
 # Indicates whether R and RServe are Installed
 r_installed=true
@@ -34,9 +44,16 @@ r_installed=true
 # Indicates whether site is protected, and users must authenticate via Open ID to gain access
 authenticate=false
 
+# Indicates whether users must be authorized to access a particular cancer study
+authorization=false
+
 # Indicates whether to include networks
 include_networks=true
 
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

@@ -26,7 +26,7 @@ use warnings;
 use Getopt::Long;
 use File::Spec;
 use File::Util;
-use File::Path qw(remove_tree);
+use File::Path qw(make_path remove_tree);
 use Data::Dumper;
 use Digest::MD5;
 use Data::CTable;
@@ -69,6 +69,8 @@ convertFirehoseData.pl
 --CreateCopyOfFirehoseData                      # optional directory; if provided, copy of necessary Firehose data will be created and stored here
 --Limit                                         # lines per file for copy of Firehose data
 --Summary                                       # file in which to output run data summary; relative to CGDSDataDirectory; optional -- if not provided, is convertFirehoseData.out
+--GenerateCaseListOnly                          # if set, generates case lists only
+--DownloadRunDate                               # if set, the run date of the firehose data to download
 EOT
 
 # todo: HIGH: should make 1) download and cleanup stand-alone (Niki wants a modified one to get all), 2) make copy firehose data stand-alone
@@ -78,7 +80,7 @@ EOT
 my( $FirehoseURL, $FirehoseURLUserid, $FirehoseURLPassword, 
     $RootDir, $FirehoseDirectory, $CGDSDataDirectory, $Clean, $Cancers, $Genes, 
     $miRNAfile, $firehoseTransformationWorkflowFile, $codeForCGDS,
-    $CreateCopyOfFirehoseData, $Limit, $Summary );
+    $CreateCopyOfFirehoseData, $Limit, $Summary, $GenerateCaseListOnly, $DownloadRunDate );
 
 # todo: document
 my $fileUtil;
@@ -125,6 +127,11 @@ sub main{
 		exit;
     }
 
+	if ( defined( $GenerateCaseListOnly )){
+	  generate_case_lists( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $runDate );
+	  exit;
+	}
+
 	create_cgds_input_files( $Cancers, $Summary, $CGDSDataDirectory, $CancerDataDir, $runDirectory, $firehoseTransformationWorkflow, $codeForCGDS, 
         $Genes, $runDate );
 	print timing(), "create_cgds_input_files complete.\n";
@@ -153,6 +160,8 @@ sub process_command_line{
         "CreateCopyOfFirehoseData=s" => \$CreateCopyOfFirehoseData,
         "Limit=i" => \$Limit,
         "Summary=s" => \$Summary,
+		"GenerateCaseListOnly" => \$GenerateCaseListOnly,
+		"DownloadRunDate=s" => \$DownloadRunDate,
 	);
 
 	# make sure necessary arguments are set	
@@ -211,12 +220,18 @@ sub download_from_firehose{
     # todo: figure out why this fails to login when run in Eclipse, but works OK on the command line
     runSystem( 'wget', undef, @args ); # /usr/local/bin/    
     
-    my @latestRunFiles = grep( /$latestRunFile/, $fileUtil->list_dir( $FirehoseDirectory, '--recurse', '--files-only'  ) );
-    unless( defined( $latestRunFiles[0] )){
+	my $mostRecentRunDate;
+	if ( defined( $DownloadRunDate)) {
+	  $mostRecentRunDate = $DownloadRunDate . "00";
+	}
+	else {
+	  my @latestRunFiles = grep( /$latestRunFile/, $fileUtil->list_dir( $FirehoseDirectory, '--recurse', '--files-only'  ) );
+	  unless( defined( $latestRunFiles[0] )){
     	die "Could not find $latestRunFile";
-    }
-    my @d = $fileUtil->load_file( $latestRunFiles[0], '--as-lines');
-    my $mostRecentRunDate = $d[1];
+	  }
+	  my @d = $fileUtil->load_file( $latestRunFiles[0], '--as-lines');
+	  $mostRecentRunDate = $d[1];
+	}
 
     # 2) get the list of cancers available by parsing the index file
     @args = ( '-e', 'robots=off', '--no-parent', '--no-verbose', 
@@ -244,7 +259,8 @@ sub download_from_firehose{
 
         foreach my $dirAndFile ( @{$FirehoseDirectoriesAndFiles} ) {
             my( $FirehoseDirPattern, $FirehoseFilePattern ) = @{$dirAndFile}; 
-
+			# RNA-SEQ files come in two flavors
+			$FirehoseDirPattern =~ s/<RNA-SEQ-PLATFORM>/*/g;
 	        # wildcard for each '<name>' pattern
 	        $FirehoseDirPattern =~ s/<\w+>/*/g;
 	        # wildcard at the end to get md5
@@ -258,7 +274,7 @@ sub download_from_firehose{
 
 	# eliminate duplicate directory name patterns
 	my $filesToGet = join( ',', removeDupes( @filesToGet ) );
-    
+
 	# server directory root is URL without hostname
 	my $serverDir = $FirehoseURL;
 	$serverDir =~ s|.*//[^/]+/||;
@@ -270,18 +286,45 @@ sub download_from_firehose{
 	    # --include-directories='tcgafiles/ftp_auth/distro_ftpusers/tcga4yeo/other/gdacs/gdacbroad/read/2011011400' 
 	    # https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/tcga4yeo/other/gdacs/gdacbroad/read/2011011400
 
-	    my $cancersURL = "$FirehoseURL/$cancer/$mostRecentRunDate";
+	    my $cancersAnalysesURL = "$FirehoseURL/$cancer/analyses/$mostRecentRunDate";
+	    my $cancersStddataURL = "$FirehoseURL/$cancer/stddata/$mostRecentRunDate";
 
 	    # only get from those directories with the most recent run date
-	    my $includeDirectories = "$serverDir/$cancer/$mostRecentRunDate"; 
+	    my $includeDirectories = "$serverDir/$cancer/analyses/$mostRecentRunDate,$serverDir/$cancer/stddata/$mostRecentRunDate"; 
 
-	    # and accept only files we want: Ô--accept acclistÕ
+	    # grab data that lives in analyses subdir
 	    @args = ( '--recursive', '-e', 'robots=off', '--no-verbose', '--no-parent', # # '--debug', 
 	        "--user=$FirehoseURLUserid", "--password=$FirehoseURLPassword", 
-	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersURL" );     
+	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersAnalysesURL" );     
 	        print 'wget ', join ' ', @args, "\n";
 
-	    runSystem( 'wget', "Downloading from $cancersURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+	    runSystem( 'wget', "Downloading from $cancersAnalysesURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+
+	    # grab data that lives in stddata subdir
+	    @args = ( '--recursive', '-e', 'robots=off', '--no-verbose', '--no-parent', # # '--debug', 
+	        "--user=$FirehoseURLUserid", "--password=$FirehoseURLPassword", 
+	        "--directory-prefix=$FirehoseDirectory", "--accept=$filesToGet", "--include-directories=$includeDirectories", "$cancersStddataURL" );     
+	        print 'wget ', join ' ', @args, "\n";
+
+	    runSystem( 'wget', "Downloading from $cancersStddataURL\nThis may take a while.\n", @args ); # was in /usr/local/bin/
+
+		# to avoid rewriting other parts of firehose to work with new directory structure we do the following:
+		
+		# create oldstyle $cancer/$mostRecentRunDate subdir
+		my $downloadLocation = "$FirehoseDirectory/" . substr $FirehoseURL, 8;
+		my $cancerSubdir = "$downloadLocation/$cancer/$mostRecentRunDate";
+		make_path( $cancerSubdir );
+		
+		# move from analyses/rundate -> cancer/rundate
+		my $fromAnalyses = "$downloadLocation/$cancer/analyses/$mostRecentRunDate";
+		system( "mv $fromAnalyses/* $cancerSubdir" );
+
+		# move from stddata/rundate -> cancer/rundate
+		my $fromStddata = "$downloadLocation/$cancer/stddata/$mostRecentRunDate";
+		system( "mv $fromStddata/* $cancerSubdir" );
+
+		# get rid of unused subdirs
+		remove_tree( "$downloadLocation/$cancer/analyses", "$downloadLocation/$cancer/stddata/" ); 
     }
 }
 

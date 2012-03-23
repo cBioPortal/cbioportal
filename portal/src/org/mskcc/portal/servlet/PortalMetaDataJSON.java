@@ -1,18 +1,21 @@
 package org.mskcc.portal.servlet;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.portal.model.GeneSet;
-import org.mskcc.portal.remote.GetCancerTypes;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.remote.GetMutationData;
 import org.mskcc.portal.util.GeneSetUtil;
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,6 +26,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all
@@ -31,6 +38,21 @@ import java.util.Map;
  * @author Ethan Cerami.
  */
 public class PortalMetaDataJSON extends HttpServlet {
+
+	// class which process access control to cancer studies
+	private AccessControl accessControl;
+
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
+    public void init() throws ServletException {
+        super.init();
+		ApplicationContext context = 
+			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+		accessControl = (AccessControl)context.getBean("accessControl");
+	}
 
     /**
      * Handles HTTP GET Request.
@@ -47,7 +69,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 
         //  Cancer All Cancer Studies
         try {
-            ArrayList<CancerStudy> cancerStudiesList = GetCancerTypes.getCancerStudies();
+			List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
 
             //  Get all Genomic Profiles and Case Sets for each Cancer Study
             Map rootMap = new LinkedHashMap();
@@ -84,6 +106,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
+                jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
             }
 
@@ -107,6 +130,9 @@ public class PortalMetaDataJSON extends HttpServlet {
             writer.close();
         } catch (DaoException e) {
             throw new ServletException(e);
-        }
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
+		}
     }
+
 }

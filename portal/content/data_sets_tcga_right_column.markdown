@@ -1,68 +1,43 @@
-<table width=150>
-<tr>
-<td><b>Cancer</b></th>
-<td align=right><b>Cases</b></th>
-</tr>
-
-<tr>
-<td class="Tips1" title="Bladder Urothelial Carcinoma">BLCA</td>
-<td style="text-align: right;">34</td>
-</tr>
-<tr>
-<td class="Tips1" title="Breast invasive carcinoma">BRCA</td>
-<td style="text-align: right;">731</td>
-</tr>
-<tr>
-<td class="Tips1" title="Cervical Squamous Cell Carcinoma">CESC</td>
-<td style="text-align: right;">31</td>
-</tr>
-<tr>
-<td class="Tips1" title="Colon and Rectum adenocarcinoma">COADREAD</td>
-<td style="text-align: right;">526</td>
-</tr>
-<tr>
-<td class="Tips1" title="Glioblastoma multiforme">GBM</td>
-<td style="text-align: right;">526</td>
-</tr>
-<tr>
-<td class="Tips1" title="Head and Neck squamous cell carcinoma">HNSC</td>
-<td style="text-align: right;">124</td>
-</tr>
-<tr>
-<td class="Tips1" title="Kidney renal clear cell carcinoma">KIRC</td>
-<td style="text-align: right;">496</td>
-</tr>
-<tr>
-<td class="Tips1" title="Acute Myeloid Leukemia">LAML</td>
-<td style="text-align: right;">131</td>
-</tr>
-<tr>
-<td class="Tips1" title="Brain Lower Grade Glioma">LGG</td>
-<td style="text-align: right;">55</td>
-</tr>
-<tr>
-<td class="Tips1" title="Liver hepatocellular carcinoma">LIHC</td>
-<td style="text-align: right;">49</td>
-</tr>
-<tr>
-<td class="Tips1" title="Lung adenocarcinoma">LUAD</td>
-<td style="text-align: right;">216</td>
-</tr>
-<tr>
-<td class="Tips1" title="Lung squamous cell carcinoma">LUSC</td>
-<td style="text-align: right;">213</td>
-</tr>
-<tr>
-<td class="Tips1" title="Ovarian serous cystadenocarcinoma">OV</td>
-<td style="text-align: right;">561</td>
-</tr>
-<tr>
-<td class="Tips1" title="Stomach adenocarcinoma">STAD</td>
-<td style="text-align: right;">143</td>
-</tr>
-<tr>
-<td class="Tips1" title="Uterine Corpus Endometrioid Carcinoma">UCEC</td>
-<td style="text-align: right;">322</td>
-</tr>
-</table>
-Based on the Firehose run from 09/21/2011.</p>
+<P>The Portal contains data for <b>4852 tumor samples from 19 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+google.load('visualization', '1.0', {'packages':['corechart']});
+google.setOnLoadCallback(drawChart);
+function drawChart() {
+var data = new google.visualization.DataTable();
+data.addColumn('string', 'Cancer Study');
+data.addColumn('number', 'Samples');
+data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 38],
+['Breast Invasive Carcinoma (TCGA)', 813],
+['Cervical Squamous Cell Carcinoma (TCGA)', 36],
+['Colon and Rectum Adenocarcinoma (TCGA)', 590],
+['Glioblastoma Multiforme (TCGA)', 585],
+['Head and Neck Squamous Cell Carcinoma (TCGA)', 165],
+['Kidney Renal Clear Cell Carcinoma (TCGA)', 498],
+['Kidney Renal Papillary Cell Carcinoma (TCGA)', 43],
+['Acute Myeloid Leukemia (TCGA)', 199],
+['Brain Lower Grade Glioma (TCGA)', 80],
+['Liver Hepatocellular Carcinoma (TCGA)', 53],
+['Lung Adenocarcinoma (TCGA)', 269],
+['Lung Squamous Cell Carcinoma (TCGA)', 212],
+['Ovarian Serous Cystadenocarcinoma (TCGA)', 568],
+['Pancreatic Adenocarcinoma (TCGA)', 14],
+['Prostate Adenocarcinoma (TCGA)', 82],
+['Stomach Adenocarcinoma (TCGA)', 149],
+['Thyroid Carcinoma (TCGA)', 85],
+['Uterine Corpus Endometrioid Carcinoma (TCGA)', 373]
+]);
+var options = {
+'backgroundColor':'#F1F6FE',
+'is3D':false,
+'pieSliceText':'value',
+'tooltip':{'text':'value'},
+'width':300,
+'legend':{'position':'none'},
+'left':0,'top':0,
+'height':300};
+var chart = new google.visualization.PieChart(document.getElementById('chart_div1'));
+chart.draw(data, options);
+}
+</script>
+<div id='chart_div1'></div>

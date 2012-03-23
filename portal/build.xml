@@ -176,6 +176,9 @@
     <mkdir dir="${build.dir}/WEB-INF" />
     <mkdir dir="${build.dir}/WEB-INF/classes" />
     <mkdir dir="${build.dir}/META-INF" />
+    <mkdir dir="${junit.dir}" />
+    <mkdir dir="${junit.dir}/classes" />
+    <mkdir dir="${junit.dir}/reports" />
 
     <!-- Copy static content of this web application -->
     <copy todir="${build.dir}">
@@ -269,19 +272,21 @@
   </target>
 
   <!-- ==================== Test Target ================================= -->
-  <target depends="compile" description="Runs all JUnit Tests" name="test">
-    <delete dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}/reports" />
+  <target name="test" description="Runs all JUnit Tests">
     <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
       <formatter type="brief" usefile="false" />
       <formatter type="xml" />
       <batchtest fork="yes" todir="${junit.dir}">
-        <fileset dir="${src.dir}" includes="**/Test*.java" />
+        <fileset dir="${src.dir}">
+          <include name="**/Test*.java" />
+        </fileset>
       </batchtest>
-      <classpath refid="compile.classpath" />
+      <classpath>
+        <path refid="compile.classpath" />
+        <pathelement location="${junit.dir}/classes" />
+      </classpath>
     </junit>
-    <fail if="junit_test_failed" message="One or more JUnit  tests failed" />
+    <fail if="junit_test_failed" message="One or more JUnit tests failed" />
   </target>
 
   <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">
@@ -321,6 +326,37 @@
   <!-- Move Target -->
   <target name="move" description="Moves file to Tomcat Directory for Deployment">
     <copy file="${war.dir}/cgx.war" todir="/Library/Tomcat/Home/webapps/" />
+  </target>
+
+  <target name="snapshot" description="Prepares a tar.gz Snapshot for upload to google code"
+	depends="clean" >
+	<!-- Call hg id to determine the current tag -->
+	<exec executable="hg" outputproperty="tag.id">
+	        <arg value="id"/>
+	        <arg value="-t"/>
+    </exec>
+	<!-- Make new directory, based on tag # -->
+	<mkdir dir="${dist.dir}/cbio_portal_${tag.id}"/>
+	<copy todir="${dist.dir}/cbio_portal_${tag.id}">
+		<fileset dir=".">
+			<exclude name="**/*.log*"/>
+			<exclude name="reload.sh"/>
+			<exclude name=".classpath"/>
+			<exclude name="*.ipr"/>
+			<exclude name="*.iws"/>
+			<exclude name="build.properties.*"/>
+			<exclude name=".settings/"/>
+			<exclude name="interim/"/>
+			<exclude name="web_sandbox/"/>
+			<exclude name="artwork/"/>
+			<exclude name=".project"/>
+			<exclude name="dist/"/>
+		</fileset>
+  	</copy>
+	<tar destfile="${dist.dir}/cbio_portal_${tag.id}.tar"
+	     basedir="${dist.dir}"
+	/>
+	<gzip destfile="${dist.dir}/cbio_portal_${tag.id}.tar.gz" src="${dist.dir}/cbio_portal_${tag.id}.tar"/>
   </target>
 
   <target name="targets" description="Describes available ant targets">

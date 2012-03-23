@@ -125,14 +125,7 @@ public final class NetworkIO {
             Node node = new Node(strs[0]);
             for (int i=1; i<strs.length && i<nodeHeaders.length; i++) {
                 if (nodeHeaders[i].equals("PARTICIPANT_TYPE")) {
-                    NodeType type;
-                    if (strs[i].equals("ProteinReference")) {
-                        type = NodeType.PROTEIN;
-                    } else if (strs[i].equals("SmallMoleculeReference")) {
-                        type = NodeType.SMALL_MOLECULE;
-                    } else {
-                        type = NodeType.UNKNOWN;
-                    }
+                    NodeType type = NodeType.getByCpath2Keyword(strs[i]);
                     node.setType(type);
                 } else {
                     node.setAttribute(nodeHeaders[i], strs[i]);
@@ -212,6 +205,10 @@ public final class NetworkIO {
             return true;
         }
         
+        if (interaction.equals("GENERIC_OF")) {
+            return true;
+        }
+        
         return false;        
     }
     
@@ -287,7 +284,7 @@ public final class NetworkIO {
     private static void classifyNodes(Network net, Set<Node> seedNodes) {
         for (Node seed : seedNodes) {
             seed.setAttribute("IN_QUERY", "true");
-            seed.setAttribute("IN_MEDIUM", "true");
+            //seed.setAttribute("IN_MEDIUM", "true");
         }
         
         for (Node node:  net.getNodes()) {
@@ -297,23 +294,23 @@ public final class NetworkIO {
 
             node.setAttribute("IN_QUERY", "false"); //TODO: remove this
 
-//            if (seedNodes.size()==1) {
-//                // mark linker nodes that has degree of 2 or more
-//                if (net.getDegree(node)>=2) {
-//                    node.addAttribute("IN_MEDIUM", "true");
+////            if (seedNodes.size()==1) {
+////                // mark linker nodes that has degree of 2 or more
+////                if (net.getDegree(node)>=2) {
+////                    node.addAttribute("IN_MEDIUM", "true");
+////                }
+////            } else {
+//                //  mark linker nodes that links to at least 2 seed genes
+//                int seedDegree = 0;
+//                for (Node neighbor : net.getNeighbors(node)) {
+//                    if (seedNodes.contains(neighbor)) {
+//                        if (++seedDegree >= 2) {
+//                            node.setAttribute("IN_MEDIUM", "true");
+//                            break;
+//                        }
+//                    }
 //                }
-//            } else {
-                //  mark linker nodes that links to at least 2 seed genes
-                int seedDegree = 0;
-                for (Node neighbor : net.getNeighbors(node)) {
-                    if (seedNodes.contains(neighbor)) {
-                        if (++seedDegree >= 2) {
-                            node.setAttribute("IN_MEDIUM", "true");
-                            break;
-                        }
-                    }
-                }
-//            }
+////            }
         }
     }
     

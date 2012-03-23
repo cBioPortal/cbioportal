@@ -25,11 +25,21 @@ skin.show_news_tab=false
 skin.show_data_tab=false
 skin.right_nav.show_data_sets=false
 skin.right_nav.show_examples=false
+skin.right_nav.show_testimonials=false
 
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
 
+# Indicates whether to include networks
+include_networks=true
+
+segfile.url=http://cbio.mskcc.org/cancergenomics/private-portal/
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 r_installed=true
 authenticate=true
+authorization=true
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]

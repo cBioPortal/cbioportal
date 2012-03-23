@@ -27,24 +27,38 @@
 	    		</div>
     		</div>
     		<div id="control_area">
-    			<table><tr>
+    			<table>
+    			<tr>
     				<td>
-						<button id="filter_genes" class="tabs-button" title="Hide"></button>
+						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
 					</td>
 					<td>
-						<button id="crop_genes" class="tabs-button" title="Crop"></button>
+						<button id="crop_genes" class="tabs-button" title="Show Only Selected"></button>
 					</td>
 					<td>
-						<button id="unhide_genes" class="tabs-button" title="Unhide"></button>
+						<button id="unhide_genes" class="tabs-button" title="Show All"></button>
 					</td>
 					<td>					
-						<input type="text" id="search" value=""/>
+						<input type="text" id="search_box" value=""/>
 					</td>
 					<td>
 						<button id="search_genes" class="tabs-button" title="Search"></button>
 					</td>
-				</tr></table>
-			</div>
+				</tr>
+				</table>
+				<table id="network-resubmit-query">
+					<tr>
+	        			<td>
+	        				<label class="button-text">Submit New Query</label>
+	        			</td>
+	        			<td>
+	        				<button id="re-submit_query" class="tabs-button" title="Submit New Query with Genes Selected Below"></button>
+	        			</td>
+	        		</tr>
+        		</table>
+			</div>			
+		</div>
+		<div id="gene_list_area">
 		</div>
     </div>
     <div id="relations_tab">
@@ -124,7 +138,7 @@
         	<table>
         		<tr>
         			<td>
-        				<label class="heading">Update</label>
+        				<label class="button-text">Update</label>
         			</td>
         			<td> 
         				<button id="update_edges" class="tabs-button" title="Update"></button>

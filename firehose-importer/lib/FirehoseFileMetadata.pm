@@ -31,12 +31,130 @@ my $fileProperties = {
         geneIDcol => undef,
         geneSymbolCol => 'Hybridization REF',
     },
+    # the following type is used when running generate case lists on already created staging files
+	'data_mRNA_ULL.txt' => {
+        example => 'data_mRNA_ULL.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_mRNA_MicMa.txt' => {
+        example => 'data_mRNA_MicMa.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_mRNA_FW_MDG.txt' => {
+        example => 'data_mRNA_FW_MDG.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_mRNA_DBCG.txt' => {
+        example => 'data_mRNA_DBCG.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_mRNA_DBCG_Z.txt' => {
+        example => 'data_mRNA_DBCG_Z.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_median.txt' => {
+        example => 'data_expression_median.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Gene_ID',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_miRNA.txt' => {
+        example => 'data_expression_miRNA.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'miRNA',
+        geneSymbolCol => undef,
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_miRNA_median_Zscores.txt' => {
+        example => 'data_miRNA_median_Zcores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_merged_median_Zscores.txt' => {
+        example => 'data_expression_merged_median_Zscores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_expression_Zscores.txt' => {
+        example => 'data_expression_Zscores.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => 'geneSymbol',
+    },
+    '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' => {
+        example => 'BRCA.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
+        structure => 'profile',
+        numHeaderRows => 2,
+        geneIDcol => undef,
+        geneSymbolCol => 'Hybridization REF',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_RNA_Seq_expression_median.txt' => {
+        example => 'data_RNA_Seq_expression_median.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Gene_ID',
+        geneSymbolCol => undef,
+    },
     'all_thresholded.by_genes.txt' => {
         example => 'all_thresholded.by_genes.txt',
         structure => 'profile',
         numHeaderRows => 1,
         geneIDcol => 'Locus ID',
         geneSymbolCol => 'Gene Symbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_CNA.txt' => {
+        example => 'data_CNA.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Locus ID',
+        geneSymbolCol => undef,
+    },
+    'all_data_by_genes.txt' => {
+        example => 'all_data_by_genes.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Locus ID',
+        geneSymbolCol => 'Gene Symbol',
+    },
+    # the following type is used when running generate case lists on already created staging files
+	'data_log2CNA.txt' => {
+        example => 'data_log2CNA.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Locus ID',
+        geneSymbolCol => undef,
     },
     '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt' => {  
         example => 'OV.mirna__h_mirna_8x15kv2__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt',
@@ -53,10 +171,27 @@ my $fileProperties = {
         geneSymbolCol => 'Hugo_Symbol',
         caseIDcols => 'Tumor_Sample_Barcode'
     },
+    # the following type is used when running generate case lists on already created staging files
+    'data_mutations_extended.txt' => {
+        example => 'data_mutations_extended.txt',
+        structure => 'list',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => 'Hugo_Symbol',
+        caseIDcols => 'Tumor_Sample_Barcode'
+    },
 	'<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt' => {
 	    structure => 'profile',
 	    numHeaderRows => 1,
 	},
+    # the following type is used when running generate case lists on already created staging files
+    'data_methylation.txt' => {
+        example => 'data_methylation.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'Entrez_Gene_Id',
+        geneSymbolCol => 'Gene',
+    },
 	# known types, but cannot, or do not need to, get metadata:
     '<CANCER>.sig_genes.txt' => {
         structure => 'unstructured'
@@ -64,7 +199,14 @@ my $fileProperties = {
     'Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt' => {
         structure => 'unstructured'
     },
-    
+    # the following type is used when running generate case lists on already created staging files
+	'data_rppa.txt' => {
+        example => 'data_rppa.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => 'sample',
+        geneSymbolCol => undef,
+    },
 };
 
 sub new {
@@ -132,6 +274,9 @@ sub new {
 
 	# get list of cases
 	my $cases = [];
+	# we want to add normal tissue case id's if we are processing expression or methylation files
+	my $addNormalTissueCaseIDs = (($filenamePattern eq 'data_expression_median.txt') ||
+								  ($filenamePattern eq 'data_methylation.txt'));
     # profile files:
     if( $properties->{structure} eq 'profile' ){
 
@@ -140,6 +285,9 @@ sub new {
 	        if( tumorCaseID( $f ) ){
                 push @{$cases}, $f;
 	        }
+			if($addNormalTissueCaseIDs && normalTissueCaseID( $f ) ) {
+			  push @{$cases}, $f;
+			}
 	    }
 	    $self->{CASES} = $cases;
     }    
@@ -285,7 +433,15 @@ sub intersection_of_case_lists{
 	foreach $ffmo (@FirehoseFileMetadataInstances){
 		$s = $s->intersection( Set::Scalar->new( map {convertCaseID( $_ )} @{ $ffmo->cases() } ) );
 	}
-	return $s->members;
+
+	my @toReturn = ();
+	for my $case ($s->members) {
+	  if (defined $case) {
+		push(@toReturn, $case);
+	  }
+	}
+
+	return @toReturn;
 }
 
 # given references to a set of FirehoseFileMetadata instances, return the union of all their class lists
@@ -308,7 +464,15 @@ sub union_of_case_lists{
     foreach $ffmo (@FirehoseFileMetadataInstances){
         $s = $s->union( Set::Scalar->new( map {convertCaseID( $_ )} @{ $ffmo->cases() } ) );
     }
-    return $s->members;
+
+	my @toReturn = ();
+	for my $case ($s->members) {
+	  if (defined $case) {
+		push(@toReturn, $case);
+	  }
+	}
+
+	return @toReturn;
 }
 
 # typecheck @FirehoseFileMetadataInstances elements

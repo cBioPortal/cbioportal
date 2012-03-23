@@ -17,8 +17,12 @@ public class SkinUtil {
             "skin.right_nav.show_data_sets";
     private static final String PROPERTY_SKIN_RIGHT_NAV_SHOW_EXAMPLES =
             "skin.right_nav.show_examples";
+    private static final String PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS =
+            "skin.right_nav.show_testimonials";
     private static final String PROPERTY_SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     private static final String PROPERTY_AUTHENTICATION_REQUIRED = "authenticate";
+    private static final String PROPERTY_BITLY_USER = "bitly.user";
+    private static final String PROPERTY_BITLY_API_KEY = "bitly.api_key";
 
     /**
      * Gets the Site Title.
@@ -73,6 +77,24 @@ public class SkinUtil {
 
         //  Return email address within mailme span, so that we can de-obfuscate with JQuery.
         return ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
+    }
+
+    /**
+     * Gets the bitly user name.
+     * @return bitly user name.
+     */
+    public static String getBitlyUser() {
+        Config config = Config.getInstance();
+        return config.getProperty(PROPERTY_BITLY_USER);
+    }
+
+    /**
+     * Gets the bitly api key.
+     * @return bitly api key.
+     */
+    public static String getBitlyApiKey() {
+        Config config = Config.getInstance();
+        return config.getProperty(PROPERTY_BITLY_API_KEY);
     }
 
     /**
@@ -135,6 +157,16 @@ public class SkinUtil {
     }
 
     /**
+     * Determines whether we should show examples in the right nav bar.
+     * @return true or false
+     */
+    public static boolean showRightNavTestimonials() {
+        Config config = Config.getInstance();
+        String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
+    /**
      * Gets the Authorization Message to Display to the User.
      * @return authorization message.
      */
@@ -142,5 +174,23 @@ public class SkinUtil {
         Config config = Config.getInstance();
         String authMessage = config.getProperty(PROPERTY_SKIN_AUTHORIZATION_MESSAGE);
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
+    }
+
+    /**
+     * Gets the Data Sets Header.
+     * @return String
+     */
+    public static String getDataSetsHeader() {
+        Config config = Config.getInstance();
+        return config.getProperty("skin.data_sets_header");
+    }
+
+    /**
+     * Gets the Data Sets Footer.
+     * @return String
+     */
+    public static String getDataSetsFooter() {
+        Config config = Config.getInstance();
+        return config.getProperty("skin.data_sets_footer");
     }
 }

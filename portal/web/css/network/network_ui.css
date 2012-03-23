@@ -1,3 +1,9 @@
+#network
+{
+	position:relative;
+	left: auto;
+}
+
 /* CytoscapeWeb dimensions */
 #vis_content
 {
@@ -27,7 +33,7 @@
 	list-style-type:none;
 	list-style-position:outside;
 	position:relative;
-	line-height:1.7em;
+	line-height:1.3em;
 }
 
 #network_menu a
@@ -44,6 +50,7 @@
 	text-decoration: none;
 	background-color: #e6e6e6;
 	background-repeat: no-repeat;
+	font-size: 11px;
 }
 
 #network_menu li
@@ -56,7 +63,7 @@
 {
 	position: absolute;
 	display: none;
-	top: 1.8em;
+	top: 1.4em;
 }
 
 #network_menu li ul a
@@ -210,12 +217,38 @@
 }
 
 /* settings panel */
+#settings_dialog #fd_layout_settings table 
+{
+	/* centering the table */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#settings_dialog #fd_layout_settings label 
+{
+	white-space: nowrap;
+}
+
 #settings_dialog .footer
 {
 	padding-top: 0.5em;
 	text-align: center;
 	font-size: 9pt;
 }
+
+/* quick info text */
+#quick_info_div
+{
+	padding-top: 9px;
+	white-space: nowrap;
+}
+
+#quick_info_label
+{
+	margin-left: 20px;
+	font-weight: bold;
+}
+
 
 /*
  * ######################################################## 
@@ -339,7 +372,7 @@
 
 #network_tabs
 {
-	width: 240px;
+	width: 245px;
 	height: 666px;
 }
 
@@ -356,13 +389,21 @@
 	font-size: 13px;
 }
 
+/* label of the update button */
+#network_tabs .footer .button-text
+{
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	margin-right: 2px;
+}
+
 #network_tabs label
 {
 	color: #666666;
     font-family: verdana,arial,sans-serif;
     font-size: 12px;
 }
-
 
 /*
  * ######################################################## 
@@ -374,14 +415,15 @@
 {
 	padding-bottom: 0.5em;
 	text-align: center;
-	width: 200px;
+	width: 210px;
 }
 
-#genes_tab .header #search
+#genes_tab .header #search_box
 {
-	width: 64px;
+	width: 56px;
 	margin-left: 2px;
 	vertical-align: bottom;
+	font-size: 11px;
 }
 
 #genes_tab .in-query
@@ -397,8 +439,13 @@
 #genes_tab select
 {
 	/* dimensions of the select box */
-	width: 200px;
-	height: 460px;
+	width: 210px;
+	height: 480px;
+	
+	font-size: 12px;
+	
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #genes_tab .selected-gene
@@ -408,26 +455,35 @@
 
 #genes_tab #control_area
 {
-	margin-top: 1.35em;
-	margin-bottom: 0.35em;
+	margin-top: 1em;
+	margin-bottom: 0.10em;
+}
+
+#genes_tab #control_area table
+{
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #genes_tab #weight_slider_area
 {
 	padding-top: 8px;
-	padding-bottom: 8px;
+	padding-bottom: 0px;
 }
 
 #genes_tab #affinity_slider_area
 {
+	/*
 	padding-top: 8px;
 	padding-bottom: 8px;
+	*/
 }
 
-#genes_tab #weight_slider_bar, #genes_tab #affinity_slider_bar
+#genes_tab #weight_slider_bar
 {
 	margin-left: 20px;
-	margin-right: 70px;
+	margin-right: 75px;
+	font-size: 1em;
 }
 
 #genes_tab #slider_area .slider-value
@@ -441,7 +497,7 @@
 #genes_tab #slider_area .slider-value input
 {
 	font-size: 11px;
-	width: 3em;
+	width: 2.5em;
 }
 
 #genes_tab #slider_area .slider-max
@@ -459,8 +515,21 @@
 
 #genes_tab #slider_area label
 {
-	font-size: 11px;
+	font-size: 12px;
 }
+
+#genes_tab .footer
+{
+	margin-top: 4px;
+	text-align: center;
+}
+
+#genes_tab .footer table
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
 
 #genes_tab .ui-icon-crop
 {
@@ -515,20 +584,12 @@
 #relations_tab, #genes_tab, #help_tab
 {
 	height: 575px;
-	width: 200px;
+	width: 210px;
 }
 
 #relations_tab #edge_source_filter
 {
 	padding-top: 1em;
-}
-
-/* label of the update button */
-#relations_tab .footer label
-{
-	text-align: center;
-	font-weight: bold;
-	margin-right: 2px;
 }
 
 /*
@@ -661,4 +722,8 @@
 {
 	align: left;
 	white-space: nowrap;
+}
+
+#network_tabs ul {
+  font-size:12px !important;
 }

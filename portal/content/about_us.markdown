@@ -1,4 +1,4 @@
-The cBio Cancer Genomics Portal is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/). 
+The cBio Cancer Genomics Portal is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
 
 ## The team
 
@@ -10,6 +10,7 @@ The cBio Cancer Genomics Portal is developed and maintained by the [Computationa
  * Anders Jacobsen, MSKCC
  * Jianjiong Gao, MSKCC
  * Erik Larsson, MSKCC
+ * B. Arman Aksoy, MSKCC
  * Selcuk Onur Sumer, Bilkent University
  * Sinan Sonlu, Bilkent University
  * Ugur Dogrusoz, Bilkent University

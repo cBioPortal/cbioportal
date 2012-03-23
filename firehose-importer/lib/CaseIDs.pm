@@ -2,7 +2,7 @@ package CaseIDs;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(convertCaseID convert_case_ID_headers tumorCaseID matchedNormalCaseID 
-    normalTissueCaseID recurrentTumorCaseID tcgaHeaderPattern );
+    normalTissueCaseID recurrentTumorCaseID tcgaHeaderPattern getCaseCount );
 
 use File::Spec;
 use strict;
@@ -29,6 +29,12 @@ my $normalBloodPatternJunky = '.*(\w\w\-\d\d\d\d)-Normal$'; # bad Jan 2011 patte
 my $normalTissueCaseID = '^(TCGA-\w\w-\w\w\w\w\-11)';
 
 my $recurrentTumorCaseID = '^(TCGA-\w\w-\w\w\w\w\-02)|^(TCGA-\w\w-\w\w\w\w\-01R)';
+
+# mskcc studies
+my $tumorPatternProstateMSKCC = '^(PCA\d\d\d\d)$';
+my $tumorPatternSarcomaMSKCC = '^(PT\w+)$';
+my $tumorPatternBladderMSKCC = '^(BL\w+)$';
+my $tumorPatternBreastScand = '^(BC\w+)$';
 
 # convert case ID to MSKCC format
 # truncate case IDs to TCGA-xx-xxxx
@@ -87,6 +93,22 @@ sub convertCaseID{
         $rv = $1;
     }
 
+    if( $caseID =~ /$tumorPatternProstateMSKCC/ ){ 
+        $rv = $1;
+    }
+
+    if( $caseID =~ /$tumorPatternSarcomaMSKCC/ ){ 
+        $rv = $1;
+    }
+
+    if( $caseID =~ /$tumorPatternBladderMSKCC/ ){ 
+        $rv = $1;
+    }
+
+    if( $caseID =~ /$tumorPatternBreastScand/ ){ 
+        $rv = $1;
+    }
+
     if( $caseID =~ /$normalTissueCaseID/ ){ 
         $rv = $1;
     }
@@ -117,7 +139,11 @@ sub tumorCaseID{
         $caseID =~ /$tumorPatternJunky/ || 
         $caseID =~ /$tumorPatternStandard/ || 
         $caseID =~ /$truncatedCaseID/ ||
-        $caseID =~ /$tumorPatternOvMAF/ ); 
+        $caseID =~ /$tumorPatternOvMAF/ ||
+		$caseID =~ /$tumorPatternProstateMSKCC/ ||
+		$caseID =~ /$tumorPatternSarcomaMSKCC/  ||
+		$caseID =~ /$tumorPatternBladderMSKCC/  ||
+		$caseID =~ /$tumorPatternBreastScand/); 
 }
 
 # sub to identify normal blood case-IDs
@@ -149,7 +175,8 @@ sub convert_case_ID_headers{
     foreach my $f ( @{$cTable->fieldlist()} ){
 
         if( tumorCaseID( $f ) ){
-            if( defined( $cTable->{ convertCaseID( $f ) } ) ){
+		  my $convertedCaseID = convertCaseID($f);
+            if( defined( $cTable->{ $convertedCaseID } ) && ($f ne $convertedCaseID) ){
                 # delete column
                 warn "Deleting column with duplicate case $f in $file.\n";
                 $cTable->col_delete( $f );      
@@ -159,6 +186,20 @@ sub convert_case_ID_headers{
             }
         }
     }
+}
+
+# returns numbers of cases in cTable
+sub getCaseCount{
+  my( $cTable ) =  @_;
+
+  my $toReturn = 0;
+  foreach my $f ( @{$cTable->fieldlist()} ){
+	if( tumorCaseID( $f ) ){
+	  $toReturn++;
+	}
+  }
+
+  return $toReturn;
 }
 
 1;

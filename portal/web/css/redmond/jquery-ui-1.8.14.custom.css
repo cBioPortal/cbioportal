@@ -487,7 +487,15 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; }
-.ui-tabs .ui-tabs-hide { display: none !important; }
+
+/*
+    This was previously set to [display: none !important;]
+    However, this causes problems with Raphael SVG.  Specifically, when display is none,
+    Raphael cannot draw text correctly.  Chaning to [position: absolute; left: -9999px]
+    fixes the problem.
+*/
+.ui-tabs .ui-tabs-hide { position: absolute; left: -9999px; top: -9999px }
+
 /*
  * jQuery UI Datepicker 1.8.14
  *

@@ -9,7 +9,7 @@ use File::Util;
 use Data::Dumper;
 
 # SUMMARY
-# Map gene symbols to EntrŽz ids (GeneIdentifiers.pm)
+# Map gene symbols to EntrÂŽz ids (GeneIdentifiers.pm)
 # Uses local copy of NCBI's gene_info.gz, with columns 'GeneID Symbol LocusTag Synonyms'
 # To maximize accuracy and minimize unmapped genes, use all fields
 # Issues: Better comments
@@ -196,6 +196,11 @@ sub _loadGeneMaps{
 # }
 sub getGeneID{
     my( $self, $symbol, $ID ) = @_;
+	# some data files (like rnaseq), have a combination gene_symbol|id
+	# if we find a pipe in the symbol string, parse
+	if( defined($symbol) && $symbol =~ /(\w+)\|\d+/) {
+	  $symbol = $1;
+	}
     if( defined($symbol) && defined($ID) ){
     	if( 0 <= $ID ){
     		return $self->_validateGeneID( $symbol, $ID  );

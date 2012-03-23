@@ -19,8 +19,8 @@
 #
 # that have an "APPROVED" value in the "Status (APPROVED or BLANK)" column.  If that
 # user does not exist in the user table of the cgds database, the user will be added
-# to both the user table and authority table (with ROLE_USER).  In addition, a
-# confirmation email will be sent to the user notifying them of their acct activation.
+# to both the user table and authority table.  In addition, a confirmation email will
+# be sent to the user notifying them of their acct activation.
 #
 # ------------------------------------------------------------------------------
 # imports
@@ -70,6 +70,7 @@ FULLNAME_KEY = "fullname"
 INST_EMAIL_KEY = "institutionalemailaddress"
 OPENID_EMAIL_KEY = "gmailaddressorotheropenidaddresssuchasyahooemailaddress"
 STATUS_KEY = "statusapprovedorblank"
+AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
@@ -119,12 +120,12 @@ class BuildProperties(object):
         self.google_worksheet = google_worksheet
 
 class User(object):
-    def __init__(self, inst_email, openid_email, name, enabled):
+    def __init__(self, inst_email, openid_email, name, enabled, authorities):
         self.inst_email = inst_email
         self.openid_email = openid_email
         self.name = name
         self.enabled = enabled
-        self.role = 'ROLE_USER'
+        self.authorities = authorities
 
 # ------------------------------------------------------------------------------
 # functions
@@ -198,11 +199,15 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
-        cursor.executemany("insert into users values(%s, %s, %s)",
-                           [(user.openid_email, user.name, user.enabled) for user in new_user_list])
-        
-        cursor.executemany("insert into authorities values(%s, %s)",
-                           [(user.openid_email, user.role) for user in new_user_list])
+		cursor.executemany("insert into users values(%s, %s, %s)",
+						   [(user.openid_email, user.name, user.enabled) for user in new_user_list])
+		for user in new_user_list:
+			# authorities is semicolon delimited
+			if user.authorities[-1:] == ';':
+				user.authorities = user.authorities[:-1]
+			authorities = user.authorities.split(';')
+			cursor.executemany("insert into authorities values(%s, %s)",
+							   [(user.openid_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return False
@@ -223,7 +228,7 @@ def get_current_user_map(cursor):
     try:
         cursor.execute('select * from users')
         for row in cursor.fetchall():
-            to_return[row[0]] = User('not_used_here', row[0], row[1], row[2])
+            to_return[row[0]] = User('not_used_here', row[0], row[1], row[2], 'not_used_here')
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -244,12 +249,13 @@ def get_new_user_map(worksheet_feed, current_user_map):
         # we are only concerned with 'APPROVED' entries
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
-            inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
-            name = entry.custom[FULLNAME_KEY].text.strip()
-            # do not add entry if this entry is a current user
-            if openid_email not in current_user_map:
-                to_return[inst_email+openid_email] = User(inst_email, openid_email, name, 1)
+			inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
+			openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
+			name = entry.custom[FULLNAME_KEY].text.strip()
+			authorities = entry.custom[AUTHORITIES_KEY].text.strip()
+			# do not add entry if this entry is a current user
+			if openid_email not in current_user_map:
+				to_return[inst_email+openid_email] = User(inst_email, openid_email, name, 1, authorities)
 
     return to_return
     
@@ -275,51 +281,52 @@ def get_db_connection(build_properties):
 
 def get_build_properties(build_properties_filename):
 
-    properties = {};
-    build_properties_file = open(build_properties_filename, 'r')
-    for line in build_properties_file:
-        line = line.strip()
-        # skip line if its blank or a comment
-        if len(line) == 0 or line.startswith('#'):
-            continue
+	properties = {}
+	build_properties_file = open(build_properties_filename, 'r')
+	for line in build_properties_file:
+		line = line.strip()
+		# skip line if its blank or a comment
+		if len(line) == 0 or line.startswith('#'):
+			continue
         # store name/value
-        property = line.split('=')
-        # spreadsheet url contains an '=' sign
-        if line.startswith(CGDS_USERS_SPREADSHEET):
-            property = [property[0], line[line.index('=')+1:len(line)]]
-        if (len(property) != 2):
-            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
-            continue
-        properties[property[0]] = property[1].strip()
+		property = line.split('=')
+		# spreadsheet url contains an '=' sign
+		if line.startswith(CGDS_USERS_SPREADSHEET):
+			property = [property[0], line[line.index('=')+1:len(line)]]
+		if (len(property) != 2):
+			print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
+			continue
+		properties[property[0]] = property[1].strip()
+	build_properties_file.close()
 
     # error check
-    if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
-        CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
-        CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
-        CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
-        GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
-        GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
-        CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
-        CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-        return None
+	if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
+		CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
+		CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
+		CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
+		GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
+		GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
+		CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
+		CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
+		print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
+		return None
 
-    # extra verification for database names
-    if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
-        properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
-        properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
-        print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
-        return None
+	# extra verification for database names
+	if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
+		properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
+		properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
+		print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
+		return None
     
     # return an instance of BuildProperties
-    return BuildProperties(properties[CGDS_DATABASE_HOST],
-                           properties[CGDS_DATABASE_NAME],
-                           properties[CGDS_DATABASE_USER],
-                           properties[CGDS_DATABASE_PW],
-                           properties[GOOGLE_ID],
-                           properties[GOOGLE_PW],
-                           properties[CGDS_USERS_SPREADSHEET],
-                           properties[CGDS_USERS_WORKSHEET])
+	return BuildProperties(properties[CGDS_DATABASE_HOST],
+						   properties[CGDS_DATABASE_NAME],
+						   properties[CGDS_DATABASE_USER],
+						   properties[CGDS_DATABASE_PW],
+						   properties[GOOGLE_ID],
+						   properties[GOOGLE_PW],
+						   properties[CGDS_USERS_SPREADSHEET],
+						   properties[CGDS_USERS_WORKSHEET])
 
 # ------------------------------------------------------------------------------
 # adds new users from the google spreadsheet into the cgds portal database

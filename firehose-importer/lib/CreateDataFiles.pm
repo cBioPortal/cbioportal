@@ -10,6 +10,7 @@ use warnings;
 use File::Spec;
 use File::Util;
 use File::Temp qw/ tempfile /;
+use File::Remove;
 use Data::Dumper;
 use Data::CTable;
 
@@ -70,8 +71,53 @@ sub create_data_CNA{
     $self->mapDataToGeneID( $firehoseFile, $data, 'Gene Symbol', 'Locus ID' );
  
     # drop cols
-    $data->col_delete( "Gene Symbol" );
     $data->col_delete( "Cytoband" );
+
+	# rename cols
+	$data->col_rename ( "Gene Symbol" => "Hugo_Symbol" );
+	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
+
+    # set column order
+    my @cols = ( 'Hugo_Symbol', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    $data->fieldlist_set( \@cols );
+    
+    # convert case-ID headers
+    convert_case_ID_headers( $firehoseFile, $data );
+
+    # write CGDS file
+    $data->write( $CGDSfile );
+}
+
+#########
+# set of subroutines, each of which takes Firehose file(s) and makes a CGDS input file
+# almost all subs take just one firehose file; only current exception is create_data_mRNA_median_Zscores()
+
+# create data_log2CNA.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: all_data_by_genes.txt
+# data transformation:
+# Convert case ID
+# drop columns 1 & 3
+# Use Locus ID (aka Gene ID)
+sub create_data_log2CNA{
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Gene Symbol', 'Locus ID' );
+ 
+    # drop cols
+    $data->col_delete( "Cytoband" );
+
+	# rename cols
+	$data->col_rename ( "Gene Symbol" => "Hugo_Symbol" );
+	$data->col_rename ( "Locus ID" => "Entrez_Gene_Id" );
+
+    # set column order
+    my @cols = ( 'Hugo_Symbol', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); 
+    $data->fieldlist_set( \@cols );
     
     # convert case-ID headers
     convert_case_ID_headers( $firehoseFile, $data );
@@ -149,18 +195,67 @@ sub create_data_mRNA_median{
 
     # Ignore row 2; rows count from 0, and header row doesn't count
     $data->row_delete( 0 );
-    
+
     # create Gene_ID column
-    $data->col('Gene_ID');
-    
+    $data->col('Entrez_Gene_Id');
+
     # convert geneIDs
-    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Gene_ID' );
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Entrez_Gene_Id' );
 
     # rename 'Hybridization REF' column to Gene
     # todo: change Zscores calculation and importProfile so we can create a Gene column
-    my @cols = ( 'Gene_ID', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    my @cols = ( 'Hybridization REF', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
+    $data->fieldlist_set( \@cols );
+
+	# rename col
+	$data->col_rename( "Hybridization REF" => "Hugo_Symbol" );
+    
+    # write CGDS file
+    $data->write( $CGDSfile );
+}
+
+# create data_rna_seq_expression_median.txt for RNA-Seq mRNA
+# source file: <CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
+# data transformation:
+# Convert case ID
+# Convert 'Hybridiation REFSymbol' to Gene_ID
+sub create_data_RNA_seq_mRNA_median{
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    # convert case-ID headers
+    convert_case_ID_headers( $firehoseFile, $data );
+
+    # create Gene_ID column
+    $data->col('Entrez_Gene_Id');
+
+    # convert geneIDs (mapDataToGeneID supports rna seq data file gene_symbol|id
+    $self->mapDataToGeneID( $firehoseFile, $data, 'Hybridization REF', 'Entrez_Gene_Id' );
+
+	# rna seq data file has combination gene_symbol|id
+	# replace gene_symbol|id with gene symbol
+	my $Gene_Symbols = $data->col('Hybridization REF');
+    my $rows = $data->all();
+    foreach my $rowNum (@{$rows}) {
+	  if( defined( $Gene_Symbols ) && defined( $Gene_Symbols->[$rowNum] )){
+		my $gene_symbol = $Gene_Symbols->[$rowNum];
+		if ($gene_symbol =~ /(\w+)\|\d+/) {
+		  $Gene_Symbols->[$rowNum] = $1;
+		}
+	  }
+	}
+
+    # rename 'Symbol' column to Gene
+    # todo: change Zscores calculation and importProfile so we can create a Gene column
+    my @cols = ( 'Hybridization REF', 'Entrez_Gene_Id', grep {tumorCaseID($_)} @{$data->fieldlist()} ); # call to sub that identifies tumors case IDs
     $data->fieldlist_set( \@cols );
     
+	# rename col
+	$data->col_rename( "Hybridization REF" => "Hugo_Symbol" );
+
     # write CGDS file
     $data->write( $CGDSfile );
 }
@@ -389,7 +484,7 @@ sub create_data_mutations_extended{
 # <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
 #
 # data transformation:
-#    For each gene select row with smallest Correlation_Spearman in Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
+#    For each gene select row with smallest Corr_Spearman in Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
 #    Join selected rows from Correlate_Methylation_vs_mRNA... with <CANCER>.methylation__humanmethylation... on probe (Hybridization REF)
 # Output matrix beta_value( caseID, gene [symbol/Entrez gene ID] ) from joined table
 sub create_data_methylation{
@@ -423,18 +518,18 @@ sub create_data_methylation{
     $Correlate_Methylation_vs_mRNA_Ctable->calc( sub{
         package main;
         no strict 'vars';
-        # print "$Meth_Probe\t$Gene\t$Correlation_Spearman\n";
+        # print "$Meth_Probe\t$Gene\t$Corr_Spearman\n";
         if( exists( $genes->{$Gene} ) ){
-            if( $Correlation_Spearman < $genes->{$Gene}->[1] ){
-                # print $Correlation_Spearman . " < " .  $genes->{$Gene}->[1] . "\n";
-                $genes->{$Gene} = [ $Meth_Probe, $Correlation_Spearman ];
+            if( $Corr_Spearman < $genes->{$Gene}->[1] ){
+                # print $Corr_Spearman . " < " .  $genes->{$Gene}->[1] . "\n";
+                $genes->{$Gene} = [ $Meth_Probe, $Corr_Spearman ];
             }
             
         }else{
-            $genes->{$Gene} = [ $Meth_Probe, $Correlation_Spearman ];
+            $genes->{$Gene} = [ $Meth_Probe, $Corr_Spearman ];
         }
     }, undef, existingCols( $Correlate_Methylation_vs_mRNA_Ctable,
-        qw( Meth_Probe Gene Correlation_Spearman ) ) ); # speed up calc by listing needed fields 
+        qw( Meth_Probe Gene Corr_Spearman ) ) ); # speed up calc by listing needed fields 
 
     # print "methylation genes: ", scalar(keys %{$genes}), " unique lowest correlation genes from \$Correlate_Methylation_vs_mRNA_Ctable: $Firehose_Correlate_Methylation_vs_mRNA_File\n";
     print "create_data_methylation: of ", $ffm->numGenes(), " with measured methylation, only ", scalar(keys %{$genes}), " have correlations.\n";
@@ -523,6 +618,9 @@ sub create_data_methylation{
 
     # remove Hybridization_REF column
     $methylation__humanmethylation27_Ctable->col_delete( 'Hybridization_REF' );
+
+	# rename cols
+	$methylation__humanmethylation27_Ctable->col_rename ( "Gene" => "Hugo_Symbol" );
 
     # write CGDS file with methylation( Gene, caseID )
     $methylation__humanmethylation27_Ctable->write( $CGDSfile );    
@@ -743,7 +841,7 @@ sub create_data_mRNA_median_Zscores{
     ###########
     # preprocess gene ids so that cgds finds as many zScore genes as possible 
     # for each input file, read file, map, write to temp file
-    # give temp files to ComputeZScoreUnit
+    # give temp files to NormalizeExpressionLevels
     my $tmpDir = File::Spec->tmpdir();
 
     # 1) combine Hugo_Symbol and Entrez_Gene_Id in all_thresholded.by_genes.txt into a 'best' gene ID
@@ -761,7 +859,61 @@ sub create_data_mRNA_median_Zscores{
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.ComputeZScoreUnit " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+
+	File::Remove->remove($tmpFirehoseGistic_File);
+	File::Remove->remove($tmpFirehoseMRNA_File);
+}
+
+# sub to create data_RNA_seq_mRNA_median_Zscores.txt
+# source file: <CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt
+# data transformation:
+# Giovanni's Z-score program
+# inputs CNA and median expression profile files
+# outputs z-Score expression file
+# special, as calls java program to compute output file
+sub create_data_RNA_seq_mRNA_median_Zscores{
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, $codeForCGDS ) = @_;    
+
+    # the CNA and median expression files are the first two entries in $firehoseFiles
+    my $FirehoseGistic_File = shift @{$firehoseFiles};
+    my $FirehoseMRNA_File = shift @{$firehoseFiles};
+    
+    # Similarly for cTables
+    my $Gistic_FileCtable = shift @{$cTables};
+    my $MRNA_FileCtable = shift @{$cTables};
+    
+    ###########
+    # preprocess gene ids so that cgds finds as many zScore genes as possible 
+    # for each input file, read file, map, write to temp file
+    # give temp files to NormalizeExpressionLevels
+    my $tmpDir = File::Spec->tmpdir();
+
+    # 1) combine Hugo_Symbol and Entrez_Gene_Id in all_thresholded.by_genes.txt into a 'best' gene ID
+    # todo: make a "real" temp file; avoid concurency collisions
+    # todo: tmp cleanup: remove this and other temp files
+    my $tmpFirehoseGistic_File = File::Spec->catfile( $tmpDir, 'tmp_all_thresholded.by_genes.txt' );
+    $self->create_data_CNA( $globalHash, [ $FirehoseGistic_File ], [ $Gistic_FileCtable ], $tmpFirehoseGistic_File );
+
+    # 2) map Hugo_Symbol in <CANCER>.medianexp.txt into a 'best' gene ID 
+    # todo: make a "real" temp file; avoid concurency collisions
+    my $tmpFirehoseMRNA_File = File::Spec->catfile( $tmpDir, 'tmp_CANCER.rnaseq__illuminaRNA-SEQ-PLATFORM_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt' );
+    $self->create_data_RNA_seq_mRNA_median( $globalHash, [ $FirehoseMRNA_File ], [ $MRNA_FileCtable ], $tmpFirehoseMRNA_File );
+
+    my $cmdLineCP = set_up_classpath( $codeForCGDS );
+    my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
+	my $caseCount = getCaseCount($MRNA_FileCtable);
+	# if we have less cases then DEFAULT_MIN_NUM_DIPLOIDS defined in NormalizeExpressionLevels
+	# we have to use the optional min_number_of_diploids argument otherwise the class throws an exception
+	if ($caseCount < 10) {
+	  $files = $files . " $caseCount";
+	}
+
+    # run the zScore java program
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+
+	File::Remove->remove($tmpFirehoseGistic_File);
+	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
 # create <CANCER>.seg

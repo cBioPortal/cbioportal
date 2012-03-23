@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
@@ -31,6 +34,8 @@ import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
+import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cgds.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -56,6 +61,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String DFS_SURVIVAL_PLOT = "dfs_survival_plot";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";
+    public static final String STEP1_ERROR_MSG = "step1_error_msg";
     public static final String STEP2_ERROR_MSG = "step2_error_msg";
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
@@ -73,7 +79,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final int MUTATION_DETAIL_LIMIT = 10;
+    public static final int MUTATION_DETAIL_LIMIT = 20;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
@@ -81,6 +87,9 @@ public class QueryBuilder extends HttpServlet {
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
 
     private ServletXssUtil servletXssUtil;
+
+	// class which process access control to cancer studies
+	private AccessControl accessControl;
 
     /**
      * Initializes the servlet.
@@ -91,6 +100,9 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
+			ApplicationContext context = 
+				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+			accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -146,7 +158,7 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get all Cancer Types
         try {
-            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
+			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
 
             if (cancerTypeId == null) {
                 cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
@@ -206,6 +218,10 @@ public class QueryBuilder extends HttpServlet {
                                "An error occurred while trying to connect to the database.", xdebug);
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
+            forwardToErrorPage(httpServletRequest, httpServletResponse,
+                               "An error occurred while trying to connect to the database.", xdebug);
+        } catch (ProtocolException e) {
+            xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                "An error occurred while trying to connect to the database.", xdebug);
         }
@@ -482,8 +498,7 @@ public class QueryBuilder extends HttpServlet {
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
 												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true,
-												 true, cancerStudyIdentifier);
+												 geneticProfileIdSet, profileList, true, true);
         writer.write(out);
         
         // TODO: hacky way for su2c
@@ -496,20 +511,6 @@ public class QueryBuilder extends HttpServlet {
                     + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
 		}
 
-		// links to igv
-		String igvURL = GlobalProperties.getIGVUrl();
-		if (igvURL != null) {
-			igvURL = StringUtils.replace(igvURL, "<SEG_FILE>", cancerStudyIdentifier.toLowerCase() + ".seg");
-			List geneList = (java.util.List)request.getAttribute(GENE_LIST);
-			if (geneList != null && geneList.size() > 0) {
-				igvURL += StringUtils.join(geneList,"%20");
-				writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
-				writer.write(igvURL);
-				writer.write("\"><font color=\"#1974b8\" size=\"1\">Integrative Genomics Viewer</font>" +
-							 "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-			}
-		}
-        
         writer.write ("</body>\n");
         writer.write ("</html>\n");
         writer.flush();
@@ -526,7 +527,7 @@ public class QueryBuilder extends HttpServlet {
         String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
 												 caseSetList, caseSetId,
 												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true, false, "");
+												 geneticProfileIdSet, profileList, true, true);
         PrintWriter writer = response.getWriter();
         writer.write(out);
         writer.flush();
@@ -545,6 +546,15 @@ public class QueryBuilder extends HttpServlet {
         String tabIndex = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.TAB_INDEX);
         if (action != null) {
             if (action.equals(ACTION_SUBMIT)) {
+				// is user authorized for the study
+				String cancerStudyIdentifier = (String)httpServletRequest.getAttribute(CANCER_STUDY_ID);
+				if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
+                    httpServletRequest.setAttribute(STEP1_ERROR_MSG,
+													"You are not authorized to view the cancer study with id: '" +
+													cancerStudyIdentifier + "'. ");
+					errorsExist = true;
+				}
+						
                 if (geneticProfileIdSet.size() == 0) {
                     if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
                         httpServletRequest.setAttribute(STEP2_ERROR_MSG,

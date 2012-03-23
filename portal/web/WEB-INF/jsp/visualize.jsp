@@ -24,6 +24,8 @@
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cgds.dao.DaoGeneticProfile" %>
+
 
 <%
     ArrayList<GeneticProfile> profileList =
@@ -41,9 +43,21 @@
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+
+    boolean showIGVtab = false;
+    DaoGeneticProfile dgp = new DaoGeneticProfile();
+	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
+	for (int lc = 0; lc < cnaTypes.length; lc++) {
+		String cnaProfileID = cancerTypeId + cnaTypes[lc];
+		if (dgp.getGeneticProfileByStableId(cnaProfileID) != null){
+			showIGVtab = true;
+			break;
+	    }
+	}	
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
              (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
@@ -68,6 +82,8 @@
 
     Config globalConfig = Config.getInstance();
     String siteTitle = SkinUtil.getTitle();
+    String bitlyUser = SkinUtil.getBitlyUser();
+    String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
@@ -88,25 +104,6 @@
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
-<script type="text/javascript">
-
-    function getTinyURL(longURL, success) {
-        var API = 'http://json-tinyurl.appspot.com/?url=',
-        URL = API + encodeURIComponent(longURL) + '&callback=?';
-
-	    $.getJSON(URL, function(data){
-        	success && success(data.tinyurl);
-        });
-    }
-
-    function shrinkURL(longURL){
-        getTinyURL(longURL, function(tinyurl){
-            $('#tinyurl').html("<a href=\""+tinyurl+"\">"+tinyurl+"</a>");
-        });
-    }
-
-
-</script>
 
 <jsp:include page="global/header.jsp" flush="true" />
 
@@ -177,7 +174,7 @@
              });
              </script>
 
-            <p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
+            <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
             <p/>
@@ -241,12 +238,12 @@
                     if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
-                         + "Mutation Details</a></li>");
+                         + "Mutations</a></li>");
                     }
                     
                     if (rppaExists) {
                         out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) data'>"
-                        + "RPPA Data</a></li>");
+                        + "RPPA</a></li>");
                     }
 
                     out.println ("<li><a href='#event_map' class='result-tab' title='Detailed event map of all genomic alterations'>"
@@ -256,8 +253,11 @@
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
-                    out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Data Download</a></li>");
-                    out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark/Email</a></li>");
+                    if (showIGVtab){
+                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+                    }
+                    out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
+                    out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
 
                     out.println ("</ul>");
@@ -269,9 +269,14 @@
 
                     String longLink = buf.toString();
                     out.println("<br><br>");
-                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='http://tinyurl.com/'>TinyURL.com</a> service below:<BR>");
-                    out.println("<BR><form><input type=\"button\" onClick=\"shrinkURL('"+longLink+"')\" value=\"Get TinyURL\"></form>");
-                    out.println("<div id='tinyurl'></div>");
+                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                    out.println("<div id='bitly'></div>");
+
+					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
+					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
+					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
+					//out.println("<a href='http://goo.gl/'>Google</a>.");
                     out.println("</div>");
                 }
 
@@ -279,11 +284,15 @@
 
             <div class="section" id="summary">
             <%@ include file="fingerprint.jsp" %>
-            <%@ include file="frequency_plot.jsp" %>
+            <%@ include file="gene_info.jsp" %>
             </div>
 
 
             <%@ include file="plots_tab.jsp" %>
+
+            <% if (showIGVtab) { %>
+              <%@ include file="igv.jsp" %>
+            <% } %>
                     
             <%
                 if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
@@ -341,6 +350,10 @@
 </form>
 
 <script type="text/javascript">
+	// to initially hide the network tab
+	//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
         if($(this).attr("href")=="#network") {

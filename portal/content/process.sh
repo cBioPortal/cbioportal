@@ -19,5 +19,8 @@ $MARKDOWN -x toc data_sets_su2c_right_column.markdown > ../web/content/data_sets
 $MARKDOWN -x toc examples_su2c.markdown > ../web/content/examples_su2c.html
 $MARKDOWN -x toc about_us_su2c.markdown > ../web/content/about_us_su2c.html
 
+$MARKDOWN -x toc data_sets_public_right_column.markdown > ../web/content/data_sets_public_right_column.html
+
 cp data_sets_tcga.html ../web/content/
 cp data_sets_su2c.html ../web/content/
+cp data_sets_public.html ../web/content/

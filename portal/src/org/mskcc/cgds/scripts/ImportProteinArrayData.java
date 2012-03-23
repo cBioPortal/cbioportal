@@ -97,7 +97,7 @@ public class ImportProteinArrayData {
             return;
         }
         
-        CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"All tumors with RPPA data");
+        CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"Tumors with RPPA data");
         caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by " +
                 "reverse phase protein array.");
         caseList.setCaseList(cases);

@@ -113,6 +113,11 @@
     </servlet>
 
     <servlet>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>oma_redirect</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
     </servlet>
@@ -120,6 +125,11 @@
     <servlet>
         <servlet-name>link_out</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
+        <servlet-class>org.mskcc.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -145,6 +155,11 @@
     <servlet-mapping>
         <servlet-name>portal_meta_data_json</servlet-name>
         <url-pattern>/portal_meta_data.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
+        <url-pattern>/mutation_diagram_data.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -216,8 +231,36 @@
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
+    
+     <servlet-mapping>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <url-pattern>/CheckGeneSymbol.json</url-pattern>
+    </servlet-mapping>   
 
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>
+    
+    <filter>
+        <filter-name>FileUpload</filter-name>
+        <display-name>File Upload</display-name>
+        <description>
+            Applied to file upload requests.
+            Wraps the request, allowing it to be used as a regular request, 
+            'as if' it were parsed by the Servlet API.
+        </description>
+        <filter-class>org.mskcc.portal.util.FileUploadFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <!-- Required by the Apache FileUpload tool. -->
+    <listener>
+        <listener-class>
+            org.apache.commons.fileupload.servlet.FileCleanerCleanup
+        </listener-class>
+    </listener>
 </web-app>

@@ -27,10 +27,12 @@ import java.util.Collections;
 public class ImportProteinArrayInfo {
     private ProgressMonitor pMonitor;
     private File arrayInfoFile;
+    private boolean overwrite = false;
     
-    public ImportProteinArrayInfo(File arrayInfoFile, ProgressMonitor pMonitor) {
+    public ImportProteinArrayInfo(File arrayInfoFile, boolean overwrite, ProgressMonitor pMonitor) {
         this.arrayInfoFile = arrayInfoFile;
         this.pMonitor = pMonitor;
+        this.overwrite = overwrite;
     }
     
     /**
@@ -60,7 +62,12 @@ public class ImportProteinArrayInfo {
             
             for (String arrayId : strs[0].split("/")) {
                 if (daoPAI.getProteinArrayInfo(arrayId)!=null) {
-                    continue;
+                    if (overwrite) {
+                        daoPAI.deleteProteinArrayInfo(arrayId);
+                        daoPAT.deleteProteinArrayTarget(arrayId);
+                    } else {
+                        continue;
+                    }
                 }
 
                 String type = strs[4];
@@ -98,12 +105,17 @@ public class ImportProteinArrayInfo {
         
         //int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
 
+        boolean overwrite = false;
+        if (args.length>1) {
+            overwrite = args[1].equalsIgnoreCase("overwrite");
+        }
+        
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
-        ImportProteinArrayInfo parser = new ImportProteinArrayInfo(file, pMonitor);
+        ImportProteinArrayInfo parser = new ImportProteinArrayInfo(file, overwrite, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");

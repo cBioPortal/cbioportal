@@ -57,24 +57,38 @@ public class GetProteinArrayData {
         }
         
         for (ProteinArrayInfo pai : pais) {
-            sb.append(pai.getId()); sb.append('\t');
-            sb.append(pai.getType()); sb.append('\t');
-            sb.append(pai.getGene()); sb.append('\t');
-            sb.append(pai.getResidue()); sb.append('\t');
-            //sb.append(pai.getSource()); sb.append('\t');
-            //sb.append(Boolean.toString(pai.isValidated()));
+            sb.append(pai.getId()); 
+            sb.append('\t').append(pai.getType()); 
+            sb.append('\t').append(pai.getGene()); 
+            sb.append('\t').append(pai.getResidue()); 
+            //sb.append('\t').append(pai.getSource()); 
+            //sb.append('\t').append(Boolean.toString(pai.isValidated()));
             sb.append('\n');
         }
         
         return sb.toString();
     }
     
-    public static String getProteinArrayData(List<String> arrayIds, ArrayList<String> targetCaseList) 
-            throws DaoException {
+    public static String getProteinArrayData(String cancerStudyStableId, List<String> arrayIds,
+            ArrayList<String> targetCaseList, boolean arrayInfo) throws DaoException {
+        Map<String,ProteinArrayInfo> mapArrayIdArray = new HashMap<String,ProteinArrayInfo>();
+        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
+        ArrayList<ProteinArrayInfo> pais;
+        if (arrayIds==null || arrayIds.isEmpty()) {
+            pais = daoPAI.getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId)
+                    .getInternalId());
+        } else {
+            pais = daoPAI.getProteinArrayInfo(arrayIds, null);
+        }
+        for (ProteinArrayInfo pid : pais){
+            mapArrayIdArray.put(pid.getId(), pid);
+        }
+        Set<String> arrays = mapArrayIdArray.keySet();
+        
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         Map<String, Map<String,Double>> mapArrayCaseAbun = new HashMap<String,Map<String,Double>>();
         Set<String> caseIds = new HashSet<String>();
-        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrayIds, targetCaseList)) {
+        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrays, targetCaseList)) {
             String arrayId = pad.getArrayId();
             String caseId = pad.getCaseId();
             caseIds.add(caseId);
@@ -91,17 +105,26 @@ public class GetProteinArrayData {
             targetCaseList = new ArrayList<String>(caseIds);
         }
         
-        sb.append('\t');
+        sb.append("ARRAY_ID\t");
+        if (arrayInfo) {
+            sb.append("ARRAY_TYPE\tGENE\tRESIDUE\t");
+        }
         sb.append(StringUtils.join(targetCaseList, "\t"));
         sb.append('\n');
         
-        for (String arrayId : arrayIds) {
+        for (String arrayId : arrays) {
             Map<String,Double> mapCaseAbun = mapArrayCaseAbun.get(arrayId);
             if (mapCaseAbun==null) {
                 continue;
             }
             
             sb.append(arrayId);
+            if (arrayInfo) {
+                ProteinArrayInfo pai = mapArrayIdArray.get(arrayId);
+                sb.append("\t").append(pai.getType());
+                sb.append("\t").append(pai.getGene());
+                sb.append("\t").append(pai.getResidue());
+            }
             
             for (String caseId : targetCaseList) {
                 sb.append('\t');

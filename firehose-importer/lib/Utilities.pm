@@ -4,7 +4,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw( runSystem hashToFile CheckOnFile CheckOnDirectory 
     CreateFullPathname quit numUniq timing englishList removeDupes verifyArgumentsAreDefined existingCols 
-    checkError compareFiles listCancers ); 
+    checkError compareFiles listCancers preprocessRNASEQ ); 
 
 # put before use strict;/ use warnings; so they're in the Utilities package symbol table
 $clinicalFileSuffix = '_clinical.txt'; # suffix for all clinical data files
@@ -374,6 +374,64 @@ sub listCancers{
     return @cancers;
 
     # todo: enable comments in $CancersFilename
+}
+
+# RNASEQ files have 3 columns per sample.  We want to
+# create a tmp file and only take the 3rd column (RPKM).
+# This subroutine assumes RPKM is the third column
+sub preprocessRNASEQ{
+  my ( $FullFirehoseFile, $FirehoseFile, $Cancer ) = @_;
+  my($f) = File::Util->new();
+
+  # compute tmp filename to store RNASEQ data
+  my $tmpDir = File::Spec->tmpdir();
+  $FirehoseFile =~ s/<CANCER>/$Cancer/;
+  $FirehoseFile =~ s/<RNA-SEQ-PLATFORM>//;
+  my $tmpFilename = File::Spec->catfile( $tmpDir, $FirehoseFile );
+
+  # open tmp file
+  my $tmp_fh = $f->open_handle('file' => $tmpFilename, 'mode' => 'write' );
+
+  # iterate over data
+  my $lc = 0;
+  my @fields;
+  my $RPKM_COLUMN = 3;
+  my $firehose_fh = $f->open_handle('file' => $FullFirehoseFile, 'mode' => 'read' );
+  while (<$firehose_fh>) {
+	chomp;
+	$lc = 0;
+	my $line = $_;
+	my $file_contents = '';
+	# first line contains samples
+	if ($line =~ /^Hybridization REF/) {
+	  $file_contents .= sprintf("Hybridization REF\t");
+	  @fields = split(/\t/, $line);
+	  shift(@fields);
+	  map { $file_contents .= sprintf("%s\t", $_) } grep {not ++$lc % $RPKM_COLUMN} @fields;
+	  # zap off last tab in string
+	  $file_contents = substr($file_contents, 0, -1);
+	  print $tmp_fh "$file_contents\n";
+	}
+	# we take this entire line
+	elsif ($line =~ /^gene/) {
+	  print $tmp_fh "$line\n";
+	}
+	# for each line of data, take the first col (gene id/sym)
+	# and then take every third column (RPKM)
+	else {
+	  @fields = split(/\t/, $line);
+	  $file_contents .= sprintf("%s\t", shift(@fields));
+	  map { $file_contents .= sprintf("%s\t", $_) } grep {not ++$lc % $RPKM_COLUMN} @fields;
+	  # zap off last tab in string
+	  $file_contents = substr($file_contents, 0, -1);
+	  print $tmp_fh "$file_contents\n";
+	}
+  } 
+  close ($firehose_fh);
+  close ($tmp_fh);
+
+  # return ref to new tmp file
+  return $tmpFilename;
 }
 
 1;

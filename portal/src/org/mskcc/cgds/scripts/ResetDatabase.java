@@ -53,6 +53,9 @@ public class ResetDatabase {
         DaoProteinArrayData.getInstance().deleteAllRecords();
         DaoProteinArrayInfo.getInstance().deleteAllRecords();
         DaoProteinArrayTarget.getInstance().deleteAllRecords();
+        DaoUniProtIdMapping.deleteAllRecords();
+        DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
+        daoSangerCensus.deleteAllRecords();
     }
 
     public static void resetDatabase() throws DaoException {

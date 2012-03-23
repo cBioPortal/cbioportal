@@ -1,6 +1,9 @@
 package org.mskcc.cgds.model;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -11,7 +14,7 @@ public class CanonicalGene extends Gene {
     private String hugoGeneSymbol;
     private Set<String> aliases;
     private double somaticMutationFrequency;
-    
+
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
         this(entrezGeneId, hugoGeneSymbol, null);
     }
@@ -19,18 +22,28 @@ public class CanonicalGene extends Gene {
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
         this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
-        this.aliases = aliases;
+        setAliases(aliases);
     }
 
     public Set<String> getAliases() {
         if (aliases==null) {
             return Collections.emptySet();
         }
-        return aliases;
+        return Collections.unmodifiableSet(aliases);
     }
 
     public void setAliases(Set<String> aliases) {
-        this.aliases = aliases;
+        if (aliases==null) {
+            this.aliases = null;
+            return;
+        }
+        
+        Map<String,String> map = new HashMap<String,String>(aliases.size());
+        for (String alias : aliases) {
+            map.put(alias.toUpperCase(), alias);
+        }
+        
+        this.aliases = new HashSet<String>(map.values());
     }
 
     public long getEntrezGeneId() {
@@ -51,6 +64,11 @@ public class CanonicalGene extends Gene {
 
     public void setHugoGeneSymbol(String hugoGeneSymbol) {
         this.hugoGeneSymbol = hugoGeneSymbol;
+    }
+    
+    public boolean isMicroRNA() {
+        String hugo = getHugoGeneSymbolAllCaps();
+        return hugo.startsWith("MIR-") || hugo.startsWith("LET-");
     }
 
     @Override

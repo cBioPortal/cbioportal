@@ -14,10 +14,13 @@ public class GeneticEventImpl implements GeneticEvent {
    
    public enum MRNA { upRegulated, Normal, downRegulated, notShown } // as above, some values have lower case names to match filenames of icons that represent them
 
+   public enum RPPA { upRegulated, Normal, downRegulated, notShown }
+
    public enum mutations { Mutated, UnMutated, None }
 
    private CNA cnaValue;
    private MRNA mrnaValue;
+   private RPPA rppaValue;
    private mutations isMutated;
    private String gene;
    private String caseId;
@@ -78,6 +81,13 @@ public class GeneticEventImpl implements GeneticEvent {
       } else if (valueParser.isMRNAWayDown()) {
          mrnaValue = MRNA.downRegulated;
       }
+
+      rppaValue = RPPA.notShown;
+      if (valueParser.isRPPAWayUp()) {
+         rppaValue = RPPA.upRegulated;
+      } else if (valueParser.isRPPAWayDown()) {
+         rppaValue = RPPA.downRegulated;
+      }
       
       isMutated = mutations.UnMutated;
 
@@ -107,6 +117,15 @@ public class GeneticEventImpl implements GeneticEvent {
      */
     public MRNA getMrnaValue() {
         return mrnaValue;
+    }
+
+    /**
+     * Gets the RPPA Value.
+     * 
+     * @return RPPA Value.
+     */
+    public RPPA getRPPAValue() {
+        return rppaValue;
     }
 
     /**
@@ -218,6 +237,24 @@ public class GeneticEventImpl implements GeneticEvent {
      */
     public boolean isMRNADownRegulated() {
        return(mrnaValue == MRNA.downRegulated);
+    }
+
+    /**
+     * Is the Gene RPPA upregulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPAUpRegulated() {
+       return(rppaValue == RPPA.upRegulated);
+    }
+
+    /**
+     * Is the Gene RPPA down-regulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPADownRegulated() {
+       return(rppaValue == RPPA.downRegulated);
     }
 
     /**

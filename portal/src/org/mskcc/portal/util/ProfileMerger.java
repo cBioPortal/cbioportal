@@ -149,6 +149,11 @@ public class ProfileMerger {
                    status.append(GeneticAlterationType.PHOSPHORYLATION
                            + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
                }
+            }   else if (alterationType.equals(GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL)) {
+               if (value != null) {
+                   status.append(GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
+                           + TYPE_VALUE_SEPARATOR + value + VALUE_SEPARATOR);
+               }
             }
         }
         return status.toString();

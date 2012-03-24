@@ -2,6 +2,7 @@ package org.mskcc.portal.util;
 
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
@@ -90,9 +91,17 @@ public class MakeOncoPrint {
         // combined because these are represented by the same color in the OncoPrint
         MRNAsortOrder.add(EnumSet.of(MRNA.Normal, MRNA.notShown));
 
+        ArrayList<EnumSet<RPPA>> RPPAsortOrder = new ArrayList<EnumSet<RPPA>>();
+        RPPAsortOrder.add(EnumSet.of(RPPA.upRegulated));
+        RPPAsortOrder.add(EnumSet.of(RPPA.downRegulated));
+
+        // combined because these are represented by the same color in the OncoPrint
+        RPPAsortOrder.add(EnumSet.of(RPPA.Normal, RPPA.notShown));
+
         GeneticEventComparator comparator = new GeneticEventComparator(
                 CNAsortOrder,
                 MRNAsortOrder,
+                RPPAsortOrder,
                 GeneticEventComparator.defaultMutationsSortOrder());
 
         CascadeSortOfMatrix sorter = new CascadeSortOfMatrix(comparator);
@@ -313,6 +322,7 @@ public class MakeOncoPrint {
                 // color could later could be in configuration file
                 GeneticEventImpl.CNA CNAlevel = event.getCnaValue();
                 GeneticEventImpl.MRNA MRNAlevel = event.getMrnaValue();
+                GeneticEventImpl.RPPA RPPAlevel = event.getRPPAValue();
 
                 // construct filename of icon representing this gene's genetic alteration event
                 StringBuffer iconFileName = new StringBuffer();
@@ -326,6 +336,9 @@ public class MakeOncoPrint {
                 iconFileName.append("-");
 
                 iconFileName.append(MRNAlevel.name());
+                iconFileName.append("-");
+                
+                iconFileName.append(RPPAlevel.name());
                 iconFileName.append("-");
 
                 if (event.isMutated()) {
@@ -488,22 +501,42 @@ public class MakeOncoPrint {
                     horizontalSpaceAfterDescription);
         }
 
-        // { "diploid-upRegulated-normal", "Up-regulation" },
+        // { "diploid-upRegulated-normal", "Up-regulation (mRNA)" },
         ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations
                 .getResultDataTypeSpec(GeneticDataTypes.Expression);
         if (null != theResultDataTypeSpec &&
                 (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-upRegulated-normal", "Up-regulation", rowHeight,
+            outputLegendEntry(out, "diploid-upRegulated-normal", "Up-regulation (mRNA)", rowHeight,
                     width, height,
                     horizontalSpaceAfterDescription);
         }
 
-        // { "diploid-downRegulated-normal", "Down-regulation" },
+        // { "diploid-downRegulated-normal", "Down-regulation (mRNA)" },
         theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec
                 (GeneticDataTypes.Expression);
         if (null != theResultDataTypeSpec &&
                 (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-downRegulated-normal", "Down-regulation",
+            outputLegendEntry(out, "diploid-downRegulated-normal", "Down-regulation (mRNA)",
+                    rowHeight, width, height,
+                    horizontalSpaceAfterDescription);
+        }
+
+        // { "upRegulated-RPPA", "Up-regulation (Protein)" },
+        theResultDataTypeSpec = allPossibleAlterations
+                .getResultDataTypeSpec(GeneticDataTypes.RPPA);
+        if (null != theResultDataTypeSpec &&
+                (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
+            outputLegendEntry(out, "upRegulated-RPPA", "Up-regulation (Protein)", rowHeight,
+                    width, height,
+                    horizontalSpaceAfterDescription);
+        }
+
+        // { "downRegulated-RPPA", "Down-regulation (Protein)" },
+        theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec
+                (GeneticDataTypes.RPPA);
+        if (null != theResultDataTypeSpec &&
+                (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
+            outputLegendEntry(out, "upRegulated-RPPA", "Down-regulation (Protein)",
                     rowHeight, width, height,
                     horizontalSpaceAfterDescription);
         }

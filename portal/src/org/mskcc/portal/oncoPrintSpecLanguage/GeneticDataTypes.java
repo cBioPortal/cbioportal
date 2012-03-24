@@ -6,7 +6,8 @@ public enum GeneticDataTypes {
    CopyNumberAlteration(DataTypeCategory.Discrete, "CNA"), 
    Expression(DataTypeCategory.Continuous, "MRNA microRNA"), 
    Mutation( DataTypeCategory.Discrete, ""), 
-   Methylation(DataTypeCategory.Continuous, "");
+   Methylation(DataTypeCategory.Continuous, ""),
+   RPPA(DataTypeCategory.Continuous, "RPPA");
 
    private final DataTypeCategory theDataTypeCategory;
    private String[] nicknames = null;

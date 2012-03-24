@@ -54,7 +54,12 @@ public class OncoPrintSpecificationDriver {
 
          if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION
                   && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
-            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold);
+            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold, GeneticDataTypes.Expression);
+         }
+
+         if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
+                  && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
+            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold, GeneticDataTypes.RPPA);
          }
          
          if ( (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED )

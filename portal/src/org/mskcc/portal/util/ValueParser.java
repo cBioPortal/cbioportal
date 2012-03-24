@@ -145,12 +145,18 @@ public class ValueParser {
     */
    public ValueParser(String value, double zScoreThreshold,
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
-
-      // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
+       this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
+       determineExpressionThresholds(GeneticDataTypes.Expression, zScoreThreshold);
+       determineExpressionThresholds(GeneticDataTypes.RPPA, zScoreThreshold);
+       parseValue(value);
+   }
+   
+   private void determineExpressionThresholds(GeneticDataTypes theGeneticDataType, double zScoreThreshold) {
+       // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
       // inequality on Expression ...
       // then use the zScore to determine Expression thresholds
       ResultDataTypeSpec theResultDataTypeSpec = theOncoPrintGeneDisplaySpec
-               .getResultDataTypeSpec(GeneticDataTypes.Expression);
+               .getResultDataTypeSpec(theGeneticDataType);
       if (null != theResultDataTypeSpec && null ==
               theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec()
                && null == theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec()) {
@@ -160,12 +166,10 @@ public class ValueParser {
 
          // combine this with the given OncoPrintGeneDisplaySpec
          ResultDataTypeSpec expressionResultDataTypeSpec = aParsedFullDataTypeSpec.cleanUpInput()
-                  .getResultDataTypeSpec(GeneticDataTypes.Expression);
-         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(GeneticDataTypes.Expression,
+                  .getResultDataTypeSpec(theGeneticDataType);
+         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(theGeneticDataType,
                  expressionResultDataTypeSpec);
       }
-      this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
-      parseValue(value);
    }
 
    private void parseValue(String str) {
@@ -377,6 +381,14 @@ public class ValueParser {
       return doesContinuousValueExceedThreshold(GeneticDataTypes.Expression, Direction.lower);
    }
 
+   public boolean isRPPAWayUp() {
+      return doesContinuousValueExceedThreshold(GeneticDataTypes.RPPA, Direction.higher);
+   }
+
+   public boolean isRPPAWayDown() {
+      return doesContinuousValueExceedThreshold(GeneticDataTypes.RPPA, Direction.lower);
+   }
+
    /**
     * a special case, because mutation values can take any of { NaN, [CnnnD], 1}
     * where the NaN indicates no mutation and the latter two indicates a
@@ -435,7 +447,7 @@ public class ValueParser {
     */
    public boolean isGeneAltered() {
       return isMutated() || this.isDiscreteTypeAltered( GeneticDataTypes.CopyNumberAlteration ) ||
-      isMRNAWayUp() || isMRNAWayDown();
+      isMRNAWayUp() || isMRNAWayDown() || isRPPAWayUp() || isRPPAWayDown();
    }
 
    // TODO: combine the union of all genetic types into one, include all, like
@@ -447,6 +459,8 @@ public class ValueParser {
             return GeneticAlterationType.COPY_NUMBER_ALTERATION;
          case Expression:
             return GeneticAlterationType.MRNA_EXPRESSION;
+         case RPPA:
+             return GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL;
          case Methylation:
             return GeneticAlterationType.METHYLATION;
          case Mutation:

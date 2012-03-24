@@ -33,7 +33,8 @@ public class OncoPrintGeneDisplaySpec
     public void setDefault( double zScoreThreshold ){
        this.setDefault( GeneticDataTypes.CopyNumberAlteration );
        this.setDefault( GeneticDataTypes.Mutation );
-       this.setDefaultExpression( zScoreThreshold );
+       this.setDefaultExpression( zScoreThreshold, GeneticDataTypes.Expression );
+       this.setDefaultExpression( zScoreThreshold, GeneticDataTypes.RPPA );
     }
     
     /**
@@ -76,16 +77,16 @@ public class OncoPrintGeneDisplaySpec
      * set the default Expression thresholds, <= and >= zScoreThreshold
      * @param zScoreThreshold
      */
-    public void setDefaultExpression( double zScoreThreshold ){
-       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Expression );
+    public void setDefaultExpression( double zScoreThreshold, GeneticDataTypes theGeneticDataType ){
+       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( theGeneticDataType );
 
-       theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
+       theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
                 ComparisonOp.convertCode(">="), (float)zScoreThreshold ) );
 
-       theResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
+       theResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
                 ComparisonOp.convertCode("<="), (float) -zScoreThreshold ) );
        
-       finalDataTypeSpecs.put( GeneticDataTypes.Expression, theResultDataTypeSpec );
+       finalDataTypeSpecs.put( theGeneticDataType, theResultDataTypeSpec );
     }
     
     /**

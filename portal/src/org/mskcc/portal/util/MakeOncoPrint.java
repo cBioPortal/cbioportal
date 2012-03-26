@@ -338,8 +338,8 @@ public class MakeOncoPrint {
                 iconFileName.append(MRNAlevel.name());
                 iconFileName.append("-");
                 
-                iconFileName.append(RPPAlevel.name());
-                iconFileName.append("-");
+                //iconFileName.append(RPPAlevel.name());
+                //iconFileName.append("-");
 
                 if (event.isMutated()) {
                     iconFileName.append("mutated");

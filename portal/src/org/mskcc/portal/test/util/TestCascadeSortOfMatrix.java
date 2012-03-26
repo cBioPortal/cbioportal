@@ -26,6 +26,7 @@ public class TestCascadeSortOfMatrix extends TestCase{
       GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator(
             GeneticEventComparator.defaultCNASortOrder(),
             GeneticEventComparator.defaultMRNASortOrder(),
+            GeneticEventComparator.defaultRPPASortOrder(),
             GeneticEventComparator.defaultMutationsSortOrder());
 
       CascadeSortOfMatrix c = new CascadeSortOfMatrix( aGeneticEventComparator );

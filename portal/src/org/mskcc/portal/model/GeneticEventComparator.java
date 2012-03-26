@@ -92,6 +92,15 @@ public class GeneticEventComparator implements Comparator<Object>{
       return MRNAsortOrder;
    }
 
+   public static ArrayList<EnumSet<RPPA>> defaultRPPASortOrder() {
+      ArrayList<EnumSet<RPPA>> RPPAsortOrder = new ArrayList<EnumSet<RPPA>>();
+      // all MRNAs
+      for (RPPA aRPPA : RPPA.values()) {
+         RPPAsortOrder.add(EnumSet.of(aRPPA));
+      }
+      return RPPAsortOrder;
+   }
+
    public static ArrayList<EnumSet<mutations>> defaultMutationsSortOrder() {
       ArrayList<EnumSet<mutations>> mutationsSortOrder = new ArrayList<EnumSet<mutations>>();
       // all mutations

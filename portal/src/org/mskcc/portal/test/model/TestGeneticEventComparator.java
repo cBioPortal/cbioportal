@@ -56,6 +56,7 @@ public class TestGeneticEventComparator {
       GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator(
             CNAsortOrder,
             GeneticEventComparator.defaultMRNASortOrder(),
+            GeneticEventComparator.defaultRPPASortOrder(),
             GeneticEventComparator.defaultMutationsSortOrder());
 
       GeneticEventImpl ge1 = new GeneticEventImpl( CNA.amplified, MRNA.Normal, mutations.Mutated );

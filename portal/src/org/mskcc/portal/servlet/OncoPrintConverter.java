@@ -115,7 +115,7 @@ public class OncoPrintConverter extends HttpServlet {
 	}
 
 	/**
-	 * Reflect given svg xml back to browser for saving.  If removeGeneLabels is set, remove them first.
+	 * Reflect given svg xml back to browser for saving.
 	 *
 	 * @param response HttpServletResponse
 	 * @param xml String

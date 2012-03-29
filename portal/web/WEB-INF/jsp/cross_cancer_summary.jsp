@@ -72,7 +72,6 @@ $(document).ready(function(){
     out.println ("<a href='' class='hide_details' title=\"" + cs.toString() + "\">Case Sets</a>");
 %>
 <span style="float:right;font-size:110%;"><b><a href="<%= cancerStudyDetailsUrl %>">View Cancer Study Details</a></b></span>
-<br/>
 <div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>
 </div>

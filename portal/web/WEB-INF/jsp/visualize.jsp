@@ -216,7 +216,7 @@
                         }
                     }
 
-                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of genomic alterations' id='summary_tab'>Summary</a></li>");
+                    out.println ("<li><a href='#summary' class='result-tab' title='Summary of genomic alterations'>Summary</a></li>");
 
                     if (includeNetworks) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
@@ -285,7 +285,7 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-			<% out.println(oncoprintHTML); %>
+			<%= oncoprintHTML %>
             <%@ include file="gene_info.jsp" %>
             </div>
 

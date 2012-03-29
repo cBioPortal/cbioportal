@@ -107,6 +107,14 @@
                             $(this).next().toggle();
                             //  This toggles the ui-icons within head
                             jQuery(".ui-icon", this).toggle();
+							// redraw oncoprint (TBD: only draw on opening)
+							eval("DrawOncoPrintHeader(ONCOPRINT_" + this.id +
+							", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
+							"'), HEADER_VARIABLES_" + this.id + ", false)");
+							eval("DrawOncoPrintBody(ONCOPRINT_" + this.id +
+							", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
+							"'), GENETIC_ALTERATIONS_SORTED_" + this.id +
+							".get('GENETIC_ALTERATIONS_SORTED_" + this.id + "'), false)");
                             return false;
                         }).next().hide();
                     });
@@ -150,7 +158,7 @@
             JspWriter out) throws IOException {
         for (CancerStudy cancerStudy : cancerStudies) {
             out.println("<div class='accordion_panel'>");
-            out.println("<h1 class='head'>");
+            out.println("<h1 class='head' id=\"" + cancerStudy.getCancerStudyStableId() + "\">");
 
             //  output triangle icons
             //  the float:left style is required;  otherwise icons appear on their own line.

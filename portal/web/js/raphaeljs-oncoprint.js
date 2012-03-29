@@ -51,7 +51,7 @@ var DEFAULTS = (function() {
 		var private = {
 			// size of genetic alteration
 			'ALTERATION_WIDTH'                  : 6,
-			'ALTERATION_HEIGHT'                 : 18,
+			'ALTERATION_HEIGHT'                 : 18, // if this changes, MakeOncoPrint.CELL_HEIGHT needs to change
 			// padding between genetic alteration boxes
 			'ALTERATION_VERTICAL_PADDING'       : 1,
 			'ALTERATION_HORIZONTAL_PADDING'     : 1,
@@ -82,6 +82,11 @@ var DEFAULTS = (function() {
 			// tooltip region
 			'TOOLTIP_REGION_WIDTH'              : 500, // width of tooltip region
 			'TOOLTIP_REGION_HEIGHT'             : 60, // height of tooltip region
+			'TOOLTIP_HORIZONTAL_PADDING'        : 20, // space between header region and tooltip region
+			'TOOLTIP_FONT'                      : "normal 12px arial",
+			'TOOLTIP_COLOR'                     : "#000000",
+			'TOOLTIP_MARGIN'                    : 10,
+			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
 			// header
 			'HEADER_VERTICAL_PADDING'           : 10, // space between header sentences
             // general sample properties
@@ -103,6 +108,8 @@ var DEFAULTS = (function() {
 function OncoPrintInit(headerElement, bodyElement, legendElement) {
 
 	return {
+		// header element is used later to determine location of tooltip canvas
+		'header_element'                    : headerElement,
 		// setup canvases - these will be resized later
 		'header_canvas'                     : Raphael(headerElement, 1, 1),
 		'body_canvas'                       : Raphael(bodyElement, 1, 1),
@@ -132,60 +139,21 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
  * oncoprint - opaque reference to oncoprint system
  * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * headerVariables - various header strings
+ * forSummaryTab - flag indicating if we are rendering header for Summary Tab (if not, Cross Cancer Study)
  *
  * Note: headerVariables is a JSON object literal that is
  * created by:
  * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
  *
  */
-function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables) {
+function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummaryTab) {
 
-	// vars used below
-	var x, y;
-	var text;
-
-	// set longest label length
-	oncoprint.longest_label_length = getLabelLength(longestLabel);
-
-	// resize canvas 
- 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables);
-	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
-	oncoprint.header_canvas.clear();
-
-	// render case list description
-	x = 0;
-	y = dimension.text_height / 2;
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'start');
-
-	// render altered stats
-	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'start');
-
-	// % altered column heading
-	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
-	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
-
-	// samples column heading
-	x = oncoprint.longest_label_length;
-	if (oncoprint.altered_samples_only) {
-		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
+	if (forSummaryTab) {
+		drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariables);
 	}
 	else {
-		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+		drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, headerVariables);
 	}
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'start');
 }
 
 /* 
@@ -195,13 +163,14 @@ function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables) {
  * oncoprint - opaque reference to oncoprint system
  * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * geneticAlterations - the set of geneticAlterations to draw
+ * wantToolTip - flag indicating if we want tool tips (yes for Summary Tab no for Cross Cancer Summary)
  *
  * Note: geneticAlterations is a JSON object literal that is
  * created by:
  * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
-function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
+function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTooltip) {
 
 	// this is so row/col values are used in computation of x,y coords
 	oncoprint.use_immediate_coordinates = false;
@@ -233,12 +202,24 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 			}
 			++samplePos;
 			// first draw MRNA "background"
-			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration,
-					 true, thisSampleAlteration.sample);
+			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// then draw CNA "within"
 			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// finally draw mutation square "on top"
 			drawMutation(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			// tooltip
+			if (wantTooltip) {
+				var tooltipText = "Sample: " + thisSampleAlteration.sample;
+				if (thisSampleAlteration.mutation != null) {
+					tooltipText = tooltipText + "\nAmino Acid Change: ";
+					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {
+						tooltipText = tooltipText + thisSampleAlteration.mutation[lc3] + ", ";
+					}
+					// zap off last ', '
+					tooltipText = tooltipText.substring(0, tooltipText.length - 2);
+				}
+				createTooltip(oncoprint, lc, samplePos, tooltipText);
+			}
 		}
 	}
 }
@@ -277,7 +258,7 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
 		var alteration = geneticAlterations[lc];
 		// only one of the following will render
-		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration, false, "");
+		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		drawCNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		drawMutation(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		// render description
@@ -304,25 +285,35 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
  * Draws canvas used for "tooltips"
  *
  * oncoprint - opaque reference to oncoprint system
+ * parentElement - element we live within (probably oncoprint_section div)
+ * nearestControlElement - the nearest control to the tooltip canvas
  *
  */
-function DrawOncoPrintToolTipRegion(oncoprint) {
+function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElement) {
 
-	if (oncoprint.tooltip_canvas == null) {
-		oncoprint.tooltip_canvas = Raphael(850, 375,
-										   DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
-										   DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
+	// compute pos and dimension of tooltip canvas
+	var parentElementPos = findPos(parentElement);
+	var parentElementWidth = $(parentElement).width();
+	var nearestControlElementPos = findPos(nearestControlElement);
+	var nearestControlElementWidth = $(nearestControlElement).width();
+	var headerPos = findPos(oncoprint.header_element);
+	var x = headerPos[0] + oncoprint.header_canvas.width + DEFAULTS.get('TOOLTIP_HORIZONTAL_PADDING');
+	if (x < nearestControlElementPos[0] + nearestControlElementWidth) {
+		x = nearestControlElementPos[0] + nearestControlElementWidth + DEFAULTS.get('TOOLTIP_HORIZONTAL_PADDING');
 	}
-	var rect = oncoprint.tooltip_canvas.rect(0, 0,
-											 DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
-											 DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
-	rect.attr('stroke', 'none'); 
-	rect.attr('fill', '#eeeeee');
+	var width = DEFAULTS.get('TOOLTIP_REGION_WIDTH');
+	if (x + width > parentElementPos[0] + parentElementWidth) {
+		width = parentElementPos[0] + parentElementWidth - x;
+	}
+	var y = headerPos[1] - DEFAULTS.get('TOOLTIP_REGION_HEIGHT') / 2;
+	var height = DEFAULTS.get('TOOLTIP_REGION_HEIGHT');
+	if (oncoprint.tooltip_canvas != null) {
+		oncoprint.tooltip_canvas.remove();
+	}
+	oncoprint.tooltip_canvas = Raphael(x, y, width, height);
 
-	var text = oncoprint.tooltip_canvas.text(25, 10, "ToolTip text will go in this region.");
-	text.attr('font', 'normal 10px arial');
-	text.attr('fill', '#000000');
-	text.attr('text-anchor', 'start');
+	// add place holder text
+	addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
 }
 
 /*
@@ -331,7 +322,7 @@ function DrawOncoPrintToolTipRegion(oncoprint) {
  * oncoprint - opaque reference to oncoprint system
  *
  */
-function ClearOncoPrintToolTipRegion(oncoprint) {
+function ClearOncoPrintTooltipRegion(oncoprint) {
 
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.clear();
@@ -382,6 +373,120 @@ function ShowAlteredSamples(oncoprint, showAlteredSamples) {
 *******************************************************************************/
 
 /*
+ * Draws the OncoPrint header for use with the Summary Tab.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
+ * headerVariables - various header strings
+ *
+ * Note: headerVariables is a JSON object literal that is
+ * created by:
+ * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
+ *
+ */
+function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariables) {
+
+	// vars used below
+	var x, y;
+	var text;
+
+	// set longest label length
+	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// resize canvas 
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, true);
+	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
+	oncoprint.header_canvas.clear();
+
+	// render case list description
+	x = 0;
+	y = dimension.text_height / 2;
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+
+	// render altered stats
+	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+
+	// % altered column heading
+	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
+	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+
+	// samples column heading
+	x = oncoprint.longest_label_length;
+	if (oncoprint.altered_samples_only) {
+		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
+	}
+	else {
+		text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+	}
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+}
+
+/*
+ * Draws the OncoPrint header for use with Cross Cancer Summaries.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
+ * headerVariables - various header strings
+ *
+ * Note: headerVariables is a JSON object literal that is
+ * created by:
+ * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
+ *
+ */
+function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, headerVariables) {
+
+	// vars used below
+	var x, y;
+	var text;
+
+	// set longest label length
+	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// resize canvas 
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, false);
+	// make a few minor adjustment for Cross Cancer Summary Page
+	dimension.width = dimension.width + oncoprint.longest_label_length;
+	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
+	oncoprint.header_canvas.clear();
+
+	// render altered stats
+	x = 0;
+	y = DEFAULTS.get('HEADER_VERTICAL_PADDING') + dimension.text_height / 2;
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+
+	// % altered column heading
+	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
+	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+
+	// samples column heading
+	x = oncoprint.longest_label_length;
+	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+}
+
+/*
  * Computes the length (pixels) of the given label.
  *
  * label - label string
@@ -409,9 +514,10 @@ function getLabelLength(label) {
  * Also returns height of a text string.
  *
  * headerVariables - various header strings
+ * forSummaryTab - flag indicating if we are rendering header for Summary Tab (if not, Cross Cancer Study)
  *
  */
-function getOncoPrintHeaderCanvasSize(headerVariables) {
+function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 
 	// vars used below
 	var text;
@@ -421,14 +527,24 @@ function getOncoPrintHeaderCanvasSize(headerVariables) {
 	var textHeight = 0;
 	var scratchCanvas = Raphael(0, 0, 1, 1);
 
-	// case set description
-	text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	// case set description (only used on Summary Tab)
+	if (forSummaryTab) {
+		// assume case set description is longest string
+		text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
+		text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	}
+	else {
+		// assume all samples column heading is longest size
+		text = scratchCanvas.text(0,0, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+		text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	}
 	boundingBox = text.getBBox();
-	// we assume case set decription is longest string
 	canvasWidth = boundingBox.width;
-	canvasHeight = canvasHeight + boundingBox.height;
 	textHeight = boundingBox.height;
+	// only include this height if summary tab (for case set description)
+	if (forSummaryTab) {
+		canvasHeight = canvasHeight + boundingBox.height;
+	}
 
 	// altered stats
 	text = scratchCanvas.text(0,0, headerVariables.get('ALTERED_STATS'));
@@ -443,6 +559,7 @@ function getOncoPrintHeaderCanvasSize(headerVariables) {
 	canvasHeight = canvasHeight + boundingBox.height;
 
 	// add padding between lines: space betw case set desc & alter stats, alter stats & col headers
+	// even though Cross Cancer does not have case set desc, we will use extra padding
 	canvasHeight = canvasHeight + DEFAULTS.get('HEADER_VERTICAL_PADDING') * 2;
 	
 	// clean up
@@ -565,11 +682,9 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
  * row - the vertical position to draw the alteration
  * column - the horizontal position to draw the alteration
  * alterationSettings - the genomic alteration
- * createToolTip - if true, creates a tooltip with provide text
- * toolTipText - text for tooltip
  *
  */
-function drawMRNA(oncoprint, canvas, row, column, alterationSettings, createToolTip, toolTipText) {
+function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 
 	// compute starting coordinates
 	var y = getYCoordinate(oncoprint, row);
@@ -587,8 +702,6 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings, createTool
 	}
 	else if (alterationSettings & NOTSHOWN) {
 		rect.attr('fill', DEFAULTS.get('NOTSHOWN_COLOR'));
-	}
-	if (createToolTip) {
 	}
 }
 
@@ -725,4 +838,114 @@ function getMutationRectDimensions(oncoprint) {
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };
+}
+
+/**
+ * Routine called to setup tooltip text on mouse over of genetic alteration rect.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * tooltipText - the text to render in the tooltip
+ *
+ */
+function createTooltip(oncoprint, row, column, tooltipText) {
+
+	var rect = oncoprint.body_canvas.rect(getXCoordinate(oncoprint, column),
+										  getYCoordinate(oncoprint, row),
+										  oncoprint.alteration_width,
+										  oncoprint.alteration_height);
+
+	// without adding fill, mouseover will not work
+	rect.attr('fill', '#000000');
+	rect.attr('opacity', 0);
+
+	rect.node.style.cursor = "default";
+	rect.node.onmouseover = function () {
+		addTooltipText(oncoprint, tooltipText);
+	};
+
+	// on mouse out, reset text
+	rect.node.onmouseout = function () {
+		addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+	};
+}
+
+/**
+ * Routine which adds tooltip text tooltip canvas
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * tooltipText - the text to render in the tooltip
+ *
+ */
+function addTooltipText(oncoprint, tooltipText) {
+
+	// clear off the canvas
+	ClearOncoPrintTooltipRegion(oncoprint);
+
+	// add back background
+	var rect = oncoprint.tooltip_canvas.rect(0, 0,
+											 DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
+											 DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
+	rect.attr('stroke', 'none'); 
+	rect.attr('fill', '#eeeeee');
+
+	// create the text object
+	var text = oncoprint.tooltip_canvas.text(DEFAULTS.get('TOOLTIP_MARGIN'),
+											 oncoprint.tooltip_canvas.height / 2,
+											 tooltipText);
+	text.attr('font', DEFAULTS.get('TOOLTIP_FONT'));
+	text.attr('fill', DEFAULTS.get('TOOLTIP_COLOR'));
+	text.attr('text-anchor', 'start');
+}
+
+/*******************************************************************************
+//
+// The following functions were obtained from:
+//
+// http://www.greywyvern.com/?post=331
+//
+// They are used to determine the position of the tooltip canvas.
+//
+*******************************************************************************/
+
+function findPos(obj) {
+  var curleft = curtop = 0, scr = obj, fixed = false;
+  while ((scr = scr.parentNode) && scr != document.body) {
+    curleft -= scr.scrollLeft || 0;
+    curtop -= scr.scrollTop || 0;
+    if (getStyle(scr, "position") == "fixed") fixed = true;
+  }
+  if (fixed && !window.opera) {
+    var scrDist = scrollDist();
+    curleft += scrDist[0];
+    curtop += scrDist[1];
+  }
+  do {
+    curleft += obj.offsetLeft;
+    curtop += obj.offsetTop;
+  } while (obj = obj.offsetParent);
+  return [curleft, curtop];
+}
+
+function scrollDist() {
+  var html = document.getElementsByTagName('html')[0];
+  if (html.scrollTop && document.documentElement.scrollTop) {
+    return [html.scrollLeft, html.scrollTop];
+  } else if (html.scrollTop || document.documentElement.scrollTop) {
+    return [
+      html.scrollLeft + document.documentElement.scrollLeft,
+      html.scrollTop + document.documentElement.scrollTop
+    ];
+  } else if (document.body.scrollTop)
+    return [document.body.scrollLeft, document.body.scrollTop];
+  return [0, 0];
+}
+
+function getStyle(obj, styleProp) {
+  if (obj.currentStyle) {
+    var y = obj.currentStyle[styleProp];
+  } else if (window.getComputedStyle)
+    var y = window.getComputedStyle(obj, null)[styleProp];
+  return y;
 }

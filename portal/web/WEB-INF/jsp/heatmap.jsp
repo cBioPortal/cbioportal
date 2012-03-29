@@ -211,7 +211,7 @@
                 if (parser.isMRNAWayDown()) {
                     out.print ("DOWN;");
                 }
-                if (parser.isRPPAWayDown()) {
+                if (parser.isRPPAWayUp()) {
                     out.print("RPPA-UP;");
                 }
                 if (parser.isRPPAWayDown()) {

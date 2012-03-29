@@ -30,11 +30,11 @@ public class OncoPrintGeneDisplaySpec
     /**
      * set to default spec; 
      */
-    public void setDefault( double zScoreThreshold ){
+    public void setDefault( double zScoreThreshold, double rppaScoreThrehold ){
        this.setDefault( GeneticDataTypes.CopyNumberAlteration );
        this.setDefault( GeneticDataTypes.Mutation );
        this.setDefaultExpression( zScoreThreshold, GeneticDataTypes.Expression );
-       this.setDefaultExpression( zScoreThreshold, GeneticDataTypes.RPPA );
+       this.setDefaultExpression( rppaScoreThrehold, GeneticDataTypes.RPPA );
     }
     
     /**
@@ -74,17 +74,17 @@ public class OncoPrintGeneDisplaySpec
     }
     
     /**
-     * set the default Expression thresholds, <= and >= zScoreThreshold
-     * @param zScoreThreshold
+     * set the default Expression/RPPA thresholds, <= and >= scoreThreshold
+     * @param scoreThreshold
      */
-    public void setDefaultExpression( double zScoreThreshold, GeneticDataTypes theGeneticDataType ){
+    public void setDefaultExpression( double scoreThreshold, GeneticDataTypes theGeneticDataType ){
        ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( theGeneticDataType );
 
        theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
-                ComparisonOp.convertCode(">="), (float)zScoreThreshold ) );
+                ComparisonOp.convertCode(">="), (float)scoreThreshold ) );
 
        theResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
-                ComparisonOp.convertCode("<="), (float) -zScoreThreshold ) );
+                ComparisonOp.convertCode("<="), (float) -scoreThreshold ) );
        
        finalDataTypeSpecs.put( theGeneticDataType, theResultDataTypeSpec );
     }

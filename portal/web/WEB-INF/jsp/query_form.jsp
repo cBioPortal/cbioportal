@@ -12,6 +12,10 @@
     if (localzScoreThreshold == null) {
         localzScoreThreshold = "2.0";
     }
+    String localRppaScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
+    if (localRppaScoreThreshold == null) {
+        localRppaScoreThreshold = "1.0";
+    }
     if (localTabIndex == null) {
         localTabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {
@@ -38,6 +42,7 @@
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';
+    window.rppa_score_threshold = '<%= localRppaScoreThreshold %>';
 
     //  Store the currently selected genomic profiles within an associative array
     window.genomic_profile_id_selected = new Array();

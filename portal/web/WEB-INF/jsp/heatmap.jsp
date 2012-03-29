@@ -69,7 +69,7 @@
                             String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
                             // was: ValueParser parser = new ValueParser(value, zScoreThreshold);
                             ValueParser valueParser = ValueParser.generateValueParser( geneWithScore.getGene(), value, 
-                                     zScoreThreshold, theOncoPrintSpecification );
+                                     zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                             if( null == valueParser){
                                System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
                                break;
@@ -185,7 +185,7 @@
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value, 
-                         zScoreThreshold, theOncoPrintSpecification );
+                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
                    break;

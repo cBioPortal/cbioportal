@@ -37,7 +37,7 @@ public class OncoPrintSpecificationDriver {
     * @return output from parsing geneListStr 
     */
    static public ParserOutput callOncoPrintSpecParserDriver(String geneListStr, HashSet<String> geneticProfileIdSet,
-            ArrayList<GeneticProfile> profileList, double zScoreThreshold) {
+            ArrayList<GeneticProfile> profileList, double zScoreThreshold, double rppaScoreThreshold) {
 
       // I. LimitLanguageDefaultToProfile: Create an OncoPrintGeneDisplaySpec
       // from the geneticProfileIdSet, and use that as the default for the parse
@@ -59,7 +59,7 @@ public class OncoPrintSpecificationDriver {
 
          if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
                   && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
-            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold, GeneticDataTypes.RPPA);
+            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(rppaScoreThreshold, GeneticDataTypes.RPPA);
          }
          
          if ( (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED )

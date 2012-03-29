@@ -28,7 +28,7 @@ public class ConvertProfileDataToGeneticEvents {
     * @return 2D Matrix of GeneticEvent Objects.
     */
    public static GeneticEvent[][] convert(ProfileDataSummary pSummaryData, String[] geneList, 
-            OncoPrintSpecification theOncoPrintSpecification, double zScoreThreshold) {
+            OncoPrintSpecification theOncoPrintSpecification, double zScoreThreshold, double rppaScoreThreshold) {
       ProfileData pData = pSummaryData.getProfileData();
       
       ArrayList <String> goodGenes = new ArrayList <String>();
@@ -46,7 +46,8 @@ public class ConvertProfileDataToGeneticEvents {
          for (int j = 0; j < pData.getCaseIdList().size(); j++) {
             String currentCaseId = pData.getCaseIdList().get(j);
             String value = pData.getValue(currentGene, currentCaseId);
-            ValueParser valueParser = ValueParser.generateValueParser( currentGene, value, zScoreThreshold, theOncoPrintSpecification );
+            ValueParser valueParser = ValueParser.generateValueParser( currentGene, value, zScoreThreshold,
+                    rppaScoreThreshold, theOncoPrintSpecification );
             if( null == valueParser){
                System.err.println( "Yikes null valueParser");
             }else{

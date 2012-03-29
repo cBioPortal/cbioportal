@@ -113,7 +113,7 @@ public class ValueParser {
     *         the gene in theOncoPrintSpecification.
     */
    static public ValueParser generateValueParser(String gene, String value, double zScoreThreshold,
-            OncoPrintSpecification theOncoPrintSpecification) {
+            double rppaScoreThreshold, OncoPrintSpecification theOncoPrintSpecification) {
 
       // check that gene can be found
       GeneWithSpec theGeneWithSpec = theOncoPrintSpecification.getGeneWithSpec(gene);
@@ -121,7 +121,7 @@ public class ValueParser {
          // System.err.println( "Cannot find " + gene + " in theOncoPrintSpecification.");
          return null;
       }
-      return new ValueParser(value, zScoreThreshold,
+      return new ValueParser(value, zScoreThreshold, rppaScoreThreshold,
               theGeneWithSpec.getTheOncoPrintGeneDisplaySpec());
    }
 
@@ -143,11 +143,11 @@ public class ValueParser {
     * @param zScoreThreshold
     * @param theOncoPrintGeneDisplaySpec
     */
-   public ValueParser(String value, double zScoreThreshold,
+   public ValueParser(String value, double zScoreThreshold, double rppaScoreThreshold,
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
        this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
        determineExpressionThresholds(GeneticDataTypes.Expression, zScoreThreshold);
-       determineExpressionThresholds(GeneticDataTypes.RPPA, zScoreThreshold);
+       determineExpressionThresholds(GeneticDataTypes.RPPA, rppaScoreThreshold);
        parseValue(value);
    }
    

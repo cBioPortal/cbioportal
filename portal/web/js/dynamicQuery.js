@@ -203,8 +203,16 @@ function reviewCurrentSelections(){
    // based on which, if any mRNA profiles are selected
    if ($("." + PROFILE_MRNA_EXPRESSION).length >= 1){
         $("." + PROFILE_MRNA_EXPRESSION).each(function(){
-            console.log("reviewCurrentSelections ( togglemRNAThresholdPanel() )");
-            togglemRNAThresholdPanel($(this));
+            console.log("reviewCurrentSelections ( toggleThresholdPanel() )");
+            toggleThresholdPanel($(this), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
+        });
+   }
+   
+   // similarly with RPPA
+   if ($("." + PROFILE_RPPA).length >= 1){
+        $("." + PROFILE_RPPA).each(function(){
+            console.log("reviewCurrentSelections ( toggleThresholdPanel() )");
+            toggleThresholdPanel($(this), PROFILE_RPPA, "#rppa_score_threshold");
         });
    }
 
@@ -297,28 +305,28 @@ function genomicProfilesUnavailable(){
 }
 
 // Show or hide mRNA threshold field based on mRNA profile selected
-function togglemRNAThresholdPanel(profileClicked) {
+function toggleThresholdPanel(profileClicked, profile, threshold_div) {
     var selectedProfile = profileClicked.val();
     var inputType = profileClicked.attr('type');
 
     // when a radio button is clicked, show threshold input unless user chooses expression outliers
     if(inputType == 'radio'){
         if(selectedProfile.indexOf("outlier")==-1){
-            $("#z_score_threshold").slideDown();
+            $(threshold_div).slideDown();
         } else {
-            $("#z_score_threshold").slideUp();
+            $(threshold_div).slideUp();
         }
     } else if(inputType == 'checkbox'){
-        var subgroup = $("input." + PROFILE_MRNA_EXPRESSION + "[type=radio]");
+        var subgroup = $("input." + profile + "[type=radio]");
 
         // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
         // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
         if (profileClicked.attr('checked') && (subgroup = null || subgroup.length==0)){
-            $("#z_score_threshold").slideDown();
+            $(threshold_div).slideDown();
         }
         // if checkbox is unselected, hide threshold input regardless of whether there are subgroups
         else if(!profileClicked.attr('checked')){
-            $("#z_score_threshold").slideUp();
+            $(threshold_div).slideUp();
         }
     }
 }
@@ -405,7 +413,12 @@ function cancerStudySelected() {
 
     //  Set up an Event Handler for showing/hiding mRNA threshold input
     $("." + PROFILE_MRNA_EXPRESSION).click(function(){
-       togglemRNAThresholdPanel($(this));
+       toggleThresholdPanel($(this), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
+    });
+
+    //  Set up an Event Handler for showing/hiding RPPA threshold input
+    $("." + PROFILE_RPPA).click(function(){
+       toggleThresholdPanel($(this), PROFILE_RPPA, "#rppa_score_threshold");
     });
 
     // Set default selections and make sure all steps are visible
@@ -610,11 +623,20 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_MRNA_EXPRESSION && downloadTab == false){
         var inputName = 'Z_SCORE_THRESHOLD';
-        profileHtml += "<div id='z_score_threshold'>Enter a z-score threshold &#177: "
+        profileHtml += "<div id='z_score_threshold' class='score_threshold'>Enter a z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.zscore_threshold + "'>"
         + "</div>";
     }
+
+    if(targetClass == PROFILE_RPPA && downloadTab == false){
+        var inputName = 'RPPA_SCORE_THRESHOLD';
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA score threshold &#177: "
+        + "<input type='text' name='" + inputName + "' size='6' value='"
+                + window.rppa_score_threshold + "'>"
+        + "</div>";
+    }
+    
     $("#genomic_profiles").append(profileHtml);
 }
 

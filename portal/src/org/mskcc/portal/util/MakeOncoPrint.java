@@ -45,7 +45,10 @@ public class MakeOncoPrint {
      * @throws IOException IO Error.
      */
     public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
-									   ArrayList<CaseList> caseSets, String caseSetId, double zScoreThreshold,
+									   ArrayList<CaseList> caseSets,
+                                                                           String caseSetId,
+                                                                           double zScoreThreshold,
+                                                                           double rppaScoreThreshold,
 									   OncoPrintType theOncoPrintType,
 									   boolean showAlteredColumns,
 									   HashSet<String> geneticProfileIdSet,
@@ -57,7 +60,7 @@ public class MakeOncoPrint {
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneList,
-                geneticProfileIdSet, profileList, zScoreThreshold);
+                geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
@@ -65,7 +68,7 @@ public class MakeOncoPrint {
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
         ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
@@ -73,7 +76,7 @@ public class MakeOncoPrint {
         // TODO: make the gene sort order a user param, then call a method in ProfileDataSummary to sort
         GeneticEvent matrix[][] = ConvertProfileDataToGeneticEvents.convert
                 (dataSummary, listOfGeneNames,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         //  Sort Columns via Cascade Sorter
         ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();

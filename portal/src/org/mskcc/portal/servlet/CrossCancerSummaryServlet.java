@@ -175,14 +175,12 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
         double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
                 new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), request);
-        double zScoreThreshold = ZScoreUtil.getZScore
-                (new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), request);
+        double rppaScore = ZScoreUtil.getRPPAScore(request);
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneListStr,
                         new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), zScore);
+                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), zScore, rppaScore);
 
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
@@ -215,14 +213,13 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
         String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-														   caseList, defaultCaseSet.getStableId(),
-														   zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-														   new HashSet<String>(defaultGeneticProfileSet.keySet()),
-														   new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
-														   false, false);
+                caseList, defaultCaseSet.getStableId(), zScore, rppaScore, theOncoPrintType,
+                showAlteredColumnsBool,new HashSet<String>(defaultGeneticProfileSet.keySet()),
+                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
+                false, false);
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         request.setAttribute(QueryBuilder.PROFILE_DATA_SUMMARY, dataSummary);
         request.setAttribute(QueryBuilder.ONCO_PRINT_HTML, oncoPrintHtml);
     }

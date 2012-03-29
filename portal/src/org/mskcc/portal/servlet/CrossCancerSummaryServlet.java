@@ -110,9 +110,9 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                     defaultGeneticProfileSet, defaultCaseSet, geneList);
             httpServletRequest.setAttribute(CANCER_STUDY_DETAILS_URL, cancerStudyDetailsUrl);
 
-            getGenomicData (defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
-                    httpServletRequest,
-                    httpServletResponse, xdebug);
+            getGenomicData(cancerStudyId, defaultGeneticProfileSet, defaultCaseSet, geneList, caseSetList,
+						   httpServletRequest,
+						   httpServletResponse, xdebug);
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/cross_cancer_summary.jsp");
             dispatcher.forward(httpServletRequest, httpServletResponse);
@@ -163,14 +163,13 @@ public class CrossCancerSummaryServlet extends HttpServlet {
     /**
      * Gets all Genomic Data.
      */
-    private void getGenomicData(HashMap<String, GeneticProfile> defaultGeneticProfileSet,
+    private void getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
             CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
             HttpServletRequest request,
             HttpServletResponse response, XDebug xdebug) throws IOException,
             ServletException, DaoException {
 
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);        
-        boolean showAlteredColumnsBool = false;
 
         // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
         double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
@@ -210,14 +209,17 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 
         request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
         request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
-
-        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-        String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-                caseList, defaultCaseSet.getStableId(), zScore, rppaScore, theOncoPrintType,
-                showAlteredColumnsBool,new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
-                false, false);
-
+        String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerStudyId,
+														   geneListStr,
+														   mergedProfile,
+														   null,
+														   caseList,
+														   defaultCaseSet.getStableId(),
+														   zScore,
+                                                                                                                   rppaScore,
+														   new HashSet<String>(defaultGeneticProfileSet.keySet()),
+														   new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
+														   false);
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         request.setAttribute(QueryBuilder.PROFILE_DATA_SUMMARY, dataSummary);

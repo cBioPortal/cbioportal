@@ -19,10 +19,11 @@ Removes all data_mutations_extended.txt (MAFs) from the given staging area as we
 
 --stagingFilesDirectory # directory which stores staging files
 --overridesDirectory    # directory containing overrides
+--cancerCaseFilesToSkipFile # file containing cancer studies for which case studies should not be removed
 
 EOT
 
-my($stagingFilesDirectory, $overridesDirectory);
+my($stagingFilesDirectory, $overridesDirectory, $cancerCaseFilesToSkipFile);
 
 main();
 sub main{
@@ -30,9 +31,18 @@ sub main{
     # process arg list
     GetOptions (
         "stagingFilesDirectory=s" => \$stagingFilesDirectory,
-        "overridesDirectory=s" => \$overridesDirectory );
+        "overridesDirectory=s" => \$overridesDirectory,
+        "cancerCaseFilesToSkipFile=s" => \$cancerCaseFilesToSkipFile );
 
     my $f = File::Util->new();
+
+	my @tmpList;
+    my @tmp = $f->load_file( $cancerCaseFilesToSkipFile, '--as-lines' );
+    foreach (@tmp){
+	  push(@tmpList, $_);
+    }
+	my %cancerCaseFilesToSkip = map { $_, 1 } @tmpList;
+
 	my @allCancerDirs = $f->list_dir($stagingFilesDirectory, '--dirs-only');
     foreach (@allCancerDirs){
 		# construct staging files cancer directory
@@ -44,6 +54,11 @@ sub main{
 		if (-e $toRemove) {
 			print "removing MAF from staging area: $toRemove\n";
 			system("rm -f $toRemove"); 
+		}
+
+		if (exists($cancerCaseFilesToSkip{$cancerDirectory})) {
+		  print "skipping removal of case files from: $cancerDirectory\n";
+		  next;
 		}
 
 		# construct case list directories

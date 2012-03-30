@@ -79,19 +79,19 @@ public class MakeOncoPrint {
 
         //  Sort Columns via Cascade Sorter
         ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
-        CNAsortOrder.add(EnumSet.of(CNA.amplified));
-        CNAsortOrder.add(EnumSet.of(CNA.homoDeleted));
-        CNAsortOrder.add(EnumSet.of(CNA.Gained));
-        CNAsortOrder.add(EnumSet.of(CNA.HemizygouslyDeleted));
+        CNAsortOrder.add(EnumSet.of(CNA.AMPLIFIED));
+        CNAsortOrder.add(EnumSet.of(CNA.HOMODELETED));
+        CNAsortOrder.add(EnumSet.of(CNA.GAINED));
+        CNAsortOrder.add(EnumSet.of(CNA.HEMIZYGOUSLYDELETED));
         // combined because these are represented by the same color in the OncoPring
-        CNAsortOrder.add(EnumSet.of(CNA.diploid, CNA.None));
+        CNAsortOrder.add(EnumSet.of(CNA.DIPLOID, CNA.NONE));
 
         ArrayList<EnumSet<MRNA>> MRNAsortOrder = new ArrayList<EnumSet<MRNA>>();
-        MRNAsortOrder.add(EnumSet.of(MRNA.upRegulated));
-        MRNAsortOrder.add(EnumSet.of(MRNA.downRegulated));
+        MRNAsortOrder.add(EnumSet.of(MRNA.UPREGULATED));
+        MRNAsortOrder.add(EnumSet.of(MRNA.DOWNREGULATED));
 
         // combined because these are represented by the same color in the OncoPrint
-        MRNAsortOrder.add(EnumSet.of(MRNA.Normal, MRNA.notShown));
+        MRNAsortOrder.add(EnumSet.of(MRNA.NORMAL, MRNA.NOTSHOWN));
 
         GeneticEventComparator comparator = new GeneticEventComparator(
                 CNAsortOrder,
@@ -288,8 +288,8 @@ public class MakeOncoPrint {
                 GeneticEvent event = matrix[i][j];
                 // get level of each datatype; concatenate to make image name
                 // color could later could be in configuration file
-                String cnaName = event.getCnaValue().name().toUpperCase();
-                String mrnaName = event.getMrnaValue().name().toUpperCase();
+                String cnaName = "CNA_" + event.getCnaValue().name();
+                String mrnaName = "MRNA_" + event.getMrnaValue().name();
 				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
 				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
 				StringBuilder mutationDetails = new StringBuilder();
@@ -342,34 +342,34 @@ public class MakeOncoPrint {
 		builder.append("\t\t\t'" + varName + "' : [\n");
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Amplification\",\n");
-			builder.append("\t\t\t\t 'alteration' : AMPLIFIED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_AMPLIFIED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Homozygous Deletion\",\n");
-			builder.append("\t\t\t\t 'alteration' : HOMODELETED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HOMODELETED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Gain\",\n");
-			builder.append("\t\t\t\t 'alteration' : GAINED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_GAINED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Hemizygous Deletion\",\n");
-			builder.append("\t\t\t\t 'alteration' : HEMIZYGOUSLYDELETED | NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HEMIZYGOUSLYDELETED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
 		}
         ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
         if (theResultDataTypeSpec != null) {
 			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
 				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation\",\n");
-				builder.append("\t\t\t\t 'alteration' : DIPLOID | UPREGULATED | NORMAL\n\t\t\t\t},\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_UPREGULATED | NORMAL\n\t\t\t\t},\n");
 			}
 			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
 				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation\",\n");
-				builder.append("\t\t\t\t 'alteration' : DIPLOID | DOWNREGULATED | NORMAL\n\t\t\t\t},\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_DOWNREGULATED | NORMAL\n\t\t\t\t},\n");
 			}
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Mutation\",\n");
-			builder.append("\t\t\t\t 'alteration' : DIPLOID | NOTSHOWN | MUTATED\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | MUTATED\n\t\t\t\t},\n");
 		}
 
 		// zap off last ',\n'

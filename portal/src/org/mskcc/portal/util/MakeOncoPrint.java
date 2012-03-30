@@ -278,62 +278,62 @@ public class MakeOncoPrint {
 	 * @return String
 	 */
 	static String writeOncoPrintGeneticAlterationVariable(GeneticEvent matrix[][],
-														  ProfileDataSummary dataSummary,
-														  ExtendedMutationMap mutationMap,
-														  String varName) {
+                ProfileDataSummary dataSummary, ExtendedMutationMap mutationMap, String varName) {
 
-		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
-		builder.append("\t\tvar private = {\n");
-		builder.append("\t\t\t'" + varName + "' : [\n");
+            StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+            builder.append("\t\tvar private = {\n");
+            builder.append("\t\t\t'" + varName + "' : [\n");
 
-		for (int i = 0; i < matrix.length; i++) {
-			GeneticEvent rowEvent = matrix[i][0];
-			String gene = rowEvent.getGene().toUpperCase();
-			String alterationValue =
-				alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
-			builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
-			builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
-			builder.append("\t\t\t\t 'alterations' : [\n");
-			for (int j = 0; j < matrix[0].length; j++) {
-                GeneticEvent event = matrix[i][j];
-                // get level of each datatype; concatenate to make image name
-                // color could later could be in configuration file
-                String cnaName = event.getCnaValue().name().toUpperCase();
-                String mrnaName = event.getMrnaValue().name().toUpperCase();
-                String rppaName = event.getRPPAValue().name().toUpperCase();
-		String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
-                String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
-                StringBuilder mutationDetails = new StringBuilder();
-                if (event.isMutated() && mutationMap != null) {
-                    mutationDetails.append(", 'mutation' : [");
-                    List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
-                    for (ExtendedMutation mutation : mutations) {
-                        mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
+            for (int i = 0; i < matrix.length; i++) {
+                GeneticEvent rowEvent = matrix[i][0];
+                String gene = rowEvent.getGene().toUpperCase();
+                String alterationValue =
+                        alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+                builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
+                builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
+                builder.append("\t\t\t\t 'alterations' : [\n");
+                for (int j = 0; j < matrix[0].length; j++) {
+                    GeneticEvent event = matrix[i][j];
+                    // get level of each datatype; concatenate to make image name
+                    // color could later could be in configuration file
+                    String cnaName = event.getCnaValue().name().toUpperCase();
+                    String mrnaName = event.getMrnaValue().name().toUpperCase();
+                    String rppaName = event.getRPPAValue().name().toUpperCase();
+                    String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
+                    String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
+                    StringBuilder mutationDetails = new StringBuilder();
+                    if (event.isMutated() && mutationMap != null) {
+                        mutationDetails.append(", 'mutation' : [");
+                        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
+                        for (ExtendedMutation mutation : mutations) {
+                            mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
+                        }
+                        // zap off last ', '
+                        mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
+                        mutationDetails.append("]");
                     }
-                    // zap off last ', '
-                    mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
-                    mutationDetails.append("]");
+                    builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
+                                                "'alteration' : " + alterationSettings +
+                                                mutationDetails.toString()  + "},\n");
                 }
-                builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
-                                            "'alteration' : " + alterationSettings +
-                                            mutationDetails.toString()  + "},\n");
+                
+                // zap off last ',\n'
+                builder.delete(builder.length()-2, builder.length());
+                builder.append("]\n");
+                builder.append("\t\t\t\t},\n");
             }
-			// zap off last ',\n'
-			builder.delete(builder.length()-2, builder.length());
-			builder.append("]\n");
-			builder.append("\t\t\t\t},\n");
-		}
-		// zap off last ',\n'
-		builder.delete(builder.length()-2, builder.length());
-		builder.append("\n\t\t\t]\n");
-		builder.append("\t\t};\n");
-		builder.append("\t\treturn {\n");
-		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
-		builder.append("\t\t};\n");
-		builder.append("\t})();\n");
+            
+            // zap off last ',\n'
+            builder.delete(builder.length()-2, builder.length());
+            builder.append("\n\t\t\t]\n");
+            builder.append("\t\t};\n");
+            builder.append("\t\treturn {\n");
+            builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+            builder.append("\t\t};\n");
+            builder.append("\t})();\n");
 
-		// outta here
-		return builder.toString();
+            // outta here
+            return builder.toString();
 	}
 
 	/**

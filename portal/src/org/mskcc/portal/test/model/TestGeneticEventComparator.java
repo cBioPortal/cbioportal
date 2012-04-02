@@ -48,10 +48,10 @@ public class TestGeneticEventComparator {
    public void testGeneticEventComparatorArrayListOfEnumSetOfCNAArrayListOfEnumSetOfMRNAArrayListOfEnumSetOfmutations() {
 
       ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
-      CNAsortOrder.add(EnumSet.of(CNA.amplified));
-      CNAsortOrder.add(EnumSet.of(CNA.homoDeleted));
-      CNAsortOrder.add(EnumSet.of(CNA.Gained, CNA.diploid, CNA.HemizygouslyDeleted));
-      CNAsortOrder.add(EnumSet.of(CNA.None));
+      CNAsortOrder.add(EnumSet.of(CNA.AMPLIFIED));
+      CNAsortOrder.add(EnumSet.of(CNA.HOMODELETED));
+      CNAsortOrder.add(EnumSet.of(CNA.GAINED, CNA.DIPLOID, CNA.HEMIZYGOUSLYDELETED));
+      CNAsortOrder.add(EnumSet.of(CNA.NONE));
 
       GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator(
             CNAsortOrder,
@@ -59,36 +59,36 @@ public class TestGeneticEventComparator {
             GeneticEventComparator.defaultRPPASortOrder(),
             GeneticEventComparator.defaultMutationsSortOrder());
 
-      GeneticEventImpl ge1 = new GeneticEventImpl( CNA.amplified, MRNA.Normal, mutations.Mutated );
+      GeneticEventImpl ge1 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, mutations.MUTATED );
 
       Assert.assertEquals( false, aGeneticEventComparator.equals(ge1, new Integer(0)) );
 
-      GeneticEventImpl ge2 = new GeneticEventImpl( CNA.amplified, MRNA.Normal, mutations.Mutated );
+      GeneticEventImpl ge2 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 0 );
 
-      ge2 = new GeneticEventImpl( CNA.homoDeleted, MRNA.Normal, mutations.Mutated );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, -1 );
       
-      ge1 = new GeneticEventImpl( CNA.Gained, MRNA.Normal, mutations.Mutated );
-      ge2 = new GeneticEventImpl( CNA.diploid, MRNA.Normal, mutations.Mutated );
+      ge1 = new GeneticEventImpl( CNA.GAINED, MRNA.NORMAL, mutations.MUTATED );
+      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 0 );
 
-      ge2 = new GeneticEventImpl( CNA.homoDeleted, MRNA.Normal, mutations.Mutated );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
 
-      ge2 = new GeneticEventImpl( CNA.homoDeleted, MRNA.Normal, mutations.UnMutated );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge2 = new GeneticEventImpl( CNA.diploid, MRNA.upRegulated, mutations.UnMutated );
+      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.UPREGULATED, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge2 = new GeneticEventImpl( CNA.HemizygouslyDeleted, MRNA.downRegulated, mutations.UnMutated );
+      ge2 = new GeneticEventImpl( CNA.HEMIZYGOUSLYDELETED, MRNA.DOWNREGULATED, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, -1 );
       

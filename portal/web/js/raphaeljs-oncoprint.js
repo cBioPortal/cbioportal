@@ -193,7 +193,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 	oncoprint.body_canvas.clear();
 
 	// used to filter out unaltered samples in loop below
-	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
+	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN);
 
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {

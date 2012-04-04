@@ -7,7 +7,7 @@ public enum GeneticDataTypes {
    Expression(DataTypeCategory.Continuous, "MRNA microRNA"), 
    Mutation( DataTypeCategory.Discrete, ""), 
    Methylation(DataTypeCategory.Continuous, ""),
-   RPPA(DataTypeCategory.Continuous, "RPPA");
+   RPPA(DataTypeCategory.Continuous, "RPPA, prot");
 
    private final DataTypeCategory theDataTypeCategory;
    private String[] nicknames = null;

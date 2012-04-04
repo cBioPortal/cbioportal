@@ -15,6 +15,8 @@
     }
     </script>
     <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
+    <script type="text/javascript" src="js/mutsig.js"></script>
+    <span id="MutSig_view" style="word-wrap:break-word;float:right"> <a href="" id="toggle_mutsig">View Significantly Mutated Genes</a></span>
 
 <%
 // Output step 4 form validation error
@@ -351,6 +353,7 @@ if (step4ErrorMsg != null) {
 		#example_gene_set { clear: both; }
 	</style>
 
+<div class="MutSig_table" style="overflow:auto; height:128px; width:100%;"></div>
 
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%

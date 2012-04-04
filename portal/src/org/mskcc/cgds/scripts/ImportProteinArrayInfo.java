@@ -43,8 +43,6 @@ public class ImportProteinArrayInfo {
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         
-        int fakeEntrezId = -100000;// TODO: we need some nicer way to do this
-        
         FileReader reader = new FileReader(arrayInfoFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine(); // skip header line
@@ -92,13 +90,13 @@ public class ImportProteinArrayInfo {
             }
                 
             if (type.equalsIgnoreCase("phosphorylation")) {
-                importPhosphoGene(fakeEntrezId--, strs[1], strs[2], strs[0]);
+                importPhosphoGene(strs[1], strs[2], strs[0]);
             }
             
         }
     }
     
-    private void importPhosphoGene(int fakeEntrezId, String phosphoSymbol,
+    private void importPhosphoGene(String phosphoSymbol,
             String geneSymbols, String arrayIds) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene existingGene = daoGene.getGene(phosphoSymbol);
@@ -121,8 +119,7 @@ public class ImportProteinArrayInfo {
             aliases.add(arrayId);
         }
 
-        CanonicalGene phosphoGene = new CanonicalGene(fakeEntrezId, phosphoSymbol,
-                aliases);
+        CanonicalGene phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
         daoGene.addGene(phosphoGene);
     }
     

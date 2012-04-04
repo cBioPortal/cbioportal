@@ -70,6 +70,11 @@ public class CanonicalGene extends Gene {
         String hugo = getHugoGeneSymbolAllCaps();
         return hugo.startsWith("MIR-") || hugo.startsWith("LET-");
     }
+    
+    public boolean isPhosphoProtein() {
+        String hugo = this.getHugoGeneSymbolAllCaps();
+        return hugo.matches("[A-Za-z0-9]+_P[STY][0-9]+.*");
+    }
 
     @Override
     public String toString() {

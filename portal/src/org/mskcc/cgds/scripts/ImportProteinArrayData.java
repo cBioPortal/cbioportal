@@ -122,7 +122,7 @@ public class ImportProteinArrayData {
         String idProfPhos = cancerStudyStableId+"_RPPA_phosphorylation";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
             GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
-                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "RPPA phosphorylation",
+                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "Phosphoprotein level by RPPA",
                     "Phosphoprotein level by reverse phase protein array (RPPA)", false);
             daoGeneticProfile.addGeneticProfile(gpPhos);
             daoGeneticProfileCases.addGeneticProfileCases(

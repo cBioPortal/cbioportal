@@ -530,7 +530,11 @@ public class ValueParser {
          return "<img src='images/up2.png'>";
       }
       if (this.isMRNAWayDown()) {
-         return "<img src='images/down2.png'>";
+          if (this.isCnaAmplified()) {
+              return "<img src='images/down2-white.png'>";
+          } else {
+              return "<img src='images/down2.png'>";
+          }
       }
       return "";
    }
@@ -542,10 +546,14 @@ public class ValueParser {
     */
    public String getRPPAGlyph() {
       if (this.isRPPAWayUp()) {
-         return "<img src='images/up1.png'>";
+         return "<img src='images/up-rppa.png'>";
       }
       if (this.isRPPAWayDown()) {
-         return "<img src='images/down1.png'>";
+          if (this.isCnaAmplified()) {
+              return "<img src='images/down-rppa-white.png'>";
+          } else {
+                return "<img src='images/down-rppa.png'>";
+          }
       }
       return "";
    }

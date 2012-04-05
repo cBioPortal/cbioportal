@@ -82,13 +82,13 @@ public class HeatMapLegend {
       theResultDataTypeSpec = allPossibleAlterations
                .getResultDataTypeSpec(GeneticDataTypes.RPPA);
       if (null != theResultDataTypeSpec && (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
-         RPPALevels.add("<td valign=top><img src=\"images/up1.png\"> = Protein up-Regulation</td>");
+         RPPALevels.add("<td valign=top><img src=\"images/up-rppa.png\"> = Protein up-Regulation</td>");
       }
 
       // under
       theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
       if (null != theResultDataTypeSpec && (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
-         RPPALevels.add("<td valign=top><img src=\"images/down1.png\"> = Protein down-Regulation</td>");
+         RPPALevels.add("<td valign=top><img src=\"images/down-rppa.png\"> = Protein down-Regulation</td>");
       }
 
       // column headers

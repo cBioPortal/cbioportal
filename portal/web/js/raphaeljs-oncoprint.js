@@ -76,8 +76,8 @@ var DEFAULTS = (function() {
 			'MUTATION_COLOR'                    : "#008000",
 			'MUTATION_HEIGHT_SCALE_FACTOR'      : 1/3,
 			// rppa styles
-			'RPPA_UPREGULATED_COLOR'                        : "#a020f0",
-			'RPPA_DOWNREGULATED_COLOR'                        : "#5f9ea0",
+			'RPPA_COLOR'                        : "#000000",
+			'RPPA_HOMDEL_COLOR'                        : "#FFFFFF",
 			// labels
 			'LABEL_COLOR'                       : "#666666",
 			'LABEL_FONT'                        : "normal 12px verdana",
@@ -832,11 +832,11 @@ function drawRPPA(oncoprint, canvas, row, column, alterationSettings) {
 		// without this we get thin black border around rect
 		path.attr('stroke', 'none'); 
 		// set color
-                if (alterationSettings & RPPA_UPREGULATED) {
-                    path.attr('fill', DEFAULTS.get('RPPA_UPREGULATED_COLOR'));
+                if (alterationSettings & CNA_HOMODELETED) {
+                    path.attr('fill', DEFAULTS.get('RPPA_HOMDEL_COLOR'));
 		}
-		else if (alterationSettings & RPPA_DOWNREGULATED) {
-                    path.attr('fill', DEFAULTS.get('RPPA_DOWNREGULATED_COLOR'));
+		else {
+                    path.attr('fill', DEFAULTS.get('RPPA_COLOR'));
 		}
 	}
 }

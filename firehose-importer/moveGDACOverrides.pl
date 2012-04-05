@@ -93,7 +93,9 @@ sub moveGDACOverridesFile{
 	my $latestVersionOfLog2CNAFile;
 	if ( $customFileType eq "CNA" ) {
 	  $latestVersionOfLog2CNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_data_by_genes.txt", $cancer, $runDate );
-	  print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
+	  if (defined($latestVersionOfLog2CNAFile)) {
+		print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
+	  }
 	}
 
 	# if we are using custom Log2CNA, we will need to move over cna,
@@ -101,7 +103,9 @@ sub moveGDACOverridesFile{
 	my $latestVersionOfCNAFile;
 	if ( $customFileType eq "LOG2CNA" ) {
 	  $latestVersionOfCNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_thresholded.by_genes.txt", $cancer, $runDate );
-	  print "latest version of CNA: $latestVersionOfCNAFile\n";
+	  if (defined($latestVersionOfCNAFile)) {
+		print "latest version of CNA: $latestVersionOfCNAFile\n";
+	  }
 	}
 
     my( $customFileDir, $customFileFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
@@ -174,7 +178,12 @@ sub getNextVersionOfFile{
 		my $dateVersion = $runDate . "00.0.0";
 		$customFileDir =~ s/<date><version>/$dateVersion/;
 		print "cannot find dir to put customFile file, making: $customFileDir\n";
-		$nextDir = File::Util->new->make_dir($customFileDir);
+		if ( -d $customFileDir ) {
+		  $nextDir = $customFileDir;
+		}
+		else {
+		  $nextDir = File::Util->new->make_dir($customFileDir);
+		}
 		# latest dir/file did not exist, we need to set latestFile properly here
 		$latestFile = $fileNamePattern;
 		$latestFile =~ s/<CANCER>/$cancer_UC/;

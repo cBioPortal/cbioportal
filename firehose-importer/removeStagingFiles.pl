@@ -49,10 +49,15 @@ sub main{
     	my $cancerDirectory = $_;
 		my $stagingAreaCancerDirectory = File::Spec->catdir($stagingFilesDirectory, $cancerDirectory);
 
-		# remove the MAF if found
+		# remove the MAF & meta if found
 		my $toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'data_mutations_extended.txt');
 		if (-e $toRemove) {
 			print "removing MAF from staging area: $toRemove\n";
+			system("rm -f $toRemove"); 
+		}
+		$toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'meta_mutations_extended.txt');
+		if (-e $toRemove) {
+			print "removing MAF (meta file) from staging area: $toRemove\n";
 			system("rm -f $toRemove"); 
 		}
 
@@ -71,7 +76,7 @@ sub main{
 			foreach my $caseListFile ( @allCaseListFiles ) {
 				# check if exists in overrides
 				my $caseListInOverrides = File::Spec->catfile($overrideCaseListDirectory, $caseListFile);
-				if (-e $caseListInOverrides) {
+				if (-e $caseListInOverrides || $caseListFile eq 'cases_sequenced.txt') {
 					print "removing case list file from staging area: $caseListInOverrides\n";
 					my $toRemove = File::Spec->catfile($stagingAreaCaseListDirectory, $caseListFile);
 					system("rm -f $toRemove"); 

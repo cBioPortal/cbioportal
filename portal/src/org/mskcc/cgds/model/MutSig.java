@@ -48,6 +48,10 @@ public class MutSig {
         this.adjustedQValue = adjustedQValue;
     }
 
+    public MutSig(int i, CanonicalGene canonicalGene, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, double v, double v1) {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
     /*
      * The following GET methods will return each specific data type in this Instance of MutSig
      * note: getCanonicalGene will return a CanonicalGene object. To extract the HugoGeneSymbol

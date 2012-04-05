@@ -535,6 +535,21 @@ public class ValueParser {
       return "";
    }
 
+   /**
+    * 
+    * @param geneWithScore
+    * @return
+    */
+   public String getRPPAGlyph() {
+      if (this.isRPPAWayUp()) {
+         return "<img src='images/up1.png'>";
+      }
+      if (this.isRPPAWayDown()) {
+         return "<img src='images/down1.png'>";
+      }
+      return "";
+   }
+
    public String getCopyNumberStyle() {
       GeneticTypeLevel theGeneticTypeLevel = this.getCNAlevel();
       if (null != theGeneticTypeLevel) {

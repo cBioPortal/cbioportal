@@ -82,6 +82,7 @@
                             out.println( "<div class=\"nowrap\">" );
                             out.println( valueParser.getMutationGlyph() );
                             out.println( valueParser.getMRNAGlyph() );
+                            out.println( valueParser.getRPPAGlyph() );
                             out.println( "<div>" );
 
 

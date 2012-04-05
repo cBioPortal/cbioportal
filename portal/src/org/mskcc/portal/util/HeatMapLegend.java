@@ -17,6 +17,7 @@ public class HeatMapLegend {
    static ArrayList<String>            CNAlevels;
    static ArrayList<String>            MutationLevels;
    static ArrayList<String>            ExpressionLevels;
+   static ArrayList<String>            RPPALevels;
    static ArrayList<String>            Alterations;
    
    static ArrayList<ArrayList<String>> allColumns;
@@ -38,6 +39,7 @@ public class HeatMapLegend {
       CNAlevels = new ArrayList<String>();
       MutationLevels = new ArrayList<String>();
       ExpressionLevels = new ArrayList<String>();
+      RPPALevels = new ArrayList<String>();
       Alterations = new ArrayList<String>();
       
       // CNA colors
@@ -76,6 +78,19 @@ public class HeatMapLegend {
          ExpressionLevels.add("<td valign=top><img src=\"images/down2.png\"> = mRNA down-Regulation</td>");
       }
 
+      // RPPA
+      theResultDataTypeSpec = allPossibleAlterations
+               .getResultDataTypeSpec(GeneticDataTypes.RPPA);
+      if (null != theResultDataTypeSpec && (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
+         RPPALevels.add("<td valign=top><img src=\"images/up1.png\"> = Protein up-Regulation</td>");
+      }
+
+      // under
+      theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
+      if (null != theResultDataTypeSpec && (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
+         RPPALevels.add("<td valign=top><img src=\"images/down1.png\"> = Protein down-Regulation</td>");
+      }
+
       // column headers
       if (0 < CNAlevels.size()) {
          CNAlevels.add(0, "<th>Putative Copy Number Alteration</th>");
@@ -84,7 +99,10 @@ public class HeatMapLegend {
          MutationLevels.add(0, "<th>Point Mutation</th>");
       }
       if (0 < ExpressionLevels.size()) {
-         ExpressionLevels.add(0, "<th>Regulation</th>");
+         ExpressionLevels.add(0, "<th>Gene Expression</th>");
+      }
+      if (0 < RPPALevels.size()) {
+         RPPALevels.add(0, "<th>Protein Level</th>");
       }
       
       // Alterations
@@ -95,6 +113,7 @@ public class HeatMapLegend {
       allColumns.add(CNAlevels);
       allColumns.add(MutationLevels);
       allColumns.add(ExpressionLevels);
+      allColumns.add(RPPALevels);
       allColumns.add(Alterations);
             
       sb = new StringBuffer();

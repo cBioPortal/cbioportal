@@ -112,21 +112,11 @@ public class ImportProteinArrayData {
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         if (daoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
-                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Protein level by RPPA",
-                    "Protein level by reverse phase protein array (RPPA)", true);
+                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "RPPA protein/phosphoprotein level",
+                    "Protein or phosphoprotein level measured by reverse phase protein array (RPPA)", true);
             daoGeneticProfile.addGeneticProfile(gpPro);
             daoGeneticProfileCases.addGeneticProfileCases(
                     daoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), cases);
-        }
-        
-        String idProfPhos = cancerStudyStableId+"_RPPA_phosphorylation";
-        if (daoGeneticProfile.getGeneticProfileByStableId(idProfPhos)==null) {
-            GeneticProfile gpPhos = new GeneticProfile(idProfPhos, cancerStudyId,
-                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION, "Phosphoprotein level by RPPA",
-                    "Phosphoprotein level by reverse phase protein array (RPPA)", false);
-            daoGeneticProfile.addGeneticProfile(gpPhos);
-            daoGeneticProfileCases.addGeneticProfileCases(
-                    daoGeneticProfile.getGeneticProfileByStableId(idProfPhos).getGeneticProfileId(), cases);
         }
     }
     

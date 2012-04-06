@@ -99,8 +99,7 @@
     ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
-    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0
-                || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
+    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
     String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);

@@ -55,11 +55,6 @@ public class GeneticAlterationUtil {
                         GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
                 caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
                         targetCaseList, canonicalGene, type, null)[0];
-            } else if (targetGeneticProfile.getGeneticAlterationType() ==
-                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
-                caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
-                        targetCaseList, canonicalGene,
-                        GeneticAlterationType.PHOSPHORYLATION.toString(),null)[0];
             } else {
                 //  Handle All Other Data Types another way
                 caseMap = daoGeneticAlteration.getGeneticAlterationMap

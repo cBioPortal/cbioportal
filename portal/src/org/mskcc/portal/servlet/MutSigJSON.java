@@ -21,6 +21,7 @@ import java.util.Map;
 
     // JSON servlet for fetching MutSig data.
     // If there is no MutSig data, then return an empty JSON.
+    // @author Gideon Dresdner
 
 
 public class MutSigJSON extends HttpServlet {

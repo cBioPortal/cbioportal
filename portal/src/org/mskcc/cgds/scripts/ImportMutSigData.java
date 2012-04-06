@@ -8,8 +8,8 @@ import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 
-import java.util.*;
 import java.io.*;
+import java.util.Properties;
 
 /**
  * ImportMutSig is used to import the Broad Institutes MutSig data for different Cancer types
@@ -35,8 +35,55 @@ public class ImportMutSigData {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(mutSigFile);
         BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine();
         int cancerType = loadProps();
+
+        // parse Column names of a mutsig data file
+        int rankColumn = 0;
+        int hugoColumn = 0;
+        int BasesCoveredColumn = 0;
+        int numMutationsColumn = 0;
+        int PvalColumn = 0;
+        int QvalColumn = 0;
+
+        String head = buf.readLine();
+        String[] names = head.split("\t");
+        int len = names.length;
+        for (int i = 0; i < len ; i++)
+        {
+            if (names[i].equals("rank")) {
+                rankColumn = i;
+            }
+
+            else if (names[i].equalsIgnoreCase("gene")) {
+                hugoColumn = i;
+            }
+
+            else if (names[i].equals("N")) {
+                BasesCoveredColumn = i;
+            }
+            
+            else if (names[i].equals("n")) {
+               numMutationsColumn = i;
+            }
+
+            else if (names[i].equalsIgnoreCase("p")) {
+                PvalColumn = i;
+            }
+
+            else if (names[i].equalsIgnoreCase("q") || names[i].equalsIgnoreCase("q\n")) {
+                QvalColumn = i;
+            }
+
+            // is this the right thing to do here?
+            else {
+                continue;
+            }
+
+        }
+        // end parse Column names
+
+        // parse data
+        String line = buf.readLine();
         while (line != null) {
 
             if (pMonitor != null) {
@@ -44,35 +91,26 @@ public class ImportMutSigData {
                 ConsoleUtil.showProgress(pMonitor);
             }
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-            if (!line.startsWith("rank")) {
-                if (!line.startsWith("#")) {
-                    String parts[] = line.split("\t");
-                    int rank = Integer.parseInt(parts[0]);
-                    String hugoGeneSymbol = parts[1];
-                    int numBasesCovered = Integer.parseInt(parts[2]);
-                    int numMutations = Integer.parseInt(parts[3]);
-                    int nVal = Integer.parseInt(parts[4]);
-                    int nVer = Integer.parseInt(parts[5]);
-                    int cpg = Integer.parseInt(parts[6]);
-                    int aAndG = Integer.parseInt(parts[7]);
-                    int aAndT = Integer.parseInt(parts[8]);
-                    int indel = Integer.parseInt(parts[9]);
-                    String pValue = parts[10];
-                    String qValue = parts[11];
-                    String qValue2 = qValue.replace("<","");
-                    Double adjustedQValue = Double.parseDouble(qValue2);
-                    CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
-                    //check if gene is null, if it is, re-assign an EntrezGeneID of 0, and log to pMonitor
-                    //this way data can still be found in CGDS and Gene can be manually assigned an EntrezID
-                    if (gene == null) {
-                        gene = new CanonicalGene(0, hugoGeneSymbol);
-                        pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);
-                    }
-                    MutSig mutSig = new MutSig(cancerType, gene, rank, numBasesCovered, numMutations, nVal,
-                            nVer, cpg, aAndG, aAndT, indel, pValue, qValue, adjustedQValue);
-                    DaoMutSig.addMutSig(mutSig);
-                }
+            
+            String[] parts = line.split("\t");
+            
+            int rank = Integer.parseInt(parts[rankColumn]);
+            String hugoGeneSymbol = parts[hugoColumn];
+            int numBasesCovered = Integer.parseInt(parts[BasesCoveredColumn]);
+            int numMutations = Integer.parseInt(parts[numMutationsColumn]);
+            String pValue = parts[PvalColumn];
+            String qValue = parts[QvalColumn];
+
+            CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
+            if (gene == null) {
+                gene = new CanonicalGene(0, hugoGeneSymbol);
+                pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);
             }
+
+            // use 0 as a dummy value for nVal, nVer, cpg, aAndG, aAndT, indel, adjustedQValue
+            MutSig mutSig = new MutSig(cancerType, gene, rank, numBasesCovered, numMutations, 0,
+                    0, 0, 0, 0, 0, pValue, qValue, (double) 0);
+
             line = buf.readLine();
         }
     }
@@ -108,5 +146,3 @@ public class ImportMutSigData {
         return cancerStudyID;
     }
 }
-
-

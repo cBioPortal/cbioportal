@@ -25,11 +25,15 @@ public class TestImportMutSigData extends TestCase {
      */
 
     public void testImportMutSigData() throws Exception {
+        
+        System.out.println("\n\n\n\n\n\nIMPORT MUTSIG TEST\n\n\n\n\n\n");
         ResetDatabase.resetDatabase();
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 
+        // basic class parameter tests
+        // not loading any files
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
         CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "GBM_portal", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
@@ -42,23 +46,26 @@ public class TestImportMutSigData extends TestCase {
         daoGeneOptimized.addGene(gene2);
         assertEquals("EGFR", gene.getHugoGeneSymbolAllCaps());
         assertEquals(4921, gene2.getEntrezGeneId());
+
         //load testData file and properties file
-        File file = new File("test_data/test_mut_sig_data.txt");
+        File file = new File("test_data/test.BRCA.sig_genes.txt");
         File properties = new File("test_data/testCancerStudy.txt");
         ImportMutSigData parser = new ImportMutSigData(file, properties, pMonitor);
-        //import data and properties: see ImportMutSigData Class
         parser.importData();
 
         //Test if getMutSig works with a HugoGeneSymbol
         MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertEquals("EGFR", testGene.getHugoGeneSymbolAllCaps());
-        assertEquals(19, mutSig.getnVal());
-        assertEquals(1E-8,mutSig.getAdjustedQValue());
+        assertEquals(mutSig.getNumMutations(), 4);
+        assertEquals(mutSig.getNumBasesCovered(), 1978314);
+        assertEquals(mutSig.getpValue(), "0.085");
+        assertEquals(mutSig.getqValue(), "'0.82");
+
+        //test if getMutSig also works by passing an EntrezGeneID
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         CanonicalGene testGene2 = daoGene.getGene("DDR2");
 
-        //test if getMutSig also works by passing an EntrezGeneID
         MutSig mutSig2 = DaoMutSig.getMutSig(testGene2.getEntrezGeneId(), 1);
         assertEquals("0.0014", mutSig2.getpValue());
         assertEquals(273743 , mutSig2.getNumBasesCovered());

@@ -1,11 +1,19 @@
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
-        <li><a href="#genes_tab"><span>Genes</span></a></li>
+        <li><a href="#genes_tab"><span>Genes & Drugs</span></a></li>
         <li><a href="#relations_tab"><span>Interactions</span></a></li>
         <li><a href="#help_tab"><span>Help</span></a></li>
     </ul>
     <div id="genes_tab">
 	    <div class="header">
+	      <div class="combo">
+		    <label>Drugs</label><br><br>
+			<select id="drop_down_select">
+			  <option value="HIDE_DRUGS">Hide Drugs</option>
+			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
+			  <option value="SHOW_ALL">Show All Drugs</option>
+			</select>
+		</div>
 	    	<div id="slider_area">
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">
@@ -104,6 +112,20 @@
 		        	</td>
 	        	</tr>
 	        	<tr class="state-change">
+	        		<td>
+	        			<div class="percent-bar"></div>
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
+	        	<tr class="targeted-by-drug">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Targeted by drug</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="targeted-by-drug">
 	        		<td>
 	        			<div class="percent-bar"></div>	        			
 	        		</td>

@@ -404,7 +404,14 @@
  * ##################### Genes Tab ########################
  * ########################################################
  */
-
+ 
+ #genes_tab .combo select
+{
+	height: 25px;
+	width: 210px;
+	margin-bottom: 20px;
+	font-size: 14px;
+}
 #genes_tab .header
 {
 	padding-bottom: 0.5em;
@@ -434,7 +441,7 @@
 {
 	/* dimensions of the select box */
 	width: 210px;
-	height: 480px;
+	height: 380px;
 	
 	font-size: 12px;
 	

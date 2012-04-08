@@ -13,7 +13,8 @@ function send2cytoscapeweb(graphml, div_id) {
                                                     entries: [
                                                             { attrValue: "Protein", value: "ELLIPSE" },
                                                             { attrValue: "SmallMolecule", value: "DIAMOND" },
-                                                            { attrValue: "Unknown", value: "TRIANGLE" }
+                                                            { attrValue: "Unknown", value: "TRIANGLE" },
+                                                            { attrValue: "Drug", value: "HEXAGON" }
                                                     ]
                                             }
                                     },

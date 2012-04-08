@@ -1,3 +1,5 @@
+
+
 // flags
 var _autoLayout;
 var _removeDisconnected;
@@ -15,11 +17,13 @@ var _controlFunctions;
 var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
+var DRUG_TARGET = "DRUG_TARGET";
 var OTHER = "OTHER";
 
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
+var DRUG = "Drug";
 var UNKNOWN = "Unknown";
 
 // default values for sliders
@@ -61,6 +65,9 @@ var _alreadyFiltered;
 // array of genes filtered due to slider
 var _filteredBySlider;
 
+// array of drugs filtered due to drop down
+var _filteredByDropDown;
+
 // array of nodes filtered due to disconnection
 var _filteredByIsolation;
 
@@ -98,6 +105,7 @@ function initNetworkUI(vis)
 	_linkMap = _xrefArray();
 	_alreadyFiltered = new Array();
 	_filteredBySlider = new Array();
+	_filteredByDropDown = new Array();
 	_filteredByIsolation = new Array();
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
@@ -112,9 +120,11 @@ function initNetworkUI(vis)
 	_initLayoutOptions();
 
 	_initMainMenu();
+
 	_initDialogs();
 	_initPropsUI();
 	_initSliders();
+	_initDropDown();
 	_initTooltipStyle();
 	
 	// add listener for the main tabs to hide dialogs when user selects
@@ -905,6 +915,9 @@ function updateEdges()
 	_edgeTypeVisibility[STATE_CHANGE] =
 		$("#relations_tab .state-change input").is(":checked");
 	
+	_edgeTypeVisibility[DRUG_TARGET] =
+		$("#relations_tab .targeted-by-drug input").is(":checked");
+	
 	_edgeTypeVisibility[OTHER] =
 		$("#relations_tab .other input").is(":checked");
 	
@@ -1055,6 +1068,80 @@ function geneVisibility(element)
 	
 	return visible;
 }
+
+/**
+ * Determines the visibility of a drug (node) for filtering purposes. This
+ * function is designed to filter drugs by the drop down selection.
+ * 
+ * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function dropDownVisibility(element)
+{
+	var visible = false;
+	var weight;
+	var selectedOption = $("#drop_down_select").val();
+	// if an element is already filtered then it should remain invisible 
+	if (_alreadyFiltered[element.data.id] != null && element.data.type != "Drug")
+	{
+		visible = false;
+	}
+	// if an element is a seed node, then it should be visible
+	// (if it is not filtered manually)
+	else if (element.data["IN_QUERY"] != null &&
+			element.data["IN_QUERY"].toLowerCase() == "true")
+	{
+		visible = true;
+	}
+	else
+	{	
+		// get the weight of the node
+		weight = _geneWeightMap[element.data.id];
+		
+		// if the weight of the current node is below the threshold value
+		// then it should be filtered
+		
+		if (weight != null)
+		{
+			if (weight >= _geneWeightThreshold)
+			{
+				visible = true;
+			}
+		}
+		else
+		{
+			// no weight value, filter not applicable
+			visible = true;
+		}
+		
+		//if the node is a drug then check the drop down selection
+		
+		if(element.data.type == "Drug"){
+			if(selectedOption.toString() == "HIDE_DRUGS"){
+				visible = false;
+			}else if(selectedOption.toString() == "SHOW_ALL"){
+				visible = true;
+			}else{
+				if( element.data.FDA_APPROVAL == "true")
+					visible = true;
+				else
+					visible = false;
+			}
+		}
+		
+		if (!visible)
+		{
+			// if the element should be filtered,
+			// then add it to the required maps
+			
+			_alreadyFiltered[element.data.id] = element;
+			_filteredBySlider[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
 
 /**
  * Determines the visibility of a gene (node) for filtering purposes. This
@@ -1665,6 +1752,7 @@ function _edgeTypeArray()
 	typeArray[IN_SAME_COMPONENT] = true;
 	typeArray[REACTS_WITH] = true;
 	typeArray[STATE_CHANGE] = true;
+	typeArray[DRUG_TARGET] = true;
 	typeArray[OTHER] = true;
 	
 	return typeArray;
@@ -1978,11 +2066,25 @@ function _initDialogs()
 }
 
 /**
+ * Initializes the drop down menu.
+ */
+function _initDropDown(){
+	// add select listener for drop down menu
+	$("#drop_down_select").change(function(){
+			_changeListener();
+			});
+	//initially hide drugs
+	_changeListener();
+}
+
+
+/**
  * Initializes the gene filter sliders.
  */
 function _initSliders()
 {
 	// add key listeners for input fields
+	
 	$("#weight_slider_field").keypress(_keyPressListener);
 	$("#affinity_slider_field").keypress(_keyPressListener);
 	
@@ -2083,6 +2185,40 @@ function _weightSliderStop(event, ui)
 	// update filters
 	_filterBySlider();
 }
+/**
+*
+*/
+function _filterByDropDown(){
+	// remove previous filters due to slider
+	for (var key in _filteredByDropDown)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// remove previous filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// reset required filter arrays
+	_filteredByDropDown = new Array();
+	_filteredByIsolation = new Array();
+	
+	// remove filters
+	//_vis.removeFilter("nodes", false);
+	
+	// filter with new drop down selection 
+	_vis.filter("nodes", dropDownVisibility);
+	
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
+    
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+
+}
 
 /**
  * Filters genes by the current gene weight threshold value determined by
@@ -2153,6 +2289,17 @@ function _affinitySliderChange(event, ui)
 	// update filters
 	_filterBySlider();
 }
+
+/**
+*changeListener for the changes on the drop down menu
+*
+*/
+function _changeListener(){
+	//update drug filters
+	_filterByDropDown();
+
+}
+
 
 /**
  * Key listener for input fields on the genes tab.
@@ -2430,6 +2577,7 @@ function _refreshRelationsTab()
 	percentages[IN_SAME_COMPONENT] = 0;
 	percentages[REACTS_WITH] = 0;
 	percentages[STATE_CHANGE] = 0;	
+	percentages[DRUG_TARGET] = 0;
 	
 	// for each edge increment count of the correct edge type 
 	for (var i=0; i < edges.length; i++)
@@ -2440,7 +2588,8 @@ function _refreshRelationsTab()
 	percentages[OTHER] = edges.length -
 		(percentages[IN_SAME_COMPONENT] +
 		percentages[REACTS_WITH] +
-		percentages[STATE_CHANGE]);
+		percentages[STATE_CHANGE] +
+		percentages[DRUG_TARGET]);
 	
 	if (percentages[OTHER] == 0)
 	{
@@ -2466,9 +2615,20 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#CD976B");
+		"background-color", "#5C4033");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[DRUG_TARGET] * 100 / edges.length);
+	
+	$("#relations_tab .targeted-by-drug .percent-bar").css(
+		"width", Math.ceil(percent * 0.85) + "%");
+	
+	$("#relations_tab .targeted-by-drug .percent-bar").css(
+		"background-color", "#CD976B");
+	
+	$("#relations_tab .targeted-by-drug .percent-value").text(
 		percent.toFixed(1) + "%");
 	
 	percent = (percentages[REACTS_WITH] * 100 / edges.length);

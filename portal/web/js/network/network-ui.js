@@ -19,6 +19,7 @@ var OTHER = "OTHER";
 
 // node type constants
 var PROTEIN = "Protein";
+var DRUG	= "Drug";
 var SMALL_MOLECULE = "SmallMolecule";
 var UNKNOWN = "Unknown";
 
@@ -294,8 +295,8 @@ function showNodeInspector(evt)
 	
 	var data = evt.target.data;
 	
-	_updateNodeInspectorContent(data);
-	
+	_updateNodeInspectorContent(data, evt.target);
+
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
 	
@@ -311,12 +312,133 @@ function showNodeInspector(evt)
 
 
 /**
+ * Updates node inspector data for drug node type
+ * @param data double clicked node's ( drug for this method ) data
+ * */
+function _updateNodeInspectorForDrug(data, node)
+{
+	var targets = new Array();
+	var atc_codes = new Array();
+	var synonyms = new Array();
+	var description;
+	
+	//For number of targeted genes
+	if (data["TARGETS"] != "") 
+	{	
+		targets = data["TARGETS"].split(";");
+		
+		$("#node_inspector_content .data").append(
+		'<tr align="left" class="targets-data-row"><td>' +
+		'<strong>Targeted gene number: </strong> ' + targets.length + 
+		'</td></tr>');	
+		$("#node_inspector_content .targets-data-row td").append('<br><br>');
+
+	}
+	
+	// For drug atc code
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="atc_codes-data-row"><td>' +
+			'<strong>Drug Class(ATC codes): </strong></td></tr>');
+	
+	atc_codes = data["ATC_CODE"].split(",");
+	
+	for ( var i = 0; i < atc_codes.length; i++) 
+	{	
+		$("#node_inspector_content .atc_codes-data-row td").append(atc_codes[i]);
+		if (i != atc_codes.length - 1) 
+		{
+			$("#node_inspector_content .atc_codes-data-row td").append(', ');
+		}
+	}
+	
+	if (data["ATC_CODE"] == "") 
+	{
+		$("#node_inspector_content .atc_codes-data-row td").append("Unknown");
+	}
+	$("#node_inspector_content .atc_codes-data-row td").append('<br><br>');
+	
+	
+	// For drug Synonyms
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="synonyms-data-row"><td>' +
+			'<strong>Synonyms: </strong></td></tr>');
+	
+	
+	if (data["SYNONYMS"] == "") 
+	{
+		$("#node_inspector_content .synonyms-data-row td").append("Unknown");
+		$("#node_inspector_content .synonyms-data-row td").append('<br>');
+	}
+	else
+	{
+		synonyms = data["SYNONYMS"].split(";");	
+		for ( var i = 0; i < synonyms.length; i++) 
+		{
+			$("#node_inspector_content .synonyms-data-row td").append('<p style="margin: 0px;"> -' + synonyms[i] + '</p>');
+		}
+	}
+	$("#node_inspector_content .synonyms-data-row td").append('<br>');
+	
+	
+	// For Drug description
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="description-data-row"><td>' +
+			'<strong>Description: </strong></td></tr>');
+	
+	
+	description = data["DESCRIPTION"];
+	
+	if (description != "") 
+	{
+		$("#node_inspector_content .description-data-row td").append(description);
+	}
+	else
+		$("#node_inspector_content .description-data-row td").append("Unknown");
+	
+	
+	$("#node_inspector_content .description-data-row td").append('<br><br>');
+	
+	
+	// For FDA approval
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="fda-data-row"><td>' +
+			'<strong>FDA Approval: </strong></td></tr>');
+	
+	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
+	
+	$("#node_inspector_content .fda-data-row td").append(fda_approval);
+	$("#node_inspector_content .fda-data-row td").append('<br><br>');
+	
+	
+	// For Pub Med IDs			
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="pubmed-data-row"><td>' +
+			'<strong>PubMed IDs: </strong></td></tr>');
+	
+	var pubmeds = new Array();			
+	var edges = _vis.edges();
+	
+	for ( var i = 0; i < edges.length; i++) 
+	{
+		if (edges[i].data.source == node.data.id) 
+		{
+			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+		}
+	}
+	
+	if (pubmeds.length == 0) 
+	{			
+		$("#node_inspector_content .pubmed-data-row td").append("Unknown");
+	}
+}
+
+/**
  * Updates the content of the node inspector with respect to the provided data.
  * Data is assumed to be the data of a node.
  * 
  * @param data	node data containing necessary fields
  */
-function _updateNodeInspectorContent(data)
+function _updateNodeInspectorContent(data,node)
 {
 	// set title
 	
@@ -333,10 +455,25 @@ function _updateNodeInspectorContent(data)
 	
 	// clean xref, percent, and data rows
 	
+	// These rows for drug view of node inspector.
+	$("#node_inspector_content .data .targets-data-row").remove();
+	$("#node_inspector_content .data .atc_codes-data-row").remove();
+	$("#node_inspector_content .data .synonyms-data-row").remove();
+	$("#node_inspector_content .data .description-data-row").remove();
+	$("#node_inspector_content .data .fda-data-row").remove();
+	$("#node_inspector_content .data .pubmed-data-row").remove();
+	
+	// For non drug view of node inspector
 	$("#node_inspector_content .data .data-row").remove();
+	
 	$("#node_inspector_content .xref .xref-row").remove();
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
+	
+	if (data.type == DRUG) 
+	{
+		_updateNodeInspectorForDrug(data, node);
+	}
 	
 		
 	//_addDataRow("node", "ID", data.id);
@@ -382,16 +519,20 @@ function _updateNodeInspectorContent(data)
 	{
 		$("#node_inspector_content .xref").append(
 			'<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
-		
-		_addXrefEntry('node', links[0].href, links[0].text);
 	}
 	
-	for (var i=1; i < links.length; i++)
+	for (var i=0; i < links.length; i++)
 	{
-		$("#node_inspector_content .xref-row td").append(', ');
 		_addXrefEntry('node', links[i].href, links[i].text);
+				
+		if (i != links.length - 1) 
+		{
+			$("#node_inspector_content .xref-row td").append(', ');
+		}
 	}
 }
+
+
 
 /**
  * Add percentages (genomic profile data) to the node inspector with their
@@ -715,7 +856,7 @@ function showGeneDetails(evt)
 	// TODO position the inspector, (also center the selected gene?)
 	
 	// update inspector content
-	_updateNodeInspectorContent(node.data);
+	_updateNodeInspectorContent(node.data,node);
 	
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
@@ -1647,6 +1788,7 @@ function _xrefArray()
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
 	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
+	linkMap["drugbank"] = "http://www.drugbank.ca/drugs/" + ID_PLACE_HOLDER;
 	linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;

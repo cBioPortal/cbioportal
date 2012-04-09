@@ -916,7 +916,17 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
-# create <CANCER>.seg
+# create data_mutsig.txt
+# source tarball: gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>
+# source file: <CANCER>.sig_genes.txt
+# data transformation:
+# None.  Simply rename the file
+sub create_mut_sig {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+	$data->write($CGDSfile);
+}
+
+# create <CANCER>_tcga.seg
 # source tarball: gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version>
 # source file: <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
 # data transformation:

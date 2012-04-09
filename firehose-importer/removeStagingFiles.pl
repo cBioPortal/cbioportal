@@ -19,10 +19,11 @@ Removes all data_mutations_extended.txt (MAFs) from the given staging area as we
 
 --stagingFilesDirectory # directory which stores staging files
 --overridesDirectory    # directory containing overrides
+--cancerCaseFilesToSkipFile # file containing cancer studies for which case studies should not be removed
 
 EOT
 
-my($stagingFilesDirectory, $overridesDirectory);
+my($stagingFilesDirectory, $overridesDirectory, $cancerCaseFilesToSkipFile);
 
 main();
 sub main{
@@ -30,20 +31,39 @@ sub main{
     # process arg list
     GetOptions (
         "stagingFilesDirectory=s" => \$stagingFilesDirectory,
-        "overridesDirectory=s" => \$overridesDirectory );
+        "overridesDirectory=s" => \$overridesDirectory,
+        "cancerCaseFilesToSkipFile=s" => \$cancerCaseFilesToSkipFile );
 
     my $f = File::Util->new();
+
+	my @tmpList;
+    my @tmp = $f->load_file( $cancerCaseFilesToSkipFile, '--as-lines' );
+    foreach (@tmp){
+	  push(@tmpList, $_);
+    }
+	my %cancerCaseFilesToSkip = map { $_, 1 } @tmpList;
+
 	my @allCancerDirs = $f->list_dir($stagingFilesDirectory, '--dirs-only');
     foreach (@allCancerDirs){
 		# construct staging files cancer directory
     	my $cancerDirectory = $_;
 		my $stagingAreaCancerDirectory = File::Spec->catdir($stagingFilesDirectory, $cancerDirectory);
 
-		# remove the MAF if found
+		# remove the MAF & meta if found
 		my $toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'data_mutations_extended.txt');
 		if (-e $toRemove) {
 			print "removing MAF from staging area: $toRemove\n";
 			system("rm -f $toRemove"); 
+		}
+		$toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'meta_mutations_extended.txt');
+		if (-e $toRemove) {
+			print "removing MAF (meta file) from staging area: $toRemove\n";
+			system("rm -f $toRemove"); 
+		}
+
+		if (exists($cancerCaseFilesToSkip{$cancerDirectory})) {
+		  print "skipping removal of case files from: $cancerDirectory\n";
+		  next;
 		}
 
 		# construct case list directories
@@ -56,7 +76,7 @@ sub main{
 			foreach my $caseListFile ( @allCaseListFiles ) {
 				# check if exists in overrides
 				my $caseListInOverrides = File::Spec->catfile($overrideCaseListDirectory, $caseListFile);
-				if (-e $caseListInOverrides) {
+				if (-e $caseListInOverrides || $caseListFile eq 'cases_sequenced.txt') {
 					print "removing case list file from staging area: $caseListInOverrides\n";
 					my $toRemove = File::Spec->catfile($stagingAreaCaseListDirectory, $caseListFile);
 					system("rm -f $toRemove"); 

@@ -460,6 +460,17 @@ sub create_data_mutations_extended{
 	        $main::Tumor_Sample_Barcode = convertCaseID( $main::Tumor_Sample_Barcode );
 	    }, undef, ['Tumor_Sample_Barcode'] );
     }
+
+	# if entrez id = '0', replace with gene id
+	if ($data->col_exists('Entrez_Gene_Id')) {
+	  $data->calc( sub{
+					 my $geneID = $main::Entrez_Gene_Id;
+					 my $hugoSymbol = $main::Hugo_Symbol;
+					 if ($geneID == 0 && defined($hugoSymbol)) {
+					   $main::Entrez_Gene_Id = $self->{GENEMAP}->getGeneID($hugoSymbol); 
+					 }
+	   });
+	}
 	
     # subselect and reorder columns 
     $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  

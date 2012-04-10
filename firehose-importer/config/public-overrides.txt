@@ -1,4 +1,3 @@
-ccle_broad
 coadread_tcga
 gbm_tcga
 ov_tcga

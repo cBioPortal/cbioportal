@@ -659,7 +659,7 @@ sub create_case_lists{
         
     create_one_to_one_case_lists( $FirehoseFileMetadata_objects, $runSummary, File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'), 
         $cancer, $cancerCenter, $case_list_FileProperties, 
-        [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
+        [qw( stable_id case_list_category cancer_study_identifier case_list_name case_list_description )] ); 
     
 	my $cghSource = 'all_thresholded.by_genes.txt';
 	my $rnaSEQSource = '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt';

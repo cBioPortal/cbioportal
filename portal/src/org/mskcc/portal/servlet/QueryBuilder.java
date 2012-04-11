@@ -200,7 +200,7 @@ public class QueryBuilder extends HttpServlet {
                                                caseSetId, caseIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(geneticProfileIdSet, profileList, geneList, caseSetId,
+                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, caseSetId,
                             caseIds, caseSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -268,15 +268,15 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      * 
     */
-    private void processData(HashSet<String> geneticProfileIdSet,
-                                ArrayList<GeneticProfile> profileList,
-                                String geneListStr,
-                                String caseSetId, String caseIds,
-                                ArrayList<CaseList> caseSetList,
-                                ServletContext servletContext, HttpServletRequest request,
-                                HttpServletResponse response,
-                                XDebug xdebug)
-            throws IOException, ServletException, DaoException {
+    private void processData(String cancerTypeId,
+							 HashSet<String> geneticProfileIdSet,
+							 ArrayList<GeneticProfile> profileList,
+							 String geneListStr,
+							 String caseSetId, String caseIds,
+							 ArrayList<CaseList> caseSetList,
+							 ServletContext servletContext, HttpServletRequest request,
+							 HttpServletResponse response,
+							 XDebug xdebug) throws IOException, ServletException, DaoException {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
@@ -409,21 +409,7 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
 
             if (output != null) {
-
-                String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
-                boolean showAlteredColumnsBool = false;
-                if( showAlteredColumns != null && showAlteredColumns.equals("true")) {
-                    showAlteredColumnsBool = true;
-                }
-                if (output.equalsIgnoreCase("svg")) {
-                    outputSvg(response, geneListStr, mergedProfile, caseSetList, caseSetId,
-                            zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList);
-                } else if (output.equalsIgnoreCase("html")) {
-                    outputOncoprintHtml(response, geneListStr, mergedProfile, caseSetList,
-                            caseSetId, zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList,request);
-                } else if (output.equals("text")) {
+				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold);
                 } else if (output.equals(OS_SURVIVAL_PLOT)) {
@@ -434,6 +420,20 @@ public class QueryBuilder extends HttpServlet {
                             zScoreThreshold, clinicalDataList, format, response);
                 }
             } else {
+				// get oncoprint here and store in session 
+				// to avoid another call to QueryBuilder.java from visualize.jsp
+				String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
+																   geneListStr,
+																   mergedProfile,
+																   mutationList,
+																   caseSetList,
+																   caseSetId,
+																   zScoreThreshold,
+																   geneticProfileIdSet,
+																   profileList,
+																   true);
+				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
+				
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
                 RequestDispatcher dispatcher =
@@ -473,63 +473,6 @@ public class QueryBuilder extends HttpServlet {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
         PrintWriter writer = response.getWriter();
         writer.write("" + dataSummary.getPercentCasesAffected());
-        writer.flush();
-        writer.close();
-    }
-
-    private void outputOncoprintHtml(HttpServletResponse response, String geneListStr,
-            ProfileData mergedProfile, ArrayList<CaseList> caseSetList, String caseSetId,
-            double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList,
-            HttpServletRequest request)
-            throws IOException {
-        response.setContentType("text/html");
-        PrintWriter writer = response.getWriter();
-		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
-        writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-                "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
-        writer.write ("<head>\n");
-        writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-        writer.write ("<title>OncoPrint::Results</title>\n");
-        writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-        writer.write ("</head>\n");
-        writer.write ("<body style=\"background-color:#FFFFFF\">\n");
-        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true);
-        writer.write(out);
-        
-        // TODO: hacky way for su2c
-        if (cancerStudyIdentifier.equals("grayBreastCellLine")) {
-            writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
-            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
-                    + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
-            writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
-            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser</font>"
-                    + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-		}
-
-        writer.write ("</body>\n");
-        writer.write ("</html>\n");
-        writer.flush();
-        writer.close();
-    }
-
-    private void outputSvg(HttpServletResponse response, String geneListStr,
-            ProfileData mergedProfile, ArrayList<CaseList> caseSetList,
-            String caseSetId, double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
-            throws IOException {
-        response.setContentType("image/svg+xml");
-        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-												 caseSetList, caseSetId,
-												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true);
-        PrintWriter writer = response.getWriter();
-        writer.write(out);
         writer.flush();
         writer.close();
     }

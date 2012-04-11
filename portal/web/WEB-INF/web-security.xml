@@ -160,6 +160,11 @@
         <servlet-class>org.mskcc.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>oncoprint_converter</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -264,6 +269,11 @@
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
+
+     <servlet-mapping>
+        <servlet-name>oncoprint_converter</servlet-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+    </servlet-mapping>   
 
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>

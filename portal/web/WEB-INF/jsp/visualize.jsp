@@ -102,6 +102,7 @@
                 || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
+    String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 
 
@@ -283,7 +284,8 @@
                 %>
 
             <div class="section" id="summary">
-            <%@ include file="fingerprint.jsp" %>
+			<% //contents of fingerprint.jsp now come from attribute on request object %>
+			<%= oncoprintHTML %>
             <%@ include file="gene_info.jsp" %>
             </div>
 

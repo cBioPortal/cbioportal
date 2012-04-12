@@ -77,15 +77,21 @@
         var cancerStudyNames = [<%=studiesNames%>];
 
         histogramData.addColumn('string', 'Cancer Study');
-        histogramData.addColumn('number', 'Percent Alteration');
+        histogramData.addColumn('number', 'Mutation');
+        histogramData.addColumn('number', 'Deletion');
+        histogramData.addColumn('number', 'Amplification');
+        histogramData.addColumn('number', 'Multiple Alteration');
 
         histogramData2.addColumn('string', 'Cancer Study');
-        histogramData2.addColumn('number', 'Number of Unaltered Cases');
-        histogramData2.addColumn('number', 'Number of Altered Cases');
+        histogramData2.addColumn('number', 'Not altered');
+        histogramData2.addColumn('number', 'Mutation');
+        histogramData2.addColumn('number', 'Deletion');
+        histogramData2.addColumn('number', 'Amplification');
+        histogramData2.addColumn('number', 'Multiple Alteration');
 
         for(var i=0; i < cancerStudies.length; i++) {
-            histogramData.addRow([cancerStudyNames[i], 0]);
-            histogramData2.addRow([cancerStudyNames[i], 0, 0]);
+            histogramData.addRow([cancerStudyNames[i], 0, 0, 0, 0]);
+            histogramData2.addRow([cancerStudyNames[i], 0, 0, 0, 0, 0]);
         }
 
         drawChart();
@@ -93,6 +99,67 @@
         $("#toggle_query_form").tipTip();
 
         loadStudiesWithIndex(0);
+        function formatPercent(number) {
+            return parseFloat(number.toFixed(1));
+        }
+
+        function updateHistograms(bundleIndex, cancerID) {
+            var alts = eval("GENETIC_ALTERATIONS_SORTED_" + cancerID
+                    + ".get('GENETIC_ALTERATIONS_SORTED_" + cancerID + "')");
+
+            var numOfCases = alts[0].alterations.length;
+            var numOfMuts = 0;
+            var numOfDels = 0;
+            var numOfAmp = 0;
+            var numOfCombo = 0
+
+            for(var i=0; i < numOfCases; i++) {
+                var isMut = false;
+                var isAmp = false;
+                var isDel = false;
+
+                var altCnt = 0;
+                for(var j=0; j < alts.length; j++) {
+                    var alt = alts[j].alterations[i].alteration;
+
+                    if( alt & MUTATED ) {
+                        isMut = true;
+                        altCnt++;
+                    }
+                    if(alt & CNA_AMPLIFIED) {
+                        isAmp = true;
+                        altCnt++;
+                    }
+                    if(alt & CNA_HOMODELETED) {
+                        isDel = true;
+                        altCnt++
+                    }
+                }
+
+                if(altCnt > 1)
+                    numOfCombo++;
+                else if(altCnt == 1) {
+                    if(isAmp) {numOfAmp++;}
+                    if(isDel) {numOfDels++}
+                    if(isMut) {numOfMuts++}
+                }
+            }
+
+            var numOfAltered = numOfMuts+numOfDels+numOfAmp+numOfCombo;
+            histogramData.setValue(bundleIndex, 1, formatPercent((numOfMuts/numOfCases) * 100.0));
+            histogramData.setValue(bundleIndex, 2, formatPercent((numOfDels/numOfCases) * 100.0));
+            histogramData.setValue(bundleIndex, 3, formatPercent((numOfAmp/numOfCases) * 100.0));
+            histogramData.setValue(bundleIndex, 4, formatPercent((numOfCombo/numOfCases) * 100.0));
+
+            histogramData2.setValue(bundleIndex, 1, numOfCases-numOfAmp);
+            histogramData2.setValue(bundleIndex, 2, numOfMuts);
+            histogramData2.setValue(bundleIndex, 3, numOfDels);
+            histogramData2.setValue(bundleIndex, 4, numOfAmp);
+            histogramData2.setValue(bundleIndex, 5, numOfCombo);
+
+            if( bundleIndex % 4 == 0 || bundleIndex+1 == cancerStudies.length)
+                drawChart();
+        }
 
         function loadStudiesWithIndex(bundleIndex) {
             if(bundleIndex >= cancerStudies.length) {
@@ -105,18 +172,7 @@
                         function() {
 
                             setTimeout(function() {
-                                    var content = $("#stats_percent_altered_" + cancerID).html();
-                                    var percent = content.substring(0, content.length-1) * 1.0;
-                                    histogramData.setValue(bundleIndex, 1, percent);
-
-                                    var numUnaltered = $("#stats_num_all_" + cancerID).html();
-                                    histogramData2.setValue(bundleIndex, 1, numUnaltered * 1);
-
-                                    var numAltered = $("#stats_num_altered_" + cancerID).html();
-                                    histogramData2.setValue(bundleIndex, 2, numAltered * 1);
-
-                                    if( bundleIndex % 4 == 0 || bundleIndex+1 == cancerStudies.length)
-                                        drawChart();
+                                updateHistograms(bundleIndex, cancerID);
                             }, 760);
 
                             loadStudiesWithIndex(bundleIndex+1);
@@ -128,21 +184,23 @@
             var options = {
               title: 'Percent Sample Alteration for each Cancer Study',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#008000'],
+              colors: ['#008000', '#002efa', '#ff2617', '#dddddd'],
               animation: {
                 duration: 750,
-                easing: 'linear',
+                easing: 'linear'
               },
               legend: {
-                position: 'none'
+                position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45,
+                slantedTextAngle: 45
               },
               vAxis: {
                 maxValue: 100,
                 minValue: 0
-              }
+              },
+              isStacked: true
+
             };
 
             histogramChart.draw(histogramData, options);
@@ -150,16 +208,15 @@
             var options2 = {
               title: 'Number of Altered Cases for each Cancer Study',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#dddddd', '#008000'],
+              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#cccccc'],
               animation: {
                 duration: 750,
-                easing: 'linear',
               },
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45,
+                slantedTextAngle: 45
               },
               isStacked: true
             };
@@ -289,7 +346,7 @@
             out.println("<span class='ui-icon ui-icon-triangle-1-s'"
                     + " style='float:left;display:none;'></span>");
             out.println(cancerStudy.getName());
-            out.println("<span class='ui-icon ui-icon-arrowthick-2-n-s movable-icon' style='float:right;'"
+            out.println("<span class='ui-icon ui-icon-grip-solid-horizontal movable-icon' style='float:right;'"
                     + " title='You can drag this box and drop it to anywhere on the list.'></span>");
             out.println("<span class='percent_altered' id='percent_altered_" + cancerStudy.getCancerStudyStableId()
                     + "' style='float:right'><img src='images/ajax-loader2.gif'></span>");

@@ -31,8 +31,6 @@
     int fingerPrintPanelHeight = 120 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String percentCasesAffected = percentFormat.format(dataSummary.getPercentCasesAffected());
-    Integer numOfCasesAffected = dataSummary.getNumCasesAffected();
-    Integer numOfCasesUnaffected = dataSummary.getProfileData().getCaseIdList().size() - numOfCasesAffected;
 %>
 
 <script type="text/javascript">
@@ -81,7 +79,4 @@ $(document).ready(function(){
 <div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>
 </div>
-<span id="stats_percent_altered_<%= cancerStudyId %>"><%= percentCasesAffected %></span>
-<span id="stats_num_altered_<%= cancerStudyId %>"><%= "" + numOfCasesAffected %></span>
-<span id="stats_num_all_<%= cancerStudyId %>"><%= "" + numOfCasesUnaffected %></span>
 <jsp:include page="global/xdebug.jsp" flush="true" />

@@ -645,8 +645,9 @@ public class MakeOncoPrint {
 			}
 		}
 
-		// outta here
-		return builder.toString();
+		// we need to replace " in string with \" otherwise javascript will puke
+		String toReturn = builder.toString();
+		return toReturn.replace("\"", "\\\"");
 	}
 
 	/**

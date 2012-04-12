@@ -541,9 +541,14 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	boundingBox = text.getBBox();
 	canvasWidth = boundingBox.width;
 	textHeight = boundingBox.height;
+
 	// only include this height if summary tab (for case set description)
 	if (forSummaryTab) {
 		canvasHeight = canvasHeight + boundingBox.height;
+		// description may be two lines, in which case we want to add an extra space
+		if (headerVariables.get('CASE_SET_DESCRIPTION').indexOf("\n") != -1) {
+			canvasHeight = canvasHeight + boundingBox.height;
+		}
 	}
 
 	// altered stats

@@ -122,7 +122,7 @@ public class ImportProteinArrayData {
     
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study identifier>");
+            System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
             System.exit(1);
         }
         

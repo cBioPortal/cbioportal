@@ -156,7 +156,12 @@ public class GeneticAlterationUtil {
             for (String arrayId : canonicalGene.getAliases()) {
                 ProteinArrayInfo pai = daoPAI.getProteinArrayInfo(arrayId);
                 if (pai!=null && pai.getCancerStudies().contains(cancerStudyId)) {
-                    arrayIds.add(arrayId);
+                    if (arrayId.contains("-")) {
+                        // normalized
+                        arrayIds.add(0, arrayId);
+                    } else {
+                        arrayIds.add(arrayId);
+                    }
                 }
             }
         } else {
@@ -177,7 +182,7 @@ public class GeneticAlterationUtil {
         ret = new Map[n];
         
         for (int i=0; i<n; i++) {
-            String arrayId = arrayIds.get(0);
+            String arrayId = arrayIds.get(i);
 
             if (arrayId == null) {
                 continue;

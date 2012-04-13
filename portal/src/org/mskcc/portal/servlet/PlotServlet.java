@@ -2,6 +2,7 @@ package org.mskcc.portal.servlet;
 
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RserveException;
 import org.owasp.validator.html.PolicyException;
 import org.apache.log4j.Logger;
 
@@ -29,6 +30,7 @@ public class PlotServlet extends HttpServlet {
     private static final String UNDEFINED = "undefined";
 
     private static ServletXssUtil servletXssUtil;
+	private static RConnection c;
 
     /**
      * Initializes the servlet.
@@ -38,11 +40,25 @@ public class PlotServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         try {
+			c = new RConnection();
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
             throw new ServletException (e);
-        }
+        } catch (RserveException e) {
+            throw new ServletException (e);
+		}
     }
+
+	/**
+	 * Servlet is being taken out of service.
+	 */
+	public void destroy() {
+
+		// close RConnection
+		if (c != null) {
+            c.close();
+		}
+	}
 
     /**
      * Processes GET Request.
@@ -89,7 +105,6 @@ public class PlotServlet extends HttpServlet {
             }
 
             geneticProfiles = geneticProfiles.substring(0, geneticProfiles.length() - 1);
-            RConnection c = new RConnection();
 
             if (format.equals("pdf")) {
                 res.setContentType("application/pdf");
@@ -193,7 +208,6 @@ public class PlotServlet extends HttpServlet {
             byte[] imageBytes = xp.asBytes();
             res.setContentLength(imageBytes.length);
             res.getOutputStream().write(imageBytes);
-            c.close();
         } catch (Exception e) {
             //  In the event of an exception, redirect to the Plot NA Image.
             logger.error(e);

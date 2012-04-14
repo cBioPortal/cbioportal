@@ -22,9 +22,11 @@ import java.util.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class MakeOncoPrint {
+
 	public static int CELL_HEIGHT = 21; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
-	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";
+	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
+	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -667,13 +669,14 @@ public class MakeOncoPrint {
 		StringBuilder builder = new StringBuilder();
 		for (CaseList caseSet : caseSets) {
 			if (caseSetId.equals(caseSet.getStableId())) {
-				builder.append("Case Set: " + caseSet.getName() +
+				builder.append(CASE_SET_DESCRIPTION_LABEL + caseSet.getName() +
 							   ":  " + caseSet.getDescription());
 			}
 		}
 
-		// outta here
-		return builder.toString();
+		// we need to replace " in string with \" otherwise javascript will puke
+		String toReturn = builder.toString();
+		return toReturn.replace("\"", "\\\"");
 	}
 
 	/**

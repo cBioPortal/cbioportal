@@ -83,6 +83,7 @@ var DEFAULTS = (function() {
 			'LABEL_FONT'                        : "normal 12px verdana",
 			'LABEL_SPACING'                     : 15, // space between gene and percent altered 
 			'LABEL_PADDING'                     : 3,  // padding (in pixels) between label and first genetic alteration
+			'CASE_SET_DESCRIPTION_LABEL'        : "Case Set:i",
 			// legend
 			'LEGEND_SPACING'                    : 5,  // space between alteration and description
 			'LEGEND_PADDING'                    : 15, // space between alteration / descriptions pairs
@@ -96,7 +97,8 @@ var DEFAULTS = (function() {
 			'TOOLTIP_MARGIN'                    : 10,
 			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
 			// header
-			'HEADER_VERTICAL_PADDING'           : 10, // space between header sentences
+			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
+			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
             // general sample properties
 			'ALTERED_SAMPLES_ONLY'              : false
 		};
@@ -115,6 +117,15 @@ var DEFAULTS = (function() {
  */
 function OncoPrintInit(headerElement, bodyElement, legendElement) {
 
+	// compute case set description label length
+	var scratchCanvas = Raphael(0,0, 1, 1);
+	var text = scratchCanvas.text(0,0, DEFAULTS.get('CASE_SET_DESCRIPTION_LABEL'));
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	var caseSetDescriptionLabelLength = text.getBBox().width;
+	text = scratchCanvas.text(0,0, "<");
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	var lessThanSignLength = text.getBBox().width;
+
 	return {
 		// header element is used later to determine location of tooltip canvas
 		'header_element'                    : headerElement,
@@ -125,6 +136,8 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'tooltip_canvas'                    : null,
 		// longest label length
 		'longest_label_length'              : 0,
+		'case_set_description_label_length' : caseSetDescriptionLabelLength,
+		'less_than_sign_length'             : lessThanSignLength,
 		// general styles
 		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
 		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
@@ -400,34 +413,52 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 	// vars used below
 	var x, y;
 	var text;
+	var singleLineDescription = (headerVariables.get('CASE_SET_DESCRIPTION').indexOf("\n") == -1);
 
 	// set longest label length
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
 
 	// resize canvas 
  	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, true);
-	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.header_canvas.clear();
 
 	// render case list description
 	x = 0;
-	y = dimension.text_height / 2;
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'start');
+	y = DEFAULTS.get('HEADER_VERTICAL_SPACING');
+	if (singleLineDescription) {
+		text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
+		text.attr('font', DEFAULTS.get('LABEL_FONT'));
+		text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+		text.attr('text-anchor', 'start');
+	}
+	else {
+		var descriptionStrings = headerVariables.get('CASE_SET_DESCRIPTION').split("\n");
+		// first line
+		text = oncoprint.header_canvas.text(x, y, descriptionStrings[0]);
+		text.attr('font', DEFAULTS.get('LABEL_FONT'));
+		text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+		text.attr('text-anchor', 'start');
+		// second line
+		y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
+		text = oncoprint.header_canvas.text(oncoprint.case_set_description_label_length,
+											y, descriptionStrings[1]);
+		text.attr('font', DEFAULTS.get('LABEL_FONT'));
+		text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+		text.attr('text-anchor', 'start');
+	}
 
 	// render altered stats
-	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	y = y + DEFAULTS.get('HEADER_VERTICAL_PADDING');
 	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
 
-	// % altered column heading
+	// % altered column heading line one
 	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
-	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
+	y = y + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	var percentAlteredStrings = headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING').split("\n");
+	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[0]);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
@@ -443,6 +474,17 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
+
+	// % altered column heading line two
+	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
+	y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
+	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[1]);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+
+	// set the size of the canvas here - after we know the proper height
+	oncoprint.header_canvas.setSize(dimension.width, y + DEFAULTS.get('HEADER_VERTICAL_SPACING'));
 }
 
 /*
@@ -470,21 +512,22 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
  	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, false);
 	// make a few minor adjustment for Cross Cancer Summary Page
 	dimension.width = dimension.width + oncoprint.longest_label_length;
-	oncoprint.header_canvas.setSize(dimension.width, dimension.height);
+	//oncoprint.header_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.header_canvas.clear();
 
 	// render altered stats
 	x = 0;
-	y = DEFAULTS.get('HEADER_VERTICAL_PADDING') + dimension.text_height / 2;
+	y = DEFAULTS.get('HEADER_VERTICAL_PADDING');
 	text = oncoprint.header_canvas.text(x, y, headerVariables.get('ALTERED_STATS'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
 
-	// % altered column heading
+	// % altered column heading line one
 	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
-	y = y + dimension.text_height + DEFAULTS.get('HEADER_VERTICAL_PADDING');
-	text = oncoprint.header_canvas.text(x, y, headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING'));
+	y = y + DEFAULTS.get('HEADER_VERTICAL_PADDING');
+	var percentAlteredStrings = headerVariables.get('PERCENT_ALTERED_COLUMN_HEADING').split("\n");
+	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[0]);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
@@ -495,6 +538,17 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'start');
+
+	// % altered column heading line two
+	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
+	y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
+	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[1]);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+
+	// set the size of the canvas here - after we know the proper height
+	oncoprint.header_canvas.setSize(dimension.width, y + DEFAULTS.get('HEADER_VERTICAL_SPACING'));
 }
 
 /*
@@ -535,7 +589,6 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	var boundingBox;
 	var canvasWidth = 0;
 	var canvasHeight = 0;
-	var textHeight = 0;
 	var scratchCanvas = Raphael(0, 0, 1, 1);
 
 	// case set description (only used on Summary Tab)
@@ -551,10 +604,14 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	}
 	boundingBox = text.getBBox();
 	canvasWidth = boundingBox.width;
-	textHeight = boundingBox.height;
+
 	// only include this height if summary tab (for case set description)
 	if (forSummaryTab) {
 		canvasHeight = canvasHeight + boundingBox.height;
+		// description may be two lines, in which case we want to add an extra space
+		if (headerVariables.get('CASE_SET_DESCRIPTION').indexOf("\n") != -1) {
+			canvasHeight = canvasHeight + boundingBox.height;
+		}
 	}
 
 	// altered stats
@@ -571,14 +628,14 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 
 	// add padding between lines: space betw case set desc & alter stats, alter stats & col headers
 	// even though Cross Cancer does not have case set desc, we will use extra padding
-	canvasHeight = canvasHeight + DEFAULTS.get('HEADER_VERTICAL_PADDING') * 2;
+	//canvasHeight = canvasHeight + DEFAULTS.get('HEADER_VERTICAL_PADDING');
 	
 	// clean up
 	text.remove();
 	scratchCanvas.remove();
 
 	// outta here
-	return { 'width' : canvasWidth, 'height' : canvasHeight, 'text_height' : textHeight };
+	return { 'width' : canvasWidth, 'height' : canvasHeight };
 }
 
 /*
@@ -679,6 +736,9 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 	text.attr('text-anchor', 'end');
 	// render gene symbol
 	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
+	if (percentAltered.indexOf("<") != -1) {
+		x = x + oncoprint.less_than_sign_length;
+	}
 	text = oncoprint.body_canvas.text(x, y, geneSymbol);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));

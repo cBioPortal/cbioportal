@@ -1,29 +1,18 @@
 
 package org.mskcc.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoGeneticProfileCases;
-import org.mskcc.cgds.dao.DaoProteinArrayInfo;
-import org.mskcc.cgds.dao.DaoProteinArrayData;
-import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.model.ProteinArrayData;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import org.mskcc.cgds.dao.*;
+import org.mskcc.cgds.model.*;
+import org.mskcc.cgds.util.ConsoleUtil;
+import org.mskcc.cgds.util.FileUtil;
+import org.mskcc.cgds.util.ProgressMonitor;
 
 /**
  * Import protein array data into database
@@ -122,7 +111,7 @@ public class ImportProteinArrayData {
     
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.out.println("command line usage:  importRPPAData.pl <RPPT_data.txt> <Cancer study identifier>");
+            System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
             System.exit(1);
         }
         
@@ -140,5 +129,81 @@ public class ImportProteinArrayData {
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");
+    }
+    
+    /**
+     * add extra antibodies of normalized phosphoprotein data
+     * @param args
+     * @throws Exception 
+     */
+    public static void main_normalize_phospho(String[] args) throws Exception {
+        DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
+        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
+        DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        DaoCaseList daoCaseList = new DaoCaseList();
+        ArrayList<CancerStudy> studies = DaoCancerStudy.getAllCancerStudies();
+        for (CancerStudy study : studies) {
+            int studyId = study.getInternalId();
+            CaseList caselist = daoCaseList.getCaseListByStableId(study.getCancerStudyStableId()+"_RPPA");
+            if (caselist==null) continue;
+            ArrayList<String> cases = caselist.getCaseList();
+            ArrayList<ProteinArrayInfo> phosphoArrays = daoPAI.getProteinArrayInfoForType(
+                    studyId, Collections.singleton("phosphorylation"));
+            ArrayList<ProteinArrayInfo> proteinArrays = daoPAI.getProteinArrayInfoForType(
+                    studyId, Collections.singleton("protein_level"));
+            for (ProteinArrayInfo phosphoArray : phosphoArrays) {
+                for (ProteinArrayInfo proteinArray : proteinArrays) {
+                    if (proteinArray.getGene().equals(phosphoArray.getGene())) {
+                        String id = phosphoArray.getId()+"-"+proteinArray.getId();
+                        if (id.matches(".+-.+-.+")) continue;
+                        System.out.println(study.getCancerStudyStableId()+" "+id+" "
+                                +phosphoArray.getGene()+" "+phosphoArray.getResidue());
+                        ProteinArrayInfo pai = new ProteinArrayInfo(id,"phosphorylation",
+                                phosphoArray.getSource(),phosphoArray.getGene(),
+                                phosphoArray.getResidue(),phosphoArray.isValidated(),null);
+                        daoPAI.addProteinArrayInfo(pai);
+                        for (String symbol : phosphoArray.getGene().split("/")) {
+                            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+                            if (gene==null) {
+                                System.err.println(symbol+" not exist");
+                                continue;
+                            }
+
+                            long entrez = gene.getEntrezGeneId();
+                            try {
+                                daoPAT.addProteinArrayTarget(id, entrez);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        daoPAI.addProteinArrayCancerStudy(id, Collections.singleton(studyId));
+                        
+                        ArrayList<ProteinArrayData> phosphoData = daoPAD.getProteinArrayData(
+                                Collections.singleton(phosphoArray.getId()), cases);
+                        ArrayList<ProteinArrayData> proteinData = daoPAD.getProteinArrayData(
+                                Collections.singleton(proteinArray.getId()), cases);
+                        HashMap<String,ProteinArrayData> mapProteinData = new HashMap<String,ProteinArrayData>();
+                        for (ProteinArrayData pad : proteinData) {
+                            mapProteinData.put(pad.getCaseId(), pad);
+                        }
+                        
+                        for (ProteinArrayData pad : phosphoData) {
+                            String caseid = pad.getCaseId();
+                            ProteinArrayData proteinPAD = mapProteinData.get(caseid);
+                            if (proteinPAD==null) {
+                                System.err.println("no data: "+proteinPAD.getArrayId()+" "+caseid);
+                                continue;
+                            }
+                            double abud = pad.getAbundance() - proteinPAD.getAbundance(); // minus
+                            ProteinArrayData norm = new ProteinArrayData(id, caseid, abud);
+                            daoPAD.addProteinArrayData(norm);
+                        }
+                        
+                        //break;
+                    }
+                }
+            }
+        }
     }
 }

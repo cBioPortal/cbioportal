@@ -96,6 +96,18 @@ public class DaoProteinArrayData {
      * @return map of array id to a list of protein array data.
      * @throws DaoException Database Error.
      */
+    public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds)
+            throws DaoException {
+        return getProteinArrayData(arrayIds, null);
+    }
+
+    /**
+     * Gets the ProteinArrayData with the Specified array ID for specific cases.
+     *
+     * @param arrayIds protein array ID.
+     * @return map of array id to a list of protein array data.
+     * @throws DaoException Database Error.
+     */
     public ArrayList<ProteinArrayData> getProteinArrayData(Collection<String> arrayIds, Collection<String> caseIds)
             throws DaoException {
         ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();

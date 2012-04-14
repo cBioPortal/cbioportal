@@ -89,6 +89,7 @@ var DEFAULTS = (function() {
 			'TOOLTIP_MARGIN'                    : 10,
 			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
 			// header
+			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
             // general sample properties
 			'ALTERED_SAMPLES_ONLY'              : false
@@ -113,6 +114,9 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 	var text = scratchCanvas.text(0,0, DEFAULTS.get('CASE_SET_DESCRIPTION_LABEL'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	var caseSetDescriptionLabelLength = text.getBBox().width;
+	text = scratchCanvas.text(0,0, "<");
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	var lessThanSignLength = text.getBBox().width;
 
 	return {
 		// header element is used later to determine location of tooltip canvas
@@ -125,6 +129,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		// longest label length
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
+		'less_than_sign_length'             : lessThanSignLength,
 		// general styles
 		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
 		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
@@ -408,7 +413,7 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 
 	// render case list description
 	x = 0;
-	y = dimension.text_height / 2;
+	y = DEFAULTS.get('HEADER_VERTICAL_SPACING');
 	if (singleLineDescription) {
 		text = oncoprint.header_canvas.text(x, y, headerVariables.get('CASE_SET_DESCRIPTION'));
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
@@ -423,7 +428,7 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 		text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		text.attr('text-anchor', 'start');
 		// second line
-		y = y + dimension.text_height / 2;
+		y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
 		text = oncoprint.header_canvas.text(oncoprint.case_set_description_label_length,
 											y, descriptionStrings[1]);
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
@@ -461,14 +466,14 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 
 	// % altered column heading line two
 	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
-	y = y + dimension.text_height / 2;
+	y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
 	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[1]);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
 
 	// set the size of the canvas here - after we know the proper height
-	oncoprint.header_canvas.setSize(dimension.width, y + dimension.text_height / 2);
+	oncoprint.header_canvas.setSize(dimension.width, y + DEFAULTS.get('HEADER_VERTICAL_SPACING'));
 }
 
 /*
@@ -525,14 +530,14 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 
 	// % altered column heading line two
 	x = oncoprint.longest_label_length - DEFAULTS.get('LABEL_PADDING') * 2;
-	y = y + dimension.text_height / 2;
+	y = y + DEFAULTS.get('HEADER_VERTICAL_SPACING');
 	text = oncoprint.header_canvas.text(x, y, percentAlteredStrings[1]);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
 
 	// set the size of the canvas here - after we know the proper height
-	oncoprint.header_canvas.setSize(dimension.width, y + dimension.text_height / 2);
+	oncoprint.header_canvas.setSize(dimension.width, y + DEFAULTS.get('HEADER_VERTICAL_SPACING'));
 }
 
 /*
@@ -573,7 +578,6 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	var boundingBox;
 	var canvasWidth = 0;
 	var canvasHeight = 0;
-	var textHeight = 0;
 	var scratchCanvas = Raphael(0, 0, 1, 1);
 
 	// case set description (only used on Summary Tab)
@@ -589,7 +593,6 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	}
 	boundingBox = text.getBBox();
 	canvasWidth = boundingBox.width;
-	textHeight = boundingBox.height;
 
 	// only include this height if summary tab (for case set description)
 	if (forSummaryTab) {
@@ -621,7 +624,7 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	scratchCanvas.remove();
 
 	// outta here
-	return { 'width' : canvasWidth, 'height' : canvasHeight, 'text_height' : textHeight };
+	return { 'width' : canvasWidth, 'height' : canvasHeight };
 }
 
 /*
@@ -722,6 +725,9 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 	text.attr('text-anchor', 'end');
 	// render gene symbol
 	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
+	if (percentAltered.indexOf("<") != -1) {
+		x = x + oncoprint.less_than_sign_length;
+	}
 	text = oncoprint.body_canvas.text(x, y, geneSymbol);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));

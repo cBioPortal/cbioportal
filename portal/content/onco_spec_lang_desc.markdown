@@ -39,6 +39,15 @@ Users can define genetic alterations for three data types:
 	</td>
         <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
+    <tr>
+        <td>Protein/phosphoprotein level (RPPA)</td>
+        <td><TT>PROT</TT></td>
+        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> SDs lower than the median RPPA score.<BR>
+		<TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> SDs higher than the median RPPA score.<BR>
+			The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
+        </td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
+    </tr>
 </table>
 
 ## Basic Usage
@@ -63,6 +72,10 @@ To view amplified and mutated cases:
 but to define over-expressed cases as those with mRNA expression greater than 3 standard deviations above the mean:
 
      CCNE1: EXP > 3
+
+and similarly with RPPA protein/phopshoprotein level:
+
+     CCNE1: PROT > 3
 
 In general, any combination of OQL keywords and/or categories can annotate any gene.
 

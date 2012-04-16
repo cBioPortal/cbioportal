@@ -426,6 +426,7 @@
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>
 
                 <script>
+                    var windowTmp = this;
 
                     jQuery(document).ready(function() {
                         $(".sortable").sortable({connectWith: '.sortable'});
@@ -448,6 +449,35 @@
                         }).next().hide();
 
                         $(".movable-icon").tipTip();
+
+                        var oq2Id = "oql2";
+                        var oqTopLoc = $("#oncoquery-legend").position().top;
+                        var oqClone = $("#oncoquery-legend").clone().attr("id", oq2Id);
+                        $("#oncoquery-legend").after(oqClone);
+                        oqClone.hide();
+
+                        $.fn.showOnScroll = function() {
+                            var $this = this,
+                                $window = $(windowTmp);
+
+                            $window.scroll(function(e){
+                                if ($window.scrollTop() > oqTopLoc) {
+                                    $this.fadeIn();
+                                    $this.css({
+                                        position: 'fixed',
+                                        top: 0,
+                                        margin: 0,
+                                        'padding-top': '15px',
+                                        'padding-bottom': '15px',
+                                        border: '2px solid #777777'
+                                    });
+                                } else {
+                                    $this.fadeOut();
+                                }
+                            });
+                        };
+
+                        oqClone.showOnScroll();
                     });
                 </script>
 

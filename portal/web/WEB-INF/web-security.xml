@@ -100,6 +100,11 @@
     	<servlet-name>CheckGeneSymbolJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ClinicalFreeFormJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>plot</servlet-name>
@@ -260,6 +265,11 @@
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
     </servlet-mapping>
 
+	<servlet-mapping>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>

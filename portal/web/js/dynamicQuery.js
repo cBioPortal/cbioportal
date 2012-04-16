@@ -77,6 +77,9 @@ $(document).ready(function(){
        event.preventDefault();
        userClickedMainTab("tab_download");
     });
+    
+    // Set up custom case set related GUI & event handlers (step 3)
+    initCustomCaseSetUI();
 
     //  set toggle Step 5: Optional arguments
     //$("#optional_args").hide();

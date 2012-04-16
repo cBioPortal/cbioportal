@@ -979,7 +979,7 @@ sub createCancerTypeNameFile{
 		}
         my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
-        my $url = "\"http://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
+        my $url = "\"https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";
     }else{
         $fileContent .= 'TBD' . "\n"; 

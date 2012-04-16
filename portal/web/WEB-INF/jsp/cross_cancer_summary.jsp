@@ -37,12 +37,7 @@
 $(document).ready(function(){
 
     // Init Tool Tips
-    $(".hide_details").tipTip();
-
-    //  Prevent Default Click Behavior for tool tips
-    $(".hide_details").click(function(event) {
-      event.preventDefault();
-    });
+    $(".crosscancer-info").tipTip();
 
     var ajaxPercentAltered = "#percent_altered_<%= cancerStudyId %>";
     $(ajaxPercentAltered).html("Altered in <%= percentCasesAffected %> of cases.");
@@ -62,10 +57,11 @@ $(document).ready(function(){
         gp.append ("</li>");
     }
     gp.append ("</ul>");
-    out.println ("<a href='' class='hide_details' title=\"" + gp.toString() + "\">Genomic Profiles</a>");
 %>
-
-
+<span class="ui-state-default ui-corner-all crosscancer-info" style="float: left; padding: 4px;" title="<%=gp.toString()%>">
+    <span class="ui-icon ui-icon-info" style="float: left;"></span>
+    <span class="text">Genomic Profiles</span>
+</span>
 <%
     StringBuffer cs = new StringBuffer ("Case set:  ");
     for (CaseList caseSet:  caseSetList) {
@@ -73,9 +69,13 @@ $(document).ready(function(){
             cs.append (caseSet.getName());
         }
     }
-    out.println ("<a href='' class='hide_details' title=\"" + cs.toString() + "\">Case Sets</a>");
 %>
-<span style="float:right;font-size:110%;"><b><a href="<%= cancerStudyDetailsUrl %>">View Cancer Study Details</a></b></span>
+<span class="ui-state-default ui-corner-all crosscancer-info" style="float: left; padding: 4px;" title="<%=cs.toString()%>">
+    <span class="ui-icon ui-icon-info" style="float: left;"></span>
+    <span class="text">Case Sets</span>
+</span>
+
+<span style="float:right;font-size:110%;"><b><a href="<%= cancerStudyDetailsUrl %>">View Cancer Study Details &raquo;</a></b></span>
 <div class="scroll" style="height:<%= fingerPrintPanelHeight %>px">
 <%= oncoPrintHtml %>
 </div>

@@ -54,9 +54,10 @@
     studiesNames = studiesNames.substring(0, studiesNames.length()-1);
 %>
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"]});
+    var genesQueried = "";
 
     $(document).ready(function() {
         $("#chart_div2").toggle();
@@ -127,6 +128,12 @@
 
         drawChart();
 
+        $("#histogram_sort").tipTip();
+        $("#histogram_sort").click(function() {
+            sortPermanently = true;
+            drawChart();
+        });
+
         $("#toggle_query_form").tipTip();
 
         loadStudiesWithIndex(0);
@@ -137,6 +144,20 @@
         function updateHistograms(bundleIndex, cancerID) {
             var alts = eval("GENETIC_ALTERATIONS_SORTED_" + cancerID
                     + ".get('GENETIC_ALTERATIONS_SORTED_" + cancerID + "')");
+
+            if( genesQueried.length == 0 ) {
+                for(var k=0; k < alts.length; k++) {
+                    genesQueried += alts[k].hugoGeneSymbol + ", ";
+                }
+
+                genesQueried = genesQueried.substr(0, genesQueried.length-2);
+                var genesBold = $("<b>").html(genesQueried);
+                var geneStr = " for gene";
+                if(alts.length > 1)
+                    geneStr += "s";
+
+                $("#queried-genes").html(geneStr + " ").append(genesBold);
+            }
 
             var numOfCases = alts[0].alterations.length;
             var numOfMuts = 0;
@@ -199,10 +220,9 @@
             hist2.setValue(bundleIndex, 4, numOfAmp);
             hist2.setValue(bundleIndex, 5, numOfCombo);
 
-	    if(bundleIndex == 0)
-	    	drawChart();
-	    else
-	    	setTimeout(drawChart, 1000 - bundleIndex*5)
+	        if(bundleIndex == 0 || bundleIndex % 4 == 0 || bundleIndex == numOfStudiesWithMutData-1 || bundleIndex == cancerStudies.length-1)
+	    	    drawChart();
+
         }
 
         function loadStudiesWithIndex(bundleIndex) {
@@ -224,9 +244,47 @@
                  );
         }
 
+        function sumSort(dataView) {
+            var numOfRows = dataView.getNumberOfRows();
+            var numOfCols = dataView.getNumberOfColumns();
+            var rowIndex = [];
+            for(var i=0; i < numOfRows; i++)
+                rowIndex.push(i);
+
+            rowIndex.sort(function(a, b) {
+                var sumA = 0;
+                var sumB = 0;
+                for(var j=1; j < numOfCols; j++) {
+                    sumA += dataView.getValue(a, j);
+                    sumB += dataView.getValue(b, j);
+                }
+
+                return sumB-sumA;
+            });
+
+            return rowIndex;
+        }
+
+       var sortPermanently = false;
        function drawChart() {
-            var options = {
-              title: 'Percent Sample Alteration for each Cancer Study w/ mutation data',
+           var histogramView = new google.visualization.DataView(histogramData);
+           var histogramView2 = new google.visualization.DataView(histogramData2);
+           var histogramView3 = new google.visualization.DataView(histogramData3);
+           var histogramView4 = new google.visualization.DataView(histogramData4);
+
+           if(sortPermanently) {
+               var sortedIndex = sumSort(histogramView);
+               console.log("sortedIndex = " + sortedIndex);
+               histogramView.setRows(sortedIndex);
+               histogramView3.setRows(sortedIndex);
+               var sortedIndex2 = sumSort(histogramView2);
+               console.log("sortedIndex2 = " + sortedIndex2);
+               histogramView2.setRows(sortedIndex2);
+               histogramView4.setRows(sortedIndex2);
+           }
+
+           var options = {
+              title: 'Percent Sample Alteration for each Cancer Study w/ mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: ['#008000', '#002efa', '#ff2617', '#dddddd'],
               legend: {
@@ -236,22 +294,21 @@
                 slantedTextAngle: 45
               },
               vAxis: {
-	        title: 'Percent Altered',
-                maxValue: 100,
-                minValue: 0
+                    title: 'Percent Altered',
+                    maxValue: 100,
+                    minValue: 0
               },
-	      animation: {
-	      	duration: 750,
-		easing: 'linear'
-	      },
+    	      animation: {
+                  duration: 750,
+                  easing: 'linear'
+    	      },
               isStacked: true
-
             };
 
-            histogramChart.draw(histogramData, options);
+            histogramChart.draw(histogramView, options);
             
 	    var options2 = {
-              title: 'Percent Sample Alteration for each Cancer Study w/o mutation data',
+              title: 'Percent Sample Alteration for each Cancer Study w/ mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: ['#008000', '#002efa', '#ff2617', '#dddddd'],
               legend: {
@@ -269,12 +326,12 @@
 
             };
 
-            histogramChart2.draw(histogramData2, options2);
+            histogramChart2.draw(histogramView2, options2);
 
             var options3 = {
-              title: 'Number of Altered Cases for each Cancer Study w/ mutation data',
+              title: 'Number of Altered Cases for each Cancer Study w/ mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#cccccc'],
+              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#aaaaaa'],
               legend: {
                 position: 'bottom'
               },
@@ -287,12 +344,12 @@
               isStacked: true
             };
 
-            histogramChart3.draw(histogramData3, options3);
+            histogramChart3.draw(histogramView3, options3);
             
 	    var options4 = {
-              title: 'Number of Altered Cases for each Cancer Study w/o mutation data',
+              title: 'Number of Altered Cases for each Cancer Study w/o mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#cccccc'],
+              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#aaaaaa'],
               legend: {
                 position: 'bottom'
               },
@@ -305,7 +362,7 @@
               isStacked: true
             };
 
-            histogramChart4.draw(histogramData4, options4);
+            histogramChart4.draw(histogramView4, options4);
        }
     });
 </script>
@@ -321,7 +378,7 @@
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>
                         Results are available for <strong><%= (cancerStudies.size()) %>
                         cancer studies</strong>. Click each cancer study below to view a summary of
-                        results.
+                        results<span id="queried-genes"></span>.
                     </p>
                 </div>
 
@@ -339,6 +396,12 @@
                     <%@ include file="query_form.jsp" %>
                 </div>
 
+                <br/>
+                <hr align="left" class="crosscancer-hr"/>
+                <h1 class="crosscancer-header">Summary for all cancer studies</h1>
+                <br/>
+                <br/>
+
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
                     <select id="hist_toggle_box">
                         <option value="1">Show percent of altered cases (studies w/ mutation data)</option>
@@ -346,12 +409,18 @@
                         <option value="3">Show number of altered cases (studies w/ mutation data)</option>
                         <option value="4">Show number of altered cases (studies w/o mutation data)</option>
                     </select>
+                    |
+                    <a href="#" id="histogram_sort" title="Sorts histograms by alteration frequencies in descending order">Sort</a>
                 </div>
-                <div id="chart_div1" style="width: 900px; height: 400px;"></div>
-                <div id="chart_div2" style="width: 900px; height: 400px;"></div>
-                <div id="chart_div3" style="width: 900px; height: 400px;"></div>
-                <div id="chart_div4" style="width: 900px; height: 400px;"></div>
+                <div id="chart_div1" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div2" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div3" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div4" style="width: 975px; height: 400px;"></div>
                 <br/>
+                <br/>
+
+                <hr align="left" class="crosscancer-hr"/>
+                <h1 class="crosscancer-header">Details for each cancer study</h1>
                 <br/>
 
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>
@@ -381,6 +450,8 @@
                         $(".movable-icon").tipTip();
                     });
                 </script>
+
+
 
 
                 <div id="accordion">

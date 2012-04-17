@@ -35,6 +35,8 @@ public class MutationFilter {
    private int lohOrWildTypeRejects=0;
    private int emptyAnnotationRejects=0;
    private int missenseGermlineRejects=0;
+	private int utrRejects=0;
+	private int igrRejects=0;
 
    /**
     * Construct a MutationFilter with no white lists. 
@@ -127,6 +129,20 @@ public class MutationFilter {
          }         
       }
 
+      // Do not accept 3'UTR or 5' UTR Mutations
+      if( safeStringTest( mutation.getMutationType(), "3'UTR" ) ||
+		  safeStringTest( mutation.getMutationType(), "5'UTR" ) ||
+		  safeStringTest( mutation.getMutationType(), "5'Flank" ) ){
+		  utrRejects++;
+         return false;
+      }
+
+      // Do not accept IGR Mutations
+      if( safeStringTest( mutation.getMutationType(), "IGR" ) ){
+		  igrRejects++;
+         return false;
+      }
+
      this.accepts++;
      return true;
    }
@@ -153,6 +169,22 @@ public class MutationFilter {
      */
    public int getSilentOrIntronRejects() {
        return this.silentOrIntronRejects;
+   }
+
+    /**
+     * Provide number of REJECT decisions for UTR Mutations.
+     * @return number of REJECT decisions for UTR Mutations.
+     */
+   public int getUTRRejects() {
+       return this.utrRejects;
+   }
+
+    /**
+     * Provide number of REJECT decisions for IGR Mutations.
+     * @return number of REJECT decisions for IGR Mutations.
+     */
+   public int getIGRRejects() {
+       return this.igrRejects;
    }
 
     /**
@@ -215,6 +247,8 @@ public class MutationFilter {
       return "Mutation filter decisions: " + this.getDecisions() +
             "\nRejects: " + this.getRejects() +
             "\nSilent or Intron Rejects:  " + this.getSilentOrIntronRejects() +
+		  "\nUTR Rejects:  " + this.getUTRRejects() +
+		  "\nIGR Rejects:  " + this.getIGRRejects() +
             "\nLOH or Wild Type Rejects:  " + this.getLohOrWildTypeRejects() +
             "\nEmpty Annotation Rejects:  " + this.getEmptyAnnotationRejects() +
             "\nMissense Germline Rejects:  " + this.getMissenseGermlineRejects();

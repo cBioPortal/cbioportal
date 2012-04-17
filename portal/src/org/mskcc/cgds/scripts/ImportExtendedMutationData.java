@@ -139,21 +139,8 @@ public class ImportExtendedMutationData{
                 String sequencer = getField(parts, "Sequencer");
                 String chr = getField( parts, "Chromosome");
 				String validationStatus = getField(parts, "Validation_Status");
-                String mutationType = getField( parts, "Variant_Classification");
 
 				if (validationStatus == null || validationStatus.equalsIgnoreCase("Wildtype")) {
-                    pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
-					line = buf.readLine();
-					continue;
-				}
-
-				if (mutationType == null ||
-					validationStatus.equalsIgnoreCase("3'UTR") ||
-					validationStatus.equalsIgnoreCase("5'UTR") ||
-					validationStatus.equalsIgnoreCase("5'Flank") ||
-					validationStatus.equalsIgnoreCase("IGR") ||
-					validationStatus.equalsIgnoreCase("Intron") ||
-					validationStatus.equalsIgnoreCase("Silent")) {
                     pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;
@@ -180,6 +167,7 @@ public class ImportExtendedMutationData{
                 }
                 
                 String aminoAcidChange = "MUTATED";
+                String mutationType = getField( parts, "Variant_Classification");
                 String mutationStatus = getField( parts, "Mutation_Status");
                 String functionalImpactScore = "";
                 String linkXVar = "";  

@@ -1031,7 +1031,13 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
-    width: 780px;
+    width: 900px;
+}
+
+/* Divider in the accordion page */
+.crosscancer-hr {
+    width: 920px;
+    margin-bottom: 20px;
 }
 
 /* Accordion Panel H1 */

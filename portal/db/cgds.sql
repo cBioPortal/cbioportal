@@ -293,24 +293,20 @@ CREATE TABLE `interaction` (
   `PMIDS` varchar(1024) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+--
 -- Table Structure for `mut_sig`
+--
 
 CREATE TABLE IF NOT EXISTS `mut_sig` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
   `RANK` int(11) NOT NULL,
-  `BIG_N` int(11) NOT NULL,
-  `SMALL_N` int(11) NOT NULL,
-  `N_VAL` int(11) NOT NULL,
-  `N_VER` int(11) NOT NULL,
-  `CPG` int(11) NOT NULL,
-  `C+G` int(11) NOT NULL,
-  `A+T` int(11) NOT NULL,
-  `INDEL` int(11) NOT NULL,
+  `NumBasesCovered` int(11) NOT NULL,
+  `NumMutations` int(11) NOT NULL,
   `P_VALUE` varchar(30) NOT NULL,
-  `LESS_THAN_Q_VALUE` varchar(30) NOT NULL,
   `Q_VALUE` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 CREATE TABLE `protein_array_info` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,

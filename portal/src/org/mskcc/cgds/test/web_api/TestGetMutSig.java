@@ -30,7 +30,8 @@ public class TestGetMutSig extends TestCase {
         pMonitor.setConsoleMode(false);
 
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
-        CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "GBM_portal", "GBM", false);
+        // changed GBM_portal to tcga_gbm
+        CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         assertEquals(1, cancerStudy.getInternalId());
 
@@ -42,22 +43,16 @@ public class TestGetMutSig extends TestCase {
         assertEquals("EGFR", gene.getHugoGeneSymbolAllCaps());
         assertEquals(4921, gene2.getEntrezGeneId());
 
-        MutSig mutSig = new MutSig(1, gene, 1,502500, 20, 19, 1, 4, 13, 3, 0, "<1E-11", "<1E-8", 1E-8);
-        MutSig mutSig2 = new MutSig(1, gene2, 15, 273743, 3, 3, 0, 1, 2, 0, 0, "0.0014", "0.13",0.13);
-        assertEquals("<1E-11",mutSig.getpValue());
-        assertEquals("0.13", mutSig2.getqValue());
+        MutSig mutSig = new MutSig(1, gene, 1, 502500, 20, "<1E-11", "1E-8");
+        MutSig mutSig2 = new MutSig(1, gene2, 14, 273743, 3, "<1E-11", "1E-8");
+
+        assertTrue("<1E-11".equals(mutSig.getpValue()));
+        assertTrue("1E-8".equals(mutSig2.getqValue()));
 
         DaoMutSig.addMutSig(mutSig);
         DaoMutSig.addMutSig(mutSig2);
 
         StringBuffer stringBuffer = GetMutSig.getMutSig(1);
-        //System.out.println(stringBuffer);
-
-        //getMutSig("1", "","");
-        //getMutSig("1", "","DDR2");
-        //getMutSig("1", "","EGFR DDR2");
-        //getMutSig("1", ".1","");
-
     }
     /*
      * this is taken directly from the WebService class, and minimally changed to function without

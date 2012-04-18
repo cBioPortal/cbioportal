@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.mskcc.portal.test.util.TestCascadeSortOfMatrix;
+//import org.mskcc.portal.test.util.TestCascadeSortOfMatrix;
 
-import static org.junit.Assert.assertArrayEquals;
+//import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Given a matrix represented by an ArrayList of rows in ArrayLists, sort the

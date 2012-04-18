@@ -235,9 +235,7 @@ public class DaoMutSig {
 
     private static MutSig assignMutSig(CanonicalGene gene, ResultSet rs)
             throws SQLException, DaoException {
-//        MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"),gene, rs.getInt("RANK"),rs.getInt("BIG_N"),
-//                rs.getInt("SMALL_N"), rs.getString("P_VALUE"), rs.getString("LESS_THAN_Q_VALUE"));
-        
+
         MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"),
                 gene,
                 rs.getInt("RANK"),

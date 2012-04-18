@@ -304,7 +304,7 @@ CREATE TABLE IF NOT EXISTS `mut_sig` (
   `NumBasesCovered` int(11) NOT NULL,
   `NumMutations` int(11) NOT NULL,
   `P_VALUE` varchar(30) NOT NULL,
-  `Q_VALUE` double NOT NULL
+  `Q_VALUE` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 

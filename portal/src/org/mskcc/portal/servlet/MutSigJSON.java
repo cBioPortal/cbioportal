@@ -80,13 +80,6 @@ public class MutSigJSON extends HttpServlet {
                 }
             }
 
-            // delete me
-            Map map = new HashMap();
-            map.put("gene_symbol", "TP53");
-            map.put("num_muts", 100);
-            map.put("qval", "<1E-8");
-            //
-
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 

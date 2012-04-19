@@ -42,8 +42,8 @@ Users can define genetic alterations for three data types:
     <tr>
         <td>Protein/phosphoprotein level (RPPA)</td>
         <td><TT>PROT</TT></td>
-        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> SDs lower than the median RPPA score.<BR>
-		<TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> SDs higher than the median RPPA score.<BR>
+        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> SDs lower than the mean RPPA score.<BR>
+		<TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> SDs higher than the mean RPPA score.<BR>
 			The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
         </td>
         <td>At least 2 standard deviations (SD) from the mean.</td>

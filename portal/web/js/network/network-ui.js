@@ -2751,7 +2751,7 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#5C4033");
+		"background-color", "#69270D");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
 		percent.toFixed(1) + "%");

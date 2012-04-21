@@ -122,7 +122,7 @@
 	        	<tr class="targeted-by-drug">
 		        	<td class="edge-type-checkbox">
 		        		<input type="checkbox" checked="checked">
-		        		<label>Targeted by drug</label>
+		        		<label>Targeted By Drug</label>
 		        	</td>
 	        	</tr>
 	        	<tr class="targeted-by-drug">

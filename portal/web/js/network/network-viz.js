@@ -85,7 +85,7 @@ function send2cytoscapeweb(graphml, div_id)
                     {
                             attrName: "type",
                             entries: [
-                                    { attrValue: "IN_SAME_COMPONENT", value: "#CD976B" },
+                                    { attrValue: "IN_SAME_COMPONENT", value: "#69270D" },
                                     { attrValue: "REACTS_WITH", value: "#7B7EF7" },
                                     { attrValue: "DRUG_TARGET", value: "#E6A90F" },
                                     { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
@@ -144,9 +144,9 @@ function send2cytoscapeweb(graphml, div_id)
     		var truncateIndicator = '...';
     		var nameSize = name.length;
     		
-    		if (nameSize > 20) 
+    		if (nameSize > 10) 
     		{
-    			name = name.substring(0, 20);
+    			name = name.substring(0, 10);
     			name = name.concat(truncateIndicator);
     		}
     		

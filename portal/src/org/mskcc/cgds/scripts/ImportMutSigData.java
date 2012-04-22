@@ -8,9 +8,8 @@ import org.mskcc.cgds.util.ProgressMonitor;
 import java.io.File;
 
 /**
- * ImportMutSig is used to import the Broad Institutes MutSig data for different Cancer types
- * into our CGDS SQL database.
- * Command line users must specify a MutSig file, and properties file containing a CancerID.
+ * ImportMutSig is used to import the Broad Institute's MutSig data into our CGDS SQL database.
+ * Command line users must specify a MutSig file, and properties file containing a CancerID (InternalId)
  *
  * @author Lennart Bastian, Gideon Dresdner
  */
@@ -26,6 +25,7 @@ public class ImportMutSigData {
             System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <MetaProperties.txt>");
             System.exit(1);
         }
+
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 
@@ -41,7 +41,7 @@ public class ImportMutSigData {
 
         int internalId = MutSigReader.getInternalId(propertiesFile);
         MutSigReader.loadMutSig(internalId, mutSigFile, pMonitor);
-        
+
         ConsoleUtil.showWarnings(pMonitor);
     }
 }

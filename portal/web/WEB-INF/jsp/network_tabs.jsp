@@ -6,15 +6,15 @@
     </ul>
     <div id="genes_tab">
 	    <div class="header">
+		  <span class="title"><label >Drugs</label></span><br><br>
 	      <div class="combo">
-		    <label>Drugs</label><br><br>
 			<select id="drop_down_select">
 			  <option value="SHOW_ALL">Show All Drugs</option>
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
 			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
 			</select>
-		</div>
-		    <label>Genes</label><br><br>
+		  </div>
+		    <span class="title"><label>Genes</label></span><br><br>
 	    	<div id="slider_area">
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">

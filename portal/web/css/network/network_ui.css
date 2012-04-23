@@ -405,6 +405,11 @@
  * ########################################################
  */
  
+ #genes_tab .title label
+ {
+	font-weight: bold;
+ }
+ 
  #genes_tab .combo select
 {
 	height: 25px;

@@ -2751,7 +2751,7 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#69270D");
+		"background-color", "#B54011");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
 		percent.toFixed(1) + "%");
@@ -2762,7 +2762,7 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .targeted-by-drug .percent-bar").css(
-		"background-color", "#CD976B");
+		"background-color", "#E6A90F");
 	
 	$("#relations_tab .targeted-by-drug .percent-value").text(
 		percent.toFixed(1) + "%");

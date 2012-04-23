@@ -410,7 +410,9 @@
 	height: 25px;
 	width: 210px;
 	margin-bottom: 20px;
-	font-size: 14px;
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 12px;
 }
 #genes_tab .header
 {

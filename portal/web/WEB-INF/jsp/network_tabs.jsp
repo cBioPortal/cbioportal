@@ -14,6 +14,7 @@
 			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
 			</select>
 		</div>
+		    <label>Genes</label><br><br>
 	    	<div id="slider_area">
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">

@@ -85,7 +85,7 @@ function send2cytoscapeweb(graphml, div_id)
                     {
                             attrName: "type",
                             entries: [
-                                    { attrValue: "IN_SAME_COMPONENT", value: "#69270D" },
+                                    { attrValue: "IN_SAME_COMPONENT", value: "#B54011" },
                                     { attrValue: "REACTS_WITH", value: "#7B7EF7" },
                                     { attrValue: "DRUG_TARGET", value: "#E6A90F" },
                                     { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]

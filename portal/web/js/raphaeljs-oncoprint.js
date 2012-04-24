@@ -959,6 +959,31 @@ function addTooltipText(oncoprint, tooltipText) {
 	text.attr('text-anchor', 'start');
 }
 
+/**
+ * Routine which scales body canvas.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function scaleBodyCanvas(oncoprint) {
+
+	var dx = 0;
+	var dxSet = false;
+	oncoprint.body_canvas.forEach(function(obj) {
+		var node = obj.node;
+		if (obj.node instanceof SVGRectElement) {
+			var x = obj.attr('x');
+			var y= obj.attr('y');
+			obj.transform('S.5,1,0,0');
+			if (!dxSet) {
+				dx = obj.matrix.x(x, y);
+				dxSet = true;
+			}
+			obj.transform('...T' + dx + ",0");
+		}
+	});
+}
+
 /*******************************************************************************
 //
 // The following functions were obtained from:

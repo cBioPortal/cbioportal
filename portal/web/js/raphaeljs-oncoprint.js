@@ -92,7 +92,9 @@ var DEFAULTS = (function() {
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
             // general sample properties
-			'ALTERED_SAMPLES_ONLY'              : false
+			'ALTERED_SAMPLES_ONLY'              : false,
+			// scale factor
+			'SCALE_FACTOR_X'                    : 1.0
 		};
 		return {
 		    get: function(name) { return private[name]; }
@@ -142,7 +144,9 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		// use object for override coordinates flag
 		'use_immediate_coordinates'         : false,
 		// general sample properties
-		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY')
+		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY'),
+		// scale factor
+		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X')
 	};
 }
 
@@ -235,6 +239,9 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			}
 		}
 	}
+
+	// scale
+	scaleBodyCanvas(oncoprint);
 }
 
 /*
@@ -969,12 +976,13 @@ function scaleBodyCanvas(oncoprint) {
 
 	var dx = 0;
 	var dxSet = false;
+	var scaleFactorX = oncoprint.scale_factor_x;
 	oncoprint.body_canvas.forEach(function(obj) {
 		var node = obj.node;
 		if (obj.node instanceof SVGRectElement) {
 			var x = obj.attr('x');
 			var y= obj.attr('y');
-			obj.transform('S.5,1,0,0');
+			obj.transform('S' + scaleFactorX + ',1.0,0,0');
 			if (!dxSet) {
 				dx = obj.matrix.x(x, y);
 				dxSet = true;

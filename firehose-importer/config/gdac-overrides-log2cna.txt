@@ -1,2 +1,3 @@
 KIRC.log2CNA.txt kirc
 LUSC.log2CNA.txt lusc
+UCEC.log2CNA.txt ucec

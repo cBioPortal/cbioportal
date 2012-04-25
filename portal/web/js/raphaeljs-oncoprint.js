@@ -239,9 +239,6 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			}
 		}
 	}
-
-	// scale
-	scaleBodyCanvas(oncoprint);
 }
 
 /*
@@ -384,6 +381,29 @@ function GetLongestLabelLength(oncoprint) {
 function ShowAlteredSamples(oncoprint, showAlteredSamples) {
 
 	oncoprint.altered_samples_only = showAlteredSamples;
+}
+
+/*
+ * Sets scale factor X.  We expect values between 0-99,
+ * and which get changed to values between 1.0 and 0.01
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * scaleFactorX - new X scale factor
+ *
+ */
+function SetScaleFactor(oncoprint, scaleFactorX) {
+
+	// sanity check
+	if (scaleFactorX < 0) {
+		scaleFactorX = 0;
+	}
+	else if (scaleFactorX > 99) {
+		scaleFactorX = 99;
+	}
+	oncoprint.scale_factor_x = (100-scaleFactorX) / 100;
+
+	// redraw
+	scaleBodyCanvas(oncoprint);
 }
 
 /*******************************************************************************
@@ -974,7 +994,9 @@ function addTooltipText(oncoprint, tooltipText) {
  */
 function scaleBodyCanvas(oncoprint) {
 
+	return;
 	var dx = 0;
+	var startingX = 0;
 	var dxSet = false;
 	var scaleFactorX = oncoprint.scale_factor_x;
 	oncoprint.body_canvas.forEach(function(obj) {
@@ -984,10 +1006,13 @@ function scaleBodyCanvas(oncoprint) {
 			var y= obj.attr('y');
 			obj.transform('S' + scaleFactorX + ',1.0,0,0');
 			if (!dxSet) {
+				startingX = x;
 				dx = obj.matrix.x(x, y);
 				dxSet = true;
 			}
-			obj.transform('...T' + dx + ",0");
+			if (startingX != dx) {
+				obj.transform('...T' + dx + ",0");
+			}
 		}
 	});
 }

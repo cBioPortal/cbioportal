@@ -149,10 +149,10 @@ public class MakeOncoPrint {
 		String oncoprintHeaderDivName = "oncoprint_header_" + cancerTypeID;
 		String oncoprintBodyDivName = "oncoprint_body_" + cancerTypeID;
 		String oncoprintLegendDivName = "oncoprint_legend_" + cancerTypeID;
-		// the name of the unsort checkbox and its label (span).
 		// these are not hardcoded as the name is shared between routines below
-		String unsortSamplesCheckboxName = "unsortSamples";
-		String unsortSamplesLabelName = "unsortSamplesLabel";
+		String unsortSamplesCheckboxName = "unsort_samples_checkbox";
+		String unsortSamplesLabelName = "unsort_samples_label";
+		String oncoprintScalingSliderName = "oncoprint_scaling_slider_" + cancerTypeID;
 		// names of various javascript variables used by the raphaeljs-oncoprint.js
 		String headerVariablesVarName = "HEADER_VARIABLES_" + cancerTypeID;
 		String longestLabelVarName = "LONGEST_LABEL_" + cancerTypeID;
@@ -193,11 +193,12 @@ public class MakeOncoPrint {
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
-														 legendFootnoteVarName, unsortSamplesLabelName, forSummaryTab));
+														 legendFootnoteVarName, unsortSamplesLabelName, oncoprintScalingSliderName, forSummaryTab));
 		out.append("</script>\n");
 		if (forSummaryTab) {
 			out.append(writeHTMLControls(oncoprintReferenceVarName, longestLabelVarName, headerVariablesVarName,unsortSamplesCheckboxName,
-										 unsortSamplesLabelName, sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName, forSummaryTab));
+										 unsortSamplesLabelName, oncoprintScalingSliderName, sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName,
+										 forSummaryTab, cancerTypeID));
 		}
 		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
@@ -401,6 +402,7 @@ public class MakeOncoPrint {
 	 * @param geneticAlterationsLegendVarName String
 	 * @param legendFootnoteVarName String
 	 * @param unsortSamplesLabelName String
+	 * @param oncoprintScalingSliderName String
 	 * @param forSummaryTab String
 	 *
 	 * @return String
@@ -416,6 +418,7 @@ public class MakeOncoPrint {
 														String geneticAlterationsLegendVarName,
 														String legendFootnoteVarName,
 														String unsortSamplesLabelName,
+														String oncoprintScalingSliderName,
 														boolean forSummaryTab) {
 
 		StringBuilder builder = new StringBuilder();
@@ -424,7 +427,26 @@ public class MakeOncoPrint {
 		builder.append("\tvar " + oncoprintReferenceVarName + " = null;\n");
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
+		// setup accordion javascript
+		builder.append("\t\t// for accordion functionality\n");
+		builder.append("\t\t$('#accordion .head').click(function() {\n");
+		builder.append("\t\t\t$(this).next().toggle();\n");
+		builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
+		builder.append("\t\t\treturn false;\n");
+		builder.append("\t\t}).next().hide();\n");
+		// setup slider
+		builder.append("\t\t// for oncoprint slider functionality\n");
+		builder.append("\t\tvar sliderOpts = {\n");
+		builder.append("\t\t\tmin: 0,\n");
+		builder.append("\t\t\tmax: 99,\n");
+		builder.append("\t\t\tstop: function(e, ui) {\n");
+		builder.append("\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", ui.value);\n");
+		builder.append("\t\t\t}\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\t$('#" + oncoprintScalingSliderName + "').slider(sliderOpts);\n");
+
 		// setup default properties
+		builder.append("\t\t// for oncoprint generation\n");
 		builder.append("\t\t" + oncoprintReferenceVarName + " = OncoPrintInit(" +
 					   headerElement + ", " + bodyElement + ", " + legendElement + ");\n");
 		// oncoprint header
@@ -486,9 +508,11 @@ public class MakeOncoPrint {
 	 * @param headerVariablesVarName String
 	 * @param unsortSamplesCheckboxName String
 	 * @param unsortSamplesLabelName String
+	 * @param oncoprintScalingSliderName String
 	 * @param sortedGeneticAlterationsVarName String
 	 * @param unsortedGeneticAlterationsVarName String
-	 * @param forSummaryTab String
+	 * @param forSummaryTab boolean
+	 * @param cancerTypeID String
 	 *
 	 * @return String
 	 */
@@ -497,9 +521,11 @@ public class MakeOncoPrint {
 									String headerVariablesVarName,
 									String unsortSamplesCheckboxName,
 									String unsortSamplesLabelName,
+									String oncoprintScalingSliderName,
 									String sortedGeneticAlterationsVarName,
 									String unsortedGeneticAlterationsVarName,
-									boolean forSummaryTab) {
+									boolean forSummaryTab,
+									String cancerTypeID) {
 
 		String formID = "oncoprintForm";
 		StringBuilder builder = new StringBuilder();
@@ -543,7 +569,28 @@ public class MakeOncoPrint {
 
 		// form end
 		builder.append("</form>\n");
-	
+
+		// compress / customize controls
+		builder.append("<div id=\"accordion\">\n");
+		builder.append("<div class='oncoprint_accordion_panel'>\n");
+		builder.append("<h1 class='head' id=\"customize_oncoprint_" + cancerTypeID + "\">\n");
+		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
+		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
+		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
+		builder.append("Customize OncoPrint\n");
+        builder.append("</h1>\n");
+		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
+		// accordion content here
+		builder.append("<table>\n");
+		builder.append("<tr>\n");
+		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td><td><div id=\"" + oncoprintScalingSliderName + "\" style=\"width: 100px;\"></div></td>\n");
+		builder.append("</tr>\n");
+		builder.append("</table>\n");
+		// end content
+		builder.append("</div>\n");
+		builder.append("</div>\n");
+		builder.append("</div>\n");
+
 		// outta here
 		return builder.toString();
 	}

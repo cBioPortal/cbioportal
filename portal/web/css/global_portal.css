@@ -382,6 +382,32 @@ table td {
   color:black;
 }
 
+.oncoprint_accordion_panel {
+    background-color: #FFFFFF;
+}
+
+.oncoprint_accordion_panel h1 {
+	margin-top:0px;margin-bottom:0px;
+	font-family: verdana, arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 12px;
+	letter-spacing: -1px;
+	color: #2153AA;
+	text-align:justify;
+    cursor: default;
+}
+
+.oncoprint_accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.oncoprint_accordion_content {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
 .oncoprint {
     font-family: verdana, arial, sans-serif;
     font-size:13px !important;

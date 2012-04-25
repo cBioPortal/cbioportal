@@ -174,6 +174,10 @@ public class MakeOncoPrint {
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
+		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ext-all.css\">\n");
+		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/example.css\">\n");
+		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/slider.css\">\n");
+		out.append("<script type=\"text/javascript\" src=\"js/bootstrap.js\"></script>\n");
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
@@ -435,6 +439,7 @@ public class MakeOncoPrint {
 		builder.append("\t\t\treturn false;\n");
 		builder.append("\t\t}).next().hide();\n");
 		// setup slider
+		/*
 		builder.append("\t\t// for oncoprint slider functionality\n");
 		builder.append("\t\tvar sliderOpts = {\n");
 		builder.append("\t\t\tmin: 0,\n");
@@ -444,6 +449,7 @@ public class MakeOncoPrint {
 		builder.append("\t\t\t}\n");
 		builder.append("\t\t};\n");
 		builder.append("\t\t$('#" + oncoprintScalingSliderName + "').slider(sliderOpts);\n");
+		*/
 
 		// setup default properties
 		builder.append("\t\t// for oncoprint generation\n");
@@ -494,6 +500,20 @@ public class MakeOncoPrint {
 			builder.append("\t\t});\n");
 		}
 		// end on document ready
+		builder.append("\t});\n");
+
+		// setup slider - using extjs
+		builder.append("\t// for oncoprint slider functionality\n");
+		builder.append("\tExt.require('Ext.slider.*');\n");
+		builder.append("\tExt.onReady(function() {\n");
+		builder.append("\t\tExt.create('Ext.slider.Single', {\n");
+		builder.append("\t\t\trenderTo: '" + oncoprintScalingSliderName + "',\n");
+		builder.append("\t\t\twidth: 100,\n");
+		builder.append("\t\t\tminValue: 0,\n");
+		builder.append("\t\t\thideLabel: true,\n");
+		builder.append("\t\t\tuseTips: false,\n");
+		builder.append("\t\t\tmaxValue: 99\n");
+		builder.append("\t\t});\n");
 		builder.append("\t});\n");
 
 		// outta here

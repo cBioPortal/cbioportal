@@ -406,6 +406,9 @@ sub createMetaFile{
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',
             'profile_name'                 => 'mRNA expression (microarray)'
         },
+        'mutsig' => {
+            'stable_id'                    => '<cancer>_tcga_mutsig', 
+        },
     };
 
     my $metaFilename = $dataFilename;

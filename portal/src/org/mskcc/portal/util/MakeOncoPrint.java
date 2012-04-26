@@ -516,10 +516,12 @@ public class MakeOncoPrint {
 		builder.append("\tfunction ScalarSpinner(turnOn) {\n");
 		builder.append("\t\tvar $spinner = $('#" + oncoprintScalingSliderName + "_spinner');\n");
 		builder.append("\t\tif (turnOn) {\n");
-		builder.append("\t\t\t$spinner.spinner();\n");
+		//builder.append("\t\t\t$spinner.spinner();\n");
+		builder.append("\t\t\t$spinner.css({'display' : 'inline'});\n");
 		builder.append("\t\t}\n");
 		builder.append("\t\telse {\n");
-		builder.append("\t\t\t$spinner.spinner('remove');\n");
+		//builder.append("\t\t\t$spinner.spinner('remove');\n");
+		builder.append("\t\t\t$spinner.css({'display' : 'none'});\n");
 		builder.append("\t\t}\n");
 		builder.append("\t}\n");
 
@@ -611,8 +613,11 @@ public class MakeOncoPrint {
 		builder.append("<table class='soria'>\n");
 		builder.append("<tr>\n");
 		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td>" + 
-					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>" + 
-					   "<td><span id=\"" + oncoprintScalingSliderName + "_spinner\">&nbsp;</span></td>\n");
+					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>");
+					   //"<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td><td><span id=\"" + oncoprintScalingSliderName + "_spinner\">&nbsp;</span></td>\n");
+		builder.append("</tr>\n");
+		builder.append("<tr>\n");
+		builder.append("<td><span id=\"" + oncoprintScalingSliderName + "_spinner\" style=\"font-size: 10px; color: #FF0000; display:none;\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
 		// end content

@@ -174,10 +174,12 @@ public class MakeOncoPrint {
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
-		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ext-all.css\">\n");
-		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/example.css\">\n");
-		out.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/slider.css\">\n");
-		out.append("<script type=\"text/javascript\" src=\"js/bootstrap.js\"></script>\n");
+		out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/claro/claro.css\" rel=\"stylesheet\"/>\n");
+		out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
+		out.append("<script type=\"text/javascript\">\n");
+		out.append("\tdojo.require(\"dijit.form.Slider\");\n");
+		//out.append("\tdojo.addClass(dojo.body(), 'claro');\n");
+		out.append("</script>\n");
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
@@ -438,18 +440,6 @@ public class MakeOncoPrint {
 		builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
 		builder.append("\t\t\treturn false;\n");
 		builder.append("\t\t}).next().hide();\n");
-		// setup slider
-		/*
-		builder.append("\t\t// for oncoprint slider functionality\n");
-		builder.append("\t\tvar sliderOpts = {\n");
-		builder.append("\t\t\tmin: 0,\n");
-		builder.append("\t\t\tmax: 99,\n");
-		builder.append("\t\t\tstop: function(e, ui) {\n");
-		builder.append("\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", ui.value);\n");
-		builder.append("\t\t\t}\n");
-		builder.append("\t\t};\n");
-		builder.append("\t\t$('#" + oncoprintScalingSliderName + "').slider(sliderOpts);\n");
-		*/
 
 		// setup default properties
 		builder.append("\t\t// for oncoprint generation\n");
@@ -502,18 +492,20 @@ public class MakeOncoPrint {
 		// end on document ready
 		builder.append("\t});\n");
 
-		// setup slider - using extjs
-		builder.append("\t// for oncoprint slider functionality\n");
-		builder.append("\tExt.require('Ext.slider.*');\n");
-		builder.append("\tExt.onReady(function() {\n");
-		builder.append("\t\tExt.create('Ext.slider.Single', {\n");
-		builder.append("\t\t\trenderTo: '" + oncoprintScalingSliderName + "',\n");
-		builder.append("\t\t\twidth: 100,\n");
-		builder.append("\t\t\tminValue: 0,\n");
-		builder.append("\t\t\thideLabel: true,\n");
-		builder.append("\t\t\tuseTips: false,\n");
-		builder.append("\t\t\tmaxValue: 99\n");
-		builder.append("\t\t});\n");
+		// slider
+		builder.append("\t// for oncoprint slider functionality we use dojo\n");
+		builder.append("\tdojo.ready(function() {\n");
+		builder.append("\t\tvar slider = new dijit.form.HorizontalSlider({\n");
+		builder.append("\t\t\tname: \"" + oncoprintScalingSliderName + "\",\n");
+		builder.append("\t\t\tvalue: 0,\n");
+		builder.append("\t\t\tminimum: 0,\n");
+		builder.append("\t\t\tmaximum: 99,\n");
+		builder.append("\t\t\tshowButtons: false,\n");
+		builder.append("\t\t\tstyle: \"width:100px;\",\n");
+		builder.append("\t\t\tonChange: function(value) {\n");
+		builder.append("\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
+		builder.append("\t\t\t}\n");
+		builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
 		builder.append("\t});\n");
 
 		// outta here
@@ -601,9 +593,9 @@ public class MakeOncoPrint {
         builder.append("</h1>\n");
 		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
 		// accordion content here
-		builder.append("<table>\n");
+		builder.append("<table class='claro'>\n");
 		builder.append("<tr>\n");
-		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td><td><div id=\"" + oncoprintScalingSliderName + "\" style=\"width: 100px;\"></div></td>\n");
+		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td><td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
 		// end content

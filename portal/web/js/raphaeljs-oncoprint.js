@@ -994,7 +994,6 @@ function addTooltipText(oncoprint, tooltipText) {
  */
 function scaleBodyCanvas(oncoprint) {
 
-	return;
 	var dx = 0;
 	var startingX = 0;
 	var dxSet = false;

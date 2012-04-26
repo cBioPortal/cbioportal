@@ -172,9 +172,10 @@ public class MakeOncoPrint {
 		}
 
 		// include some javascript libs
+		out.append("<script type=\"text/javascript\" src=\"js/jquery.spinner.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
-		out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/claro/claro.css\" rel=\"stylesheet\"/>\n");
+		out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
 		out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
 		out.append("<script type=\"text/javascript\">\n");
 		out.append("\tdojo.require(\"dijit.form.Slider\");\n");
@@ -503,10 +504,24 @@ public class MakeOncoPrint {
 		builder.append("\t\t\tshowButtons: false,\n");
 		builder.append("\t\t\tstyle: \"width:100px;\",\n");
 		builder.append("\t\t\tonChange: function(value) {\n");
-		builder.append("\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
+		builder.append("\t\t\t\tScalarSpinner(true);\n");
+		builder.append("\t\t\t\tsetTimeout(function() {\n");
+		builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
+		builder.append("\t\t\t\t\tScalarSpinner(false);\n");
+		builder.append("\t\t\t\t}, 100);\n");
+		builder.append("\t\t\t\treturn false;\n");
 		builder.append("\t\t\t}\n");
 		builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
 		builder.append("\t});\n");
+		builder.append("\tfunction ScalarSpinner(turnOn) {\n");
+		builder.append("\t\tvar $spinner = $('#" + oncoprintScalingSliderName + "_spinner');\n");
+		builder.append("\t\tif (turnOn) {\n");
+		builder.append("\t\t\t$spinner.spinner();\n");
+		builder.append("\t\t}\n");
+		builder.append("\t\telse {\n");
+		builder.append("\t\t\t$spinner.spinner('remove');\n");
+		builder.append("\t\t}\n");
+		builder.append("\t}\n");
 
 		// outta here
 		return builder.toString();
@@ -593,9 +608,11 @@ public class MakeOncoPrint {
         builder.append("</h1>\n");
 		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
 		// accordion content here
-		builder.append("<table class='claro'>\n");
+		builder.append("<table class='soria'>\n");
 		builder.append("<tr>\n");
-		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td><td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
+		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td>" + 
+					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>" + 
+					   "<td><span id=\"" + oncoprintScalingSliderName + "_spinner\">&nbsp;</span></td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
 		// end content

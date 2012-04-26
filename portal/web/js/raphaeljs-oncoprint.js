@@ -997,6 +997,7 @@ function scaleBodyCanvas(oncoprint) {
 	var dx = 0;
 	var startingX = 0;
 	var dxSet = false;
+	var translationFactor = 0;
 	var scaleFactorX = oncoprint.scale_factor_x;
 	oncoprint.body_canvas.forEach(function(obj) {
 		var node = obj.node;
@@ -1007,10 +1008,11 @@ function scaleBodyCanvas(oncoprint) {
 			if (!dxSet) {
 				startingX = x;
 				dx = obj.matrix.x(x, y);
+				translationFactor = (startingX-dx).toString();
 				dxSet = true;
 			}
 			if (startingX != dx) {
-				obj.transform('...T' + dx + ",0");
+				obj.transform('...T' + translationFactor + ",0");
 			}
 		}
 	});

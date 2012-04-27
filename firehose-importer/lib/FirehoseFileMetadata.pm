@@ -196,6 +196,9 @@ my $fileProperties = {
     '<CANCER>.sig_genes.txt' => {
         structure => 'unstructured'
     },
+    'data_mutsig.txt' => {
+        structure => 'unstructured'
+    },
     'Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt' => {
         structure => 'unstructured'
     },

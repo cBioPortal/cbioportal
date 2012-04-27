@@ -91,11 +91,11 @@ public class MutSigReader {
 
         // check to see if all fields are filled
         if (rankField == -1
-                ^ hugoField == -1
-                ^ BasesCoveredField == -1
-                ^ numMutationsField == -1
-                ^ PvalField == -1
-                ^ QvalField == -1) {
+                || hugoField == -1
+                || BasesCoveredField == -1
+                || numMutationsField == -1
+                || PvalField == -1
+                || QvalField == -1) {
             throw new IOException("one or more of the fields [rank, hugoGeneSymbol, number of bases covered (N), " +
                     "number of mutations (n), p-value, q-value] are undefined");
         }

@@ -150,9 +150,12 @@ public class MakeOncoPrint {
 		String oncoprintBodyDivName = "oncoprint_body_" + cancerTypeID;
 		String oncoprintLegendDivName = "oncoprint_legend_" + cancerTypeID;
 		// these are not hardcoded as the name is shared between routines below
-		String unsortSamplesCheckboxName = "unsort_samples_checkbox";
-		String unsortSamplesLabelName = "unsort_samples_label";
+		String oncoprintUnsortSamplesCheckboxName = "oncoprint_unsort_samples_checkbox_" + cancerTypeID;
+		String oncoprintUnsortSamplesLabelName = "oncoprint_unsort_samples_label_" + cancerTypeID;
 		String oncoprintScalingSliderName = "oncoprint_scaling_slider_" + cancerTypeID;
+		String oncoprintAccordionTitleName = "oncoprint_accordion_title_" + cancerTypeID;
+		String oncoprintCompressCheckboxName = "oncoprint_compress_checkbox_" + cancerTypeID;
+		String oncoprintCompressLabelName = "oncoprint_compress_label_" + cancerTypeID;
 		// names of various javascript variables used by the raphaeljs-oncoprint.js
 		String headerVariablesVarName = "HEADER_VARIABLES_" + cancerTypeID;
 		String longestLabelVarName = "LONGEST_LABEL_" + cancerTypeID;
@@ -172,15 +175,15 @@ public class MakeOncoPrint {
 		}
 
 		// include some javascript libs
-		out.append("<script type=\"text/javascript\" src=\"js/jquery.spinner.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
-		out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
-		out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
-		out.append("<script type=\"text/javascript\">\n");
-		out.append("\tdojo.require(\"dijit.form.Slider\");\n");
-		//out.append("\tdojo.addClass(dojo.body(), 'claro');\n");
-		out.append("</script>\n");
+		if (forSummaryTab) {
+			out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
+			out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
+			out.append("<script type=\"text/javascript\">\n");
+			out.append("\tdojo.require(\"dijit.form.Slider\");\n");
+			out.append("</script>\n");
+		}
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
@@ -200,12 +203,14 @@ public class MakeOncoPrint {
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
-														 legendFootnoteVarName, unsortSamplesLabelName, oncoprintScalingSliderName, forSummaryTab));
+														 legendFootnoteVarName, oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+														 oncoprintAccordionTitleName, forSummaryTab));
 		out.append("</script>\n");
 		if (forSummaryTab) {
-			out.append(writeHTMLControls(oncoprintReferenceVarName, longestLabelVarName, headerVariablesVarName,unsortSamplesCheckboxName,
-										 unsortSamplesLabelName, oncoprintScalingSliderName, sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName,
-										 forSummaryTab, cancerTypeID));
+			out.append(writeHTMLControls(oncoprintReferenceVarName, longestLabelVarName, headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
+										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName, oncoprintAccordionTitleName,
+										 oncoprintCompressCheckboxName, oncoprintCompressLabelName,
+										 sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
 		}
 		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
@@ -408,8 +413,9 @@ public class MakeOncoPrint {
 	 * @param geneticAlterationsVarName String
 	 * @param geneticAlterationsLegendVarName String
 	 * @param legendFootnoteVarName String
-	 * @param unsortSamplesLabelName String
+	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintAccordionTitleName String
 	 * @param forSummaryTab String
 	 *
 	 * @return String
@@ -424,8 +430,9 @@ public class MakeOncoPrint {
 														String geneticAlterationsVarName,
 														String geneticAlterationsLegendVarName,
 														String legendFootnoteVarName,
-														String unsortSamplesLabelName,
+														String oncoprintUnsortSamplesLabelName,
 														String oncoprintScalingSliderName,
+														String oncoprintAccordionTitleName,
 														boolean forSummaryTab) {
 
 		StringBuilder builder = new StringBuilder();
@@ -466,7 +473,7 @@ public class MakeOncoPrint {
 			builder.append("\t\tif (currentLocation.indexOf(\"index.do\") != -1) { \n");
 			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
 						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + unsortSamplesLabelName + "\"));\n");
+						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
 			builder.append("\t\t}\n");
 			// handle tooltip drawing when other tabs are clicked
 			builder.append("\t\t$(\"a\").click(function(event) {\n");
@@ -474,7 +481,7 @@ public class MakeOncoPrint {
 			builder.append("\t\t\tif (tab == \"#summary\") {\n");
 			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
 						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + unsortSamplesLabelName + "\"));\n");
+						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
 			builder.append("\t\t\t}\n");
 			builder.append("\t\t\t// we only clear if one of the inner index.do tabs are clicked\n"); 
 			builder.append("\t\t\t// otherwise we get a noticable tooltip clear before the page is reloaded\n");
@@ -487,44 +494,45 @@ public class MakeOncoPrint {
 			builder.append("\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
 						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + unsortSamplesLabelName + "\"));\n");
+						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
 			builder.append("\t\t});\n");
+			// oncoprint accordion title & compress checkbox tool-tip
+			builder.append("$(\".oncoprint_customize_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
 		}
 		// end on document ready
 		builder.append("\t});\n");
 
 		// slider
-		builder.append("\t// for oncoprint slider functionality we use dojo\n");
-		builder.append("\tdojo.ready(function() {\n");
-		builder.append("\t\tvar slider = new dijit.form.HorizontalSlider({\n");
-		builder.append("\t\t\tname: \"" + oncoprintScalingSliderName + "\",\n");
-		builder.append("\t\t\tvalue: 0,\n");
-		builder.append("\t\t\tminimum: 0,\n");
-		builder.append("\t\t\tmaximum: 99,\n");
-		builder.append("\t\t\tshowButtons: false,\n");
-		builder.append("\t\t\tstyle: \"width:100px;\",\n");
-		builder.append("\t\t\tonChange: function(value) {\n");
-		builder.append("\t\t\t\tScalarSpinner(true);\n");
-		builder.append("\t\t\t\tsetTimeout(function() {\n");
-		builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
-		builder.append("\t\t\t\t\tScalarSpinner(false);\n");
-		builder.append("\t\t\t\t}, 100);\n");
-		builder.append("\t\t\t\treturn false;\n");
-		builder.append("\t\t\t}\n");
-		builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
-		builder.append("\t});\n");
-		builder.append("\tfunction ScalarSpinner(turnOn) {\n");
-		builder.append("\t\tvar $spinner = $('#" + oncoprintScalingSliderName + "_spinner');\n");
-		builder.append("\t\tif (turnOn) {\n");
-		//builder.append("\t\t\t$spinner.spinner();\n");
-		builder.append("\t\t\t$spinner.css({'display' : 'inline'});\n");
-		builder.append("\t\t}\n");
-		builder.append("\t\telse {\n");
-		//builder.append("\t\t\t$spinner.spinner('remove');\n");
-		builder.append("\t\t\t$spinner.css({'display' : 'none'});\n");
-		builder.append("\t\t}\n");
-		builder.append("\t}\n");
-
+		if (forSummaryTab) {
+			builder.append("\t// for oncoprint slider functionality we use dojo\n");
+			builder.append("\tdojo.ready(function() {\n");
+			builder.append("\t\tvar slider = new dijit.form.HorizontalSlider({\n");
+			builder.append("\t\t\tname: \"" + oncoprintScalingSliderName + "\",\n");
+			builder.append("\t\t\tvalue: 0,\n");
+			builder.append("\t\t\tminimum: 0,\n");
+			builder.append("\t\t\tmaximum: 99,\n");
+			builder.append("\t\t\tshowButtons: false,\n");
+			builder.append("\t\t\tstyle: \"width:100px;\",\n");
+			builder.append("\t\t\tonChange: function(value) {\n");
+			builder.append("\t\t\t\tScalarIndicator(true);\n");
+			builder.append("\t\t\t\tsetTimeout(function() {\n");
+			builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
+			builder.append("\t\t\t\t\tScalarIndicator(false);\n");
+			builder.append("\t\t\t\t}, 100);\n");
+			builder.append("\t\t\t\treturn false;\n");
+			builder.append("\t\t\t}\n");
+			builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
+			builder.append("\t});\n");
+			builder.append("\tfunction ScalarIndicator(turnOn) {\n");
+			builder.append("\t\tvar $spinner = $('#" + oncoprintScalingSliderName + "_indicator');\n");
+			builder.append("\t\tif (turnOn) {\n");
+			builder.append("\t\t\t$spinner.css({'display' : 'inline'});\n");
+			builder.append("\t\t}\n");
+			builder.append("\t\telse {\n");
+			builder.append("\t\t\t$spinner.css({'display' : 'none'});\n");
+			builder.append("\t\t}\n");
+			builder.append("\t}\n");
+		}
 		// outta here
 		return builder.toString();
 	}
@@ -535,9 +543,12 @@ public class MakeOncoPrint {
 	 * @param oncoprintReferenceVarName String
 	 * @param longestLabelVarName String
 	 * @param headerVariablesVarName String
-	 * @param unsortSamplesCheckboxName String
-	 * @param unsortSamplesLabelName String
+	 * @param oncoprintUnsortSamplesCheckboxName String
+	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintAccordionTitleName String
+	 * @param oncoprintCompressCheckboxName String
+	 * @param oncoprintCompressLabelName String
 	 * @param sortedGeneticAlterationsVarName String
 	 * @param unsortedGeneticAlterationsVarName String
 	 * @param forSummaryTab boolean
@@ -548,9 +559,12 @@ public class MakeOncoPrint {
 	static String writeHTMLControls(String oncoprintReferenceVarName,
 									String longestLabelVarName,
 									String headerVariablesVarName,
-									String unsortSamplesCheckboxName,
-									String unsortSamplesLabelName,
+									String oncoprintUnsortSamplesCheckboxName,
+									String oncoprintUnsortSamplesLabelName,
 									String oncoprintScalingSliderName,
+									String oncoprintAccordionTitleName,
+									String oncoprintCompressCheckboxName,
+									String oncoprintCompressLabelName,
 									String sortedGeneticAlterationsVarName,
 									String unsortedGeneticAlterationsVarName,
 									boolean forSummaryTab,
@@ -578,23 +592,25 @@ public class MakeOncoPrint {
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
 					   headerVariablesVarName + ", true); " +
-					   "if (document.getElementById('" + unsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } else { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } return true;\"" +
-					   "><span id=\"showAlteredCasesLabel\">Only show altered cases.</span>\n");
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
+					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"" +
+					   "><span id=\"showAlteredCasesLabel\">Only show altered cases</span>\n");
 
 		// sort/unsort altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id=\"" + unsortSamplesCheckboxName + "\" name=\"" + unsortSamplesCheckboxName + "\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"if (this.checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } else { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } return true;\"" +
-					   "><span id=\"" + unsortSamplesLabelName + "\">Unsort Samples.</span>\n");
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } " +
+					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"" +
+					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Samples</span>\n");
 
 		// form end
 		builder.append("</form>\n");
@@ -606,18 +622,32 @@ public class MakeOncoPrint {
 		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
 		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
 		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
-		builder.append("Customize OncoPrint\n");
+		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"Adjust the dimensions of the OncoPrint.\">Customize OncoPrint</span>\n");
         builder.append("</h1>\n");
 		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
 		// accordion content here
 		builder.append("<table class='soria'>\n");
 		builder.append("<tr>\n");
-		builder.append("<td>Reduce Oncoprint Width:&nbsp;&nbsp</td>" + 
-					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>");
-					   //"<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td><td><span id=\"" + oncoprintScalingSliderName + "_spinner\">&nbsp;</span></td>\n");
+		// scaling slider
+		builder.append("<td>Scale OncoPrint Width:&nbsp;&nbsp</td>\n" + 
+					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
+		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
+		// compress checkbox
+		builder.append("<td><input type=\"checkbox\" id=\"" + oncoprintCompressCheckboxName + "\" name=\"" + oncoprintCompressCheckboxName + "\" value=\"false\" " +
+					   "onClick=\"CompressOncoPrint(" + oncoprintReferenceVarName + ", this.checked); " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } else { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
+					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"></td>\n");
+		// compress label
+		builder.append("<td><span id=\"" + oncoprintCompressLabelName + "\">Compress OncoPrint</span></td>\n");
+		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='If this is set, the OncoPrint will be Run-length encoded.'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");
-		builder.append("<td><span id=\"" + oncoprintScalingSliderName + "_spinner\" style=\"font-size: 10px; color: #FF0000; display:none;\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");
+		builder.append("<td><span class='oncoprint_scaler_indicator' id=\"" + oncoprintScalingSliderName + "_indicator\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
 		// end content

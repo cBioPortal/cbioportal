@@ -408,6 +408,15 @@ table td {
     padding-bottom:5px;
 }
 
+.oncoprint_accordion_panel table {
+	padding-left:15px;
+}
+
+.oncoprint_accordion_panel td {
+    font-size:12px;
+    color:#666666;
+}
+
 .oncoprint {
     font-family: verdana, arial, sans-serif;
     font-size:13px !important;
@@ -436,6 +445,12 @@ table td {
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
+}
+
+.oncoprint_scaler_indicator {
+	font-size: 10px;
+    color: #FF0000;
+	display: none;
 }
 
 #frequency_plot {

@@ -94,7 +94,9 @@ var DEFAULTS = (function() {
             // general sample properties
 			'ALTERED_SAMPLES_ONLY'              : false,
 			// scale factor
-			'SCALE_FACTOR_X'                    : 1.0
+			'SCALE_FACTOR_X'                    : 1.0,
+			// compress oncoprint
+			'COMPRESS'                          : false
 		};
 		return {
 		    get: function(name) { return private[name]; }
@@ -146,7 +148,9 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		// general sample properties
 		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY'),
 		// scale factor
-		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X')
+		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X'),
+		// compress oncoprint
+		'compress'                          : DEFAULTS.get('COMPRESS')
 	};
 }
 
@@ -322,7 +326,7 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 	if (x + width > parentElementPos[0] + parentElementWidth) {
 		width = parentElementPos[0] + parentElementWidth - x;
 	}
-	var y = headerPos[1] - DEFAULTS.get('TOOLTIP_REGION_HEIGHT') / 2;
+	var y = headerPos[1];
 	var height = DEFAULTS.get('TOOLTIP_REGION_HEIGHT');
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.remove();
@@ -404,6 +408,18 @@ function SetScaleFactor(oncoprint, scaleFactorX) {
 
 	// redraw
 	scaleBodyCanvas(oncoprint);
+}
+
+/*
+ * Toggles compress property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * compress  - flag indicating if oncoprint should be compressed
+ *
+ */
+function CompressOncoPrint(oncoprint, compress) {
+
+	oncoprint.compress = compress;
 }
 
 /*******************************************************************************

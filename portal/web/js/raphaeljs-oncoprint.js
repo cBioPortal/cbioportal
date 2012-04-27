@@ -216,10 +216,22 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
 		// for this gene, interate over all samples
 		var samplePos = -1;
+		var rleActive = false;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
+			// handle altered samples only bool
 			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
 				continue;
+			}
+			// handle compress bool
+			if (oncoprint.compress) {
+				if (thisSampleAlteration.alteration == getNextAlteration(oncoprint, alteration.alterations, lc2+1)) {
+					rleActive = true;
+					continue;
+				}
+				else {
+					rleActive = (thisSampleAlteration.alteration == getPreviousAlteration(oncoprint, alteration.alterations, lc2-1));
+				}
 			}
 			++samplePos;
 			// first draw MRNA "background"
@@ -231,7 +243,10 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			// tooltip
 			if (wantTooltip) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
-				if (thisSampleAlteration.mutation != null) {
+				if (rleActive) {
+					tooltipText = "This sample is Run-length encoded.";
+				}
+				if (!rleActive && thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "\nAmino Acid Change: ";
 					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {
 						tooltipText = tooltipText + thisSampleAlteration.mutation[lc3] + ", ";
@@ -451,7 +466,7 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
 
 	// resize canvas 
- 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, true);
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, true);
 	oncoprint.header_canvas.clear();
 
 	// render case list description
@@ -541,7 +556,7 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
 
 	// resize canvas 
- 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, false);
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, false);
 	// make a few minor adjustment for Cross Cancer Summary Page
 	dimension.width = dimension.width + oncoprint.longest_label_length;
 	//oncoprint.header_canvas.setSize(dimension.width, dimension.height);
@@ -611,10 +626,11 @@ function getLabelLength(label) {
  * Also returns height of a text string.
  *
  * headerVariables - various header strings
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * forSummaryTab - flag indicating if we are rendering header for Summary Tab (if not, Cross Cancer Study)
  *
  */
-function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
+function getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, forSummaryTab) {
 
 	// vars used below
 	var text;
@@ -624,18 +640,29 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	var scratchCanvas = Raphael(0, 0, 1, 1);
 
 	// case set description (only used on Summary Tab)
+	var caseDescriptionIsLongest = caseDescriptionIsLongestString(headerVariables, longestLabel);
 	if (forSummaryTab) {
-		// assume case set description is longest string
-		text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
+		if (caseDescriptionIsLongest) {
+			text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
+		}
+		else {
+			text = scratchCanvas.text(0,0, longestLabel + headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
+		}
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	}
 	else {
-		// assume all samples column heading is longest size
-		text = scratchCanvas.text(0,0, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+		// assume altered samples column heading is greater than all samples column heading
+		text = scratchCanvas.text(0,0, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	}
 	boundingBox = text.getBBox();
 	canvasWidth = boundingBox.width;
+	// if case list description is not longest string,
+	// the longest string is longest gene label + altered samples column heading
+	// so we must include formatting in width
+	if (!caseDescriptionIsLongest) {
+		canvasWidth = canvasWidth + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
+	}
 
 	// only include this height if summary tab (for case set description)
 	if (forSummaryTab) {
@@ -884,6 +911,22 @@ function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 }
 
 /*
+ * Deterimines if case description is longer than 
+ * than longest gene label & altered samples column heading
+ *
+ * headerVariables - various header strings
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
+ *
+ */
+function caseDescriptionIsLongestString(headerVariables, longestLabel) {
+
+	var caseSetDescription = headerVariables.get('CASE_SET_DESCRIPTION');
+	// assume altered samples column heading is greater than all samples column heading
+	var alteredSamplesHeading = headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING');
+	return (caseSetDescription.length >= (longestLabel.length + alteredSamplesHeading.length));
+}
+
+/*
  * For the given column (sample) return the x coordinate
  *
  * oncoprint - opaque reference to oncoprint system
@@ -1032,6 +1075,56 @@ function scaleBodyCanvas(oncoprint) {
 			}
 		}
 	});
+}
+
+/**
+ * Routine which returns next alteration, taking into account altered_samples_only property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * alterations - list of alterations
+ * index - starting index
+ *
+ */
+function getNextAlteration(oncoprint, alterations, index) {
+
+	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);	
+	for (var lc = index; lc < alterations.length; lc++) {
+		var thisSampleAlteration = alterations[lc].alteration;
+		if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
+			continue;
+		}
+		else {
+			return thisSampleAlteration;
+		}
+	}
+
+	// outta here
+	return null;
+}
+
+/**
+ * Routine which returns previous alteration, taking into account altered_samples_only property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * alterations - list of alterations
+ * index - starting index
+ *
+ */
+function getPreviousAlteration(oncoprint, alterations, index) {
+	
+	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
+	for (var lc = index; lc >= 0; lc--) {
+		var thisSampleAlteration = alterations[lc].alteration;
+		if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
+			continue;
+		}
+		else {
+			return thisSampleAlteration;
+		}
+	}
+
+	// outta here
+	return null;
 }
 
 /*******************************************************************************

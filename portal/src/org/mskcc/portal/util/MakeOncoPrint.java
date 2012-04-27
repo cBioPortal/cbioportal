@@ -446,6 +446,10 @@ public class MakeOncoPrint {
 		builder.append("\t\t$('#accordion .head').click(function() {\n");
 		builder.append("\t\t\t$(this).next().toggle();\n");
 		builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
+		builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+		builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById(\"" + oncoprintSectionVarName +
+					   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
 		builder.append("\t\t\treturn false;\n");
 		builder.append("\t\t}).next().hide();\n");
 
@@ -584,10 +588,10 @@ public class MakeOncoPrint {
 		builder.append("<input type=hidden name=\"format\" value=\"svg\">\n");
 
 		// export SVG button
-		builder.append("<P>Get OncoPrint:&nbsp;&nbsp<input type=\"submit\" value=\"SVG\">\n");
+		builder.append("<P>Get OncoPrint:&nbsp;&nbsp&nbsp;<input type=\"submit\" value=\"SVG\">\n");
 		
 		// show altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
@@ -602,7 +606,7 @@ public class MakeOncoPrint {
 					   "><span id=\"showAlteredCasesLabel\">Only show altered cases</span>\n");
 
 		// sort/unsort altered checkbox
-		builder.append("&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
+		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"if (this.checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } else { " +

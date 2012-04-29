@@ -479,6 +479,7 @@ function _updateNodeInspectorContent(data, node)
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
 	
+	
 	if (data.type == DRUG) 
 	{
 		_updateNodeInspectorForDrug(data, node);
@@ -2206,7 +2207,8 @@ function _initDialogs()
 /**
  * Initializes the drop down menu.
  */
-function _initDropDown(){
+function _initDropDown()
+{
 	// add select listener for drop down menu
 	$("#drop_down_select").change(function(){
 			_changeListener();
@@ -2324,7 +2326,8 @@ function _weightSliderStop(event, ui)
 /**
 *
 */
-function _filterByDropDown(){
+function _filterByDropDown()
+{
 	// remove previous filters due to slider
 	for (var key in _filteredByDropDown)
 	{
@@ -2751,7 +2754,7 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#B54011");
+		"background-color", "#BE7156");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
 		percent.toFixed(1) + "%");

@@ -458,7 +458,10 @@ public class MakeOncoPrint {
 		// setup default properties
 		builder.append("\t\t// for oncoprint generation\n");
 		builder.append("\t\t" + oncoprintReferenceVarName + " = OncoPrintInit(" +
-					   headerElement + ", " + bodyElement + ", " + legendElement + ");\n");
+					   "document.getElementById(\"" + headerElement + "\"), " +
+					   "document.getElementById(\"" + bodyElement + "\"), " +
+					   "document.getElementById(\"" + legendElement + "\"));\n");
+
 		// oncoprint header
 		builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 

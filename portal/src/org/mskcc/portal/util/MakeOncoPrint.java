@@ -501,7 +501,7 @@ public class MakeOncoPrint {
 						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
 			builder.append("\t\t});\n");
 			// oncoprint accordion title & compress checkbox tool-tip
-			builder.append("$(\".oncoprint_customize_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
+			builder.append("$(\".oncoprint_customize_help\").tipTip({maxWidth: \"150px\", defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
 		}
 		// end on document ready
 		builder.append("\t});\n");
@@ -647,8 +647,8 @@ public class MakeOncoPrint {
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
 					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"></td>\n");
 		// compress label
-		builder.append("<td><span id=\"" + oncoprintCompressLabelName + "\">Compress OncoPrint</span></td>\n");
-		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='If this is set, the OncoPrint will be Run-length encoded.'></td>\n");
+		builder.append("<td><span id=\"" + oncoprintCompressLabelName + "\">Collapse OncoPrint</span></td>\n");
+		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='When this is set, contiguous samples with the same type of genomic alterations will be collapsed into a single genomic alteration.'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");
 		builder.append("<td><span class='oncoprint_scaler_indicator' id=\"" + oncoprintScalingSliderName + "_indicator\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");

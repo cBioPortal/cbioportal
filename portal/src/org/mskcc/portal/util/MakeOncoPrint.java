@@ -442,16 +442,18 @@ public class MakeOncoPrint {
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
 		// setup accordion javascript
-		builder.append("\t\t// for accordion functionality\n");
-		builder.append("\t\t$('#accordion .head').click(function() {\n");
-		builder.append("\t\t\t$(this).next().toggle();\n");
-		builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
-		builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
-		builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById(\"" + oncoprintSectionVarName +
-					   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
-		builder.append("\t\t\treturn false;\n");
-		builder.append("\t\t}).next().hide();\n");
+		if (forSummaryTab) {
+			builder.append("\t\t// for accordion functionality\n");
+			builder.append("\t\t$('#accordion .head').click(function() {\n");
+			builder.append("\t\t\t$(this).next().toggle();\n");
+			builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
+			builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName +
+						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
+			builder.append("\t\t\treturn false;\n");
+			builder.append("\t\t}).next().hide();\n");
+		}
 
 		// setup default properties
 		builder.append("\t\t// for oncoprint generation\n");

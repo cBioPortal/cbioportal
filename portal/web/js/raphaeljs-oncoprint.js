@@ -244,7 +244,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			if (wantTooltip) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
 				if (rleActive) {
-					tooltipText = "This sample is Run-length encoded.";
+					tooltipText = "This is a collapsed sample.";
 				}
 				if (!rleActive && thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "\nAmino Acid Change: ";

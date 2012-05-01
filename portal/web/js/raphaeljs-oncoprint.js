@@ -121,6 +121,10 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 	text = scratchCanvas.text(0,0, "<");
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	var lessThanSignLength = text.getBBox().width;
+	text = scratchCanvas.text(0,0, "1");
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	var digitLength = text.getBBox().width;
+
 
 	return {
 		// header element is used later to determine location of tooltip canvas
@@ -134,6 +138,8 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
 		'less_than_sign_length'             : lessThanSignLength,
+		'digit_length'                      : digitLength,
+		'longest_percent_altered_length'    : 0,
 		// general styles
 		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
 		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
@@ -198,6 +204,9 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 
 	// set longest label length
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
+
+	// set longest % altered length
+	oncoprint.longest_percent_altered_length = getLongestPercentAlteredLength(geneticAlterations);
 
 	// resize canvas
 	var dimension = getOncoPrintBodyCanvasSize(oncoprint,
@@ -784,6 +793,9 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 	if (percentAltered.indexOf("<") != -1) {
 		x = x + oncoprint.less_than_sign_length;
 	}
+	var justificationChars = (oncoprint.longest_percent_altered_length > percentAltered.length) ?
+		oncoprint.longest_percent_altered_length - percentAltered.length : 0;
+	x = x - (oncoprint.digit_length * justificationChars);
 	text = oncoprint.body_canvas.text(x, y, geneSymbol);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
@@ -918,7 +930,7 @@ function getCNAAlterationColor(alterationSettings) {
 }
 
 /*
- * Deterimines if case description is longer than 
+ * Determines if case description is longer than 
  * than longest gene label & altered samples column heading
  *
  * headerVariables - various header strings
@@ -931,6 +943,23 @@ function caseDescriptionIsLongestString(headerVariables, longestLabel) {
 	// assume altered samples column heading is greater than all samples column heading
 	var alteredSamplesHeading = headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING');
 	return (caseSetDescription.length >= (longestLabel.length + alteredSamplesHeading.length));
+}
+
+/*
+ * Returns the longest percent altered string len.
+ *
+ * geneticAlterations - the genetic alterations
+ *
+ */
+function getLongestPercentAlteredLength(geneticAlterations) {
+
+	var maxPercentAlteredStringLen = 0;
+	for (var lc = 0; lc < geneticAlterations.length; lc++) {
+		if (geneticAlterations[lc].percentAltered.length > maxPercentAlteredStringLen) {
+			maxPercentAlteredStringLen = geneticAlterations[lc].percentAltered.length;
+		}
+	}
+	return maxPercentAlteredStringLen;
 }
 
 /*

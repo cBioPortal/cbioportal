@@ -26,7 +26,7 @@ public class MakeOncoPrint {
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
 	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the dimensions of the OncoPrint.";
-	private static String REMOVE_PADDING_TOOLTIP = "When this is set, whitespace between genomic alterations is removed.";
+	private static String REMOVE_PADDING_TOOLTIP = "When this is set, white space between genomic alterations is removed.";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -653,7 +653,7 @@ public class MakeOncoPrint {
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
 					   "return true;\"></td>\n");
 		// remove padding label & help tooltip
-		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Padding</span></td>\n");
+		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove White Space</span></td>\n");
 		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");

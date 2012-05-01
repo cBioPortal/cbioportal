@@ -95,8 +95,8 @@ var DEFAULTS = (function() {
 			'ALTERED_SAMPLES_ONLY'              : false,
 			// scale factor
 			'SCALE_FACTOR_X'                    : 1.0,
-			// compress oncoprint
-			'COMPRESS'                          : false
+			// remove genomics alteration padding
+			'REMOVE_GENOMIC_ALTERATION_HPADDING': false
 		};
 		return {
 		    get: function(name) { return private[name]; }
@@ -150,7 +150,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		// scale factor
 		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X'),
 		// compress oncoprint
-		'compress'                          : DEFAULTS.get('COMPRESS')
+		'remove_genomic_alteration_hpadding': DEFAULTS.get('REMOVE_GENOMIC_ALTERATION_HPADDING')
 	};
 }
 
@@ -216,22 +216,11 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
 		// for this gene, interate over all samples
 		var samplePos = -1;
-		var rleActive = false;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
 			// handle altered samples only bool
 			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
 				continue;
-			}
-			// handle compress bool
-			if (oncoprint.compress) {
-				if (thisSampleAlteration.alteration == getNextAlteration(oncoprint, alteration.alterations, lc2+1)) {
-					rleActive = true;
-					continue;
-				}
-				else {
-					rleActive = (thisSampleAlteration.alteration == getPreviousAlteration(oncoprint, alteration.alterations, lc2-1));
-				}
 			}
 			++samplePos;
 			// first draw MRNA "background"
@@ -243,10 +232,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			// tooltip
 			if (wantTooltip) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
-				if (rleActive) {
-					tooltipText = "This is a collapsed sample.";
-				}
-				if (!rleActive && thisSampleAlteration.mutation != null) {
+				if (thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "\nAmino Acid Change: ";
 					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {
 						tooltipText = tooltipText + thisSampleAlteration.mutation[lc3] + ", ";
@@ -432,9 +418,9 @@ function SetScaleFactor(oncoprint, scaleFactorX) {
  * compress  - flag indicating if oncoprint should be compressed
  *
  */
-function CompressOncoPrint(oncoprint, compress) {
+function RemoveGenomicAlterationPadding(oncoprint, removeGenomicsAlterationPadding) {
 
-	oncoprint.compress = compress;
+	oncoprint.remove_genomic_alteration_hpadding = removeGenomicsAlterationPadding;
 }
 
 /*******************************************************************************
@@ -831,7 +817,13 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
 	}
 	else if (alterationSettings & MRNA_NOTSHOWN) {
-		rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		if (oncoprint.remove_genomic_alteration_hpadding) {
+			// rather than show notshown color (white) lets use same color as CNA
+			rect.attr('fill', getCNAAlterationColor(alterationSettings));
+		}
+		else {
+			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		}
 	}
 }
 
@@ -859,24 +851,7 @@ function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
 	// choose fill color based on alteration type
-	if (alterationSettings & CNA_AMPLIFIED) {
-		rect.attr('fill', DEFAULTS.get('CNA_AMPLIFIED_COLOR'));
-	}
-	else if (alterationSettings & CNA_GAINED) {
-		rect.attr('fill', DEFAULTS.get('CNA_GAINED_COLOR'));
-	}
-	else if (alterationSettings & CNA_DIPLOID) {
-		rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
-	}
-	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
-		rect.attr('fill', DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR'));
-	}
-	else if (alterationSettings & CNA_HOMODELETED) {
-		rect.attr('fill', DEFAULTS.get('CNA_HOMODELETED_COLOR'));
-	}
-	else if (alterationSettings & CNA_NONE) {
-		rect.attr('fill', DEFAULTS.get('CNA_NONE_COLOR'));
-	}
+	rect.attr('fill', getCNAAlterationColor(alterationSettings));
 }
 
 /*
@@ -899,14 +874,46 @@ function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 		// create canvas rect -
 		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
 		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		if (!oncoprint.remove_genomic_alteration_hpadding) {
+			x = x + mrnaWireframeWidth / 2;
+		}
 		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
-		var rect = canvas.rect(x + mrnaWireframeWidth / 2,
+		var rect = canvas.rect(x,
 							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
 							   mutationRectDimensions.width, mutationRectDimensions.height);
 		// without this we get thin black border around rect
 		rect.attr('stroke', 'none'); 
 		// set color
 		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
+	}
+}
+
+/*
+* Determines proper color used for CNA alterations.  We made this a routine
+* because is shared among various subroutines.
+*
+* alterationSettings - the genomic alteration
+* 
+*/
+function getCNAAlterationColor(alterationSettings) {
+
+	if (alterationSettings & CNA_AMPLIFIED) {
+		return DEFAULTS.get('CNA_AMPLIFIED_COLOR');
+	}
+	else if (alterationSettings & CNA_GAINED) {
+		return DEFAULTS.get('CNA_GAINED_COLOR');
+	}
+	else if (alterationSettings & CNA_DIPLOID) {
+		return DEFAULTS.get('CNA_DIPLOID_COLOR');
+	}
+	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
+		return DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR');
+	}
+	else if (alterationSettings & CNA_HOMODELETED) {
+		return DEFAULTS.get('CNA_HOMODELETED_COLOR');
+	}
+	else if (alterationSettings & CNA_NONE) {
+		return DEFAULTS.get('CNA_NONE_COLOR');
 	}
 }
 
@@ -939,7 +946,9 @@ function getXCoordinate(oncoprint, column) {
 		return column;
 	}
 	else {
-		return (column * (oncoprint.alteration_width + oncoprint.alteration_horizontal_padding)
+		var padding = (oncoprint.remove_genomic_alteration_hpadding) ?
+			0 : oncoprint.alteration_horizontal_padding;
+		return (column * (oncoprint.alteration_width + padding)
 				+ oncoprint.longest_label_length);
 	}
 }
@@ -980,7 +989,10 @@ function getMRNAWireframeWidth(oncoprint) {
  */
 function getMutationRectDimensions(oncoprint) {
 
-	var width = oncoprint.alteration_width - getMRNAWireframeWidth(oncoprint);
+	var width = oncoprint.alteration_width;
+	if (!oncoprint.remove_genomic_alteration_hpadding) {
+		width = width - getMRNAWireframeWidth(oncoprint);
+	}
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };

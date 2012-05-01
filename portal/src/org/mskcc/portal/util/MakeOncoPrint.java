@@ -154,8 +154,8 @@ public class MakeOncoPrint {
 		String oncoprintUnsortSamplesLabelName = "oncoprint_unsort_samples_label_" + cancerTypeID;
 		String oncoprintScalingSliderName = "oncoprint_scaling_slider_" + cancerTypeID;
 		String oncoprintAccordionTitleName = "oncoprint_accordion_title_" + cancerTypeID;
-		String oncoprintCompressCheckboxName = "oncoprint_compress_checkbox_" + cancerTypeID;
-		String oncoprintCompressLabelName = "oncoprint_compress_label_" + cancerTypeID;
+		String oncoprintRemovePaddingCheckboxName = "oncoprint_remove_padding_checkbox_" + cancerTypeID;
+		String oncoprintRemovePaddingLabelName = "oncoprint_remove_padding_label_" + cancerTypeID;
 		// names of various javascript variables used by the raphaeljs-oncoprint.js
 		String headerVariablesVarName = "HEADER_VARIABLES_" + cancerTypeID;
 		String longestLabelVarName = "LONGEST_LABEL_" + cancerTypeID;
@@ -209,7 +209,7 @@ public class MakeOncoPrint {
 		if (forSummaryTab) {
 			out.append(writeHTMLControls(oncoprintReferenceVarName, longestLabelVarName, headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
 										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName, oncoprintAccordionTitleName,
-										 oncoprintCompressCheckboxName, oncoprintCompressLabelName,
+										 oncoprintRemovePaddingCheckboxName, oncoprintRemovePaddingLabelName,
 										 sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
 		}
 		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
@@ -556,8 +556,8 @@ public class MakeOncoPrint {
 	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
 	 * @param oncoprintAccordionTitleName String
-	 * @param oncoprintCompressCheckboxName String
-	 * @param oncoprintCompressLabelName String
+	 * @param oncoprintRemovePaddingCheckboxName String
+	 * @param oncoprintRemovePaddingLabelName String
 	 * @param sortedGeneticAlterationsVarName String
 	 * @param unsortedGeneticAlterationsVarName String
 	 * @param forSummaryTab boolean
@@ -572,8 +572,8 @@ public class MakeOncoPrint {
 									String oncoprintUnsortSamplesLabelName,
 									String oncoprintScalingSliderName,
 									String oncoprintAccordionTitleName,
-									String oncoprintCompressCheckboxName,
-									String oncoprintCompressLabelName,
+									String oncoprintRemovePaddingCheckboxName,
+									String oncoprintRemovePaddingLabelName,
 									String sortedGeneticAlterationsVarName,
 									String unsortedGeneticAlterationsVarName,
 									boolean forSummaryTab,
@@ -624,7 +624,7 @@ public class MakeOncoPrint {
 		// form end
 		builder.append("</form>\n");
 
-		// compress / customize controls
+		// customize controls
 		builder.append("<div id=\"accordion\">\n");
 		builder.append("<div class='oncoprint_accordion_panel'>\n");
 		builder.append("<h1 class='head' id=\"customize_oncoprint_" + cancerTypeID + "\">\n");
@@ -641,9 +641,9 @@ public class MakeOncoPrint {
 		builder.append("<td>Scale OncoPrint Width:&nbsp;&nbsp</td>\n" + 
 					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
-		// compress checkbox
-		builder.append("<td><input type=\"checkbox\" id=\"" + oncoprintCompressCheckboxName + "\" name=\"" + oncoprintCompressCheckboxName + "\" value=\"false\" " +
-					   "onClick=\"CompressOncoPrint(" + oncoprintReferenceVarName + ", this.checked); " +
+		// remove padding checkbox
+		builder.append("<td><input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
+					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } else { " +
@@ -651,9 +651,9 @@ public class MakeOncoPrint {
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
 					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"></td>\n");
-		// compress label
-		builder.append("<td><span id=\"" + oncoprintCompressLabelName + "\">Collapse OncoPrint</span></td>\n");
-		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='When this is set, contiguous samples with the same type of genomic alterations will be collapsed into a single genomic alteration.'></td>\n");
+		// remove padding label
+		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Padding</span></td>\n");
+		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='When this is set, whitespace between genomic alterations is removed.'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");
 		builder.append("<td><span class='oncoprint_scaler_indicator' id=\"" + oncoprintScalingSliderName + "_indicator\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");

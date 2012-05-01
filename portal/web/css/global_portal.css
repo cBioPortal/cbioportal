@@ -1114,18 +1114,6 @@ cursor: default;
     margin-left: 25px;
 }
 
-
-/* Custom Case Set Builder Settings */
-#build_custom_case_set
-{
-	cursor: pointer;
-}
-
-#ui-dialog-title-custom_case_set_dialog
-{
-	font-size: 14px;
-}
-
 /* This is the gene_list input text area */
 #gene_list {
   background-color:#eeeeee;

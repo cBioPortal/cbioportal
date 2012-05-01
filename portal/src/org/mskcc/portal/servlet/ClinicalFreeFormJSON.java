@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -12,12 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cgds.model.ClinicalFreeForm;
 import org.mskcc.cgds.model.ClinicalParameterMap;
 import org.owasp.validator.html.PolicyException;
 
@@ -50,42 +52,92 @@ public class ClinicalFreeFormJSON extends HttpServlet
         
         try
         {
+        	 // final object to be send as JSON
+        	 JSONObject jsonObject = new JSONObject();
+        	
         	 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(studyId);
-        	 // TODO check if cancerStudy really exists
         	 
-             DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-             HashSet<String> clinicalCaseSet = daoClinicalFreeForm.getAllCases(cancerStudy.getInternalId());
-             HashSet<String> paramSet = daoClinicalFreeForm.getDistinctParameters(cancerStudy.getInternalId());
-             
-             // map to be send as a JSON value
-             Map<String, Object> map = new HashMap<String, Object>();
-             
-             // add size of the clinical case set
-             map.put("sizeOfSet", clinicalCaseSet.size());
-             
-             // add the rest of the table
-             for (String param : paramSet) {
-                 ClinicalParameterMap paramMap = daoClinicalFreeForm.getDataSlice(cancerStudy.getInternalId(), param);
-                 HashSet<String> distinctCategorySet = paramMap.getDistinctCategories();
-                 JSONArray distinctCategories = new JSONArray();
+        	 // check if cancerStudy exists
+        	 if (cancerStudy == null)
+        	 {
+        		 // just create empty collections if cancers study cannot be found
+        		 jsonObject.put("clinicalCaseSet", new JSONArray());
+        		 jsonObject.put("categoryMap", new HashMap<String, Object>());
+        		 jsonObject.put("freeFormData", new JSONArray());
+        	 }
+        	 else
+        	 {
+        		 DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
                  
-                 for (String category : distinctCategorySet)
+                 HashSet<String> clinicalCaseSet = 
+                		 daoClinicalFreeForm.getAllCases(cancerStudy.getInternalId());
+                 
+                 HashSet<String> paramSet = 
+                		 daoClinicalFreeForm.getDistinctParameters(cancerStudy.getInternalId());
+                 
+                 List<ClinicalFreeForm> freeFormData = 
+                		 daoClinicalFreeForm.getCasesByCancerStudy(cancerStudy.getInternalId());
+
+                 // map of <param, distinctCategorySet> pairs
+                 Map<String, Object> categoryMap = new HashMap<String, Object>();
+                 
+                 // array of clinical case IDs 
+                 JSONArray caseIds = new JSONArray();
+                 
+                 // add the clinical case set
+                 for (String caseId : clinicalCaseSet)
                  {
-                	 if (category.trim().length() > 0)
-                	 {
-                		 distinctCategories.add(category);
-                	 }
+                	 caseIds.add(caseId);
                  }
                  
-                 map.put(param, distinctCategories);
-             }
-             
+                 jsonObject.put("clinicalCaseSet", caseIds);
+                 
+                 // get all distinct categories
+                 for (String param : paramSet) {
+                     ClinicalParameterMap paramMap = daoClinicalFreeForm.getDataSlice(cancerStudy.getInternalId(), param);
+                     HashSet<String> distinctCategorySet = paramMap.getDistinctCategories();
+                     JSONArray distinctCategories = new JSONArray();
+                     
+                     for (String category : distinctCategorySet)
+                     {
+                    	 if (category.trim().length() > 0)
+                    	 {
+                    		 distinctCategories.add(category);
+                    	 }
+                     }
+                     
+                     categoryMap.put(param, distinctCategories);
+                 }
+                 
+                 // add the category map
+                 jsonObject.put("categoryMap", categoryMap);
+                 
+                 // array of free form data
+                 JSONArray freeFormArray = new JSONArray();
+                 
+                 // get all clinical free form data for the specified cancer study
+                 for (ClinicalFreeForm data : freeFormData)
+                 {
+                	 JSONObject freeFormObject = new JSONObject();
+                	 
+                	 //freeFormObject.put("cancerStudyId", data.getCancerStudyId());
+                	 freeFormObject.put("caseId", data.getCaseId());
+                	 freeFormObject.put("paramName", data.getParamName());
+                	 freeFormObject.put("paramValue", data.getParamValue());
+                	 
+                	 freeFormArray.add(freeFormObject);
+                 }
+                 
+                 // add the free form data array
+                 jsonObject.put("freeFormData", freeFormArray);
+        	 }
+            
              httpServletResponse.setContentType("application/json");
              PrintWriter out = httpServletResponse.getWriter();
              
              try
              {
-            	 JSONValue.writeJSONString(map, out);
+            	 JSONValue.writeJSONString(jsonObject, out);
              }
              finally
              {

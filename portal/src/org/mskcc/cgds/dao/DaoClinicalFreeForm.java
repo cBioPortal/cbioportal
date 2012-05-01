@@ -1,7 +1,7 @@
 package org.mskcc.cgds.dao;
 
+import org.mskcc.cgds.model.ClinicalFreeForm;
 import org.mskcc.cgds.model.ClinicalParameterMap;
-import org.mskcc.portal.model.CaseFilter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data access object for Clinical Free Form Data.
@@ -99,6 +100,9 @@ public class DaoClinicalFreeForm {
         }
     }
 
+    /**
+     * Get all cases (case IDs) associated with the given cancer study ID.
+     */
     public HashSet<String> getAllCases (int cancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -122,6 +126,54 @@ public class DaoClinicalFreeForm {
         }
     }
 
+    /**
+     * Retrieves all rows in the clinical_free_form table for the specified cancer study,
+     * and returns a list of ClinicalFreeForm instances where each instance represents
+     * a single row in the table.
+     * 
+     * @param cancerStudyId	internal id of a specific cancer study
+     * @return				list of all ClinicalFreeForm instances for the given cancer study id
+     */
+    public List<ClinicalFreeForm> getCasesByCancerStudy(int cancerStudyId) throws DaoException
+    {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try{
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`" +
+                    "WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1, cancerStudyId);
+            rs = pstmt.executeQuery();
+            
+            ArrayList<ClinicalFreeForm> dataList = new ArrayList<ClinicalFreeForm>();
+            
+            while (rs.next())
+            {
+            	// get all values as String
+                String caseId = rs.getString("CASE_ID");
+                String paramName = rs.getString("PARAM_NAME");
+                String paramValue = rs.getString("PARAM_VALUE");
+                
+                // create new ClinicalFreeForm instance
+                ClinicalFreeForm data = new ClinicalFreeForm(cancerStudyId,
+                	caseId,
+                	paramName,
+                	paramValue);
+                
+                // add it to the list
+                dataList.add(data);
+            }
+            
+            return dataList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
     /**
      * Deletes all Records.
      * @throws org.mskcc.cgds.dao.DaoException DAO Error.

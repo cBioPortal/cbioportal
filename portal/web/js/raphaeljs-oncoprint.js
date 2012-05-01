@@ -26,7 +26,9 @@
  **/
 
 /*
- * Javscript library based on RaphaelJS Library which renders OncoPrints. 
+ * Javscript library based on RaphaelJS Library which renders OncoPrints.
+ *
+ * Benjamin Gross
  */
 
 // These bits are passed as "AlterationSettings" in DrawAlteration -
@@ -56,17 +58,17 @@ var DEFAULTS = (function() {
 			'ALTERATION_VERTICAL_PADDING'       : 1,
 			'ALTERATION_HORIZONTAL_PADDING'     : 1,
 			// cna styles
-			'CNA_AMPLIFIED_COLOR'                   : "#FF0000",
-			'CNA_GAINED_COLOR'                      : "#FFB6C1",
-			'CNA_DIPLOID_COLOR'                     : "#D3D3D3",
-			'CNA_HEMIZYGOUSLYDELETED_COLOR'         : "#8FD8D8",
-			'CNA_HOMODELETED_COLOR'                 : "#0000FF",
-			'CNA_NONE_COLOR'                        : "#D3D3D3",
+			'CNA_AMPLIFIED_COLOR'               : "#FF0000",
+			'CNA_GAINED_COLOR'                  : "#FFB6C1",
+			'CNA_DIPLOID_COLOR'                 : "#D3D3D3",
+			'CNA_HEMIZYGOUSLYDELETED_COLOR'     : "#8FD8D8",
+			'CNA_HOMODELETED_COLOR'             : "#0000FF",
+			'CNA_NONE_COLOR'                    : "#D3D3D3",
 			// mrna styles
 			'MRNA_WIREFRAME_WIDTH_SCALE_FACTOR' : 1/6,
-			'MRNA_UPREGULATED_COLOR'                 : "#FF9999",
-			'MRNA_DOWNREGULATED_COLOR'               : "#6699CC",
-			'MRNA_NOTSHOWN_COLOR'                    : "#FFFFFF",
+			'MRNA_UPREGULATED_COLOR'            : "#FF9999",
+			'MRNA_DOWNREGULATED_COLOR'          : "#6699CC",
+			'MRNA_NOTSHOWN_COLOR'               : "#FFFFFF",
 			// mutation styles
 			'MUTATION_COLOR'                    : "#008000",
 			'MUTATION_HEIGHT_SCALE_FACTOR'      : 1/3,
@@ -149,7 +151,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'mrna_wireframe_width_scale_factor' : DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR'),
 		// mutation	styles
 		'mutation_height_scale_factor'      : DEFAULTS.get('MUTATION_HEIGHT_SCALE_FACTOR'),
-		// use object for override coordinates flag
+		// this is used to change behavior of getXCoordinate() & getYCoordinate()
 		'use_immediate_coordinates'         : false,
 		// general sample properties
 		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY'),
@@ -252,6 +254,9 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 				createTooltip(oncoprint, lc, samplePos, tooltipText);
 			}
 		}
+	}
+	if (oncoprint.scale_factor_x != 1.0) {
+		scaleBodyCanvas(oncoprint);
 	}
 }
 
@@ -374,18 +379,6 @@ function GetOncoPrintBodyXML(oncoprint) {
 }
 
 /*
- * For the given oncoprint reference, returns the longest label length.
- *
- * oncoprint - opaque reference to oncoprint system
- *
- */
-function GetLongestLabelLength(oncoprint) {
-
-	// outta here
-	return oncoprint.longest_label_length;
-}
-
-/*
  * Toggles show altered samples only property.
  *
  * oncoprint - opaque reference to oncoprint system
@@ -434,7 +427,7 @@ function RemoveGenomicAlterationPadding(oncoprint, removeGenomicAlterationPaddin
 
 /*******************************************************************************
 //
-// The following functions are for internal use only.
+// The following functions are not meant to be used outside of this library.
 //
 *******************************************************************************/
 
@@ -594,26 +587,134 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 }
 
 /*
- * Computes the length (pixels) of the given label.
+ * Draws a gene label on the body_canvas at row row.
  *
- * label - label string
+ * oncoprint - opaque reference to oncoprint system
+ * row - the vertical position to draw the text
+ * geneSymbol - the gene symbol to render
+ * percentAltered - the percent altered string
  *
  */
-function getLabelLength(label) {
+function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 
-	// create scratch paper for drawing
-	var scratchCanvas = Raphael(0,0, 1, 1);
-	// draw text and set attributes
-	var text = scratchCanvas.text(0,0, label);
+	// compute starting coordinates
+	var x = getXCoordinate(oncoprint, 0) - DEFAULTS.get('LABEL_PADDING');
+	var y = getYCoordinate(oncoprint, row) + oncoprint.alteration_height / 2;
+	// render % altered
+	var text = oncoprint.body_canvas.text(x, y, percentAltered);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	// include the space between gene and % altered and first genetic alteration box
-	var labelLength = text.getBBox().width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
-	// cleanup
-	text.remove();
-	scratchCanvas.remove();
-	
-	// outta here
-	return labelLength;
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+	// render gene symbol
+	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
+	if (percentAltered.indexOf("<") != -1) {
+		x = x + oncoprint.less_than_sign_length;
+	}
+	var justificationChars = (oncoprint.longest_percent_altered_length > percentAltered.length) ?
+		oncoprint.longest_percent_altered_length - percentAltered.length : 0;
+	x = x - (oncoprint.digit_length * justificationChars);
+	text = oncoprint.body_canvas.text(x, y, geneSymbol);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+}
+
+/*
+ * Draws an mRNA genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// compute starting coordinates
+	var y = getYCoordinate(oncoprint, row);
+	var	x = getXCoordinate(oncoprint, column);
+	// create canvas rect
+	var rect = canvas.rect(x, y, oncoprint.alteration_width, oncoprint.alteration_height);
+	// without this we get thin black border around rect
+	rect.attr('stroke', 'none'); 
+	// choose fill color based on alteration type
+	if (alterationSettings & MRNA_UPREGULATED) {
+		rect.attr('fill', DEFAULTS.get('MRNA_UPREGULATED_COLOR'));
+	}
+	else if (alterationSettings & MRNA_DOWNREGULATED) {
+		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
+	}
+	else if (alterationSettings & MRNA_NOTSHOWN) {
+		if (oncoprint.remove_genomic_alteration_hpadding) {
+			// rather than show notshown color (white) lets use same color as CNA
+			rect.attr('fill', getCNAAlterationColor(alterationSettings));
+		}
+		else {
+			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		}
+	}
+}
+
+/*
+ * Draws a CNA genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// compute starting coordinates
+	var y = getYCoordinate(oncoprint, row);
+	var x = getXCoordinate(oncoprint, column);
+	// create canvas rect
+	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+	var rect = canvas.rect(x + mrnaWireframeWidth,
+						   y + mrnaWireframeWidth,
+						   oncoprint.alteration_width - mrnaWireframeWidth * 2,
+						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
+	// without this we get thin black border around rect
+	rect.attr('stroke', 'none'); 
+	// choose fill color based on alteration type
+	rect.attr('fill', getCNAAlterationColor(alterationSettings));
+}
+
+/*
+ * Draws a mutation genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
+
+	// only render if we have a mutation
+	if (alterationSettings & MUTATED) {
+		// compute starting coordinates
+		var y = getYCoordinate(oncoprint, row);
+		var x = getXCoordinate(oncoprint, column);
+		// create canvas rect -
+		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		if (!oncoprint.remove_genomic_alteration_hpadding) {
+			x = x + mrnaWireframeWidth / 2;
+		}
+		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
+		var rect = canvas.rect(x,
+							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
+							   mutationRectDimensions.width, mutationRectDimensions.height);
+		// without this we get thin black border around rect
+		rect.attr('stroke', 'none'); 
+		// set color
+		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
+	}
 }
 
 /*
@@ -770,139 +871,8 @@ function getOncoPrintLegendCanvasSize(oncoprint, geneticAlterations, legendFootn
 }
 
 /*
- * Draws a gene label on the body_canvas at row row.
- *
- * oncoprint - opaque reference to oncoprint system
- * row - the vertical position to draw the text
- * geneSymbol - the gene symbol to render
- * percentAltered - the percent altered string
- *
- */
-function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
-
-	// compute starting coordinates
-	var x = getXCoordinate(oncoprint, 0) - DEFAULTS.get('LABEL_PADDING');
-	var y = getYCoordinate(oncoprint, row) + oncoprint.alteration_height / 2;
-	// render % altered
-	var text = oncoprint.body_canvas.text(x, y, percentAltered);
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
-	// render gene symbol
-	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
-	if (percentAltered.indexOf("<") != -1) {
-		x = x + oncoprint.less_than_sign_length;
-	}
-	var justificationChars = (oncoprint.longest_percent_altered_length > percentAltered.length) ?
-		oncoprint.longest_percent_altered_length - percentAltered.length : 0;
-	x = x - (oncoprint.digit_length * justificationChars);
-	text = oncoprint.body_canvas.text(x, y, geneSymbol);
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
-}
-
-/*
- * Draws an mRNA genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
-
-	// compute starting coordinates
-	var y = getYCoordinate(oncoprint, row);
-	var	x = getXCoordinate(oncoprint, column);
-	// create canvas rect
-	var rect = canvas.rect(x, y, oncoprint.alteration_width, oncoprint.alteration_height);
-	// without this we get thin black border around rect
-	rect.attr('stroke', 'none'); 
-	// choose fill color based on alteration type
-	if (alterationSettings & MRNA_UPREGULATED) {
-		rect.attr('fill', DEFAULTS.get('MRNA_UPREGULATED_COLOR'));
-	}
-	else if (alterationSettings & MRNA_DOWNREGULATED) {
-		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
-	}
-	else if (alterationSettings & MRNA_NOTSHOWN) {
-		if (oncoprint.remove_genomic_alteration_hpadding) {
-			// rather than show notshown color (white) lets use same color as CNA
-			rect.attr('fill', getCNAAlterationColor(alterationSettings));
-		}
-		else {
-			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
-		}
-	}
-}
-
-/*
- * Draws a CNA genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
-
-	// compute starting coordinates
-	var y = getYCoordinate(oncoprint, row);
-	var x = getXCoordinate(oncoprint, column);
-	// create canvas rect
-	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-	var rect = canvas.rect(x + mrnaWireframeWidth,
-						   y + mrnaWireframeWidth,
-						   oncoprint.alteration_width - mrnaWireframeWidth * 2,
-						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
-	// without this we get thin black border around rect
-	rect.attr('stroke', 'none'); 
-	// choose fill color based on alteration type
-	rect.attr('fill', getCNAAlterationColor(alterationSettings));
-}
-
-/*
- * Draws a mutation genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
-
-	// only render if we have a mutation
-	if (alterationSettings & MUTATED) {
-		// compute starting coordinates
-		var y = getYCoordinate(oncoprint, row);
-		var x = getXCoordinate(oncoprint, column);
-		// create canvas rect -
-		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
-		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-		if (!oncoprint.remove_genomic_alteration_hpadding) {
-			x = x + mrnaWireframeWidth / 2;
-		}
-		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
-		var rect = canvas.rect(x,
-							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
-							   mutationRectDimensions.width, mutationRectDimensions.height);
-		// without this we get thin black border around rect
-		rect.attr('stroke', 'none'); 
-		// set color
-		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
-	}
-}
-
-/*
 * Determines proper color used for CNA alterations.  We made this a routine
-* because is shared among various subroutines.
+* because it is used in multiple locations.
 *
 * alterationSettings - the genomic alteration
 * 
@@ -946,7 +916,30 @@ function caseDescriptionIsLongestString(headerVariables, longestLabel) {
 }
 
 /*
- * Returns the longest percent altered string len.
+ * Computes the length (in pixels) of the given label.
+ *
+ * label - label string
+ *
+ */
+function getLabelLength(label) {
+
+	// create scratch paper for drawing
+	var scratchCanvas = Raphael(0,0, 1, 1);
+	// draw text and set attributes
+	var text = scratchCanvas.text(0,0, label);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	// include the space between gene and % altered and first genetic alteration box
+	var labelLength = text.getBBox().width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
+	// cleanup
+	text.remove();
+	scratchCanvas.remove();
+	
+	// outta here
+	return labelLength;
+}
+
+/*
+ * Returns the longest percent altered string len (in chars).
  *
  * geneticAlterations - the genetic alterations
  *
@@ -972,6 +965,7 @@ function getLongestPercentAlteredLength(geneticAlterations) {
 function getXCoordinate(oncoprint, column) {
 
 	if (oncoprint.use_immediate_coordinates) {
+		// used to get element coordinates for legend rendering
 		return column;
 	}
 	else {
@@ -992,6 +986,7 @@ function getXCoordinate(oncoprint, column) {
 function getYCoordinate(oncoprint, row) {
 
 	if (oncoprint.use_immediate_coordinates) {
+		// used to get element coordinates for legend rendering
 		return row;
 	}
 	else {
@@ -1087,7 +1082,9 @@ function addTooltipText(oncoprint, tooltipText) {
 }
 
 /**
- * Routine which scales body canvas.
+ * Routine which scales body canvas.  Elements are then
+ * translated based on the scaling dx. The scaling dx
+ * is only computed for the first element.
  *
  * oncoprint - opaque reference to oncoprint system
  *
@@ -1116,56 +1113,6 @@ function scaleBodyCanvas(oncoprint) {
 			}
 		}
 	});
-}
-
-/**
- * Routine which returns next alteration, taking into account altered_samples_only property.
- *
- * oncoprint - opaque reference to oncoprint system
- * alterations - list of alterations
- * index - starting index
- *
- */
-function getNextAlteration(oncoprint, alterations, index) {
-
-	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);	
-	for (var lc = index; lc < alterations.length; lc++) {
-		var thisSampleAlteration = alterations[lc].alteration;
-		if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
-			continue;
-		}
-		else {
-			return thisSampleAlteration;
-		}
-	}
-
-	// outta here
-	return null;
-}
-
-/**
- * Routine which returns previous alteration, taking into account altered_samples_only property.
- *
- * oncoprint - opaque reference to oncoprint system
- * alterations - list of alterations
- * index - starting index
- *
- */
-function getPreviousAlteration(oncoprint, alterations, index) {
-	
-	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
-	for (var lc = index; lc >= 0; lc--) {
-		var thisSampleAlteration = alterations[lc].alteration;
-		if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
-			continue;
-		}
-		else {
-			return thisSampleAlteration;
-		}
-	}
-
-	// outta here
-	return null;
 }
 
 /*******************************************************************************

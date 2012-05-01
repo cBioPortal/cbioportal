@@ -25,6 +25,8 @@ public class MakeOncoPrint {
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
+	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the dimensions of the OncoPrint.";
+	private static String REMOVE_PADDING_TOOLTIP = "When this is set, whitespace between genomic alterations is removed.";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -584,9 +586,8 @@ public class MakeOncoPrint {
 
 		// form start
 		builder.append("<form id=\"" + formID + "\" action=\"oncoprint_converter.svg\" method=\"POST\"" +
-					   "onsubmit=\"this.elements['longest_label_length'].value=GetLongestLabelLength(" + oncoprintReferenceVarName + "); "+ 
-					   "this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName + "); return true;\"" +
-					   " target=\"_blank\">\n");
+					   "onsubmit=\"this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName +
+					   "); return true;\"" + " target=\"_blank\">\n");
 		// add some hidden elements
 		builder.append("<input type=hidden name=\"xml\">\n");
 		builder.append("<input type=hidden name=\"longest_label_length\">\n");
@@ -631,7 +632,7 @@ public class MakeOncoPrint {
 		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
 		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
 		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
-		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"Adjust the dimensions of the OncoPrint.\">Customize OncoPrint</span>\n");
+		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"" + CUSTOMIZE_ONCOPRINT_TOOLTIP + "\">Customize OncoPrint</span>\n");
         builder.append("</h1>\n");
 		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
 		// accordion content here
@@ -650,10 +651,10 @@ public class MakeOncoPrint {
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
-					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"></td>\n");
-		// remove padding label
+					   "return true;\"></td>\n");
+		// remove padding label & help tooltip
 		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Padding</span></td>\n");
-		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='When this is set, whitespace between genomic alterations is removed.'></td>\n");
+		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");
 		builder.append("<td><span class='oncoprint_scaler_indicator' id=\"" + oncoprintScalingSliderName + "_indicator\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");

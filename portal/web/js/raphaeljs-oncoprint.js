@@ -421,15 +421,15 @@ function SetScaleFactor(oncoprint, scaleFactorX) {
 }
 
 /*
- * Toggles compress property.
+ * Toggles genomic alteration padding property.
  *
  * oncoprint - opaque reference to oncoprint system
- * compress  - flag indicating if oncoprint should be compressed
+ * removeGenomicAlterationPadding  - flag indicating if alteration padding should be removed
  *
  */
-function RemoveGenomicAlterationPadding(oncoprint, removeGenomicsAlterationPadding) {
+function RemoveGenomicAlterationPadding(oncoprint, removeGenomicAlterationPadding) {
 
-	oncoprint.remove_genomic_alteration_hpadding = removeGenomicsAlterationPadding;
+	oncoprint.remove_genomic_alteration_hpadding = removeGenomicAlterationPadding;
 }
 
 /*******************************************************************************

@@ -608,7 +608,7 @@ public class MakeOncoPrint {
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
-					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"" +
+					   "return true;\"" +
 					   "><span id=\"showAlteredCasesLabel\">Only show altered cases</span>\n");
 
 		// sort/unsort altered checkbox
@@ -619,7 +619,7 @@ public class MakeOncoPrint {
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
 					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } " +
-					   "dijit.byId('" + oncoprintScalingSliderName + "').attr('value', 0); return true;\"" +
+					   "return true;\"" +
 					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Samples</span>\n");
 
 		// form end

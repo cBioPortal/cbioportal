@@ -90,6 +90,7 @@ var DEFAULTS = (function() {
 			'TOOLTIP_COLOR'                     : "#000000",
 			'TOOLTIP_MARGIN'                    : 10,
 			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
+			'ALT_TOOLTIP_TEXT'                  : "Tooltips are disabled when white space is removed.",
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
@@ -157,8 +158,12 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY'),
 		// scale factor
 		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X'),
-		// compress oncoprint
-		'remove_genomic_alteration_hpadding': DEFAULTS.get('REMOVE_GENOMIC_ALTERATION_HPADDING')
+		// remove padding between genomic alterations
+		'remove_genomic_alteration_hpadding': DEFAULTS.get('REMOVE_GENOMIC_ALTERATION_HPADDING'),
+		// keeps track of number of contigous samples (when remove genomic alteration hpadding is set
+		'num_contiguous_samples'            : 0,
+		// keep track of last y pos - used to know where to render next genomics alretarion
+		'last_y_pos'                        : 0
 	};
 }
 
@@ -217,31 +222,48 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 	oncoprint.body_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.body_canvas.clear();
 
+	// we need to change the default tooltip text when genomic alteration padding is set
+	if (wantTooltip) {
+		var text = (oncoprint.remove_genomic_alteration_hpadding) ?
+			DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
+		addTooltipText(oncoprint, text);
+	}
+
 	// used to filter out unaltered samples in loop below
 	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
 
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
+		oncoprint.last_y_pos = 0; // must come before any rendering
 		var alteration = geneticAlterations[lc];
 		// draw label first
 		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
+		oncoprint.num_contiguous_samples = 0;
 		// for this gene, interate over all samples
-		var samplePos = -1;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
-			// handle altered samples only bool
+			// handle altered samples only bool - only render 
 			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
 				continue;
 			}
-			++samplePos;
+			// when remove genomic alteration padding is set, we only want to render rect for contiguous blocks
+            else if (oncoprint.remove_genomic_alteration_hpadding) {
+				++oncoprint.num_contiguous_samples;
+                if (thisSampleAlteration.alteration == getNextAlteration(oncoprint, alteration.alterations, lc2+1)) {
+                    continue;
+                }
+            }
+			else {
+				oncoprint.num_contiguous_samples = 1;
+			}
 			// first draw MRNA "background"
-			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			var last_y_pos = drawMRNA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// then draw CNA "within"
-			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			drawCNA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// finally draw mutation square "on top"
-			drawMutation(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			drawMutation(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// tooltip
-			if (wantTooltip) {
+			if (wantTooltip & !oncoprint.remove_genomic_alteration_hpadding) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
 				if (thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "\nAmino Acid Change: ";
@@ -251,8 +273,11 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 					// zap off last ', '
 					tooltipText = tooltipText.substring(0, tooltipText.length - 2);
 				}
-				createTooltip(oncoprint, lc, samplePos, tooltipText);
+				createTooltip(oncoprint, lc, null, tooltipText);
 			}
+			// update some vars needed for next go-around
+			oncoprint.last_y_pos = last_y_pos;
+			oncoprint.num_contiguous_samples = 0;
 		}
 	}
 	if (oncoprint.scale_factor_x != 1.0) {
@@ -622,6 +647,8 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 /*
  * Draws an mRNA genomic alteration at given row & col.
  *
+ * Returns the last y pos of rect.
+ *
  * oncoprint - opaque reference to oncoprint system
  * canvas - canvas to draw on
  * row - the vertical position to draw the alteration
@@ -635,7 +662,9 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 	var y = getYCoordinate(oncoprint, row);
 	var	x = getXCoordinate(oncoprint, column);
 	// create canvas rect
-	var rect = canvas.rect(x, y, oncoprint.alteration_width, oncoprint.alteration_height);
+	var alteration_width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
+	var rect = canvas.rect(x, y, alteration_width, oncoprint.alteration_height);
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
 	// choose fill color based on alteration type
@@ -654,6 +683,8 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
 		}
 	}
+
+	return x + alteration_width;
 }
 
 /*
@@ -673,9 +704,11 @@ function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
 	var x = getXCoordinate(oncoprint, column);
 	// create canvas rect
 	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+	var alteration_width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
 	var rect = canvas.rect(x + mrnaWireframeWidth,
 						   y + mrnaWireframeWidth,
-						   oncoprint.alteration_width - mrnaWireframeWidth * 2,
+						   alteration_width - mrnaWireframeWidth * 2,
 						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
@@ -969,10 +1002,14 @@ function getXCoordinate(oncoprint, column) {
 		return column;
 	}
 	else {
-		var padding = (oncoprint.remove_genomic_alteration_hpadding) ?
-			0 : oncoprint.alteration_horizontal_padding;
-		return (column * (oncoprint.alteration_width + padding)
-				+ oncoprint.longest_label_length);
+		if (oncoprint.last_y_pos == 0) {
+			return oncoprint.longest_label_length;
+		}
+		else {
+			var padding = (oncoprint.remove_genomic_alteration_hpadding) ?
+				0 : oncoprint.alteration_horizontal_padding;
+			return oncoprint.last_y_pos + padding;
+		}
 	}
 }
 
@@ -1013,7 +1050,8 @@ function getMRNAWireframeWidth(oncoprint) {
  */
 function getMutationRectDimensions(oncoprint) {
 
-	var width = oncoprint.alteration_width;
+	var width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
 	if (!oncoprint.remove_genomic_alteration_hpadding) {
 		width = width - getMRNAWireframeWidth(oncoprint);
 	}
@@ -1061,6 +1099,11 @@ function createTooltip(oncoprint, row, column, tooltipText) {
  *
  */
 function addTooltipText(oncoprint, tooltipText) {
+
+	// sanity check
+	if (oncoprint.tooltip_canvas == null) {
+		return;
+	}
 
 	// clear off the canvas
 	ClearOncoPrintTooltipRegion(oncoprint);
@@ -1113,6 +1156,31 @@ function scaleBodyCanvas(oncoprint) {
 			}
 		}
 	});
+}
+
+/**
+ * Routine which returns next alteration, taking into account altered_samples_only property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * alterations - list of alterations
+ * index - starting index
+ *
+ */
+function getNextAlteration(oncoprint, alterations, index) {
+
+        var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);      
+        for (var lc = index; lc < alterations.length; lc++) {
+                var thisSampleAlteration = alterations[lc].alteration;
+                if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
+                        continue;
+                }
+                else {
+                        return thisSampleAlteration;
+                }
+        }
+
+        // outta here
+        return null;
 }
 
 /*******************************************************************************

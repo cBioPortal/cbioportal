@@ -536,9 +536,9 @@ public class MakeOncoPrint {
 			builder.append("\tdojo.ready(function() {\n");
 			builder.append("\t\tvar slider = new dijit.form.HorizontalSlider({\n");
 			builder.append("\t\t\tname: \"" + oncoprintScalingSliderName + "\",\n");
-			builder.append("\t\t\tvalue: 0,\n");
-			builder.append("\t\t\tminimum: 0,\n");
-			builder.append("\t\t\tmaximum: 99,\n");
+			builder.append("\t\t\tvalue: 100,\n");
+			builder.append("\t\t\tminimum: 1,\n");
+			builder.append("\t\t\tmaximum: 100,\n");
 			builder.append("\t\t\tshowButtons: false,\n");
 			builder.append("\t\t\tstyle: \"width:100px;\",\n");
 			builder.append("\t\t\tonChange: function(value) {\n");
@@ -661,7 +661,7 @@ public class MakeOncoPrint {
 					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
 					   "}, timerDelay); " +
 					   "return true;\"" +
-					   "><span id=\"showAlteredCasesLabel\">Only show altered cases</span>\n");
+					   "><span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
 
 		// sort/unsort altered checkbox
 		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
@@ -701,7 +701,7 @@ public class MakeOncoPrint {
 					   "}, timerDelay); " +
 					   "} " +
 					   "return true;\"" +
-					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Samples</span>\n");
+					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
 
 		// form controls indicator
 		builder.append("<br><span class='oncoprint_indicator' id=\"" + oncoprintFormControlsIndicatorName + "\"></span>\n");
@@ -723,7 +723,7 @@ public class MakeOncoPrint {
 		builder.append("<table class='soria'>\n");
 		builder.append("<tr>\n");
 		// scaling slider
-		builder.append("<td>Scale OncoPrint Width:&nbsp;&nbsp</td>\n" + 
+		builder.append("<td>OncoPrint Width:&nbsp;&nbsp</td>\n" + 
 					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// remove padding checkbox

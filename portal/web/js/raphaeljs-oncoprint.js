@@ -429,13 +429,13 @@ function ShowAlteredSamples(oncoprint, showAlteredSamples) {
 function SetScaleFactor(oncoprint, scaleFactorX) {
 
 	// sanity check
-	if (scaleFactorX < 0) {
-		scaleFactorX = 0;
+	if (scaleFactorX < 1) {
+		scaleFactorX = 1;
 	}
-	else if (scaleFactorX > 99) {
-		scaleFactorX = 99;
+	else if (scaleFactorX > 100) {
+		scaleFactorX = 100;
 	}
-	oncoprint.scale_factor_x = (100-scaleFactorX) / 100;
+	oncoprint.scale_factor_x = scaleFactorX / 100;
 
 	// redraw
 	scaleBodyCanvas(oncoprint);

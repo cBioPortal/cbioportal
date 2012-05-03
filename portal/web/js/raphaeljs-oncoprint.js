@@ -66,6 +66,7 @@ var DEFAULTS = (function() {
 			'CNA_NONE_COLOR'                    : "#D3D3D3",
 			// mrna styles
 			'MRNA_WIREFRAME_WIDTH_SCALE_FACTOR' : 1/6,
+			'MRNA_WIREFRAME_WIDTH_SCALE_FACTOR2': 1/4,
 			'MRNA_UPREGULATED_COLOR'            : "#FF9999",
 			'MRNA_DOWNREGULATED_COLOR'          : "#6699CC",
 			'MRNA_NOTSHOWN_COLOR'               : "#FFFFFF",
@@ -450,6 +451,10 @@ function SetScaleFactor(oncoprint, scaleFactorX) {
 function RemoveGenomicAlterationPadding(oncoprint, removeGenomicAlterationPadding) {
 
 	oncoprint.remove_genomic_alteration_hpadding = removeGenomicAlterationPadding;
+
+	oncoprint.mrna_wireframe_width_scale_factor = (removeGenomicAlterationPadding) ?
+		DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR2') :
+		DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR');
 }
 
 /*******************************************************************************
@@ -677,15 +682,10 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
 	}
 	else if (alterationSettings & MRNA_NOTSHOWN) {
-		if (oncoprint.remove_genomic_alteration_hpadding) {
-			// rather than show notshown color (white) lets use same color as CNA
-			rect.attr('fill', getCNAAlterationColor(alterationSettings));
-		}
-		else {
-			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
-		}
+		rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
 	}
 
+	// outta here
 	return x + alteration_width;
 }
 
@@ -715,7 +715,24 @@ function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
 	// without this we get thin black border around rect
 	rect.attr('stroke', 'none'); 
 	// choose fill color based on alteration type
-	rect.attr('fill', getCNAAlterationColor(alterationSettings));
+	if (alterationSettings & CNA_AMPLIFIED) {
+		rect.attr('fill', DEFAULTS.get('CNA_AMPLIFIED_COLOR'));
+	}
+	else if (alterationSettings & CNA_GAINED) {
+		rect.attr('fill', DEFAULTS.get('CNA_GAINED_COLOR'));
+	}
+	else if (alterationSettings & CNA_DIPLOID) {
+		rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+	}
+	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
+		rect.attr('fill', DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR'));
+	}
+	else if (alterationSettings & CNA_HOMODELETED) {
+		rect.attr('fill', DEFAULTS.get('CNA_HOMODELETED_COLOR'));
+	}
+	else if (alterationSettings & CNA_NONE) {
+		rect.attr('fill', DEFAULTS.get('CNA_NONE_COLOR'));
+	}
 }
 
 /*
@@ -738,11 +755,9 @@ function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 		// create canvas rect -
 		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
 		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-		if (!oncoprint.remove_genomic_alteration_hpadding) {
-			x = x + mrnaWireframeWidth / 2;
-		}
+
 		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
-		var rect = canvas.rect(x,
+		var rect = canvas.rect(x + mrnaWireframeWidth / 2,
 							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
 							   mutationRectDimensions.width, mutationRectDimensions.height);
 		// without this we get thin black border around rect
@@ -906,35 +921,6 @@ function getOncoPrintLegendCanvasSize(oncoprint, geneticAlterations, legendFootn
 }
 
 /*
-* Determines proper color used for CNA alterations.  We made this a routine
-* because it is used in multiple locations.
-*
-* alterationSettings - the genomic alteration
-* 
-*/
-function getCNAAlterationColor(alterationSettings) {
-
-	if (alterationSettings & CNA_AMPLIFIED) {
-		return DEFAULTS.get('CNA_AMPLIFIED_COLOR');
-	}
-	else if (alterationSettings & CNA_GAINED) {
-		return DEFAULTS.get('CNA_GAINED_COLOR');
-	}
-	else if (alterationSettings & CNA_DIPLOID) {
-		return DEFAULTS.get('CNA_DIPLOID_COLOR');
-	}
-	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
-		return DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR');
-	}
-	else if (alterationSettings & CNA_HOMODELETED) {
-		return DEFAULTS.get('CNA_HOMODELETED_COLOR');
-	}
-	else if (alterationSettings & CNA_NONE) {
-		return DEFAULTS.get('CNA_NONE_COLOR');
-	}
-}
-
-/*
  * Determines if case description is longer than 
  * than longest gene label & altered samples column heading
  *
@@ -1054,9 +1040,8 @@ function getMutationRectDimensions(oncoprint) {
 
 	var width = (oncoprint.remove_genomic_alteration_hpadding) ?
 		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
-	if (!oncoprint.remove_genomic_alteration_hpadding) {
-		width = width - getMRNAWireframeWidth(oncoprint);
-	}
+	width = width - getMRNAWireframeWidth(oncoprint);
+
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };

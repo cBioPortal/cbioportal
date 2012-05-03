@@ -90,8 +90,8 @@ var DEFAULTS = (function() {
 			'TOOLTIP_FONT'                      : "normal 12px arial",
 			'TOOLTIP_COLOR'                     : "#000000",
 			'TOOLTIP_MARGIN'                    : 10,
-			'TOOLTIP_TEXT'                      : "Move mouse pointer over a case to view details.",
-			'ALT_TOOLTIP_TEXT'                  : "Tooltips are disabled when white space is removed.",
+			'TOOLTIP_TEXT'                      : "Move the mouse pointer over a case to view case details.",
+			'ALT_TOOLTIP_TEXT'                  : "Case details are not available when white space has been removed from the OncoPrint.",
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences

@@ -374,7 +374,9 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 	oncoprint.tooltip_canvas = Raphael(x, y, width, height);
 
 	// add place holder text
-	addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+	var text = (oncoprint.remove_genomic_alteration_hpadding) ?
+		DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
+	addTooltipText(oncoprint, text);
 }
 
 /*

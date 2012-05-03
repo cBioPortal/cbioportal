@@ -26,7 +26,14 @@ public class MakeOncoPrint {
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
 	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the dimensions of the OncoPrint.";
-	private static String REMOVE_PADDING_TOOLTIP = "When this is set, white space between genomic alterations is removed.";
+	private static String REMOVE_PADDING_TOOLTIP = "When this is set, whitespace between genomic alterations is removed.";
+	private static String SCALING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Scaling OncoPrint...";
+	private static String ADD_PADDING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Adding Whitespace...";
+	private static String REMOVE_PADDING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Removing Whitespace...";
+	private static String REMOVE_UNALTERED_CASES_INDICATOR = "\\u00a0\\u00a0Removing Unaltered Cases...";
+	private static String ADD_UNALTERED_CASES_INDICATOR = "\\u00a0\\u00a0Adding Unaltered Cases...";
+	private static String UNSORT_SAMPLES_INDICATOR = "\\u00a0\\u00a0Unsorting Samples...";
+	private static String SORT_SAMPLES_INDICATOR = "\\u00a0\\u00a0Sorting Samples...";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -154,7 +161,9 @@ public class MakeOncoPrint {
 		// these are not hardcoded as the name is shared between routines below
 		String oncoprintUnsortSamplesCheckboxName = "oncoprint_unsort_samples_checkbox_" + cancerTypeID;
 		String oncoprintUnsortSamplesLabelName = "oncoprint_unsort_samples_label_" + cancerTypeID;
+		String oncoprintFormControlsIndicatorName = "oncoprint_form_controls_indicator_" + cancerTypeID;
 		String oncoprintScalingSliderName = "oncoprint_scaling_slider_" + cancerTypeID;
+		String oncoprintCustomizeIndicatorName = "oncoprint_customize_indicator_" + cancerTypeID;
 		String oncoprintAccordionTitleName = "oncoprint_accordion_title_" + cancerTypeID;
 		String oncoprintRemovePaddingCheckboxName = "oncoprint_remove_padding_checkbox_" + cancerTypeID;
 		String oncoprintRemovePaddingLabelName = "oncoprint_remove_padding_label_" + cancerTypeID;
@@ -206,13 +215,17 @@ public class MakeOncoPrint {
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
 														 legendFootnoteVarName, oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+														 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
 														 oncoprintAccordionTitleName, forSummaryTab));
 		out.append("</script>\n");
 		if (forSummaryTab) {
-			out.append(writeHTMLControls(oncoprintReferenceVarName, longestLabelVarName, headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
-										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName, oncoprintAccordionTitleName,
-										 oncoprintRemovePaddingCheckboxName, oncoprintRemovePaddingLabelName,
-										 sortedGeneticAlterationsVarName, unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
+			out.append(writeHTMLControls(oncoprintSection, oncoprintReferenceVarName, longestLabelVarName,
+										 headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
+										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+										 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
+										 oncoprintAccordionTitleName, oncoprintRemovePaddingCheckboxName,
+										 oncoprintRemovePaddingLabelName, sortedGeneticAlterationsVarName,
+										 unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
 		}
 		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
 		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
@@ -417,6 +430,8 @@ public class MakeOncoPrint {
 	 * @param legendFootnoteVarName String
 	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintFormControlsIndicatorName String
+	 * @param oncoprintCustomizeIndicatorName String
 	 * @param oncoprintAccordionTitleName String
 	 * @param forSummaryTab String
 	 *
@@ -434,6 +449,8 @@ public class MakeOncoPrint {
 														String legendFootnoteVarName,
 														String oncoprintUnsortSamplesLabelName,
 														String oncoprintScalingSliderName,
+														String oncoprintFormControlsIndicatorName,
+														String oncoprintCustomizeIndicatorName,
 														String oncoprintAccordionTitleName,
 														boolean forSummaryTab) {
 
@@ -525,17 +542,26 @@ public class MakeOncoPrint {
 			builder.append("\t\t\tshowButtons: false,\n");
 			builder.append("\t\t\tstyle: \"width:100px;\",\n");
 			builder.append("\t\t\tonChange: function(value) {\n");
-			builder.append("\t\t\t\tScalarIndicator(true);\n");
+			builder.append("\t\t\t\tvar $spinner = $('#" + oncoprintCustomizeIndicatorName + "');\n");
+			builder.append("\t\t\t\t$spinner.text(\"" + SCALING_ONCOPRINT_INDICATOR  + "\");\n");
+			builder.append("\t\t\t\tScalarIndicator($spinner, true);\n");
+			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById('" + oncoprintSectionVarName +
+						   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "'));\n");
 			builder.append("\t\t\t\tsetTimeout(function() {\n");
 			builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
-			builder.append("\t\t\t\t\tScalarIndicator(false);\n");
+			builder.append("\t\t\t\t\tScalarIndicator($spinner, false);\n");
+			builder.append("\t\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById('" + oncoprintSectionVarName +
+						   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "'));\n");
 			builder.append("\t\t\t\t}, 100);\n");
 			builder.append("\t\t\t\treturn false;\n");
 			builder.append("\t\t\t}\n");
 			builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
 			builder.append("\t});\n");
-			builder.append("\tfunction ScalarIndicator(turnOn) {\n");
-			builder.append("\t\tvar $spinner = $('#" + oncoprintScalingSliderName + "_indicator');\n");
+			builder.append("\tfunction ScalarIndicator($spinner, turnOn) {\n");
 			builder.append("\t\tif (turnOn) {\n");
 			builder.append("\t\t\t$spinner.css({'display' : 'inline'});\n");
 			builder.append("\t\t}\n");
@@ -551,12 +577,15 @@ public class MakeOncoPrint {
 	/**
 	 * Creates OncoPrint Control (checkboxes, submit button, etc).
 	 *
+	 * @param oncoprintSectionVarName String
 	 * @param oncoprintReferenceVarName String
 	 * @param longestLabelVarName String
 	 * @param headerVariablesVarName String
 	 * @param oncoprintUnsortSamplesCheckboxName String
 	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintFormControlsIndicatorName String
+	 * @param oncoprintCustomizeIndicatorName String
 	 * @param oncoprintAccordionTitleName String
 	 * @param oncoprintRemovePaddingCheckboxName String
 	 * @param oncoprintRemovePaddingLabelName String
@@ -567,12 +596,15 @@ public class MakeOncoPrint {
 	 *
 	 * @return String
 	 */
-	static String writeHTMLControls(String oncoprintReferenceVarName,
+	static String writeHTMLControls(String oncoprintSectionVarName,
+									String oncoprintReferenceVarName,
 									String longestLabelVarName,
 									String headerVariablesVarName,
 									String oncoprintUnsortSamplesCheckboxName,
 									String oncoprintUnsortSamplesLabelName,
 									String oncoprintScalingSliderName,
+									String oncoprintFormControlsIndicatorName,
+									String oncoprintCustomizeIndicatorName,
 									String oncoprintAccordionTitleName,
 									String oncoprintRemovePaddingCheckboxName,
 									String oncoprintRemovePaddingLabelName,
@@ -599,28 +631,80 @@ public class MakeOncoPrint {
 		// show altered checkbox
 		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
+					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
+					   "var removeText = '" +  REMOVE_UNALTERED_CASES_INDICATOR + "'; " +
+					   "var addText = '" + ADD_UNALTERED_CASES_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "setTimeout(function() { " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
 					   headerVariablesVarName + ", true); " +
-					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } else { " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "} else { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "} " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "}, timerDelay); " +
 					   "return true;\"" +
 					   "><span id=\"showAlteredCasesLabel\">Only show altered cases</span>\n");
 
 		// sort/unsort altered checkbox
 		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
-					   "onClick=\"if (this.checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } else { " +
+					   "onClick=\"" +
+					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
+					   "var unsortText = '" +  UNSORT_SAMPLES_INDICATOR + "'; " +
+					   "var sortText = '" + SORT_SAMPLES_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "if (this.checked) { " +
+					   "$spinner.text(unsortText); timerDelay = 100; " +
+					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); } " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "}, timerDelay); " +
+					   "} else { " +
+					   "$spinner.text(sortText); timerDelay = 100;" +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "}, timerDelay); " +
+					   "} " +
 					   "return true;\"" +
 					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Samples</span>\n");
+
+		// form controls indicator
+		builder.append("<br><span class='oncoprint_indicator' id=\"" + oncoprintFormControlsIndicatorName + "\"></span>\n");
 
 		// form end
 		builder.append("</form>\n");
@@ -645,19 +729,46 @@ public class MakeOncoPrint {
 		// remove padding checkbox
 		builder.append("<td><input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
-					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } else { " +
+					   "var $spinner = $('#" + oncoprintCustomizeIndicatorName + "'); " + 
+					   "var addText = '" +  ADD_PADDING_ONCOPRINT_INDICATOR + "'; " +
+					   "var removeText = '" + REMOVE_PADDING_ONCOPRINT_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
+					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); } " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "}, timerDelay); " +
+					   "} else { " +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName +
+					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   "}, timerDelay); " +
+					   "}" +
 					   "return true;\"></td>\n");
 		// remove padding label & help tooltip
 		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove White Space</span></td>\n");
 		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'></td>\n");
 		builder.append("</tr>\n");
 		builder.append("<tr>\n");
-		builder.append("<td><span class='oncoprint_scaler_indicator' id=\"" + oncoprintScalingSliderName + "_indicator\">&nbsp;&nbsp;Scaling OncoPrint...</span></td>\n");
+		builder.append("<td><span class='oncoprint_indicator' id=\"" + oncoprintCustomizeIndicatorName + "\"></span></td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
 		// end content

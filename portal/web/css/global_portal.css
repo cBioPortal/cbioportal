@@ -451,6 +451,7 @@ table td {
 	font-size: 10px;
     color: #FF0000;
 	display: none;
+    padding-left:25px;
 }
 
 #frequency_plot {

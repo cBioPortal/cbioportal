@@ -25,15 +25,15 @@ public class MakeOncoPrint {
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
-	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the dimensions of the OncoPrint.";
+	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the features and dimensions of the OncoPrint.";
 	private static String REMOVE_PADDING_TOOLTIP = "When this is set, whitespace between genomic alterations is removed.";
-	private static String SCALING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Scaling OncoPrint...";
-	private static String ADD_PADDING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Adding Whitespace...";
-	private static String REMOVE_PADDING_ONCOPRINT_INDICATOR = "\\u00a0\\u00a0Removing Whitespace...";
-	private static String REMOVE_UNALTERED_CASES_INDICATOR = "\\u00a0\\u00a0Removing Unaltered Cases...";
-	private static String ADD_UNALTERED_CASES_INDICATOR = "\\u00a0\\u00a0Adding Unaltered Cases...";
-	private static String UNSORT_SAMPLES_INDICATOR = "\\u00a0\\u00a0Unsorting Samples...";
-	private static String SORT_SAMPLES_INDICATOR = "\\u00a0\\u00a0Sorting Samples...";
+	private static String SCALING_ONCOPRINT_INDICATOR = "Scaling OncoPrint...";
+	private static String ADD_PADDING_ONCOPRINT_INDICATOR = "Adding Whitespace...";
+	private static String REMOVE_PADDING_ONCOPRINT_INDICATOR = "Removing Whitespace...";
+	private static String REMOVE_UNALTERED_CASES_INDICATOR = "Removing Unaltered Cases...";
+	private static String ADD_UNALTERED_CASES_INDICATOR = "Adding Unaltered Cases...";
+	private static String UNSORT_SAMPLES_INDICATOR = "Unsorting Samples...";
+	private static String SORT_SAMPLES_INDICATOR = "Sorting Samples...";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -627,9 +627,26 @@ public class MakeOncoPrint {
 
 		// export SVG button
 		builder.append("<P>Get OncoPrint:&nbsp;&nbsp&nbsp;<input type=\"submit\" value=\"SVG\">\n");
-		
+
+		// form end
+		builder.append("</form>\n");
+
+		// customize controls
+		builder.append("<div id=\"accordion\">\n");
+		builder.append("<div class='oncoprint_accordion_panel'>\n");
+		builder.append("<h1 class='head' id=\"customize_oncoprint_" + cancerTypeID + "\">\n");
+		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
+		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
+		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
+		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"" + CUSTOMIZE_ONCOPRINT_TOOLTIP + "\">Customize OncoPrint</span>\n");
+        builder.append("</h1>\n");
+		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
+		// accordion content here
+		builder.append("<table>\n");
+		builder.append("<tr>\n");
 		// show altered checkbox
-		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
 					   "var removeText = '" +  REMOVE_UNALTERED_CASES_INDICATOR + "'; " +
@@ -660,11 +677,15 @@ public class MakeOncoPrint {
 					   ", document.getElementById('" + oncoprintSectionVarName +
 					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
 					   "}, timerDelay); " +
-					   "return true;\"" +
-					   "><span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
-
+					   "return true;\">\n");
+		// show altered checkbox label
+		builder.append("<span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
+		builder.append("</td>\n");
+		// spacer
+		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// sort/unsort altered checkbox
-		builder.append("&nbsp;&nbsp;&nbsp<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"" +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
 					   "var unsortText = '" +  UNSORT_SAMPLES_INDICATOR + "'; " +
@@ -700,34 +721,24 @@ public class MakeOncoPrint {
 					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
 					   "}, timerDelay); " +
 					   "} " +
-					   "return true;\"" +
-					   "><span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
-
-		// form controls indicator
-		builder.append("<br><span class='oncoprint_indicator' id=\"" + oncoprintFormControlsIndicatorName + "\"></span>\n");
-
-		// form end
-		builder.append("</form>\n");
-
-		// customize controls
-		builder.append("<div id=\"accordion\">\n");
-		builder.append("<div class='oncoprint_accordion_panel'>\n");
-		builder.append("<h1 class='head' id=\"customize_oncoprint_" + cancerTypeID + "\">\n");
-		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
-		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
-		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
-		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"" + CUSTOMIZE_ONCOPRINT_TOOLTIP + "\">Customize OncoPrint</span>\n");
-        builder.append("</h1>\n");
-		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
-		// accordion content here
+					   "return true;\">\n");
+		// sort/unsort checkbox label
+		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
+		builder.append("</td>\n");
+		builder.append("</tr>\n");
+		builder.append("</table>\n");
+		// indicator
+		builder.append("<span class='oncoprint_indicator' id=\"" + oncoprintFormControlsIndicatorName + "\"></span>\n");
 		builder.append("<table class='soria'>\n");
 		builder.append("<tr>\n");
 		// scaling slider
-		builder.append("<td>OncoPrint Width:&nbsp;&nbsp</td>\n" + 
-					   "<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
+		builder.append("<td>OncoPrint Width:&nbsp;&nbsp;</td>\n");
+		builder.append("<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
+		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// remove padding checkbox
-		builder.append("<td><input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintCustomizeIndicatorName + "'); " + 
 					   "var addText = '" +  ADD_PADDING_ONCOPRINT_INDICATOR + "'; " +
@@ -762,15 +773,15 @@ public class MakeOncoPrint {
 					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
 					   "}, timerDelay); " +
 					   "}" +
-					   "return true;\"></td>\n");
+					   "return true;\">\n");
 		// remove padding label & help tooltip
-		builder.append("<td><span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove White Space</span></td>\n");
-		builder.append("<td>&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'></td>\n");
-		builder.append("</tr>\n");
-		builder.append("<tr>\n");
-		builder.append("<td><span class='oncoprint_indicator' id=\"" + oncoprintCustomizeIndicatorName + "\"></span></td>\n");
+		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove White Space</span>\n");
+		builder.append("&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'>\n");
+		builder.append("</td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
+		// indicator
+		builder.append("<span class='oncoprint_indicator' id=\"" + oncoprintCustomizeIndicatorName + "\"></span>\n");
 		// end content
 		builder.append("</div>\n");
 		builder.append("</div>\n");

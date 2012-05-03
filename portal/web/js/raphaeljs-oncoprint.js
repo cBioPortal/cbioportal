@@ -90,7 +90,7 @@ var DEFAULTS = (function() {
 			'TOOLTIP_FONT'                      : "normal 12px arial",
 			'TOOLTIP_COLOR'                     : "#000000",
 			'TOOLTIP_MARGIN'                    : 10,
-			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
+			'TOOLTIP_TEXT'                      : "Move mouse pointer over a case to view details.",
 			'ALT_TOOLTIP_TEXT'                  : "Tooltips are disabled when white space is removed.",
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap

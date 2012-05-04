@@ -775,7 +775,7 @@ public class MakeOncoPrint {
 					   "}" +
 					   "return true;\">\n");
 		// remove padding label & help tooltip
-		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove White Space</span>\n");
+		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Whitespace</span>\n");
 		builder.append("&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'>\n");
 		builder.append("</td>\n");
 		builder.append("</tr>\n");

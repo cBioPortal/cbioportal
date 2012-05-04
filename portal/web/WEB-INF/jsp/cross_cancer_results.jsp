@@ -42,7 +42,7 @@
 <%
     //  Iterate through each Cancer Study
     //  For each cancer study, init AJAX
-    //  Fix: Chain the AJAX calls not to make Chrome (14) crash
+    //  This is to prevent Chrome crash when loading the page
     String studiesList = "";
     String studiesNames = "";
     assert(cancerStudies.size() > 0);
@@ -90,30 +90,30 @@
         var numOfStudiesWithMutData = <%=cancerStudiesWithMutations.size()%>;
 
         histogramData.addColumn('string', 'Cancer Study');
+        histogramData.addColumn('number', 'Multiple Alterations');
         histogramData.addColumn('number', 'Mutation');
         histogramData.addColumn('number', 'Deletion');
         histogramData.addColumn('number', 'Amplification');
-        histogramData.addColumn('number', 'Multiple Alteration');
-        
+
 	    histogramData2.addColumn('string', 'Cancer Study');
+        histogramData2.addColumn('number', 'Multiple Alterations');
         histogramData2.addColumn('number', 'Mutation');
         histogramData2.addColumn('number', 'Deletion');
         histogramData2.addColumn('number', 'Amplification');
-        histogramData2.addColumn('number', 'Multiple Alteration');
 
         histogramData3.addColumn('string', 'Cancer Study');
-        histogramData3.addColumn('number', 'Not altered');
+        histogramData3.addColumn('number', 'Multiple Alterations');
         histogramData3.addColumn('number', 'Mutation');
         histogramData3.addColumn('number', 'Deletion');
         histogramData3.addColumn('number', 'Amplification');
-        histogramData3.addColumn('number', 'Multiple Alteration');
+        histogramData3.addColumn('number', 'Not altered');
 
         histogramData4.addColumn('string', 'Cancer Study');
-        histogramData4.addColumn('number', 'Not altered');
+        histogramData4.addColumn('number', 'Multiple Alterations');
         histogramData4.addColumn('number', 'Mutation');
         histogramData4.addColumn('number', 'Deletion');
         histogramData4.addColumn('number', 'Amplification');
-        histogramData4.addColumn('number', 'Multiple Alteration');
+        histogramData4.addColumn('number', 'Not altered');
 
         for(var i=0; i < cancerStudies.length; i++) {
             if(i < numOfStudiesWithMutData ) {
@@ -129,7 +129,9 @@
         drawChart();
 
         $("#histogram_sort").tipTip();
-        $("#histogram_sort").click(function() {
+        $("#histogram_sort").click(function(event) {
+            event.preventDefault(); // Not to scroll to the top
+
             sortPermanently = true;
             drawChart();
         });
@@ -209,18 +211,18 @@
                 bundleIndex = bundleIndex - numOfStudiesWithMutData;
             }
 
-            hist1.setValue(bundleIndex, 1, formatPercent((numOfMuts/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 2, formatPercent((numOfDels/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 3, formatPercent((numOfAmp/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 4, formatPercent((numOfCombo/numOfCases) * 100.0));
+            hist1.setValue(bundleIndex, 1, formatPercent((numOfCombo/numOfCases) * 100.0));
+            hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
+            hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
+            hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
 
-            hist2.setValue(bundleIndex, 1, numOfCases-numOfAmp);
+            hist2.setValue(bundleIndex, 1, numOfCombo);
             hist2.setValue(bundleIndex, 2, numOfMuts);
             hist2.setValue(bundleIndex, 3, numOfDels);
             hist2.setValue(bundleIndex, 4, numOfAmp);
-            hist2.setValue(bundleIndex, 5, numOfCombo);
+            hist2.setValue(bundleIndex, 5, numOfCases-numOfAmp);
 
-	        if(bundleIndex == 0 || bundleIndex % 4 == 0 || bundleIndex == numOfStudiesWithMutData-1 || bundleIndex == cancerStudies.length-1)
+	        if(bundleIndex == 0 || bundleIndex % 2 == 0 || bundleIndex == numOfStudiesWithMutData-1 || bundleIndex == cancerStudies.length-1)
 	    	    drawChart();
 
         }
@@ -284,9 +286,9 @@
            }
 
            var options = {
-              title: 'Percent Sample Alteration for each Cancer Study w/ mutation data (' + genesQueried + ')',
+              title: 'Percent Sample Alteration for Each Cancer Study w/ Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#008000', '#002efa', '#ff2617', '#dddddd'],
+              colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
@@ -308,9 +310,9 @@
             histogramChart.draw(histogramView, options);
             
 	    var options2 = {
-              title: 'Percent Sample Alteration for each Cancer Study w/ mutation data (' + genesQueried + ')',
+              title: 'Percent Sample Alteration for Each Cancer Study w/ Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#008000', '#002efa', '#ff2617', '#dddddd'],
+              colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
@@ -329,9 +331,9 @@
             histogramChart2.draw(histogramView2, options2);
 
             var options3 = {
-              title: 'Number of Altered Cases for each Cancer Study w/ mutation data (' + genesQueried + ')',
+              title: 'Number of Altered Cases for Each Cancer Study w/ Mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#aaaaaa'],
+              colors: ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
@@ -347,9 +349,9 @@
             histogramChart3.draw(histogramView3, options3);
             
 	    var options4 = {
-              title: 'Number of Altered Cases for each Cancer Study w/o mutation data (' + genesQueried + ')',
+              title: 'Number of Altered Cases for Each Cancer Study w/o Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#eeeeee', '#008000', '#002efa', '#ff2617', '#aaaaaa'],
+              colors: ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
@@ -398,7 +400,7 @@
 
                 <br/>
                 <hr align="left" class="crosscancer-hr"/>
-                <h1 class="crosscancer-header">Summary for all cancer studies</h1>
+                <h1 class="crosscancer-header">Summary for All Cancer Studies</h1>
                 <br/>
                 <br/>
 
@@ -420,7 +422,7 @@
                 <br/>
 
                 <hr align="left" class="crosscancer-hr"/>
-                <h1 class="crosscancer-header">Details for each cancer study</h1>
+                <h1 class="crosscancer-header">Details for Each Cancer Study</h1>
                 <br/>
 
                 <jsp:include page="global/small_onco_print_legend.jsp" flush="true"/>

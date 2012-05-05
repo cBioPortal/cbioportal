@@ -85,13 +85,22 @@ var DEFAULTS = (function() {
 			'LEGEND_FOOTNOTE_SPACING'           : 10, // space between alteration / descriptions pairs and footnote
 			// tooltip region
 			'TOOLTIP_REGION_WIDTH'              : 500, // width of tooltip region
-			'TOOLTIP_REGION_HEIGHT'             : 60, // height of tooltip region
-			'TOOLTIP_HORIZONTAL_PADDING'        : 20, // space between header region and tooltip region
-			'TOOLTIP_FONT'                      : "normal 12px arial",
-			'TOOLTIP_COLOR'                     : "#000000",
+			'TOOLTIP_REGION_HEIGHT'             : 60,  // height of tooltip region
+			'TOOLTIP_TEXT_REGION_Y'             : 20,  // start of the rect within the tooltip region
+			'TOOLTIP_HORIZONTAL_PADDING'        : 20,  // space between header region and tooltip region
+			'TOOLTIP_TITLE_PADDING'             : 1,   // space between tooltip title and tooltip region
+			'TOOLTIP_ICON_PADDING'              : 5,   // space between tootip region title and icon
+			'TOOLTIP_TEXT_FONT'                 : "normal 12px arial",
+			'TOOLTIP_TITLE_FONT'                : "bold 13px verdana, arial, sans-serif",
+			'TOOLTIP_TEXT_COLOR'                : "#000000",
+			'TOOLTIP_FILL_COLOR'                : "#EEEEEE",
+			'TOOLTIP_TITLE_COLOR'               : "#2153AA",
+			'TOOLTIP_STROKE_COLOR'              : "#2153AA",
 			'TOOLTIP_MARGIN'                    : 10,
+			'TOOLTIP_TITLE_TEXT'                : "Case Details",
 			'TOOLTIP_TEXT'                      : "Move the mouse pointer over a case to view case details.",
-			'ALT_TOOLTIP_TEXT'                  : "Case details are not available when white space has been removed from the OncoPrint.",
+			'ALT_TOOLTIP_TEXT'                  : "Case details are not available when\nwhite space has been removed from the OncoPrint.",
+			'WANT_TOOLTIP_ICON'                 : true,
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
@@ -122,13 +131,11 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 	var text = scratchCanvas.text(0,0, DEFAULTS.get('CASE_SET_DESCRIPTION_LABEL'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	var caseSetDescriptionLabelLength = text.getBBox().width;
-	text = scratchCanvas.text(0,0, "<");
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	var lessThanSignLength = text.getBBox().width;
-	text = scratchCanvas.text(0,0, "1");
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	var digitLength = text.getBBox().width;
-
+	// compute tooltip title height
+	text = scratchCanvas.text(0,0, DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
+	text.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
+	var tooltipTitleWidth = text.getBBox().width;
+	var tooltipTitleHeight = text.getBBox().height;
 
 	return {
 		// header element is used later to determine location of tooltip canvas
@@ -137,13 +144,15 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'header_canvas'                     : Raphael(headerElement, 1, 1),
 		'body_canvas'                       : Raphael(bodyElement, 1, 1),
 		'legend_canvas'                     : Raphael(legendElement, 1, 1),
+		'tooltip_title_canvas'              : null,
 		'tooltip_canvas'                    : null,
 		// longest label length
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
-		'less_than_sign_length'             : lessThanSignLength,
-		'digit_length'                      : digitLength,
-		'longest_percent_altered_length'    : 0,
+		// tooltip title
+		'want_tooltip_icon'                 : DEFAULTS.get('WANT_TOOLTIP_ICON'),
+		'tooltip_title_width'               : tooltipTitleWidth,
+		'tooltip_title_height'              : tooltipTitleHeight,
 		// general styles
 		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
 		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
@@ -212,9 +221,6 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 
 	// set longest label length
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
-
-	// set longest % altered length
-	oncoprint.longest_percent_altered_length = getLongestPercentAlteredLength(geneticAlterations);
 
 	// resize canvas
 	var dimension = getOncoPrintBodyCanvasSize(oncoprint,
@@ -372,12 +378,69 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.remove();
 	}
+
+	// create the tooltip canvas
 	oncoprint.tooltip_canvas = Raphael(x, y, width, height);
 
+	// add background
+	var rect = oncoprint.tooltip_canvas.rect(0, 0, width, height);
+	rect.attr('stroke', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
+	rect.attr('fill', DEFAULTS.get('TOOLTIP_FILL_COLOR'));
+	
+	// create tooltip title canvas
+	if (oncoprint.tooltip_title_canvas != null) {
+		oncoprint.tooltip_title_canvas.remove();
+	}
+	oncoprint.tooltip_title_canvas = Raphael(x,
+											 y-oncoprint.alteration_height-DEFAULTS.get('TOOLTIP_TITLE_PADDING'),
+											 width, oncoprint.alteration_height);
+
+	// add title
+	var tooltipTitleText = oncoprint.tooltip_title_canvas.text(0, oncoprint.alteration_height / 2,
+															   DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
+	tooltipTitleText.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
+	tooltipTitleText.attr('fill', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
+	tooltipTitleText.attr('text-anchor', 'start');
+
+	// tooltip icon
+	if (oncoprint.want_tooltip_icon) {
+		// add genomic alteration w/mouse pointer
+		var alterationX = oncoprint.tooltip_title_width + DEFAULTS.get('TOOLTIP_ICON_PADDING');
+		var alterationY = 0;
+		var mrnaRect = oncoprint.tooltip_title_canvas.rect(alterationX, alterationY,
+														   oncoprint.alteration_width, oncoprint.alteration_height);
+		mrnaRect.attr('stroke', 'none');
+		mrnaRect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		var cnaRect = oncoprint.tooltip_title_canvas.rect(alterationX + mrnaWireframeWidth,
+														  mrnaWireframeWidth,
+														  oncoprint.alteration_width - mrnaWireframeWidth * 2,
+														  oncoprint.alteration_height - mrnaWireframeWidth * 2);
+		cnaRect.attr('stroke', 'none');
+		cnaRect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+		addArrow(oncoprint.tooltip_title_canvas,
+				 alterationX + oncoprint.alteration_width * 2, // x1
+				 alterationY + oncoprint.alteration_height * .75, // y1
+				 alterationX + oncoprint.alteration_width, // x2
+				 alterationY + oncoprint.alteration_height * .25, // y2
+				 4);
+	}
+
 	// add place holder text
-	var text = (oncoprint.remove_genomic_alteration_hpadding) ?
+	var tooltipText = (oncoprint.remove_genomic_alteration_hpadding) ?
 		DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
-	addTooltipText(oncoprint, text);
+	if (oncoprint.want_tooltip_icon) {
+		cnaRect.node.style.cursor = "default";
+		cnaRect.node.onmouseover = function() {
+			addTooltipText(oncoprint, tooltipText)
+		}
+		cnaRect.node.onmouseout = function() {
+			addTooltipText(oncoprint, '');
+		}
+	}
+	else {
+		addTooltipText(oncoprint, tooltipText);
+	}
 }
 
 /*
@@ -388,6 +451,9 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
  */
 function ClearOncoPrintTooltipRegion(oncoprint) {
 
+	if (oncoprint.tooltip_title_canvas != null) {
+		oncoprint.tooltip_title_canvas.clear();
+	}
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.clear();
 	}
@@ -638,17 +704,10 @@ function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 	text.attr('text-anchor', 'end');
 	// render gene symbol
-	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
-	if (percentAltered.indexOf("<") != -1) {
-		x = x + oncoprint.less_than_sign_length;
-	}
-	var justificationChars = (oncoprint.longest_percent_altered_length > percentAltered.length) ?
-		oncoprint.longest_percent_altered_length - percentAltered.length : 0;
-	x = x - (oncoprint.digit_length * justificationChars);
-	text = oncoprint.body_canvas.text(x, y, geneSymbol);
+	text = oncoprint.body_canvas.text(0, y, geneSymbol);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
+	text.attr('text-anchor', 'start');
 }
 
 /*
@@ -682,7 +741,12 @@ function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
 		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
 	}
 	else if (alterationSettings & MRNA_NOTSHOWN) {
-		rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		if (oncoprint.remove_genomic_alteration_hpadding) {
+			rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+		}
+		else {
+			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		}
 	}
 
 	// outta here
@@ -960,23 +1024,6 @@ function getLabelLength(label) {
 }
 
 /*
- * Returns the longest percent altered string len (in chars).
- *
- * geneticAlterations - the genetic alterations
- *
- */
-function getLongestPercentAlteredLength(geneticAlterations) {
-
-	var maxPercentAlteredStringLen = 0;
-	for (var lc = 0; lc < geneticAlterations.length; lc++) {
-		if (geneticAlterations[lc].percentAltered.length > maxPercentAlteredStringLen) {
-			maxPercentAlteredStringLen = geneticAlterations[lc].percentAltered.length;
-		}
-	}
-	return maxPercentAlteredStringLen;
-}
-
-/*
  * For the given column (sample) return the x coordinate
  *
  * oncoprint - opaque reference to oncoprint system
@@ -1074,7 +1121,12 @@ function createTooltip(oncoprint, row, column, tooltipText) {
 
 	// on mouse out, reset text
 	rect.node.onmouseout = function () {
-		addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+		if (oncoprint.want_tooltip_icon) {
+			addTooltipText(oncoprint, '');
+		}
+		else {
+			addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+		}
 	};
 }
 
@@ -1092,22 +1144,22 @@ function addTooltipText(oncoprint, tooltipText) {
 		return;
 	}
 
-	// clear off the canvas
-	ClearOncoPrintTooltipRegion(oncoprint);
-
-	// add back background
-	var rect = oncoprint.tooltip_canvas.rect(0, 0,
-											 DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
-											 DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
-	rect.attr('stroke', 'none'); 
-	rect.attr('fill', '#eeeeee');
+	// clear any existing text elements
+	if (oncoprint.tooltip_canvas != null) {
+		oncoprint.tooltip_canvas.forEach(function(obj) {
+			var node = obj.node;
+			if (obj.node instanceof SVGTextElement) {
+				obj.remove();
+			}
+		});
+	}
 
 	// create the text object
 	var text = oncoprint.tooltip_canvas.text(DEFAULTS.get('TOOLTIP_MARGIN'),
 											 oncoprint.tooltip_canvas.height / 2,
 											 tooltipText);
-	text.attr('font', DEFAULTS.get('TOOLTIP_FONT'));
-	text.attr('fill', DEFAULTS.get('TOOLTIP_COLOR'));
+	text.attr('font', DEFAULTS.get('TOOLTIP_TEXT_FONT'));
+	text.attr('fill', DEFAULTS.get('TOOLTIP_TEXT_COLOR'));
 	text.attr('text-anchor', 'start');
 }
 
@@ -1168,6 +1220,26 @@ function getNextAlteration(oncoprint, alterations, index) {
 
         // outta here
         return null;
+}
+
+/**
+ * Routine to draw arrow - we add to library for easy access.
+ *
+ * x1 - start x of arrow
+ * y1 - start y of arrow
+ * x2 - end x of arrow
+ * y2 - end y of arrow
+ * size - width of arrow
+*/
+function addArrow(canvas, x1, y1, x2, y2, size) {
+
+    var angle = Math.atan2(x1-x2, y2-y1);
+    angle = (angle / (2 * Math.PI)) * 360;
+    canvas.path("M" + x2 + " " + y2 +
+				" L" + (x2 - size) + " " + (y2 - size) +
+				" L" + (x2 - size) + " " + (y2 + size) +
+				" L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle), x2, y2);
+    canvas.path("M" + x1 + " " + y1 + " L" + x2 + " " + y2).attr("stroke-width", "2");
 }
 
 /*******************************************************************************

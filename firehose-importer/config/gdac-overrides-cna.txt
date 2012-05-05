@@ -1,2 +1,3 @@
 LUSC.cna.txt lusc
 KIRC.cna.txt kirc
+UCEC.cna.txt ucec

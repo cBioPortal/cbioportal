@@ -406,6 +406,9 @@ sub createMetaFile{
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',
             'profile_name'                 => 'mRNA expression (microarray)'
         },
+        'mutsig' => {
+            'stable_id'                    => '<cancer>_tcga_mutsig', 
+        },
     };
 
     my $metaFilename = $dataFilename;
@@ -659,7 +662,7 @@ sub create_case_lists{
         
     create_one_to_one_case_lists( $FirehoseFileMetadata_objects, $runSummary, File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'), 
         $cancer, $cancerCenter, $case_list_FileProperties, 
-        [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
+        [qw( stable_id case_list_category cancer_study_identifier case_list_name case_list_description )] ); 
     
 	my $cghSource = 'all_thresholded.by_genes.txt';
 	my $rnaSEQSource = '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt';
@@ -979,7 +982,7 @@ sub createCancerTypeNameFile{
 		}
         my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
-        my $url = "\"http://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
+        my $url = "\"https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";
     }else{
         $fileContent .= 'TBD' . "\n"; 

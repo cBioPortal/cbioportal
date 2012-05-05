@@ -56,8 +56,31 @@ var studySelected = function() {
     $('.MutSig_wrapper').remove();
 
     // if you select another cancer study, reset the arrow
-    $($('#MutSig_view > .ui-icon')[0]).show();       // hack, how do you select?
+    $($('#MutSig_view > .ui-icon')[0]).show();
     $($('#MutSig_view > .ui-icon')[1]).hide();
+
+    // ignores '<', e.g. '<1E-8' === '1E-8'
+    $.fn.dataTableExt.oSort['scientific-asc'] = function(a,b) {
+        a = $('<div />').html(a).text();    // parse html entity &lt;
+        b = $('<div />').html(b).text();
+
+        a = parseFloat(a.replace(/^[<>]/g,""));
+        b = parseFloat(b.replace(/^[<>]/g,""));
+
+
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+    };
+
+    $.fn.dataTableExt.oSort['scientific-desc'] = function(a,b) {
+        a = $('<div />').html(a).text();
+        b = $('<div />').html(b).text();
+
+        a = parseFloat(a.replace(/^[<>]/g,""));
+        b = parseFloat(b.replace(/^[<>]/g,""));
+
+        return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+    };
+
 
     $.get('MutSig.json',
             {'selected_cancer_type': cancerStudyId},
@@ -84,16 +107,21 @@ var studySelected = function() {
                 // use dataTable jQuery plugin
                 // to style and add nice functionalities
                     $.fn.dataTableExt.oStdClasses.sWrapper = "MutSig_wrapper";
+
                     $('.MutSig').dataTable( {
                         "sScrollY": "200px",
-                        "aaSorting": [[2, 'asc']],
-                        "aoColumnDefs": [
-                            {"bSortable": false, "aTargets": [3]} ],
+                        "aoColumns": [
+                            null,
+                            null,
+                            { "bSortable" : true, "sType" : "scientific" },
+                            { "bSortable" : false }
+                        ],
+                        "aaSorting": [ [2,'asc'] ],
                         "bPaginate": false,
                         "bFilter": false,
                         "iDisplayLength": 5,
                         "bRetrieve": true,
-                        "bDestory": true
+                        "bDestroy": true
                     } );
 
                     $('.MutSig_wrapper').hide();        // hide MutSig table initially
@@ -113,6 +141,7 @@ var studySelected = function() {
             });
 };
 
+
 var updateGeneList = function() {
     "use strict";
     var genes = [];
@@ -122,9 +151,12 @@ var updateGeneList = function() {
     $('#gene_list').val((genes.toString()).replace(/,/g,''));
 };
 
+
+$(document).ready( function () {
+    "use strict";
+
 // initialize
 // bind handlers to events
-$(function() {
     $('.checkall').live('click', function() {
         $(this).parents().find('.MutSig input').attr('checked', this.checked);
     });
@@ -134,16 +166,13 @@ $(function() {
 
     $('#MutSig_view').hide();
     $('#toggle_mutsig').click(function() {
-        $($('#MutSig_view > .ui-icon')[0]).toggle();       // hack, how do you select?
+        $($('#MutSig_view > .ui-icon')[0]).toggle();
         $($('#MutSig_view > .ui-icon')[1]).toggle();
         $('.MutSig_wrapper').toggle();
         return false;
     });
+// end initialize
 
-});
-
-$(document).ready( function () {
-    "use strict";
     $('#select_cancer_type').change( function() {
         studySelected();
     });

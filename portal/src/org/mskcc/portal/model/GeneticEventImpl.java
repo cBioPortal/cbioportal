@@ -143,7 +143,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @cnaValue Copy Number Value, discretized -2, -1, 0, 1, 2.
      * @mrnaValue mRNA Value, discretized: -1, 0, 1
      */
-    public GeneticEventImpl(int cnaValue, int mrnaValue, boolean isMutated) {
+    public GeneticEventImpl(int cnaValue, int mrnaValue, int rppaValue, boolean isMutated) {
 
       switch (cnaValue) {
          case 2 :
@@ -180,6 +180,21 @@ public class GeneticEventImpl implements GeneticEvent {
                   + mrnaValue);
       }
 
+      switch (rppaValue) {
+         case 1 :
+            this.rppaValue = RPPA.UPREGULATED;
+            break;
+         case 0 :
+            this.rppaValue = RPPA.NORMAL;
+            break;
+         case -1 :
+            this.rppaValue = RPPA.DOWNREGULATED;
+            break;
+         default :
+            throw new IllegalArgumentException("Illegal mrnaValue: "
+                  + rppaValue);
+      }
+
       if (isMutated) {
          this.isMutated = mutations.MUTATED;
       } else {
@@ -187,10 +202,11 @@ public class GeneticEventImpl implements GeneticEvent {
       }
    }
 
-    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, mutations isMutated) {
+    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, RPPA rppaValue, mutations isMutated) {
 
        this.cnaValue = cnaValue;
        this.mrnaValue = mrnaValue;
+       this.rppaValue = rppaValue;
        this.isMutated = isMutated;
    }
 

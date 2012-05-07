@@ -17,7 +17,7 @@ public class TestGeneticEventImpl {
    @Test
    public void testGeneticEventImplIntIntBoolean() {
 
-      GeneticEventImpl aGeneticEventImpl = new GeneticEventImpl( 2, 1, true );
+      GeneticEventImpl aGeneticEventImpl = new GeneticEventImpl( 2, 1, 1, true );
          Assert.assertEquals( CNA.AMPLIFIED, aGeneticEventImpl.getCnaValue() );
          Assert.assertEquals( true, aGeneticEventImpl.isCnaAmplified() );
          Assert.assertEquals( false, aGeneticEventImpl.isCnaHeterozygousDeleted() );
@@ -30,7 +30,7 @@ public class TestGeneticEventImpl {
          Assert.assertEquals( mutations.MUTATED, aGeneticEventImpl.getMutationValue() );
          Assert.assertEquals( true, aGeneticEventImpl.isMutated() );
 
-      aGeneticEventImpl = new GeneticEventImpl( 0, 0, false );
+      aGeneticEventImpl = new GeneticEventImpl( 0, 0, 0, false );
          Assert.assertEquals( CNA.DIPLOID, aGeneticEventImpl.getCnaValue() );
          Assert.assertEquals( false, aGeneticEventImpl.isCnaAmplified() );
          Assert.assertEquals( false, aGeneticEventImpl.isCnaHeterozygousDeleted() );
@@ -44,14 +44,14 @@ public class TestGeneticEventImpl {
          Assert.assertEquals( false, aGeneticEventImpl.isMutated() );
 
          try {
-            aGeneticEventImpl = new GeneticEventImpl( 3, 2, true );
+            aGeneticEventImpl = new GeneticEventImpl( 3, 2, 2, true );
             fail("Should throw IllegalArgumentException");
          } catch (IllegalArgumentException e) {
             Assert.assertEquals("Illegal cnaValue: 3", e.getMessage() );
          }
 
          try {
-            aGeneticEventImpl = new GeneticEventImpl( 1, 2, true );
+            aGeneticEventImpl = new GeneticEventImpl( 1, 2, 2, true );
             fail("Should throw IllegalArgumentException");
          } catch (IllegalArgumentException e) {
             Assert.assertEquals("Illegal mrnaValue: 2", e.getMessage() );

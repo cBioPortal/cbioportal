@@ -37,7 +37,7 @@ public class TestCascadeSortOfMatrix extends TestCase{
       GeneticEvent[][] m= new GeneticEvent[rows][cols]; 
       for( int i=0; i<rows; i++ ){
          for( int j=0; j<cols; j++ ){
-            GeneticEventImpl ge1 = new GeneticEventImpl( 1, 1, true );
+            GeneticEventImpl ge1 = new GeneticEventImpl( 1, 1, 1, true );
             ge1.setGeneticEventComparator(aGeneticEventComparator);
             m[i][j] = ge1; 
          }

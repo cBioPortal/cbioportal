@@ -19,7 +19,7 @@
       for (GeneWithScore geneWithScore : geneWithScoreList) {
           CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(geneWithScore.getGene());
            
-          if (gene!=null && !gene.isMicroRNA()) {
+          if (gene!=null && !gene.isMicroRNA() && !gene.isPhosphoProtein()) {
               onlyGenesList.add(geneWithScore.getGene());
           }
       }

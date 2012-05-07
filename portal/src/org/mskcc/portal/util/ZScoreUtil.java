@@ -10,6 +10,7 @@ import java.util.HashSet;
 // TODO: perhaps delete this class
 public class ZScoreUtil {
     public static final double Z_SCORE_THRESHOLD_DEFAULT = 2;
+    public static final double RPPA_SCORE_THRESHOLD_DEFAULT = 1;
     public static final double OUTLIER_THRESHOLD_DEFAULT = 1;
 
     public static double getZScore(HashSet<String> geneticProfileIdSet,
@@ -36,5 +37,18 @@ public class ZScoreUtil {
             }
         }
         return zScoreThreshold;
+    }
+    
+    public static double getRPPAScore(HttpServletRequest request) {
+        String rppaScoreStr = request.getParameter(QueryBuilder.RPPA_SCORE_THRESHOLD);
+        if (rppaScoreStr == null) {
+            return RPPA_SCORE_THRESHOLD_DEFAULT;
+        } else {
+            try {
+                return Double.parseDouble(rppaScoreStr);
+            } catch (NumberFormatException e) {
+                return RPPA_SCORE_THRESHOLD_DEFAULT;
+            }
+        }
     }
 }

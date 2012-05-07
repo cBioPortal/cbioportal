@@ -77,6 +77,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String USER_ERROR_MESSAGE = "user_error_message";
     public static final String ATTRIBUTE_URL_BEFORE_FORWARDING = "ATTRIBUTE_URL_BEFORE_FORWARDING";
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
+    public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
     public static final int MUTATION_DETAIL_LIMIT = 20;
@@ -280,9 +281,11 @@ public class QueryBuilder extends HttpServlet {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       ParserOutput theOncoPrintSpecParserOutput =
+       double rppaScore = ZScoreUtil.getRPPAScore(request);
+       
+       ParserOutput theOncoPrintSpecParserOutput = 
                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
-                geneticProfileIdSet, profileList, zScore );
+                geneticProfileIdSet, profileList, zScore, rppaScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
@@ -406,18 +409,20 @@ public class QueryBuilder extends HttpServlet {
             String output = servletXssUtil.getCleanInput(request, OUTPUT);
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+            double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
+            request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
             if (output != null) {
 				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold);
+                            zScoreThreshold, rppaScoreThreshold);
                 } else if (output.equals(OS_SURVIVAL_PLOT)) {
                     outputOsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, clinicalDataList, format, response);
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
                 } else if (output.equals(DFS_SURVIVAL_PLOT)) {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, clinicalDataList, format, response);
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
                 }
             } else {
 				// get oncoprint here and store in session 
@@ -429,6 +434,7 @@ public class QueryBuilder extends HttpServlet {
 																   caseSetList,
 																   caseSetId,
 																   zScoreThreshold,
+                                                                                                                                   rppaScoreThreshold,
 																   geneticProfileIdSet,
 																   profileList,
 																   true);
@@ -447,30 +453,30 @@ public class QueryBuilder extends HttpServlet {
     }
 
     private void outputDfsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
             ArrayList<ClinicalData> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS,
                 clinicalDataList, dataSummary, format, response);
     }
 
     private void outputOsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
             ArrayList<ClinicalData> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
                 clinicalDataList, dataSummary, format, response);
     }
 
     private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold) throws IOException {
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold) throws IOException {
         response.setContentType("text/plain");
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         PrintWriter writer = response.getWriter();
         writer.write("" + dataSummary.getPercentCasesAffected());
         writer.flush();
@@ -518,11 +524,11 @@ public class QueryBuilder extends HttpServlet {
 
                 if (geneList != null && geneList.trim().length() > 0) {
                     // output any errors generated by the parser
+                    double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, httpServletRequest);
+                    double rppaScore = ZScoreUtil.getRPPAScore(httpServletRequest);
                     ParserOutput theOncoPrintSpecParserOutput =
                             OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-                             geneticProfileIdSet, profileList,
-                                    ZScoreUtil.getZScore(geneticProfileIdSet, profileList,
-                                            httpServletRequest ) );
+                            geneticProfileIdSet, profileList, zScore, rppaScore);
                     
                     if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0
                             <theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){

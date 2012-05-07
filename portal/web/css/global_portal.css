@@ -1139,7 +1139,7 @@ cursor: default;
 }
 
 /* Z-score threshold input (hidden until appropriate radio button selected) */
-#z_score_threshold {
+.score_threshold {
    display: none;
    margin-left: 64px;
    font-size: 90%;

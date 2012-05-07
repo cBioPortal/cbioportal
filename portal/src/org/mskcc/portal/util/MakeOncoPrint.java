@@ -2,6 +2,7 @@ package org.mskcc.portal.util;
 
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
@@ -21,7 +22,8 @@ import java.util.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class MakeOncoPrint {
-	public static int CELL_HEIGHT = 18; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
+
+	public static int CELL_HEIGHT = 21; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
@@ -47,6 +49,7 @@ public class MakeOncoPrint {
 									   ArrayList<CaseList> caseSets,
 									   String caseSetId,
 									   double zScoreThreshold,
+                                                                           double rppaScoreThreshold,
 									   HashSet<String> geneticProfileIdSet,
 									   ArrayList<GeneticProfile> profileList,
 									   boolean forSummaryTab) throws IOException {
@@ -55,7 +58,7 @@ public class MakeOncoPrint {
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneList,
-                geneticProfileIdSet, profileList, zScoreThreshold);
+                geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
@@ -66,17 +69,17 @@ public class MakeOncoPrint {
 			(mutationList == null) ? null : new ExtendedMutationMap(mutationList, mergedProfile.getCaseIdList());
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
 
         // TODO: make the gene sort order a user param, then call a method in ProfileDataSummary to sort
         GeneticEvent sortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
 			(dataSummary, listOfGeneNames,
-			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
         GeneticEvent unsortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
 			(dataSummary, listOfGeneNames,
-			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         //  Sort Columns via Cascade Sorter
         ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
@@ -94,9 +97,17 @@ public class MakeOncoPrint {
         // combined because these are represented by the same color in the OncoPrint
         MRNAsortOrder.add(EnumSet.of(MRNA.NORMAL, MRNA.NOTSHOWN));
 
+        ArrayList<EnumSet<RPPA>> RPPAsortOrder = new ArrayList<EnumSet<RPPA>>();
+        RPPAsortOrder.add(EnumSet.of(RPPA.UPREGULATED));
+        RPPAsortOrder.add(EnumSet.of(RPPA.DOWNREGULATED));
+
+        // combined because these are represented by the same color in the OncoPrint
+        RPPAsortOrder.add(EnumSet.of(RPPA.NORMAL, RPPA.NOTSHOWN));
+
         GeneticEventComparator comparator = new GeneticEventComparator(
                 CNAsortOrder,
                 MRNAsortOrder,
+                RPPAsortOrder,
                 GeneticEventComparator.defaultMutationsSortOrder());
 
         CascadeSortOfMatrix sorter = new CascadeSortOfMatrix(comparator);
@@ -269,61 +280,62 @@ public class MakeOncoPrint {
 	 * @return String
 	 */
 	static String writeOncoPrintGeneticAlterationVariable(GeneticEvent matrix[][],
-														  ProfileDataSummary dataSummary,
-														  ExtendedMutationMap mutationMap,
-														  String varName) {
+                ProfileDataSummary dataSummary, ExtendedMutationMap mutationMap, String varName) {
 
-		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
-		builder.append("\t\tvar private = {\n");
-		builder.append("\t\t\t'" + varName + "' : [\n");
+            StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+            builder.append("\t\tvar private = {\n");
+            builder.append("\t\t\t'" + varName + "' : [\n");
 
-		for (int i = 0; i < matrix.length; i++) {
-			GeneticEvent rowEvent = matrix[i][0];
-			String gene = rowEvent.getGene().toUpperCase();
-			String alterationValue =
-				alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
-			builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
-			builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
-			builder.append("\t\t\t\t 'alterations' : [\n");
-			for (int j = 0; j < matrix[0].length; j++) {
-                GeneticEvent event = matrix[i][j];
-                // get level of each datatype; concatenate to make image name
-                // color could later could be in configuration file
-                String cnaName = "CNA_" + event.getCnaValue().name();
-                String mrnaName = "MRNA_" + event.getMrnaValue().name();
-				String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
-				String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName;
-				StringBuilder mutationDetails = new StringBuilder();
-				if (event.isMutated() && mutationMap != null) {
-					mutationDetails.append(", 'mutation' : [");
-					List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
-					for (ExtendedMutation mutation : mutations) {
-						mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
-					}
-					// zap off last ', '
-					mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
-					mutationDetails.append("]");
-				}
-				builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
-							   "'alteration' : " + alterationSettings +
-							   mutationDetails.toString()  + "},\n");
+            for (int i = 0; i < matrix.length; i++) {
+                GeneticEvent rowEvent = matrix[i][0];
+                String gene = rowEvent.getGene().toUpperCase();
+                String alterationValue =
+                        alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+                builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
+                builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
+                builder.append("\t\t\t\t 'alterations' : [\n");
+                for (int j = 0; j < matrix[0].length; j++) {
+                    GeneticEvent event = matrix[i][j];
+                    // get level of each datatype; concatenate to make image name
+                    // color could later could be in configuration file
+                    String cnaName = "CNA_" + event.getCnaValue().name().toUpperCase();
+                    String mrnaName = "MRNA_" + event.getMrnaValue().name().toUpperCase();
+                    String rppaName = "RPPA_" + event.getRPPAValue().name().toUpperCase();
+                    String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
+                    String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName + " | " + rppaName;
+                    StringBuilder mutationDetails = new StringBuilder();
+                    if (event.isMutated() && mutationMap != null) {
+                        mutationDetails.append(", 'mutation' : [");
+                        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
+                        for (ExtendedMutation mutation : mutations) {
+                            mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
+                        }
+                        // zap off last ', '
+                        mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
+                        mutationDetails.append("]");
+                    }
+                    builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
+                                                "'alteration' : " + alterationSettings +
+                                                mutationDetails.toString()  + "},\n");
+                }
+                
+                // zap off last ',\n'
+                builder.delete(builder.length()-2, builder.length());
+                builder.append("]\n");
+                builder.append("\t\t\t\t},\n");
             }
-			// zap off last ',\n'
-			builder.delete(builder.length()-2, builder.length());
-			builder.append("]\n");
-			builder.append("\t\t\t\t},\n");
-		}
-		// zap off last ',\n'
-		builder.delete(builder.length()-2, builder.length());
-		builder.append("\n\t\t\t]\n");
-		builder.append("\t\t};\n");
-		builder.append("\t\treturn {\n");
-		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
-		builder.append("\t\t};\n");
-		builder.append("\t})();\n");
+            
+            // zap off last ',\n'
+            builder.delete(builder.length()-2, builder.length());
+            builder.append("\n\t\t\t]\n");
+            builder.append("\t\t};\n");
+            builder.append("\t\treturn {\n");
+            builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+            builder.append("\t\t};\n");
+            builder.append("\t})();\n");
 
-		// outta here
-		return builder.toString();
+            // outta here
+            return builder.toString();
 	}
 
 	/**
@@ -343,34 +355,50 @@ public class MakeOncoPrint {
 		builder.append("\t\t\t'" + varName + "' : [\n");
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Amplification\",\n");
-			builder.append("\t\t\t\t 'alteration' : CNA_AMPLIFIED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_AMPLIFIED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Homozygous Deletion\",\n");
-			builder.append("\t\t\t\t 'alteration' : CNA_HOMODELETED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HOMODELETED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Gain\",\n");
-			builder.append("\t\t\t\t 'alteration' : CNA_GAINED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_GAINED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Hemizygous Deletion\",\n");
-			builder.append("\t\t\t\t 'alteration' : CNA_HEMIZYGOUSLYDELETED | MRNA_NOTSHOWN | NORMAL\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HEMIZYGOUSLYDELETED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
+        
+        // gene expression
         ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
         if (theResultDataTypeSpec != null) {
 			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
-				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation\",\n");
-				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_UPREGULATED | NORMAL\n\t\t\t\t},\n");
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation (RNA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_UPREGULATED | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 			}
 			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
-				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation\",\n");
-				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_DOWNREGULATED | NORMAL\n\t\t\t\t},\n");
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation (RNA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_DOWNREGULATED | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 			}
 		}
+        
+        // RPPA
+        theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.RPPA);
+        if (theResultDataTypeSpec != null) {
+			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation (RPPA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | NORMAL | RPPA_UPREGULATED\n\t\t\t\t},\n");
+			}
+			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation (RPPA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | NORMAL | RPPA_DOWNREGULATED\n\t\t\t\t},\n");
+			}
+		}
+        
         if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Mutation\",\n");
-			builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | MUTATED\n\t\t\t\t},\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | MUTATED | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
 
 		// zap off last ',\n'

@@ -42,16 +42,21 @@ var CNA_NONE                = (1<<5);
 var MRNA_UPREGULATED        = (1<<6);
 var MRNA_DOWNREGULATED      = (1<<7);
 var MRNA_NOTSHOWN           = (1<<8);
+// RPPA bits (we should distinguish bet. normal & notshow - same with MRNA)
+var RPPA_UPREGULATED        = (1<<9);
+var RPPA_NORMAL             = (1<<10);
+var RPPA_DOWNREGULATED      = (1<<11);
+var RPPA_NOTSHOWN           = (1<<12);
 // MUTATION bits
-var MUTATED                 = (1<<9);
-var NORMAL                  = (1<<10);
+var MUTATED                 = (1<<13);
+var NORMAL                  = (1<<14);
 
 // store defaults in a module pattern
 var DEFAULTS = (function() {
 		var private = {
 			// size of genetic alteration
-			'ALTERATION_WIDTH'                  : 6,
-			'ALTERATION_HEIGHT'                 : 18, // if this changes, MakeOncoPrint.CELL_HEIGHT needs to change
+			'ALTERATION_WIDTH'                  : 7,
+			'ALTERATION_HEIGHT'                 : 21, // if this changes, MakeOncoPrint.CELL_HEIGHT needs to change
 			// padding between genetic alteration boxes
 			'ALTERATION_VERTICAL_PADDING'       : 1,
 			'ALTERATION_HORIZONTAL_PADDING'     : 1,
@@ -70,6 +75,9 @@ var DEFAULTS = (function() {
 			// mutation styles
 			'MUTATION_COLOR'                    : "#008000",
 			'MUTATION_HEIGHT_SCALE_FACTOR'      : 1/3,
+			// rppa styles
+			'RPPA_COLOR'                        : "#000000",
+			'RPPA_HOMDEL_COLOR'                        : "#FFFFFF",
 			// labels
 			'LABEL_COLOR'                       : "#666666",
 			'LABEL_FONT'                        : "normal 12px verdana",
@@ -199,7 +207,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 	oncoprint.body_canvas.clear();
 
 	// used to filter out unaltered samples in loop below
-	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
+	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN);
 
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
@@ -216,10 +224,12 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			++samplePos;
 			// first draw MRNA "background"
 			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
-			// then draw CNA "within"
+			// then draw CNA
 			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
-			// finally draw mutation square "on top"
+			// draw mutation square
 			drawMutation(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			// draw rppa triangle 
+			drawRPPA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
 			// tooltip
 			if (wantTooltip) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
@@ -274,6 +284,7 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 		drawMRNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		drawCNA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		drawMutation(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
+		drawRPPA(oncoprint, oncoprint.legend_canvas, 0, x, alteration.alteration);
 		// render description
 		x = x + oncoprint.alteration_width + legendSpacing;
 		var description = oncoprint.legend_canvas.text(x, y, alteration.label);
@@ -837,6 +848,56 @@ function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
 		rect.attr('stroke', 'none'); 
 		// set color
 		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
+	}
+}
+
+/*
+ * Draws an RPPA genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawRPPA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// only render if we have a mutation
+	if (alterationSettings & RPPA_UPREGULATED || alterationSettings & RPPA_DOWNREGULATED) {
+		// compute starting coordinates
+		var y = getYCoordinate(oncoprint, row);
+		var x = getXCoordinate(oncoprint, column);
+		// we use mutation rect as a basis - create canvas rect -
+		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
+		var rect = { 'x' : x + mrnaWireframeWidth / 2,
+					 'y' : y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
+					 'width' : mutationRectDimensions.width, 'height' : mutationRectDimensions.height };
+		var pathString = null;
+		if (alterationSettings & RPPA_UPREGULATED) {
+			pathString = ("M" + rect.x + " " + rect.y +
+						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + y +
+						  "L" + (rect.x + rect.width) + " " + rect.y +
+						  "Z");
+		}
+		else if (alterationSettings & RPPA_DOWNREGULATED) {
+			pathString = ("M" + rect.x + " " + (rect.y + rect.height) +
+						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + (y + DEFAULTS.get('ALTERATION_HEIGHT')) +
+						  "L" + (rect.x + rect.width) + " " + (rect.y + rect.height) +
+						  "Z");
+		}
+		var path = canvas.path(pathString);
+		// without this we get thin black border around rect
+		path.attr('stroke', 'none'); 
+		// set color
+                if (alterationSettings & CNA_HOMODELETED) {
+                    path.attr('fill', DEFAULTS.get('RPPA_HOMDEL_COLOR'));
+		}
+		else {
+                    path.attr('fill', DEFAULTS.get('RPPA_COLOR'));
+		}
 	}
 }
 

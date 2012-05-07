@@ -42,7 +42,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
    @Test
    public void testBadGeneNameInASTParser() {
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-      theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+      theOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
       ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser
               ( "2-PDE", theOncoPrintGeneDisplaySpec );
    }
@@ -449,7 +449,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
         try {
          ArrayList<GeneSet> expectedGeneSets = new ArrayList<GeneSet>();
            OncoPrintGeneDisplaySpec r = new OncoPrintGeneDisplaySpec();
-           r.setDefault( 1.0f );
+           r.setDefault( 1.0f, 1.0f );
            GeneWithSpec g = new GeneWithSpec( "gene2" );
            g.setTheResultFullDataTypeSpec(r);
            GeneSet h = new GeneSet( );
@@ -478,7 +478,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
            expectedGeneSets.add( theGeneSet );
            
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-           theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+           theOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
            ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser
                    ("gene2 gene3 : Hetloss Homdel Expression <-1; " +
                     "{ JAG1 JAG2 } " +
@@ -551,7 +551,7 @@ public class TestOncoPrintSpecificationInParser extends TestCase{
 
    private void tryOncoPrintSpecification(String testLangFragment, String[] errorMsgs) {
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-      theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+      theOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
       ParserOutput theParserOutput = CallOncoPrintSpecParser.callOncoPrintSpecParser( testLangFragment,
               theOncoPrintGeneDisplaySpec );
       ArrayList<OncoPrintLangException> listOfErrors = theParserOutput.getSemanticsErrors();

@@ -15,35 +15,35 @@ function send2cytoscapeweb(graphml, div_id)
             {
                discreteMapper: 
                {
-                            attrName: "type",
-                            entries: [
-                                      { attrValue: "Protein", value: "ELLIPSE" },
-                                      { attrValue: "SmallMolecule", value: "DIAMOND" },
-                                      { attrValue: "Unknown", value: "TRIANGLE" },
-                                      { attrValue: "Drug", value: "HEXAGON"}	]
+            	   attrName: "type",
+            	   entries: [
+            	             { attrValue: "Protein", value: "ELLIPSE" },
+            	             { attrValue: "SmallMolecule", value: "DIAMOND" },
+            	             { attrValue: "Unknown", value: "TRIANGLE" },
+            	             { attrValue: "Drug", value: "HEXAGON"}	]
                 }
             },
             borderWidth: 1,
             borderColor: 
             {            	
-                    discreteMapper: 
-                    {
-                            attrName: "type",
-                            entries: [
-                                    { attrValue: "Protein", value: "#000000" },
-                                    { attrValue: "SmallMolecule", value: "#000000" },
-                                    { attrValue: "Drug", value: "#000000"},
-                                    { attrValue: "Unknown", value: "#000000" } ]
-                    }
+            	discreteMapper: 
+            	{
+            		attrName: "type",
+            		entries: [
+            		          { attrValue: "Protein", value: "#000000" },
+            		          { attrValue: "SmallMolecule", value: "#000000" },
+            		          { attrValue: "Drug", value: "#000000"},
+            		          { attrValue: "Unknown", value: "#000000" } ]
+                    }	
             },
             size: 
             {
-            	 defaultValue: 24,
-            	 discreteMapper: 
-                 {
-                              attrName: "type",
-                              entries: [ { attrValue: "Drug", value: 16}	]
-                 }
+            	defaultValue: 24,
+            	discreteMapper: 
+            	{
+            		attrName: "type",
+            		entries: [ { attrValue: "Drug", value: 16}	]
+            	}
             },
             color: {customMapper: {functionName: "colorFunc"}},
             label: {customMapper: {functionName: "labelFunc"}},
@@ -71,40 +71,28 @@ function send2cytoscapeweb(graphml, div_id)
 		    	defaultValue: "NONE",
 		        discreteMapper: 
 		        {
-			        attrName: "type",
+		        	attrName: "type",
 			        entries: [
-				                   { attrValue: "STATE_CHANGE", value: "DELTA" },
-				                   { attrValue: "DRUG_TARGET", value: "T" }
-			                 ]
+			                  { attrValue: "STATE_CHANGE", value: "DELTA" },
+			                  { attrValue: "DRUG_TARGET", value: "T" } ]
 		        }
 	        },
             color: 
             {
-                    defaultValue: "#A583AB", // color of all other types
-                    discreteMapper: 
-                    {
-                            attrName: "type",
-                            entries: [
-                                    { attrValue: "IN_SAME_COMPONENT", value: "#B54011" },
-                                    { attrValue: "REACTS_WITH", value: "#7B7EF7" },
-                                    { attrValue: "DRUG_TARGET", value: "#E6A90F" },
-                                    { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
-                    }
-            },
-            weight:
-            {           
-               discreteMapper: 
-                {
-            	   		defaultValue: 100,
-                        attrName: "type",
-                        entries: [{ attrValue: "DRUG_TARGET", value: 40 }]
-                }
+            	defaultValue: "#A583AB", // color of all other types
+            	discreteMapper: 
+            	{
+            		attrName: "type",
+            		entries: [
+            		          { attrValue: "IN_SAME_COMPONENT", value: "#904930" },
+            		          { attrValue: "REACTS_WITH", value: "#7B7EF7" },
+            		          { attrValue: "DRUG_TARGET", value: "#E6A90F" },
+            		          { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
+            	}	
             }
         }
-};
+    };    
     
-    
-
     // initialization options
     var options = {
         swfPath: "swf/CytoscapeWeb",
@@ -114,25 +102,9 @@ function send2cytoscapeweb(graphml, div_id)
     var vis = new org.cytoscapeweb.Visualization(div_id, options);
 
     /*
-     * Force Directed Layout variable
-     * */
-    var forceDirectedLayout = 
-    {
- 	   name: "ForceDirected",
- 	   options:
- 	   {
- 		   weightAttr: "weight"
- 	   }
-    };
-    
-    
-    /*Custom Label function for Drugs
-     * 
-     * This function truncates the drug names on the graph,
-     * if their name length is less than 20 characters,
-     * else original name is printed
-     * 
-    */
+     * This function truncates the drug names on the graph
+     * if their name length is less than 10 characters.
+     */
     vis["labelFunc"] = function(data)
     {
     	var name = data["label"];
@@ -153,14 +125,12 @@ function send2cytoscapeweb(graphml, div_id)
 		}
     	
     	return name;
-    	
     };
     
-    /*Custom color function for Drugs
-     * 
+    /* 
      * FDA approved drugs are shown with orange like color
      * non FDA approved ones are shown with white color
-     * */
+     */
     vis["colorFunc"] = function(data)
     {
     	if (data["type"] == "Drug") 
@@ -179,15 +149,24 @@ function send2cytoscapeweb(graphml, div_id)
     		return "#FFFFFF";
     };
 
+//    var forceDirectedLayout = 
+//    {
+// 	   name: "ForceDirected",
+// 	   options:
+// 	   {
+//		   weightAttr: "weight"
+// 	   }
+//    };
+    
     vis.ready(function() {
-            // init UI of the network tab
-            initNetworkUI(vis);
+        // init UI of the network tab
+        initNetworkUI(vis);
 
-        // set the style programmatically
-        document.getElementById("color").onclick = function(){
-            vis.visualStyle(visual_style);
-        };
-    });
+	    // set the style programmatically
+	    document.getElementById("color").onclick = function(){
+	        vis.visualStyle(visual_style);
+	    };
+	});
 
     var draw_options = {
         // your data goes here
@@ -195,6 +174,7 @@ function send2cytoscapeweb(graphml, div_id)
         edgeLabelsVisible: false,
         edgesMerged: true,
         layout: "ForceDirected",
+//        layout: forceDirectedLayout,
         visualStyle: visual_style,
         panZoomControlVisible: true
     };

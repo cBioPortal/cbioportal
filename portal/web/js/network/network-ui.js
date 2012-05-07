@@ -49,6 +49,7 @@ var ENTER_KEYCODE = "13";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
+//var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
 // force directed layout options
 var _layoutOptions;
@@ -162,6 +163,7 @@ function hideDialogs(evt, ui)
 	$("#node_inspector").dialog("close");
 	$("#edge_inspector").dialog("close");
 	$("#node_legend").dialog("close");
+	$("#drug_legend").dialog("close");
 	$("#edge_legend").dialog("close");
 }
 
@@ -716,6 +718,8 @@ function showEdgeInspector(evt)
 		
 		var edges = evt.target.edges;
 		
+//		_addDataRow("edge", "Weight", _toTitleCase(evt.target.data["weight"]));
+
 		// add information for each edge
 		
 		for (var i = 0; i < edges.length; i++)
@@ -738,6 +742,8 @@ function showEdgeInspector(evt)
 				"Source",
 				data["INTERACTION_DATA_SOURCE"],
 				TOP_ROW_CLASS);
+
+//			_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 			
 			if (data["INTERACTION_PUBMED_ID"] == null)
 			{
@@ -768,6 +774,7 @@ function showEdgeInspector(evt)
 	{
 		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
 		_addDataRow("edge", "Type", _toTitleCase(data["type"]));
+//		_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 		
 		if (data["INTERACTION_PUBMED_ID"] != null)
 		{
@@ -1629,12 +1636,21 @@ function _removeHighlights()
 }
 
 /**
- * Displays the node legend in a separate panel.
+ * Displays the gene legend in a separate panel.
  */
 function _showNodeLegend()
 {
 	// open legend panel
 	$("#node_legend").dialog("open").height("auto");
+}
+
+/**
+ * Displays the drug legend in a separate panel.
+ */
+function _showDrugLegend()
+{
+	// open legend panel
+	$("#drug_legend").dialog("open").height("auto");
 }
 
 /**
@@ -1786,6 +1802,7 @@ function _setVisibility(visible)
 			$("#node_inspector").removeClass("hidden-network-ui");
 			$("#edge_inspector").removeClass("hidden-network-ui");
 			$("#node_legend").removeClass("hidden-network-ui");
+			$("#drug_legend").removeClass("hidden-network-ui");
 			$("#edge_legend").removeClass("hidden-network-ui");
 			$("#settings_dialog").removeClass("hidden-network-ui");
 		}
@@ -1800,6 +1817,7 @@ function _setVisibility(visible)
 			$("#node_inspector").addClass("hidden-network-ui");
 			$("#edge_inspector").addClass("hidden-network-ui");
 			$("#node_legend").addClass("hidden-network-ui");
+			$("#drug_legend").addClass("hidden-network-ui");
 			$("#edge_legend").addClass("hidden-network-ui");
 			$("#settings_dialog").addClass("hidden-network-ui");
 		}
@@ -2100,7 +2118,6 @@ function _initMainMenu()
 	$("#auto_layout").addClass(LAST_CLASS);
 	
 	$("#show_node_legend").addClass(FIRST_CLASS);
-	$("#show_node_legend").addClass(MENU_SEPARATOR_CLASS);	
 	$("#show_edge_legend").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
@@ -2197,11 +2214,16 @@ function _initDialogs()
 		resizable: false, 
 		width: 440});
 	
+	// adjust drug legend
+	$("#drug_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 320});
+	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 280,
-		height: 140});
+		height: 152});
 }
 
 /**
@@ -2754,7 +2776,7 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#BE7156");
+		"background-color", "#904930");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
 		percent.toFixed(1) + "%");
@@ -2853,6 +2875,7 @@ function _initControlFunctions()
 	_controlFunctions["remove_highlights"] = _removeHighlights;
 	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	_controlFunctions["node_legend"] = _showNodeLegend;
+	_controlFunctions["drug_legend"] = _showDrugLegend;
 	_controlFunctions["edge_legend"] = _showEdgeLegend;
 	
 	
@@ -3012,6 +3035,25 @@ function _geneSort(node1, node2)
  */
 function _performLayout()
 {
+//    var field = { name: "weight", type: "number", defValue: 1.0 };
+//    _vis.addDataField("edges", field);
+//
+//    var edges = _vis.edges();
+//
+//    for (var i=0; i < edges.length; i++)
+//    {
+//    	if (edges[i].data.type == "DRUG_TARGET")
+//    	{    		
+//    		edges[i].data.weight = 0.2;
+//    	}
+//    	else
+//		{
+//    		edges[i].data.weight = 1.0;
+//		}
+//
+//    	_vis.updateData("edges", [edges[i]], edges[i].data);
+//    }
+    
 	_vis.layout(_graphLayout);
 }
 

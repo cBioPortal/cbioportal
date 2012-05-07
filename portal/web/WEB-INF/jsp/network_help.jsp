@@ -64,12 +64,24 @@
 </p>
 
 <p class="heading">
+	Drug Information
+</p>
+<p class="regular">
+	Drugs targeting genes in the network are hidden by default. If you would like
+	to see them, select "Show All Drugs" or "Show FDA Approved Drugs" from the drop-down
+	box under the "Genes &amp; Drugs" tab.
+</p>
+<p class="regular">
+	Click <a onclick="handleMenuEvent('drug_legend')">here</a> to see the drug legend.
+</p>
+
+<p class="heading">
 	Understanding Interaction and Edge Types
 </p>
 <p class="regular">
 	The interaction types are derived from the <a href="http://biopax.org" target="_blank">BioPAX</a> to binary interaction mapping rules defined within Pathway Commons. 
 	They are encoded by different edge colors and can be seleted on the "Interactions" tab to the right of the network. 
-	The interaction types are:
+	In addition, if selected, drug-gene interactions are shown as edges in the network. The interaction types are:
 	<ul>
 		<li>
 			<span class="bold">In same component:</span> 
@@ -84,6 +96,10 @@
 			The first entity controls a reaction that changes the state of the second entity, 
 			e.g. by phosphorylation or other posttranslational modification, 
 			or by a change in subcellular location.
+		</li>
+		<li>
+			<span class="bold">Targeted by drug:</span>
+			The source node (drug) targets the destination node (gene).
 		</li>
 		<li>
 			<span class="bold">Other</span>
@@ -109,9 +125,9 @@
 	<ul>
 		<li>
 			<span class="bold">Hide Selected/Crop:</span>
-			Selected nodes can be hidden using either "Hide Selected" in the "Topology" menu or "Hide Selected" button on the "Genes" tab.
+			Selected nodes can be hidden using either "Hide Selected" in the "Topology" menu or "Hide Selected" button on the "Genes &amp; Drugs" tab.
 			Alternatively, you can select the set of nodes that you would like to view and hide the rest of the network 
-			using either "Show Only Selected" in the "Topology" menu or "Show Only Selected" button on the "Genes" tab.
+			using either "Show Only Selected" in the "Topology" menu or "Show Only Selected" button on the "Genes &amp; Drugs" tab.
 		</li>
 		<li>
 			<span class="bold">Filter by Interaction Type or Source:</span> 
@@ -120,9 +136,13 @@
 		</li>
 		<li>
 			<span class="bold">Filter by Total Alteration:</span> 
-			Networks can be filtered based on alteration frequencies of individual nodes using a slider under the "Genes" tab. 
+			Networks can be filtered based on alteration frequencies of individual nodes using a slider under the "Genes &amp; Drugs" tab. 
 			You can specify a threshold of total alteration frequency - nodes with alteration frequencies below the threshold will be filtered out, 
 			but seed nodes are always kept in the network.
+		</li>
+		<li>
+			<span class="bold">Filter Drugs by FDA Approval:</span> 
+			Networks can be filtered based on whether drugs associated with genes of this network are FDA approved or not.
 		</li>
 	</ul>	
 </p>

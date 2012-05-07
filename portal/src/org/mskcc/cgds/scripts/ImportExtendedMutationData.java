@@ -138,6 +138,13 @@ public class ImportExtendedMutationData{
                 String center = getField( parts, "Center" );
                 String sequencer = getField(parts, "Sequencer");
                 String chr = getField( parts, "Chromosome");
+				String validationStatus = getField(parts, "Validation_Status");
+
+				if (validationStatus == null || validationStatus.equalsIgnoreCase("Wildtype")) {
+                    pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
+					line = buf.readLine();
+					continue;
+				}
 
 				if (!validChrValues.contains(chr.toUpperCase())) {
                     pMonitor.logWarning("Skipping entry with chromosome value: " + chr );
@@ -161,7 +168,6 @@ public class ImportExtendedMutationData{
                 
                 String aminoAcidChange = "MUTATED";
                 String mutationType = getField( parts, "Variant_Classification");
-                String validationStatus = getField( parts, "Validation_Status");
                 String mutationStatus = getField( parts, "Mutation_Status");
                 String functionalImpactScore = "";
                 String linkXVar = "";  

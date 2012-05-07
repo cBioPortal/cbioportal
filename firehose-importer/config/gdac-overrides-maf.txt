@@ -6,4 +6,5 @@ KIRC.maf.annotated kirc
 LAML.maf.annotated laml
 LUSC.maf.annotated  lusc
 OV.maf.annotated ov
+PRAD.maf.annotated prad
 UCEC.maf.annotated  ucec

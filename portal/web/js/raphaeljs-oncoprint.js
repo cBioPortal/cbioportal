@@ -278,7 +278,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			// finally draw mutation square "on top"
 			drawMutation(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// draw rppa triangle 
-			drawRPPA(oncoprint, oncoprint.body_canvas, null, samplePos, thisSampleAlteration.alteration);
+			drawRPPA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// tooltip
 			if (wantTooltip & !oncoprint.remove_genomic_alteration_hpadding) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;

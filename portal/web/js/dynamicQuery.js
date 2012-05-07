@@ -77,6 +77,9 @@ $(document).ready(function(){
        event.preventDefault();
        userClickedMainTab("tab_download");
     });
+    
+    // Set up custom case set related GUI & event handlers (step 3)
+    initCustomCaseSetUI();
 
     //  set toggle Step 5: Optional arguments
     //$("#optional_args").hide();
@@ -414,6 +417,23 @@ function cancerStudySelected() {
     // Set default selections and make sure all steps are visible
     console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
+    
+    // check if cancer study has a clinical_free_form data, if it has
+    // enable "build custom case set" link, otherwise disable the button
+    jQuery.getJSON("ClinicalFreeForm.json",
+		{studyId: $("#select_cancer_type").val()},
+		function(json){
+			if (json.freeFormData.length == 0)
+			{
+				// no clinical_free_form data for the current cancer study,
+				// so disable the button
+				$("#build_custom_case_set").hide();
+			}
+			else
+			{
+				$("#build_custom_case_set").show();
+			}
+		});
 }
 
 //  Triggered when a case set has been selected, either by the user

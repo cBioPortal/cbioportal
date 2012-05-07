@@ -1242,7 +1242,8 @@ function scaleBodyCanvas(oncoprint) {
 	var scaleFactorX = oncoprint.scale_factor_x;
 	oncoprint.body_canvas.forEach(function(obj) {
 		var node = obj.node;
-		if (obj.node instanceof SVGRectElement) {
+		if (obj.node instanceof SVGRectElement || 
+		   obj.node instanceof SVGPathElement) {
 			var x = obj.attr('x');
 			var y= obj.attr('y');
 			obj.transform('S' + scaleFactorX + ',1.0,0,0');

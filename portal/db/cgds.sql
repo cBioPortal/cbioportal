@@ -32,6 +32,7 @@ drop table IF EXISTS micro_rna_alteration;
 drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
+drop table if EXISTS clinical_free_form;
 
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
@@ -279,6 +280,13 @@ CREATE TABLE IF NOT EXISTS `clinical` (
   `AGE_AT_DIAGNOSIS` double default NULL,
   PRIMARY KEY (`CASE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `clinical_free_form` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(256) NOT NULL,
+  `PARAM_NAME` varchar(256) NOT NULL,
+  `PARAM_VALUE` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `interaction`

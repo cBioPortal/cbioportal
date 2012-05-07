@@ -2,15 +2,19 @@ package org.mskcc.cgds.scripts;
 
 import org.mskcc.cgds.dao.DaoClinicalData;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.FileUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cgds.model.CancerStudy;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.ArrayList;
 
 /**
  * Imports Clinical Data.
@@ -26,6 +30,8 @@ public class ImportClinicalData {
     private int dfsMonthCol = -1;
     private int dfsStatusCol = -1;
     private int ageCol = -1;
+    private CancerStudy cancerStudy;
+    private ArrayList<String> freeFormHeaders = new ArrayList<String>();
 
     /**
      * Constructor.
@@ -34,6 +40,19 @@ public class ImportClinicalData {
      * @param pMonitor         ProgressMonitor
      */
     public ImportClinicalData(File clinicalDataFile, ProgressMonitor pMonitor) {
+        this.pMonitor = pMonitor;
+        this.clinicalDataFile = clinicalDataFile;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param cancerStudy   Cancer Study
+     * @param clinicalDataFile File
+     * @param pMonitor         ProgressMonitor
+     */
+    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, ProgressMonitor pMonitor) {
+        this.cancerStudy = cancerStudy;
         this.pMonitor = pMonitor;
         this.clinicalDataFile = clinicalDataFile;
     }
@@ -50,6 +69,7 @@ public class ImportClinicalData {
         BufferedReader buf = new BufferedReader(reader);
 
         DaoClinicalData daoClinical = new DaoClinicalData();
+        DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
         // skip column headings
         String colHeadingLine = buf.readLine();
@@ -77,6 +97,13 @@ public class ImportClinicalData {
                     Double ageAtDiagnosis = getDouble(parts, ageCol);
                     daoClinical.addCase(caseId, osMonths, osStatus, dfsMonths, dfsStatus,
                             ageAtDiagnosis);
+                    if (cancerStudy != null) {
+                        for (int i = 1; i < parts.length; i++) {
+                            String name = freeFormHeaders.get(i);
+                            String value = parts[i];
+                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(), caseId, name, value);
+                        }
+                    }
                 }
                 line = buf.readLine();
             }
@@ -115,6 +142,7 @@ public class ImportClinicalData {
         String[] parts = colHeadingLine.split("\t");
         for (int i = 0; i < parts.length; i++) {
             String header = parts[i];
+            freeFormHeaders.add(header);
             if (caseIdNames.contains(header)) {
                 caseIdCol = i;
             }
@@ -180,26 +208,39 @@ public class ImportClinicalData {
     /**
      * The big deal main.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DaoException {
+        ProgressMonitor pMonitor = new ProgressMonitor();
 
         // check args
-        if (args.length < 1) {
-            System.out.println("command line usage:  importSurvivalData.pl <data_file.txt>");
+        if (args.length < 2) {
+            System.out.println("command line usage:  importSurvivalData.pl <cancer_study_id> <data_file.txt>");
             System.exit(1);
         }
 
-        File dataFile = new File(args[0]);
-        ProgressMonitor pMonitor = new ProgressMonitor();
-
         try {
-            System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
-            int numLines = FileUtil.getNumLines(dataFile);
-            System.err.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[0]);
+            if (cancerStudy == null) {
+                System.err.println("Unknown cancer study:  " + args[0]);
+            } else {
+                File dataFile = new File(args[1]);
 
-            ImportClinicalData importClinicalData = new ImportClinicalData(dataFile, pMonitor);
-            importClinicalData.importData();
-            System.err.println("Success!");
+                System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
+                int numLines = FileUtil.getNumLines(dataFile);
+                System.err.println(" --> total number of lines:  " + numLines);
+                pMonitor.setMaxValue(numLines);
+
+                ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, dataFile, pMonitor);
+                importClinicalData.importData();
+                System.err.println("Success!");
+
+                DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
+                HashSet<String> clinicalParameters = daoClinicalFreeForm.getDistinctParameters
+                        (cancerStudy.getInternalId());
+                System.err.println("Stored the following clinical variables:");
+                for (String key:  clinicalParameters) {
+                    System.err.println (key);
+                }
+            }
         } catch (IOException e) {
             System.err.println ("Error:  " + e.getMessage());
         } catch (DaoException e) {

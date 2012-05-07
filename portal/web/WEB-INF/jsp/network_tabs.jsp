@@ -190,6 +190,12 @@
 	</div>
 </div>
 
+<div id="drug_legend" class="hidden-network-ui" title="Drug Legend">
+	<div id="drug_legend_content" class="content ui-widget-content">
+		<img src="images/network/drug_legend.png"/>
+	</div>
+</div>
+
 <div id="edge_inspector" class="hidden-network-ui" title="Edge Inspector">
 	<div id="edge_inspector_content" class="content ui-widget-content">
 		<table class="data"></table>

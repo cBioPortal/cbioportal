@@ -35,6 +35,15 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
     </td>
         <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
+    <tr>
+        <td>Protein/phosphoprotein level (RPPA)</td>
+        <td><TT>PROT</TT></td>
+        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> RPPA score lower than the median RPPA score.<BR>
+        <TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> RPPA score higher than the median RPPA score.<BR>
+            The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
+        </td>
+        <td>At least 1 RPPA score from the median.</td>
+    </tr>
 </table>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -53,6 +62,9 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 </code></pre>
 <p>but to define over-expressed cases as those with mRNA expression greater than 3 standard deviations above the mean:</p>
 <pre><code> CCNE1: EXP &gt; 3
+</code></pre>
+<p>and similarly with RPPA protein/phopshoprotein level:</p>
+<pre><code> CCNE1: PROT &gt; 1
 </code></pre>
 <p>In general, any combination of OQL keywords and/or categories can annotate any gene.</p>
 <h2 id="example-rb-pathway">Example:  RB Pathway</h2>

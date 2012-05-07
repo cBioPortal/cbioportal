@@ -3,14 +3,13 @@ package org.mskcc.portal.test.model;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.mskcc.portal.model.GeneticEventComparator;
 import org.mskcc.portal.model.GeneticEventImpl;
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.portal.model.GeneticEventImpl.mutations;
 
 public class TestGeneticEventComparator {
@@ -19,26 +18,26 @@ public class TestGeneticEventComparator {
    public void testGeneticEventComparator() {
       GeneticEventComparator aGeneticEventComparator = new GeneticEventComparator();
 
-      GeneticEventImpl ge1 = new GeneticEventImpl( 1, 1, true );
+      GeneticEventImpl ge1 = new GeneticEventImpl( 1, 1, 1,true );
       testReflexiveEquals( aGeneticEventComparator, ge1, new Integer(0), false );
 
-      GeneticEventImpl ge2 = new GeneticEventImpl( 1, 1, true );
+      GeneticEventImpl ge2 = new GeneticEventImpl( 1, 1, 1, true );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 0 );
 
-      ge1 = new GeneticEventImpl( 0, 1, true );
+      ge1 = new GeneticEventImpl( 0, 1, 1, true );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge1 = new GeneticEventImpl( 2, 1, true );
+      ge1 = new GeneticEventImpl( 2, 1, 1, true );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, -1 );
       
-      ge1 = new GeneticEventImpl( 1, 0, true );
+      ge1 = new GeneticEventImpl( 1, 0, 0, true );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge1 = new GeneticEventImpl( 1, 1, false );
+      ge1 = new GeneticEventImpl( 1, 1, 0, false );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
@@ -59,36 +58,36 @@ public class TestGeneticEventComparator {
             GeneticEventComparator.defaultRPPASortOrder(),
             GeneticEventComparator.defaultMutationsSortOrder());
 
-      GeneticEventImpl ge1 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, mutations.MUTATED );
+      GeneticEventImpl ge1 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
 
       Assert.assertEquals( false, aGeneticEventComparator.equals(ge1, new Integer(0)) );
 
-      GeneticEventImpl ge2 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, mutations.MUTATED );
+      GeneticEventImpl ge2 = new GeneticEventImpl( CNA.AMPLIFIED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 0 );
 
-      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.MUTATED );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, -1 );
       
-      ge1 = new GeneticEventImpl( CNA.GAINED, MRNA.NORMAL, mutations.MUTATED );
-      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.NORMAL, mutations.MUTATED );
+      ge1 = new GeneticEventImpl( CNA.GAINED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
+      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, true );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 0 );
 
-      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.MUTATED );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, RPPA.NORMAL, mutations.MUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
 
-      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, mutations.UNMUTATED );
+      ge2 = new GeneticEventImpl( CNA.HOMODELETED, MRNA.NORMAL, RPPA.NORMAL, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.UPREGULATED, mutations.UNMUTATED );
+      ge2 = new GeneticEventImpl( CNA.DIPLOID, MRNA.UPREGULATED, RPPA.UPREGULATED, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, 1 );
       
-      ge2 = new GeneticEventImpl( CNA.HEMIZYGOUSLYDELETED, MRNA.DOWNREGULATED, mutations.UNMUTATED );
+      ge2 = new GeneticEventImpl( CNA.HEMIZYGOUSLYDELETED, MRNA.DOWNREGULATED, RPPA.DOWNREGULATED, mutations.UNMUTATED );
       testReflexiveEquals( aGeneticEventComparator, ge1, ge2, false );
       testReflexiveCompare( aGeneticEventComparator, ge1, ge2, -1 );
       

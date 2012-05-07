@@ -246,6 +246,9 @@ public class GeneticEventComparator implements Comparator<Object>{
          }
          
          // RPPA
+         System.out.println(ge1.getRPPAValue());
+         System.out.println(rppaSortOrderHash.get( ge1.getRPPAValue() ));
+         System.out.println(rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue());
          if( rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue() != rppaSortOrderHash.get
                  ( ge2.getRPPAValue() ).intValue() ){
             return false;

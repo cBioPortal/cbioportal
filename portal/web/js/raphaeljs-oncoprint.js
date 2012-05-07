@@ -26,7 +26,9 @@
  **/
 
 /*
- * Javscript library based on RaphaelJS Library which renders OncoPrints. 
+ * Javscript library based on RaphaelJS Library which renders OncoPrints.
+ *
+ * Benjamin Gross
  */
 
 // These bits are passed as "AlterationSettings" in DrawAlteration -
@@ -61,17 +63,18 @@ var DEFAULTS = (function() {
 			'ALTERATION_VERTICAL_PADDING'       : 1,
 			'ALTERATION_HORIZONTAL_PADDING'     : 1,
 			// cna styles
-			'CNA_AMPLIFIED_COLOR'                   : "#FF0000",
-			'CNA_GAINED_COLOR'                      : "#FFB6C1",
-			'CNA_DIPLOID_COLOR'                     : "#D3D3D3",
-			'CNA_HEMIZYGOUSLYDELETED_COLOR'         : "#8FD8D8",
-			'CNA_HOMODELETED_COLOR'                 : "#0000FF",
-			'CNA_NONE_COLOR'                        : "#D3D3D3",
+			'CNA_AMPLIFIED_COLOR'               : "#FF0000",
+			'CNA_GAINED_COLOR'                  : "#FFB6C1",
+			'CNA_DIPLOID_COLOR'                 : "#D3D3D3",
+			'CNA_HEMIZYGOUSLYDELETED_COLOR'     : "#8FD8D8",
+			'CNA_HOMODELETED_COLOR'             : "#0000FF",
+			'CNA_NONE_COLOR'                    : "#D3D3D3",
 			// mrna styles
 			'MRNA_WIREFRAME_WIDTH_SCALE_FACTOR' : 1/6,
-			'MRNA_UPREGULATED_COLOR'                 : "#FF9999",
-			'MRNA_DOWNREGULATED_COLOR'               : "#6699CC",
-			'MRNA_NOTSHOWN_COLOR'                    : "#FFFFFF",
+			'MRNA_WIREFRAME_WIDTH_SCALE_FACTOR2': 1/4,
+			'MRNA_UPREGULATED_COLOR'            : "#FF9999",
+			'MRNA_DOWNREGULATED_COLOR'          : "#6699CC",
+			'MRNA_NOTSHOWN_COLOR'               : "#FFFFFF",
 			// mutation styles
 			'MUTATION_COLOR'                    : "#008000",
 			'MUTATION_HEIGHT_SCALE_FACTOR'      : 1/3,
@@ -90,17 +93,31 @@ var DEFAULTS = (function() {
 			'LEGEND_FOOTNOTE_SPACING'           : 10, // space between alteration / descriptions pairs and footnote
 			// tooltip region
 			'TOOLTIP_REGION_WIDTH'              : 500, // width of tooltip region
-			'TOOLTIP_REGION_HEIGHT'             : 60, // height of tooltip region
-			'TOOLTIP_HORIZONTAL_PADDING'        : 20, // space between header region and tooltip region
-			'TOOLTIP_FONT'                      : "normal 12px arial",
-			'TOOLTIP_COLOR'                     : "#000000",
+			'TOOLTIP_REGION_HEIGHT'             : 60,  // height of tooltip region
+			'TOOLTIP_TEXT_REGION_Y'             : 20,  // start of the rect within the tooltip region
+			'TOOLTIP_HORIZONTAL_PADDING'        : 20,  // space between header region and tooltip region
+			'TOOLTIP_TITLE_PADDING'             : 1,   // space between tooltip title and tooltip region
+			'TOOLTIP_ICON_PADDING'              : 5,   // space between tootip region title and icon
+			'TOOLTIP_TEXT_FONT'                 : "normal 12px arial",
+			'TOOLTIP_TITLE_FONT'                : "bold 13px verdana, arial, sans-serif",
+			'TOOLTIP_TEXT_COLOR'                : "#000000",
+			'TOOLTIP_FILL_COLOR'                : "#EEEEEE",
+			'TOOLTIP_TITLE_COLOR'               : "#2153AA",
+			'TOOLTIP_STROKE_COLOR'              : "#2153AA",
 			'TOOLTIP_MARGIN'                    : 10,
-			'TOOLTIP_TEXT'                      : "Hover over a sample to view details.",
+			'TOOLTIP_TITLE_TEXT'                : "Case Details",
+			'TOOLTIP_TEXT'                      : "Move the mouse pointer over the OncoPrint below for more details about\ncases and alterations.",
+			'ALT_TOOLTIP_TEXT'                  : "Details about cases and alterations are not available when the whitespace\nhas been removed from the OncoPrint.",
+			'WANT_TOOLTIP_DECORATION'           : false,
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
             // general sample properties
-			'ALTERED_SAMPLES_ONLY'              : false
+			'ALTERED_SAMPLES_ONLY'              : false,
+			// scale factor
+			'SCALE_FACTOR_X'                    : 1.0,
+			// remove genomics alteration padding
+			'REMOVE_GENOMIC_ALTERATION_HPADDING': false
 		};
 		return {
 		    get: function(name) { return private[name]; }
@@ -122,9 +139,11 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 	var text = scratchCanvas.text(0,0, DEFAULTS.get('CASE_SET_DESCRIPTION_LABEL'));
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	var caseSetDescriptionLabelLength = text.getBBox().width;
-	text = scratchCanvas.text(0,0, "<");
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	var lessThanSignLength = text.getBBox().width;
+	// compute tooltip title height
+	text = scratchCanvas.text(0,0, DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
+	text.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
+	var tooltipTitleWidth = text.getBBox().width;
+	var tooltipTitleHeight = text.getBBox().height;
 
 	return {
 		// header element is used later to determine location of tooltip canvas
@@ -133,11 +152,15 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'header_canvas'                     : Raphael(headerElement, 1, 1),
 		'body_canvas'                       : Raphael(bodyElement, 1, 1),
 		'legend_canvas'                     : Raphael(legendElement, 1, 1),
+		'tooltip_title_canvas'              : null,
 		'tooltip_canvas'                    : null,
 		// longest label length
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
-		'less_than_sign_length'             : lessThanSignLength,
+		// tooltip title
+		'want_tooltip_decoration'                 : DEFAULTS.get('WANT_TOOLTIP_DECORATION'),
+		'tooltip_title_width'               : tooltipTitleWidth,
+		'tooltip_title_height'              : tooltipTitleHeight,
 		// general styles
 		'alteration_width'                  : DEFAULTS.get('ALTERATION_WIDTH'),
 		'alteration_height'                 : DEFAULTS.get('ALTERATION_HEIGHT'),
@@ -147,10 +170,18 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'mrna_wireframe_width_scale_factor' : DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR'),
 		// mutation	styles
 		'mutation_height_scale_factor'      : DEFAULTS.get('MUTATION_HEIGHT_SCALE_FACTOR'),
-		// use object for override coordinates flag
+		// this is used to change behavior of getXCoordinate() & getYCoordinate()
 		'use_immediate_coordinates'         : false,
 		// general sample properties
-		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY')
+		'altered_samples_only'              : DEFAULTS.get('ALTERED_SAMPLES_ONLY'),
+		// scale factor
+		'scale_factor_x'                    : DEFAULTS.get('SCALE_FACTOR_X'),
+		// remove padding between genomic alterations
+		'remove_genomic_alteration_hpadding': DEFAULTS.get('REMOVE_GENOMIC_ALTERATION_HPADDING'),
+		// keeps track of number of contigous samples (when remove genomic alteration hpadding is set
+		'num_contiguous_samples'            : 0,
+		// keep track of last y pos - used to know where to render next genomics alretarion
+		'last_y_pos'                        : 0
 	};
 }
 
@@ -206,32 +237,50 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 	oncoprint.body_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.body_canvas.clear();
 
+	// we need to change the default tooltip text when genomic alteration padding is set
+	if (wantTooltip) {
+		var text = (oncoprint.remove_genomic_alteration_hpadding) ?
+			DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
+		addTooltipText(oncoprint, text);
+	}
+
 	// used to filter out unaltered samples in loop below
 	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN);
 
 	// iterate over all genetic alterations
 	for (var lc = 0; lc < geneticAlterations.length; lc++) {
+		oncoprint.last_y_pos = 0; // must come before any rendering
 		var alteration = geneticAlterations[lc];
 		// draw label first
 		drawGeneLabel(oncoprint, lc, alteration.hugoGeneSymbol, alteration.percentAltered);
+		oncoprint.num_contiguous_samples = 0;
 		// for this gene, interate over all samples
-		var samplePos = -1;
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
+			// handle altered samples only bool - only render 
 			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
 				continue;
 			}
-			++samplePos;
+			// when remove genomic alteration padding is set, we only want to render rect for contiguous blocks
+            else if (oncoprint.remove_genomic_alteration_hpadding) {
+				++oncoprint.num_contiguous_samples;
+                if (thisSampleAlteration.alteration == getNextAlteration(oncoprint, alteration.alterations, lc2+1)) {
+                    continue;
+                }
+            }
+			else {
+				oncoprint.num_contiguous_samples = 1;
+			}
 			// first draw MRNA "background"
-			drawMRNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
-			// then draw CNA
-			drawCNA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
-			// draw mutation square
-			drawMutation(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			var last_y_pos = drawMRNA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
+			// then draw CNA "within"
+			drawCNA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
+			// finally draw mutation square "on top"
+			drawMutation(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// draw rppa triangle 
-			drawRPPA(oncoprint, oncoprint.body_canvas, lc, samplePos, thisSampleAlteration.alteration);
+			drawRPPA(oncoprint, oncoprint.body_canvas, null, samplePos, thisSampleAlteration.alteration);
 			// tooltip
-			if (wantTooltip) {
+			if (wantTooltip & !oncoprint.remove_genomic_alteration_hpadding) {
 				var tooltipText = "Sample: " + thisSampleAlteration.sample;
 				if (thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "\nAmino Acid Change: ";
@@ -241,9 +290,15 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 					// zap off last ', '
 					tooltipText = tooltipText.substring(0, tooltipText.length - 2);
 				}
-				createTooltip(oncoprint, lc, samplePos, tooltipText);
+				createTooltip(oncoprint, lc, null, tooltipText);
 			}
+			// update some vars needed for next go-around
+			oncoprint.last_y_pos = last_y_pos;
+			oncoprint.num_contiguous_samples = 0;
 		}
+	}
+	if (oncoprint.scale_factor_x != 1.0) {
+		scaleBodyCanvas(oncoprint);
 	}
 }
 
@@ -329,15 +384,75 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 	if (x + width > parentElementPos[0] + parentElementWidth) {
 		width = parentElementPos[0] + parentElementWidth - x;
 	}
-	var y = headerPos[1] - DEFAULTS.get('TOOLTIP_REGION_HEIGHT') / 2;
+	var y = headerPos[1];
 	var height = DEFAULTS.get('TOOLTIP_REGION_HEIGHT');
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.remove();
 	}
+
+	// create the tooltip canvas
 	oncoprint.tooltip_canvas = Raphael(x, y, width, height);
 
+	// add background
+	var rect = oncoprint.tooltip_canvas.rect(0, 0, width, height);
+	rect.attr('stroke', 'none');
+	rect.attr('fill', DEFAULTS.get('TOOLTIP_FILL_COLOR'));
+	
+	if (oncoprint.want_tooltip_decoration) {
+		
+		// create tooltip title canvas
+		if (oncoprint.tooltip_title_canvas != null) {
+			oncoprint.tooltip_title_canvas.remove();
+		}
+		oncoprint.tooltip_title_canvas = Raphael(x,
+												 y-oncoprint.alteration_height-DEFAULTS.get('TOOLTIP_TITLE_PADDING'),
+												 width, oncoprint.alteration_height);
+
+		// add title
+		var tooltipTitleText = oncoprint.tooltip_title_canvas.text(0, oncoprint.alteration_height / 2,
+																   DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
+		tooltipTitleText.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
+		tooltipTitleText.attr('fill', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
+		tooltipTitleText.attr('text-anchor', 'start');
+
+		// tooltip icon
+		// add genomic alteration w/mouse pointer
+		var alterationX = oncoprint.tooltip_title_width + DEFAULTS.get('TOOLTIP_ICON_PADDING');
+		var alterationY = 0;
+		var mrnaRect = oncoprint.tooltip_title_canvas.rect(alterationX, alterationY,
+														   oncoprint.alteration_width, oncoprint.alteration_height);
+		mrnaRect.attr('stroke', 'none');
+		mrnaRect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		var cnaRect = oncoprint.tooltip_title_canvas.rect(alterationX + mrnaWireframeWidth,
+														  mrnaWireframeWidth,
+														  oncoprint.alteration_width - mrnaWireframeWidth * 2,
+														  oncoprint.alteration_height - mrnaWireframeWidth * 2);
+		cnaRect.attr('stroke', 'none');
+		cnaRect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+		addArrow(oncoprint.tooltip_title_canvas,
+				 alterationX + oncoprint.alteration_width * 2, // x1
+				 alterationY + oncoprint.alteration_height * .75, // y1
+				 alterationX + oncoprint.alteration_width, // x2
+				 alterationY + oncoprint.alteration_height * .25, // y2
+				 4);
+	}
+
 	// add place holder text
-	addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+	var tooltipText = (oncoprint.remove_genomic_alteration_hpadding) ?
+		DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
+	if (oncoprint.want_tooltip_decoration) {
+		cnaRect.node.style.cursor = "default";
+		cnaRect.node.onmouseover = function() {
+			addTooltipText(oncoprint, tooltipText)
+		}
+		cnaRect.node.onmouseout = function() {
+			addTooltipText(oncoprint, '');
+		}
+	}
+	else {
+		addTooltipText(oncoprint, tooltipText);
+	}
 }
 
 /*
@@ -348,6 +463,9 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
  */
 function ClearOncoPrintTooltipRegion(oncoprint) {
 
+	if (oncoprint.tooltip_title_canvas != null) {
+		oncoprint.tooltip_title_canvas.clear();
+	}
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.clear();
 	}
@@ -367,18 +485,6 @@ function GetOncoPrintBodyXML(oncoprint) {
 }
 
 /*
- * For the given oncoprint reference, returns the longest label length.
- *
- * oncoprint - opaque reference to oncoprint system
- *
- */
-function GetLongestLabelLength(oncoprint) {
-
-	// outta here
-	return oncoprint.longest_label_length;
-}
-
-/*
  * Toggles show altered samples only property.
  *
  * oncoprint - opaque reference to oncoprint system
@@ -390,9 +496,48 @@ function ShowAlteredSamples(oncoprint, showAlteredSamples) {
 	oncoprint.altered_samples_only = showAlteredSamples;
 }
 
+/*
+ * Sets scale factor X.  We expect values between 0-99,
+ * and which get changed to values between 1.0 and 0.01
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * scaleFactorX - new X scale factor
+ *
+ */
+function SetScaleFactor(oncoprint, scaleFactorX) {
+
+	// sanity check
+	if (scaleFactorX < 1) {
+		scaleFactorX = 1;
+	}
+	else if (scaleFactorX > 100) {
+		scaleFactorX = 100;
+	}
+	oncoprint.scale_factor_x = scaleFactorX / 100;
+
+	// redraw
+	scaleBodyCanvas(oncoprint);
+}
+
+/*
+ * Toggles genomic alteration padding property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * removeGenomicAlterationPadding  - flag indicating if alteration padding should be removed
+ *
+ */
+function RemoveGenomicAlterationPadding(oncoprint, removeGenomicAlterationPadding) {
+
+	oncoprint.remove_genomic_alteration_hpadding = removeGenomicAlterationPadding;
+
+	oncoprint.mrna_wireframe_width_scale_factor = (removeGenomicAlterationPadding) ?
+		DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR2') :
+		DEFAULTS.get('MRNA_WIREFRAME_WIDTH_SCALE_FACTOR');
+}
+
 /*******************************************************************************
 //
-// The following functions are for internal use only.
+// The following functions are not meant to be used outside of this library.
 //
 *******************************************************************************/
 
@@ -419,7 +564,7 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
 
 	// resize canvas 
- 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, true);
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, true);
 	oncoprint.header_canvas.clear();
 
 	// render case list description
@@ -509,7 +654,7 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 	oncoprint.longest_label_length = getLabelLength(longestLabel);
 
 	// resize canvas 
- 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, false);
+ 	var dimension = getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, false);
 	// make a few minor adjustment for Cross Cancer Summary Page
 	dimension.width = dimension.width + oncoprint.longest_label_length;
 	//oncoprint.header_canvas.setSize(dimension.width, dimension.height);
@@ -552,26 +697,200 @@ function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, heade
 }
 
 /*
- * Computes the length (pixels) of the given label.
+ * Draws a gene label on the body_canvas at row row.
  *
- * label - label string
+ * oncoprint - opaque reference to oncoprint system
+ * row - the vertical position to draw the text
+ * geneSymbol - the gene symbol to render
+ * percentAltered - the percent altered string
  *
  */
-function getLabelLength(label) {
+function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
 
-	// create scratch paper for drawing
-	var scratchCanvas = Raphael(0,0, 1, 1);
-	// draw text and set attributes
-	var text = scratchCanvas.text(0,0, label);
+	// compute starting coordinates
+	var x = getXCoordinate(oncoprint, 0) - DEFAULTS.get('LABEL_PADDING');
+	var y = getYCoordinate(oncoprint, row) + oncoprint.alteration_height / 2;
+	// render % altered
+	var text = oncoprint.body_canvas.text(x, y, percentAltered);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	// include the space between gene and % altered and first genetic alteration box
-	var labelLength = text.getBBox().width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
-	// cleanup
-	text.remove();
-	scratchCanvas.remove();
-	
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'end');
+	// render gene symbol
+	text = oncoprint.body_canvas.text(0, y, geneSymbol);
+	text.attr('font', DEFAULTS.get('LABEL_FONT'));
+	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
+	text.attr('text-anchor', 'start');
+}
+
+/*
+ * Draws an mRNA genomic alteration at given row & col.
+ *
+ * Returns the last y pos of rect.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// compute starting coordinates
+	var y = getYCoordinate(oncoprint, row);
+	var	x = getXCoordinate(oncoprint, column);
+	// create canvas rect
+	var alteration_width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
+	var rect = canvas.rect(x, y, alteration_width, oncoprint.alteration_height);
+	// without this we get thin black border around rect
+	rect.attr('stroke', 'none'); 
+	// choose fill color based on alteration type
+	if (alterationSettings & MRNA_UPREGULATED) {
+		rect.attr('fill', DEFAULTS.get('MRNA_UPREGULATED_COLOR'));
+	}
+	else if (alterationSettings & MRNA_DOWNREGULATED) {
+		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
+	}
+	else if (alterationSettings & MRNA_NOTSHOWN) {
+		if (oncoprint.remove_genomic_alteration_hpadding) {
+			rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+		}
+		else {
+			rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
+		}
+	}
+
 	// outta here
-	return labelLength;
+	return x + alteration_width;
+}
+
+/*
+ * Draws a CNA genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// compute starting coordinates
+	var y = getYCoordinate(oncoprint, row);
+	var x = getXCoordinate(oncoprint, column);
+	// create canvas rect
+	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+	var alteration_width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
+	var rect = canvas.rect(x + mrnaWireframeWidth,
+						   y + mrnaWireframeWidth,
+						   alteration_width - mrnaWireframeWidth * 2,
+						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
+	// without this we get thin black border around rect
+	rect.attr('stroke', 'none'); 
+	// choose fill color based on alteration type
+	if (alterationSettings & CNA_AMPLIFIED) {
+		rect.attr('fill', DEFAULTS.get('CNA_AMPLIFIED_COLOR'));
+	}
+	else if (alterationSettings & CNA_GAINED) {
+		rect.attr('fill', DEFAULTS.get('CNA_GAINED_COLOR'));
+	}
+	else if (alterationSettings & CNA_DIPLOID) {
+		rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
+	}
+	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
+		rect.attr('fill', DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR'));
+	}
+	else if (alterationSettings & CNA_HOMODELETED) {
+		rect.attr('fill', DEFAULTS.get('CNA_HOMODELETED_COLOR'));
+	}
+	else if (alterationSettings & CNA_NONE) {
+		rect.attr('fill', DEFAULTS.get('CNA_NONE_COLOR'));
+	}
+}
+
+/*
+ * Draws a mutation genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
+
+	// only render if we have a mutation
+	if (alterationSettings & MUTATED) {
+		// compute starting coordinates
+		var y = getYCoordinate(oncoprint, row);
+		var x = getXCoordinate(oncoprint, column);
+		// create canvas rect -
+		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+
+		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
+		var rect = canvas.rect(x + mrnaWireframeWidth / 2,
+							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
+							   mutationRectDimensions.width, mutationRectDimensions.height);
+		// without this we get thin black border around rect
+		rect.attr('stroke', 'none'); 
+		// set color
+		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
+	}
+}
+
+/*
+ * Draws an RPPA genomic alteration at given row & col.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * canvas - canvas to draw on
+ * row - the vertical position to draw the alteration
+ * column - the horizontal position to draw the alteration
+ * alterationSettings - the genomic alteration
+ *
+ */
+function drawRPPA(oncoprint, canvas, row, column, alterationSettings) {
+
+	// only render if we have a mutation
+	if (alterationSettings & RPPA_UPREGULATED || alterationSettings & RPPA_DOWNREGULATED) {
+		// compute starting coordinates
+		var y = getYCoordinate(oncoprint, row);
+		var x = getXCoordinate(oncoprint, column);
+		// we use mutation rect as a basis - create canvas rect -
+		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
+		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
+		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
+		var rect = { 'x' : x + mrnaWireframeWidth / 2,
+					 'y' : y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
+					 'width' : mutationRectDimensions.width, 'height' : mutationRectDimensions.height };
+		var pathString = null;
+		if (alterationSettings & RPPA_UPREGULATED) {
+			pathString = ("M" + rect.x + " " + rect.y +
+						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + y +
+						  "L" + (rect.x + rect.width) + " " + rect.y +
+						  "Z");
+		}
+		else if (alterationSettings & RPPA_DOWNREGULATED) {
+			pathString = ("M" + rect.x + " " + (rect.y + rect.height) +
+						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + (y + DEFAULTS.get('ALTERATION_HEIGHT')) +
+						  "L" + (rect.x + rect.width) + " " + (rect.y + rect.height) +
+						  "Z");
+		}
+		var path = canvas.path(pathString);
+		// without this we get thin black border around rect
+		path.attr('stroke', 'none'); 
+		// set color
+        if (alterationSettings & CNA_HOMODELETED) {
+            path.attr('fill', DEFAULTS.get('RPPA_HOMDEL_COLOR'));
+		}
+		else {
+            path.attr('fill', DEFAULTS.get('RPPA_COLOR'));
+		}
+	}
 }
 
 /*
@@ -579,10 +898,11 @@ function getLabelLength(label) {
  * Also returns height of a text string.
  *
  * headerVariables - various header strings
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * forSummaryTab - flag indicating if we are rendering header for Summary Tab (if not, Cross Cancer Study)
  *
  */
-function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
+function getOncoPrintHeaderCanvasSize(headerVariables, longestLabel, forSummaryTab) {
 
 	// vars used below
 	var text;
@@ -592,18 +912,29 @@ function getOncoPrintHeaderCanvasSize(headerVariables, forSummaryTab) {
 	var scratchCanvas = Raphael(0, 0, 1, 1);
 
 	// case set description (only used on Summary Tab)
+	var caseDescriptionIsLongest = caseDescriptionIsLongestString(headerVariables, longestLabel);
 	if (forSummaryTab) {
-		// assume case set description is longest string
-		text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
+		if (caseDescriptionIsLongest) {
+			text = scratchCanvas.text(0,0, headerVariables.get('CASE_SET_DESCRIPTION'));
+		}
+		else {
+			text = scratchCanvas.text(0,0, longestLabel + headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
+		}
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	}
 	else {
-		// assume all samples column heading is longest size
-		text = scratchCanvas.text(0,0, headerVariables.get('ALL_SAMPLES_COLUMN_HEADING'));
+		// assume altered samples column heading is greater than all samples column heading
+		text = scratchCanvas.text(0,0, headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING'));
 		text.attr('font', DEFAULTS.get('LABEL_FONT'));
 	}
 	boundingBox = text.getBBox();
 	canvasWidth = boundingBox.width;
+	// if case list description is not longest string,
+	// the longest string is longest gene label + altered samples column heading
+	// so we must include formatting in width
+	if (!caseDescriptionIsLongest) {
+		canvasWidth = canvasWidth + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
+	}
 
 	// only include this height if summary tab (for case set description)
 	if (forSummaryTab) {
@@ -716,189 +1047,42 @@ function getOncoPrintLegendCanvasSize(oncoprint, geneticAlterations, legendFootn
 }
 
 /*
- * Draws a gene label on the body_canvas at row row.
+ * Determines if case description is longer than 
+ * than longest gene label & altered samples column heading
  *
- * oncoprint - opaque reference to oncoprint system
- * row - the vertical position to draw the text
- * geneSymbol - the gene symbol to render
- * percentAltered - the percent altered string
+ * headerVariables - various header strings
+ * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  *
  */
-function drawGeneLabel(oncoprint, row, geneSymbol, percentAltered) {
+function caseDescriptionIsLongestString(headerVariables, longestLabel) {
 
-	// compute starting coordinates
-	var x = getXCoordinate(oncoprint, 0) - DEFAULTS.get('LABEL_PADDING');
-	var y = getYCoordinate(oncoprint, row) + oncoprint.alteration_height / 2;
-	// render % altered
-	var text = oncoprint.body_canvas.text(x, y, percentAltered);
+	var caseSetDescription = headerVariables.get('CASE_SET_DESCRIPTION');
+	// assume altered samples column heading is greater than all samples column heading
+	var alteredSamplesHeading = headerVariables.get('ALTERED_SAMPLES_COLUMN_HEADING');
+	return (caseSetDescription.length >= (longestLabel.length + alteredSamplesHeading.length));
+}
+
+/*
+ * Computes the length (in pixels) of the given label.
+ *
+ * label - label string
+ *
+ */
+function getLabelLength(label) {
+
+	// create scratch paper for drawing
+	var scratchCanvas = Raphael(0,0, 1, 1);
+	// draw text and set attributes
+	var text = scratchCanvas.text(0,0, label);
 	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
-	// render gene symbol
-	x = x - text.getBBox().width - DEFAULTS.get('LABEL_SPACING');
-	if (percentAltered.indexOf("<") != -1) {
-		x = x + oncoprint.less_than_sign_length;
-	}
-	text = oncoprint.body_canvas.text(x, y, geneSymbol);
-	text.attr('font', DEFAULTS.get('LABEL_FONT'));
-	text.attr('fill', DEFAULTS.get('LABEL_COLOR'));
-	text.attr('text-anchor', 'end');
-}
-
-/*
- * Draws an mRNA genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawMRNA(oncoprint, canvas, row, column, alterationSettings) {
-
-	// compute starting coordinates
-	var y = getYCoordinate(oncoprint, row);
-	var	x = getXCoordinate(oncoprint, column);
-	// create canvas rect
-	var rect = canvas.rect(x, y, oncoprint.alteration_width, oncoprint.alteration_height);
-	// without this we get thin black border around rect
-	rect.attr('stroke', 'none'); 
-	// choose fill color based on alteration type
-	if (alterationSettings & MRNA_UPREGULATED) {
-		rect.attr('fill', DEFAULTS.get('MRNA_UPREGULATED_COLOR'));
-	}
-	else if (alterationSettings & MRNA_DOWNREGULATED) {
-		rect.attr('fill', DEFAULTS.get('MRNA_DOWNREGULATED_COLOR'));
-	}
-	else if (alterationSettings & MRNA_NOTSHOWN) {
-		rect.attr('fill', DEFAULTS.get('MRNA_NOTSHOWN_COLOR'));
-	}
-}
-
-/*
- * Draws a CNA genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawCNA(oncoprint, canvas, row, column, alterationSettings) {
-
-	// compute starting coordinates
-	var y = getYCoordinate(oncoprint, row);
-	var x = getXCoordinate(oncoprint, column);
-	// create canvas rect
-	var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-	var rect = canvas.rect(x + mrnaWireframeWidth,
-						   y + mrnaWireframeWidth,
-						   oncoprint.alteration_width - mrnaWireframeWidth * 2,
-						   oncoprint.alteration_height - mrnaWireframeWidth * 2);
-	// without this we get thin black border around rect
-	rect.attr('stroke', 'none'); 
-	// choose fill color based on alteration type
-	if (alterationSettings & CNA_AMPLIFIED) {
-		rect.attr('fill', DEFAULTS.get('CNA_AMPLIFIED_COLOR'));
-	}
-	else if (alterationSettings & CNA_GAINED) {
-		rect.attr('fill', DEFAULTS.get('CNA_GAINED_COLOR'));
-	}
-	else if (alterationSettings & CNA_DIPLOID) {
-		rect.attr('fill', DEFAULTS.get('CNA_DIPLOID_COLOR'));
-	}
-	else if (alterationSettings & CNA_HEMIZYGOUSLYDELETED) {
-		rect.attr('fill', DEFAULTS.get('CNA_HEMIZYGOUSLYDELETED_COLOR'));
-	}
-	else if (alterationSettings & CNA_HOMODELETED) {
-		rect.attr('fill', DEFAULTS.get('CNA_HOMODELETED_COLOR'));
-	}
-	else if (alterationSettings & CNA_NONE) {
-		rect.attr('fill', DEFAULTS.get('CNA_NONE_COLOR'));
-	}
-}
-
-/*
- * Draws a mutation genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawMutation(oncoprint, canvas, row, column, alterationSettings) {
-
-	// only render if we have a mutation
-	if (alterationSettings & MUTATED) {
-		// compute starting coordinates
-		var y = getYCoordinate(oncoprint, row);
-		var x = getXCoordinate(oncoprint, column);
-		// create canvas rect -
-		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
-		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
-		var rect = canvas.rect(x + mrnaWireframeWidth / 2,
-							   y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
-							   mutationRectDimensions.width, mutationRectDimensions.height);
-		// without this we get thin black border around rect
-		rect.attr('stroke', 'none'); 
-		// set color
-		rect.attr('fill', DEFAULTS.get('MUTATION_COLOR'));
-	}
-}
-
-/*
- * Draws an RPPA genomic alteration at given row & col.
- *
- * oncoprint - opaque reference to oncoprint system
- * canvas - canvas to draw on
- * row - the vertical position to draw the alteration
- * column - the horizontal position to draw the alteration
- * alterationSettings - the genomic alteration
- *
- */
-function drawRPPA(oncoprint, canvas, row, column, alterationSettings) {
-
-	// only render if we have a mutation
-	if (alterationSettings & RPPA_UPREGULATED || alterationSettings & RPPA_DOWNREGULATED) {
-		// compute starting coordinates
-		var y = getYCoordinate(oncoprint, row);
-		var x = getXCoordinate(oncoprint, column);
-		// we use mutation rect as a basis - create canvas rect -
-		// center mutation square vertical & start drawing halfway into MRNA WIREFRAME
-		var mrnaWireframeWidth = getMRNAWireframeWidth(oncoprint);
-		var mutationRectDimensions = getMutationRectDimensions(oncoprint);
-		var rect = { 'x' : x + mrnaWireframeWidth / 2,
-					 'y' : y + oncoprint.alteration_height / 2 - mutationRectDimensions.height / 2,
-					 'width' : mutationRectDimensions.width, 'height' : mutationRectDimensions.height };
-		var pathString = null;
-		if (alterationSettings & RPPA_UPREGULATED) {
-			pathString = ("M" + rect.x + " " + rect.y +
-						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + y +
-						  "L" + (rect.x + rect.width) + " " + rect.y +
-						  "Z");
-		}
-		else if (alterationSettings & RPPA_DOWNREGULATED) {
-			pathString = ("M" + rect.x + " " + (rect.y + rect.height) +
-						  "L" + (rect.x + mutationRectDimensions.width / 2) + " " + (y + DEFAULTS.get('ALTERATION_HEIGHT')) +
-						  "L" + (rect.x + rect.width) + " " + (rect.y + rect.height) +
-						  "Z");
-		}
-		var path = canvas.path(pathString);
-		// without this we get thin black border around rect
-		path.attr('stroke', 'none'); 
-		// set color
-                if (alterationSettings & CNA_HOMODELETED) {
-                    path.attr('fill', DEFAULTS.get('RPPA_HOMDEL_COLOR'));
-		}
-		else {
-                    path.attr('fill', DEFAULTS.get('RPPA_COLOR'));
-		}
-	}
+	// include the space between gene and % altered and first genetic alteration box
+	var labelLength = text.getBBox().width + DEFAULTS.get('LABEL_SPACING') + DEFAULTS.get('LABEL_PADDING');
+	// cleanup
+	text.remove();
+	scratchCanvas.remove();
+	
+	// outta here
+	return labelLength;
 }
 
 /*
@@ -911,11 +1095,18 @@ function drawRPPA(oncoprint, canvas, row, column, alterationSettings) {
 function getXCoordinate(oncoprint, column) {
 
 	if (oncoprint.use_immediate_coordinates) {
+		// used to get element coordinates for legend rendering
 		return column;
 	}
 	else {
-		return (column * (oncoprint.alteration_width + oncoprint.alteration_horizontal_padding)
-				+ oncoprint.longest_label_length);
+		if (oncoprint.last_y_pos == 0) {
+			return oncoprint.longest_label_length;
+		}
+		else {
+			var padding = (oncoprint.remove_genomic_alteration_hpadding) ?
+				0 : oncoprint.alteration_horizontal_padding;
+			return oncoprint.last_y_pos + padding;
+		}
 	}
 }
 
@@ -929,6 +1120,7 @@ function getXCoordinate(oncoprint, column) {
 function getYCoordinate(oncoprint, row) {
 
 	if (oncoprint.use_immediate_coordinates) {
+		// used to get element coordinates for legend rendering
 		return row;
 	}
 	else {
@@ -955,7 +1147,10 @@ function getMRNAWireframeWidth(oncoprint) {
  */
 function getMutationRectDimensions(oncoprint) {
 
-	var width = oncoprint.alteration_width - getMRNAWireframeWidth(oncoprint);
+	var width = (oncoprint.remove_genomic_alteration_hpadding) ?
+		(oncoprint.alteration_width * oncoprint.num_contiguous_samples) : oncoprint.alteration_width;
+	width = width - getMRNAWireframeWidth(oncoprint);
+
 	var height = oncoprint.alteration_height * oncoprint.mutation_height_scale_factor;
 
 	return { 'width' : width, 'height' : height };
@@ -988,7 +1183,12 @@ function createTooltip(oncoprint, row, column, tooltipText) {
 
 	// on mouse out, reset text
 	rect.node.onmouseout = function () {
-		addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+		if (oncoprint.want_tooltip_decoration) {
+			addTooltipText(oncoprint, '');
+		}
+		else {
+			addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
+		}
 	};
 }
 
@@ -1001,23 +1201,107 @@ function createTooltip(oncoprint, row, column, tooltipText) {
  */
 function addTooltipText(oncoprint, tooltipText) {
 
-	// clear off the canvas
-	ClearOncoPrintTooltipRegion(oncoprint);
+	// sanity check
+	if (oncoprint.tooltip_canvas == null) {
+		return;
+	}
 
-	// add back background
-	var rect = oncoprint.tooltip_canvas.rect(0, 0,
-											 DEFAULTS.get('TOOLTIP_REGION_WIDTH'),
-											 DEFAULTS.get('TOOLTIP_REGION_HEIGHT'));
-	rect.attr('stroke', 'none'); 
-	rect.attr('fill', '#eeeeee');
+	// clear any existing text elements
+	if (oncoprint.tooltip_canvas != null) {
+		oncoprint.tooltip_canvas.forEach(function(obj) {
+			var node = obj.node;
+			if (obj.node instanceof SVGTextElement) {
+				obj.remove();
+			}
+		});
+	}
 
 	// create the text object
 	var text = oncoprint.tooltip_canvas.text(DEFAULTS.get('TOOLTIP_MARGIN'),
 											 oncoprint.tooltip_canvas.height / 2,
 											 tooltipText);
-	text.attr('font', DEFAULTS.get('TOOLTIP_FONT'));
-	text.attr('fill', DEFAULTS.get('TOOLTIP_COLOR'));
+	text.attr('font', DEFAULTS.get('TOOLTIP_TEXT_FONT'));
+	text.attr('fill', DEFAULTS.get('TOOLTIP_TEXT_COLOR'));
 	text.attr('text-anchor', 'start');
+}
+
+/**
+ * Routine which scales body canvas.  Elements are then
+ * translated based on the scaling dx. The scaling dx
+ * is only computed for the first element.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+function scaleBodyCanvas(oncoprint) {
+
+	var dx = 0;
+	var startingX = 0;
+	var dxSet = false;
+	var translationFactor = 0;
+	var scaleFactorX = oncoprint.scale_factor_x;
+	oncoprint.body_canvas.forEach(function(obj) {
+		var node = obj.node;
+		if (obj.node instanceof SVGRectElement) {
+			var x = obj.attr('x');
+			var y= obj.attr('y');
+			obj.transform('S' + scaleFactorX + ',1.0,0,0');
+			if (!dxSet) {
+				startingX = x;
+				dx = obj.matrix.x(x, y);
+				translationFactor = (startingX-dx).toString();
+				dxSet = true;
+			}
+			if (startingX != dx) {
+				obj.transform('...T' + translationFactor + ",0");
+			}
+		}
+	});
+}
+
+/**
+ * Routine which returns next alteration, taking into account altered_samples_only property.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ * alterations - list of alterations
+ * index - starting index
+ *
+ */
+function getNextAlteration(oncoprint, alterations, index) {
+
+        var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);      
+        for (var lc = index; lc < alterations.length; lc++) {
+                var thisSampleAlteration = alterations[lc].alteration;
+                if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
+                        continue;
+                }
+                else {
+                        return thisSampleAlteration;
+                }
+        }
+
+        // outta here
+        return null;
+}
+
+/**
+ * Routine to draw arrow - we add to library for easy access.
+ *
+ * x1 - start x of arrow
+ * y1 - start y of arrow
+ * x2 - end x of arrow
+ * y2 - end y of arrow
+ * size - width of arrow
+*/
+function addArrow(canvas, x1, y1, x2, y2, size) {
+
+    var angle = Math.atan2(x1-x2, y2-y1);
+    angle = (angle / (2 * Math.PI)) * 360;
+    canvas.path("M" + x2 + " " + y2 +
+				" L" + (x2 - size) + " " + (y2 - size) +
+				" L" + (x2 - size) + " " + (y2 + size) +
+				" L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle), x2, y2);
+    canvas.path("M" + x1 + " " + y1 + " L" + x2 + " " + y2).attr("stroke-width", "2");
 }
 
 /*******************************************************************************

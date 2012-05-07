@@ -98,9 +98,9 @@ var DEFAULTS = (function() {
 			'TOOLTIP_STROKE_COLOR'              : "#2153AA",
 			'TOOLTIP_MARGIN'                    : 10,
 			'TOOLTIP_TITLE_TEXT'                : "Case Details",
-			'TOOLTIP_TEXT'                      : "Move the mouse pointer over a case to view case details.",
-			'ALT_TOOLTIP_TEXT'                  : "Case details are not available when\nwhite space has been removed from the OncoPrint.",
-			'WANT_TOOLTIP_ICON'                 : true,
+			'TOOLTIP_TEXT'                      : "Move the mouse pointer over the OncoPrint below for more details about\ncases and alterations.",
+			'ALT_TOOLTIP_TEXT'                  : "Details about cases and alterations are not available when the whitespace\nhas been removed from the OncoPrint.",
+			'WANT_TOOLTIP_DECORATION'           : false,
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
@@ -150,7 +150,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
 		// tooltip title
-		'want_tooltip_icon'                 : DEFAULTS.get('WANT_TOOLTIP_ICON'),
+		'want_tooltip_decoration'                 : DEFAULTS.get('WANT_TOOLTIP_DECORATION'),
 		'tooltip_title_width'               : tooltipTitleWidth,
 		'tooltip_title_height'              : tooltipTitleHeight,
 		// general styles
@@ -384,26 +384,27 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 
 	// add background
 	var rect = oncoprint.tooltip_canvas.rect(0, 0, width, height);
-	rect.attr('stroke', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
+	rect.attr('stroke', 'none');
 	rect.attr('fill', DEFAULTS.get('TOOLTIP_FILL_COLOR'));
 	
-	// create tooltip title canvas
-	if (oncoprint.tooltip_title_canvas != null) {
-		oncoprint.tooltip_title_canvas.remove();
-	}
-	oncoprint.tooltip_title_canvas = Raphael(x,
-											 y-oncoprint.alteration_height-DEFAULTS.get('TOOLTIP_TITLE_PADDING'),
-											 width, oncoprint.alteration_height);
+	if (oncoprint.want_tooltip_decoration) {
+		
+		// create tooltip title canvas
+		if (oncoprint.tooltip_title_canvas != null) {
+			oncoprint.tooltip_title_canvas.remove();
+		}
+		oncoprint.tooltip_title_canvas = Raphael(x,
+												 y-oncoprint.alteration_height-DEFAULTS.get('TOOLTIP_TITLE_PADDING'),
+												 width, oncoprint.alteration_height);
 
-	// add title
-	var tooltipTitleText = oncoprint.tooltip_title_canvas.text(0, oncoprint.alteration_height / 2,
-															   DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
-	tooltipTitleText.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
-	tooltipTitleText.attr('fill', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
-	tooltipTitleText.attr('text-anchor', 'start');
+		// add title
+		var tooltipTitleText = oncoprint.tooltip_title_canvas.text(0, oncoprint.alteration_height / 2,
+																   DEFAULTS.get('TOOLTIP_TITLE_TEXT'));
+		tooltipTitleText.attr('font', DEFAULTS.get('TOOLTIP_TITLE_FONT'));
+		tooltipTitleText.attr('fill', DEFAULTS.get('TOOLTIP_TITLE_COLOR'));
+		tooltipTitleText.attr('text-anchor', 'start');
 
-	// tooltip icon
-	if (oncoprint.want_tooltip_icon) {
+		// tooltip icon
 		// add genomic alteration w/mouse pointer
 		var alterationX = oncoprint.tooltip_title_width + DEFAULTS.get('TOOLTIP_ICON_PADDING');
 		var alterationY = 0;
@@ -429,7 +430,7 @@ function DrawOncoPrintTooltipRegion(oncoprint, parentElement, nearestControlElem
 	// add place holder text
 	var tooltipText = (oncoprint.remove_genomic_alteration_hpadding) ?
 		DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
-	if (oncoprint.want_tooltip_icon) {
+	if (oncoprint.want_tooltip_decoration) {
 		cnaRect.node.style.cursor = "default";
 		cnaRect.node.onmouseover = function() {
 			addTooltipText(oncoprint, tooltipText)
@@ -1121,7 +1122,7 @@ function createTooltip(oncoprint, row, column, tooltipText) {
 
 	// on mouse out, reset text
 	rect.node.onmouseout = function () {
-		if (oncoprint.want_tooltip_icon) {
+		if (oncoprint.want_tooltip_decoration) {
 			addTooltipText(oncoprint, '');
 		}
 		else {

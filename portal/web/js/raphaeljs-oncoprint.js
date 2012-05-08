@@ -258,7 +258,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 		for (var lc2 = 0; lc2 < alteration.alterations.length; lc2++) {
 			var thisSampleAlteration = alteration.alterations[lc2];
 			// handle altered samples only bool - only render 
-			if (oncoprint.altered_samples_only && (thisSampleAlteration.alteration == unalteredSample)) {
+			if (oncoprint.altered_samples_only && thisSampleAlteration.unaltered_sample) {
 				continue;
 			}
 			// when remove genomic alteration padding is set, we only want to render rect for contiguous blocks
@@ -1270,19 +1270,19 @@ function scaleBodyCanvas(oncoprint) {
  */
 function getNextAlteration(oncoprint, alterations, index) {
 
-        var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);      
-        for (var lc = index; lc < alterations.length; lc++) {
-                var thisSampleAlteration = alterations[lc].alteration;
-                if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
-                        continue;
-                }
-                else {
-                        return thisSampleAlteration;
-                }
+    var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL);
+    for (var lc = index; lc < alterations.length; lc++) {
+        var thisSampleAlteration = alterations[lc].alteration;
+        if (oncoprint.altered_samples_only && (thisSampleAlteration == unalteredSample)) {
+            continue;
         }
+        else {
+            return thisSampleAlteration;
+        }
+    }
 
-        // outta here
-        return null;
+    // outta here
+    return null;
 }
 
 /**

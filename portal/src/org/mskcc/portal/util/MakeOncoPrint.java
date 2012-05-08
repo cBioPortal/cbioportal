@@ -24,6 +24,8 @@ import java.util.*;
 public class MakeOncoPrint {
 
 	public static int CELL_HEIGHT = 21; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
+
+	private static String UNALTERED_CASE = "CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN";
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
 	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
@@ -34,8 +36,8 @@ public class MakeOncoPrint {
 	private static String REMOVE_PADDING_ONCOPRINT_INDICATOR = "Removing Whitespace...";
 	private static String REMOVE_UNALTERED_CASES_INDICATOR = "Removing Unaltered Cases...";
 	private static String ADD_UNALTERED_CASES_INDICATOR = "Adding Unaltered Cases...";
-	private static String UNSORT_SAMPLES_INDICATOR = "Unsorting Samples...";
-	private static String SORT_SAMPLES_INDICATOR = "Sorting Samples...";
+	private static String UNSORT_SAMPLES_INDICATOR = "Unsorting Cases...";
+	private static String SORT_SAMPLES_INDICATOR = "Sorting Cases...";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
@@ -324,13 +326,8 @@ public class MakeOncoPrint {
                 builder.append("\t\t\t\t 'alterations' : [\n");
                 for (int j = 0; j < matrix[0].length; j++) {
                     GeneticEvent event = matrix[i][j];
-                    // get level of each datatype; concatenate to make image name
-                    // color could later could be in configuration file
-                    String cnaName = "CNA_" + event.getCnaValue().name().toUpperCase();
-                    String mrnaName = "MRNA_" + event.getMrnaValue().name().toUpperCase();
-                    String rppaName = "RPPA_" + event.getRPPAValue().name().toUpperCase();
-                    String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
-                    String alterationSettings = cnaName + " | " + mrnaName + " | " + mutationName + " | " + rppaName;
+					Boolean sampleIsUnaltered = MakeOncoPrint.isSampleUnaltered(j, matrix);
+                    String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
                     StringBuilder mutationDetails = new StringBuilder();
                     if (event.isMutated() && mutationMap != null) {
                         mutationDetails.append(", 'mutation' : [");
@@ -343,8 +340,9 @@ public class MakeOncoPrint {
                         mutationDetails.append("]");
                     }
                     builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
-                                                "'alteration' : " + alterationSettings +
-                                                mutationDetails.toString()  + "},\n");
+								   "'unaltered_sample' : " + sampleIsUnaltered + ", " +
+								   "'alteration' : " + alterationSettings +
+								   mutationDetails.toString()  + "},\n");
                 }
                 
                 // zap off last ',\n'
@@ -955,5 +953,46 @@ public class MakeOncoPrint {
 		
 		// outta here
 		return longestLabel;
+	}
+
+	/**
+	 * Determines if alteration is unaltered across gene set.
+	 *
+	 * @param column int (index into case list)
+	 * @param matrix[][] GeneticEvent
+	 *
+	 * @return boolean
+	 */
+	private static boolean isSampleUnaltered(int column, GeneticEvent matrix[][]) {
+
+		boolean toReturn = true;
+
+		for (int i = 0; i < matrix.length; i++) {
+			GeneticEvent event = matrix[i][column];
+			if (!getGeneticEventAsString(event).equals(UNALTERED_CASE)) {
+				return false;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+    /**
+	 * Returns genetic event as string.
+	 *
+	 * @param event GeneticEvent
+	 *
+	 * @return String
+	 */
+	private static String getGeneticEventAsString(GeneticEvent event) {
+
+		String cnaName = "CNA_" + event.getCnaValue().name().toUpperCase();
+		String mrnaName = "MRNA_" + event.getMrnaValue().name().toUpperCase();
+		String rppaName = "RPPA_" + event.getRPPAValue().name().toUpperCase();
+		String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
+
+		// outta here
+		return (cnaName + " | " + mrnaName + " | " + mutationName + " | " + rppaName);
 	}
 }

@@ -31,3 +31,15 @@
 	margin-right: 0;
 	margin-left: auto;
 }
+
+/* adjusts background of dropdown checklist items */
+#case_set_dialog_content .ui-dropdownchecklist-item
+{
+	background: none;
+}
+
+/* assign a different color for hovered dropdown checklist items */
+#case_set_dialog_content .ui-state-hover
+{
+	background-color: #DDEEFF;
+}

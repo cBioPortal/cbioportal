@@ -213,7 +213,7 @@ public class ImportClinicalData {
 
         // check args
         if (args.length < 2) {
-            System.out.println("command line usage:  importSurvivalData.pl <cancer_study_id> <data_file.txt>");
+            System.out.println("command line usage:  importClinicalData.pl <cancer_study_id> <data_file.txt>");
             System.exit(1);
         }
 

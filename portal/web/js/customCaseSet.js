@@ -1,16 +1,8 @@
 // threshold for the size of the distinct category set (TODO subject to change)
 var CATEGORY_SET_THRESHOLD = 10;
 
-// TODO more categories should be added into this map, do we have complete list of categories?
 // map of category names for more readable labels
-var CATEGORY_LABEL_MAP = {"TUMORRESIDUALDISEASE" : "Tumor Residual Disease",
-		"TUMORGRADE" : "Tumor Grade",
-		"VITALSTATUS" : "Vital Status",
-		"PlatinumStatus" : "Platinum Status",
-		"TUMORSTAGE" : "Tumor Stage",
-		"PERSONNEOPLASMCANCERSTATUS" : "Person Neoplasm Cancer Status",
-		"ProgressionFreeStatus" : "Progression Free Status",
-		"PRIMARYTHERAPYOUTCOMESUCCESS" : "Primary Therapy Outcome Success"};
+var _categoryLabelMap;
 
 // map to store user selected category parameters (used for case filtering)
 var _customCaseSelection;
@@ -76,6 +68,11 @@ function promptCustomCaseSetBuilder()
     	// clear the dialog content
     	$("#case_set_dialog_content").empty();
     	
+    	// store required data as global variables for future reference
+    	_freeFormData = json.freeFormData;
+    	_clinicalCaseSet = json.clinicalCaseSet;
+    	_categoryLabelMap = json.categoryLabelMap;
+    	
     	var categorySet = json.categoryMap;
     	
     	for (var category in categorySet)
@@ -118,10 +115,6 @@ function promptCustomCaseSetBuilder()
 	       		$("#case_set_dialog_content #select_" + category).dropdownchecklist(dropdownOptions);
     		}
     	}
-    	
-    	// store required data as global variables for future reference
-    	_freeFormData = json.freeFormData;
-    	_clinicalCaseSet = json.clinicalCaseSet;
     	
     	// initialize custom case selection map
     	initCustomCaseSelectionMap(categorySet);
@@ -456,7 +449,7 @@ function buildCustomCaseSet()
  */
 function humanReadableCategory(category)
 {
-	var label = CATEGORY_LABEL_MAP[category];
+	var label = _categoryLabelMap[category];
 	
 	if (label == null)
 	{

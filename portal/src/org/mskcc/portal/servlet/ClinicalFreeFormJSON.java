@@ -21,6 +21,7 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.ClinicalFreeForm;
 import org.mskcc.cgds.model.ClinicalParameterMap;
+import org.mskcc.portal.util.CategoryLabelReader;
 import org.owasp.validator.html.PolicyException;
 
 public class ClinicalFreeFormJSON extends HttpServlet
@@ -130,6 +131,9 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  
                  // add the free form data array
                  jsonObject.put("freeFormData", freeFormArray);
+                 
+                 // add the map for human readable category names
+                 jsonObject.put("categoryLabelMap", CategoryLabelReader.getInstace().getCategoryLabelMap());
         	 }
             
              httpServletResponse.setContentType("application/json");

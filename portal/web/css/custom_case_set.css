@@ -1,6 +1,8 @@
 #build_custom_case_set
 {
 	cursor: pointer;
+	font-size: 120%;
+	color: #1974B8;
 }
 
 #ui-dialog-title-custom_case_set_dialog
@@ -30,4 +32,23 @@
 	margin-top: 15px;
 	margin-right: 0;
 	margin-left: auto;
+}
+
+/* centering the contents */
+#case_set_dialog_content
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* adjusts background of dropdown checklist items */
+#case_set_dialog_content .ui-dropdownchecklist-item
+{
+	background: none;
+}
+
+/* assign a different color for hovered dropdown checklist items */
+#case_set_dialog_content .ui-state-hover
+{
+	background-color: #DDEEFF;
 }

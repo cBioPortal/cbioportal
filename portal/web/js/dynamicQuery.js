@@ -441,6 +441,11 @@ function cancerStudySelected() {
 			}
 			else
 			{
+				$("#build_custom_case_set").tipTip({defaultPosition: "right",
+					delay:"100",
+					edgeOffset: 10,
+					maxWidth: 100});
+				
 				$("#build_custom_case_set").show();
 			}
 		});

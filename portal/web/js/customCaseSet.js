@@ -62,6 +62,10 @@ function promptCustomCaseSetBuilder()
     // prepare data to be sent to server
     var data = {studyId: cancerStudyId};
     
+    // clear content and show loader image
+    $("#case_set_dialog_content").empty();
+	$("#case_set_dialog_content").append('<tr><td><img src="images/ajax-loader.gif"/></td></tr>');
+	
 	// populate contents of the dialog box
     jQuery.getJSON("ClinicalFreeForm.json", data, function(json){
     	$("#case_set_dialog_header #number_of_cases").empty();
@@ -107,7 +111,8 @@ function promptCustomCaseSetBuilder()
 	       				icon: {placement: 'left'}, // sets the position of the arrow
 	       				width: 268,
 	       				emptyText: '(none selected)', // text to be displayed when no item is selected
-	       				onComplete: refreshCustomCaseSet}; // callback function for the action
+	       				onItemClick: refreshCustomCaseSet}; // callback function for the action
+	       				//onComplete: refreshCustomCaseSet}; // callback function for the action
 	       		
 	       		// initialize the dropdown box
 	       		$("#case_set_dialog_content #select_" + category).dropdownchecklist(dropdownOptions);
@@ -165,10 +170,150 @@ function initCaseSetFilter(categorySet, clinicalCaseSet)
 
 /**
  * Updates the custom case set according to the new user selection.
- *  
+ * 
+ * @param checkbox	target check box selected by the user
  * @param selector	target selection box modified by the user
  */
-function refreshCustomCaseSet(selector)
+function refreshCustomCaseSet(checkbox, selector)
+{
+	// extract the category name from selector id
+	var category = selector.id.substring(selector.id.indexOf('_') + 1);
+	
+	// reset flags
+	var selectAll = false;
+	var selectNone = false;
+	
+	// this only checks if 'select all' button is explicitly clicked by the user
+	if (checkbox.val() == (category + "_selectAll"))
+	{
+		// add all cases without filtering if it is checked
+		if (checkbox.prop("checked"))
+		{
+			selectAll = true;
+		}
+		else
+		{
+			selectNone = true;
+		}
+	}
+	// it is also possible that select all will be programmatically selected,
+	// if with the current click all options become selected. so we should
+	// also check that condition (since the 'select all' box is not updated yet
+	// at the time this function is called)
+	else if (checkbox.prop("checked"))
+	{
+		selectAll = true;
+		
+		// iterate all options (except 'select all', so start from 1 instead of 0)
+		for(var i = 1; i < selector.options.length; i++)
+		{
+			// skip current selection (it may not be updated yet)
+			if (selector.options[i].value == checkbox.val())
+			{
+				continue;
+			}
+			
+			// if at least one option is unselected, then all is not selected
+			if (!selector.options[i].selected)
+			{
+				selectAll = false;
+				break;
+			}
+		}
+	}
+	// also check if none is selected (without checking the 'select all' option) 
+	else
+	{
+		selectNone = true;
+		
+		// iterate all options (except 'select all', so start from 1 instead of 0)
+		for(var i = 1; i < selector.options.length; i++)
+		{
+			// skip current selection (it may not be updated yet)
+			if (selector.options[i].value == checkbox.val())
+			{
+				continue;
+			}
+			
+			// if at least one option is unselected, then all is not selected
+			if (selector.options[i].selected)
+			{
+				selectNone = false;
+				break;
+			}
+		}
+	}
+	
+	if (selectAll)
+	{
+		// set all map values to true, start from index 1 (to skip 'select all') 
+		for(var i = 1; i < selector.options.length; i++)
+		{
+			// update selection map
+			_customCaseSelection[selector.id][selector.options[i].value] = true;
+		}
+		
+		// add all cases without filtering
+		_caseSetFilter[category] = _clinicalCaseSet.slice();
+	}
+	else if (selectNone)
+	{
+		// set all map values to false, start from index 1 (to skip 'select all')
+		for(var i = 1; i < selector.options.length; i++)
+		{
+			// update selection map
+			_customCaseSelection[selector.id][selector.options[i].value] = false;
+		}
+		
+		// remove all cases without filtering
+		_caseSetFilter[category] = new Array();
+	}
+	else
+	{	
+		// update selection map for the current checkbox
+		_customCaseSelection[selector.id][checkbox.val()] =
+			checkbox.prop("checked");
+		
+		_caseSetFilter[category] = new Array();
+		
+		// since free form data contains a single parameter (category) and
+		// value pair per row, we should iterate all the table to filter cases
+		for(var i = 0; i < _freeFormData.length; i++)
+		{
+			if (_freeFormData[i].paramName != category)
+			{
+				// skip parameters other than the selected category
+				continue;
+			}
+			
+			// get the category map corresponding to the current parameter name
+			var categoryMap = _customCaseSelection["select_" + category];
+			
+			// check if parameter value (corresponding to the current case) is
+			// selected by the user
+			if (categoryMap != null &&
+				categoryMap[_freeFormData[i].paramValue])
+			{	
+				// add the case (patient) to the set
+				_caseSetFilter[category].push(_freeFormData[i].caseId);
+			}
+		}
+	}
+	
+	// update the case set by taking intersection of all individual parameter sets
+	_customCaseSet = intersectAllCaseSets(_caseSetFilter);
+	
+	// update current number of included cases
+	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
+}
+
+/**
+ * [Previous function, not used anymore] 
+ * Updates the custom case set according to the new user selection.
+ * 
+ * @param selector	target selection box modified by the user
+ */
+function __refreshCustomCaseSet(selector)
 {
 	var selectAll = false;
 	
@@ -234,8 +379,7 @@ function refreshCustomCaseSet(selector)
 		}
 	}
 	
-	// TODO debug (remove before commit)
-	console.log(_caseSetFilter);
+	//console.log(_caseSetFilter);
 	
 	// update the case set by taking intersection of all individual parameter sets
 	_customCaseSet = intersectAllCaseSets(_caseSetFilter);

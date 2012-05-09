@@ -58,7 +58,7 @@ $(document).ready(function(){
     }
     gp.append ("</ul>");
 %>
-<span class="ui-state-default ui-corner-all crosscancer-info" style="float: left; padding: 4px;" title="<%=gp.toString()%>">
+<span class="ui-state-default ui-corner-all crosscancer-info" title="<%=gp.toString()%>">
     <span class="ui-icon ui-icon-info" style="float: left;"></span>
     <span class="text">Genomic Profiles</span>
 </span>
@@ -70,7 +70,7 @@ $(document).ready(function(){
         }
     }
 %>
-<span class="ui-state-default ui-corner-all crosscancer-info" style="float: left; padding: 4px;" title="<%=cs.toString()%>">
+<span class="ui-state-default ui-corner-all crosscancer-info" title="<%=cs.toString()%>">
     <span class="ui-icon ui-icon-info" style="float: left;"></span>
     <span class="text">Case Sets</span>
 </span>

@@ -30,11 +30,32 @@
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
+    // Infer whether there is multiple genes or not (for histogram switching)
+    int geneCount = 0;
+    if(geneList.contains(":")) {
+        for (String line : geneList.split("\\r?\\n")) {
+            for (String token : line.trim().split(";")) {
+                if(token.trim().length() > 0)
+                    geneCount++;
+            }
+        }
+    } else {
+        for (String words : geneList.split(" ")) {
+            for (String token : words.split("\\r?\\n")) {
+                if(token.trim().length() > 0)
+                    geneCount++;
+            }
+        }
+    }
+
+    boolean multipleGenes = geneCount > 1;
+
     //  Prepare gene list for URL.
     //  Extra spaces must be removed.  Otherwise AJAX Load will not work.
     geneList = Utilities.appendSemis(geneList);
     geneList = geneList.replaceAll("\\s+", " ");
     geneList = URLEncoder.encode(geneList);
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -58,19 +79,24 @@
 <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"]});
     var genesQueried = "";
+    var shownHistogram = 1;
+    var multipleGenes = <%=multipleGenes%>;
 
     $(document).ready(function() {
+        $("#crosscancer_summary_message").hide();
+
         $("#chart_div2").toggle();
         $("#chart_div3").toggle();
         $("#chart_div4").toggle();
         function toggleHistograms() {
-	    var histIndex = $("#hist_toggle_box").val();
+	        var histIndex = $("#hist_toggle_box").val();
             $("#chart_div1").hide();
             $("#chart_div2").hide();
             $("#chart_div3").hide();
             $("#chart_div4").hide();
 
-	    $("#chart_div" + histIndex).show();
+	        $("#chart_div" + histIndex).show();
+            shownHistogram = histIndex;
             drawChart();
         }
         $("#hist_toggle_box").change( toggleHistograms );
@@ -89,39 +115,65 @@
         var cancerStudyNames = [<%=studiesNames%>];
         var numOfStudiesWithMutData = <%=cancerStudiesWithMutations.size()%>;
 
-        histogramData.addColumn('string', 'Cancer Study');
-        histogramData.addColumn('number', 'Multiple Alterations');
-        histogramData.addColumn('number', 'Mutation');
-        histogramData.addColumn('number', 'Deletion');
-        histogramData.addColumn('number', 'Amplification');
+        if(!multipleGenes) {
+            histogramData.addColumn('string', 'Cancer Study');
+            histogramData.addColumn('number', 'Multiple Alterations');
+            histogramData.addColumn('number', 'Mutation');
+            histogramData.addColumn('number', 'Deletion');
+            histogramData.addColumn('number', 'Amplification');
 
-	    histogramData2.addColumn('string', 'Cancer Study');
-        histogramData2.addColumn('number', 'Multiple Alterations');
-        histogramData2.addColumn('number', 'Mutation');
-        histogramData2.addColumn('number', 'Deletion');
-        histogramData2.addColumn('number', 'Amplification');
+            histogramData2.addColumn('string', 'Cancer Study');
+            histogramData2.addColumn('number', 'Multiple Alterations');
+            histogramData2.addColumn('number', 'Mutation');
+            histogramData2.addColumn('number', 'Deletion');
+            histogramData2.addColumn('number', 'Amplification');
 
-        histogramData3.addColumn('string', 'Cancer Study');
-        histogramData3.addColumn('number', 'Multiple Alterations');
-        histogramData3.addColumn('number', 'Mutation');
-        histogramData3.addColumn('number', 'Deletion');
-        histogramData3.addColumn('number', 'Amplification');
-        histogramData3.addColumn('number', 'Not altered');
+            histogramData3.addColumn('string', 'Cancer Study');
+            histogramData3.addColumn('number', 'Multiple Alterations');
+            histogramData3.addColumn('number', 'Mutation');
+            histogramData3.addColumn('number', 'Deletion');
+            histogramData3.addColumn('number', 'Amplification');
+            histogramData3.addColumn('number', 'Not altered');
 
-        histogramData4.addColumn('string', 'Cancer Study');
-        histogramData4.addColumn('number', 'Multiple Alterations');
-        histogramData4.addColumn('number', 'Mutation');
-        histogramData4.addColumn('number', 'Deletion');
-        histogramData4.addColumn('number', 'Amplification');
-        histogramData4.addColumn('number', 'Not altered');
+            histogramData4.addColumn('string', 'Cancer Study');
+            histogramData4.addColumn('number', 'Multiple Alterations');
+            histogramData4.addColumn('number', 'Mutation');
+            histogramData4.addColumn('number', 'Deletion');
+            histogramData4.addColumn('number', 'Amplification');
+            histogramData4.addColumn('number', 'Not altered');
+        } else {
+            histogramData.addColumn('string', 'Cancer Study');
+            histogramData.addColumn('number', 'Altered Cases');
+
+            histogramData2.addColumn('string', 'Cancer Study');
+            histogramData2.addColumn('number', 'Altered Cases');
+
+            histogramData3.addColumn('string', 'Cancer Study');
+            histogramData3.addColumn('number', 'Altered Cases');
+            histogramData3.addColumn('number', 'Not Altered Cases');
+
+            histogramData4.addColumn('string', 'Cancer Study');
+            histogramData4.addColumn('number', 'Altered Cases');
+            histogramData4.addColumn('number', 'Not Altered Cases');
+        }
 
         for(var i=0; i < cancerStudies.length; i++) {
             if(i < numOfStudiesWithMutData ) {
-                histogramData.addRow([cancerStudyNames[i], 0, 0, 0, 0]);
-                histogramData3.addRow([cancerStudyNames[i], 0, 0, 0, 0, 0]);
+                if(!multipleGenes) {
+                    histogramData.addRow([cancerStudyNames[i], 0, 0, 0, 0]);
+                    histogramData3.addRow([cancerStudyNames[i], 0, 0, 0, 0, 0]);
+                } else {
+                    histogramData.addRow([cancerStudyNames[i], 0]);
+                    histogramData3.addRow([cancerStudyNames[i], 0, 0]);
+                }
             } else {
-                histogramData2.addRow([cancerStudyNames[i], 0, 0, 0, 0]);
-                histogramData4.addRow([cancerStudyNames[i], 0, 0, 0, 0, 0]);
+                if(!multipleGenes) {
+                    histogramData2.addRow([cancerStudyNames[i], 0, 0, 0, 0]);
+                    histogramData4.addRow([cancerStudyNames[i], 0, 0, 0, 0, 0]);
+                } else {
+                    histogramData2.addRow([cancerStudyNames[i], 0]);
+                    histogramData4.addRow([cancerStudyNames[i], 0, 0]);
+                }
             }
 
         }
@@ -131,8 +183,13 @@
         $("#histogram_sort").tipTip();
         $("#histogram_sort").click(function(event) {
             event.preventDefault(); // Not to scroll to the top
+            sortPermanently = !sortPermanently;
 
-            sortPermanently = true;
+            $(this).css({
+                color: !sortPermanently ? "#1974b8" : "gray",
+                "text-decoration": !sortPermanently ? "none" : "line-through"
+            });
+
             drawChart();
         });
 
@@ -211,16 +268,23 @@
                 bundleIndex = bundleIndex - numOfStudiesWithMutData;
             }
 
-            hist1.setValue(bundleIndex, 1, formatPercent((numOfCombo/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
-            hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
+            if(!multipleGenes) {
+                hist1.setValue(bundleIndex, 1, formatPercent((numOfCombo/numOfCases) * 100.0));
+                hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
+                hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
+                hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
 
-            hist2.setValue(bundleIndex, 1, numOfCombo);
-            hist2.setValue(bundleIndex, 2, numOfMuts);
-            hist2.setValue(bundleIndex, 3, numOfDels);
-            hist2.setValue(bundleIndex, 4, numOfAmp);
-            hist2.setValue(bundleIndex, 5, numOfCases-numOfAmp);
+                hist2.setValue(bundleIndex, 1, numOfCombo);
+                hist2.setValue(bundleIndex, 2, numOfMuts);
+                hist2.setValue(bundleIndex, 3, numOfDels);
+                hist2.setValue(bundleIndex, 4, numOfAmp);
+                hist2.setValue(bundleIndex, 5, numOfCases-numOfAltered);
+            } else {
+                hist1.setValue(bundleIndex, 1, formatPercent((numOfAltered/numOfCases) * 100.0));
+
+                hist2.setValue(bundleIndex, 1, numOfAltered);
+                hist2.setValue(bundleIndex, 2, numOfCases-numOfAltered);
+            }
 
 	        if(bundleIndex == 0 || bundleIndex % 2 == 0 || bundleIndex == numOfStudiesWithMutData-1 || bundleIndex == cancerStudies.length-1)
 	    	    drawChart();
@@ -229,6 +293,8 @@
 
         function loadStudiesWithIndex(bundleIndex) {
             if(bundleIndex >= cancerStudies.length) {
+                $("#crosscancer_summary_loading").fadeOut();
+                $("#crosscancer_summary_message").fadeIn();
                 return;
             }
 
@@ -241,14 +307,18 @@
                                 updateHistograms(bundleIndex, cancerID);
                             }, 760);
 
+                            $("#crosscancer_summary_loading_done").html("" + (bundleIndex+1));
                             loadStudiesWithIndex(bundleIndex+1);
                         }
                  );
         }
 
-        function sumSort(dataView) {
+        function sumSort(dataView, skipLast) {
             var numOfRows = dataView.getNumberOfRows();
             var numOfCols = dataView.getNumberOfColumns();
+            if(skipLast) {
+                numOfCols--;
+            }
             var rowIndex = [];
             for(var i=0; i < numOfRows; i++)
                 rowIndex.push(i);
@@ -275,12 +345,15 @@
            var histogramView4 = new google.visualization.DataView(histogramData4);
 
            if(sortPermanently) {
-               var sortedIndex = sumSort(histogramView);
-               console.log("sortedIndex = " + sortedIndex);
+               var skipLast = shownHistogram > 2;
+
+               var hv = !skipLast ? histogramView : histogramView3;
+               var hv2 = !skipLast ? histogramView2 : histogramView4;
+
+               var sortedIndex = sumSort(hv, skipLast);
                histogramView.setRows(sortedIndex);
                histogramView3.setRows(sortedIndex);
-               var sortedIndex2 = sumSort(histogramView2);
-               console.log("sortedIndex2 = " + sortedIndex2);
+               var sortedIndex2 = sumSort(hv2, skipLast);
                histogramView2.setRows(sortedIndex2);
                histogramView4.setRows(sortedIndex2);
            }
@@ -320,10 +393,14 @@
                 slantedTextAngle: 45
               },
               vAxis: {
-	        title: 'Percent Altered',
+	            title: 'Percent Altered',
                 maxValue: 100,
                 minValue: 0
               },
+              animation: {
+                    duration: 750,
+                    easing: 'linear'
+      	      },
               isStacked: true
 
             };
@@ -333,16 +410,20 @@
             var options3 = {
               title: 'Number of Altered Cases for Each Cancer Study w/ Mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
+              colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
+              animation: {
+                duration: 750,
+                easing: 'linear'
+        	  },
               hAxis: {
                 slantedTextAngle: 45
               },
-	      yAxis: {
-	      	title: 'Number of cases'
-	      },
+              yAxis: {
+                title: 'Number of cases'
+              },
               isStacked: true
             };
 
@@ -351,16 +432,20 @@
 	    var options4 = {
               title: 'Number of Altered Cases for Each Cancer Study w/o Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
-              colors: ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
+              colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
                 slantedTextAngle: 45
               },
-	      yAxis: {
-	      	title: 'Number of cases'
-	      },
+              animation: {
+                duration: 750,
+                easing: 'linear'
+          	  },
+	          yAxis: {
+	      	    title: 'Number of cases'
+	          },
               isStacked: true
             };
 
@@ -376,11 +461,16 @@
             <div id="results_container">
 
                 <div class="ui-state-highlight ui-corner-all">
-                    <p><span class="ui-icon ui-icon-info"
+                    <p id="crosscancer_summary_message"><span class="ui-icon ui-icon-info"
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>
                         Results are available for <strong><%= (cancerStudies.size()) %>
                         cancer studies</strong>. Click each cancer study below to view a summary of
                         results<span id="queried-genes"></span>.
+                    </p>
+                    <p id="crosscancer_summary_loading">
+                        <img src='images/ajax-loader2.gif' style="margin-right: .6em; margin-left: 1.0em">
+                        Loading summaries for cancer studies...
+                        (<span id="crosscancer_summary_loading_done">0</span>/<%=cancerStudies.size()%> done)
                     </p>
                 </div>
 
@@ -412,7 +502,7 @@
                         <option value="4">Show number of altered cases (studies w/o mutation data)</option>
                     </select>
                     |
-                    <a href="#" id="histogram_sort" title="Sorts histograms by alteration frequencies in descending order">Sort</a>
+                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
                 </div>
                 <div id="chart_div1" style="width: 975px; height: 400px;"></div>
                 <div id="chart_div2" style="width: 975px; height: 400px;"></div>

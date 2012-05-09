@@ -20,8 +20,8 @@
 				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
 	 		</td>
 	 		<td>
-	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()">
-	 				Build a Custom Case Set Based on Clinical Attributes
+	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
+	 				Customize Case Set
 	 			</a>
 	 		</td>
 		</tr>

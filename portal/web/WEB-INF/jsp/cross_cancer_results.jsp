@@ -60,17 +60,19 @@
     var genesQueried = "";
 
     $(document).ready(function() {
+        $("#crosscancer_summary_message").hide();
+
         $("#chart_div2").toggle();
         $("#chart_div3").toggle();
         $("#chart_div4").toggle();
         function toggleHistograms() {
-	    var histIndex = $("#hist_toggle_box").val();
+	        var histIndex = $("#hist_toggle_box").val();
             $("#chart_div1").hide();
             $("#chart_div2").hide();
             $("#chart_div3").hide();
             $("#chart_div4").hide();
 
-	    $("#chart_div" + histIndex).show();
+	        $("#chart_div" + histIndex).show();
             drawChart();
         }
         $("#hist_toggle_box").change( toggleHistograms );
@@ -229,6 +231,8 @@
 
         function loadStudiesWithIndex(bundleIndex) {
             if(bundleIndex >= cancerStudies.length) {
+                $("#crosscancer_summary_loading").fadeOut();
+                $("#crosscancer_summary_message").fadeIn();
                 return;
             }
 
@@ -241,6 +245,7 @@
                                 updateHistograms(bundleIndex, cancerID);
                             }, 760);
 
+                            $("#crosscancer_summary_loading_done").html("" + (bundleIndex+1));
                             loadStudiesWithIndex(bundleIndex+1);
                         }
                  );
@@ -376,11 +381,16 @@
             <div id="results_container">
 
                 <div class="ui-state-highlight ui-corner-all">
-                    <p><span class="ui-icon ui-icon-info"
+                    <p id="crosscancer_summary_message"><span class="ui-icon ui-icon-info"
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>
                         Results are available for <strong><%= (cancerStudies.size()) %>
                         cancer studies</strong>. Click each cancer study below to view a summary of
                         results<span id="queried-genes"></span>.
+                    </p>
+                    <p id="crosscancer_summary_loading">
+                        <img src='images/ajax-loader2.gif' style="margin-right: .6em; margin-left: 1.0em">
+                        Loading summaries for cancer studies...
+                        (<span id="crosscancer_summary_loading_done">0</span>/<%=cancerStudies.size()%> done)
                     </p>
                 </div>
 

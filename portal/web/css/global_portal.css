@@ -1225,3 +1225,7 @@ h2.cross_cancer_header {
 .crosscancer-info span {
     cursor: default;
 }
+
+#crosscancer_summary_loading {
+    font-weight: bold;
+}

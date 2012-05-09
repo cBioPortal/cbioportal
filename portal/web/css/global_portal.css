@@ -1216,3 +1216,12 @@ h2.cross_cancer_header {
     padding:10px;
     margin-left:25px;
 }
+
+.crosscancer-info {
+    float: left;
+    padding: 4px;
+}
+
+.crosscancer-info span {
+    cursor: default;
+}

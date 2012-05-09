@@ -58,6 +58,7 @@
 <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"]});
     var genesQueried = "";
+    var shownHistogram = 1;
 
     $(document).ready(function() {
         $("#crosscancer_summary_message").hide();
@@ -73,6 +74,7 @@
             $("#chart_div4").hide();
 
 	        $("#chart_div" + histIndex).show();
+            shownHistogram = histIndex;
             drawChart();
         }
         $("#hist_toggle_box").change( toggleHistograms );
@@ -133,8 +135,13 @@
         $("#histogram_sort").tipTip();
         $("#histogram_sort").click(function(event) {
             event.preventDefault(); // Not to scroll to the top
+            sortPermanently = !sortPermanently;
 
-            sortPermanently = true;
+            $(this).css({
+                color: !sortPermanently ? "#1974b8" : "gray",
+                "text-decoration": !sortPermanently ? "none" : "line-through"
+            });
+
             drawChart();
         });
 
@@ -251,9 +258,12 @@
                  );
         }
 
-        function sumSort(dataView) {
+        function sumSort(dataView, skipLast) {
             var numOfRows = dataView.getNumberOfRows();
             var numOfCols = dataView.getNumberOfColumns();
+            if(skipLast) {
+                numOfCols--;
+            }
             var rowIndex = [];
             for(var i=0; i < numOfRows; i++)
                 rowIndex.push(i);
@@ -280,12 +290,15 @@
            var histogramView4 = new google.visualization.DataView(histogramData4);
 
            if(sortPermanently) {
-               var sortedIndex = sumSort(histogramView);
-               console.log("sortedIndex = " + sortedIndex);
+               var skipLast = shownHistogram > 2;
+
+               var hv = !skipLast ? histogramView : histogramView3;
+               var hv2 = !skipLast ? histogramView2 : histogramView4;
+
+               var sortedIndex = sumSort(hv, skipLast);
                histogramView.setRows(sortedIndex);
                histogramView3.setRows(sortedIndex);
-               var sortedIndex2 = sumSort(histogramView2);
-               console.log("sortedIndex2 = " + sortedIndex2);
+               var sortedIndex2 = sumSort(hv2, skipLast);
                histogramView2.setRows(sortedIndex2);
                histogramView4.setRows(sortedIndex2);
            }
@@ -325,10 +338,14 @@
                 slantedTextAngle: 45
               },
               vAxis: {
-	        title: 'Percent Altered',
+	            title: 'Percent Altered',
                 maxValue: 100,
                 minValue: 0
               },
+              animation: {
+                    duration: 750,
+                    easing: 'linear'
+      	      },
               isStacked: true
 
             };
@@ -342,12 +359,16 @@
               legend: {
                 position: 'bottom'
               },
+              animation: {
+                duration: 750,
+                easing: 'linear'
+        	  },
               hAxis: {
                 slantedTextAngle: 45
               },
-	      yAxis: {
-	      	title: 'Number of cases'
-	      },
+              yAxis: {
+                title: 'Number of cases'
+              },
               isStacked: true
             };
 
@@ -363,9 +384,13 @@
               hAxis: {
                 slantedTextAngle: 45
               },
-	      yAxis: {
-	      	title: 'Number of cases'
-	      },
+              animation: {
+                duration: 750,
+                easing: 'linear'
+          	  },
+	          yAxis: {
+	      	    title: 'Number of cases'
+	          },
               isStacked: true
             };
 
@@ -422,7 +447,7 @@
                         <option value="4">Show number of altered cases (studies w/o mutation data)</option>
                     </select>
                     |
-                    <a href="#" id="histogram_sort" title="Sorts histograms by alteration frequencies in descending order">Sort</a>
+                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
                 </div>
                 <div id="chart_div1" style="width: 975px; height: 400px;"></div>
                 <div id="chart_div2" style="width: 975px; height: 400px;"></div>

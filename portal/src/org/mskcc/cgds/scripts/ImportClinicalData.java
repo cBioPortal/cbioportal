@@ -97,11 +97,17 @@ public class ImportClinicalData {
                     Double ageAtDiagnosis = getDouble(parts, ageCol);
                     daoClinical.addCase(caseId, osMonths, osStatus, dfsMonths, dfsStatus,
                             ageAtDiagnosis);
+                    
                     if (cancerStudy != null) {
                         for (int i = 1; i < parts.length; i++) {
                             String name = freeFormHeaders.get(i);
                             String value = parts[i];
-                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(), caseId, name, value);
+                            
+                            if (!this.excludeFromFreeFormTable(name))
+                            {
+                            	daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
+                            			caseId, name, value);
+                            }
                         }
                     }
                 }
@@ -140,9 +146,13 @@ public class ImportClinicalData {
         ageNames.add("AgeAtDiagnosis (yrs)");
 
         String[] parts = colHeadingLine.split("\t");
-        for (int i = 0; i < parts.length; i++) {
+        
+        for (int i = 0; i < parts.length; i++)
+        {
             String header = parts[i];
+            
             freeFormHeaders.add(header);
+            
             if (caseIdNames.contains(header)) {
                 caseIdCol = i;
             }
@@ -164,6 +174,31 @@ public class ImportClinicalData {
         }
     }
 
+    /**
+     * Decides whether to exclude the given header from the clinical free form
+     * table. Headers such as CASE_ID, OS_STATUS, DFS_STATUS should not be
+     * included in the free form table.
+     * 
+     * @param header	header to be checked
+     * @return			true if the header should be excluded, false otherwise
+     */
+    private boolean excludeFromFreeFormTable(String header)
+    {
+    	boolean exclude = false;
+    	
+    	if (header.equalsIgnoreCase("case_id") ||
+    		header.equalsIgnoreCase("caseid") ||
+    		header.equalsIgnoreCase("os_status") ||
+    		header.equalsIgnoreCase("osstatus") ||
+    		header.equalsIgnoreCase("dfs_status") ||
+    		header.equalsIgnoreCase("dfsstatus"))
+    	{
+    		exclude = true;
+    	}
+    	
+    	return exclude;
+    }
+    
     private Double getDouble(String parts[], int index) {
         if (index < 0) {
             return null;

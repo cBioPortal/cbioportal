@@ -1,0 +1,31 @@
+TUMORRESIDUALDISEASE : Tumor Residual Disease
+TUMORGRADE : Tumor Grade
+VITALSTATUS : Vital Status
+PlatinumStatus : Platinum Status
+TUMORSTAGE : Tumor Stage
+PERSONNEOPLASMCANCERSTATUS : Person Neoplasm Cancer Status
+ProgressionFreeStatus : Progression Free Status
+PRIMARYTHERAPYOUTCOMESUCCESS : Primary Therapy Outcome Success
+
+mutation_rate_cluster : Mutation Rate Cluster
+cna_cluster_k4 : CNA Cluster K4
+cna_cluster_k4 : CNA Cluster K3
+micro_rna_cluster : microRNA Cluster
+vital_status : Vital Status
+cna_cluster_arm : CNA Cluster ARM
+tumor_grade : Tumor Grade
+mhl1_hypermethylated : MHL1 Hypermethylated
+mrna_expression_cluster: mRNA Expression Cluster
+2009stagegroup: 2009 Stage Group
+msi_status_7_marker_call : MSI Status 7 Marker Call
+data_gistic : Data Gistic
+data_rna_seq : Data RNA sequence
+histology : Histology
+methylation_cluster : Methylation Cluster
+recurred_progressed : Recurred Progressed
+patient_type : Patient Type
+data_maf: Data Maf
+histology_grade : Histology Grade
+disease_status_at_lfu : Disease Status at LFU
+data_core_sample : Data Core Sample
+msi_status_5_marker_call : MSI Status 5 Marker Call

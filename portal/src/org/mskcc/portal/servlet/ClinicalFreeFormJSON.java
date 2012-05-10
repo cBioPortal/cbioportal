@@ -21,6 +21,7 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.ClinicalFreeForm;
 import org.mskcc.cgds.model.ClinicalParameterMap;
+import org.mskcc.portal.util.CategoryLabelReader;
 import org.owasp.validator.html.PolicyException;
 
 public class ClinicalFreeFormJSON extends HttpServlet
@@ -106,7 +107,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                     	 }
                      }
                      
-                     categoryMap.put(param, distinctCategories);
+                     categoryMap.put(this.safeName(param), distinctCategories);
                  }
                  
                  // add the category map
@@ -122,7 +123,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                 	 
                 	 //freeFormObject.put("cancerStudyId", data.getCancerStudyId());
                 	 freeFormObject.put("caseId", data.getCaseId());
-                	 freeFormObject.put("paramName", data.getParamName());
+                	 freeFormObject.put("paramName", this.safeName(data.getParamName()));
                 	 freeFormObject.put("paramValue", data.getParamValue());
                 	 
                 	 freeFormArray.add(freeFormObject);
@@ -130,6 +131,9 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  
                  // add the free form data array
                  jsonObject.put("freeFormData", freeFormArray);
+                 
+                 // add the map for human readable category names
+                 jsonObject.put("categoryLabelMap", CategoryLabelReader.getInstace().getCategoryLabelMap());
         	 }
             
              httpServletResponse.setContentType("application/json");
@@ -148,5 +152,17 @@ public class ClinicalFreeFormJSON extends HttpServlet
         {
             throw new ServletException(e);
         }
+    }
+    
+    /**
+     * Creates a safe string by replacing problematic characters (for
+     * an HTML id) with an underscore for the given string.
+     *  
+     * @param name	parameter name
+     * @return		modified string with replaced characters
+     */
+    private String safeName(String name)
+    {
+    	return name.replaceAll("[ /#.:;\"\'\\\\]", "_");
     }
 }

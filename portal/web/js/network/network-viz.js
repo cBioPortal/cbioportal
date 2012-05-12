@@ -57,8 +57,30 @@ function send2cytoscapeweb(graphml, div_id)
             hoverGlowStrength: 8,
             tooltipFont: "Verdana",
             tooltipFontSize: 12,
-            tooltipFontColor: "#EE0505",
-            tooltipBackgroundColor: "#000000",
+            tooltipFontColor:
+            {
+            	defaultValue: "#EE0505", // color of all other types
+            	discreteMapper: 
+            	{
+	         	   attrName: "type",
+	        	   entries: 
+	        		   [
+	        	             { attrValue: "Drug", value: "#E6A90F"}	
+	        	       ]
+            	}
+            },           
+            tooltipBackgroundColor:
+            {
+            	defaultValue: "#000000", // color of all other types
+            	discreteMapper: 
+            	{
+	         	   attrName: "type",
+	        	   entries: 
+	        		   [
+	        	             { attrValue: "Drug", value: "#979694"}	
+	        	       ]
+            	}
+            },         
             tooltipBorderColor: "#000000"
         },
         edges: 
@@ -101,6 +123,8 @@ function send2cytoscapeweb(graphml, div_id)
 
     var vis = new org.cytoscapeweb.Visualization(div_id, options);
 
+    
+    
     /*
      * This function truncates the drug names on the graph
      * if their name length is less than 10 characters.

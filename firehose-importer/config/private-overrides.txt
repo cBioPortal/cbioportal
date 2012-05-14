@@ -1,3 +1,5 @@
 blca_mskcc
 brca_scand
 ccle_broad
+kirc2_tcga
+luad_mskcc

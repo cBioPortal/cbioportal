@@ -77,7 +77,8 @@ function send2cytoscapeweb(graphml, div_id)
 	         	   attrName: "type",
 	        	   entries: 
 	        		   [
-	        	             { attrValue: "Drug", value: "#979694"}	
+	        	             { attrValue: "Drug", value: "#000000"}	
+	        	             //"#979694"
 	        	       ]
             	}
             },         

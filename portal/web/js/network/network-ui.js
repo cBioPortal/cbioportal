@@ -1,9 +1,3 @@
-
-
-/**
- * Last Update: Istemi Bahceci<istemi.bahceci@gmail.com>, 4:32 PM 12 May 2012
- */
-
 // flags
 var _autoLayout;
 var _removeDisconnected;
@@ -2271,9 +2265,7 @@ function _initSliders()
 
 /**
  * Recursive function, that adds a new line after each 60 characters in given parameter and returns it
- * @author istemi.bahceci<istemi.bahceci@gmail.com>
  * */
-
 function _adjustToolTipText(text)
 {
 	if (text.length > 60) 

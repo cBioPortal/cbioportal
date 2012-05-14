@@ -2,14 +2,6 @@
     String step3ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP3_ERROR_MSG);
 %>
 
-<!-- Include Custom Case Set Builder Javascript and required jQuery libraries -->
-<link href="css/custom_case_set.css" type="text/css" rel="stylesheet"/>
-<link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>
-<script type="text/javascript" src="js/jslab-stdlib.js"></script>
-<script type="text/javascript" src="js/customCaseSet.js"></script>
-<script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
-
-
 <div class="query_step_section" id="step3">
 	<table>
 		<tr>

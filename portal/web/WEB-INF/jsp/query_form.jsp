@@ -54,7 +54,8 @@
         <form id="main_form" action="index.do" method="get">
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
-        
+        <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
+        	value='<%= request.getParameter("clinical_param_selection") %>'>
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>

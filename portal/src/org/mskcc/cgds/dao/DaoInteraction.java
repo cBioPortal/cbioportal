@@ -172,6 +172,9 @@ public class DaoInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
+			if (con == null) {
+				con = JdbcUtil.getDbConnection();
+			}
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
             if (seedGeneOnly) {
                 pstmt = con.prepareStatement

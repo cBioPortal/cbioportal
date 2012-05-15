@@ -124,7 +124,10 @@ public class ImportClinicalData {
     private void extractHeaders(String colHeadingLine) {
         HashSet<String> caseIdNames = new HashSet<String>();
         caseIdNames.add("BCRPATIENTBARCODE");
+        caseIdNames.add("bcr_patient_barcode");
         caseIdNames.add("CASE_ID");
+        caseIdNames.add("patient");
+        caseIdNames.add("ID");
 
         HashSet<String> osStatusNames = new HashSet<String>();
         osStatusNames.add("VITALSTATUS");

@@ -52,7 +52,7 @@ public class JdbcUtil {
 
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
-        ds.setMaxActive(10);
+        ds.setMaxActive(75);
     }
 
     /**

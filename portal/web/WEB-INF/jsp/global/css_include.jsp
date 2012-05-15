@@ -24,3 +24,5 @@
 <% } %>
 <link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table.css" type="text/css" rel="stylesheet" />
+<link href="css/custom_case_set.css" type="text/css" rel="stylesheet"/>
+<link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>

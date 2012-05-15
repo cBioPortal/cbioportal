@@ -9,7 +9,7 @@ PRIMARYTHERAPYOUTCOMESUCCESS : Primary Therapy Outcome Success
 
 mutation_rate_cluster : Mutation Rate Cluster
 cna_cluster_k4 : CNA Cluster K4
-cna_cluster_k4 : CNA Cluster K3
+cna_cluster_k3 : CNA Cluster K3
 micro_rna_cluster : microRNA Cluster
 vital_status : Vital Status
 cna_cluster_arm : CNA Cluster ARM

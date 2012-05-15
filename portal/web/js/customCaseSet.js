@@ -14,12 +14,18 @@ var _freeFormData;
 // set of all clinical cases (case IDs) for a specific cancer study
 var _clinicalCaseSet;
 
+// set of all categories (parameters) and their values 
+var _categorySet;
+
 // this (two-dimensional array) filter is used to filter each category set individually,
 // the actual filtered case set is the intersection of all arrays (sets) in this filter  
 var _caseSetFilter;
 
 // custom case set containing filter (final) result of user selection 
 var _customCaseSet;
+
+// variable to set previous cancer study id
+var _previousCancerStudyId = -1;
 
 /**
  * Initializes the Modal Dialog and event handlers for custom case set building.
@@ -32,8 +38,10 @@ function initCustomCaseSetUI()
 		modal: true,
 		width: 580});
     
-    $("#submit_custom_case_set").click(buildCustomCaseSet);
+    // set listener function for submit button
+    $("#submit_custom_case_set").click(_buildCustomCaseSet);
     
+    // set listener function for cancel button
     $("#cancel_custom_case_set").click(function(evt){
     	 $("#custom_case_set_dialog").dialog("close");
     });
@@ -45,6 +53,20 @@ function initCustomCaseSetUI()
 function promptCustomCaseSetBuilder()
 {
 	var cancerStudyId = $("#select_cancer_type").val();
+	
+	// if the current cancer study id is equal to the previous one,
+	// no need to update the content of the dialog, just display it
+	if (cancerStudyId == _previousCancerStudyId)
+	{
+		$("#custom_case_set_dialog").dialog("open");
+		return;
+	}
+	// otherwise, update the previous cancer study id for future use
+	else
+	{
+		_previousCancerStudyId = cancerStudyId;
+	}
+	
     var cancerStudy = window.metaDataJson.cancer_studies[cancerStudyId];
 
     // update cancer study name
@@ -60,21 +82,35 @@ function promptCustomCaseSetBuilder()
 	
 	// populate contents of the dialog box
     jQuery.getJSON("ClinicalFreeForm.json", data, function(json){
+    	// store required data as global variables for future reference
+    	_freeFormData = json.freeFormData;
+    	_clinicalCaseSet = json.clinicalCaseSet;
+    	_categoryLabelMap = json.categoryLabelMap;
+    	_categorySet = json.categoryMap;
+    	
+    	var categorySet = json.categoryMap;
+    	
+    	// initialize custom case selection map
+    	_initCustomCaseSelectionMap(categorySet);
+    	
+    	// initialize case filter sets
+    	_initCaseSetFilter(categorySet, json.clinicalCaseSet);
+    	
+    	// update the case set by taking intersection of all individual parameter sets
+    	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
+    	
+    	// update total number of cases & selected number of cases
+    	
     	$("#case_set_dialog_header #number_of_cases").empty();
+    	
     	$("#case_set_dialog_header #number_of_cases").append(
-    			'<span id="current_number_of_cases">' + json.clinicalCaseSet.length + '</span>' +
+    			'<span id="current_number_of_cases">' + _customCaseSet.length + '</span>' +
     			' (out of ' + json.clinicalCaseSet.length + ')');
     	
     	// clear the dialog content
     	$("#case_set_dialog_content").empty();
     	
-    	// store required data as global variables for future reference
-    	_freeFormData = json.freeFormData;
-    	_clinicalCaseSet = json.clinicalCaseSet;
-    	_categoryLabelMap = json.categoryLabelMap;
-    	
-    	var categorySet = json.categoryMap;
-    	
+    	// update the dialog content
     	for (var category in categorySet)
     	{
     		// skip numeric values if the size of the distinct category set exceeds the threshold value
@@ -83,12 +119,22 @@ function promptCustomCaseSetBuilder()
     			(categorySet[category].length < CATEGORY_SET_THRESHOLD || isNaN(categorySet[category][0])))
     		{
     			// append selection (multi dropdown) box for the current category (parameter)
-    			$("#case_set_dialog_content").append('<tr><td align="right">' + humanReadableCategory(category) + '</td>' +
-    				'<td align="left"><select multiple id="select_' + category + '"></select></td></tr>');
+    			$("#case_set_dialog_content").append('<tr><td align="right">' + _humanReadableCategory(category) + '</td>' +
+    				'<td align="left"><select multiple id="select_' + category + '"></select></td></tr>');    			
     			
-    			// append special (select all) checkbox to enable selection/deselection of values
+    			var selected = "";
+    			
+    			// check if all options are selected
+    			// if all selected, mark the corresponding 'select all' option as selected
+    			if(_isAllSelected(categorySet, category))
+    			{
+    				selected = "selected";
+    			}
+    			
+    			// append special (select all) checkbox to enable
+    			// selection/deselection of values
     			$("#case_set_dialog_content #select_" + category).append(
-       					'<option selected id="' + category + '_selectAll" ' +
+       					'<option ' + selected + ' id="' + category + '_selectAll" ' +
        					'value="' + category + '_selectAll" ' + '>' +
        					'<label>(select all)</label>' +
        					'</option>');
@@ -96,8 +142,17 @@ function promptCustomCaseSetBuilder()
     			// append all other parameter values for the current category    			
 	       		for (var i=0; i < categorySet[category].length; i++)
 	       		{
+	       			if (_customCaseSelection["select_" + category][categorySet[category][i]])
+	       			{
+	       				selected = "selected";
+	       			}
+	       			else
+	       			{
+	       				selected = "";
+	       			}
+	       			
 	       			$("#case_set_dialog_content #select_" + category).append(
-	       					'<option id="' + categorySet[category][i] + '" ' +
+	       					'<option ' + selected + ' id="' + categorySet[category][i] + '" ' +
 	       					'value="' + categorySet[category][i] + '" ' + '>' +
 	       					'<label>' + categorySet[category][i] + '</label>' +
 	       					'</option>');
@@ -109,19 +164,11 @@ function promptCustomCaseSetBuilder()
 	       				width: 268,
 	       				emptyText: '(none selected)', // text to be displayed when no item is selected
 	       				onItemClick: refreshCustomCaseSet}; // callback function for the action
-	       				//onComplete: refreshCustomCaseSet}; // callback function for the action
 	       		
 	       		// initialize the dropdown box
 	       		$("#case_set_dialog_content #select_" + category).dropdownchecklist(dropdownOptions);
     		}
     	}
-    	
-    	// initialize custom case selection map
-    	initCustomCaseSelectionMap(categorySet);
-    	
-    	// initialize case filter sets
-    	initCaseSetFilter(categorySet, json.clinicalCaseSet);
-    	
     });
     
 	$("#custom_case_set_dialog").dialog("open");
@@ -132,10 +179,11 @@ function promptCustomCaseSetBuilder()
  * 
  * @param categorySet	category set containing parameters (categories)
  */
-function initCustomCaseSelectionMap(categorySet)
+function _initCustomCaseSelectionMap(categorySet)
 {
 	_customCaseSelection = new Array();
 	
+	// first, set everything as selected
 	for (var category in categorySet)
 	{
 		_customCaseSelection["select_" + category] = new Array();
@@ -145,19 +193,75 @@ function initCustomCaseSelectionMap(categorySet)
 			_customCaseSelection["select_" + category][categorySet[category][i]] = true;
 		}
 	}
+	
+	// second, update selection according to previous selection
+	// stored in a hidden variable
+	var selection = JSON.parse($("#clinical_param_selection").val());
+	
+	for (var category in selection)
+	{
+		for (var i=0; i < selection[category].length; i++)
+		{
+			_customCaseSelection["select_" + category][selection[category][i]] = false;
+		}
+	}
+
+	//console.log("summary: " + $("#clinical_param_selection").val());
 }
 
 /**
  * Initializes the case set filter.
  */
-function initCaseSetFilter(categorySet, clinicalCaseSet)
+function _initCaseSetFilter(categorySet, clinicalCaseSet)
 {
 	_caseSetFilter = new Array();
 	
-	// initially all individual filter set will contain all case IDs by default
-	for (var category in categorySet)
+	var allSelected = new Object();
+	
+	var category;
+	
+	// initialize arrays first
+	for (category in categorySet)
 	{
-		_caseSetFilter[category] = clinicalCaseSet.slice();
+		if (_isAllSelected(categorySet, category))
+		{
+			// add all cases for the current category
+			_caseSetFilter[category] = clinicalCaseSet.slice();
+			
+			// mark the category as all selected
+			allSelected[category] = true;
+		}
+		else
+		{
+			// just init a new array, it will be populated according to the selection
+			_caseSetFilter[category] = new Array();
+			
+			// mark the category as not all selected
+			allSelected[category] = false;
+		}
+	}
+	
+	// populate filters by iterating all the free form data
+	for (var i = 0; i < _freeFormData.length; i++)
+	{
+		category = _freeFormData[i].paramName;
+		
+		if (allSelected[category])
+		{
+			// skip 'all selected' categories
+			continue;
+		}
+		
+		// get the category map corresponding to the current parameter name
+		var categoryMap = _customCaseSelection["select_" + category];
+		
+		// check if parameter value (corresponding to the current case) is selected
+		if (categoryMap != null &&
+			categoryMap[_freeFormData[i].paramValue])
+		{	
+			// add the case (patient) to the set
+			_caseSetFilter[category].push(_freeFormData[i].caseId);
+		}
 	}
 }
 
@@ -271,7 +375,7 @@ function refreshCustomCaseSet(checkbox, selector)
 		
 		// since free form data contains a single parameter (category) and
 		// value pair per row, we should iterate all the table to filter cases
-		for(var i = 0; i < _freeFormData.length; i++)
+		for (var i = 0; i < _freeFormData.length; i++)
 		{
 			if (_freeFormData[i].paramName != category)
 			{
@@ -294,7 +398,7 @@ function refreshCustomCaseSet(checkbox, selector)
 	}
 	
 	// update the case set by taking intersection of all individual parameter sets
-	_customCaseSet = intersectAllCaseSets(_caseSetFilter);
+	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
 	// update current number of included cases
 	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
@@ -375,7 +479,7 @@ function __refreshCustomCaseSet(selector)
 	//console.log(_caseSetFilter);
 	
 	// update the case set by taking intersection of all individual parameter sets
-	_customCaseSet = intersectAllCaseSets(_caseSetFilter);
+	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
 	// update current number of included cases
 	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
@@ -389,7 +493,7 @@ function __refreshCustomCaseSet(selector)
  * @param caseSetFiler	array of sets containing case IDs
  * @returns				intersection of all sets as an array
  */
-function intersectAllCaseSets(caseSetFilter)
+function _intersectAllCaseSets(caseSetFilter)
 {
 	var intersection = _clinicalCaseSet.slice();
 	
@@ -404,10 +508,10 @@ function intersectAllCaseSets(caseSetFilter)
 /**
  * Creates a custom case set with respect to the input from the user
  */
-function buildCustomCaseSet()
+function _buildCustomCaseSet()
 {
 	// final update on the custom case set
-	_customCaseSet = intersectAllCaseSets(_caseSetFilter);
+	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
 	// close custom case set builder dialog
 	$("#custom_case_set_dialog").dialog("close");
@@ -439,6 +543,70 @@ function buildCustomCaseSet()
 	
 	// this is necessary to show the custom case list
 	caseSetSelected();
+	
+	// also update the value of the hidden variable to keep
+	// the current selection after submit
+	var summary = _selectionSummary(_categorySet);
+	
+	$("#clinical_param_selection").val(summary);
+}
+
+/**
+ * Constructs a summary string for current category selections to store the
+ * selection in the session for future use. Constructed string will only
+ * contain NON-SELECTED category names.
+ * 
+ * @param categorySet	categorySet containing 
+ */
+function _selectionSummary(categorySet)
+{
+	var summary = new Object();
+	
+	for (var category in categorySet)
+	{
+		var current = new Array();
+		
+		// first, set everything as selected
+		for (var i=0; i < categorySet[category].length; i++)
+		{
+			// add the parameter to the list if it is not selected
+			if (!(_customCaseSelection["select_" + category][categorySet[category][i]]))
+			{
+				current.push(categorySet[category][i]);
+			}
+		}
+		
+		if (current.length > 0)
+		{
+			summary[category] = current;
+		}
+	}
+	
+	return JSON.stringify(summary);
+}
+
+/**
+ * Checks if all options selected for a certain category (parameter) by using the
+ * _customCaseSelection map.
+ * 
+ * @param categorySet	set of all categories
+ * @param category		name of the category
+ */
+function _isAllSelected(categorySet, category)
+{
+	var allSelected = true;
+	
+	for (var i=0; i < categorySet[category].length; i++)
+	{
+		// if at least one of the options is not selected, then all is NOT selected
+		if (!(_customCaseSelection["select_" + category][categorySet[category][i]]))
+		{
+			allSelected = false;
+			break;
+		}
+	}
+	
+	return allSelected;
 }
 
 /**
@@ -447,7 +615,7 @@ function buildCustomCaseSet()
  * @param category	category name from the data
  * @returns			nicely formatted label for the given category
  */
-function humanReadableCategory(category)
+function _humanReadableCategory(category)
 {
 	var label = _categoryLabelMap[category];
 	

@@ -186,8 +186,7 @@ public class DaoProteinArrayInfo {
                         rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"),
-                        getCancerTypesOfArray(arrayId));
+                        rs.getBoolean("VALIDATED"), getCancerTypesOfArray(arrayId, con));
                 pais.add(pai);
             }
         } catch (SQLException e) {
@@ -238,8 +237,7 @@ public class DaoProteinArrayInfo {
                         rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"),
-                        getCancerTypesOfArray(arrayId));
+                        rs.getBoolean("VALIDATED"), getCancerTypesOfArray(arrayId, con));
                 list.add(pai);
             }
             return list;
@@ -274,8 +272,7 @@ public class DaoProteinArrayInfo {
                         rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"),
-                        getCancerTypesOfArray(arrayId));
+                        rs.getBoolean("VALIDATED"),	getCancerTypesOfArray(arrayId, con));
                 list.add(pai);
             }
             return list;
@@ -318,12 +315,10 @@ public class DaoProteinArrayInfo {
         
     }
     
-    private Set<Integer> getCancerTypesOfArray(String arrayId) throws DaoException {
-        Connection con = null;
+    private Set<Integer> getCancerTypesOfArray(String arrayId, Connection con) throws DaoException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
                     ("SELECT CANCER_STUDY_ID FROM protein_array_cancer_study WHERE PROTEIN_ARRAY_ID=?");
             pstmt.setString(1, arrayId);

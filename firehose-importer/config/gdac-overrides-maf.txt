@@ -8,5 +8,5 @@ LUSC.maf.annotated  lusc
 LUAD.maf.annotated luad
 OV.maf.annotated ov
 PRAD.maf.annotated prad
-STAD.maf.annnoted stad
+STAD.maf.annoted stad
 UCEC.maf.annotated  ucec

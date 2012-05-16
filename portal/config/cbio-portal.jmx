@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.2">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="cBio Portal" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">50</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">50</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1337087536000</longProp>
+        <longProp name="ThreadGroup.end_time">1337087536000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (Summary)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="tab_index" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">tab_visualize</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">tab_index</stringProp>
+              </elementProp>
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
+              </elementProp>
+              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_3way_complete</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA1+BRCA2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="gene_set_choice" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">user-defined-list</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_set_choice</stringProp>
+              </elementProp>
+              <elementProp name="Action" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Submit#summary</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Action</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (os_survival_plot)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="Action" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Submit</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Action</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_3way_complete</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA1+BRCA2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="tab_index" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">tab_visualize</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">tab_index</stringProp>
+              </elementProp>
+              <elementProp name="gene_set_choice" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">user-defined-list</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_set_choice</stringProp>
+              </elementProp>
+              <elementProp name="output" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">os_survival_plot</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">output</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (dfs_survival_plot)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="Action" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Submit</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Action</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_3way_complete</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA1+BRCA2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="tab_index" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">tab_visualize</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">tab_index</stringProp>
+              </elementProp>
+              <elementProp name="gene_set_choice" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">user-defined-list</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_set_choice</stringProp>
+              </elementProp>
+              <elementProp name="output" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">dfs_survival_plot</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">output</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (html)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="Action" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Submit</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Action</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga_3way_complete</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA1+BRCA2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="tab_index" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">tab_visualize</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">tab_index</stringProp>
+              </elementProp>
+              <elementProp name="gene_set_choice" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">user-defined-list</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_set_choice</stringProp>
+              </elementProp>
+              <elementProp name="output" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">html</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">output</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="portal_meta_data.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/portal_meta_data.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="mutation_diagram_data.json (BRCA1)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="hugoGeneSymbol" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">hugoGeneSymbol</stringProp>
+              </elementProp>
+              <elementProp name="mutations" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">[{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1489&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497279,&quot;endPosition&quot;:38497280,&quot;aminoAcidChange&quot;:&quot;N1265fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0804&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;ABI 3730xl&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38512070,&quot;endPosition&quot;:38512070,&quot;aminoAcidChange&quot;:&quot;C47W&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;M&quot;,&quot;linkXVar&quot;:&quot;http://mutationassessor.org?cm=var&amp;var=17,38512070,G,C&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://mutationassessor.org/pdb.php?prot=BRCA1_HUMAN&amp;from=24&amp;to=64&amp;var=C47W&quot;,&quot;linkMsa&quot;:&quot;http://mutationassessor.org/?cm=msa&amp;ty=f&amp;p=BRCA1_HUMAN&amp;rb=24&amp;re=64&amp;var=C47W&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0730&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38451310,&quot;endPosition&quot;:38451310,&quot;aminoAcidChange&quot;:&quot;R1835*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0761&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38482030,&quot;endPosition&quot;:38482030,&quot;aminoAcidChange&quot;:&quot;e12+1&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-1632&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497425,&quot;endPosition&quot;:38497426,&quot;aminoAcidChange&quot;:&quot;S1216fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1026&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498636,&quot;endPosition&quot;:38498636,&quot;aminoAcidChange&quot;:&quot;G813fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-1630&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499517,&quot;endPosition&quot;:38499517,&quot;aminoAcidChange&quot;:&quot;A521fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-1625&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38509760,&quot;endPosition&quot;:38509760,&quot;aminoAcidChange&quot;:&quot;E116*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2035&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38469440,&quot;endPosition&quot;:38469440,&quot;aminoAcidChange&quot;:&quot;G1710fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1357&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38479937,&quot;endPosition&quot;:38479937,&quot;aminoAcidChange&quot;:&quot;Q1538*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-2427&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499782,&quot;endPosition&quot;:38499782,&quot;aminoAcidChange&quot;:&quot;L431*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-57-1582&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38468889,&quot;endPosition&quot;:38468892,&quot;aminoAcidChange&quot;:&quot;R1726fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-09-1669&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497039,&quot;endPosition&quot;:38497039,&quot;aminoAcidChange&quot;:&quot;E1346fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1408&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-09-2045&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38454735,&quot;endPosition&quot;:38454735,&quot;aminoAcidChange&quot;:&quot;Q1779fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-2081&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-2401&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-2077&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0883&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1122&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-09-2051&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;Q1756fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2298&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38496488,&quot;endPosition&quot;:38496489,&quot;aminoAcidChange&quot;:&quot;Q1395fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-2392&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497039,&quot;endPosition&quot;:38497039,&quot;aminoAcidChange&quot;:&quot;E1346fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1512&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498599,&quot;endPosition&quot;:38498599,&quot;aminoAcidChange&quot;:&quot;D825fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1356&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498908,&quot;endPosition&quot;:38498908,&quot;aminoAcidChange&quot;:&quot;N723fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-61-2109&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499113,&quot;endPosition&quot;:38499113,&quot;aminoAcidChange&quot;:&quot;K654fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-10-0931&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-2079&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-2078&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1027&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1470&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38473195,&quot;endPosition&quot;:38473198,&quot;aminoAcidChange&quot;:&quot;T1677fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0903&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499564,&quot;endPosition&quot;:38499564,&quot;aminoAcidChange&quot;:&quot;R504fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0893&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499565,&quot;endPosition&quot;:38499566,&quot;aminoAcidChange&quot;:&quot;R504fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0887&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529570,&quot;endPosition&quot;:38529571,&quot;aminoAcidChange&quot;:&quot;C24fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1118&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529571,&quot;endPosition&quot;:38529572,&quot;aminoAcidChange&quot;:&quot;E23fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-61-2008&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38453208,&quot;endPosition&quot;:38453208,&quot;aminoAcidChange&quot;:&quot;W1815*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-59-2348&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498685,&quot;endPosition&quot;:38498685,&quot;aminoAcidChange&quot;:&quot;E797*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1494&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38512077,&quot;endPosition&quot;:38512077,&quot;aminoAcidChange&quot;:&quot;e3-1&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1847&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38509775,&quot;endPosition&quot;:38509775,&quot;aminoAcidChange&quot;:&quot;E111*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1846&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497608,&quot;endPosition&quot;:38497609,&quot;aminoAcidChange&quot;:&quot;D1155fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1768&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38500192,&quot;endPosition&quot;:38500192,&quot;aminoAcidChange&quot;:&quot;D295fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1776&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497511,&quot;endPosition&quot;:38497512,&quot;aminoAcidChange&quot;:&quot;R1188fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-61-1914&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499653,&quot;endPosition&quot;:38499653,&quot;aminoAcidChange&quot;:&quot;L474*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-36-2534&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38456661,&quot;endPosition&quot;:38456661,&quot;aminoAcidChange&quot;:&quot;e19-1&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-30-1857&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498676,&quot;endPosition&quot;:38498676,&quot;aminoAcidChange&quot;:&quot;K800*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-42-2591&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38529639,&quot;endPosition&quot;:38529639,&quot;aminoAcidChange&quot;:&quot;M1V&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1644&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38500405,&quot;endPosition&quot;:38500405,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1648&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497315,&quot;endPosition&quot;:38497318,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-2065&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38498599,&quot;endPosition&quot;:38498599,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-20-1685&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38500178,&quot;endPosition&quot;:38500179,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1029&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38499861,&quot;endPosition&quot;:38499861,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1114&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38497006,&quot;endPosition&quot;:38497009,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1809&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;17&quot;,&quot;startPosition&quot;:38462605,&quot;endPosition&quot;:38462606,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;}]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutations</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/mutation_diagram_data.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="mutation_diagram_data.json (BRCA2)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="hugoGeneSymbol" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">BRCA2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">hugoGeneSymbol</stringProp>
+              </elementProp>
+              <elementProp name="mutations" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">[{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0890&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810178,&quot;endPosition&quot;:31810178,&quot;aminoAcidChange&quot;:&quot;S1230fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0885&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810708,&quot;endPosition&quot;:31810711,&quot;aminoAcidChange&quot;:&quot;K1406fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1103&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811404,&quot;endPosition&quot;:31811404,&quot;aminoAcidChange&quot;:&quot;K1638E&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;L&quot;,&quot;linkXVar&quot;:&quot;http://mutationassessor.org?cm=var&amp;var=13,31811404,A,G&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;http://mutationassessor.org/?cm=msa&amp;ty=f&amp;p=BRCA2_HUMAN&amp;rb=1552&amp;re=1663&amp;var=K1638E&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1481&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31835426,&quot;endPosition&quot;:31835441,&quot;aminoAcidChange&quot;:&quot;S2697fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0792&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31809921,&quot;endPosition&quot;:31809921,&quot;aminoAcidChange&quot;:&quot;E1143D&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;M&quot;,&quot;linkXVar&quot;:&quot;http://mutationassessor.org?cm=var&amp;var=13,31809921,A,T&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;http://mutationassessor.org/?cm=msa&amp;ty=f&amp;p=BRCA2_HUMAN&amp;rb=1037&amp;re=1211&amp;var=E1143D&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1555&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31834675,&quot;endPosition&quot;:31834675,&quot;aminoAcidChange&quot;:&quot;P2608fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1120&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31870481,&quot;endPosition&quot;:31870481,&quot;aminoAcidChange&quot;:&quot;P3278fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1331&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31808625,&quot;endPosition&quot;:31808625,&quot;aminoAcidChange&quot;:&quot;C711*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1030&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810553,&quot;endPosition&quot;:31810553,&quot;aminoAcidChange&quot;:&quot;T1354M&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;N&quot;,&quot;linkXVar&quot;:&quot;http://mutationassessor.org?cm=var&amp;var=13,31810553,C,T&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;http://mutationassessor.org/?cm=msa&amp;ty=f&amp;p=BRCA2_HUMAN&amp;rb=1259&amp;re=1409&amp;var=T1354M&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-09-2050&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812137,&quot;endPosition&quot;:31812137,&quot;aminoAcidChange&quot;:&quot;S1882*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0900&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31803141,&quot;endPosition&quot;:31803145,&quot;aminoAcidChange&quot;:&quot;N257fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-1318&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810964,&quot;endPosition&quot;:31810967,&quot;aminoAcidChange&quot;:&quot;L1491fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-57-1584&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811837,&quot;endPosition&quot;:31811838,&quot;aminoAcidChange&quot;:&quot;N1784fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-1634&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31848806,&quot;endPosition&quot;:31848806,&quot;aminoAcidChange&quot;:&quot;e20-1&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1555&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31848806,&quot;endPosition&quot;:31848806,&quot;aminoAcidChange&quot;:&quot;e20-1&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0793&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31852281,&quot;endPosition&quot;:31852282,&quot;aminoAcidChange&quot;:&quot;G3086fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-23-1026&quot;,&quot;sequencingCenter&quot;:&quot;hgsc.bcm.edu&quot;,&quot;sequencer&quot;:&quot;SOLID&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31870626,&quot;endPosition&quot;:31870626,&quot;aminoAcidChange&quot;:&quot;K3326*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2288&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31801605,&quot;endPosition&quot;:31801606,&quot;aminoAcidChange&quot;:&quot;V220fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-25-2404&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31804640,&quot;endPosition&quot;:31804640,&quot;aminoAcidChange&quot;:&quot;K343fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2024&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811620,&quot;endPosition&quot;:31811623,&quot;aminoAcidChange&quot;:&quot;Y1710fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0913&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812061,&quot;endPosition&quot;:31812065,&quot;aminoAcidChange&quot;:&quot;E1857fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2280&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;S1982fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-59-2351&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;S1982fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0886&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;S1982fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1463&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31805420,&quot;endPosition&quot;:31805421,&quot;aminoAcidChange&quot;:&quot;I605fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1417&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811604,&quot;endPosition&quot;:31811607,&quot;aminoAcidChange&quot;:&quot;N1706fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1336&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811703,&quot;endPosition&quot;:31811706,&quot;aminoAcidChange&quot;:&quot;T1738fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1498&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;S1982fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1499&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;S1982fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-0726&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31827170,&quot;endPosition&quot;:31827170,&quot;aminoAcidChange&quot;:&quot;R2394*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-1562&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Valid&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31870626,&quot;endPosition&quot;:31870626,&quot;aminoAcidChange&quot;:&quot;K3326*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-0975&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31798752,&quot;endPosition&quot;:31798752,&quot;aminoAcidChange&quot;:&quot;e6+2&quot;,&quot;mutationType&quot;:&quot;Splice_Site&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-04-1367&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31804495,&quot;endPosition&quot;:31804495,&quot;aminoAcidChange&quot;:&quot;E294*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-24-2293&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31828687,&quot;endPosition&quot;:31828687,&quot;aminoAcidChange&quot;:&quot;R2520*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-13-1512&quot;,&quot;sequencingCenter&quot;:&quot;broad.mit.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31870626,&quot;endPosition&quot;:31870626,&quot;aminoAcidChange&quot;:&quot;K3326*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1693&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31869045,&quot;endPosition&quot;:31869048,&quot;aminoAcidChange&quot;:&quot;L3172fs&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1762&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31848890,&quot;endPosition&quot;:31848890,&quot;aminoAcidChange&quot;:&quot;E2906*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1698&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31811558,&quot;endPosition&quot;:31811559,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Ins&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1705&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1711&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1762&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812438,&quot;endPosition&quot;:31812438,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1785&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31870626,&quot;endPosition&quot;:31870626,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-1785&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810456,&quot;endPosition&quot;:31810458,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;In_Frame_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-29-2436&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31810338,&quot;endPosition&quot;:31810339,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:115,&quot;caseId&quot;:&quot;TCGA-36-2532&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Germline&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;13&quot;,&quot;startPosition&quot;:31812894,&quot;endPosition&quot;:31812898,&quot;aminoAcidChange&quot;:&quot;MUTATED&quot;,&quot;mutationType&quot;:&quot;Frame_Shift_Del&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;NA&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;}]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutations</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/mutation_diagram_data.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="ProteinArraySignificanceTest.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ov_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="heat_map" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Case+ID%09BRCA1%09BRCA2%09%0ATCGA-04-1331%09%09MUT%3B%09%0ATCGA-04-1332%09%09%09%0ATCGA-04-1336%09%09MUT%3B%09%0ATCGA-04-1337%09%09%09%0ATCGA-04-1338%09%09%09%0ATCGA-04-1342%09%09%09%0ATCGA-04-1343%09%09%09%0ATCGA-04-1346%09%09%09%0ATCGA-04-1347%09%09%09%0ATCGA-04-1348%09%09%09%0ATCGA-04-1349%09%09%09%0ATCGA-04-1350%09%09%09%0ATCGA-04-1353%09%09%09%0ATCGA-04-1356%09MUT%3B%09%09%0ATCGA-04-1357%09MUT%3B%09%09%0ATCGA-04-1361%09%09%09%0ATCGA-04-1362%09%09%09%0ATCGA-04-1364%09%09%09%0ATCGA-04-1365%09%09%09%0ATCGA-04-1367%09%09MUT%3B%09%0ATCGA-04-1514%09%09%09%0ATCGA-04-1516%09%09%09%0ATCGA-04-1517%09%09%09%0ATCGA-04-1525%09%09%09%0ATCGA-04-1530%09%09%09%0ATCGA-04-1542%09%09%09%0ATCGA-04-1638%09%09%09%0ATCGA-04-1644%09MUT%3B%09%09%0ATCGA-04-1646%09%09%09%0ATCGA-04-1648%09MUT%3B%09%09%0ATCGA-04-1649%09%09%09%0ATCGA-04-1651%09%09%09%0ATCGA-04-1652%09%09%09%0ATCGA-04-1655%09%09%09%0ATCGA-09-0366%09%09%09%0ATCGA-09-0369%09%09%09%0ATCGA-09-1659%09%09%09%0ATCGA-09-1661%09%09%09%0ATCGA-09-1662%09%09%09%0ATCGA-09-1665%09%09%09%0ATCGA-09-1666%09%09%09%0ATCGA-09-1669%09MUT%3B%09%09%0ATCGA-09-1670%09%09%09%0ATCGA-09-1673%09%09%09%0ATCGA-09-1674%09%09%09%0ATCGA-09-2044%09%09%09%0ATCGA-09-2045%09MUT%3B%09%09%0ATCGA-09-2049%09%09%09%0ATCGA-09-2050%09%09MUT%3B%09%0ATCGA-09-2051%09MUT%3B%09%09%0ATCGA-09-2053%09%09%09%0ATCGA-09-2056%09%09%09%0ATCGA-10-0926%09%09%09%0ATCGA-10-0927%09%09%09%0ATCGA-10-0928%09%09%09%0ATCGA-10-0930%09%09%09%0ATCGA-10-0931%09MUT%3B%09%09%0ATCGA-10-0933%09%09%09%0ATCGA-10-0934%09%09%09%0ATCGA-10-0935%09%09%09%0ATCGA-10-0937%09%09%09%0ATCGA-10-0938%09%09%09%0ATCGA-13-0714%09%09%09%0ATCGA-13-0717%09%09%09%0ATCGA-13-0720%09%09%09%0ATCGA-13-0723%09%09%09%0ATCGA-13-0724%09%09%09%0ATCGA-13-0726%09%09MUT%3B%09%0ATCGA-13-0727%09%09%09%0ATCGA-13-0730%09MUT%3B%09%09%0ATCGA-13-0751%09%09%09%0ATCGA-13-0755%09%09%09%0ATCGA-13-0760%09%09%09%0ATCGA-13-0761%09MUT%3B%09%09%0ATCGA-13-0762%09%09%09%0ATCGA-13-0791%09%09%09%0ATCGA-13-0792%09%09MUT%3B%09%0ATCGA-13-0793%09%09MUT%3B%09%0ATCGA-13-0795%09%09%09%0ATCGA-13-0800%09%09%09%0ATCGA-13-0804%09MUT%3B%09%09%0ATCGA-13-0807%09%09%09%0ATCGA-13-0883%09MUT%3B%09%09%0ATCGA-13-0884%09%09%09%0ATCGA-13-0885%09%09MUT%3B%09%0ATCGA-13-0886%09%09MUT%3B%09%0ATCGA-13-0887%09MUT%3B%09%09%0ATCGA-13-0889%09%09%09%0ATCGA-13-0890%09%09MUT%3B%09%0ATCGA-13-0891%09%09%09%0ATCGA-13-0893%09MUT%3B%09%09%0ATCGA-13-0897%09%09%09%0ATCGA-13-0899%09%09%09%0ATCGA-13-0900%09%09MUT%3B%09%0ATCGA-13-0903%09MUT%3B%09%09%0ATCGA-13-0904%09%09%09%0ATCGA-13-0905%09%09%09%0ATCGA-13-0906%09%09%09%0ATCGA-13-0910%09%09%09%0ATCGA-13-0911%09%09%09%0ATCGA-13-0912%09%09%09%0ATCGA-13-0913%09%09MUT%3B%09%0ATCGA-13-0916%09%09%09%0ATCGA-13-0919%09%09%09%0ATCGA-13-0920%09%09%09%0ATCGA-13-0923%09%09%09%0ATCGA-13-0924%09%09%09%0ATCGA-13-1403%09%09%09%0ATCGA-13-1404%09%09%09%0ATCGA-13-1405%09%09%09%0ATCGA-13-1407%09%09%09%0ATCGA-13-1408%09MUT%3B%09%09%0ATCGA-13-1409%09%09%09%0ATCGA-13-1410%09%09%09%0ATCGA-13-1411%09%09%09%0ATCGA-13-1412%09%09%09%0ATCGA-13-1477%09%09%09%0ATCGA-13-1481%09%09MUT%3B%09%0ATCGA-13-1482%09%09%09%0ATCGA-13-1483%09%09%09%0ATCGA-13-1484%09%09%09%0ATCGA-13-1487%09%09%09%0ATCGA-13-1488%09%09%09%0ATCGA-13-1489%09MUT%3B%09%09%0ATCGA-13-1491%09%09%09%0ATCGA-13-1492%09%09%09%0ATCGA-13-1494%09MUT%3B%09%09%0ATCGA-13-1495%09%09%09%0ATCGA-13-1496%09%09%09%0ATCGA-13-1497%09%09%09%0ATCGA-13-1498%09%09MUT%3B%09%0ATCGA-13-1499%09%09MUT%3B%09%0ATCGA-13-1501%09%09%09%0ATCGA-13-1504%09%09%09%0ATCGA-13-1505%09%09%09%0ATCGA-13-1506%09%09%09%0ATCGA-13-1507%09%09%09%0ATCGA-13-1509%09%09%09%0ATCGA-13-1510%09%09%09%0ATCGA-13-1512%09MUT%3B%09MUT%3B%09%0ATCGA-13-2060%09%09%09%0ATCGA-13-2061%09%09%09%0ATCGA-13-2065%09MUT%3B%09%09%0ATCGA-13-2071%09%09%09%0ATCGA-20-0987%09%09%09%0ATCGA-20-0990%09%09%09%0ATCGA-20-0991%09%09%09%0ATCGA-20-1682%09%09%09%0ATCGA-20-1683%09%09%09%0ATCGA-20-1684%09%09%09%0ATCGA-20-1685%09MUT%3B%09%09%0ATCGA-20-1686%09%09%09%0ATCGA-20-1687%09%09%09%0ATCGA-23-1021%09%09%09%0ATCGA-23-1022%09%09%09%0ATCGA-23-1023%09%09%09%0ATCGA-23-1024%09%09%09%0ATCGA-23-1026%09MUT%3B%09MUT%3B%09%0ATCGA-23-1027%09MUT%3B%09%09%0ATCGA-23-1028%09%09%09%0ATCGA-23-1029%09MUT%3B%09%09%0ATCGA-23-1030%09%09MUT%3B%09%0ATCGA-23-1031%09%09%09%0ATCGA-23-1032%09%09%09%0ATCGA-23-1110%09%09%09%0ATCGA-23-1111%09%09%09%0ATCGA-23-1114%09MUT%3B%09%09%0ATCGA-23-1116%09%09%09%0ATCGA-23-1117%09%09%09%0ATCGA-23-1118%09MUT%3B%09%09%0ATCGA-23-1120%09%09MUT%3B%09%0ATCGA-23-1122%09MUT%3B%09%09%0ATCGA-23-1123%09%09%09%0ATCGA-23-1124%09%09%09%0ATCGA-23-1809%09MUT%3B%09%09%0ATCGA-23-2072%09%09%09%0ATCGA-23-2077%09MUT%3B%09%09%0ATCGA-23-2078%09MUT%3B%09%09%0ATCGA-23-2079%09MUT%3B%09%09%0ATCGA-23-2081%09MUT%3B%09%09%0ATCGA-23-2641%09%09%09%0ATCGA-23-2645%09%09%09%0ATCGA-24-0966%09%09%09%0ATCGA-24-0968%09%09%09%0ATCGA-24-0970%09%09%09%0ATCGA-24-0975%09%09MUT%3B%09%0ATCGA-24-0979%09%09%09%0ATCGA-24-0980%09%09%09%0ATCGA-24-0982%09%09%09%0ATCGA-24-1103%09%09MUT%3B%09%0ATCGA-24-1104%09%09%09%0ATCGA-24-1105%09%09%09%0ATCGA-24-1413%09%09%09%0ATCGA-24-1416%09%09%09%0ATCGA-24-1417%09%09MUT%3B%09%0ATCGA-24-1418%09%09%09%0ATCGA-24-1419%09%09%09%0ATCGA-24-1422%09%09%09%0ATCGA-24-1423%09%09%09%0ATCGA-24-1424%09%09%09%0ATCGA-24-1425%09%09%09%0ATCGA-24-1427%09%09%09%0ATCGA-24-1428%09%09%09%0ATCGA-24-1431%09%09%09%0ATCGA-24-1434%09%09%09%0ATCGA-24-1435%09%09%09%0ATCGA-24-1436%09%09%09%0ATCGA-24-1463%09%09MUT%3B%09%0ATCGA-24-1464%09%09%09%0ATCGA-24-1466%09%09%09%0ATCGA-24-1469%09%09%09%0ATCGA-24-1470%09MUT%3B%09%09%0ATCGA-24-1471%09%09%09%0ATCGA-24-1474%09%09%09%0ATCGA-24-1544%09%09%09%0ATCGA-24-1545%09%09%09%0ATCGA-24-1548%09%09%09%0ATCGA-24-1549%09%09%09%0ATCGA-24-1551%09%09%09%0ATCGA-24-1552%09%09%09%0ATCGA-24-1553%09%09%09%0ATCGA-24-1555%09%09MUT%3B%09%0ATCGA-24-1556%09%09%09%0ATCGA-24-1557%09%09%09%0ATCGA-24-1558%09%09%09%0ATCGA-24-1560%09%09%09%0ATCGA-24-1562%09%09MUT%3B%09%0ATCGA-24-1563%09%09%09%0ATCGA-24-1564%09%09%09%0ATCGA-24-1565%09%09%09%0ATCGA-24-1567%09%09%09%0ATCGA-24-1603%09%09%09%0ATCGA-24-1604%09%09%09%0ATCGA-24-1614%09%09%09%0ATCGA-24-1616%09%09%09%0ATCGA-24-1842%09%09%09%0ATCGA-24-1843%09%09%09%0ATCGA-24-1844%09%09%09%0ATCGA-24-1845%09%09%09%0ATCGA-24-1846%09MUT%3B%09%09%0ATCGA-24-1847%09MUT%3B%09%09%0ATCGA-24-1849%09%09%09%0ATCGA-24-1850%09%09%09%0ATCGA-24-2019%09%09%09%0ATCGA-24-2024%09%09MUT%3B%09%0ATCGA-24-2030%09%09%09%0ATCGA-24-2035%09MUT%3B%09%09%0ATCGA-24-2038%09%09%09%0ATCGA-24-2254%09%09%09%0ATCGA-24-2260%09%09%09%0ATCGA-24-2261%09%09%09%0ATCGA-24-2262%09%09%09%0ATCGA-24-2267%09%09%09%0ATCGA-24-2271%09%09%09%0ATCGA-24-2280%09%09MUT%3B%09%0ATCGA-24-2281%09%09%09%0ATCGA-24-2288%09%09MUT%3B%09%0ATCGA-24-2289%09%09%09%0ATCGA-24-2290%09%09%09%0ATCGA-24-2293%09%09MUT%3B%09%0ATCGA-24-2298%09MUT%3B%09%09%0ATCGA-25-1313%09%09%09%0ATCGA-25-1315%09%09%09%0ATCGA-25-1316%09%09%09%0ATCGA-25-1317%09%09%09%0ATCGA-25-1318%09%09MUT%3B%09%0ATCGA-25-1319%09%09%09%0ATCGA-25-1320%09%09%09%0ATCGA-25-1321%09%09%09%0ATCGA-25-1322%09%09%09%0ATCGA-25-1329%09%09%09%0ATCGA-25-1623%09%09%09%0ATCGA-25-1625%09MUT%3B%09%09%0ATCGA-25-1626%09%09%09%0ATCGA-25-1627%09%09%09%0ATCGA-25-1628%09%09%09%0ATCGA-25-1630%09MUT%3B%09%09%0ATCGA-25-1631%09%09%09%0ATCGA-25-1632%09MUT%3B%09%09%0ATCGA-25-1633%09%09%09%0ATCGA-25-1634%09%09MUT%3B%09%0ATCGA-25-1635%09%09%09%0ATCGA-25-2042%09%09%09%0ATCGA-25-2391%09%09%09%0ATCGA-25-2392%09MUT%3B%09%09%0ATCGA-25-2393%09%09%09%0ATCGA-25-2396%09%09%09%0ATCGA-25-2398%09%09%09%0ATCGA-25-2399%09%09%09%0ATCGA-25-2400%09%09%09%0ATCGA-25-2401%09MUT%3B%09%09%0ATCGA-25-2404%09%09MUT%3B%09%0ATCGA-25-2408%09%09%09%0ATCGA-25-2409%09%09%09%0ATCGA-29-1688%09%09%09%0ATCGA-29-1690%09%09%09%0ATCGA-29-1691%09%09%09%0ATCGA-29-1693%09%09MUT%3B%09%0ATCGA-29-1694%09%09%09%0ATCGA-29-1695%09%09%09%0ATCGA-29-1696%09%09%09%0ATCGA-29-1697%09%09%09%0ATCGA-29-1698%09%09MUT%3B%09%0ATCGA-29-1699%09%09%09%0ATCGA-29-1701%09%09%09%0ATCGA-29-1702%09%09%09%0ATCGA-29-1703%09%09%09%0ATCGA-29-1705%09%09MUT%3B%09%0ATCGA-29-1707%09%09%09%0ATCGA-29-1710%09%09%09%0ATCGA-29-1711%09%09MUT%3B%09%0ATCGA-29-1761%09%09%09%0ATCGA-29-1762%09%09MUT%3B%09%0ATCGA-29-1763%09%09%09%0ATCGA-29-1764%09%09%09%0ATCGA-29-1766%09%09%09%0ATCGA-29-1768%09MUT%3B%09%09%0ATCGA-29-1769%09%09%09%0ATCGA-29-1770%09%09%09%0ATCGA-29-1771%09%09%09%0ATCGA-29-1774%09%09%09%0ATCGA-29-1775%09%09%09%0ATCGA-29-1776%09MUT%3B%09%09%0ATCGA-29-1777%09%09%09%0ATCGA-29-1778%09%09%09%0ATCGA-29-1781%09%09%09%0ATCGA-29-1783%09%09%09%0ATCGA-29-1784%09%09%09%0ATCGA-29-1785%09%09MUT%3B%09%0ATCGA-29-2427%09MUT%3B%09%09%0ATCGA-29-2429%09%09%09%0ATCGA-29-2431%09%09%09%0ATCGA-29-2432%09%09%09%0ATCGA-29-2434%09%09%09%0ATCGA-29-2436%09%09MUT%3B%09%0ATCGA-30-1714%09%09%09%0ATCGA-30-1718%09%09%09%0ATCGA-30-1853%09%09%09%0ATCGA-30-1855%09%09%09%0ATCGA-30-1856%09%09%09%0ATCGA-30-1857%09MUT%3B%09%09%0ATCGA-30-1862%09%09%09%0ATCGA-30-1891%09%09%09%0ATCGA-31-1950%09%09%09%0ATCGA-31-1953%09%09%09%0ATCGA-31-1959%09%09%09%0ATCGA-36-1568%09%09%09%0ATCGA-36-1569%09%09%09%0ATCGA-36-1570%09%09%09%0ATCGA-36-1571%09%09%09%0ATCGA-36-1574%09%09%09%0ATCGA-36-1575%09%09%09%0ATCGA-36-1576%09%09%09%0ATCGA-36-1577%09%09%09%0ATCGA-36-1578%09%09%09%0ATCGA-36-1580%09%09%09%0ATCGA-36-2530%09%09%09%0ATCGA-36-2532%09%09MUT%3B%09%0ATCGA-36-2533%09%09%09%0ATCGA-36-2534%09MUT%3B%09%09%0ATCGA-36-2537%09%09%09%0ATCGA-36-2538%09%09%09%0ATCGA-36-2539%09%09%09%0ATCGA-36-2542%09%09%09%0ATCGA-36-2543%09%09%09%0ATCGA-36-2544%09%09%09%0ATCGA-36-2545%09%09%09%0ATCGA-36-2547%09%09%09%0ATCGA-36-2548%09%09%09%0ATCGA-36-2552%09%09%09%0ATCGA-42-2582%09%09%09%0ATCGA-42-2588%09%09%09%0ATCGA-42-2589%09%09%09%0ATCGA-42-2590%09%09%09%0ATCGA-42-2591%09MUT%3B%09%09%0ATCGA-57-1582%09MUT%3B%09%09%0ATCGA-57-1583%09%09%09%0ATCGA-57-1584%09%09MUT%3B%09%0ATCGA-57-1586%09%09%09%0ATCGA-57-1993%09%09%09%0ATCGA-59-2348%09MUT%3B%09%09%0ATCGA-59-2350%09%09%09%0ATCGA-59-2351%09%09MUT%3B%09%0ATCGA-59-2352%09%09%09%0ATCGA-59-2354%09%09%09%0ATCGA-59-2355%09%09%09%0ATCGA-59-2363%09%09%09%0ATCGA-59-2372%09%09%09%0ATCGA-61-1725%09%09%09%0ATCGA-61-1728%09%09%09%0ATCGA-61-1733%09%09%09%0ATCGA-61-1736%09%09%09%0ATCGA-61-1737%09%09%09%0ATCGA-61-1738%09%09%09%0ATCGA-61-1740%09%09%09%0ATCGA-61-1741%09%09%09%0ATCGA-61-1895%09%09%09%0ATCGA-61-1899%09%09%09%0ATCGA-61-1900%09%09%09%0ATCGA-61-1901%09%09%09%0ATCGA-61-1904%09%09%09%0ATCGA-61-1906%09%09%09%0ATCGA-61-1907%09%09%09%0ATCGA-61-1910%09%09%09%0ATCGA-61-1911%09%09%09%0ATCGA-61-1913%09%09%09%0ATCGA-61-1914%09MUT%3B%09%09%0ATCGA-61-1915%09%09%09%0ATCGA-61-1919%09%09%09%0ATCGA-61-1995%09%09%09%0ATCGA-61-1998%09%09%09%0ATCGA-61-2000%09%09%09%0ATCGA-61-2002%09%09%09%0ATCGA-61-2003%09%09%09%0ATCGA-61-2008%09MUT%3B%09%09%0ATCGA-61-2009%09%09%09%0ATCGA-61-2012%09%09%09%0ATCGA-61-2016%09%09%09%0ATCGA-61-2088%09%09%09%0ATCGA-61-2092%09%09%09%0ATCGA-61-2094%09%09%09%0ATCGA-61-2095%09%09%09%0ATCGA-61-2097%09%09%09%0ATCGA-61-2101%09%09%09%0ATCGA-61-2102%09%09%09%0ATCGA-61-2104%09%09%09%0ATCGA-61-2109%09MUT%3B%09%09%0ATCGA-61-2110%09%09%09%0ATCGA-61-2111%09%09%09%0ATCGA-61-2113%09%09%09%0ATCGA-61-2612%09%09%09%0ATCGA-61-2613%09%09%09%0ATCGA-61-2614%09%09%09%0A</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">heat_map</stringProp>
+              </elementProp>
+              <elementProp name="gene" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Any</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene</stringProp>
+              </elementProp>
+              <elementProp name="alteration" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">Any</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">alteration</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/ProteinArraySignificanceTest.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="network.do" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">EGFR</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_gistic%20ucec_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_ids</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="netsrc" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">cgds</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">netsrc</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="msgoff" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">t</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">msgoff</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="query_alt" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">EGFR:MUT:4,Any:5,AMP:1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">query_alt</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="netsize" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">large</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">netsize</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="linkers" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">50</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">linkers</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+              <elementProp name="diffusion" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">diffusion</stringProp>
+                <stringProp name="Argument.desc">false</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/load-testing-portal/network.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.image_parser">true</boolProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

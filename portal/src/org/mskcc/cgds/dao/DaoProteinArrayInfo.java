@@ -333,7 +333,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     

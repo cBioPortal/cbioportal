@@ -84,8 +84,8 @@ Yes.  The cBio Portal is available under a [GNU Lesser General Public License](h
 
 # How do I cite the portal?
 
-You can cite the portal paper:  Ethan Cerami, et. al.  The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.  Cancer Discovery. May 2012 2; 401.
-(Abstract)[http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract]
+You can cite the portal paper:  Ethan Cerami, et. al.  *The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.*  Cancer Discovery. May 2012 2; 401.
+[Abstract](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract).
 
 # How do I get updates on new portal developments and new data sets?
 

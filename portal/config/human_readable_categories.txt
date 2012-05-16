@@ -29,3 +29,38 @@ histology_grade : Histology Grade
 disease_status_at_lfu : Disease Status at LFU
 data_core_sample : Data Core Sample
 msi_status_5_marker_call : MSI Status 5 Marker Call
+
+gender : Gender
+histological_type : Histological Type
+icd_10 : ICD 10
+pretreatment_history : Pretreatment History
+prior_glioma : Prior Glioma
+karnofsky_performance_score : Karnofsky Performance Score
+
+sequenced : Sequenced
+copy-number : Copy-number
+Agilent_expression : Agilent Expression
+methylation : Methylation
+MSI_status : MSI Status
+methylation_subtype : Methylation Subtype
+iCluster : i Cluster
+MLH1_silencing : MLH1 Silencing
+expression_subtype : Expression Subtype
+hypermutated : Hypermutated
+cancer : Cancer
+anatomic_organ_subdivision : Anatomic Organ Subdivision
+tumor_site : Tumor Site
+primary_tumor_pathologic_spread : Primary Tumor Pathologic Spread
+tumor_stage : Tumor Stage
+
+ClinT_Stage : ClinT Stage
+PathStage : Path Stage
+PathGG1 : Path GG1
+PathGG2 : Path GG2
+PathGGS : Path GGS
+ERG-fusion_gex : ERG-fusion gex
+ERG-fusion_aCGH : ERG-fusion aCGH
+Copy-number_Cluster : Copy-number Cluster
+
+
+

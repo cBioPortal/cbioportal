@@ -113,10 +113,31 @@ function promptCustomCaseSetBuilder()
     	// update the dialog content
     	for (var category in categorySet)
     	{
+    		var skip = false;
+    		
+    		// skip categories containing no value or only one distinct value
+    		if (categorySet[category].length < 2)
+    		{
+    			skip = true;
+    		}
     		// skip numeric values if the size of the distinct category set exceeds the threshold value
-    		// TODO instead of checking the first element, it may be proper to check first CATEGORY_SET_THRESHOLD elements to avoid incorrect classification of text values such as "Missing".
-    		if (categorySet[category].length > 0 &&
-    			(categorySet[category].length < CATEGORY_SET_THRESHOLD || isNaN(categorySet[category][0])))
+    		else if (categorySet[category].length >= CATEGORY_SET_THRESHOLD)
+    		{
+    			// check first CATEGORY_SET_THRESHOLD elements to be sure it consist of numeric values
+    			// (this is to avoid incorrect classification of text values such as "Missing" or "NA".)
+    			for (var i=0; i < CATEGORY_SET_THRESHOLD; i++)
+    			{
+    				// if at least one of the values is numeric, then skip the category
+    				if (!isNaN(categorySet[category][0]))
+    				{
+    					skip = true;
+    					break;
+    				}
+    			}
+    		}
+ 
+    		// continue if the category is qualified as a filter parameter
+    		if (!skip)
     		{
     			// append selection (multi dropdown) box for the current category (parameter)
     			$("#case_set_dialog_content").append('<tr><td align="right">' + _humanReadableCategory(category) + '</td>' +

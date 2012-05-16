@@ -13,7 +13,7 @@
 	 		</td>
 	 		<td>
 	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
-	 				Customize Case Set
+	 				Build Case Set
 	 			</a>
 	 		</td>
 		</tr>

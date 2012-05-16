@@ -3,6 +3,7 @@
 	cursor: pointer;
 	font-size: 120%;
 	color: #1974B8;
+	white-space: nowrap;
 }
 
 #ui-dialog-title-custom_case_set_dialog

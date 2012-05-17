@@ -32,7 +32,7 @@ public class DaoCaseList {
             pstmt.setString(4, caseList.getCaseListCategory().getCategory());
             pstmt.setString(5, caseList.getDescription());
             int rows = pstmt.executeUpdate();
-   			int listListRow = addCaseListList(caseList);
+   			int listListRow = addCaseListList(caseList, con);
    			rows = (listListRow != -1) ? (rows + listListRow) : rows;
             return rows;
         } catch (SQLException e) {
@@ -57,7 +57,7 @@ public class DaoCaseList {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 CaseList caseList = extractCaseList(rs);
-                caseList.setCaseList(getCaseListList(caseList));
+                caseList.setCaseList(getCaseListList(caseList, con));
                 return caseList;
             }
 			return null;
@@ -83,7 +83,7 @@ public class DaoCaseList {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 CaseList caseList = extractCaseList(rs);
-				caseList.setCaseList(getCaseListList(caseList));
+				caseList.setCaseList(getCaseListList(caseList, con));
                 return caseList;
             }
 			return null;
@@ -115,7 +115,7 @@ public class DaoCaseList {
             }
 			// get case list-list
 			for (CaseList caseList : list) {
-				caseList.setCaseList(getCaseListList(caseList));
+				caseList.setCaseList(getCaseListList(caseList, con));
 			}
             return list;
         } catch (SQLException e) {
@@ -144,7 +144,7 @@ public class DaoCaseList {
             }
 			// get case list-list
 			for (CaseList caseList : list) {
-				caseList.setCaseList(getCaseListList(caseList));
+				caseList.setCaseList(getCaseListList(caseList, con));
 			}
             return list;
         } catch (SQLException e) {
@@ -221,7 +221,7 @@ public class DaoCaseList {
 	/**
 	 * Adds record to case_list_list.
 	 */
-    private int addCaseListList(CaseList caseList) throws DaoException {
+    private int addCaseListList(CaseList caseList, Connection con) throws DaoException {
 		
 		// get case list id
 		int caseListId = getCaseListId(caseList);
@@ -229,12 +229,10 @@ public class DaoCaseList {
             return -1;
         }
 
-        Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
 			int rows = 0;
-            con = JdbcUtil.getDbConnection();
 			for (String caseId : caseList.getCaseList()) {
                 pstmt = con.prepareStatement("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES (?,?)");
 				pstmt.setInt(1, caseListId);
@@ -245,19 +243,18 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
 
 	/**
 	 * Given a case list object (thus case list id) gets case list list.
 	 */
-	private ArrayList<String> getCaseListList(CaseList caseList) throws DaoException {
-        Connection con = null;
+	private ArrayList<String> getCaseListList(CaseList caseList, Connection con) throws DaoException {
+
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list_list WHERE LIST_ID = ?");
             pstmt.setInt(1, caseList.getCaseListId());
@@ -270,7 +267,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(pstmt, rs);
         }
 	}
 

@@ -61,11 +61,6 @@ function promptCustomCaseSetBuilder()
 		$("#custom_case_set_dialog").dialog("open");
 		return;
 	}
-	// otherwise, update the previous cancer study id for future use
-	else
-	{
-		_previousCancerStudyId = cancerStudyId;
-	}
 	
     var cancerStudy = window.metaDataJson.cancer_studies[cancerStudyId];
 
@@ -113,31 +108,8 @@ function promptCustomCaseSetBuilder()
     	// update the dialog content
     	for (var category in categorySet)
     	{
-    		var skip = false;
-    		
-    		// skip categories containing no value or only one distinct value
-    		if (categorySet[category].length < 2)
-    		{
-    			skip = true;
-    		}
-    		// skip numeric values if the size of the distinct category set exceeds the threshold value
-    		else if (categorySet[category].length >= CATEGORY_SET_THRESHOLD)
-    		{
-    			// check first CATEGORY_SET_THRESHOLD elements to be sure it consist of numeric values
-    			// (this is to avoid incorrect classification of text values such as "Missing" or "NA".)
-    			for (var i=0; i < CATEGORY_SET_THRESHOLD; i++)
-    			{
-    				// if at least one of the values is numeric, then skip the category
-    				if (!isNaN(categorySet[category][0]))
-    				{
-    					skip = true;
-    					break;
-    				}
-    			}
-    		}
- 
     		// continue if the category is qualified as a filter parameter
-    		if (!skip)
+    		if (isEligibleForFiltering(categorySet[category]))
     		{
     			// append selection (multi dropdown) box for the current category (parameter)
     			$("#case_set_dialog_content").append('<tr><td align="right">' + _humanReadableCategory(category) + '</td>' +
@@ -190,9 +162,56 @@ function promptCustomCaseSetBuilder()
 	       		$("#case_set_dialog_content #select_" + category).dropdownchecklist(dropdownOptions);
     		}
     	}
+    	
+    	// update the previous cancer study id for future use
+    	_previousCancerStudyId = cancerStudyId;
     });
     
 	$("#custom_case_set_dialog").dialog("open");
+}
+
+/**
+ * Checks whether the given array of values (for a specific category) are
+ * eligible for filtering.
+ * 
+ * Any array with less than some threshold elements are considered eligible.
+ * 
+ * If an array size is bigger than the threshold value, then even a single
+ * numeric value in the array is enough for classification as non-eligible
+ * category.
+ * 
+ * An array containing no value or only one distinct value is also considered
+ * as non-eligible
+ * 
+ * @param values	array of values for a specific category
+ * @returns			true if eligible for filtering, false otherwise
+ */
+function isEligibleForFiltering(values)
+{
+	var skip = false;
+	
+	// skip categories containing no value or only one distinct value
+	if (values.length < 2)
+	{
+		skip = true;
+	}
+	// skip numeric values if the size of the distinct category set exceeds the threshold value
+	else if (values.length >= CATEGORY_SET_THRESHOLD)
+	{
+		// check first CATEGORY_SET_THRESHOLD elements to be sure it contains numeric values
+		// (this is to avoid incorrect classification of text values such as "Missing" or "NA".)
+		for (var i=0; i < CATEGORY_SET_THRESHOLD; i++)
+		{
+			// if at least one of the values is numeric, then skip the category
+			if (!isNaN(values[i]))
+			{
+				skip = true;
+				break;
+			}
+		}
+	}
+	
+	return !skip;
 }
 
 /**

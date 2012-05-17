@@ -81,6 +81,9 @@
     var genesQueried = "";
     var shownHistogram = 1;
     var multipleGenes = <%=multipleGenes%>;
+    var maxAlterationPercent = 0;
+    var lastStudyLoaded = false;
+
 
     $(document).ready(function() {
         $("#crosscancer_summary_message").hide();
@@ -273,6 +276,11 @@
                 hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
                 hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
                 hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
+                tmpTotal = hist1.getValue(bundleIndex, 1) + hist1.getValue(bundleIndex, 2) + hist1.getValue(bundleIndex, 3) + hist1.getValue(bundleIndex, 4);
+                if(maxAlterationPercent < tmpTotal) {
+                    maxAlterationPercent = tmpTotal;
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                }
 
                 hist2.setValue(bundleIndex, 1, numOfCombo);
                 hist2.setValue(bundleIndex, 2, numOfMuts);
@@ -281,7 +289,10 @@
                 hist2.setValue(bundleIndex, 5, numOfCases-numOfAltered);
             } else {
                 hist1.setValue(bundleIndex, 1, formatPercent((numOfAltered/numOfCases) * 100.0));
-
+                if(maxAlterationPercent < hist1.getValue(bundleIndex, 1)) {
+                    maxAlterationPercent = hist1.getValue(bundleIndex, 1);
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                }
                 hist2.setValue(bundleIndex, 1, numOfAltered);
                 hist2.setValue(bundleIndex, 2, numOfCases-numOfAltered);
             }
@@ -295,6 +306,7 @@
             if(bundleIndex >= cancerStudies.length) {
                 $("#crosscancer_summary_loading").fadeOut();
                 $("#crosscancer_summary_message").fadeIn();
+                lastStudyLoaded = true;
                 return;
             }
 
@@ -370,7 +382,7 @@
               },
               vAxis: {
                     title: 'Percent Altered',
-                    maxValue: 100,
+                    maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
                     minValue: 0
               },
     	      animation: {
@@ -394,7 +406,7 @@
               },
               vAxis: {
 	            title: 'Percent Altered',
-                maxValue: 100,
+                maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
                 minValue: 0
               },
               animation: {

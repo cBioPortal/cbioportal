@@ -12,7 +12,7 @@
 * New feature: __Mutation Diagrams__ that show mutations in the context of protein domains.
 <center>![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)</center>
 
-# January 30, 2011
+# January 30, 2012
 
 * Updated data for several TCGA cancer studies.
 * Some small bug-fixes.

@@ -13,13 +13,13 @@
 * New feature: __Mutation Diagrams__ that show mutations in the context of protein domains.
 <center>![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)</center>
 
-# January 26, 2011
+# January 26, 2012
 
 * All data updated to the __latest Firehose run__ (December 30).
 * __New RNA-Seq expression data__ for many tumor types.
 * __New mutation data__: All new bladder cancer data and small updates for lung squamous carcinoma.
 
-# January 5, 2011
+# January 5, 2012
 
 * Now __19 tumor types__, all data updated to the __latest Firehose run__ (November 28).
 * Support for __microRNA__ expression and copy-number (including multiple loci).

@@ -371,7 +371,7 @@
            }
 
            var options = {
-              title: 'Percent Sample Alteration for Each Cancer Study w/ Mutation Data (' + genesQueried + ')',
+              title: 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
@@ -395,7 +395,7 @@
             histogramChart.draw(histogramView, options);
             
 	    var options2 = {
-              title: 'Percent Sample Alteration for Each Cancer Study w/ Mutation Data (' + genesQueried + ')',
+              title: 'Percent Sample Alteration for Each Cancer Study without Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
@@ -420,7 +420,7 @@
             histogramChart2.draw(histogramView2, options2);
 
             var options3 = {
-              title: 'Number of Altered Cases for Each Cancer Study w/ Mutation data (' + genesQueried + ')',
+              title: 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
@@ -442,7 +442,7 @@
             histogramChart3.draw(histogramView3, options3);
             
 	    var options4 = {
-              title: 'Number of Altered Cases for Each Cancer Study w/o Mutation Data (' + genesQueried + ')',
+              title: 'Number of Altered Cases for Each Cancer Study without Mutation Data (' + genesQueried + ')',
               hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
@@ -508,10 +508,10 @@
 
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
                     <select id="hist_toggle_box">
-                        <option value="1">Show percent of altered cases (studies w/ mutation data)</option>
-                        <option value="2">Show percent of altered cases (studies w/o mutation data)</option>
-                        <option value="3">Show number of altered cases (studies w/ mutation data)</option>
-                        <option value="4">Show number of altered cases (studies w/o mutation data)</option>
+                        <option value="1">Show percent of altered cases (studies with mutation data)</option>
+                        <option value="2">Show percent of altered cases (studies without mutation data)</option>
+                        <option value="3">Show number of altered cases (studies with mutation data)</option>
+                        <option value="4">Show number of altered cases (studies without mutation data)</option>
                     </select>
                     |
                     <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>

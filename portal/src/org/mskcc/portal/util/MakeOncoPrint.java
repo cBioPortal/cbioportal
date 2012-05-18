@@ -500,23 +500,27 @@ public class MakeOncoPrint {
 			builder.append("\t\t}).next().hide();\n");
 		}
 
-		// setup default properties
+		// setup default properties - outside forSummaryTab
+		// because we need a valid reference from cross_cancer.do
 		builder.append("\t\t// for oncoprint generation\n");
 		builder.append("\t\t" + oncoprintReferenceVarName + " = OncoPrintInit(" +
 					   "document.getElementById(\"" + headerElement + "\"), " +
 					   "document.getElementById(\"" + bodyElement + "\"), " +
 					   "document.getElementById(\"" + legendElement + "\"));\n");
 
-		// oncoprint header
-		builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
-					   headerVariablesVarName + ", " + forSummaryTab  + ");\n");
-		// draw oncoprint
-		builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
-					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
-					   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
-					   forSummaryTab + ");\n");
 		if (forSummaryTab) {
+
+			// oncoprint header
+			builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
+						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+						   headerVariablesVarName + ", " + forSummaryTab  + ");\n");
+
+			// draw oncoprint
+			builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
+						   forSummaryTab + ");\n");
+
 			// draw legend
 			builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
 						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 

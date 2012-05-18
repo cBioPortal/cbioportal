@@ -428,15 +428,40 @@ function cancerStudySelected() {
     console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
     
-    // check if cancer study has a clinical_free_form data, if it has
-    // enable "build custom case set" link, otherwise disable the button
+    // check if cancer study has a clinical_free_form data to filter,
+    // if there is data to filter, then enable "build custom case set" link,
+    // otherwise disable the button
     jQuery.getJSON("ClinicalFreeForm.json",
 		{studyId: $("#select_cancer_type").val()},
 		function(json){
+			var noDataToFilter = false;
+			
 			if (json.freeFormData.length == 0)
 			{
-				// no clinical_free_form data for the current cancer study,
-				// so disable the button
+				noDataToFilter = true;
+			}
+			else
+			{
+				noDataToFilter = true;
+				
+				var categorySet = json.categoryMap;
+				
+				// check if there is at least one category to filter
+		    	for (var category in categorySet)
+		    	{
+		    		// continue if the category is qualified as a filter parameter
+		    		if (isEligibleForFiltering(categorySet[category]))
+		    		{
+		    			noDataToFilter = false;
+		    			break;
+		    		}
+		    	}
+			}
+			
+			if (noDataToFilter)
+			{
+				// no clinical_free_form data to filter for the current
+				// cancer study, so disable the button
 				$("#build_custom_case_set").hide();
 			}
 			else

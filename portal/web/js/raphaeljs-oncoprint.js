@@ -1212,7 +1212,7 @@ function addTooltipText(oncoprint, tooltipText) {
 	if (oncoprint.tooltip_canvas != null) {
 		oncoprint.tooltip_canvas.forEach(function(obj) {
 			var node = obj.node;
-			if (obj.node instanceof SVGTextElement) {
+			if (obj.type == "text") {
 				obj.remove();
 			}
 		});
@@ -1244,8 +1244,7 @@ function scaleBodyCanvas(oncoprint) {
 	var scaleFactorX = oncoprint.scale_factor_x;
 	oncoprint.body_canvas.forEach(function(obj) {
 		var node = obj.node;
-		if (obj.node instanceof SVGRectElement || 
-		   obj.node instanceof SVGPathElement) {
+		if (obj.type == "rect" || obj.type == "path") {
 			var x = obj.attr('x');
 			var y= obj.attr('y');
 			obj.transform('S' + scaleFactorX + ',1.0,0,0');

@@ -209,12 +209,6 @@ public class MakeOncoPrint {
 			out.append("</script>\n");
 		}
 
-		// put canvas divs before the javascript
-		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
-		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
-		out.append("<br>\n");
-		out.append("<div id=\"" + oncoprintLegendDivName + "\" class=\"oncoprint\"></div>\n");
-
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
@@ -229,16 +223,9 @@ public class MakeOncoPrint {
 		// output genetic alteration variable for oncoprint legend
 		out.append(writeOncoPrintLegendGeneticAlterationVariable(geneticAlterationsLegendVarName,
 																 theOncoPrintSpecification.getUnionOfPossibleLevels()));
-		// on document ready, draw oncoprint header, oncoprint, oncoprint legend
-		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
-														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
-														 longestLabelVarName, headerVariablesVarName,
-														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
-														 legendFootnoteVarName, oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
-														 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
-														 oncoprintAccordionTitleName, forSummaryTab));
 		out.append("</script>\n");
 		if (forSummaryTab) {
+			// should come before raphaeljs divs
 			out.append(writeHTMLControls(oncoprintSection, oncoprintReferenceVarName, longestLabelVarName,
 										 headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
 										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
@@ -247,6 +234,26 @@ public class MakeOncoPrint {
 										 oncoprintRemovePaddingLabelName, sortedGeneticAlterationsVarName,
 										 unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
 		}
+
+		// put the following divs (which contain raphael canvases) after HTML controls
+		// but before the document ready code which makes calls to raphaeljs.  Specifically,
+		// we need to put the divs before the call tot OncoPrintInit(..).  We do this tap dancing
+		// so that crosscancer studies can properly access the javascript vars we generate.
+		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<br>\n");
+		out.append("<div id=\"" + oncoprintLegendDivName + "\" class=\"oncoprint\"></div>\n");
+
+		// on document ready, draw oncoprint header, oncoprint, oncoprint legend - comes after raphaeljs divs
+		out.append("<script type=\"text/javascript\">\n");
+		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
+														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
+														 longestLabelVarName, headerVariablesVarName,
+														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
+														 legendFootnoteVarName, oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+														 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
+														 oncoprintAccordionTitleName, forSummaryTab));
+		out.append("</script>\n");
 
 		// oncoprint footer
 		if (forSummaryTab) {

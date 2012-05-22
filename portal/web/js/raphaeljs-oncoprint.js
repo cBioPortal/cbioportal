@@ -95,7 +95,7 @@ var DEFAULTS = (function() {
 			'TOOLTIP_REGION_WIDTH'              : 500, // width of tooltip region
 			'TOOLTIP_REGION_HEIGHT'             : 60,  // height of tooltip region
 			'TOOLTIP_TEXT_REGION_Y'             : 20,  // start of the rect within the tooltip region
-			'TOOLTIP_HORIZONTAL_PADDING'        : 20,  // space between header region and tooltip region
+			'TOOLTIP_HORIZONTAL_PADDING'        : 30,  // space between header region and tooltip region
 			'TOOLTIP_TITLE_PADDING'             : 1,   // space between tooltip title and tooltip region
 			'TOOLTIP_ICON_PADDING'              : 5,   // space between tootip region title and icon
 			'TOOLTIP_TEXT_FONT'                 : "normal 12px arial",

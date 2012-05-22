@@ -208,6 +208,13 @@ public class MakeOncoPrint {
 			out.append("\tdojo.require(\"dijit.form.Slider\");\n");
 			out.append("</script>\n");
 		}
+
+		// put canvas divs before the javascript
+		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<br>\n");
+		out.append("<div id=\"" + oncoprintLegendDivName + "\" class=\"oncoprint\"></div>\n");
+
 		out.append("<script type=\"text/javascript\">\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
@@ -240,10 +247,6 @@ public class MakeOncoPrint {
 										 oncoprintRemovePaddingLabelName, sortedGeneticAlterationsVarName,
 										 unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
 		}
-		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
-		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
-		out.append("<br>\n");
-		out.append("<div id=\"" + oncoprintLegendDivName + "\" class=\"oncoprint\"></div>\n");
 
 		// oncoprint footer
 		if (forSummaryTab) {
@@ -483,7 +486,10 @@ public class MakeOncoPrint {
 		StringBuilder builder = new StringBuilder();
 
 		// declare the oncoprint ref outside .ready so it is accessilble by page widgets
-		builder.append("\tvar " + oncoprintReferenceVarName + " = null;\n");
+		builder.append("\tvar " + oncoprintReferenceVarName + " = OncoPrintInit(" +
+					   "document.getElementById(\"" + headerElement + "\"), " +
+					   "document.getElementById(\"" + bodyElement + "\"), " +
+					   "document.getElementById(\"" + legendElement + "\"));\n");
 		// jquery on document ready
 		builder.append("\t$(document).ready(function() {\n");
 		// setup accordion javascript
@@ -503,10 +509,6 @@ public class MakeOncoPrint {
 		// setup default properties - outside forSummaryTab
 		// because we need a valid reference from cross_cancer.do
 		builder.append("\t\t// for oncoprint generation\n");
-		builder.append("\t\t" + oncoprintReferenceVarName + " = OncoPrintInit(" +
-					   "document.getElementById(\"" + headerElement + "\"), " +
-					   "document.getElementById(\"" + bodyElement + "\"), " +
-					   "document.getElementById(\"" + legendElement + "\"));\n");
 
 		if (forSummaryTab) {
 

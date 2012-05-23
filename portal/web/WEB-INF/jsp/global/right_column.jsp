@@ -74,7 +74,7 @@ if (SkinUtil.showRightNavDataSets()) {
 
     <h3>What's New</h3>
 
-    <P>The Portal paper has just been published:  Ethan Cerami, et. al.  <b>The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.</b>  <i>Cancer Discovery</i>. May 2012 2; 401.
+    <P>The Portal paper has just been published:  Ethan Cerami et al.  <b>The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.</b>  <i>Cancer Discovery</i>. May 2012 2; 401.
     [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</P>
 
 <% } %>

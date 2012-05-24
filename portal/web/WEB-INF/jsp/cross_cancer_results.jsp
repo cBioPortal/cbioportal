@@ -479,7 +479,7 @@
                         </span>
                         We have detected that you are using an older web browser that might cause problems in viewing
                         this cross-cancer summary page. For better performance, we suggest upgrading your browser
-                        to the latest version or using a different browser (e.g. Chrome, Firefox, Safari).
+                        to the latest version or using a different one (e.g. Chrome, Firefox, Safari).
                     </p>
                 </div>
                 <br/>

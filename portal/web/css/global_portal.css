@@ -1274,6 +1274,7 @@ h2.cross_cancer_header {
 
 /* IE 8 specific warning message on the cross-cancer query page */
 cc-ie-message {
+    padding: 15px;
     background: #d3d3d3;
     border-color: #1974B8;
 }

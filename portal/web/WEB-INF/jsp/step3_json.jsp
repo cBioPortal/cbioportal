@@ -32,10 +32,9 @@ if (step3ErrorMsg != null) {
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80><%
     if (localCaseIds != null) {
-            out.print (localCaseIds);
+            out.print (localCaseIds.trim());
         }
-%>
-</textarea>
+%></textarea>
     </div>
 
 <%

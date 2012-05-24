@@ -565,10 +565,41 @@ public class QueryBuilder extends HttpServlet {
                     }
                     errorsExist = true;
                 }
-                if (caseSetId.equals("-1") && caseIds.trim().length() == 0) {
-                    httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                            "Please enter at least one case ID below. ");
-                    errorsExist = true;
+                
+                // user-defined case set
+                if (caseSetId.equals("-1"))
+                {
+                	// empty case list
+                	if (caseIds.trim().length() == 0)
+                	{
+                		httpServletRequest.setAttribute(STEP3_ERROR_MSG,
+                				"Please enter at least one case ID below. ");
+                		
+                		errorsExist = true;
+                	}
+                	else
+                	{
+                		List<String> invalidCases = CaseSetValidator.validateCaseSet(
+                				cancerStudyIdentifier, caseIds);
+                		
+                		String caseSetErrMsg = "Invalid case(s) for the selected cancer study:";
+                		
+                		// non-empty list, but contains invalid case IDs
+                		if (invalidCases.size() > 0)
+                		{
+                			// append case ids to the message
+                    		for (String caseId : invalidCases)
+                    		{
+                    			caseSetErrMsg += " " + caseId;
+                    		}
+                    		
+                			httpServletRequest.setAttribute(STEP3_ERROR_MSG,
+                					caseSetErrMsg);
+                    		
+                    		errorsExist = true;
+                		}
+                	}
+                    
                 }
 
                 errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
@@ -637,7 +668,7 @@ public class QueryBuilder extends HttpServlet {
         }
         return errorsExist;
     }
-
+    
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)
             throws ServletException, IOException {

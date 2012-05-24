@@ -709,7 +709,7 @@ sub create_case_lists{
 		$cancerCenter,
         # todo: make these table/config file driven
         [ $cghSource, $sequencedSource ],
-        'union',
+        'intersection',
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',
             stable_id => '<cancer>_<cancer_center>_cnaseq',

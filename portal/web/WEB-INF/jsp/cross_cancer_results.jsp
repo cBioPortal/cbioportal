@@ -482,6 +482,7 @@
                         to the latest version or using a different browser (e.g. Chrome, Firefox, Safari).
                     </p>
                 </div>
+                <br/>
                 <![endif]-->
 
 

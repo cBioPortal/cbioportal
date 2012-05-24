@@ -472,6 +472,19 @@
 
             <div id="results_container">
 
+                <!--[if lte IE 8]>
+                <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
+                    <p>
+                        <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
+                        </span>
+                        We have detected that you are using an older web browser that might cause problems in viewing
+                        this cross-cancer summary page. For better performance, we suggest upgrading your browser
+                        to the latest version or using a different browser (e.g. Chrome, Firefox, Safari).
+                    </p>
+                </div>
+                <![endif]-->
+
+
                 <div class="ui-state-highlight ui-corner-all">
                     <p id="crosscancer_summary_message"><span class="ui-icon ui-icon-info"
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>

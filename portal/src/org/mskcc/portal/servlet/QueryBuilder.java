@@ -413,7 +413,7 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
-            if (output != null) {
+            if (output != null && !output.equals("html")) {
 				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold);

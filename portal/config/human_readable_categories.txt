@@ -58,9 +58,12 @@ PathStage : Path Stage
 PathGG1 : Path GG1
 PathGG2 : Path GG2
 PathGGS : Path GGS
-ERG-fusion_gex : ERG-fusion gex
-ERG-fusion_aCGH : ERG-fusion aCGH
-Copy-number_Cluster : Copy-number Cluster
+ERG-fusion gex : ERG-fusion gex
+ERG-fusion aCGH : ERG-fusion Array CGH
+Copy-number Cluster : Copy-number Cluster
 
+complete (aCGH, mRNA, sequencing) : Complete (Array CGH, mRNA, and Sequencing Data)
+aCGH data : Array CGH Data
+mRNA data : mRNA Data
 
 

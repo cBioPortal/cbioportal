@@ -79,10 +79,23 @@ public class CategoryLabelReader
 			// skip any line with incorrect formatting
 			if (pair.length == 2)
 			{
-				categoryLabelMap.put(pair[0].trim(), pair[1].trim());
+				categoryLabelMap.put(safeCategoryName(pair[0].trim()),
+						pair[1].trim());
 			}
 		}
 		
 		return categoryLabelMap;
 	}
+	
+	/**
+     * Creates a safe string by replacing problematic characters (for
+     * an HTML id) with an underscore for the given string.
+     *  
+     * @param name	parameter name
+     * @return		modified string with replaced characters
+     */
+    public static String safeCategoryName(String name)
+    {
+    	return name.replaceAll("[ /#.,:;(){}\\]\\[\"\'\\\\]", "_");
+    }
 }

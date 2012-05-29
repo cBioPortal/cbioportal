@@ -268,6 +268,9 @@
 <ul>
 <li><strong>cancer_study_id</strong>=[cancer study ID] (required)</li>
 <li><strong>gene_list</strong>=[a comma separated list of HUGO gene symbols] (required)</li>
+<li><strong>report</strong>=[report to display;  can be one of:  full (default), oncoprint_html]</li>
 </ul>
 <p>For example, the following links to the TCGA GBM data for EGFR and NF1:</p>
 <p><a href="link.do?cancer_study_id=gbm_tcga&amp;gene_list=EGFR,NF1">link.do?cancer_study_id=gbm_tcga&amp;gene_list=EGFR,NF1</a></p>
+<p>This link displays the same data as an Oncoprint only:</p>
+<p><a href="link.do?cancer_study_id=gbm_tcga&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html">link.do?cancer_study_id=gbm_tcga&amp;gene_list=EGFR,NF1&amp;report=oncoprint_html</a></p>

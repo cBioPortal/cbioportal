@@ -24,7 +24,7 @@ var _caseSetFilter;
 // custom case set containing filter (final) result of user selection 
 var _customCaseSet;
 
-// variable to set previous cancer study id
+// variable to store previous cancer study id
 var _previousCancerStudyId = -1;
 
 /**
@@ -452,87 +452,6 @@ function refreshCustomCaseSet(checkbox, selector)
 }
 
 /**
- * [Previous function, not used anymore] 
- * Updates the custom case set according to the new user selection.
- * 
- * @param selector	target selection box modified by the user
- */
-function __refreshCustomCaseSet(selector)
-{
-	var selectAll = false;
-	
-	// update custom case selection map
-	for(var i = 0; i < selector.options.length; i++)
-	{
-		// special "select all" option
-		if (selector.options[i].value.indexOf("_selectAll") != -1)
-		{
-			// if select all is selected, no need to process other selections
-			if (selector.options[i].selected)
-			{
-				selectAll = true;
-				break;
-			}
-		}
-		// all options other than _selectAll
-		else
-		{
-			// update selection map
-			_customCaseSelection[selector.id][selector.options[i].value] =
-				selector.options[i].selected;
-		}
-		
-		//console.log("[" + i + "] " + selector.id + "," + selector.options[i].value);
-    }
-	
-	// extract category id from selector id
-	var category = selector.id.substring(selector.id.indexOf('_') + 1);
-	
-	// reset & update corresponding (individual) filter set
-	
-	if (selectAll)
-	{
-		// add all cases without filtering
-		_caseSetFilter[category] = _clinicalCaseSet.slice();
-	}
-	else
-	{
-		_caseSetFilter[category] = new Array();
-		
-		// since free form data contains a single parameter (category) and
-		// value pair per row, we should iterate all the table to filter cases
-		for(var i = 0; i < _freeFormData.length; i++)
-		{
-			if (_freeFormData[i].paramName != category)
-			{
-				// skip parameters other than the selected category
-				continue;
-			}
-			
-			// get the category map corresponding to the current parameter name
-			var categoryMap = _customCaseSelection["select_" + category];
-			
-			// check if parameter value (corresponding to the current case) is
-			// selected by the user
-			if (categoryMap != null &&
-				categoryMap[_freeFormData[i].paramValue])
-			{	
-				// add the case (patient) to the set
-				_caseSetFilter[category].push(_freeFormData[i].caseId);
-			}
-		}
-	}
-	
-	//console.log(_caseSetFilter);
-	
-	// update the case set by taking intersection of all individual parameter sets
-	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
-	
-	// update current number of included cases
-	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
-}
-
-/**
  * Intersects all sets, each of which is filtered individually for
  * a specific category, in the given caseSetFilter array, and returns
  * the resulting set as an array.
@@ -541,12 +460,41 @@ function __refreshCustomCaseSet(selector)
  * @returns				intersection of all sets as an array
  */
 function _intersectAllCaseSets(caseSetFilter)
-{
+{		
+	// initial intersection is the whole clinical case set
 	var intersection = _clinicalCaseSet.slice();
 	
 	for (var key in caseSetFilter)
 	{
-		intersection = intersectNArrays(intersection, caseSetFilter[key]);
+		// skip sets that are not filtered (i.e. contains all cases)
+		if (caseSetFilter[key].length < _clinicalCaseSet.length)
+		{
+			// empty set (none selected)
+			if (caseSetFilter[key].length == 0)
+			{
+				// intersection will be an empty set,
+				intersection = new Array();
+			}
+			// if the current intersection contains all the cases,
+			// just set intersection as the current case set without
+			// calling the "expensive" intersectNArrays function
+			else if (intersection.length == _clinicalCaseSet.length)
+			{
+				intersection = caseSetFilter[key];
+			}
+			else
+			{
+				intersection = intersectNArrays(intersection,
+						caseSetFilter[key]);
+			}
+			
+			// check if intersection is an empty set
+			if (intersection.length == 0)
+			{
+				// no need to continue, final set will be empty
+				break;
+			}
+		}
 	}
 	
 	return intersection;
@@ -603,7 +551,7 @@ function _buildCustomCaseSet()
  * selection in the session for future use. Constructed string will only
  * contain NON-SELECTED category names.
  * 
- * @param categorySet	categorySet containing 
+ * @param categorySet	categorySet containing category names
  */
 function _selectionSummary(categorySet)
 {
@@ -629,6 +577,7 @@ function _selectionSummary(categorySet)
 		}
 	}
 	
+	// TODO instead of JSON, use something similar to the case set parameter?
 	return JSON.stringify(summary);
 }
 

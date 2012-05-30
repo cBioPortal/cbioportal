@@ -13,6 +13,10 @@ import org.mskcc.portal.model.ExtendedMutationMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.image.BufferedImage;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -25,6 +29,7 @@ public class MakeOncoPrint {
 
 	public static int CELL_HEIGHT = 21; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
 
+	private static int HEADER_CANVAS_WIDTH_PIXELS = 430;  // used to compute case set description
 	private static String UNALTERED_CASE = "CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN";
 	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
 	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
@@ -60,7 +65,7 @@ public class MakeOncoPrint {
 									   ArrayList<CaseList> caseSets,
 									   String caseSetId,
 									   double zScoreThreshold,
-                                                                           double rppaScoreThreshold,
+									   double rppaScoreThreshold,
 									   HashSet<String> geneticProfileIdSet,
 									   ArrayList<GeneticProfile> profileList,
 									   boolean forSummaryTab) throws IOException {
@@ -166,7 +171,7 @@ public class MakeOncoPrint {
 		//
 
 		// the overall div for the oncoprint
-		String oncoprintSection = "oncoprint_section_" + cancerTypeID;
+		String oncoprintSection = "oncoprint_section_" + cancerTypeID;  // if this changes, dynamicQuery.jsp and crosscancer_results.jsp need updates
 		// each oncoprint is composed of a header, body & footer
 		String oncoprintHeaderDivName = "oncoprint_header_" + cancerTypeID;
 		String oncoprintBodyDivName = "oncoprint_body_" + cancerTypeID;
@@ -187,7 +192,7 @@ public class MakeOncoPrint {
 		String unsortedGeneticAlterationsVarName = "GENETIC_ALTERATIONS_UNSORTED_" + cancerTypeID;
 		String geneticAlterationsLegendVarName = "GENETIC_ALTERATIONS_LEGEND_" + cancerTypeID;
 		String legendFootnoteVarName = "LEGEND_FOOTNOTE_" + cancerTypeID;
-		String oncoprintReferenceVarName = "ONCOPRINT_" + cancerTypeID;
+		String oncoprintReferenceVarName = "ONCOPRINT_" + cancerTypeID;  // if this changes, dynamicQuery.jsp and crosscancer_results.jsp need updates
 
 		// oncoprint header
 		if (forSummaryTab) {
@@ -250,7 +255,7 @@ public class MakeOncoPrint {
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
-														 legendFootnoteVarName, oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+														 legendFootnoteVarName, oncoprintScalingSliderName,
 														 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
 														 oncoprintAccordionTitleName, forSummaryTab));
 		out.append("</script>\n");
@@ -464,7 +469,6 @@ public class MakeOncoPrint {
 	 * @param geneticAlterationsVarName String
 	 * @param geneticAlterationsLegendVarName String
 	 * @param legendFootnoteVarName String
-	 * @param oncoprintUnsortSamplesLabelName String
 	 * @param oncoprintScalingSliderName String
 	 * @param oncoprintFormControlsIndicatorName String
 	 * @param oncoprintCustomizeIndicatorName String
@@ -483,7 +487,6 @@ public class MakeOncoPrint {
 														String geneticAlterationsVarName,
 														String geneticAlterationsLegendVarName,
 														String legendFootnoteVarName,
-														String oncoprintUnsortSamplesLabelName,
 														String oncoprintScalingSliderName,
 														String oncoprintFormControlsIndicatorName,
 														String oncoprintCustomizeIndicatorName,
@@ -507,8 +510,7 @@ public class MakeOncoPrint {
 			builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
 			builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\treturn false;\n");
 			builder.append("\t\t}).next().hide();\n");
 		}
@@ -537,18 +539,16 @@ public class MakeOncoPrint {
 						   legendFootnoteVarName  + ".get('" + legendFootnoteVarName + "'));\n");
 			// handle tooltip drawing when page is first loaded
 			builder.append("\t\tvar currentLocation = window.location.pathname;\n");
-			builder.append("\t\tif (currentLocation.indexOf(\"index.do\") != -1) { \n");
+			builder.append("\t\tif (currentLocation.indexOf(\"index.do\") != -1 || currentLocation.indexOf(\"link.do\") != -1) { \n");
 			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t}\n");
 			// handle tooltip drawing when other tabs are clicked
 			builder.append("\t\t$(\"a\").click(function(event) {\n");
 			builder.append("\t\t\t\tvar tab = $(this).attr(\"href\");\n");
 			builder.append("\t\t\tif (tab == \"#summary\") {\n");
 			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t}\n");
 			builder.append("\t\t\t// we only clear if one of the inner index.do tabs are clicked\n"); 
 			builder.append("\t\t\t// otherwise we get a noticable tooltip clear before the page is reloaded\n");
@@ -560,8 +560,7 @@ public class MakeOncoPrint {
 			builder.append("\t\t$(window).resize(function() {\n");
 			builder.append("\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName +
-						   "\"), document.getElementById(\"" + oncoprintUnsortSamplesLabelName + "\"));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t});\n");
 			// oncoprint accordion title & compress checkbox tool-tip
 			builder.append("$(\".oncoprint_customize_help\").tipTip({maxWidth: \"150px\", defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
@@ -586,15 +585,13 @@ public class MakeOncoPrint {
 			builder.append("\t\t\t\tScalarIndicator($spinner, true);\n");
 			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById('" + oncoprintSectionVarName +
-						   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "'));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t\tsetTimeout(function() {\n");
 			builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
 			builder.append("\t\t\t\t\tScalarIndicator($spinner, false);\n");
 			builder.append("\t\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById('" + oncoprintSectionVarName +
-						   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "'));\n");
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t\t}, 100);\n");
 			builder.append("\t\t\t\treturn false;\n");
 			builder.append("\t\t\t}\n");
@@ -695,8 +692,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, true); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
@@ -713,8 +709,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, false); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "return true;\">\n");
 		// show altered checkbox label
@@ -733,8 +728,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, true); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "if (this.checked) { " +
 					   "$spinner.text(unsortText); timerDelay = 100; " +
 					   "setTimeout(function() { " +
@@ -744,8 +738,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, false); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "$spinner.text(sortText); timerDelay = 100;" +
@@ -756,8 +749,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, false); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} " +
 					   "return true;\">\n");
@@ -787,8 +779,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, true); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
@@ -797,8 +788,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, false); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "setTimeout(function() { " +
@@ -808,8 +798,7 @@ public class MakeOncoPrint {
 					   "ScalarIndicator($spinner, false); " +
 					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
 					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName +
-					   "'), document.getElementById('" + oncoprintUnsortSamplesLabelName + "')); " +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "}" +
 					   "return true;\">\n");
@@ -920,17 +909,51 @@ public class MakeOncoPrint {
 	 */
 	static String getCaseSetDescription(String caseSetId, List<CaseList> caseSets) {
 
+		String toReturn = new String();
 		StringBuilder builder = new StringBuilder();
 		for (CaseList caseSet : caseSets) {
 			if (caseSetId.equals(caseSet.getStableId())) {
 				builder.append(CASE_SET_DESCRIPTION_LABEL + caseSet.getName() +
-							   ":  " + caseSet.getDescription());
+							   ": " + caseSet.getDescription());
+			}
+		}
+		// insert newlines as needed
+		int descriptionLength = 0;
+		String[] tokens = builder.toString().split(" ");
+		FontMetrics fontMetrics = getFontMetrics();
+		for (int lc = 0; lc < tokens.length; lc++) {
+			int newLength = fontMetrics.stringWidth(tokens[lc]);
+			// we do not have enough space to add token to this line, append newline, reset accumulator
+			if ((descriptionLength + newLength) > HEADER_CANVAS_WIDTH_PIXELS) {
+				if (toReturn.endsWith(" ")) {
+					toReturn = toReturn.trim();
+				}
+				toReturn += "\\n" + tokens[lc] + " ";
+				descriptionLength = fontMetrics.stringWidth(tokens[lc] + " " + CASE_SET_DESCRIPTION_LABEL);
+			}
+			else {
+				// this token fits on line, add it to return string, add length to accumulator
+				toReturn += tokens[lc];
+				descriptionLength += newLength;
+				// if this is not the last token in description, append space
+				if (lc <= tokens.length-1) {
+					newLength = fontMetrics.stringWidth(" ");
+					// if we can't fit space, append newline, reset accumulator
+					if ((descriptionLength + newLength) > HEADER_CANVAS_WIDTH_PIXELS) {
+						toReturn += "\\n";
+						descriptionLength = fontMetrics.stringWidth(CASE_SET_DESCRIPTION_LABEL);
+					}
+					// we can fit space on this line, add it to return string, add length to accumulator
+					else {
+						toReturn += " ";
+						descriptionLength += newLength;
+					}
+				}
 			}
 		}
 
 		// we need to replace " in string with \" otherwise javascript will puke
-		String toReturn = builder.toString();
-		return toReturn.replace("\"", "\\\"");
+		return (toReturn.indexOf("\"") != -1) ? toReturn.replace("\"", "\\\"") : toReturn;
 	}
 
 	/**
@@ -943,14 +966,9 @@ public class MakeOncoPrint {
 	 */
 	private static String getLongestLabel(GeneticEvent matrix[][], ProfileDataSummary dataSummary) {
 
-		// this font/size corresponds to .oncoprint td specified in global_portal.css
-		java.awt.image.BufferedImage image =
-			new java.awt.image.BufferedImage(100, 100, java.awt.image.BufferedImage.TYPE_INT_RGB);
-		java.awt.Font portalFont = new java.awt.Font("verdana", java.awt.Font.PLAIN, 12);
-		java.awt.FontMetrics fontMetrics = image.getGraphics().getFontMetrics(portalFont);
-                
 		int maxWidth = 0;
 		String longestLabel = null;
+		FontMetrics fontMetrics = getFontMetrics();
         for (int lc = 0; lc < matrix.length; lc++) {
             GeneticEvent rowEvent = matrix[lc][0];
 			String gene = rowEvent.getGene().toUpperCase();
@@ -1007,5 +1025,22 @@ public class MakeOncoPrint {
 
 		// outta here
 		return (cnaName + " | " + mrnaName + " | " + mutationName + " | " + rppaName);
+	}
+
+	/*
+	 * Utility class to get a font metrics reference.
+	 *
+	 * return FontMetrics
+	 */
+	private static FontMetrics getFontMetrics() {
+
+		// this font/size corresponds to .oncoprint td specified in global_portal.css
+		BufferedImage image = new BufferedImage(HEADER_CANVAS_WIDTH_PIXELS,
+												HEADER_CANVAS_WIDTH_PIXELS,
+												BufferedImage.TYPE_INT_RGB);
+		Font portalFont = new Font("verdana", Font.PLAIN, 12);
+
+		// outta here
+		return image.getGraphics().getFontMetrics(portalFont);
 	}
 }

@@ -413,7 +413,20 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
-            if (output != null && !output.equals("html")) {
+			// get oncoprint here - used in both branches below
+			String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
+															   geneListStr,
+															   mergedProfile,
+															   mutationList,
+															   caseSetList,
+															   caseSetId,
+															   zScoreThreshold,
+															   rppaScoreThreshold,
+															   geneticProfileIdSet,
+															   profileList,
+															   true);
+
+            if (output != null) {
 				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold);
@@ -423,21 +436,14 @@ public class QueryBuilder extends HttpServlet {
                 } else if (output.equals(DFS_SURVIVAL_PLOT)) {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
-                }
+				// (via LinkOut servlet - report=oncoprint_html arg)
+                } else if (output.equals("html")) {
+					System.out.println("output = html");
+					outputOncoprintHtml(response, oncoPrintHtml);
+				}
             } else {
-				// get oncoprint here and store in session 
-				// to avoid another call to QueryBuilder.java from visualize.jsp
-				String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
-																   geneListStr,
-																   mergedProfile,
-																   mutationList,
-																   caseSetList,
-																   caseSetId,
-																   zScoreThreshold,
-                                                                                                                                   rppaScoreThreshold,
-																   geneticProfileIdSet,
-																   profileList,
-																   true);
+
+				// set oncoprint html in session for use in visualize.jsp
 				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
 				
                 // Store download links in session (for possible future retrieval).
@@ -479,6 +485,27 @@ public class QueryBuilder extends HttpServlet {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         PrintWriter writer = response.getWriter();
         writer.write("" + dataSummary.getPercentCasesAffected());
+        writer.flush();
+        writer.close();
+    }
+
+	private void outputOncoprintHtml(HttpServletResponse response, String oncoPrintHtml) throws IOException {
+        response.setContentType("text/html");
+        PrintWriter writer = response.getWriter();
+        writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
+                "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
+        writer.write ("<head>\n");
+        writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
+		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n");
+		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>\n");
+        writer.write ("<title>OncoPrint::Results</title>\n");
+        writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+        writer.write ("</head>\n");
+        writer.write ("<body style=\"background-color:#FFFFFF\">\n");
+        writer.write(oncoPrintHtml);
+        writer.write ("</body>\n");
+        writer.write ("</html>\n");
         writer.flush();
         writer.close();
     }

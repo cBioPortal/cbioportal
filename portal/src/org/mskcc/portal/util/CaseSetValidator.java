@@ -2,8 +2,12 @@ package org.mskcc.portal.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.portal.remote.GetCaseSets;
 
@@ -28,9 +32,16 @@ public class CaseSetValidator
 			String caseIds) throws DaoException
 	{
 		ArrayList<String> invalidCases = new ArrayList<String>();
+		DaoClinicalFreeForm daoFreeForm = new DaoClinicalFreeForm();
 		
 		// get list of all case sets for the given cancer study
 		ArrayList<CaseList> caseLists = GetCaseSets.getCaseSets(studyId);
+		
+		// get cancer study for the given stable id
+		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyId);
+		
+		// get all cases in the clinical free form table for the given cancer study
+		Set<String> freeFormCases = daoFreeForm.getAllCases(study.getInternalId());
 		
 		if (!caseLists.isEmpty() &&
 			caseIds != null)
@@ -50,6 +61,12 @@ public class CaseSetValidator
 						valid = true;
 						break;
 					}
+				}
+				
+				// search also clinical free form table for the current case
+				if (freeFormCases.contains(caseId))
+				{
+					valid = true;
 				}
 				
 				// if the case cannot be found in any of the lists,

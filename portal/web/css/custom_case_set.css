@@ -19,7 +19,7 @@
 #case_set_dialog_header
 {
 	width: 100%;
-	margin-bottom: 15px;
+	margin-bottom: 5px;
 }
 
 #case_set_dialog_header #current_number_of_cases
@@ -33,6 +33,14 @@
 	margin-top: 15px;
 	margin-right: 0;
 	margin-left: auto;
+}
+
+/* style for warning messages in the dialog */
+#case_set_dialog_header .custom_case_set_warning
+{
+	color: red;
+	font-weight: bold;
+	white-space: nowrap;
 }
 
 /* centering the contents */

@@ -34,6 +34,10 @@
 				<td id="selected_cancer_study" align="left"></td>
 				<td id="number_of_cases" align="right"></td>
 			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td class="custom_case_set_warning" align="right"></td>
+			</tr>
 		</table>
 		<table id="case_set_dialog_content"></table>
 		<table id="case_set_dialog_footer">			

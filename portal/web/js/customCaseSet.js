@@ -94,6 +94,9 @@ function promptCustomCaseSetBuilder()
     	// update the case set by taking intersection of all individual parameter sets
     	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
     	
+    	// TODO temporary limiter for the number of cases
+    	_limitNumberOfCases();
+    	
     	// update total number of cases & selected number of cases
     	
     	$("#case_set_dialog_header #number_of_cases").empty();
@@ -447,6 +450,9 @@ function refreshCustomCaseSet(checkbox, selector)
 	// update the case set by taking intersection of all individual parameter sets
 	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
+	// TODO temporary limit to the number of cases
+	_limitNumberOfCases();
+	
 	// update current number of included cases
 	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
 }
@@ -498,6 +504,31 @@ function _intersectAllCaseSets(caseSetFilter)
 	}
 	
 	return intersection;
+}
+
+/**
+ * TODO Temporary work-around for upper limit of number of user-defined cases.
+ */
+function _limitNumberOfCases()
+{
+	console.log("number of filtered cases: " + _customCaseSet.length);
+	
+	if (_customCaseSet.length > 400)
+	{
+		// disable the build button
+		$("#submit_custom_case_set").attr('disabled', true);
+		
+		// show the warning message
+		$("#case_set_dialog_header .custom_case_set_warning").text("Too many cases (max: 400)");
+	}
+	else
+	{
+		// enable the build button
+		$("#submit_custom_case_set").attr('disabled', false);
+		
+		// hide the warning message
+		$("#case_set_dialog_header .custom_case_set_warning").empty();
+	}
 }
 
 /**

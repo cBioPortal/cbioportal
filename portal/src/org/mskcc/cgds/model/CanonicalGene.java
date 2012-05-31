@@ -15,8 +15,16 @@ public class CanonicalGene extends Gene {
     private Set<String> aliases;
     private double somaticMutationFrequency;
 
+    public CanonicalGene(String hugoGeneSymbol) {
+        this(-1, hugoGeneSymbol);
+    }
+
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol) {
         this(entrezGeneId, hugoGeneSymbol, null);
+    }
+
+    public CanonicalGene(String hugoGeneSymbol, Set<String> aliases) {
+        this(-1, hugoGeneSymbol, aliases);
     }
 
     public CanonicalGene(long entrezGeneId, String hugoGeneSymbol, Set<String> aliases) {
@@ -69,6 +77,11 @@ public class CanonicalGene extends Gene {
     public boolean isMicroRNA() {
         String hugo = getHugoGeneSymbolAllCaps();
         return hugo.startsWith("MIR-") || hugo.startsWith("LET-");
+    }
+    
+    public boolean isPhosphoProtein() {
+        String hugo = this.getHugoGeneSymbolAllCaps();
+        return hugo.matches("[A-Za-z0-9]+_P[STY][0-9]+.*");
     }
 
     @Override

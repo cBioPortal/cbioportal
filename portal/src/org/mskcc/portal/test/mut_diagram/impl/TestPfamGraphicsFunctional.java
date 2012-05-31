@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram.impl;
+package org.mskcc.portal.test.mut_diagram.impl;
 
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static org.junit.Assert.assertEquals;
@@ -19,7 +19,7 @@ import com.google.common.cache.CacheLoader;
 /**
  * Functional test for CacheFeatureService+PfamGraphicsCacheLoader.
  */
-public class PfamGraphicsFunctionalTest {
+public class TestPfamGraphicsFunctional {
     private FeatureService featureService;
 
     @Before

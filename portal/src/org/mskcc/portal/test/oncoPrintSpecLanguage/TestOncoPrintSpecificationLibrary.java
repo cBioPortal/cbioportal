@@ -557,7 +557,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        
        // test the default
        OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       theOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+       theOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
        
        // Expression alteration definition is <= and >=, as per docs
        Assert.assertTrue( theOncoPrintGeneDisplaySpec.satisfy
@@ -719,7 +719,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        OncoPrintGeneDisplaySpec theResultFullDataTypeSpec = new OncoPrintGeneDisplaySpec();
        Assert.assertEquals( null, GeneWithSpec.geneWithSpecGenerator
                (null, theResultFullDataTypeSpec, null ));
-       theResultFullDataTypeSpec.setDefault( 2.0 );
+       theResultFullDataTypeSpec.setDefault( 2.0, 1.0 );
        GeneWithSpec aGeneWithSpec = new GeneWithSpec( "name", theResultFullDataTypeSpec );
        Assert.assertEquals( aGeneWithSpec.toString(),
                GeneWithSpec.geneWithSpecGenerator("name",
@@ -779,7 +779,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        
        String[] genes = { "G1", "GENE2", "LAST" };
        OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       theOncoPrintGeneDisplaySpec.setDefault( 1.5f );
+       theOncoPrintGeneDisplaySpec.setDefault( 1.5f, 1.0f );
        GeneSet aGeneSet = new GeneSet( );
        for( String g : genes){
           aGeneSet.addGeneWithSpec( new GeneWithSpec( g, theOncoPrintGeneDisplaySpec ) );
@@ -816,7 +816,7 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
        
        String[] genes = { "G1", "LAST" };
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       theOncoPrintGeneDisplaySpec.setDefault( 2.5 );
+       theOncoPrintGeneDisplaySpec.setDefault( 2.5, 1.0 );
        anOncoPrintSpecification = new OncoPrintSpecification( genes, theOncoPrintGeneDisplaySpec );
        // TODO: change to .equals, when implemented
        Assert.assertEquals( theOncoPrintGeneDisplaySpec.toString(),

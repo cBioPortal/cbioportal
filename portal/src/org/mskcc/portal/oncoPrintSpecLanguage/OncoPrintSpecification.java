@@ -17,7 +17,7 @@ public class OncoPrintSpecification {
      */
     public OncoPrintSpecification(String[] genes) {
        OncoPrintGeneDisplaySpec aDefaultOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-       aDefaultOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+       aDefaultOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
        constructOncoPrintSpecification( genes, aDefaultOncoPrintGeneDisplaySpec );
    }
     

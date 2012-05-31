@@ -45,6 +45,20 @@ public interface GeneticEvent {
     public boolean isMRNADownRegulated();
 
     /**
+     * Is the Gene RPPA upregulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPAUpRegulated();
+
+    /**
+     * Is the Gene RPPA down-regulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPADownRegulated();
+
+    /**
      * Is gene mutated.
      *
      * @return true or false.
@@ -76,6 +90,13 @@ public interface GeneticEvent {
      * @return mRNA Value.
      */
     public MRNA getMrnaValue();
+
+    /**
+     * Gets the RPPA Value.
+     *
+     * @return RPPA Value.
+     */
+    public RPPA getRPPAValue();
     
     /**
      * Gets the mutations Value.

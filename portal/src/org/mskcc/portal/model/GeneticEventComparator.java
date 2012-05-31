@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.portal.model.GeneticEventImpl.mutations;
 
 /**
@@ -17,10 +18,12 @@ public class GeneticEventComparator implements Comparator<Object>{
 
    private ArrayList<EnumSet<CNA>> cnaSortOrder = new ArrayList<EnumSet<CNA>>();
    private ArrayList<EnumSet<MRNA>> mRnaSortOrder = new ArrayList<EnumSet<MRNA>>();
+   private ArrayList<EnumSet<RPPA>> rppaSortOrder = new ArrayList<EnumSet<RPPA>>();
    private ArrayList<EnumSet<mutations>> mutationsSortOrder = new ArrayList<EnumSet<mutations>>();
    
    private HashMap<CNA,Integer> cnaSortOrderHash = new HashMap<CNA,Integer>();  // load this from cnaSortOrder
    private HashMap<MRNA, Integer> mrnaSortOrderHash = new HashMap<MRNA,Integer>();  // load this from mRnaSortOrder
+   private HashMap<RPPA, Integer> rppaSortOrderHash = new HashMap<RPPA,Integer>();  // load this from mRnaSortOrder
    private HashMap<mutations,Integer> mutationsSortOrderHash =
         new HashMap<mutations,Integer>();  // load this from mutationsSortOrder
    
@@ -32,9 +35,12 @@ public class GeneticEventComparator implements Comparator<Object>{
    }
    
    public GeneticEventComparator( ArrayList<EnumSet<CNA>> CNAsortOrder,
-         ArrayList<EnumSet<MRNA>> MRNAsortOrder, ArrayList<EnumSet<mutations>> mutationsSortOrder ){
+         ArrayList<EnumSet<MRNA>> MRNAsortOrder, 
+         ArrayList<EnumSet<RPPA>> RPPAsortOrder, 
+         ArrayList<EnumSet<mutations>> mutationsSortOrder ){
       this.cnaSortOrder = CNAsortOrder;
       this.mRnaSortOrder = MRNAsortOrder;
+      this.rppaSortOrder = RPPAsortOrder;
       this.mutationsSortOrder = mutationsSortOrder; 
       initSortOrder();
    }
@@ -52,6 +58,12 @@ public class GeneticEventComparator implements Comparator<Object>{
       val = 1;
       for (MRNA aMRNA : MRNA.values()){
          mrnaSortOrderHash.put(aMRNA, new Integer( val++ ) );
+      }
+
+      // all RPPAs
+      val = 1;
+      for (RPPA aRPPA : RPPA.values()){
+         rppaSortOrderHash.put(aRPPA, new Integer( val++ ) );
       }
       
       // all mutations
@@ -78,6 +90,15 @@ public class GeneticEventComparator implements Comparator<Object>{
          MRNAsortOrder.add(EnumSet.of(aMRNA));
       }
       return MRNAsortOrder;
+   }
+
+   public static ArrayList<EnumSet<RPPA>> defaultRPPASortOrder() {
+      ArrayList<EnumSet<RPPA>> RPPAsortOrder = new ArrayList<EnumSet<RPPA>>();
+      // all MRNAs
+      for (RPPA aRPPA : RPPA.values()) {
+         RPPAsortOrder.add(EnumSet.of(aRPPA));
+      }
+      return RPPAsortOrder;
    }
 
    public static ArrayList<EnumSet<mutations>> defaultMutationsSortOrder() {
@@ -121,6 +142,22 @@ public class GeneticEventComparator implements Comparator<Object>{
       for (MRNA aMRNA : MRNA.values()){
          if( !mrnaSortOrderHash.containsKey(aMRNA) ){
             throw new IllegalArgumentException("MRNA sets missing: " + aMRNA );
+         }
+      }
+
+      // RPPA
+      val = 1;
+      for( EnumSet<RPPA> aRPPAset: rppaSortOrder){
+         for( RPPA aRPPA : aRPPAset){
+            rppaSortOrderHash.put(aRPPA, new Integer(val) );
+            //System.out.println( aMRNA + ": " + val );
+         }
+         val++;
+      }
+      // verify all RPPAs
+      for (RPPA aRPPA : RPPA.values()){
+         if( !rppaSortOrderHash.containsKey(aRPPA) ){
+            throw new IllegalArgumentException("RPPA sets missing: " + aRPPA );
          }
       }
       
@@ -168,6 +205,16 @@ public class GeneticEventComparator implements Comparator<Object>{
          return 1;
       }
       
+      // RPPA
+      if( rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue() < rppaSortOrderHash.get
+              ( ge2.getRPPAValue() ).intValue() ){
+         return -1;
+      }
+      if( rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue() > rppaSortOrderHash.get
+              ( ge2.getRPPAValue() ).intValue() ){
+         return 1;
+      }
+      
       // mutations
       if( mutationsSortOrderHash.get( ge1.getMutationValue() ).intValue() < mutationsSortOrderHash.get
               ( ge2.getMutationValue() ).intValue() ){
@@ -195,6 +242,15 @@ public class GeneticEventComparator implements Comparator<Object>{
          // MRNA
          if( mrnaSortOrderHash.get( ge1.getMrnaValue() ).intValue() != mrnaSortOrderHash.get
                  ( ge2.getMrnaValue() ).intValue() ){
+            return false;
+         }
+         
+         // RPPA
+         System.out.println(ge1.getRPPAValue());
+         System.out.println(rppaSortOrderHash.get( ge1.getRPPAValue() ));
+         System.out.println(rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue());
+         if( rppaSortOrderHash.get( ge1.getRPPAValue() ).intValue() != rppaSortOrderHash.get
+                 ( ge2.getRPPAValue() ).intValue() ){
             return false;
          }
          

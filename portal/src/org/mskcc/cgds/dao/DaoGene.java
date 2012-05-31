@@ -48,6 +48,31 @@ class DaoGene {
         }
         return daoGene;
     }
+    
+    public int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT MIN(ENTREZ_GENE_ID) FROM gene");
+            rs = pstmt.executeQuery();
+            int min = 0;
+            if (rs.next()) {
+                min = rs.getInt(1);
+                if (min > 0)
+                    min = 0;
+            }
+            gene.setEntrezGeneId(min-1);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+        
+        return addGene(gene);
+    }
 
     /**
      * Adds a new Gene Record to the Database.

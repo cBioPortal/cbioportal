@@ -1,11 +1,18 @@
-# February 27, 2011
+# May 16, 2012
 
-* All data updated to the __latest Firehose run__ (January 24).
+* All data updated to the __latest Broad Firehose run__ (March 21, 2012).
+* Extended cross-cancer functionality, enabling users to query across all cancer studies in our database.
+* New "build a case" functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
+* New OncoPrint features, including more compact OncoPrints, and support for RPPA visualization.
+
+# February 27, 2012
+
+* All data updated to the __latest Broad Firehose run__ (January 24, 2012).
 * Validated mutation data for colorectal cancer.
 * New feature: __Mutation Diagrams__ that show mutations in the context of protein domains.
 <center>![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)</center>
 
-# January 30, 2011
+# January 30, 2012
 
 * Updated data for several TCGA cancer studies.
 * Some small bug-fixes.

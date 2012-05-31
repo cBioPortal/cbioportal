@@ -1,6 +1,7 @@
 package org.mskcc.cgds.dao;
 
 import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.CaseListCategory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,12 +24,13 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection();
 
-            pstmt = con.prepareStatement("INSERT INTO case_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `DESCRIPTION`)"
-                                        + " VALUES (?,?,?,?)");
+            pstmt = con.prepareStatement("INSERT INTO case_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `CATEGORY`," +
+                    "`DESCRIPTION`)" + " VALUES (?,?,?,?,?)");
             pstmt.setString(1, caseList.getStableId());
             pstmt.setInt(2, caseList.getCancerStudyId());
             pstmt.setString(3, caseList.getName());
-            pstmt.setString(4, caseList.getDescription());
+            pstmt.setString(4, caseList.getCaseListCategory().getCategory());
+            pstmt.setString(5, caseList.getDescription());
             int rows = pstmt.executeUpdate();
    			int listListRow = addCaseListList(caseList, con);
    			rows = (listListRow != -1) ? (rows + listListRow) : rows;
@@ -277,6 +279,7 @@ public class DaoCaseList {
         caseList.setStableId(rs.getString("STABLE_ID"));
         caseList.setCancerStudyId(rs.getInt("CANCER_STUDY_ID"));
         caseList.setName(rs.getString("NAME"));
+        caseList.setCaseListCategory(CaseListCategory.get(rs.getString("CATEGORY")));
         caseList.setDescription(rs.getString("DESCRIPTION"));
         caseList.setCaseListId(rs.getInt("LIST_ID"));
         return caseList;

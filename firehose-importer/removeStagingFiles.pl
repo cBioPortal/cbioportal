@@ -61,11 +61,6 @@ sub main{
 			system("rm -f $toRemove"); 
 		}
 
-		if (exists($cancerCaseFilesToSkip{$cancerDirectory})) {
-		  print "skipping removal of case files from: $cancerDirectory\n";
-		  next;
-		}
-
 		# construct case list directories
 		my $stagingAreaCaseListDirectory = File::Spec->catdir($stagingAreaCancerDirectory, 'case_lists');
 		my $overrideCaseListDirectory = File::Spec->catdir($overridesDirectory, $cancerDirectory, 'case_lists');
@@ -77,11 +72,15 @@ sub main{
 				# check if exists in overrides
 				my $caseListInOverrides = File::Spec->catfile($overrideCaseListDirectory, $caseListFile);
 				if (-e $caseListInOverrides || $caseListFile eq 'cases_sequenced.txt') {
-					print "removing case list file from staging area: $caseListInOverrides\n";
-					my $toRemove = File::Spec->catfile($stagingAreaCaseListDirectory, $caseListFile);
-					system("rm -f $toRemove"); 
+				  if (exists($cancerCaseFilesToSkip{$cancerDirectory}) && $caseListFile ne 'cases_sequenced.txt') {
+					print "skipping removal of case file $caseListFile from: $cancerDirectory\n";
+					next;
+				  }
+				  print "removing case list file from staging area: $caseListInOverrides\n";
+				  my $toRemove = File::Spec->catfile($stagingAreaCaseListDirectory, $caseListFile);
+				  system("rm -f $toRemove"); 
 				}
-			}
+			  }
 		}
     }
 }

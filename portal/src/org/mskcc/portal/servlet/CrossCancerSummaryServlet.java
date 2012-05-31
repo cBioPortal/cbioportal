@@ -216,7 +216,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
 														   caseList,
 														   defaultCaseSet.getStableId(),
 														   zScore,
-                                                                                                                   rppaScore,
+														   rppaScore,
 														   new HashSet<String>(defaultGeneticProfileSet.keySet()),
 														   new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
 														   false);

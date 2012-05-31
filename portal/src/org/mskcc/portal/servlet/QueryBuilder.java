@@ -438,7 +438,6 @@ public class QueryBuilder extends HttpServlet {
                             zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
 				// (via LinkOut servlet - report=oncoprint_html arg)
                 } else if (output.equals("html")) {
-					System.out.println("output = html");
 					outputOncoprintHtml(response, oncoPrintHtml);
 				}
             } else {
@@ -500,10 +499,14 @@ public class QueryBuilder extends HttpServlet {
 		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n");
 		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>\n");
         writer.write ("<title>OncoPrint::Results</title>\n");
+        writer.write ("<link href=\"css/tipTip.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
         writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		writer.write ("<link href=\"css/redmond/jquery-ui-1.8.14.custom.css\" type=\"text/css\" rel=\"stylesheet\">\n");
         writer.write ("</head>\n");
         writer.write ("<body style=\"background-color:#FFFFFF\">\n");
+        writer.write ("<div id=\"content\">\n");
         writer.write(oncoPrintHtml);
+        writer.write ("</div>\n");
         writer.write ("</body>\n");
         writer.write ("</html>\n");
         writer.flush();

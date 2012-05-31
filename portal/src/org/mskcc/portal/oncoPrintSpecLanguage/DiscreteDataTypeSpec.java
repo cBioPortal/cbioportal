@@ -72,6 +72,8 @@ public class DiscreteDataTypeSpec extends DataTypeSpecInequality{
             return( value.compareTo(theCNAthreshold) <= 0 );
         case Less:
             return( value.compareTo(theCNAthreshold) < 0 );
+        case Equal:
+            return ( value.compareTo(theCNAthreshold) == 0 );
         }
         // keep compiler happy
         (new UnreachableCodeException( "")).printStackTrace();

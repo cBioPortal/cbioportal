@@ -159,20 +159,43 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         return false;
     }
     
-    private boolean satisfySpecificMutation( String specificMutation ) {
-        String specificMutationUpper = specificMutation.toUpperCase(); 
-        if (specifiedMutations.contains(specificMutationUpper)) {
-            // complete match, including specific mutation to an amino acid such V600E, D200fs
-            return true;
-        }
-        
-        for ( String specifiedMutation : specifiedMutations ) {
-            if (specifiedMutation.matches("[A-Z\\*][0-9]+")) {
-                // all mutations for a specific amino acid
-                if (specificMutation.matches("^"+Pattern.quote(specifiedMutation)+"[^0-9]*")) {
-                    // so that "S30" will not match "S301"
-                    return true;
-                }
+    private boolean satisfySpecificMutation( String specificMutations ) {
+        String specificMutationsUpper = specificMutations.toUpperCase(); 
+        for (String specificMutationUpper : specificMutationsUpper.split(",")) {
+            if (specifiedMutations.contains(specificMutationUpper)) {
+                // complete match, including specific mutation to an amino acid such V600E, D200fs
+                return true;
+            }
+
+            for ( String specifiedMutation : specifiedMutations ) {
+                if (specifiedMutation.matches("[A-Z\\*][0-9]+")) {
+                    // all mutations for a specific amino acid
+                    if (specificMutationUpper.matches(Pattern.quote(specifiedMutation)+"[^0-9]*")) {
+                        // so that "S30" will not match "S301"
+                        return true;
+                    }
+                } 
+                // The follow types are matched according the the mutaiton string,
+                // which may not be correct. A more accurate solution would be using
+                // the mutation_type from database directly
+                else if (specifiedMutation.equals("MS") || specifiedMutation.equals("MISSENSE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
+                        return true;
+                    }
+                } else if (specifiedMutation.equals("NS") || specifiedMutation.equals("NONSENSE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
+                        return true;
+                    }
+                } else if (specifiedMutation.equals("FS") || specifiedMutation.equals("FRAMESHIFT")) {
+                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
+                        return true;
+                    }
+                } else if (specifiedMutation.equals("SP") || specifiedMutation.equals("SPLICE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
+                        return true;
+                    }
+                } 
             }
         }
         return false;

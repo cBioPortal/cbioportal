@@ -455,7 +455,8 @@ public class NetworkServlet extends HttpServlet {
                     }
                 }
         }
-        String[] caseArray = strCaseIds.split(" ");
+        //String[] caseArray = strCaseIds.split(" ");
+        String[] caseArray = strCaseIds.split("\\s+");
         Set<String> targetCaseIds = new HashSet<String>(caseArray.length);
         for (String caseId : caseArray) {
             targetCaseIds.add(caseId);

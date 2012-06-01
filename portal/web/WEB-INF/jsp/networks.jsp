@@ -7,7 +7,8 @@
     String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
     String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
     String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String caseIds4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS);
+    String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
+    		replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
     String caseSetId4Network = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
     String zScoreThesholdStr4Network = request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString();
     String useXDebug = request.getParameter("xdebug");

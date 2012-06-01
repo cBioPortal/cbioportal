@@ -47,7 +47,7 @@ public class CaseSetValidator
 			caseIds != null)
 		{
 			// validate each case ID
-			for(String caseId: caseIds.trim().split(" "))
+			for(String caseId: caseIds.trim().split("\\s+"))
 			{
 				boolean valid = false;
 				

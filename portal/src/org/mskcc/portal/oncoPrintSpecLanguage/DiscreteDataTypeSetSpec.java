@@ -167,7 +167,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         }
         
         for ( String specifiedMutation : specifiedMutations ) {
-            if (specifiedMutation.matches("[A-Z][0-9]+")) {
+            if (specifiedMutation.matches("[A-Z\\*][0-9]+")) {
                 // all mutations for a specific amino acid
                 if (specificMutation.matches("^"+Pattern.quote(specifiedMutation)+"[^0-9]*")) {
                     // so that "S30" will not match "S301"

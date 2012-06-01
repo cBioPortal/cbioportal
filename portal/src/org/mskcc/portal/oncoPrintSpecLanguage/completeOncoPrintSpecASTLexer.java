@@ -1,4 +1,4 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 ./completeOncoPrintSpecAST.g 2012-05-30 15:37:48
+// $ANTLR 3.2 Sep 23, 2009 12:02:23 ./completeOncoPrintSpecAST.g 2012-06-01 11:59:27
 
 	package org.mskcc.portal.oncoPrintSpecLanguage;
 
@@ -375,10 +375,10 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ./completeOncoPrintSpecAST.g:206:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )* )
-            // ./completeOncoPrintSpecAST.g:206:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )*
+            // ./completeOncoPrintSpecAST.g:206:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '*' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )* )
+            // ./completeOncoPrintSpecAST.g:206:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '*' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )*
             {
-            if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
+            if ( input.LA(1)=='*'||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
 
             }
@@ -387,7 +387,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // ./completeOncoPrintSpecAST.g:206:31: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )*
+            // ./completeOncoPrintSpecAST.g:206:35: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' | '/' )*
             loop2:
             do {
                 int alt2=2;
@@ -1175,9 +1175,9 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     static final String DFA13_specialS =
         "\37\uffff}>";
     static final String[] DFA13_transitionS = {
-            "\2\14\2\uffff\1\14\22\uffff\1\14\1\uffff\1\15\3\uffff\1\6\6"+
-            "\uffff\1\11\1\13\1\uffff\12\12\1\4\1\5\3\7\2\uffff\3\10\1\3"+
-            "\26\10\4\uffff\1\10\1\uffff\32\10\1\1\1\uffff\1\2",
+            "\2\14\2\uffff\1\14\22\uffff\1\14\1\uffff\1\15\3\uffff\1\6\3"+
+            "\uffff\1\10\2\uffff\1\11\1\13\1\uffff\12\12\1\4\1\5\3\7\2\uffff"+
+            "\3\10\1\3\26\10\4\uffff\1\10\1\uffff\32\10\1\1\1\uffff\1\2",
             "",
             "",
             "\1\16",

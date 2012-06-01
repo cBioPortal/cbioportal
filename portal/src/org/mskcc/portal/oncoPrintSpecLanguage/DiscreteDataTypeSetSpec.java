@@ -3,6 +3,7 @@ package org.mskcc.portal.oncoPrintSpecLanguage;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 import org.mskcc.portal.util.EqualsUtil;
 import org.mskcc.portal.util.HashCodeUtil;
@@ -16,8 +17,8 @@ import org.mskcc.portal.util.HashCodeUtil;
  */
 public class DiscreteDataTypeSetSpec extends DataTypeSpec{
 
-    private Set<GeneticTypeLevel> specifiedValues;
-    private Set<String> specifiedMutations;
+    private final Set<GeneticTypeLevel> specifiedValues;
+    private final Set<String> specifiedMutations;
     
     public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType){
         this.theGeneticDataType = theGeneticDataType;
@@ -55,6 +56,23 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeName );
         // convertCode throws an exception if levelCode is not a level for theGeneticDataTypeName
         specifiedValues = EnumSet.of( GeneticTypeLevel.convertCode( this.theGeneticDataType, levelCode ));
+        specifiedMutations = new HashSet<String>();
+    }
+    
+    /**
+     * create a DiscreteDataTypeSetSpec from a datatype name and a set of levels.
+     * 
+     * @param theGeneticDataType
+     * @param validValues
+     */
+    public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType,
+            GeneticTypeLevel... validValues) {
+        this.theGeneticDataType = theGeneticDataType;
+        this.specifiedValues = EnumSet.noneOf(GeneticTypeLevel.class);
+        // TODO: perhaps make it an error to provide no validValues 
+        for( GeneticTypeLevel c : validValues){
+            this.specifiedValues.add(c);
+        }
         specifiedMutations = new HashSet<String>();
     }
     
@@ -105,23 +123,6 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         ret.addLevel(specificMutation);
         return ret;
     }
-    
-    
-    /**
-     * create a DiscreteDataTypeSetSpec from a datatype name and a set of levels.
-     * 
-     * @param theGeneticDataType
-     * @param validValues
-     */
-    public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType,
-            GeneticTypeLevel... validValues) {
-        this.theGeneticDataType = theGeneticDataType;
-        this.specifiedValues = EnumSet.noneOf(GeneticTypeLevel.class);
-        // TODO: perhaps make it an error to provide no validValues 
-        for( GeneticTypeLevel c : validValues){
-            this.specifiedValues.add(c);
-        }
-    }
 
     public static GeneticDataTypes findDataType( String name )
     throws IllegalArgumentException{
@@ -159,9 +160,19 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
     }
     
     private boolean satisfySpecificMutation( String specificMutation ) {
+        String specificMutationUpper = specificMutation.toUpperCase(); 
+        if (specifiedMutations.contains(specificMutationUpper)) {
+            // complete match, including specific mutation to an amino acid such V600E, D200fs
+            return true;
+        }
+        
         for ( String specifiedMutation : specifiedMutations ) {
-            if (specificMutation.toUpperCase().startsWith(specifiedMutation)) {
-                return true;
+            if (specifiedMutation.matches("[A-Z][0-9]+")) {
+                // all mutations for a specific amino acid
+                if (specificMutation.matches("^"+Pattern.quote(specifiedMutation)+"[^0-9]*")) {
+                    // so that "S30" will not match "S301"
+                    return true;
+                }
             }
         }
         return false;

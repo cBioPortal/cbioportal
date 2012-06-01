@@ -3,7 +3,6 @@ package org.mskcc.portal.oncoPrintSpecLanguage;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Iterator;
 import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 import org.mskcc.portal.util.EqualsUtil;
 import org.mskcc.portal.util.HashCodeUtil;
@@ -103,7 +102,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      */
     public static DiscreteDataTypeSetSpec specificMutationDataTypeSetSpecGenerator(String specificMutation){
         DiscreteDataTypeSetSpec ret = new DiscreteDataTypeSetSpec(GeneticDataTypes.Mutation);
-        ret.addSpecificMutation(specificMutation);
+        ret.addLevel(specificMutation);
         return ret;
     }
     
@@ -150,7 +149,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      */
     public boolean satisfy( Object value ) {
         if (value instanceof GeneticTypeLevel) {
-            return this.specifiedValues.contains(value);
+            return this.specifiedValues.contains((GeneticTypeLevel)value);
         } else if (theGeneticDataType == GeneticDataTypes.Mutation) {
             if (value instanceof String) {
                 return satisfySpecificMutation((String)value);
@@ -161,7 +160,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
     
     private boolean satisfySpecificMutation( String specificMutation ) {
         for ( String specifiedMutation : specifiedMutations ) {
-            if (specificMutation.startsWith(specifiedMutation)) {
+            if (specificMutation.toUpperCase().startsWith(specifiedMutation)) {
                 return true;
             }
         }
@@ -173,12 +172,14 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      * if aGeneticTypeLevel is already accepted no change occurs.
      * @param aGeneticTypeLevel
      */
-    public void addLevel( GeneticTypeLevel value ){
-        this.specifiedValues.add(value);
-    }
-    
-    public void addSpecificMutation(String specificMutation) {
-        this.specifiedMutations.add(specificMutation);
+    public void addLevel( Object value ){
+        if (value instanceof GeneticTypeLevel) {
+            specifiedValues.add((GeneticTypeLevel) value);
+        } else if (theGeneticDataType == GeneticDataTypes.Mutation && value instanceof String) {
+            specifiedMutations.add(((String)value).toUpperCase());
+        } else {
+            throw new java.lang.IllegalArgumentException("Wrong level");
+        }
     }
 
     /**

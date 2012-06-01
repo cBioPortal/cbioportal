@@ -161,7 +161,7 @@ dataTypeSpec returns [DataTypeSpec theDataTypeSpec]
 		{
 		$theDataTypeSpec = ConcreteDataTypeSpec.concreteDataTypeSpecGenerator( $ID.text );
 		if( null == $theDataTypeSpec ){
-			$theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( $ID.text );
+			$theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( $ID.text );
 		}
 		if( null == $theDataTypeSpec ){
 					// APG ERRORS: throw IAE
@@ -194,7 +194,7 @@ discreteDataType returns [DataTypeSpec theDataTypeSpec]
 	| 
 	^(DiscreteDataType ID SIGNED_INT )
 	{
-		$theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( $ID.text, $SIGNED_INT.text );
+		$theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode( $ID.text, $SIGNED_INT.text );
 		if( null == $theDataTypeSpec ){
 			// APG ERRORS: throw IAE
 			generateOncoError(   $ID.pos, $ID.line, $ID.text + " " + $SIGNED_INT.text, 

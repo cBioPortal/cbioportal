@@ -1,6 +1,8 @@
 package org.mskcc.portal.oncoPrintSpecLanguage;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 import org.mskcc.portal.util.EqualsUtil;
@@ -15,7 +17,14 @@ import org.mskcc.portal.util.HashCodeUtil;
  */
 public class DiscreteDataTypeSetSpec extends DataTypeSpec{
 
-    private EnumSet<GeneticTypeLevel> specifiedValues;
+    private Set<GeneticTypeLevel> specifiedValues;
+    private Set<String> specifiedMutations;
+    
+    public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType){
+        this.theGeneticDataType = theGeneticDataType;
+        specifiedValues = EnumSet.noneOf(GeneticTypeLevel.class);
+        specifiedMutations = new HashSet<String>();
+    }
     
     /**
      * create a DiscreteDataTypeSetSpec from a datatype name and a data type level
@@ -24,11 +33,11 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      */
     public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType,
             GeneticTypeLevel validValues1) throws IllegalArgumentException{
-
         // verify that validValues1 is a level for theGeneticDataType
         if( validValues1.getTheGeneticDataType().equals(theGeneticDataType)){
             this.theGeneticDataType = theGeneticDataType;
             this.specifiedValues = EnumSet.of(validValues1);
+            specifiedMutations = new HashSet<String>();
         }else{
             throw new IllegalArgumentException( validValues1 + " is not a level for " + theGeneticDataType );
         }
@@ -44,12 +53,19 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
             int levelCode) {
        //System.out.format( "DiscreteDataTypeSetSpec: constructed with '%s' and '%d'%n", theGeneticDataTypeName, levelCode );
        
-        this.theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeName );
+        theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeName );
         // convertCode throws an exception if levelCode is not a level for theGeneticDataTypeName
-        this.specifiedValues = EnumSet.of( GeneticTypeLevel.convertCode( this.theGeneticDataType, levelCode ));
+        specifiedValues = EnumSet.of( GeneticTypeLevel.convertCode( this.theGeneticDataType, levelCode ));
+        specifiedMutations = new HashSet<String>();
     }
     
-    public static DiscreteDataTypeSetSpec discreteDataTypeSetSpecGenerator(String theGeneticDataTypeNameString,
+    /**
+     * 
+     * @param theGeneticDataTypeNameString
+     * @param levelCodeString
+     * @return 
+     */
+    public static DiscreteDataTypeSetSpec discreteDataTypeSetSpecGeneratorByLevelCode(String theGeneticDataTypeNameString,
           String levelCodeString ){
        
        try {
@@ -63,34 +79,34 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
     }
 
     /**
-     * create a DiscreteDataTypeSetSpec from the name of a (hopefully) discrete level.
      * 
      * @param levelName
-     * @throws IllegalArgumentException
+     * @return 
      */
-    public DiscreteDataTypeSetSpec(String levelName) throws IllegalArgumentException{
-        GeneticTypeLevel theGeneticTypeLevel = GeneticTypeLevel.findDataTypeLevel(levelName);
-        //out.format( "DiscreteDataTypeSetSpec: called with '%s'%n", levelName );
+    public static DiscreteDataTypeSetSpec discreteDataTypeSetSpecGeneratorByLevelName(String levelName){
+       GeneticTypeLevel theGeneticTypeLevel = GeneticTypeLevel.findDataTypeLevel(levelName);
 
         // verify that levelName maps to a level within a discrete datatype
         if( theGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory()
             .equals(DataTypeCategory.Discrete) ){
-            this.specifiedValues = EnumSet.of( theGeneticTypeLevel );
-            this.theGeneticDataType = theGeneticTypeLevel.getTheGeneticDataType();
-            //System.out.format( "DiscreteDataTypeSetSpec: constructed with '%s'%n", levelName );
+            return new DiscreteDataTypeSetSpec(theGeneticTypeLevel.getTheGeneticDataType(),
+                    theGeneticTypeLevel);
         }else{
-            throw new IllegalArgumentException( levelName + " is not a level within a discrete datatype" );
+            return null;
         }
     }
-
-    public static DiscreteDataTypeSetSpec discreteDataTypeSetSpecGenerator(String levelName){
-       
-       try {
-         return new DiscreteDataTypeSetSpec( levelName );
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
+    
+    /**
+     * 
+     * @param specificMutation
+     * @return 
+     */
+    public static DiscreteDataTypeSetSpec specificMutationDataTypeSetSpecGenerator(String specificMutation){
+        DiscreteDataTypeSetSpec ret = new DiscreteDataTypeSetSpec(GeneticDataTypes.Mutation);
+        ret.addSpecificMutation(specificMutation);
+        return ret;
     }
+    
     
     /**
      * create a DiscreteDataTypeSetSpec from a datatype name and a set of levels.
@@ -106,15 +122,6 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         for( GeneticTypeLevel c : validValues){
             this.specifiedValues.add(c);
         }
-    }
-    
-    /**
-     * create a DiscreteDataTypeSetSpec that accepts no levels
-     * @param theGeneticDataType
-     */
-    public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType) {
-        this.theGeneticDataType = theGeneticDataType;
-        this.specifiedValues = EnumSet.noneOf(GeneticTypeLevel.class);
     }
 
     public static GeneticDataTypes findDataType( String name )
@@ -141,8 +148,24 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      * @param value
      * @return true if value satisfies this DiscreteDataTypeSetSpec
      */
-    public boolean satisfy( GeneticTypeLevel value) {
-        return this.specifiedValues.contains(value);
+    public boolean satisfy( Object value ) {
+        if (value instanceof GeneticTypeLevel) {
+            return this.specifiedValues.contains(value);
+        } else if (theGeneticDataType == GeneticDataTypes.Mutation) {
+            if (value instanceof String) {
+                return satisfySpecificMutation((String)value);
+            }
+        }
+        return false;
+    }
+    
+    private boolean satisfySpecificMutation( String specificMutation ) {
+        for ( String specifiedMutation : specifiedMutations ) {
+            if (specificMutation.startsWith(specifiedMutation)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -150,8 +173,12 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      * if aGeneticTypeLevel is already accepted no change occurs.
      * @param aGeneticTypeLevel
      */
-    public void addLevel( GeneticTypeLevel aGeneticTypeLevel ){
-        this.specifiedValues.add(aGeneticTypeLevel);
+    public void addLevel( GeneticTypeLevel value ){
+        this.specifiedValues.add(value);
+    }
+    
+    public void addSpecificMutation(String specificMutation) {
+        this.specifiedMutations.add(specificMutation);
     }
 
     /**
@@ -160,15 +187,18 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      */
     public void combine(DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec) {
         this.specifiedValues.addAll(aDiscreteDataTypeSetSpec.getSpecifiedValues());
+        this.specifiedMutations.addAll(aDiscreteDataTypeSetSpec.getSpecifiedMutations());
     }
 
     @Override
     public String toString() {
         //return theGeneticDataType.toString() + " in " + specifiedValues.toString();
-        StringBuffer sb = new StringBuffer();
-        Iterator<GeneticTypeLevel> anIterator = specifiedValues.iterator();
-        while( anIterator.hasNext() ){
-            sb.append( anIterator.next().toString() ).append(" ");
+        StringBuilder sb = new StringBuilder();
+        for (GeneticTypeLevel value : specifiedValues){
+            sb.append( value.toString() ).append(" ");
+        }
+        for (String str : specifiedMutations) {
+            sb.append( str ).append( " " );
         }
         return sb.toString();
     }
@@ -180,7 +210,8 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         DiscreteDataTypeSetSpec that = (DiscreteDataTypeSetSpec) aThat;
         return
             EqualsUtil.areEqual(this.theGeneticDataType, that.theGeneticDataType) &&
-            EqualsUtil.areEqual(this.specifiedValues, that.specifiedValues);
+            EqualsUtil.areEqual(this.specifiedValues, that.specifiedValues) &&
+            EqualsUtil.areEqual(this.specifiedMutations, that.specifiedMutations);
     }
 
     // TODO: TEST
@@ -189,11 +220,16 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         int result = HashCodeUtil.SEED;
         result = HashCodeUtil.hash( result, theGeneticDataType );
         result = HashCodeUtil.hash( result, specifiedValues );
+        result = HashCodeUtil.hash( result, specifiedMutations);
         return result;
     }
 
-    public EnumSet<GeneticTypeLevel> getSpecifiedValues() {
+    public Set<GeneticTypeLevel> getSpecifiedValues() {
         return specifiedValues;
+    }
+    
+    public Set<String> getSpecifiedMutations() {
+        return specifiedMutations;
     }
 
     @Override public final Object clone() throws CloneNotSupportedException {

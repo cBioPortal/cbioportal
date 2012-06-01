@@ -618,7 +618,7 @@ public class completeOncoPrintSpecASTwalker extends TreeParser {
 
                     		theDataTypeSpec = ConcreteDataTypeSpec.concreteDataTypeSpecGenerator( (ID10!=null?ID10.getText():null) );
                     		if( null == theDataTypeSpec ){
-                    			theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( (ID10!=null?ID10.getText():null) );
+                    			theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( (ID10!=null?ID10.getText():null) );
                     		}
                     		if( null == theDataTypeSpec ){
                     					// APG ERRORS: throw IAE
@@ -768,7 +768,7 @@ public class completeOncoPrintSpecASTwalker extends TreeParser {
 
                     match(input, Token.UP, null); 
 
-                    		theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( (ID14!=null?ID14.getText():null), (SIGNED_INT15!=null?SIGNED_INT15.getText():null) );
+                    		theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode( (ID14!=null?ID14.getText():null), (SIGNED_INT15!=null?SIGNED_INT15.getText():null) );
                     		if( null == theDataTypeSpec ){
                     			// APG ERRORS: throw IAE
                     			generateOncoError(   (ID14!=null?ID14.getCharPositionInLine():0), (ID14!=null?ID14.getLine():0), (ID14!=null?ID14.getText():null) + " " + (SIGNED_INT15!=null?SIGNED_INT15.getText():null), 

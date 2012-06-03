@@ -1227,7 +1227,7 @@ function dropDownVisibility(element)
 	var weight;
 	var selectedOption = $("#drop_down_select").val();
 	// if an element is already filtered then it should remain invisible 
-	if (_alreadyFiltered[element.data.id] != null && element.data.type != "Drug")
+	if (_alreadyFiltered[element.data.id] != null )
 	{
 		visible = false;
 	}
@@ -1240,24 +1240,6 @@ function dropDownVisibility(element)
 	}
 	else
 	{	
-		// get the weight of the node
-		weight = _geneWeightMap[element.data.id];
-		
-		// if the weight of the current node is below the threshold value
-		// then it should be filtered
-		
-		if (weight != null)
-		{
-			if (weight >= _geneWeightThreshold)
-			{
-				visible = true;
-			}
-		}
-		else
-		{
-			// no weight value, filter not applicable
-			visible = true;
-		}
 		
 		//if the node is a drug then check the drop down selection
 		
@@ -1266,21 +1248,22 @@ function dropDownVisibility(element)
 				visible = false;
 			}else if(selectedOption.toString() == "SHOW_ALL"){
 				visible = true;
-			}else{
+			}else{  // check FDA approved
 				if( element.data.FDA_APPROVAL == "true")
 					visible = true;
 				else
 					visible = false;
 			}
 		}
+		else
+			visible = true;
 		
 		if (!visible)
 		{
 			// if the element should be filtered,
 			// then add it to the required maps
-			
+			_filteredByDropDown[element.data.id] = element;
 			_alreadyFiltered[element.data.id] = element;
-			_filteredBySlider[element.data.id] = element;
 		}
 	}
 	
@@ -1289,11 +1272,11 @@ function dropDownVisibility(element)
 
 
 /**
- * Determines the visibility of a gene (node) for filtering purposes. This
- * function is designed to filter genes by the slider value.
+ * Determines the visibility of a node for filtering purposes. This
+ * function is designed to filter nodes by the slider value and drop down selection.
  * 
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element	node to be checked for visibility criteria
+ * @return			true if the node should be visible, false otherwise
  */
 function sliderVisibility(element)
 {
@@ -1312,15 +1295,16 @@ function sliderVisibility(element)
 	{
 		visible = true;
 	}
+	
 	else
 	{	
 		// get the weight of the node
 		weight = _geneWeightMap[element.data.id];
 		
 		// if the weight of the current node is below the threshold value
-		// then it should be filtered
+		// then it should be filtered (also check the element is not a drug)
 		
-		if (weight != null)
+		if (weight != null && element.data.type != "Drug")
 		{
 			if (weight >= _geneWeightThreshold)
 			{

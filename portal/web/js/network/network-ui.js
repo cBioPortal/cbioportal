@@ -1,3 +1,5 @@
+
+
 // flags
 var _autoLayout;
 var _removeDisconnected;
@@ -1225,7 +1227,7 @@ function dropDownVisibility(element)
 	var weight;
 	var selectedOption = $("#drop_down_select").val();
 	// if an element is already filtered then it should remain invisible 
-	if (_alreadyFiltered[element.data.id] != null && element.data.type != "Drug")
+	if (_alreadyFiltered[element.data.id] != null )
 	{
 		visible = false;
 	}
@@ -1238,24 +1240,6 @@ function dropDownVisibility(element)
 	}
 	else
 	{	
-		// get the weight of the node
-		weight = _geneWeightMap[element.data.id];
-		
-		// if the weight of the current node is below the threshold value
-		// then it should be filtered
-		
-		if (weight != null)
-		{
-			if (weight >= _geneWeightThreshold)
-			{
-				visible = true;
-			}
-		}
-		else
-		{
-			// no weight value, filter not applicable
-			visible = true;
-		}
 		
 		//if the node is a drug then check the drop down selection
 		
@@ -1264,21 +1248,22 @@ function dropDownVisibility(element)
 				visible = false;
 			}else if(selectedOption.toString() == "SHOW_ALL"){
 				visible = true;
-			}else{
+			}else{  // check FDA approved
 				if( element.data.FDA_APPROVAL == "true")
 					visible = true;
 				else
 					visible = false;
 			}
 		}
+		else
+			visible = true;
 		
 		if (!visible)
 		{
 			// if the element should be filtered,
 			// then add it to the required maps
-			
+			_filteredByDropDown[element.data.id] = element;
 			_alreadyFiltered[element.data.id] = element;
-			_filteredBySlider[element.data.id] = element;
 		}
 	}
 	
@@ -1287,11 +1272,11 @@ function dropDownVisibility(element)
 
 
 /**
- * Determines the visibility of a gene (node) for filtering purposes. This
- * function is designed to filter genes by the slider value.
+ * Determines the visibility of a node for filtering purposes. This
+ * function is designed to filter nodes by the slider value and drop down selection.
  * 
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element	node to be checked for visibility criteria
+ * @return			true if the node should be visible, false otherwise
  */
 function sliderVisibility(element)
 {
@@ -1310,15 +1295,16 @@ function sliderVisibility(element)
 	{
 		visible = true;
 	}
+	
 	else
 	{	
 		// get the weight of the node
 		weight = _geneWeightMap[element.data.id];
 		
 		// if the weight of the current node is below the threshold value
-		// then it should be filtered
+		// then it should be filtered (also check the element is not a drug)
 		
-		if (weight != null)
+		if (weight != null && element.data.type != "Drug")
 		{
 			if (weight >= _geneWeightThreshold)
 			{
@@ -2264,48 +2250,23 @@ function _initSliders()
 }
 
 /**
- * Recursive function, that adds a new line after each 60 characters in given parameter and returns it
- * */
-function _adjustToolTipText(text)
-{
-	if (text.length > 60) 
-	{
-		return text.substr(0,60) + "\n" +  _adjustToolTipText(text.substr(60,text.length));
-	}
-	else
-		return text;
-}
-
-/**
  * Initializes tooltip style for genes.
- * 
- * 
  */
 function _initTooltipStyle()
 {	
 	// create a function and add it to the Visualization object
-	_vis["customTooltip"] = function (data) 
-	{
+	_vis["customTooltip"] = function (data) {
 		var text;
-				
-		if (data.type != DRUG) 
+		
+		if (data["PERCENT_ALTERED"] == null)
 		{
-			if (data["PERCENT_ALTERED"] == null)
-			{
-				text = "n/a";
-			}
-			else
-			{
-				text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
-			}
+			text = "n/a";
 		}
-		// For Drug Nodes, their full label are shown on mouse over, in tool tip
 		else
 		{
-
-			text = _adjustToolTipText(data.label);
+			text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
 		}
-
+		
 		return "<b>" + text + "</b>";
 		//return text;
 	};

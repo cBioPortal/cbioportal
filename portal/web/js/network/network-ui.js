@@ -1,5 +1,3 @@
-
-
 // flags
 var _autoLayout;
 var _removeDisconnected;
@@ -1272,11 +1270,11 @@ function dropDownVisibility(element)
 
 
 /**
- * Determines the visibility of a node for filtering purposes. This
- * function is designed to filter nodes by the slider value and drop down selection.
+ * Determines the visibility of a gene(node) for filtering purposes. This
+ * function is designed to filter nodes by the slider value.
  * 
  * @param element	node to be checked for visibility criteria
- * @return			true if the node should be visible, false otherwise
+ * @return			true if the gene should be visible, false otherwise
  */
 function sliderVisibility(element)
 {
@@ -2250,23 +2248,48 @@ function _initSliders()
 }
 
 /**
+ * Recursive function, that adds a new line after each 60 characters in given parameter and returns it
+ * */
+function _adjustToolTipText(text)
+{
+	if (text.length > 60) 
+	{
+		return text.substr(0,60) + "\n" +  _adjustToolTipText(text.substr(60,text.length));
+	}
+	else
+		return text;
+}
+
+/**
  * Initializes tooltip style for genes.
+ * 
+ * 
  */
 function _initTooltipStyle()
 {	
 	// create a function and add it to the Visualization object
-	_vis["customTooltip"] = function (data) {
+	_vis["customTooltip"] = function (data) 
+	{
 		var text;
-		
-		if (data["PERCENT_ALTERED"] == null)
+				
+		if (data.type != DRUG) 
 		{
-			text = "n/a";
+			if (data["PERCENT_ALTERED"] == null)
+			{
+				text = "n/a";
+			}
+			else
+			{
+				text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+			}
 		}
+		// For Drug Nodes, their full label are shown on mouse over, in tool tip
 		else
 		{
-			text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+
+			text = _adjustToolTipText(data.label);
 		}
-		
+
 		return "<b>" + text + "</b>";
 		//return text;
 	};

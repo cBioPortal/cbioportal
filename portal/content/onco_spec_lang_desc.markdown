@@ -27,8 +27,10 @@ Users can define genetic alterations for three data types:
     <tr>
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
-        <td><TT>MUT </TT> Show mutated cases</td>
-        <td>Somatic, non-synonymous mutations</td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
         <td>mRNA Expression</td>
@@ -64,6 +66,14 @@ or amplified and gained cases:
 which can also be written:
 
      CCNE1:  GAIN AMP
+
+To view cases with specific mutations:
+
+     BRAF: MUT = V600E
+
+or mutations on specific position only:
+
+     BRAF: MUT = V600
 
 To view amplified and mutated cases:
 

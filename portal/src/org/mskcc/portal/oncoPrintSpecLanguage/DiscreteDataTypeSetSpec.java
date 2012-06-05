@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 import org.mskcc.portal.util.EqualsUtil;
 import org.mskcc.portal.util.HashCodeUtil;
@@ -18,12 +19,12 @@ import org.mskcc.portal.util.HashCodeUtil;
 public class DiscreteDataTypeSetSpec extends DataTypeSpec{
 
     private final Set<GeneticTypeLevel> specifiedValues;
-    private final Set<String> specifiedMutations;
+    private final Set<String> mutationPatterns;
     
     public DiscreteDataTypeSetSpec(GeneticDataTypes theGeneticDataType){
         this.theGeneticDataType = theGeneticDataType;
         specifiedValues = EnumSet.noneOf(GeneticTypeLevel.class);
-        specifiedMutations = new HashSet<String>();
+        mutationPatterns = new HashSet<String>();
     }
     
     /**
@@ -37,7 +38,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         if( validValues1.getTheGeneticDataType().equals(theGeneticDataType)){
             this.theGeneticDataType = theGeneticDataType;
             this.specifiedValues = EnumSet.of(validValues1);
-            specifiedMutations = new HashSet<String>();
+            mutationPatterns = new HashSet<String>();
         }else{
             throw new IllegalArgumentException( validValues1 + " is not a level for " + theGeneticDataType );
         }
@@ -56,7 +57,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeName );
         // convertCode throws an exception if levelCode is not a level for theGeneticDataTypeName
         specifiedValues = EnumSet.of( GeneticTypeLevel.convertCode( this.theGeneticDataType, levelCode ));
-        specifiedMutations = new HashSet<String>();
+        mutationPatterns = new HashSet<String>();
     }
     
     /**
@@ -73,7 +74,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         for( GeneticTypeLevel c : validValues){
             this.specifiedValues.add(c);
         }
-        specifiedMutations = new HashSet<String>();
+        mutationPatterns = new HashSet<String>();
     }
     
     /**
@@ -159,43 +160,63 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         return false;
     }
     
+    private static Pattern SPECIFIC_POSITION_MUTATION_PATTERN = Pattern.compile("[^0-9]*([0-9]+)");
+    private static Pattern SPECIFIC_RANGE_DELETION_PATTERN = Pattern.compile("[^0-9]*([0-9]+)[^0-9]+([0-9]+)[^0-9]*");
     private boolean satisfySpecificMutation( String specificMutations ) {
         String specificMutationsUpper = specificMutations.toUpperCase(); 
         for (String specificMutationUpper : specificMutationsUpper.split(",")) {
-            if (specifiedMutations.contains(specificMutationUpper)) {
+            if (mutationPatterns.contains(specificMutationUpper)) {
                 // complete match, including specific mutation to an amino acid such V600E, D200fs
                 return true;
             }
 
-            for ( String specifiedMutation : specifiedMutations ) {
-                if (specifiedMutation.matches("[A-Z\\*][0-9]+")) {
-                    // all mutations for a specific amino acid
-                    if (specificMutationUpper.matches(Pattern.quote(specifiedMutation)+"[^0-9]*")) {
-                        // so that "S30" will not match "S301"
+            for ( String mutationPattern : mutationPatterns ) {
+                Matcher spm = SPECIFIC_POSITION_MUTATION_PATTERN.matcher(mutationPattern);
+                if (spm.matches()) {// all mutations for a specific amino acid
+                    String strPos = spm.group(1);
+                    if (specificMutationUpper.matches(".*[^0-9]+"+strPos+"[^0-9\\+\\-]*")
+                            || specificMutationUpper.matches(strPos+"[^0-9]+.*")) {
+                        // To deal with cases that the query position appears in the mutation string
+                        // e.g., S634*, S479_splice, *691S, 278in_frame_del, 1002_1003_del,
+                        //       YQQQQQ263in_frame_del*, A1060fs, A277_splice
+                        // Note: "S30" will not match "S300"
+                        // Note: "S30" will not match "e30+1"
                         return true;
+                    }
+                    
+                    Matcher delm = SPECIFIC_RANGE_DELETION_PATTERN.matcher(specificMutationUpper);
+                    if (delm.matches()) {
+                        // To deal with deletions
+                        // e.g. query 1020 matches 1018_1023DNPPVL>V
+                        int start = Integer.parseInt(delm.group(1));
+                        int end = Integer.parseInt(delm.group(2));
+                        int pos = Integer.parseInt(strPos);
+                        if (start<pos && pos<end) {
+                            return true;
+                        }
                     }
                 } 
                 // The follow types are matched according the the mutaiton string,
                 // which may not be correct. A more accurate solution would be using
                 // the mutation_type from database directly
-                else if (specifiedMutation.equals("MS") || specifiedMutation.equals("MISSENSE")) {
-                    if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
-                        return true;
-                    }
-                } else if (specifiedMutation.equals("NS") || specifiedMutation.equals("NONSENSE")) {
-                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
-                        return true;
-                    }
-                } else if (specifiedMutation.equals("FS") || specifiedMutation.equals("FRAMESHIFT")) {
-                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
-                        return true;
-                    }
-                } else if (specifiedMutation.equals("SP") || specifiedMutation.equals("SPLICE")) {
-                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
-                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
-                        return true;
-                    }
-                } 
+//                else if (specifiedMutation.equals("MS") || specifiedMutation.equals("MISSENSE")) {
+//                    if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
+//                        return true;
+//                    }
+//                } else if (specifiedMutation.equals("NS") || specifiedMutation.equals("NONSENSE")) {
+//                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
+//                        return true;
+//                    }
+//                } else if (specifiedMutation.equals("FS") || specifiedMutation.equals("FRAMESHIFT")) {
+//                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
+//                        return true;
+//                    }
+//                } else if (specifiedMutation.equals("SP") || specifiedMutation.equals("SPLICE")) {
+//                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+//                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
+//                        return true;
+//                    }
+//                } 
             }
         }
         return false;
@@ -210,7 +231,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         if (value instanceof GeneticTypeLevel) {
             specifiedValues.add((GeneticTypeLevel) value);
         } else if (theGeneticDataType == GeneticDataTypes.Mutation && value instanceof String) {
-            specifiedMutations.add(((String)value).toUpperCase());
+            mutationPatterns.add(((String)value).toUpperCase());
         } else {
             throw new java.lang.IllegalArgumentException("Wrong level");
         }
@@ -222,7 +243,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      */
     public void combine(DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec) {
         this.specifiedValues.addAll(aDiscreteDataTypeSetSpec.getSpecifiedValues());
-        this.specifiedMutations.addAll(aDiscreteDataTypeSetSpec.getSpecifiedMutations());
+        this.mutationPatterns.addAll(aDiscreteDataTypeSetSpec.getMutationPatterns());
     }
 
     @Override
@@ -232,7 +253,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         for (GeneticTypeLevel value : specifiedValues){
             sb.append( value.toString() ).append(" ");
         }
-        for (String str : specifiedMutations) {
+        for (String str : mutationPatterns) {
             sb.append( str ).append( " " );
         }
         return sb.toString();
@@ -246,7 +267,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         return
             EqualsUtil.areEqual(this.theGeneticDataType, that.theGeneticDataType) &&
             EqualsUtil.areEqual(this.specifiedValues, that.specifiedValues) &&
-            EqualsUtil.areEqual(this.specifiedMutations, that.specifiedMutations);
+            EqualsUtil.areEqual(this.mutationPatterns, that.mutationPatterns);
     }
 
     // TODO: TEST
@@ -255,7 +276,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         int result = HashCodeUtil.SEED;
         result = HashCodeUtil.hash( result, theGeneticDataType );
         result = HashCodeUtil.hash( result, specifiedValues );
-        result = HashCodeUtil.hash( result, specifiedMutations);
+        result = HashCodeUtil.hash( result, mutationPatterns);
         return result;
     }
 
@@ -263,8 +284,8 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
         return specifiedValues;
     }
     
-    public Set<String> getSpecifiedMutations() {
-        return specifiedMutations;
+    public Set<String> getMutationPatterns() {
+        return mutationPatterns;
     }
 
     @Override public final Object clone() throws CloneNotSupportedException {

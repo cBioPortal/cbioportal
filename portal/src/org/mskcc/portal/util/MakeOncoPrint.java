@@ -470,7 +470,7 @@ public class MakeOncoPrint {
                 return false;
             }
             
-            return !aDiscreteDataTypeSetSpec.getSpecifiedMutations().isEmpty();
+            return !aDiscreteDataTypeSetSpec.getMutationPatterns().isEmpty();
         }
 
 	/**

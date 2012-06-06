@@ -546,7 +546,9 @@ public class QueryBuilder extends HttpServlet {
                 }
                 
                 // user-defined case set
-                if (caseSetId.equals("-1"))
+                if (caseIds != null &&
+                	caseSetId != null &&
+                	caseSetId.equals("-1"))
                 {
                 	// empty case list
                 	if (caseIds.trim().length() == 0)
@@ -578,7 +580,6 @@ public class QueryBuilder extends HttpServlet {
                     		errorsExist = true;
                 		}
                 	}
-                    
                 }
 
                 errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);

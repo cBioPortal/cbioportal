@@ -49,7 +49,6 @@ public class MakeOncoPrint {
      * @param cancerTypeID              Cancer Study ID.
      * @param geneList                  List of Genes.
      * @param mergedProfile             Merged Data Profile.
-	 * @param mutationList              List of Mutations
      * @param caseSets                  All Case Sets for this Cancer Study.
      * @param caseSetId                 Selected Case Set ID.
      * @param zScoreThreshold           Z-Score Threshhold
@@ -61,7 +60,6 @@ public class MakeOncoPrint {
     public static String makeOncoPrint(String cancerTypeID,
 									   String geneList,
 									   ProfileData mergedProfile,
-									   ArrayList<ExtendedMutation> mutationList,
 									   ArrayList<CaseList> caseSets,
 									   String caseSetId,
 									   double zScoreThreshold,
@@ -80,9 +78,6 @@ public class MakeOncoPrint {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
-
-		ExtendedMutationMap mutationMap =
-			(mutationList == null) ? null : new ExtendedMutationMap(mutationList, mergedProfile.getCaseIdList());
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
@@ -135,7 +130,7 @@ public class MakeOncoPrint {
         sortedMatrix = (GeneticEvent[][]) sorter.sort(sortedMatrix);
 
 		writeOncoPrint(out, cancerTypeID, unsortedMatrix, sortedMatrix,
-					   dataSummary, mutationMap, caseSets, caseSetId,
+					   dataSummary, caseSets, caseSetId,
 					   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(),
 					   forSummaryTab);
 
@@ -151,7 +146,6 @@ public class MakeOncoPrint {
 	 * @param unsortedMatrix GeneticEvent[][]
 	 * @param sortedMatrix GeneticEvent[][]
 	 * @param dataSummary ProfileDataSummary
-	 * @param mutationMap ExtendedMutationMap
      * @param caseSets List<CaseList>
      * @param caseSetId String
      * @param theOncoPrintSpecification OncoPrintSpecification
@@ -162,7 +156,6 @@ public class MakeOncoPrint {
 							   GeneticEvent unsortedMatrix[][],
 							   GeneticEvent sortedMatrix[][],
 							   ProfileDataSummary dataSummary,
-							   ExtendedMutationMap mutationMap,
 							   List<CaseList> caseSets, String caseSetId,
 							   OncoPrintSpecification theOncoPrintSpecification,
 							   boolean forSummaryTab) {
@@ -220,8 +213,8 @@ public class MakeOncoPrint {
 		// output longest label variable
 		out.append(writeJavascriptConstVariable(longestLabelVarName, getLongestLabel(sortedMatrix, dataSummary)));
 		// output sorted genetic alteration variable for oncoprint body
-		out.append(writeOncoPrintGeneticAlterationVariable(unsortedMatrix, dataSummary, mutationMap, unsortedGeneticAlterationsVarName));
-		out.append(writeOncoPrintGeneticAlterationVariable(sortedMatrix, dataSummary, mutationMap, sortedGeneticAlterationsVarName));
+		out.append(writeOncoPrintGeneticAlterationVariable(unsortedMatrix, dataSummary, unsortedGeneticAlterationsVarName));
+		out.append(writeOncoPrintGeneticAlterationVariable(sortedMatrix, dataSummary, sortedGeneticAlterationsVarName));
 		// output lengend footnote
 		String legendFootnote = getLegendFootnote(theOncoPrintSpecification.getUnionOfPossibleLevels());
 		out.append(writeJavascriptConstVariable(legendFootnoteVarName, legendFootnote));
@@ -319,13 +312,12 @@ public class MakeOncoPrint {
 	 *
 	 * @param matrix[][] GeneticEvent
 	 * @param dataSummary ProfileDataSummary
-	 * @param mutationMap ExtendedMutationMap
 	 * @param varName String
 	 *
 	 * @return String
 	 */
 	static String writeOncoPrintGeneticAlterationVariable(GeneticEvent matrix[][],
-                ProfileDataSummary dataSummary, ExtendedMutationMap mutationMap, String varName) {
+                ProfileDataSummary dataSummary, String varName) {
 
             StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
             builder.append("\t\tvar private = {\n");
@@ -344,15 +336,9 @@ public class MakeOncoPrint {
 					Boolean sampleIsUnaltered = MakeOncoPrint.isSampleUnaltered(j, matrix);
                     String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
                     StringBuilder mutationDetails = new StringBuilder();
-                    if (event.isMutated() && mutationMap != null) {
-                        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
-						if (mutations == null) {
-							continue;
-						}
+                    if (event.isMutated()) {
                         mutationDetails.append(", 'mutation' : [");
-                        for (ExtendedMutation mutation : mutations) {
-                            mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
-                        }
+						mutationDetails.append("\"" + event.getMutationType() + "\", ");
                         // zap off last ', '
                         mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
                         mutationDetails.append("]");

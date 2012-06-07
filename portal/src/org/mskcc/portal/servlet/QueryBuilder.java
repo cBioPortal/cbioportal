@@ -417,7 +417,6 @@ public class QueryBuilder extends HttpServlet {
 			String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
 															   geneListStr,
 															   mergedProfile,
-															   mutationList,
 															   caseSetList,
 															   caseSetId,
 															   zScoreThreshold,

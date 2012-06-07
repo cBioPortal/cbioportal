@@ -415,6 +415,17 @@ public class ValueParser {
       return false;
    }
 
+	/**
+	 * Routine used to get amino acid encoding of mutation.  Motivation was
+	 * to provide amino acid change to MakeOncoPrint via GeneticEvent instead of 
+	 * ExtendedMutationMap.
+	 */
+	public String getMutationType() {
+		String toReturn = 
+			datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.toString());
+		return (toReturn == null) ? "Mutation cannot be determined" : toReturn;
+	}
+
    /**
     * report on whether the gene was sequenced, as based on the mutation data,
     * irrespective of what the oncoPrint filter says.

@@ -345,8 +345,11 @@ public class MakeOncoPrint {
                     String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
                     StringBuilder mutationDetails = new StringBuilder();
                     if (event.isMutated() && mutationMap != null) {
-                        mutationDetails.append(", 'mutation' : [");
                         List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
+						if (mutations == null) {
+							continue;
+						}
+                        mutationDetails.append(", 'mutation' : [");
                         for (ExtendedMutation mutation : mutations) {
                             mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
                         }

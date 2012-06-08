@@ -239,11 +239,15 @@ function _initCustomCaseSelectionMap(categorySet)
 	
 	// second, update selection according to previous selection
 	// stored in a hidden variable
-	// (if _previousCancerStudyId is -1, then it means the page is just loaded,
+	//
+	// if _previousCancerStudyId is -1, then it means the page is just loaded,
 	// so we should update the selection by using the hidden variable
 	// clinical_param_selection. if _previousCancerStudyId is a valid id,
-	// then the previous selection should be ignored to reset the selection)
-	if (_previousCancerStudyId == -1)
+	// then the previous selection should be ignored to reset the selection
+	// if the selected study id mismatches the study id from the get request,
+	// the previous selection should also be ignored in this case.
+	if (_previousCancerStudyId == -1 &&
+		window.cancer_study_id_selected == $("#select_cancer_type").val())
 	{
 		var selection = JSON.parse($("#clinical_param_selection").val());
 		

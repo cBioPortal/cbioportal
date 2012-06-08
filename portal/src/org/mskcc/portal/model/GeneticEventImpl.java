@@ -22,6 +22,7 @@ public class GeneticEventImpl implements GeneticEvent {
    private MRNA mrnaValue;
    private RPPA rppaValue;
    private mutations isMutated;
+   private String mutationType; // mutation type
    private String gene;
    private String caseId;
    
@@ -91,8 +92,11 @@ public class GeneticEventImpl implements GeneticEvent {
       
       isMutated = mutations.UNMUTATED;
 
+	  mutationType = "Mutation cannot be determined";
       if (valueParser.isMutated()) {
          isMutated = mutations.MUTATED;
+		 // get type
+		 mutationType = valueParser.getMutationType();
       }
    }
    
@@ -135,6 +139,15 @@ public class GeneticEventImpl implements GeneticEvent {
      */
     public mutations getMutationValue() {
         return isMutated;
+    }
+
+    /**
+     * Gets the mutation type (amino acid change).
+     *
+     * @return mutation Type.
+     */
+    public String getMutationType() {
+		return mutationType;
     }
 
     /**

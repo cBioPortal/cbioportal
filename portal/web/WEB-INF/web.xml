@@ -30,6 +30,11 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <servlet>
+        <servlet-name>patient_view</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.PatientView</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>webservice</servlet-name>
@@ -150,6 +155,11 @@
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
         <url-pattern>/index.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/patient.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

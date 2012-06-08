@@ -52,6 +52,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String GENE_SET_CHOICE = "gene_set_choice";
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
+    public static final String CASE_IDS_KEY = "case_ids_key";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
@@ -318,7 +319,8 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         
-        request.setAttribute(CASE_IDS, caseIds);
+        //request.setAttribute(CASE_IDS, caseIds);
+        request.setAttribute(CASE_IDS_KEY, CaseSetUtil.shortenCaseIds(caseIds));
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
@@ -562,7 +564,7 @@ public class QueryBuilder extends HttpServlet {
                 	}
                 	else
                 	{
-                		List<String> invalidCases = CaseSetValidator.validateCaseSet(
+                		List<String> invalidCases = CaseSetUtil.validateCaseSet(
                 				cancerStudyIdentifier, caseIds);
                 		
                 		String caseSetErrMsg = "Invalid case(s) for the selected cancer study:";

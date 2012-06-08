@@ -40,6 +40,7 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);

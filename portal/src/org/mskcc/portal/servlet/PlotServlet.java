@@ -3,6 +3,7 @@ package org.mskcc.portal.servlet;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
+import org.mskcc.portal.util.CaseSetUtil;
 import org.owasp.validator.html.PolicyException;
 import org.apache.log4j.Logger;
 
@@ -82,7 +83,8 @@ public class PlotServlet extends HttpServlet {
                     (servletXssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS));
             String skin = servletXssUtil.getCleanInput(req, SKIN);
             String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
-            String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);            
+            //String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);            
+            String caseIdsKey = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS_KEY);
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);
             String skinNormals = servletXssUtil.getCleanInput(req, SKIN_NORMALS);
@@ -148,6 +150,8 @@ public class PlotServlet extends HttpServlet {
                         cancerTypeId, genes, geneticProfiles, caseSetId, skin));
             } else {
                 ArrayList <String> caseList = new ArrayList<String>();
+                String caseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+                
                 for (String currentCase : caseIds.split("[\\s,]+")) {
                     currentCase = currentCase.trim();
                     if (currentCase.length() > 0) {

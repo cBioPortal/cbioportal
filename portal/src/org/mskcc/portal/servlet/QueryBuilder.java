@@ -413,17 +413,20 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
-			// get oncoprint here - used in both branches below
-			String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
-															   geneListStr,
-															   mergedProfile,
-															   caseSetList,
-															   caseSetId,
-															   zScoreThreshold,
-															   rppaScoreThreshold,
-															   geneticProfileIdSet,
-															   profileList,
-															   true);
+			// get oncoprint here - only if output == null or output = html
+			String oncoPrintHtml = "";
+			if (output == null || output.equals("html")) {
+				oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
+															geneListStr,
+															mergedProfile,
+															caseSetList,
+															caseSetId,
+															zScoreThreshold,
+															rppaScoreThreshold,
+															geneticProfileIdSet,
+															profileList,
+															true);
+			}
 
             if (output != null) {
 				if (output.equals("text")) {

@@ -8,6 +8,8 @@ import org.mskcc.cgds.model.MutSig;
 import java.io.*;
 import java.util.Properties;
 
+import static org.mskcc.cgds.dao.DaoMutSig.*;
+
 /*
  * Reads and loads a MutSig file.
  * Requires a "properties" file for the Cancer Study associated with the MutSig file.
@@ -126,7 +128,7 @@ public class MutSigReader {
             }
 
             MutSig mutSig = new MutSig(internalId, gene, rank, numBasesCovered, numMutations, pValue, qValue);
-            loadedMutSigs += DaoMutSig.addMutSig(mutSig);
+            loadedMutSigs += addMutSig(mutSig);
 
             line = buf.readLine();
         }

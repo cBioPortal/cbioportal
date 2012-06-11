@@ -10,12 +10,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
+ *
  * @author Lennart Bastian, Gideon Dresdner
  * DaoMutSig defines methods that interact with the CGDS database
  * getMutSig methods return MutSig objects. addMutSig takes a MutSig object and adds it to CGDS
  * getAllMutSig returns an arraylist
  *
  */
+
 public class DaoMutSig {
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
     private static MySQLbulkLoader myMySQLbulkLoader = null;

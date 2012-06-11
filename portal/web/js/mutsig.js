@@ -67,20 +67,12 @@ var studySelected = function() {
         a = parseFloat(a.replace(/^[<>]/g,""));
         b = parseFloat(b.replace(/^[<>]/g,""));
 
-
         return ((a < b) ? -1 : ((a > b) ? 1 : 0));
     };
 
     $.fn.dataTableExt.oSort['scientific-desc'] = function(a,b) {
-        a = $('<div />').html(a).text();
-        b = $('<div />').html(b).text();
-
-        a = parseFloat(a.replace(/^[<>]/g,""));
-        b = parseFloat(b.replace(/^[<>]/g,""));
-
-        return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+        return $.fn.dataTableExt.oSort['scientific-asc'](b,a);
     };
-
 
     $.get('MutSig.json',
             {'selected_cancer_type': cancerStudyId},

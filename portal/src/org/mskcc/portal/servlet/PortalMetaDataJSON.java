@@ -3,19 +3,18 @@ package org.mskcc.portal.servlet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.util.AccessControl;
+import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.portal.model.GeneSet;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetMutationData;
 import org.mskcc.portal.util.GeneSetUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,11 +24,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.List;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import java.util.Map;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all
@@ -107,6 +103,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
                 jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
+                jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
             }
 

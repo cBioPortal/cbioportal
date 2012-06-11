@@ -1,5 +1,6 @@
 package org.mskcc.cgds.dao;
 
+import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
@@ -238,7 +239,6 @@ public class DaoMutSig {
         }
     }
 
-
     private static MutSig assignMutSig(CanonicalGene gene, ResultSet rs)
             throws SQLException, DaoException {
         MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"), gene, rs.getInt("RANK"), rs.getInt("BIG_N"),
@@ -248,5 +248,19 @@ public class DaoMutSig {
         return mutSig;
     }
 
+    /**
+     * asks the database whether or not there are mutsigs for a given cancer study
+     * @param cancerStudy
+     * @return true or false
+     *
+     */
+    public static boolean isEmpty(CancerStudy cancerStudy) throws DaoException {
+        if (getMutSig(cancerStudy.getCancerStudyStableId(), cancerStudy.getInternalId()) == null) {
+            return true;
+        }
 
+        else {
+            return false;
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package org.mskcc.cgds.model;
 
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoMutation;
+import org.mskcc.cgds.dao.DaoMutSig;
 import org.mskcc.cgds.util.EqualsUtil;
 import org.mskcc.portal.remote.GetGeneticProfiles;
 
@@ -221,5 +221,9 @@ public class CancerStudy {
         return "CancerStudy [studyID=" + studyID + ", name=" + name + ", description="
                 + description + ", cancerStudyIdentifier=" + cancerStudyIdentifier
                 + ", typeOfCancerId=" + typeOfCancerId + ", publicStudy=" + publicStudy + "]";
+    }
+
+    public boolean hasMutSigData() throws DaoException {
+        return !DaoMutSig.isEmpty(this);
     }
 }

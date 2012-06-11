@@ -3,6 +3,7 @@ package org.mskcc.cgds.test.dao;
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 import org.mskcc.cgds.scripts.ResetDatabase;
@@ -24,6 +25,24 @@ public class TestDaoMutSig extends TestCase {
 
     public void testDaoMutSig() throws DaoException {
         ResetDatabase.resetDatabase();
+        
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+
+        // test isEmpty
+        CancerStudy testCancerStudy = new CancerStudy("abc", "blah blah", "mskcc_blahblah", "blah", true);
+        assert DaoMutSig.isEmpty(testCancerStudy) : "there shouldn't be mutsig data for abc blahblahblah";
+
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
+        System.out.print("\n");
 
         // Add Genes TP53 and PTEN to both mut_sig table and gene table
         CanonicalGene gene1 = new CanonicalGene(10298321, "TP53");
@@ -49,7 +68,6 @@ public class TestDaoMutSig extends TestCase {
         assertEquals(1, mutSig2.getCancerType());
 
     }
-
 }
 
 

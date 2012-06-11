@@ -16,6 +16,7 @@ drop table IF EXISTS authorities;
 drop table IF EXISTS type_of_cancer;
 drop table IF EXISTS mut_sig;
 drop table IF EXISTS _case;
+drop table IF EXISTS case_profile;
 drop table IF EXISTS cancer_type;
 drop table IF EXISTS case_list;
 drop table IF EXISTS case_list_list;
@@ -33,10 +34,10 @@ drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
 drop table if EXISTS clinical_free_form;
-
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
+drop table IF EXISTS protein_array_cancer_study;
 drop table IF EXISTS protein_array_cancer_study;
 
 --
@@ -263,10 +264,10 @@ CREATE TABLE IF NOT EXISTS `mutation_frequency` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `_case`
+-- Table structure for table `case_profile`
 --
 
-CREATE TABLE IF NOT EXISTS `_case` (
+CREATE TABLE IF NOT EXISTS `case_profile` (
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -367,3 +368,9 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
+
+CREATE TABLE IF NOT EXISTS `_case` (
+  `CASE_ID` varchar(255) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`CASE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

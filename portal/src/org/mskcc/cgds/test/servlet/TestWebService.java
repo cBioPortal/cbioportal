@@ -8,7 +8,7 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCase;
+import org.mskcc.cgds.dao.DaoCaseProfile;
 import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
@@ -228,9 +228,9 @@ public class TestWebService extends TestCase {
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
-      DaoCase daoCase = new DaoCase();
+      DaoCaseProfile daoCase = new DaoCaseProfile();
       String c1 = "TCGA-12345";
-      daoCase.addCase( c1, publicGeneticProfile.getGeneticProfileId());
+      daoCase.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
@@ -238,7 +238,7 @@ public class TestWebService extends TestCase {
               (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       String c2 = "TCGA-54321";
-      daoCase.addCase( c2, privateGeneticProfile.getGeneticProfileId() );
+      daoCase.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);

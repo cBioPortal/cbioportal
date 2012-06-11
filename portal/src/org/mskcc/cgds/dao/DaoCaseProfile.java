@@ -9,12 +9,12 @@ import java.util.ArrayList;
 /**
  * Data access object for Case table
  */
-public class DaoCase {
+public class DaoCaseProfile {
    
    public static final int NO_SUCH_PROFILE_ID = -1;
 
    // TODO: I think these methods should be static, as this object has no state
-    public int addCase(String caseId, int geneticProfileId) throws DaoException {
+    public int addCaseProfile(String caseId, int geneticProfileId) throws DaoException {
         if (caseId == null || caseId.trim().length() == 0) {
             throw new IllegalArgumentException ("Case ID is null or empty");
         }
@@ -25,7 +25,7 @@ public class DaoCase {
             if (!caseExistsInGeneticProfile(caseId, geneticProfileId)) {
                 con = JdbcUtil.getDbConnection();
                 pstmt = con.prepareStatement
-                        ("INSERT INTO _case (`CASE_ID`, `GENETIC_PROFILE_ID`) "
+                        ("INSERT INTO case_profile (`CASE_ID`, `GENETIC_PROFILE_ID`) "
                                 + "VALUES (?,?)");
                 pstmt.setString(1, caseId);
                 pstmt.setInt(2, geneticProfileId);
@@ -49,7 +49,7 @@ public class DaoCase {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM _case WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ?");
+                    ("SELECT * FROM case_profile WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ?");
             pstmt.setString(1, caseId);
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
@@ -71,7 +71,7 @@ public class DaoCase {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM _case WHERE CASE_ID = ?");
+            pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM case_profile WHERE CASE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
             if( rs.next() ) {
@@ -94,7 +94,7 @@ public class DaoCase {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM _case WHERE GENETIC_PROFILE_ID = ?");
+                    ("SELECT * FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
@@ -116,7 +116,7 @@ public class DaoCase {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM _case");
+                    ("SELECT * FROM case_profile");
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
             while (rs.next()) {
@@ -136,7 +136,7 @@ public class DaoCase {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement("TRUNCATE TABLE _case");
+            pstmt = con.prepareStatement("TRUNCATE TABLE case_profile");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

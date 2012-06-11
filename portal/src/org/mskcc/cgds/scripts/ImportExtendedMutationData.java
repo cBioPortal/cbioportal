@@ -84,7 +84,7 @@ public class ImportExtendedMutationData{
         BufferedReader buf = new BufferedReader(reader);
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoCase daoCase = new DaoCase();
+        DaoCaseProfile daoCase = new DaoCaseProfile();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMutation daoMutation = DaoMutation.getInstance();
         
@@ -132,7 +132,7 @@ public class ImportExtendedMutationData{
                     caseId = barCode;
                 }
                 if( !daoCase.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-   					daoCase.addCase(caseId, geneticProfileId);
+   					daoCase.addCaseProfile(caseId, geneticProfileId);
    				}
 
                 String center = getField( parts, "Center" );

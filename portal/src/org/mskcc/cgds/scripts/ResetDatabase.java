@@ -28,7 +28,7 @@ public class ResetDatabase {
         daoMicroRna.deleteAllRecords();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.deleteAllRecords();
-        DaoCase daoCase = new DaoCase();
+        DaoCaseProfile daoCase = new DaoCaseProfile();
         daoCase.deleteAllRecords();
         DaoGeneticAlteration daoGenetic = DaoGeneticAlteration.getInstance();
         daoGenetic.deleteAllRecords();

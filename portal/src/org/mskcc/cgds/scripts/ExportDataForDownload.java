@@ -134,7 +134,7 @@ public class ExportDataForDownload {
                StringBuffer monitorOutput = new StringBuffer();
                monitorOutput.append( "\tProcessing " + aGeneticProfile.getProfileName() );
 
-               DaoCase theDaoCase = new DaoCase();
+               DaoCaseProfile theDaoCase = new DaoCaseProfile();
                ArrayList<String> theCaseIds =
                   theDaoCase.getAllCaseIdsInProfile( aGeneticProfile.getGeneticProfileId() );
 

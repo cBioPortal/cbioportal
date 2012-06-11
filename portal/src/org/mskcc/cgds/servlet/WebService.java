@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCase;
+import org.mskcc.cgds.dao.DaoCaseProfile;
 import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;
@@ -565,7 +565,7 @@ public class WebService extends HttpServlet {
         // a case_list is explicitly provided, as in getClinicalData, etc.
         String caseList = request.getParameter(WebService.CASE_LIST);
         if (caseList != null) {
-            DaoCase aDaoCase = new DaoCase();
+            DaoCaseProfile aDaoCase = new DaoCaseProfile();
             for (String aCase : caseList.split("[\\s,]+")) {
                 aCase = aCase.trim();
                 if (aCase.length() == 0) {
@@ -573,7 +573,7 @@ public class WebService extends HttpServlet {
                 }
 
                 int profileId = aDaoCase.getProfileIdForCase(aCase);
-                if (DaoCase.NO_SUCH_PROFILE_ID == profileId) {
+                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
                     return null;
                 }
 

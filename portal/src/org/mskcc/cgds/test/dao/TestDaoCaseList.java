@@ -1,7 +1,7 @@
 package org.mskcc.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCase;
+import org.mskcc.cgds.dao.DaoCaseProfile;
 import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CaseList;

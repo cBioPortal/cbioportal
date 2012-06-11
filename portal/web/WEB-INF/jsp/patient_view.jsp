@@ -3,6 +3,7 @@
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
+String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
 %>
 
 <jsp:include page="global/header_above_bar.jsp" flush="true" />
@@ -12,6 +13,13 @@ String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 Patient: 
 <%
 out.print(patient);
+if (patient_view_error!=null) {
+    out.print("<br/>");
+    out.println();
+    out.print(patient_view_error);
+} else {
+    
+}
 %>
     </td>
 </tr>

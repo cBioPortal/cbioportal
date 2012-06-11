@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.mskcc.cgds.model.Case;
 
 /**
  * Data access object for Case_List table
@@ -21,6 +22,7 @@ public class DaoCaseList {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        int rows;
         try {
             con = JdbcUtil.getDbConnection();
 
@@ -31,15 +33,21 @@ public class DaoCaseList {
             pstmt.setString(3, caseList.getName());
             pstmt.setString(4, caseList.getCaseListCategory().getCategory());
             pstmt.setString(5, caseList.getDescription());
-            int rows = pstmt.executeUpdate();
+            rows = pstmt.executeUpdate();
    			int listListRow = addCaseListList(caseList, con);
    			rows = (listListRow != -1) ? (rows + listListRow) : rows;
-            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+        
+        // added to _case
+        for (String caseId : caseList.getCaseList()) {
+            rows += DaoCase.addCase(new Case(caseId, caseList.getCancerStudyId()));
+        }
+            
+        return rows;
     }
 
 	/**

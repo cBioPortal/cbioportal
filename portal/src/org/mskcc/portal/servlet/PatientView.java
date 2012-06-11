@@ -2,21 +2,17 @@
 package org.mskcc.portal.servlet;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import javax.servlet.RequestDispatcher;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
+import org.mskcc.cgds.dao.DaoCase;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
@@ -73,10 +69,7 @@ public class PatientView extends HttpServlet {
         request.setAttribute(PATIENT_ID, patientID);
         
         try {
-            if (validate(request)) {
-                forwardToErrorPage(request, response,
-                               (String)request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE), xdebug);
-            }
+            validate(request);
 
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view.jsp");
@@ -93,15 +86,23 @@ public class PatientView extends HttpServlet {
      * validate the portal web input form.
      */
     private boolean validate(HttpServletRequest request) throws DaoException {
-        boolean errorsExist = false;
-        String cancerStudyIdentifier = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+        String caseId = (String) request.getAttribute(PATIENT_ID);
+        Case _case = DaoCase.getCase(caseId);
+        if (_case==null) {
+            request.setAttribute(ERROR, "We have no information about patient "+caseId);
+            return false;
+        }
+        
+        String cancerStudyIdentifier = DaoCancerStudy
+                .getCancerStudyByInternalId(_case.getCancerStudyId()).getCancerStudyStableId();
+        
         if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
             request.setAttribute(ERROR,
                     "You are not authorized to view the cancer study with id: '" +
                     cancerStudyIdentifier + "'. ");
-            errorsExist = true;
+            return false;
         }
-        return errorsExist;
+        return true;
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

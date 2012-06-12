@@ -12,6 +12,7 @@ import org.mskcc.cgds.dao.DaoException;
  * This simplifies the process of switching back between the two, and ensuring
  * a stable system in which gene IDs do not fluctuate.
  */
+
 public class MutSig {
     private int cancerType;
     private int rank;
@@ -21,7 +22,7 @@ public class MutSig {
     private String pValue;
     private String qValue;
 
-    public MutSig(int cancerType, CanonicalGene canonicalGene, int rank, 
+    public MutSig(int cancerType, CanonicalGene canonicalGene, int rank,
             int numBasesCovered, int numMutations, String pValue, String qValue) {
         this.cancerType = cancerType;
         this.rank = rank;

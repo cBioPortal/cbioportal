@@ -38,7 +38,7 @@ public class TestMutSigReader extends TestCase {
         // Add a cancer study whose standardId is "tcga_gbm"
         // In accordance with test_data/testCancerStudy.txt
         ResetDatabase.resetDatabase();
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), cancers);
         CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         assertEquals(1, cancerStudy.getInternalId());
@@ -51,7 +51,6 @@ public class TestMutSigReader extends TestCase {
         daoGeneOptimized.addGene(gene2);
 
         MutSigReader.loadMutSig(MutSigReader.getInternalId(properties), mutSigFile, pMonitor);
-
 
         // Test if getMutSig works with a HugoGeneSymbol
         MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);

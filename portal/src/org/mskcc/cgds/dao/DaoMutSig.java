@@ -1,5 +1,6 @@
 package org.mskcc.cgds.dao;
 
+import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
@@ -245,5 +246,10 @@ public class DaoMutSig {
                 rs.getString("Q_Value"));
 
         return mutSig;
+    }
+
+    public boolean hasMutSig(CancerStudy cancerStudy) throws DaoException {
+        // nonempty list of MutSig means that the cancerStudy *has* MutSig data
+        return !getAllMutSig(cancerStudy.getInternalId()).isEmpty();
     }
 }

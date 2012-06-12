@@ -3,10 +3,12 @@ package org.mskcc.cgds.test.dao;
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.dao.DaoMutSig;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.dao.DaoMutSig;
+
+import java.io.IOException;
 
 /**
  * @author Lennart Bastian
@@ -22,9 +24,9 @@ public class TestDaoMutSig extends TestCase {
      *          Database Error.
      */
 
-    public void testDaoMutSig() throws DaoException {
+    public void testDaoMutSig() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
-
+        
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
         // Add Gene TP53 to both gene table and mut_sig table

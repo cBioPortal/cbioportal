@@ -43,15 +43,17 @@ var mutsig_to_tr = function(mutsig) {
 var studySelected = function() {
     "use strict";
     var cancerStudyId = $('#select_cancer_type').val();
-    if (cancerStudyId === null || cancerStudyId === "all") {
+
+    if (json.cancer_studies[cancerStudyId].has_mutsig_data) {
+        $('#MutSig_view').show();
+        $('.MutSig_wrapper').show();
+    }
+    else {
         $('#MutSig_view').hide();
-        $('.MutSig_wrapper').hide();    // if MutSig table already exists
-        return;
+        $('.MutSig_wrapper').hide();
     }
 
     // redo the query for every nontrivial selection
-    // obvious downside: doesn't cache previous selections
-    // perhaps the browser does this for us!
     $('.MutSig_wrapper').before('<table class="MutSig"></table>');
     $('.MutSig_wrapper').remove();
 
@@ -85,9 +87,6 @@ var studySelected = function() {
     $.get('MutSig.json',
             {'selected_cancer_type': cancerStudyId},
             function(mutsigs) {
-                if (mutsigs.length !== 0) {
-                    $('#MutSig_view').show();
-
                     var i;
                     var len = mutsigs.length;
 
@@ -127,15 +126,7 @@ var studySelected = function() {
                     $('.MutSig_wrapper').hide();        // hide MutSig table initially
                     $('.MutSig_wrapper').css('padding-bottom', '25px');
                     $('.MutSig').css('width', '0%');    // hack. keep columns in line
-                }
 
-                else {    // there are no MutSigs
-                    $('#MutSig_view').hide();
-                }
-
-                // initially set table to hide
-                // wait for user to toggle
-            $('.MutSig_wrapper').hide();
 
                 return false;
             });
@@ -157,14 +148,15 @@ $(document).ready( function () {
 
 // initialize
 // bind handlers to events
+    $('#MutSig_view').hide();   // MutSig toggle and table is initialized as hidden
+    $('.MutSig_wrapper').hide();
+
     $('.checkall').live('click', function() {
         $(this).parents().find('.MutSig input').attr('checked', this.checked);
     });
-
     $('.MutSig input').live('click', updateGeneList);
     updateGeneList();
 
-    $('#MutSig_view').hide();
     $('#toggle_mutsig').click(function() {
         $($('#MutSig_view > .ui-icon')[0]).toggle();
         $($('#MutSig_view > .ui-icon')[1]).toggle();
@@ -172,6 +164,7 @@ $(document).ready( function () {
         return false;
     });
 // end initialize
+
 
     $('#select_cancer_type').change( function() {
         studySelected();

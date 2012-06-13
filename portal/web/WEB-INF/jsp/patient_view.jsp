@@ -28,23 +28,23 @@ if (patient_view_error!=null) {
     </ul>
 
     <div class="patient-section" id="summary">
-        Patient: <% out.print(patient); %>
+        <%@ include file="patient_view/summary.jsp" %>
     </div>
 
     <div class="patient-section" id="mutations">
-        under construction ...
+        <%@ include file="patient_view/mutations.jsp" %>
     </div>
 
     <div class="patient-section" id="cna">
-        under construction ...
+        <%@ include file="patient_view/cna.jsp" %>
     </div>
 
     <div class="patient-section" id="pathways">
-        under construction ...
+        <%@ include file="patient_view/pathways.jsp" %>
     </div>
 
     <div class="patient-section" id="similar-patients">
-        under construction ...
+        <%@ include file="patient_view/similar_patients.jsp" %>
     </div>
 
 </div>

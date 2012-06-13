@@ -137,7 +137,7 @@ public class GeneratePlots extends HttpServlet {
                     }
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
-                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + URLEncoder.encode(caseIdsKey));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     
                     if (xdebug != null) {
                         writer.append ("URL:  " + url1.toString());
@@ -168,7 +168,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
-                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + URLEncoder.encode(caseIdsKey));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						// we want to use gistic skin col group
 						String skinColGroup = cancerTypeId + "_gistic";
@@ -209,7 +209,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
-                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + URLEncoder.encode(caseIdsKey));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
                         + "," + mutationProfileId);
@@ -246,7 +246,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
                     //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
-                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + URLEncoder.encode(caseIdsKey));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						String mutationProfileStr = (mutationProfileId.equals("undefined")) ? "" : ("," + mutationProfileId);
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId + mutationProfileStr);

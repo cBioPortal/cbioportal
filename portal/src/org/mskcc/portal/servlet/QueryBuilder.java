@@ -320,6 +320,8 @@ public class QueryBuilder extends HttpServlet {
         }
         
         //request.setAttribute(CASE_IDS, caseIds);
+        // this will create a key even if the case set is a predefined set,
+        // because it is required to build a case id string in any case
         request.setAttribute(CASE_IDS_KEY, CaseSetUtil.shortenCaseIds(caseIds));
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();

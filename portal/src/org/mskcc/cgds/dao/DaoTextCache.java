@@ -1,11 +1,14 @@
 package org.mskcc.cgds.dao;
 
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.mskcc.portal.util.CacheUtil;
 
 public class DaoTextCache
-{
-	private static HashMap<String, String> cache = new HashMap<String, String>();
-	
+{	
 	/**
 	 * Generates an MD5 key for the given text.
 	 * 
@@ -14,23 +17,87 @@ public class DaoTextCache
 	 */
 	public String generateKey(String text)
 	{
-		// TODO use MD5 hash
-		String key = "H" + text.hashCode();
-		
-		return key;
+		return CacheUtil.md5sum(text);
 	}
 	
-	public int cacheText(String key, String text)
+	/**
+	 * Inserts the given key and text pair to the database.
+	 *  
+	 * @param key			key value
+	 * @param text			text value
+	 * @return
+	 * @throws DaoException	if an entity already exists with the same key 
+	 */
+	public int cacheText(String key, String text) throws DaoException
 	{
-		// TODO check if it already exists, if not add text to DB (with a timestamp)
-		cache.put(key, text);
-		return 0;
+		Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try
+        {
+			con = JdbcUtil.getDbConnection();
+			pstmt = con.prepareStatement(
+					"INSERT INTO text_cache (`HASH_KEY`, `TEXT`, `DATE_TIME_STAMP`) "
+			        		+ "VALUES (?,?,NOW())");
+			pstmt.setString(1, key);
+			pstmt.setString(2, text);
+
+			// TODO use this instead of NOW()?
+//			Date date = new Date();
+//			Object dateTime = new Timestamp(date.getTime());
+//			pstmt.setObject(3, dateTime); 
+			
+			int rows = pstmt.executeUpdate();
+			
+			return rows;
+        }
+        catch (SQLException e)
+        {
+        	throw new DaoException(e);
+        }
+        finally
+        {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
 	}
 	
-    public String getText(String key)
+	/**
+	 * Retrieves the text corresponding to the given key form the DB.
+	 * 
+	 * @param key	cache key
+	 * @return
+	 * @throws DaoException
+	 */
+    public String getText(String key) throws DaoException
     {
-    	// TODO get text from the cache (DB)
-    	return cache.get(key);
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try
+        {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("SELECT * FROM text_cache " +
+                    "WHERE HASH_KEY=?");
+            pstmt.setString(1, key);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next())
+            {
+                return rs.getString("TEXT");
+            }
+            
+            return null;
+        }
+        catch (SQLException e)
+        {
+            throw new DaoException(e);
+        }
+        finally
+        {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
     }
     
     public void deleteAllKeys()

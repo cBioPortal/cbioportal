@@ -1,4 +1,3 @@
-<%@ page import="org.mskcc.portal.util.CaseSetUtil"%>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Set" %>
@@ -8,9 +7,10 @@
     String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
     String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
     String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-//     String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
-//     		replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
-	String caseIds4Network = CaseSetUtil.getCaseIds((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
+// 	String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
+// 			replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
+//	String caseIds4Network = CaseSetUtil.getCaseIds((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
+	String caseIdsKey4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     String caseSetId4Network = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
     String zScoreThesholdStr4Network = request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString();
     String useXDebug = request.getParameter("xdebug");
@@ -74,7 +74,8 @@
                 var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
                      <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
-                     <%=QueryBuilder.CASE_IDS%>:'<%=caseIds4Network%>',
+                     // %=QueryBuilder.CASE_IDS%> : '%=caseIds4Network%>',
+                     <%=QueryBuilder.CASE_IDS_KEY%>:'<%=caseIdsKey4Network%>',
                      <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
                      <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
                      heat_map:$("#heat_map").html(),

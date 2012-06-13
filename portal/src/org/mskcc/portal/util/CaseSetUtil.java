@@ -89,15 +89,26 @@ public class CaseSetUtil
 	 * 
 	 * @param caseIds	case ID string to be shortened
 	 * @return			short (hashed) version of case IDs
+	 * @throws DaoException 
 	 */
 	public static String shortenCaseIds(String caseIds)
+			throws DaoException
 	{
 		DaoTextCache dao = new DaoTextCache();
+		
+		// normalize case IDs list to avoid redundant white spaces  
 		String normalizedIds = normalizeCaseIds(caseIds);
+		
+		// generate hash key for the case IDs string
 		String caseIdsKey = dao.generateKey(normalizedIds);
 		
-		dao.cacheText(caseIdsKey, normalizedIds);
+		// add new key and list pair to DB if record does not exist
+		if (dao.getText(caseIdsKey) == null)
+		{
+			dao.cacheText(caseIdsKey, normalizedIds);
+		}
 		
+		// return hash key
 		return caseIdsKey;
 	}
 	
@@ -106,8 +117,10 @@ public class CaseSetUtil
 	 * 
 	 * @param caseIdsKey	key for a specific case id list
 	 * @return				case id list corresponding to the given key
+	 * @throws DaoException 
 	 */
 	public static String getCaseIds(String caseIdsKey)
+			throws DaoException
 	{
 		DaoTextCache dao = new DaoTextCache();
 		

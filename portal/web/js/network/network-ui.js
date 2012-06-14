@@ -337,75 +337,70 @@ function _updateNodeInspectorForDrug(data, node)
 		
 		$("#node_inspector_content .data").append(
 		'<tr align="left" class="targets-data-row"><td>' +
-		'<strong>Targeted gene number: </strong> ' + targets.length + 
+		'<strong>Number of Genes Targeted: </strong> ' + targets.length + 
 		'</td></tr>');	
 		$("#node_inspector_content .targets-data-row td").append('<br><br>');
 
 	}
 	
 	// For drug atc code
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="atc_codes-data-row"><td>' +
-			'<strong>Drug Class(ATC codes): </strong></td></tr>');
 	
-	atc_codes = data["ATC_CODE"].split(",");
-	
-	for ( var i = 0; i < atc_codes.length; i++) 
-	{	
-		$("#node_inspector_content .atc_codes-data-row td").append(atc_codes[i]);
-		if (i != atc_codes.length - 1) 
-		{
-			$("#node_inspector_content .atc_codes-data-row td").append(', ');
-		}
-	}
-	
-	if (data["ATC_CODE"] == "") 
+	var href = "http://www.whocc.no/atc_ddd_index/?code=";
+	if (data["ATC_CODE"] != "") 
 	{
-		$("#node_inspector_content .atc_codes-data-row td").append("Unknown");
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="atc_codes-data-row"><td>' +
+				'<strong>Drug Class(ATC codes): </strong></td></tr>');
+		
+		atc_codes = data["ATC_CODE"].split(",");
+		
+		for ( var i = 0; i < atc_codes.length; i++) 
+		{	
+			$("#node_inspector_content .atc_codes-data-row td").append('<a href="' + href+ atc_codes[i] + '" target="_blank">' +
+			atc_codes[i] + '</a>');
+			if (i != atc_codes.length - 1) 
+			{
+				$("#node_inspector_content .atc_codes-data-row td").append(', ');
+			}
+		}
+		
+		$("#node_inspector_content .atc_codes-data-row td").append('<br><br>');
 	}
-	$("#node_inspector_content .atc_codes-data-row td").append('<br><br>');
 	
 	
 	// For drug Synonyms
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="synonyms-data-row"><td>' +
-			'<strong>Synonyms: </strong></td></tr>');
-	
-	
-	if (data["SYNONYMS"] == "") 
+
+	if (data["SYNONYMS"] != "") 
 	{
-		$("#node_inspector_content .synonyms-data-row td").append("Unknown");
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="synonyms-data-row"><td>' +
+				'<strong>Synonyms: </strong></td></tr>');
+		
+		synonyms = data["SYNONYMS"].split(";");	
+		if(synonyms.length == 1)
+		{
+			$("#node_inspector_content .synonyms-data-row td").append(synonyms[0]);
+			$("#node_inspector_content .synonyms-data-row td").append('<br>');
+		}
+		else
+			for ( var i = 0; i < synonyms.length; i++) 
+			{
+				$("#node_inspector_content .synonyms-data-row td").append('<p style="margin: 0px;"> -' + synonyms[i] + '</p>');
+			}
 		$("#node_inspector_content .synonyms-data-row td").append('<br>');
 	}
-	else
-	{
-		synonyms = data["SYNONYMS"].split(";");	
-		for ( var i = 0; i < synonyms.length; i++) 
-		{
-			$("#node_inspector_content .synonyms-data-row td").append('<p style="margin: 0px;"> -' + synonyms[i] + '</p>');
-		}
-	}
-	$("#node_inspector_content .synonyms-data-row td").append('<br>');
+	
 	
 	
 	// For Drug description
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="description-data-row"><td>' +
-			'<strong>Description: </strong></td></tr>');
-	
-	
-	description = data["DESCRIPTION"];
-	
-	if (description != "") 
-	{
+	var description = data["DESCRIPTION"];
+	if(description != ""){
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="description-data-row"><td>' +
+				'<strong>Description: </strong></td></tr>');
 		$("#node_inspector_content .description-data-row td").append(description);
+		$("#node_inspector_content .description-data-row td").append('<br><br>');
 	}
-	else
-		$("#node_inspector_content .description-data-row td").append("Unknown");
-	
-	
-	$("#node_inspector_content .description-data-row td").append('<br><br>');
-	
 	
 	// For FDA approval
 	$("#node_inspector_content .data").append(
@@ -415,10 +410,11 @@ function _updateNodeInspectorForDrug(data, node)
 	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
 	
 	$("#node_inspector_content .fda-data-row td").append(fda_approval);
-	$("#node_inspector_content .fda-data-row td").append('<br><br>');
+	$("#node_inspector_content .fda-data-row td").append('<br>');
 	
 	
-	// For Pub Med IDs			
+	// For Pub Med IDs	
+	/*
 	$("#node_inspector_content .data").append(
 			'<tr align="left" class="pubmed-data-row"><td>' +
 			'<strong>PubMed IDs: </strong></td></tr>');
@@ -438,6 +434,7 @@ function _updateNodeInspectorForDrug(data, node)
 	{			
 		$("#node_inspector_content .pubmed-data-row td").append("Unknown");
 	}
+	*/
 }
 
 
@@ -743,7 +740,7 @@ function showEdgeInspector(evt)
 
 //			_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 			
-			if (data["INTERACTION_PUBMED_ID"] == null)
+			if (data["INTERACTION_PUBMED_ID"] == "NA")
 			{
 				// no PubMed ID, add only type information
 				_addDataRow("edge",
@@ -810,7 +807,7 @@ function _addPubMedIds(data, summaryEdge)
 	var ids = data["INTERACTION_PUBMED_ID"].split(";");
 	var link, xref;
 	var links = new Array();
-	
+	var dd = data["INTERACTION_PUBMED_ID"];
 	// collect pubmed id(s) into an array
 	
 	for (var i = 0; i < ids.length; i++)

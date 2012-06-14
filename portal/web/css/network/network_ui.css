@@ -260,6 +260,16 @@
 	font-size: 12pt;
 }
 
+#node_inspector_content .xref-row td a
+{
+	color:blue;
+}
+
+#node_inspector_content .atc_codes-data-row td a
+{
+	color:blue;
+}
+
 #node_inspector .percent-bar
 {
 	margin-top: 0.5em;

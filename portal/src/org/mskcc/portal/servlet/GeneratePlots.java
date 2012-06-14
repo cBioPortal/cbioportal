@@ -74,7 +74,6 @@ public class GeneratePlots extends HttpServlet {
             String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
             String normalCaseSetId = servletXssUtil.getCleanInput(req, NORMAL_CASE_SET_ID);
             String includeNormals = servletXssUtil.getCleanInput(req, INCLUDE_NORMALS);
-            //String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
             String caseIdsKey = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS_KEY);
             String plotType = servletXssUtil.getCleanInput(req, QueryBuilder.PLOT_TYPE);
             String xdebug = servletXssUtil.getCleanInput(req, QueryBuilder.XDEBUG);
@@ -167,7 +166,6 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (cnaProfileId + "," + mRNAProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						// we want to use gistic skin col group
@@ -208,7 +206,6 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (methylationProfileId + "," + mRNAProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
@@ -245,7 +242,6 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (mRNAProfileId + "," + rppaProteinProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
                     url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						String mutationProfileStr = (mutationProfileId.equals("undefined")) ? "" : ("," + mutationProfileId);

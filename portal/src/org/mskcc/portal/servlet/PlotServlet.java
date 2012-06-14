@@ -82,8 +82,7 @@ public class PlotServlet extends HttpServlet {
             String[] geneticProfilesList = p.split
                     (servletXssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS));
             String skin = servletXssUtil.getCleanInput(req, SKIN);
-            String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
-            //String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);            
+            String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);         
             String caseIdsKey = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS_KEY);
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);

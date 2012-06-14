@@ -444,7 +444,6 @@ public class NetworkServlet extends HttpServlet {
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
             throws ServletException, DaoException {
-        //String strCaseIds = req.getParameter(QueryBuilder.CASE_IDS);
     	String caseIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
     	String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
     	

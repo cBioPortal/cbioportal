@@ -75,13 +75,24 @@ public class UrlUtil {
                     		&& currentValue != null)
                     {
                     	paramName = QueryBuilder.CASE_IDS_KEY;
-                    	currentValue = CaseSetUtil.shortenCaseIds(currentValue);
+                    	
+                    	// first try to get case_ids_key attribute from the request
+                    	if (request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null)
+                    	{
+                    		currentValue = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+                    	}
+                    	// if no request attribute found, then use the utility function
+                    	else
+                    	{
+                    		currentValue = CaseSetUtil.shortenCaseIds(currentValue);
+                    	}
                     }
                     
-                    buf.append (paramName + "=" + currentValue + "&");
+                    buf.append(paramName + "=" + currentValue + "&");
                 }
             }
         }
+        
         return buf.toString();
     }
 }

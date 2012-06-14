@@ -43,7 +43,7 @@ public class DaoTextCache
 			pstmt.setString(1, key);
 			pstmt.setString(2, text);
 
-			// TODO use this instead of NOW()?
+			// TODO use java date instenad of db's native NOW() function?
 //			Date date = new Date();
 //			Object dateTime = new Timestamp(date.getTime());
 //			pstmt.setObject(3, dateTime); 
@@ -100,9 +100,31 @@ public class DaoTextCache
         }
     }
     
-    public void deleteAllKeys()
+    /**
+     * Deletes all records in the table.
+     * 
+     * @throws DaoException
+     */
+    public void deleteAllKeys() throws DaoException
     {
-    	// TODO deleteAllKeys
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try
+        {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("TRUNCATE TABLE text_cache");
+            pstmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new DaoException(e);
+        } 
+        finally
+        {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
     }
     
     public void purgeOldKeys()

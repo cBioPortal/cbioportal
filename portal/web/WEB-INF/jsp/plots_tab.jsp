@@ -13,7 +13,6 @@ $(document).ready(function() {
      $('#plot_it').click(function(){
         var cancer_study_id = $('#plots input:hidden:eq(0)').val();
         var case_set_id =  $('#plots input:hidden:eq(1)').val();
-        //var case_ids =  $('#plots input:hidden:eq(2)').val();
         var case_ids_key =  $('#plots input:hidden:eq(2)').val();
         var normal_case_set_id =  $('#plots input:hidden:eq(3)').val();
         var gene = $('select[name="gene"] option:selected').val();
@@ -27,7 +26,6 @@ $(document).ready(function() {
 
         var toLoad = "generatePlots.do?cancer_study_id="+cancer_study_id+
                 "&case_set_id="+case_set_id+
-                //"&case_ids="+encodeURIComponent(case_ids)+
                 "&case_ids_key="+encodeURIComponent(case_ids_key)+
                 "&gene="+gene+
                 "&mutation_profile_id="+mutation_profile_id+
@@ -106,10 +104,6 @@ $(document).ready(function() {
 
     out.println ("<input type='hidden' name='" + QueryBuilder.CASE_SET_ID
             + "' value='" + caseSetId + "'>");
-
-
-//     out.println ("<input type='hidden' name='" + QueryBuilder.CASE_IDS
-//             + "' value='" + caseIds + "'>");
 
     out.println ("<input type='hidden' name='" + QueryBuilder.CASE_IDS_KEY
             + "' value='" + caseIdsKey + "'>");

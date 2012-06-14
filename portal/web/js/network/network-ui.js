@@ -414,27 +414,22 @@ function _updateNodeInspectorForDrug(data, node)
 	
 	
 	// For Pub Med IDs	
-	/*
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="pubmed-data-row"><td>' +
-			'<strong>PubMed IDs: </strong></td></tr>');
-	
-	var pubmeds = new Array();			
-	var edges = _vis.edges();
-	
-	for ( var i = 0; i < edges.length; i++) 
-	{
-		if (edges[i].data.source == node.data.id) 
+	if(data["INTERACTION_PUBMED_ID"] != null){
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="pubmed-data-row"><td>' +
+				'<strong>PubMed IDs:</strong></td></tr>');
+		
+		var pubmeds = new Array();			
+		var edges = _vis.edges();
+		
+		for ( var i = 0; i < edges.length; i++) 
 		{
-			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+			if (edges[i].data.source == node.data.id) 
+			{
+				$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+			}
 		}
 	}
-	
-	if (pubmeds.length == 0) 
-	{			
-		$("#node_inspector_content .pubmed-data-row td").append("Unknown");
-	}
-	*/
 }
 
 
@@ -771,7 +766,7 @@ function showEdgeInspector(evt)
 		_addDataRow("edge", "Type", _toTitleCase(data["type"]));
 //		_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 		
-		if (data["INTERACTION_PUBMED_ID"] != null)
+		if (data["INTERACTION_PUBMED_ID"] != "NA")
 		{
 			_addPubMedIds(data, false);
 		}
@@ -807,7 +802,6 @@ function _addPubMedIds(data, summaryEdge)
 	var ids = data["INTERACTION_PUBMED_ID"].split(";");
 	var link, xref;
 	var links = new Array();
-	var dd = data["INTERACTION_PUBMED_ID"];
 	// collect pubmed id(s) into an array
 	
 	for (var i = 0; i < ids.length; i++)

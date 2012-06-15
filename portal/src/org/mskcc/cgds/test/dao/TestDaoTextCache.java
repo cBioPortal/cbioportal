@@ -1,5 +1,8 @@
 package org.mskcc.cgds.test.dao;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import junit.framework.TestCase;
 
 import org.mskcc.cgds.dao.DaoException;
@@ -30,5 +33,12 @@ public class TestDaoTextCache extends TestCase
         // get texts from database and ensure returned values are correct
         assertEquals(text1, daoTextCache.getText(key1));
         assertEquals(text2, daoTextCache.getText(key2));
+
+        // delete anything older than current time
+        daoTextCache.purgeOldKeys(Calendar.getInstance().getTime());
+        
+        // assert that both keys are deleted
+        assertEquals(null, daoTextCache.getText(key1));
+        assertEquals(null, daoTextCache.getText(key2));
     }
 }

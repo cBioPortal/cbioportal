@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.mskcc.portal.util.CacheUtil;
 
@@ -127,8 +129,38 @@ public class DaoTextCache
         }
     }
     
-    public void purgeOldKeys()
+    /**
+     * Remove records older than the specified date.
+     * 
+     * @param date	threshold date
+     * @throws DaoException 
+     */
+    public void purgeOldKeys(Date date) throws DaoException
     {
-    	// TODO purgeOldKeys
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try
+        {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("DELETE FROM text_cache " +
+            		"WHERE `DATE_TIME_STAMP` <= ?");
+            
+            // create date_time_stamp string using the given date
+            // (java.sql package does not have a proper "datetime" type support)
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            
+            pstmt.setString(1, formatter.format(date));
+            pstmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new DaoException(e);
+        } 
+        finally
+        {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
     }
 }

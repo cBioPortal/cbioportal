@@ -86,7 +86,7 @@ public class WebFileConnect {
     /**
      * Reads Content from a Buffered Reader.
      */
-    private static String readFile(BufferedReader in) throws IOException {
+    public static String readFile(BufferedReader in) throws IOException {
         StringBuffer buf = new StringBuffer();
         String str;
         while ((str = in.readLine()) != null) {

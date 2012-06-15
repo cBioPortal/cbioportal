@@ -8,6 +8,9 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.*;
 import java.util.List;
 import java.util.Properties;
@@ -24,10 +27,18 @@ import static org.mskcc.cgds.dao.DaoMutSig.addMutSig;
  */
 
 public class MutSigReader {
-
     public static final int HIGH_Q_VALUE = -1;
+    private static Log log = LogFactory.getLog(MutSigReader.class);
 
     // look up the internalId for a cancer_study_identifier from a properties file
+
+    /**
+     * Look up CancerStudy Id, internal databse record
+     * @param props         Properties file
+     * @return              CancerStudyId
+     * @throws IOException
+     * @throws DaoException
+     */
     public static int getInternalId(File props) throws IOException, DaoException
     {
 
@@ -50,8 +61,15 @@ public class MutSigReader {
         return cancerStudy.getInternalId();
     }
 
-    // adds MutSigs to CDGS database.
-    // @return total number of rows added to database
+    /**
+     * Adds MutSigs to CDGS database.
+     * @param internalId        CancerStudy database record
+     * @param mutSigFile        MutSigFile
+     * @param pMonitor          pMonitor
+     * @return                  number of MutSig records loaded
+     * @throws IOException
+     * @throws DaoException
+     */
     public static int loadMutSig(int internalId, File mutSigFile, ProgressMonitor pMonitor) throws IOException, DaoException {
         int loadedMutSigs = 0;
         MySQLbulkLoader.bulkLoadOff();
@@ -130,22 +148,30 @@ public class MutSigReader {
 
             // Ignore everything with high q-value,
             // specified by Ethan
-            if (Float.parseFloat(qValue.replace("<","")) > 0.05) {
+            if (Float.parseFloat(qValue.replace("<","")) > 0.1) {
                 return HIGH_Q_VALUE;
             }
 
             List<CanonicalGene> genes;
             genes = daoGene.guessGene(hugoGeneSymbol);
 
-            // there should only be one EntrezId for a HugoGeneSymbol
+            // there should only be one EntrezId for any given HugoGeneSymbol
+            CanonicalGene gene;
             if (genes.size() == 0) {
-                throw new DaoException("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol);
+                if (log.isWarnEnabled()) {
+                    log.warn("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol
+                    + ". Set EntrezId = 0");
+                }
+
+                gene = new CanonicalGene(0, hugoGeneSymbol);
             }
-            
-            if (genes.size() > 1) {
-                throw new DaoException("Found more than one CanonicalGenes for HugoGeneSymobl: " + hugoGeneSymbol);
+
+            else if (genes.size() > 1 && log.isWarnEnabled()) {
+                log.warn("Found more than one CanonicalGenes for HugoGeneSymbol: " + hugoGeneSymbol
+                        + ". Chose the first one by default");
             }
-            CanonicalGene gene = genes.get(0);
+
+            gene = genes.get(0);
             // -- end load parameters for new MutSig object --
 
             MutSig mutSig = new MutSig(internalId, gene, rank, numBasesCovered, numMutations, pValue, qValue);

@@ -47,12 +47,10 @@ public class MutSigJSON extends HttpServlet {
     {
         Map map = new HashMap();
 
-        if (Float.parseFloat(mutsig.getqValue().replace("<","")) <= 0.01)
-        {
-            map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
-            map.put("num_muts", mutsig.getNumMutations());
-            map.put("qval", mutsig.getqValue());
-        }
+        map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
+        map.put("num_muts", mutsig.getNumMutations());
+        map.put("qval", mutsig.getqValue());
+
         return map;
     }
 

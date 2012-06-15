@@ -1,14 +1,18 @@
 package org.mskcc.cgds.util;
 
-import org.mskcc.cgds.dao.*;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.MutSig;
 
 import java.io.*;
+import java.util.List;
 import java.util.Properties;
 
-import static org.mskcc.cgds.dao.DaoMutSig.*;
+import static org.mskcc.cgds.dao.DaoMutSig.addMutSig;
 
 /*
  * Reads and loads a MutSig file.
@@ -20,6 +24,8 @@ import static org.mskcc.cgds.dao.DaoMutSig.*;
  */
 
 public class MutSigReader {
+
+    public static final int HIGH_Q_VALUE = -1;
 
     // look up the internalId for a cancer_study_identifier from a properties file
     public static int getInternalId(File props) throws IOException, DaoException
@@ -114,6 +120,7 @@ public class MutSigReader {
 
             String[] parts = line.split("\t");
 
+            // -- load parameters for new MutSig object --
             int rank = Integer.parseInt(parts[rankField]);
             String hugoGeneSymbol = parts[hugoField];
             int numBasesCovered = Integer.parseInt(parts[BasesCoveredField]);
@@ -121,11 +128,25 @@ public class MutSigReader {
             String pValue = parts[PvalField];
             String qValue = parts[QvalField];
 
-            CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
-            if (gene == null) {
-                gene = new CanonicalGene(0, hugoGeneSymbol);
-                pMonitor.logWarning("Invalid gene symbol:  " + hugoGeneSymbol);
+            // Ignore everything with high q-value,
+            // specified by Ethan
+            if (Float.parseFloat(qValue.replace("<","")) > 0.05) {
+                return HIGH_Q_VALUE;
             }
+
+            List<CanonicalGene> genes;
+            genes = daoGene.guessGene(hugoGeneSymbol);
+
+            // there should only be one EntrezId for a HugoGeneSymbol
+            if (genes.size() == 0) {
+                throw new DaoException("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol);
+            }
+            
+            if (genes.size() > 1) {
+                throw new DaoException("Found more than one CanonicalGenes for HugoGeneSymobl: " + hugoGeneSymbol);
+            }
+            CanonicalGene gene = genes.get(0);
+            // -- end load parameters for new MutSig object --
 
             MutSig mutSig = new MutSig(internalId, gene, rank, numBasesCovered, numMutations, pValue, qValue);
             loadedMutSigs += addMutSig(mutSig);

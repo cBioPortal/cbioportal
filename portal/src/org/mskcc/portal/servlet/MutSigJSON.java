@@ -42,12 +42,12 @@ public class MutSigJSON extends HttpServlet {
 
     // Make a map out of every mutsig
     // Add that map to the mutSigJSONArray
-    // Returns the empty set, {}, if qval > 0.05 (specificed by Ethan)
+    // Returns the empty set, {}, if qval > 0.01 (specificed by Ethan)
     public static Map MutSigtoMap(MutSig mutsig)
     {
         Map map = new HashMap();
 
-        if (Float.parseFloat(mutsig.getqValue().replace("<","")) <= 0.05)
+        if (Float.parseFloat(mutsig.getqValue().replace("<","")) <= 0.01)
         {
             map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
             map.put("num_muts", mutsig.getNumMutations());
@@ -63,6 +63,7 @@ public class MutSigJSON extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
+
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
         JSONArray mutSigJSONArray = new JSONArray();
 
@@ -76,7 +77,7 @@ public class MutSigJSON extends HttpServlet {
                 Map map = MutSigtoMap(mutsig);
 
                 if (!map.isEmpty()) {
-                mutSigJSONArray.add(map);
+                    mutSigJSONArray.add(map);
                 }
             }
 

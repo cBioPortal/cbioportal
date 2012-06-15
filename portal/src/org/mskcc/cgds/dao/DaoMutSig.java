@@ -53,7 +53,7 @@ public class DaoMutSig {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        //System.err.print("Adding MutSig \n");
+
         CanonicalGene gene = mutSig.getCanonicalGene();
         MySQLbulkLoader.bulkLoadOff();
         try {
@@ -176,18 +176,22 @@ public class DaoMutSig {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
                     ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudy);
             rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
                 MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
                 mutSigList.add(mutSig);
             }
+
             return mutSigList;
+
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

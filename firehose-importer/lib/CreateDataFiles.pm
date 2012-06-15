@@ -934,6 +934,23 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 # None.  Simply rename the file
 sub create_mut_sig {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    # add Entrez Gene ID
+    $data->col('Entrez_Gene_Id');
+
+	# added entrez gene id
+    $self->mapDataToGeneID( $firehoseFile, $data, 'gene', 'Entrez_Gene_Id' );
+
+	# rename column
+	$data->col_rename ( "gene" => "Hugo_Symbol" );
+
+	# set column order
+	$data->fieldlist_set([qw(rank Entrez_Gene_Id Hugo_Symbol description N n npat nsite nsil n1 n2 n3 n4 n5 n6 p q)]);
+
 	$data->write($CGDSfile);
 }
 

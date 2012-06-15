@@ -148,8 +148,9 @@ public class MutSigReader {
 
             // Ignore everything with high q-value,
             // specified by Ethan
-            if (Float.parseFloat(qValue.replace("<","")) > 0.1) {
-                return HIGH_Q_VALUE;
+            if (Float.parseFloat(qValue.replace("<","")) >= 0.1) {
+                line = buf.readLine();
+                continue;
             }
 
             List<CanonicalGene> genes;
@@ -169,9 +170,13 @@ public class MutSigReader {
             else if (genes.size() > 1 && log.isWarnEnabled()) {
                 log.warn("Found more than one CanonicalGenes for HugoGeneSymbol: " + hugoGeneSymbol
                         + ". Chose the first one by default");
+                gene = genes.get(0);
+            }
+            
+            else {  // there is one and only one EntrezId for a given HUGO symbol
+                gene = genes.get(0);
             }
 
-            gene = genes.get(0);
             // -- end load parameters for new MutSig object --
 
             MutSig mutSig = new MutSig(internalId, gene, rank, numBasesCovered, numMutations, pValue, qValue);

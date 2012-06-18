@@ -169,6 +169,7 @@ function userClickedMainTab(tabAction) {
 function crossCancerStudySelected() {
      $('#step2').hide();
      $('#step3').hide();
+     $('#step3cross').show();
      $('#step5').hide();
      $('#cancer_study_desc').hide();
 }
@@ -177,6 +178,7 @@ function crossCancerStudySelected() {
 function singleCancerStudySelected() {
     $("#step2").show();
     $("#step3").show();
+    $('#step3cross').hide();
     $("#step5").show();
     $("#cancer_study_desc").show();
 }

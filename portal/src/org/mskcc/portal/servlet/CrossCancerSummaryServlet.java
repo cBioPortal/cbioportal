@@ -93,8 +93,17 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
             httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
 
+            //  Get priority settings
+            Integer caseSetPriority;
+            try {
+                caseSetPriority
+                        = Integer.parseInt(httpServletRequest.getParameter(QueryBuilder.CASE_SET_PRIORITY).trim());
+            } catch (NumberFormatException e) {
+                caseSetPriority = 0;
+            }
+
             //  Get the default case set
-            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
+            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, caseSetPriority);
             CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
             httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getStableId());
 

@@ -247,7 +247,8 @@ public class DaoMutation {
         return mutationList;
     }
 
-    public ArrayList<ExtendedMutation> getMutations (String CaseId) throws DaoException {
+    public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, 
+            String CaseId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -255,8 +256,9 @@ public class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mutation WHERE CASE_ID = ?");
-            pstmt.setString(1, CaseId);
+                    ("SELECT * FROM mutation WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+            pstmt.setString(2, CaseId);
             rs = pstmt.executeQuery();
             while  (rs.next()) {
                 ExtendedMutation mutation = extractMutation(rs);
@@ -324,6 +326,39 @@ public class DaoMutation {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM mutation");
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public int countSamplesWithSpecificMutations(int geneticProfileId, long gene,
+            String aminoAcidChange) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            if (aminoAcidChange==null) {
+                pstmt = con.prepareStatement
+                        ("SELECT COUNT(DISTINCT CASE_ID) FROM mutation WHERE GENETIC_PROFILE_ID=?"
+                        + " AND ENTREZ_GENE_ID=?");
+                pstmt.setInt(1, geneticProfileId);
+                pstmt.setLong(2, gene);
+            } else {
+                pstmt = con.prepareStatement
+                        ("SELECT COUNT(DISTINCT CASE_ID) FROM mutation WHERE GENETIC_PROFILE_ID=?"
+                        + " AND ENTREZ_GENE_ID=? AND AMINO_ACID_CHANGE=?");
+                pstmt.setInt(1, geneticProfileId);
+                pstmt.setLong(2, gene);
+                pstmt.setString(3, aminoAcidChange);
+            } 
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);

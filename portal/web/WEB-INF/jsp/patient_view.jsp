@@ -1,9 +1,13 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.cgds.model.CancerStudy" %>
+<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
+CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
+GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 %>
 
 <jsp:include page="global/header_above_bar.jsp" flush="true" />
@@ -31,9 +35,11 @@ if (patient_view_error!=null) {
         <%@ include file="patient_view/summary.jsp" %>
     </div>
 
+    <%if(mutationProfile!=null){%>
     <div class="patient-section" id="mutations">
         <%@ include file="patient_view/mutations.jsp" %>
     </div>
+    <%}%>
 
     <div class="patient-section" id="cna">
         <%@ include file="patient_view/cna.jsp" %>

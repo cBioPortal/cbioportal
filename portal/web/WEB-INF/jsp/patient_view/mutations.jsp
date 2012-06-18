@@ -26,7 +26,8 @@
     
     $(document).ready(function(){
         $('#mutation_wrapper_table').hide();
-        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'
+        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
+            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>'
         };
                         
         $.post("mutations.json", 

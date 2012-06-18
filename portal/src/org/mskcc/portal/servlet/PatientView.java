@@ -8,16 +8,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.mskcc.cgds.dao.DaoCase;
 import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.model.Case;
+import org.mskcc.cgds.dao.DaoCase;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cgds.dao.DaoCaseProfile;
+import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.List;
+import org.mskcc.cgds.model.GeneticAlterationType;
 
 /**
  *
@@ -27,7 +33,13 @@ public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "error";
     public static final String PATIENT_ID = "patient";
+    public static final String PATIENT_CASE_OBJ = "case_obj";
+    public static final String CANCER_STUDY = "cancer_study";
+    public static final String MUTATION_PROFILE = "mutation_profile";
     private ServletXssUtil servletXssUtil;
+    
+    private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+    private static final DaoCaseProfile daoCaseProfile = new DaoCaseProfile();
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -70,7 +82,7 @@ public class PatientView extends HttpServlet {
         
         try {
             validate(request);
-
+            setGeneticProfiles(request);
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view.jsp");
             dispatcher.forward(request, response);
@@ -82,9 +94,6 @@ public class PatientView extends HttpServlet {
         } 
     }
     
-    /**
-     * validate the portal web input form.
-     */
     private boolean validate(HttpServletRequest request) throws DaoException {
         String caseId = (String) request.getAttribute(PATIENT_ID);
         Case _case = DaoCase.getCase(caseId);
@@ -93,8 +102,9 @@ public class PatientView extends HttpServlet {
             return false;
         }
         
-        String cancerStudyIdentifier = DaoCancerStudy
-                .getCancerStudyByInternalId(_case.getCancerStudyId()).getCancerStudyStableId();
+        CancerStudy cancerStudy = DaoCancerStudy
+                .getCancerStudyByInternalId(_case.getCancerStudyId());
+        String cancerStudyIdentifier = cancerStudy.getCancerStudyStableId();
         
         if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
             request.setAttribute(ERROR,
@@ -102,7 +112,23 @@ public class PatientView extends HttpServlet {
                     cancerStudyIdentifier + "'. ");
             return false;
         }
+        
+        request.setAttribute(PATIENT_CASE_OBJ, _case);
+        request.setAttribute(CANCER_STUDY, cancerStudy);
         return true;
+    }
+    
+    private void setGeneticProfiles(HttpServletRequest request) throws DaoException {
+        Case _case = (Case)request.getAttribute(PATIENT_CASE_OBJ);
+        CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
+        List<GeneticProfile> profiles = daoGeneticProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+        for (GeneticProfile profile : profiles) {
+            if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), profile.getGeneticProfileId())) {
+                    request.setAttribute(MUTATION_PROFILE, profile);
+                }
+            }
+        }
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

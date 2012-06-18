@@ -103,6 +103,28 @@ public final class DaoCase {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
+    
+    public static int countCases(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT count(*) FROM _case WHERE CANCER_STUDY_ID = ?");
+            pstmt.setInt(1, cancerStudyId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;

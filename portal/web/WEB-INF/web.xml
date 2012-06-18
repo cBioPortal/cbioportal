@@ -126,6 +126,11 @@
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.ClinicalFreeFormJSON</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>MutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.MutationsJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>oma_redirect</servlet-name>
@@ -262,9 +267,14 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
     </servlet-mapping>   
 
-	<servlet-mapping>
+    <servlet-mapping>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping> 
+
+    <servlet-mapping>
+    	<servlet-name>MutationsJSON</servlet-name>
+        <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
     
     <welcome-file-list>

@@ -247,6 +247,29 @@ public class DaoMutation {
         return mutationList;
     }
 
+    public ArrayList<ExtendedMutation> getMutations (String CaseId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM mutation WHERE CASE_ID = ?");
+            pstmt.setString(1, CaseId);
+            rs = pstmt.executeQuery();
+            while  (rs.next()) {
+                ExtendedMutation mutation = extractMutation(rs);
+                mutationList.add(mutation);
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+        return mutationList;
+    }
+
     public ArrayList<ExtendedMutation> getAllMutations () throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

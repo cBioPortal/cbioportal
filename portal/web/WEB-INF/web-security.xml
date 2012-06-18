@@ -163,7 +163,12 @@
     <servlet>
         <servlet-name>link_out</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
-    </servlet>    
+    </servlet> 
+    
+    <servlet>
+    	<servlet-name>MutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.MutationsJSON</servlet-class>
+    </servlet>   
 
     <servlet>
         <servlet-name>mutation_diagram_data_json</servlet-name>
@@ -283,6 +288,11 @@
 	<servlet-mapping>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>MutationsJSON</servlet-name>
+        <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>

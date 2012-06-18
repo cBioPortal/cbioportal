@@ -28,7 +28,7 @@ public final class Pileup {
     private final int location;
     private final int count;
 
-    Pileup(final String label, final int location, final int count) {
+    public Pileup(final String label, final int location, final int count) {
         this.label = label;
         this.location = location;
         this.count = count;

@@ -14,11 +14,15 @@ public class GeneticEventImpl implements GeneticEvent {
    
    public enum MRNA { UPREGULATED, NORMAL, DOWNREGULATED, NOTSHOWN }
 
+   public enum RPPA { UPREGULATED, NORMAL, DOWNREGULATED, NOTSHOWN }
+
    public enum mutations { MUTATED, UNMUTATED, NONE }
 
    private CNA cnaValue;
    private MRNA mrnaValue;
+   private RPPA rppaValue;
    private mutations isMutated;
+   private String mutationType; // mutation type
    private String gene;
    private String caseId;
    
@@ -78,11 +82,21 @@ public class GeneticEventImpl implements GeneticEvent {
       } else if (valueParser.isMRNAWayDown()) {
          mrnaValue = MRNA.DOWNREGULATED;
       }
+
+      rppaValue = RPPA.NOTSHOWN;
+      if (valueParser.isRPPAWayUp()) {
+         rppaValue = RPPA.UPREGULATED;
+      } else if (valueParser.isRPPAWayDown()) {
+         rppaValue = RPPA.DOWNREGULATED;
+      }
       
       isMutated = mutations.UNMUTATED;
 
+	  mutationType = "Mutation cannot be determined";
       if (valueParser.isMutated()) {
          isMutated = mutations.MUTATED;
+		 // get type
+		 mutationType = valueParser.getMutationType();
       }
    }
    
@@ -110,6 +124,15 @@ public class GeneticEventImpl implements GeneticEvent {
     }
 
     /**
+     * Gets the RPPA Value.
+     * 
+     * @return RPPA Value.
+     */
+    public RPPA getRPPAValue() {
+        return rppaValue;
+    }
+
+    /**
      * Gets the mutation Value.
      *
      * @return mutation Value.
@@ -119,12 +142,21 @@ public class GeneticEventImpl implements GeneticEvent {
     }
 
     /**
+     * Gets the mutation type (amino acid change).
+     *
+     * @return mutation Type.
+     */
+    public String getMutationType() {
+		return mutationType;
+    }
+
+    /**
      * Constructor, to be used primarily by JUnit Tests.
      *
      * @cnaValue Copy Number Value, discretized -2, -1, 0, 1, 2.
      * @mrnaValue mRNA Value, discretized: -1, 0, 1
      */
-    public GeneticEventImpl(int cnaValue, int mrnaValue, boolean isMutated) {
+    public GeneticEventImpl(int cnaValue, int mrnaValue, int rppaValue, boolean isMutated) {
 
       switch (cnaValue) {
          case 2 :
@@ -161,6 +193,21 @@ public class GeneticEventImpl implements GeneticEvent {
                   + mrnaValue);
       }
 
+      switch (rppaValue) {
+         case 1 :
+            this.rppaValue = RPPA.UPREGULATED;
+            break;
+         case 0 :
+            this.rppaValue = RPPA.NORMAL;
+            break;
+         case -1 :
+            this.rppaValue = RPPA.DOWNREGULATED;
+            break;
+         default :
+            throw new IllegalArgumentException("Illegal mrnaValue: "
+                  + rppaValue);
+      }
+
       if (isMutated) {
          this.isMutated = mutations.MUTATED;
       } else {
@@ -168,10 +215,11 @@ public class GeneticEventImpl implements GeneticEvent {
       }
    }
 
-    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, mutations isMutated) {
+    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, RPPA rppaValue, mutations isMutated) {
 
        this.cnaValue = cnaValue;
        this.mrnaValue = mrnaValue;
+       this.rppaValue = rppaValue;
        this.isMutated = isMutated;
    }
 
@@ -218,6 +266,24 @@ public class GeneticEventImpl implements GeneticEvent {
      */
     public boolean isMRNADownRegulated() {
        return(mrnaValue == MRNA.DOWNREGULATED);
+    }
+
+    /**
+     * Is the Gene RPPA upregulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPAUpRegulated() {
+       return(rppaValue == RPPA.UPREGULATED);
+    }
+
+    /**
+     * Is the Gene RPPA down-regulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPADownRegulated() {
+       return(rppaValue == RPPA.DOWNREGULATED);
     }
 
     /**

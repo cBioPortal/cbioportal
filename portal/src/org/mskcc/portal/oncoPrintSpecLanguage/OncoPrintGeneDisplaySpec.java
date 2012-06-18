@@ -30,10 +30,11 @@ public class OncoPrintGeneDisplaySpec
     /**
      * set to default spec; 
      */
-    public void setDefault( double zScoreThreshold ){
+    public void setDefault( double zScoreThreshold, double rppaScoreThrehold ){
        this.setDefault( GeneticDataTypes.CopyNumberAlteration );
        this.setDefault( GeneticDataTypes.Mutation );
-       this.setDefaultExpression( zScoreThreshold );
+       this.setDefaultExpression( zScoreThreshold, GeneticDataTypes.Expression );
+       this.setDefaultExpression( rppaScoreThrehold, GeneticDataTypes.RPPA );
     }
     
     /**
@@ -73,19 +74,19 @@ public class OncoPrintGeneDisplaySpec
     }
     
     /**
-     * set the default Expression thresholds, <= and >= zScoreThreshold
-     * @param zScoreThreshold
+     * set the default Expression/RPPA thresholds, <= and >= scoreThreshold
+     * @param scoreThreshold
      */
-    public void setDefaultExpression( double zScoreThreshold ){
-       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Expression );
+    public void setDefaultExpression( double scoreThreshold, GeneticDataTypes theGeneticDataType ){
+       ResultDataTypeSpec theResultDataTypeSpec = new ResultDataTypeSpec( theGeneticDataType );
 
-       theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
-                ComparisonOp.convertCode(">="), (float)zScoreThreshold ) );
+       theResultDataTypeSpec.setCombinedGreaterContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
+                ComparisonOp.convertCode(">="), (float)scoreThreshold ) );
 
-       theResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec( new ContinuousDataTypeSpec( GeneticDataTypes.Expression,
-                ComparisonOp.convertCode("<="), (float) -zScoreThreshold ) );
+       theResultDataTypeSpec.setCombinedLesserContinuousDataTypeSpec( new ContinuousDataTypeSpec( theGeneticDataType,
+                ComparisonOp.convertCode("<="), (float) -scoreThreshold ) );
        
-       finalDataTypeSpecs.put( GeneticDataTypes.Expression, theResultDataTypeSpec );
+       finalDataTypeSpecs.put( theGeneticDataType, theResultDataTypeSpec );
     }
     
     /**

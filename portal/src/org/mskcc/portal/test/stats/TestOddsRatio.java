@@ -33,7 +33,8 @@ public class TestOddsRatio extends TestCase {
         
         ProfileMerger merger = new ProfileMerger(profileList);
         ProfileData mergedProfile = merger.getMergedProfile();
-        ProfileDataSummary pDataSummary = new ProfileDataSummary(mergedProfile, anOncoPrintSpecification, ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT);
+        ProfileDataSummary pDataSummary = new ProfileDataSummary(mergedProfile, anOncoPrintSpecification,
+                ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT, ZScoreUtil.RPPA_SCORE_THRESHOLD_DEFAULT);
 
         OddsRatio oddsRatio = new OddsRatio(pDataSummary, "BRCA1", "BRCA2");
         double oddsRatioValue = oddsRatio.getOddsRatio();

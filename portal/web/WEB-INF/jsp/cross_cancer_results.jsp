@@ -545,6 +545,8 @@
 
                 <script>
                     var windowTmp = this;
+                    var panelIsActive = {};
+                    var panelHasAlreadyBeenDrawn = {};
 
                     jQuery(document).ready(function() {
                         $(".sortable").sortable({connectWith: '.sortable'});
@@ -555,14 +557,22 @@
                             $(this).next().toggle();
                             //  This toggles the ui-icons within head
                             jQuery(".ui-icon", this).toggle();
+							// determine if we are opening or closing
+							var cancerStudyID = $(this).attr('id');
+							panelIsActive[cancerStudyID] = !panelIsActive[cancerStudyID];
 							// redraw oncoprint (TBD: only draw on opening)
-							eval("DrawOncoPrintHeader(ONCOPRINT_" + this.id +
-							", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
-							"'), HEADER_VARIABLES_" + this.id + ", false)");
-							eval("DrawOncoPrintBody(ONCOPRINT_" + this.id +
-							", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
-							"'), GENETIC_ALTERATIONS_SORTED_" + this.id +
-							".get('GENETIC_ALTERATIONS_SORTED_" + this.id + "'), false)");
+							if (panelIsActive[cancerStudyID]) {
+								if (!panelHasAlreadyBeenDrawn[cancerStudyID]) {
+									panelHasAlreadyBeenDrawn[cancerStudyID] = true;
+									eval("DrawOncoPrintHeader(ONCOPRINT_" + this.id +
+										 ", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
+										 "'), HEADER_VARIABLES_" + this.id + ", false)");
+									eval("DrawOncoPrintBody(ONCOPRINT_" + this.id +
+										 ", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
+										 "'), GENETIC_ALTERATIONS_SORTED_" + this.id +
+										 ".get('GENETIC_ALTERATIONS_SORTED_" + this.id + "'), false)");
+								}
+							}
                             return false;
                         }).next().hide();
 

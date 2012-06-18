@@ -29,6 +29,7 @@ public class ProfileDataSummary {
     private double percentOfCasesWithAlteredPathway;
     private ProfileData profileData;
     private double zScoreThreshold;
+    private double rppaScoreThreshold;
     private OncoPrintSpecification theOncoPrintSpecification;
     private int numCasesAffected;
     
@@ -43,10 +44,12 @@ public class ProfileDataSummary {
      */
     public ProfileDataSummary(ProfileData data, 
             OncoPrintSpecification theOncoPrintSpecification,  
-            double zScoreThreshold) {
+            double zScoreThreshold,
+            double rppaScoreThreshold) {
         this.profileData = data;
         this.theOncoPrintSpecification = theOncoPrintSpecification;
         this.zScoreThreshold = zScoreThreshold;
+        this.rppaScoreThreshold = rppaScoreThreshold;
         ArrayList<String> geneList = data.getGeneList();
         ArrayList<String> caseList = data.getCaseIdList();
         geneAlteredList = determineFrequencyOfGeneAlteration(geneList, caseList);
@@ -132,7 +135,8 @@ public class ProfileDataSummary {
         if (parser==null) {
             String value = profileData.getValue(gene, caseId);
             parser = ValueParser.generateValueParser(gene, value, 
-                    this.zScoreThreshold, this.theOncoPrintSpecification);
+                    this.zScoreThreshold, this.rppaScoreThreshold,
+                    this.theOncoPrintSpecification);
             mapCaseParser.put(caseId, parser);
         }
         return parser;

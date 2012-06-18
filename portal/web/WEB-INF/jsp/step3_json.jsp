@@ -11,6 +11,11 @@
 			<td>
 				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
 	 		</td>
+	 		<td>
+	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
+	 				Build Case Set
+	 			</a>
+	 		</td>
 		</tr>
 		<tr>
 			<td></td>
@@ -18,6 +23,34 @@
 			</td>
 		</tr>
 	</table>
+	
+	<div id="custom_case_set_dialog" title="Build a Case Set">
+		<table id="case_set_dialog_header">
+			<tr>
+				<td id="selected_cancer_study_title" align="left">Build a Custom Case Set for: </td>
+				<td id="number_of_cases_title" align="right">Number of Matching Cases: </td>
+			</tr>
+			<tr>
+				<td id="selected_cancer_study" align="left"></td>
+				<td id="number_of_cases" align="right"></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td class="custom_case_set_warning" align="right"></td>
+			</tr>
+		</table>
+		<table id="case_set_dialog_content"></table>
+		<table id="case_set_dialog_footer">			
+   			<tr>
+   				<td>
+					<button id="cancel_custom_case_set" title="Cancel">Cancel</button>
+				</td>
+				<td>
+					<button id="submit_custom_case_set" class="tabs-button" title="Use this case set">Build</button>
+				</td>
+			</tr>
+		</table>
+	</div>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error
@@ -32,10 +65,9 @@ if (step3ErrorMsg != null) {
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80><%
     if (localCaseIds != null) {
-            out.print (localCaseIds);
+            out.print (localCaseIds.trim());
         }
-%>
-</textarea>
+%></textarea>
     </div>
 
 <%
@@ -44,3 +76,4 @@ if (step3ErrorMsg != null) {
 }
 %>
 </div>
+

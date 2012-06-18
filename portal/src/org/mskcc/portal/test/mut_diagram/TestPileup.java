@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram;
+package org.mskcc.portal.test.mut_diagram;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * Unit test for Pileup.
  */
-public final class PileupTest {
+public final class TestPileup {
 
     @Test
     public void testConstructor() {

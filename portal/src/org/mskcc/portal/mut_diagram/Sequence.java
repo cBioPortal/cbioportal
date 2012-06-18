@@ -65,7 +65,7 @@ public final class Sequence {
         return options;
     }
 
-    Sequence deepCopy() {
+    public Sequence deepCopy() {
         Sequence sequence = new Sequence();
         sequence.setLength(length);
         if (markups != null) {

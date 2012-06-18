@@ -68,7 +68,7 @@ public class NetworkServlet extends HttpServlet {
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
             Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
-            int nMiRNA = filterMiRNA(queryGenes);
+            int nMiRNA = filterNodes(queryGenes);
             if (nMiRNA>0) {
                 messages.append("MicroRNAs were excluded from the network query. ");
             }
@@ -300,14 +300,14 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private int filterMiRNA(Set<String> queryGenes) {
+    private int filterNodes(Set<String> queryGenes) {
         int n = 0;
         try {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
             for (Iterator<String> it = queryGenes.iterator(); it.hasNext();) {
                 String symbol = it.next();
                 CanonicalGene gene = daoGeneOptimized.getGene(symbol);
-                if (gene.isMicroRNA()) {
+                if (gene.isMicroRNA() || gene.isPhosphoProtein()) {
                     it.remove();
                     n++;
                 }
@@ -455,7 +455,8 @@ public class NetworkServlet extends HttpServlet {
                     }
                 }
         }
-        String[] caseArray = strCaseIds.split(" ");
+        //String[] caseArray = strCaseIds.split(" ");
+        String[] caseArray = strCaseIds.split("\\s+");
         Set<String> targetCaseIds = new HashSet<String>(caseArray.length);
         for (String caseId : caseArray) {
             targetCaseIds.add(caseId);

@@ -113,7 +113,7 @@ public class ValueParser {
     *         the gene in theOncoPrintSpecification.
     */
    static public ValueParser generateValueParser(String gene, String value, double zScoreThreshold,
-            OncoPrintSpecification theOncoPrintSpecification) {
+            double rppaScoreThreshold, OncoPrintSpecification theOncoPrintSpecification) {
 
       // check that gene can be found
       GeneWithSpec theGeneWithSpec = theOncoPrintSpecification.getGeneWithSpec(gene);
@@ -121,7 +121,7 @@ public class ValueParser {
          // System.err.println( "Cannot find " + gene + " in theOncoPrintSpecification.");
          return null;
       }
-      return new ValueParser(value, zScoreThreshold,
+      return new ValueParser(value, zScoreThreshold, rppaScoreThreshold,
               theGeneWithSpec.getTheOncoPrintGeneDisplaySpec());
    }
 
@@ -143,14 +143,20 @@ public class ValueParser {
     * @param zScoreThreshold
     * @param theOncoPrintGeneDisplaySpec
     */
-   public ValueParser(String value, double zScoreThreshold,
+   public ValueParser(String value, double zScoreThreshold, double rppaScoreThreshold,
            OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec) {
-
-      // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
+       this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
+       determineExpressionThresholds(GeneticDataTypes.Expression, zScoreThreshold);
+       determineExpressionThresholds(GeneticDataTypes.RPPA, rppaScoreThreshold);
+       parseValue(value);
+   }
+   
+   private void determineExpressionThresholds(GeneticDataTypes theGeneticDataType, double zScoreThreshold) {
+       // if theOncoPrintGeneDisplaySpec shows Expression and does not define an
       // inequality on Expression ...
       // then use the zScore to determine Expression thresholds
       ResultDataTypeSpec theResultDataTypeSpec = theOncoPrintGeneDisplaySpec
-               .getResultDataTypeSpec(GeneticDataTypes.Expression);
+               .getResultDataTypeSpec(theGeneticDataType);
       if (null != theResultDataTypeSpec && null ==
               theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec()
                && null == theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec()) {
@@ -160,12 +166,10 @@ public class ValueParser {
 
          // combine this with the given OncoPrintGeneDisplaySpec
          ResultDataTypeSpec expressionResultDataTypeSpec = aParsedFullDataTypeSpec.cleanUpInput()
-                  .getResultDataTypeSpec(GeneticDataTypes.Expression);
-         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(GeneticDataTypes.Expression,
+                  .getResultDataTypeSpec(theGeneticDataType);
+         theOncoPrintGeneDisplaySpec.setResultDataTypeSpec(theGeneticDataType,
                  expressionResultDataTypeSpec);
       }
-      this.theOncoPrintGeneDisplaySpec = theOncoPrintGeneDisplaySpec;
-      parseValue(value);
    }
 
    private void parseValue(String str) {
@@ -377,6 +381,14 @@ public class ValueParser {
       return doesContinuousValueExceedThreshold(GeneticDataTypes.Expression, Direction.lower);
    }
 
+   public boolean isRPPAWayUp() {
+      return doesContinuousValueExceedThreshold(GeneticDataTypes.RPPA, Direction.higher);
+   }
+
+   public boolean isRPPAWayDown() {
+      return doesContinuousValueExceedThreshold(GeneticDataTypes.RPPA, Direction.lower);
+   }
+
    /**
     * a special case, because mutation values can take any of { NaN, [CnnnD], 1}
     * where the NaN indicates no mutation and the latter two indicates a
@@ -402,6 +414,17 @@ public class ValueParser {
       }
       return false;
    }
+
+	/**
+	 * Routine used to get amino acid encoding of mutation.  Motivation was
+	 * to provide amino acid change to MakeOncoPrint via GeneticEvent instead of 
+	 * ExtendedMutationMap.
+	 */
+	public String getMutationType() {
+		String toReturn = 
+			datatypeToValueMap.get(GeneticAlterationType.MUTATION_EXTENDED.toString());
+		return (toReturn == null) ? "Mutation cannot be determined" : toReturn;
+	}
 
    /**
     * report on whether the gene was sequenced, as based on the mutation data,
@@ -435,7 +458,7 @@ public class ValueParser {
     */
    public boolean isGeneAltered() {
       return isMutated() || this.isDiscreteTypeAltered( GeneticDataTypes.CopyNumberAlteration ) ||
-      isMRNAWayUp() || isMRNAWayDown();
+      isMRNAWayUp() || isMRNAWayDown() || isRPPAWayUp() || isRPPAWayDown();
    }
 
    // TODO: combine the union of all genetic types into one, include all, like
@@ -447,6 +470,8 @@ public class ValueParser {
             return GeneticAlterationType.COPY_NUMBER_ALTERATION;
          case Expression:
             return GeneticAlterationType.MRNA_EXPRESSION;
+         case RPPA:
+             return GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL;
          case Methylation:
             return GeneticAlterationType.METHYLATION;
          case Mutation:
@@ -516,7 +541,30 @@ public class ValueParser {
          return "<img src='images/up2.png'>";
       }
       if (this.isMRNAWayDown()) {
-         return "<img src='images/down2.png'>";
+          if (this.isCnaAmplified()) {
+              return "<img src='images/down2-white.png'>";
+          } else {
+              return "<img src='images/down2.png'>";
+          }
+      }
+      return "";
+   }
+
+   /**
+    * 
+    * @param geneWithScore
+    * @return
+    */
+   public String getRPPAGlyph() {
+      if (this.isRPPAWayUp()) {
+         return "<img src='images/up-rppa.png'>";
+      }
+      if (this.isRPPAWayDown()) {
+          if (this.isCnaAmplified()) {
+              return "<img src='images/down-rppa-white.png'>";
+          } else {
+                return "<img src='images/down-rppa.png'>";
+          }
       }
       return "";
    }

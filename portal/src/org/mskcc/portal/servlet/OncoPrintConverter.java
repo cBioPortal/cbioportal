@@ -104,14 +104,11 @@ public class OncoPrintConverter extends HttpServlet {
 			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
 		}
 
-		// get longest label length
-		Integer longestLabelLength = new Integer(servletXssUtil.getCleanInput(httpServletRequest, "longest_label_length"));
-
         // get svgDOM xml - TODO - update antisamy.xml to support svg-xml
 		String xml = httpServletRequest.getParameter("xml");
 
 		// outta here
-		convertToSVG(httpServletResponse, xml, longestLabelLength);
+		convertToSVG(httpServletResponse, xml);
 	}
 
 	/**
@@ -119,9 +116,8 @@ public class OncoPrintConverter extends HttpServlet {
 	 *
 	 * @param response HttpServletResponse
 	 * @param xml String
-	 * @parma longestLabelLength Integer
 	 */
-	private void convertToSVG(HttpServletResponse response, String xml, Integer longestLabelLength) throws ServletException {
+	private void convertToSVG(HttpServletResponse response, String xml) throws ServletException {
 
 		try {
 			response.setContentType("application/svg+xml");

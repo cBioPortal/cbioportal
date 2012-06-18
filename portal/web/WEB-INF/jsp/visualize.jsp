@@ -35,6 +35,7 @@
             (QueryBuilder.GENETIC_PROFILE_IDS);
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+    double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
     ArrayList<CaseList> caseSets = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
@@ -62,10 +63,10 @@
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
              (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
              (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-             zScoreThreshold );
+             zScoreThreshold, rppaScoreThreshold );
 
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold );
+    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
 
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
@@ -98,8 +99,7 @@
     ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
-    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0
-                || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
+    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
     String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);

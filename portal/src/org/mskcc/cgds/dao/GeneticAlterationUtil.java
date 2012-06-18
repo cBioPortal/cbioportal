@@ -51,14 +51,10 @@ public class GeneticAlterationUtil {
                         canonicalGene.getEntrezGeneId());
             } else if (targetGeneticProfile.getGeneticAlterationType() ==
                     GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
+                String type = canonicalGene.isPhosphoProtein() ? 
+                        GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
                 caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
-                        targetCaseList, canonicalGene.getEntrezGeneId(),
-                        GeneticAlterationType.PROTEIN_LEVEL.toString(),null)[0];
-            } else if (targetGeneticProfile.getGeneticAlterationType() ==
-                    GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) {
-                caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
-                        targetCaseList, canonicalGene.getEntrezGeneId(),
-                        GeneticAlterationType.PHOSPHORYLATION.toString(),null)[0];
+                        targetCaseList, canonicalGene, type, null)[0];
             } else {
                 //  Handle All Other Data Types another way
                 caseMap = daoGeneticAlteration.getGeneticAlterationMap
@@ -98,8 +94,12 @@ public class GeneticAlterationUtil {
             ArrayList<String> targetCaseList, ArrayList<String> correlatedToData)
             throws DaoException {
         ArrayList<String> dataRow = new ArrayList<String>();
-        Map<String, String>[] caseMaps = getProteinArrayDataMap(cancerStudyId, targetCaseList, targetGene.getEntrezGeneId(),
-                        GeneticAlterationType.PROTEIN_LEVEL.toString(),null);
+        
+        String type = targetGene.isPhosphoProtein() ? 
+                GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
+        
+        Map<String, String>[] caseMaps = getProteinArrayDataMap(cancerStudyId, targetCaseList, targetGene,
+                        type,null);
         
         Map<String, String> caseMap = getBestCorrelatedCaseMap(caseMaps, targetCaseList, correlatedToData);
         //  Iterate through all cases in the profile
@@ -143,28 +143,46 @@ public class GeneticAlterationUtil {
      * Gets a Map of Protein Array Data.
      */
     private static Map <String, String>[] getProteinArrayDataMap
-            (int cancerStudyId, ArrayList<String> targetCaseList, long entrezGeneId, String type,
+            (int cancerStudyId, ArrayList<String> targetCaseList, CanonicalGene canonicalGene, String type,
             ArrayList<String> correlatedToData) throws DaoException {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         
         Map <String, String>[] ret;
 
-        ArrayList<ProteinArrayInfo> pais = daoPAI.getProteinArrayInfoForEntrezId(
-                cancerStudyId, entrezGeneId, Collections.singleton(type));
-        if (pais.isEmpty()) {
+        List<String> arrayIds = new ArrayList<String>();
+        if (canonicalGene.isPhosphoProtein()) {
+            //TODO: this is somewhat hacky way--rppa array ids have to be aliases of the phosphoprotein
+            for (String arrayId : canonicalGene.getAliases()) {
+                ProteinArrayInfo pai = daoPAI.getProteinArrayInfo(arrayId);
+                if (pai!=null && pai.getCancerStudies().contains(cancerStudyId)) {
+                    if (arrayId.contains("-")) {
+                        // normalized
+                        arrayIds.add(0, arrayId);
+                    } else {
+                        arrayIds.add(arrayId);
+                    }
+                }
+            }
+        } else {
+            for (ProteinArrayInfo pai : daoPAI.getProteinArrayInfoForEntrezId(
+                    cancerStudyId, canonicalGene.getEntrezGeneId(), Collections.singleton(type))) {
+                arrayIds.add(pai.getId());
+            }
+        }
+        
+        if (arrayIds.isEmpty()) {
             ret = new Map[1];
             Map <String, String> map = Collections.emptyMap();
             ret[0] = map;
             return ret;
         }
 
-        int n = correlatedToData==null ? 1:pais.size();
+        int n = correlatedToData==null ? 1:arrayIds.size();
         ret = new Map[n];
         
         for (int i=0; i<n; i++) {
-            ProteinArrayInfo pai = pais.get(0);
-            String arrayId = pai.getId();
+            String arrayId = arrayIds.get(i);
 
             if (arrayId == null) {
                 continue;

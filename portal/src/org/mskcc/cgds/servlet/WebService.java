@@ -37,6 +37,7 @@ import org.mskcc.cgds.web_api.GetProteinArrayData;
 import org.mskcc.cgds.web_api.ProtocolException;
 import org.mskcc.cgds.web_api.WebApiUtil;
 import org.mskcc.cgds.util.WebserviceParserUtils;
+import org.mskcc.portal.util.CaseSetUtil;
 
 /**
  * Core Web Service.
@@ -55,6 +56,7 @@ public class WebService extends HttpServlet {
     public static final String GENE_SYMBOL = "gene_symbol";
     public static final String ENTREZ_GENE_ID = "entrez_gene_id";
     public static final String CASE_LIST = "case_list";
+    public static final String CASE_IDS_KEY = "case_ids_key";
     public static final String CASE_SET_ID = "case_set_id";
     public static final String SUPPRESS_MONDRIAN_HEADER = "suppress_mondrian_header";
     public static final String EMAIL_ADDRESS = "email_address";
@@ -291,8 +293,10 @@ public class WebService extends HttpServlet {
         }
         ArrayList<String> targetCaseIds = null;
         if (null != httpServletRequest.getParameter(CASE_LIST)
-                || null != httpServletRequest.getParameter(CASE_SET_ID))
+        		|| null != httpServletRequest.getParameter(CASE_SET_ID)
+        		|| null != httpServletRequest.getParameter(CASE_IDS_KEY))
             targetCaseIds = WebserviceParserUtils.getCaseList(httpServletRequest);
+        
         String arrayInfo = httpServletRequest.getParameter("array_info");
         boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
         writer.print(GetProteinArrayData.getProteinArrayData(cancerStudyId, 
@@ -564,6 +568,16 @@ public class WebService extends HttpServlet {
 
         // a case_list is explicitly provided, as in getClinicalData, etc.
         String caseList = request.getParameter(WebService.CASE_LIST);
+        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
+        
+        // no case list provided, but case IDs key provided
+        if (caseList == null
+        	&& caseIdsKey != null)
+        {
+        	// try to get case list by using the key
+        	caseList = CaseSetUtil.getCaseIds(caseIdsKey);
+        }
+        
         if (caseList != null) {
             DaoCase aDaoCase = new DaoCase();
             for (String aCase : caseList.split("[\\s,]+")) {

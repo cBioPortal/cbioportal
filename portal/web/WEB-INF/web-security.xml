@@ -46,10 +46,10 @@
 	<!-- SPRING SECURITY SETTINGS END -->
 
 	<!--
-	  - timeout after 2 hrs (default is 30 min)
+	  - timeout after 12 hrs (default is 30 min)
 	-->
 	<session-config>
-	  <session-timeout>120</session-timeout>
+	  <session-timeout>720</session-timeout>
 	</session-config>
 
     <servlet>

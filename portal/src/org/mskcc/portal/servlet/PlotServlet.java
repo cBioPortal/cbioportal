@@ -27,6 +27,10 @@ public class PlotServlet extends HttpServlet {
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
     private static final String UNDEFINED = "undefined";
+	private static final String R_RETURN_MESG = ("An error occurred processing your request.\\n" +
+												 "It may be that your gene/case set combination has no data\\n" +
+												 "for this data type.  If you believe this is an error,\\n" +
+												 "please contact us at cbioportal@googlegroups.com.");
 
     private static ServletXssUtil servletXssUtil;
 
@@ -128,6 +132,8 @@ public class PlotServlet extends HttpServlet {
             logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");
+			// add our own return mesg - must come before call to plot
+			plot.append("setPlotErrorMsg(c, \"" + R_RETURN_MESG + "\");\n");
             if (caseSetId != null && !caseSetId.equals("-1")) {
                 plot.append (String.format("plot(c, '%s', c(%s), c(%s), '%s', skin='%s' ",
                         cancerTypeId, genes, geneticProfiles, caseSetId, skin));

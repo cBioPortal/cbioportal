@@ -147,6 +147,7 @@ public class ImportClinicalData {
 
         HashSet<String> ageNames = new HashSet<String>();
         ageNames.add("AgeAtDiagnosis (yrs)");
+        ageNames.add("age");
 
         String[] parts = colHeadingLine.split("\t");
         

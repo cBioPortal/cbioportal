@@ -16,7 +16,7 @@ cna_cluster_arm : CNA Cluster ARM
 tumor_grade : Tumor Grade
 mhl1_hypermethylated : MHL1 Hypermethylated
 mrna_expression_cluster: mRNA Expression Cluster
-2009stagegroup: Tumor Stage
+2009stagegroup: 2009 Stage Group
 msi_status_7_marker_call : MSI Status 7 Marker Call
 data_gistic : Data Gistic
 data_rna_seq : Data RNA sequence

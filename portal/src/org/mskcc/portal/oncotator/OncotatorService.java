@@ -28,7 +28,7 @@ public class OncotatorService {
     }
 
     public OncotatorRecord getOncotatorRecord(String chr, long start, long end, String referenceAllele,
-        String observedAllele) throws DaoException, IOException {
+        String observedAllele) throws IOException {
         String key = createKey(chr, start, end, referenceAllele, observedAllele);
 
         URL url = new URL(ONCOTATOR_BASE_URL + key);

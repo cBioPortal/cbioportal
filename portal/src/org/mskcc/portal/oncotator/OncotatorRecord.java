@@ -62,11 +62,7 @@ public class OncotatorRecord {
     }
 
     public String getCosmicOverlappingMutations() {
-        if (cosmicOverlappingMutations == null) {
-            return "--";
-        } else {
-            return cosmicOverlappingMutations;
-        }
+        return cosmicOverlappingMutations;
     }
 
     public void setCosmicOverlappingMutations(String cosmicOverlappingMutations) {

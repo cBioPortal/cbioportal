@@ -35,8 +35,6 @@
         $.post("mutations.json", 
             params,
             function(aDataSet){
-                //$("div#protein_exp").html(aDataSet);
-                //alert(aDataSet);
                 if (aDataSet.length==0)
                     return;
                 

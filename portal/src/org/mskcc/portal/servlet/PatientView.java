@@ -82,9 +82,10 @@ public class PatientView extends HttpServlet {
         request.setAttribute(PATIENT_ID, patientID);
         
         try {
-            validate(request);
-            setGeneticProfiles(request);
-            setNumCases(request);
+            if (validate(request)) {
+                setGeneticProfiles(request);
+                setNumCases(request);
+            }
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view.jsp");
             dispatcher.forward(request, response);

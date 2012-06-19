@@ -4,27 +4,28 @@
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
+
+<jsp:include page="global/header_above_bar.jsp" flush="true" />
+
+<tr>
+    <td>
+
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
-int numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
+int numPatientInSameStudy;
 boolean showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
-%>
 
-<jsp:include page="global/header_above_bar.jsp" flush="true" />
-
-<tr>
-    <td>
-<%
 if (patient_view_error!=null) {
     out.print(patient);
     out.print(": ");
     out.println();
     out.print(patient_view_error);
 } else {
+    numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
 %>
 <div id="patient-tabs">
     <ul>

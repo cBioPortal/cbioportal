@@ -138,7 +138,7 @@ public class PlotServlet extends HttpServlet {
                 plot.append (String.format("plot(c, '%s', c(%s), c(%s), '%s', skin='%s' ",
                         cancerTypeId, genes, geneticProfiles, caseSetId, skin));
             } else {
-                plot.append (String.format("plot(c, '%s', c(%s), c(%s), caseIdsKey=c(%s), skin='%s' ",
+                plot.append (String.format("plot(c, '%s', c(%s), c(%s), caseIdsKey='%s', skin='%s' ",
                         cancerTypeId, genes, geneticProfiles, caseIdsKey, skin));
             }
             if (skinColGroup != null && !skinColGroup.equals(UNDEFINED)) {

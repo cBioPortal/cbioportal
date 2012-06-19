@@ -27,7 +27,8 @@
     $(document).ready(function(){
         $('#mutation_wrapper_table').hide();
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
-            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>'
+            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
+            <%=PatientView.NUM_CASES_IN_SAME_STUDY%>:'<%=numPatientInSameStudy%>'
         };
                         
         $.post("mutations.json", 
@@ -53,7 +54,8 @@
                         "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
                 } );
                 
-                
+                // help
+                $('.mutations_help').tipTip();
                 
                 // widen the rppa data
                 $('#mutation_table').css("width","100%");
@@ -72,14 +74,18 @@
         <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_table">
-                <thead style="font-size:80%">
+                <thead>
                     <tr valign="bottom">
                         <th>Gene</th>
                         <th>Amino Acid Change</th>
-                        <th>Mutaiton Type</th>
+                        <th>Mutation Type</th>
                         <th>Mutation Status</th>
+                        <th>Mutation Rate
+                            <img class="mutations_help" src="images/help.png" title="Number and percentage of 
+                                 altered cases for genes and specific mutations out of <%=numPatientInSameStudy%>
+                                 total patients in <%=cancerStudy.getName()%>."/>
+                        </th>
                         <th>Clinical Trial</th>
-                        <th>Context</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
@@ -87,10 +93,10 @@
                     <tr valign="bottom">
                         <th>Gene</th>
                         <th>Amino Acid Change</th>
-                        <th>Mutaiton Type</th>
+                        <th>Mutation Type</th>
                         <th>Mutation Status</th>
+                        <th>Mutation Rate</th>
                         <th>Clinical Trial</th>
-                        <th>Context</th>
                         <th>Notes</th>
                     </tr>
                 </tfoot>

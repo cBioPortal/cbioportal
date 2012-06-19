@@ -45,14 +45,18 @@ public class MutationsJSON extends HttpServlet {
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
-        int numAllCases = 0;
+        
+        String strNumAllCases = request.getParameter(PatientView.NUM_CASES_IN_SAME_STUDY);
+        int numAllCases = strNumAllCases==null ? 0 : Integer.parseInt(strNumAllCases);
         try {
             _case = DaoCase.getCase(patient);
             mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (_case!=null && mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
                 mutations = DaoMutation.getInstance().getMutations(mutationProfile.getGeneticProfileId(),patient);
-                numAllCases = DaoCase.countCases(cancerStudy.getInternalId());
+                if (strNumAllCases==null) {
+                    numAllCases = DaoCase.countCases(cancerStudy.getInternalId());
+                }
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -90,11 +94,11 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getAminoAcidChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
-        // TODO: clinical trial
-        row.add("pending");
         // TODO: context
         String context = getContext(mutation, cancerStudy, profileId, mapGeneAlteredSamples, numAllCases);
         row.add(context);
+        // TODO: clinical trial
+        row.add("pending");
         // TODO: annotation
         row.add("pending");
         table.add(row);
@@ -105,17 +109,15 @@ public class MutationsJSON extends HttpServlet {
         StringBuilder sb = new StringBuilder();
         int numGeneMutated = countMutatedSamples(mutation.getEntrezGeneId(), null,
                 profileId, mapGeneAlteredSamples);
-        String percGeneMutated = String.format("%.1f%%", 100.0*numGeneMutated/numAllCases);
+        String percGeneMutated = String.format("<b>%.1f%%</b>", 100.0*numGeneMutated/numAllCases);
         int numAAChange = countMutatedSamples(mutation.getEntrezGeneId(), mutation.getAminoAcidChange(),
                 profileId, null);
-        String percAAChange = String.format("%.1f%%", 100.0*numAAChange/numAllCases);
-        sb.append("Out of ").append(numAllCases).append(" cases in ")
-                .append(cancerStudy.getName()).append(", <br/>").append(numGeneMutated)
-                .append(" (").append(percGeneMutated).append(") ").append(numGeneMutated>1?"are":"is")
-                .append(" mutated in gene ").append(mutation.getGeneSymbol())
-                .append(",<br/> and ").append(numAAChange).append(" (").append(percAAChange)
-                .append(") ").append(numAAChange>1?"carry ":"carries the ")
-                .append(mutation.getAminoAcidChange()).append(" mutation");
+        String percAAChange = String.format("<b>%.1f%%</b>", 100.0*numAAChange/numAllCases);
+        sb.append(mutation.getGeneSymbol()).append(": ").append(numGeneMutated)
+                .append(" (").append(percGeneMutated).append(")<br/>")
+                .append(mutation.getAminoAcidChange()).append(": ")
+                .append(numAAChange).append(" (").append(percAAChange)
+                .append(") ");
         return sb.toString();
     }
     

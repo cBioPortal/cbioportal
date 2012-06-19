@@ -36,6 +36,7 @@ public class PatientView extends HttpServlet {
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
+    public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -83,6 +84,7 @@ public class PatientView extends HttpServlet {
         try {
             validate(request);
             setGeneticProfiles(request);
+            setNumCases(request);
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view.jsp");
             dispatcher.forward(request, response);
@@ -129,6 +131,11 @@ public class PatientView extends HttpServlet {
                 }
             }
         }
+    }
+    
+    private void setNumCases(HttpServletRequest request) throws DaoException {
+        CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
+        request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoCase.countCases(cancerStudy.getInternalId()));
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

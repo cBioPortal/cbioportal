@@ -8,6 +8,7 @@ String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
+int numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
 %>
 
 <jsp:include page="global/header_above_bar.jsp" flush="true" />

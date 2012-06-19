@@ -16,7 +16,6 @@ import java.util.ArrayList;
  */
 
 public class DaoGistic {
-
     /**
      * Adds a ROI with Gistic info to the database
      *
@@ -26,7 +25,6 @@ public class DaoGistic {
      */
 
     public static void addGistic(Gistic gistic) throws SQLException, DaoException {
-        
         if (gistic == null) {
             throw new DaoException("Given a null gistic object");
         }
@@ -40,7 +38,7 @@ public class DaoGistic {
             // insert into SQL gistic table
             pstmt = con.prepareStatement
                     ("INSERT INTO gistic (`CANCER_STUDY_ID`," +
-                            "`CYTOBAND`, " +
+                            "`CHROMOSOME`, " +
                             "`WIDE_PEAK_START`, " +
                             "`WIDE_PEAK_END`, " +
                             "`Q_VALUE`, "  +
@@ -49,7 +47,7 @@ public class DaoGistic {
                             "VALUES (?,?,?,?,?,?,?)");
 
             pstmt.setInt(1, gistic.getCancerStudyId());
-            pstmt.setString(2, gistic.getCytoband());
+            pstmt.setInt(2, gistic.getChromosome()) ;
             pstmt.setInt(3, gistic.getPeakStart());
             pstmt.setInt(4, gistic.getPeakEnd());
             pstmt.setString(5, gistic.getqValue());
@@ -146,7 +144,7 @@ public class DaoGistic {
 
             // create gistic return object
             gistic = new Gistic(rs.getInt("CANCER_STUDY_ID"),
-                    rs.getString("CYTOBAND"),
+                    rs.getInt("CHROMOSOME") ,
                     rs.getInt("WIDE_PEAK_START"),
                     rs.getInt("WIDE_PEAK_END"),
                     rs.getString("Q_VALUE"),
@@ -166,25 +164,25 @@ public class DaoGistic {
     /**
      * Given an ROI, returns associated Gistic objects.
      * Right now, perhaps this is useless, but maybe something for the future?
-     * @param cytoband
+     * @param chromosome
      * @param peakStart
      * @param peakEnd
      * @return
      * @throws DaoException
      */
 
-    public static ArrayList<Gistic> getGisticByROI(String cytoband, int peakStart, int peakEnd) throws DaoException {
+    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CYTOBAND = ? " +
+            pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CHROMOSOME = ? " +
                     "AND WIDE_PEAK_START = ? " +
                     "AND WIDE_PEAK_END = ?");
 
-            pstmt.setString(1, cytoband);
+            pstmt.setInt(1, chromosome);
             pstmt.setInt(2, peakStart);
             pstmt.setInt(3, peakEnd);
 

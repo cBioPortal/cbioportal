@@ -370,8 +370,7 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
 
 CREATE TABLE `gistic` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `CYTOBAND` varchar(10) NOT NULL,
+  `CHROMOSOME` int(11) NOT NULL,
   `WIDE_PEAK_START` int(11) NOT NULL,
   `WIDE_PEAK_END` int(11) NOT NULL,
   `Q_VALUE` varchar(30) NOT NULL,

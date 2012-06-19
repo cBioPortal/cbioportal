@@ -16,7 +16,7 @@ public class Gistic {
 
     private int gisticID;
     private int cancerStudyId;
-    private String cytoband;
+    private int chromosome;
     private int peakStart;
     private int peakEnd;
     private ArrayList<CanonicalGene> genes_in_ROI;
@@ -27,7 +27,7 @@ public class Gistic {
     /**
      * Constructor.
      * @param cancerStudyId     database key
-     * @param cytoband          cytoband locus (eg. 1p13)
+     * @param chromosome        chromosome locus (eg. chromosome 17)
      * @param peakStart         start of wide peak
      * @param peakEnd           end of wide peak
      * @param qValue            q-value for the ROI
@@ -36,12 +36,12 @@ public class Gistic {
      * @param amp_del           region is amplified or deleted. To set use Gistic.AMPLIFIED or Gistic.DELETED
      */
 
-    public Gistic(int cancerStudyId, String cytoband, int peakStart, int peakEnd,
+    public Gistic(int cancerStudyId, int chromosome, int peakStart, int peakEnd,
                   String qValue, String res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
 
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = cancerStudyId;
-        this.cytoband = cytoband;
+        this.chromosome = chromosome;
         this.peakStart = peakStart;
         this.peakEnd = peakEnd;
         this.qValue = qValue;
@@ -77,11 +77,11 @@ public class Gistic {
     }
 
     /**
-     * Sets the Cytoband of a gistic
-     * @param cytoband
+     * Sets the chromosome of a gistic
+     * @param chromosome
      */
-    public void setCytoband(String cytoband) {
-        this.cytoband = cytoband;
+    public void setChromosome(int chromosome) {
+        this.chromosome = chromosome;
     }
 
     /**
@@ -134,13 +134,13 @@ public class Gistic {
     }
 
     /**
-     * Returns the cytoband location in cytoband-arm-band notation,
-     * called cytoband notation (e.g. 1q12)
-     * @return cytoband locus of ROI
+     * Returns the chromosome location in chromosome-arm-band notation,
+     * called chromosome notation (e.g. 1q12)
+     * @return chromosome locus of ROI
      */
 
-    public String getCytoband() {
-        return cytoband;
+    public int getChromosome() {
+        return chromosome;
     }
 
     /**

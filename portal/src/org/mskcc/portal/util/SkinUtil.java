@@ -115,6 +115,15 @@ public class SkinUtil {
         Config config = Config.getInstance();
         return Boolean.parseBoolean(config.getProperty("include_networks"));
     }
+    
+    /**
+     * Determines whether to show placeholders in patient view
+     * @return true or false
+     */
+    public static boolean showPlaceholderInPatientView() {
+        Config config = Config.getInstance();
+        return Boolean.parseBoolean(config.getProperty("patient_view_placeholder"));
+    }
 
     /**
      * Determines whether we should show the news tab.

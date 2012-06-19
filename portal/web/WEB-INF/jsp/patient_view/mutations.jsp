@@ -30,6 +30,7 @@
             <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
             <%=PatientView.NUM_CASES_IN_SAME_STUDY%>:'<%=numPatientInSameStudy%>'
         };
+        var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
                         
         $.post("mutations.json", 
             params,
@@ -45,6 +46,16 @@
                         "bJQueryUI": true,
                         "bDestroy": true,
                         "aaData": aDataSet,
+                        "aoColumnDefs":[
+                            {
+                              "bVisible": placeHolder,
+                              "aTargets": [ 5 ]
+                            },
+                            {
+                              "bVisible": placeHolder,
+                              "aTargets": [ 6 ]
+                            }
+                        ],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",

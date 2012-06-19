@@ -2,13 +2,16 @@
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
+boolean showMutations = mutationProfile!=null;
 int numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
+boolean showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 %>
 
 <jsp:include page="global/header_above_bar.jsp" flush="true" />
@@ -25,23 +28,32 @@ if (patient_view_error!=null) {
 %>
 <div id="patient-tabs">
     <ul>
+        
     <li><a href='#summary' class='patient-tab' title='Events of Interest'>Summary</a></li>
+    
+    <%if(showMutations){%>
     <li><a href='#mutations' class='patient-tab' title='Mutations'>Mutations</a></li>
+    <%}%>
+    
+    <%if(showPlaceHoder){%>
     <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alteration</a></li>
     <li><a href='#pathways' class='patient-tab' title='Pathway View'>Pathways (under construction)</a></li>
     <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients (under construction)</a></li>
+    <%}%>
+    
     </ul>
 
     <div class="patient-section" id="summary">
         <%@ include file="patient_view/summary.jsp" %>
     </div>
 
-    <%if(mutationProfile!=null){%>
+    <%if(showMutations){%>
     <div class="patient-section" id="mutations">
         <%@ include file="patient_view/mutations.jsp" %>
     </div>
     <%}%>
 
+    <%if(showPlaceHoder){%>
     <div class="patient-section" id="cna">
         <%@ include file="patient_view/cna.jsp" %>
     </div>
@@ -53,6 +65,7 @@ if (patient_view_error!=null) {
     <div class="patient-section" id="similar-patients">
         <%@ include file="patient_view/similar_patients.jsp" %>
     </div>
+    <%}%>
 
 </div>
 <%  

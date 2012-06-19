@@ -2,28 +2,22 @@
 package org.mskcc.portal.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoCaseProfile;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.Case;
+import org.mskcc.cgds.dao.*;
+import org.mskcc.cgds.model.*;
 import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import java.util.List;
-import org.mskcc.cgds.model.GeneticAlterationType;
 
 /**
  *
@@ -37,10 +31,14 @@ public class PatientView extends HttpServlet {
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
+    public static final String PATIENT_INFO = "patient_info";
+    public static final String DISEASE_INFO = "disease_info";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
     private static final DaoCaseProfile daoCaseProfile = new DaoCaseProfile();
+    private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
+    private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -84,6 +82,7 @@ public class PatientView extends HttpServlet {
         try {
             if (validate(request)) {
                 setGeneticProfiles(request);
+                setClinicalInfo(request);
                 setNumCases(request);
             }
             RequestDispatcher dispatcher =
@@ -137,6 +136,74 @@ public class PatientView extends HttpServlet {
     private void setNumCases(HttpServletRequest request) throws DaoException {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoCase.countCases(cancerStudy.getInternalId()));
+    }
+    
+    private void setClinicalInfo(HttpServletRequest request) throws DaoException {
+        String patient = (String)request.getAttribute(PATIENT_ID);
+        CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
+        ClinicalData clinicalData = daoClinicalData.getCase(patient);
+        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
+        
+        // patient info
+        StringBuilder patientInfo = new StringBuilder();
+        
+        String gender = guessClinicalData(clinicalFreeForms, new String[]{"gender"});
+        if (gender!=null) {
+            patientInfo.append(", ").append(gender);
+        }
+        
+        patientInfo.append("Patient: ").append(patient);
+        Double age = clinicalData.getAgeAtDiagnosis();
+        if (age!=null) {
+            patientInfo.append(", ").append(age.intValue());
+        }
+        
+        request.setAttribute(PATIENT_INFO, patientInfo.toString());
+        
+        // disease info
+        StringBuilder diseaseInfo = new StringBuilder();
+        diseaseInfo.append(cancerStudy.getName());
+        
+        String histology = guessClinicalData(clinicalFreeForms,
+                new String[]{"histology", "histological_type"});
+        if (histology!=null) {
+            diseaseInfo.append(", ").append(histology);
+        }
+        
+        String stage = guessClinicalData(clinicalFreeForms, 
+                new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE"});
+        if (stage!=null) {
+            diseaseInfo.append(", ").append(stage);
+        }
+        
+        String grade = guessClinicalData(clinicalFreeForms,
+                new String[]{"tumor_grade", "TUMORGRADE"});
+        if (grade!=null) {
+            diseaseInfo.append(", ").append(grade);
+        }
+        
+        request.setAttribute(DISEASE_INFO, diseaseInfo.toString());
+    }
+    
+    private Map<String,ClinicalFreeForm> getClinicalFreeform(String patient) throws DaoException {
+        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(patient);
+        Map<String,ClinicalFreeForm> map = new HashMap<String,ClinicalFreeForm>(list.size());
+        for (ClinicalFreeForm cff : list) {
+            map.put(cff.getParamName().toLowerCase(), cff);
+        }
+        return map;
+    }
+    
+    private String guessClinicalData(Map<String,ClinicalFreeForm> clinicalFreeForms,
+            String[] paramName) {
+        for (String name : paramName) {
+            ClinicalFreeForm form = clinicalFreeForms.get(name);
+            if (form!=null) {
+                return form.getParamValue();
+            }
+        }
+        
+        return null;
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

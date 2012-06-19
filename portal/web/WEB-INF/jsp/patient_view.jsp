@@ -12,18 +12,20 @@
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
-String patient_view_error = (String)request.getAttribute(PatientView.ERROR);
+String patientViewError = (String)request.getAttribute(PatientView.ERROR);
+String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
+String diseaseInfo = (String)request.getAttribute(PatientView.DISEASE_INFO);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
 int numPatientInSameStudy;
 boolean showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 
-if (patient_view_error!=null) {
+if (patientViewError!=null) {
     out.print(patient);
     out.print(": ");
     out.println();
-    out.print(patient_view_error);
+    out.print(patientViewError);
 } else {
     numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
 %>

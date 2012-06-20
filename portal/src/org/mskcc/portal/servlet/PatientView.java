@@ -147,12 +147,15 @@ public class PatientView extends HttpServlet {
         // patient info
         StringBuilder patientInfo = new StringBuilder();
         
+        patientInfo.append("Patient: ").append(patient);
+        
         String gender = guessClinicalData(clinicalFreeForms, new String[]{"gender"});
+        if (gender==null) {
+            gender = inferGenderFromCancerType(cancerStudy.getTypeOfCancerId());
+        }
         if (gender!=null) {
             patientInfo.append(", ").append(gender);
         }
-        
-        patientInfo.append("Patient: ").append(patient);
         Double age = clinicalData.getAgeAtDiagnosis();
         if (age!=null) {
             patientInfo.append(", ").append(age.intValue());
@@ -192,6 +195,26 @@ public class PatientView extends HttpServlet {
             map.put(cff.getParamName().toLowerCase(), cff);
         }
         return map;
+    }
+    
+    private String inferGenderFromCancerType(String typeOfCancerId) {
+        if (typeOfCancerId.equals("ucec")) {
+            return "FEMALE";
+        }
+        
+        if (typeOfCancerId.equals("ov")) {
+            return "FEMALE";
+        }
+        
+        if (typeOfCancerId.equals("cesc")) {
+            return "FEMALE";
+        }
+        
+        if (typeOfCancerId.equals("prad")) {
+            return "MALE";
+        }
+        
+        return null;
     }
     
     private String guessClinicalData(Map<String,ClinicalFreeForm> clinicalFreeForms,

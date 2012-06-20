@@ -33,6 +33,7 @@ drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
 drop table if EXISTS clinical_free_form;
+drop table if EXISTS oncotator_cache;
 
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
@@ -367,3 +368,15 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
+
+CREATE TABLE IF NOT EXISTS `oncotator_cache` (
+  `CACHE_KEY` varchar(50) NOT NULL,
+  `GENE_SYMBOL` varchar(25),
+  `GENOME_CHANGE` varchar(50),
+  `PROTEIN_CHANGE` varchar(50),
+  `VARIANT_CLASSIFICATION` varchar(25),
+  `EXON_AFFECTED` int(11),
+  `COSMIC_OVERLAP` varchar(1024),
+  `DB_SNP_RS` varchar(25),
+  UNIQUE KEY `CACHE_KEY` (`CACHE_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

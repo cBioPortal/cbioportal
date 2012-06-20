@@ -15,7 +15,7 @@ public class OncotateTool {
     private final static String TAB = "\t";
     private int buildNumErrors = 0;
     private OncotatorService oncotatorService = OncotatorService.getInstance();
-    private static int MAX_NUM_RECORDS_TO_PROCESS = 100;
+    private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
     private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
     
     public OncotateTool(File inputMafFile, File outputMafFile) throws IOException, DaoException {

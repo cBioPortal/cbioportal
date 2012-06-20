@@ -15,11 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-    // JSON servlet for fetching MutSig data.
+// JSON servlet for fetching MutSig data.
     // If there is no MutSig data, then return an empty JSON.
     // @author Gideon Dresdner
 
@@ -43,8 +41,7 @@ public class MutSigJSON extends HttpServlet {
     // Make a map out of every mutsig
     // Add that map to the mutSigJSONArray
     // Returns the empty set, {}, if qval > 0.01 (specificed by Ethan)
-    public static Map MutSigtoMap(MutSig mutsig)
-    {
+    public static Map MutSigtoMap(MutSig mutsig) {
         Map map = new HashMap();
 
         map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
@@ -52,6 +49,17 @@ public class MutSigJSON extends HttpServlet {
         map.put("qval", mutsig.getqValue());
 
         return map;
+    }
+
+    /**
+     * Sort Mutsigs by rank, which is determined by q-value.
+     * So actually we are sorting by q-value
+     */
+    private class sortMutsigByRank implements Comparator<MutSig> {
+        public int compare(MutSig mutSig1, MutSig mutSig2) {
+
+            return mutSig1.getRank() - mutSig2.getRank();
+        }
     }
 
     //
@@ -70,6 +78,8 @@ public class MutSigJSON extends HttpServlet {
 
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
             ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
+
+            Collections.sort(mutSigList, new sortMutsigByRank());
 
             for (MutSig mutsig : mutSigList) {
                 Map map = MutSigtoMap(mutsig);
@@ -99,4 +109,5 @@ public class MutSigJSON extends HttpServlet {
     {
         doGet(request, response);
     }
+
 }

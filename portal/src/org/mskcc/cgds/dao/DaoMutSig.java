@@ -142,38 +142,6 @@ public class DaoMutSig {
         }
     }
 
-    public static int countMutSig(String hugoGeneSymbol, int cancerStudy) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        //get a new DaoGene Object, and get the EntrezGeneID
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
-
-        if (gene == null) {
-            throw new java.lang.IllegalArgumentException("This HugoGeneSymbol does not exist in Database: " + hugoGeneSymbol);
-        } else {
-            long entrezGeneID = gene.getEntrezGeneId();
-            try {
-                con = JdbcUtil.getDbConnection();
-                pstmt = con.prepareStatement
-                        ("SELECT count(*) FROM mut_sig WHERE ENTREZ_GENE_ID = ? AND CANCER_STUDY_ID = ?");
-                pstmt.setLong(1, entrezGeneID);
-                pstmt.setInt(2, cancerStudy);
-                rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    return rs.getInt(0);
-                } else {
-                    return 0;
-                }
-            } catch (SQLException e) {
-                throw new DaoException(e);
-            } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
-            }
-        }
-    }
-
     public static MutSig getMutSig(Long entrezGeneID, int cancerStudy) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -222,6 +190,31 @@ public class DaoMutSig {
             }
 
             return mutSigList;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    public int countMutSig(int cancerStudy) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT count(*) FROM mut_sig WHERE CANCER_STUDY_ID = ?");
+            pstmt.setInt(1, cancerStudy);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+            return 0;
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -291,7 +284,7 @@ public class DaoMutSig {
      * @return true or false
      *
      */
-    public static boolean isEmpty(CancerStudy cancerStudy) throws DaoException {
-        return countMutSig(cancerStudy.getCancerStudyStableId(), cancerStudy.getInternalId()) == 0;
+    public boolean hasMutsig(CancerStudy cancerStudy) throws DaoException {
+        return countMutSig(cancerStudy.getInternalId()) == 0;
     }
 }

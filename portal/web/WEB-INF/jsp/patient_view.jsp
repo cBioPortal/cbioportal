@@ -115,6 +115,12 @@ function initTabs() {
     }).filter(':first').click();
     
 }
+
+function switchToTab(toTab) {
+    $('.patient-section').hide();
+    $('.patient-section#'+toTab).show();
+    $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+}
 </script>
 
 </body>

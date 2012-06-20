@@ -53,6 +53,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
     public static final String CASE_IDS_KEY = "case_ids_key";
+    public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";

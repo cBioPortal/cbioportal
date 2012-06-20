@@ -221,11 +221,17 @@
                                     currentValue = currentValue.replaceAll("\\s+", " ");
                                     currentValue = URLEncoder.encode(currentValue);
                                 }
-                                else if (paramName.equals(QueryBuilder.CASE_IDS))
+                                else if (paramName.equals(QueryBuilder.CASE_IDS) ||
+                                		paramName.equals(QueryBuilder.CLINICAL_PARAM_SELECTION))
                                 {
                                 	// do not include case IDs anymore (just skip the parameter)
                                 	// if we need to support user-defined case lists in the future,
                                 	// we need to replace this "parameter" with the "attribute" caseIdsKey
+                                	
+                                	// also do not include clinical param selection parameter, since
+                                	// it is only related to user-defined case sets, we need to take care
+                                	// of unsafe characters such as '<' and '>' if we decide to add this
+                                	// parameter in the future
                                 	continue;
                                 }
                                 

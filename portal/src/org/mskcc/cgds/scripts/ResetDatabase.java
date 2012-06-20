@@ -58,6 +58,8 @@ public class ResetDatabase {
         daoSangerCensus.deleteAllRecords();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
         daoClinicalFreeForm.deleteAllRecords();
+        DaoOncotatorCache cache = DaoOncotatorCache.getInstance();
+        cache.deleteAllRecords();
     }
 
     public static void resetDatabase() throws DaoException {

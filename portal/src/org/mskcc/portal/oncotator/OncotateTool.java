@@ -1,10 +1,12 @@
 package org.mskcc.portal.oncotator;
 
+import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.portal.model.MafRecord;
 import org.mskcc.portal.util.MafUtil;
 
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Command Line Tool to Oncotate a Single MAF File.
@@ -14,8 +16,9 @@ public class OncotateTool {
     private int buildNumErrors = 0;
     private OncotatorService oncotatorService = OncotatorService.getInstance();
     private static int MAX_NUM_RECORDS_TO_PROCESS = 100;
+    private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
     
-    public OncotateTool(File inputMafFile, File outputMafFile) throws IOException {
+    public OncotateTool(File inputMafFile, File outputMafFile) throws IOException, DaoException {
         outputFileNames(inputMafFile, outputMafFile);
         FileReader reader = new FileReader(inputMafFile);
         BufferedReader bufReader = new BufferedReader(reader);
@@ -43,6 +46,12 @@ public class OncotateTool {
             dataLine = bufReader.readLine();
         }
         System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
+        for (String coords:  genomicCountMap.keySet()) {
+            Integer count = genomicCountMap.get(coords);
+            if (count > 1) {
+                System.out.println(coords + "\t" + (count-1));
+            }
+        }
     }
 
     private void outputFileNames(File inputMafFile, File outputMafFile) {
@@ -71,7 +80,7 @@ public class OncotateTool {
         writer.write("\n");
     }
 
-    private void conditionallyOncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException {
+    private void conditionallyOncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException, DaoException {
         String ncbiBuild = mafRecord.getNcbiBuild();
         if (!ncbiBuild.equals("37")) {
             outputBuildNumErrorMessage(ncbiBuild);
@@ -94,7 +103,7 @@ public class OncotateTool {
         System.out.println("-->  Oncotator only works with Build 37/hg19.");
     }
 
-    private void oncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException {
+    private void oncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException, DaoException {
         String chr = mafRecord.getChr();
         long start = mafRecord.getStartPosition();
         long end = mafRecord.getEndPosition();
@@ -103,6 +112,12 @@ public class OncotateTool {
         if (tumorAllele != null) {
             String coords = createCoordinates(chr, start, end, refAllele, tumorAllele);
             System.out.println(coords);
+            if (genomicCountMap.containsKey(coords)) {
+                Integer count = genomicCountMap.get(coords);
+                genomicCountMap.put(coords, count+1);
+            } else {
+                genomicCountMap.put(coords, 1);
+            }
             OncotatorRecord oncotatorRecord =
                     oncotatorService.getOncotatorRecord(chr, start, end, refAllele,tumorAllele);
             writeOncotatorResults(writer, oncotatorRecord);

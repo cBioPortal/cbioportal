@@ -288,7 +288,7 @@
                     if (caseSetId.equals("-1"))
                     {
                     	out.println("<br>");
-                    	out.println("<h4>Sorry, bookmark option is not available for user-defined case lists.</h4>");
+                    	out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
                     }
                     else
                     {

@@ -1,0 +1,4 @@
+type_of_cancer: coadread
+cancer_study_identifier: coadread_tcga
+name: Colon and Rectum Adenocarcinoma (TCGA, Provisional)
+description: TCGA Colon and Rectum Adenocarcinoma, containing 581 samples; raw data at the <A HREF="https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=COADREAD&diseaseName=Colon and Rectum Adenocarcinoma">NCI</A>.

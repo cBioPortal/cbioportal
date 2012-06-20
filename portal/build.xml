@@ -292,6 +292,22 @@
     <fail if="junit_test_failed" message="One or more JUnit tests failed" />
   </target>
 
+  <!-- ==================== Single Class Test Target ================================= -->
+  <target name="single_test" depends="compile" description="Runs one JUnit test">
+      <junit printsummary="yes" haltonfailure="no">
+          <formatter type="brief" usefile="false" />
+          <formatter type="xml" />
+          <batchtest todir="${junit.dir}">
+              <fileset dir="${src.dir}" includes="**/${test.module}.java"/>
+          </batchtest>
+          <classpath>
+              <path refid="compile.classpath"/>
+              <pathelement location="${junit.dir}/classes"/>
+          </classpath>
+      </junit>
+      <fail if="junit_test_failed" message="{test.module} failed"/>
+  </target>
+
   <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">
      <exec dir="db" executable="mysql">
         <arg value='-u ${db.user}'/>

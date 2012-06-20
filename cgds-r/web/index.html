@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>CGDS-R package</title>
+</head>
+
+<body>
+
+<H1>CGDS-R package</H1>
+
+<p>
+Get the most recent version of the R package <a href="src/">here</a>.<br>
+The CGDS-R documentation manual: <a href="cgdsr-manual.pdf">cgdsr_manual.pdf</a>.<br>
+The CGDS-R documentation vignette: <a href="cgdsr.pdf">cgdsr.pdf</a>.<br>
+</p>
+
+<H2>Installation</H2>
+<p>
+Make sure that you have installed the 'R.oo' package, in an R shell:
+
+<pre>
+> install.packages('R.oo')
+</pre>
+
+Then install the cgds-R package in a unix shell:
+
+<pre>
+R CMD INSTALL cgdsr_1.0.14.tar.gz
+</pre>
+</p>
+
+<H2>Example usage</H2>
+<p>
+<pre>
+library('cgdsr')
+
+mycgds = CGDS("http://cbio.mskcc.org/cgds-public/")
+
+# basic server API tests
+test(mycgds) 
+
+# get list of cancer types at server
+getCancerTypes(mycgds)
+
+# get available case lists (collection of samples) for a given cancer type  
+mycancertype = getCancerTypes(mycgds)[1,1]
+mycaselist = getCaseLists(mycgds,mycancertype)[1,1]
+
+# get available genetic profiles
+mygeneticprofile = getGeneticProfiles(mycgds,mycancertype)[4,1]
+
+# get data for a specified list of genes, datatypes and case list
+getProfileData(mycgds,c('BRCA1','BRCA2'),mygeneticprofile,mycaselist)
+
+# documentation
+help('cgdsr')
+help('CGDS')
+
+</pre>
+</p>
+
+</body>
+</html>

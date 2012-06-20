@@ -33,6 +33,7 @@ public class PatientView extends HttpServlet {
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
+    public static final String PATIENT_STATUS = "patient_status";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -186,6 +187,31 @@ public class PatientView extends HttpServlet {
         }
         
         request.setAttribute(DISEASE_INFO, diseaseInfo.toString());
+        
+        // patient status
+        String oss = clinicalData.getOverallSurvivalStatus();
+        String dfss = clinicalData.getDiseaseFreeSurvivalStatus();
+        Double osm = clinicalData.getOverallSurvivalMonths();
+        Double dfsm = clinicalData.getDiseaseFreeSurvivalMonths();
+        StringBuilder patientStatus = new StringBuilder();
+        if (oss!=null) {
+            patientStatus.append(oss);
+            if (osm!=null) {
+                
+                patientStatus.append(" (").append(osm.intValue()).append(" months)");
+            }
+        }
+        if (dfss!=null) {
+            if (patientStatus.length()!=0) {
+                patientStatus.append(", ");
+            }
+            patientStatus.append(dfss);
+            if (dfsm!=null) {
+                patientStatus.append(" (").append(dfsm.intValue()).append(" months)");
+            }
+        }
+        
+        request.setAttribute(PATIENT_STATUS, patientStatus.toString());
     }
     
     private Map<String,ClinicalFreeForm> getClinicalFreeform(String patient) throws DaoException {

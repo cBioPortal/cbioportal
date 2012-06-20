@@ -15,6 +15,7 @@ String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
 String diseaseInfo = (String)request.getAttribute(PatientView.DISEASE_INFO);
+String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;

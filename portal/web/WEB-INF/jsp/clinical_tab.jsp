@@ -7,11 +7,20 @@
 
 
     <%
-        String osUrl = UrlUtil.getCurrentUrl(request) + "&" + QueryBuilder.OUTPUT + "="
-                    + QueryBuilder.OS_SURVIVAL_PLOT;
+//         String osUrl = UrlUtil.getCurrentUrl(request) + "&" + QueryBuilder.OUTPUT + "="
+//                     + QueryBuilder.OS_SURVIVAL_PLOT;
+		
+    	String osUrl = UrlUtil.getUrlWithCaseIdsKey(request) + QueryBuilder.OUTPUT + "="
+			+ QueryBuilder.OS_SURVIVAL_PLOT;
+
         String osPdfUrl = osUrl.replace("index.do", "survival_plot.pdf") + "&format=pdf";
-        String dfsUrl = UrlUtil.getCurrentUrl(request) + "&" + QueryBuilder.OUTPUT + "="
-                    + QueryBuilder.DFS_SURVIVAL_PLOT;
+        
+//         String dfsUrl = UrlUtil.getCurrentUrl(request) + "&" + QueryBuilder.OUTPUT + "="
+//                     + QueryBuilder.DFS_SURVIVAL_PLOT;
+        
+        String dfsUrl = UrlUtil.getUrlWithCaseIdsKey(request) + QueryBuilder.OUTPUT + "="
+                + QueryBuilder.DFS_SURVIVAL_PLOT;
+    
         String dfsPdfUrl = dfsUrl.replace("index.do", "survival_plot.pdf") + "&format=pdf";
         if (dataSummary.getNumCasesAffected() == 0) {
             out.println("<H4>No cases are altered for the specified gene set.  Therefore, survival analysis is not available.");

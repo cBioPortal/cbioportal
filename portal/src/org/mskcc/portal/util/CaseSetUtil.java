@@ -7,16 +7,17 @@ import java.util.Set;
 import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoTextCache;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.portal.remote.GetCaseSets;
 
 /**
- * Utility class for validation of the user-defined case sets.
+ * Utility class for the user-defined case sets (case ID list).
  * 
  * @author Selcuk Onur Sumer
  */
-public class CaseSetValidator
+public class CaseSetUtil
 {
 	/**
 	 * Checks whether the provided case IDs are valid for a specific
@@ -79,5 +80,66 @@ public class CaseSetValidator
 		}
 		
 		return invalidCases;
+	}
+	
+	/**
+	 * Shortens the (possibly long) user-defined case id list by hashing.
+	 * Also adds the generated (key, text) pair to the database for
+	 * future reference.
+	 * 
+	 * @param caseIds	case ID string to be shortened
+	 * @return			short (hashed) version of case IDs
+	 * @throws DaoException 
+	 */
+	public static String shortenCaseIds(String caseIds)
+			throws DaoException
+	{
+		DaoTextCache dao = new DaoTextCache();
+		
+		// normalize case IDs list to avoid redundant white spaces  
+		String normalizedIds = normalizeCaseIds(caseIds);
+		
+		// generate hash key for the case IDs string
+		String caseIdsKey = dao.generateKey(normalizedIds);
+		
+		// add new key and list pair to DB if record does not exist
+		if (dao.getText(caseIdsKey) == null)
+		{
+			dao.cacheText(caseIdsKey, normalizedIds);
+		}
+		
+		// return hash key
+		return caseIdsKey;
+	}
+	
+	/**
+	 * Retrieves the case ID list corresponding to the given key.
+	 * 
+	 * @param caseIdsKey	key for a specific case id list
+	 * @return				case id list corresponding to the given key
+	 * @throws DaoException 
+	 */
+	public static String getCaseIds(String caseIdsKey)
+			throws DaoException
+	{
+		DaoTextCache dao = new DaoTextCache();
+		
+		String caseIds = dao.getText(caseIdsKey);
+		
+		return caseIds;
+	}
+	
+	/**
+	 * Normalize the given case list by trimming and replacing any white space
+	 * character with single space. This is to prevent same case lists 
+	 * to be interpreted as different lists just because of the different white
+	 * space characters.
+	 * 
+	 * @param caseIds	list of case ids to be normalized
+	 * @return			normalized string with the same case ids
+	 */
+	public static String normalizeCaseIds(String caseIds)
+	{
+		return caseIds.trim().replaceAll("\\s", " ");
 	}
 }

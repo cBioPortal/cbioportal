@@ -33,6 +33,7 @@ drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
 drop table if EXISTS clinical_free_form;
+drop table if EXISTS text_cache;
 
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
@@ -367,3 +368,14 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_GERMLINE_MUT` tinyint(1) NOT NULL,
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
+
+--
+-- Table structure for table `text_cache`
+--
+
+CREATE TABLE IF NOT EXISTS `text_cache` (
+  `HASH_KEY` varchar(32) NOT NULL,
+  `TEXT` text NOT NULL,
+  `DATE_TIME_STAMP` datetime NOT NULL,
+  PRIMARY KEY (`HASH_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

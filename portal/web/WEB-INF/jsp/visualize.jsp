@@ -40,6 +40,7 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -194,23 +195,40 @@
                     Enumeration paramEnum = request.getParameterNames();
                     StringBuffer buf = new StringBuffer(request.getAttribute
                             (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
-                    while (paramEnum.hasMoreElements()) {
+                    
+                    while (paramEnum.hasMoreElements())
+                    {
                         String paramName = (String) paramEnum.nextElement();
                         String values[] = request.getParameterValues(paramName);
-                        if (values != null && values.length >0) {
-                            for (int i=0; i<values.length; i++) {
+                        
+                        if (values != null && values.length >0)
+                        {
+                            for (int i=0; i<values.length; i++)
+                            {
                                 String currentValue = values[i].trim();
-                                if (currentValue.contains("mutation")){
+                                
+                                if (currentValue.contains("mutation"))
+                                {
                                     showMutTab = true;
                                 }
-                                if (paramName.equals(QueryBuilder.GENE_LIST) || paramName.equals(QueryBuilder.CASE_IDS)
-                                    && currentValue != null) {
+                                
+                                if (paramName.equals(QueryBuilder.GENE_LIST)
+                                    && currentValue != null)
+                                {
                                     //  Spaces must be converted to semis
                                     currentValue = Utilities.appendSemis(currentValue);
                                     //  Extra spaces must be removed.  Otherwise OMA Links will not work.
                                     currentValue = currentValue.replaceAll("\\s+", " ");
                                     currentValue = URLEncoder.encode(currentValue);
                                 }
+                                else if (paramName.equals(QueryBuilder.CASE_IDS))
+                                {
+                                	// do not include case IDs anymore (just skip the parameter)
+                                	// if we need to support user-defined case lists in the future,
+                                	// we need to replace this "parameter" with the "attribute" caseIdsKey
+                                	continue;
+                                }
+                                
                                 buf.append (paramName + "=" + currentValue + "&");
                             }
                         }
@@ -263,21 +281,33 @@
 
                     out.println ("</ul>");
 
+                    
                     out.println ("<div class=\"section\" id=\"bookmark_email\">");
-                    out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
-                            + buf.toString() + "'>" + request.getAttribute
-                            (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
+                    
+                 	// diable bookmark link if case set is user-defined 
+                    if (caseSetId.equals("-1"))
+                    {
+                    	out.println("<br>");
+                    	out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+                    }
+                    else
+                    {
+                        out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
+                                + buf.toString() + "'>" + request.getAttribute
+                                (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
 
-                    String longLink = buf.toString();
-                    out.println("<br><br>");
-                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
-                    out.println("<div id='bitly'></div>");
+                        String longLink = buf.toString();
+                        out.println("<br><br>");
+                        out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+                        out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                        out.println("<div id='bitly'></div>");
 
-					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
-					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
-					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
-					//out.println("<a href='http://goo.gl/'>Google</a>.");
+    					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
+    					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
+    					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
+    					//out.println("<a href='http://goo.gl/'>Google</a>.");
+                    }
+                 	
                     out.println("</div>");
                 }
 

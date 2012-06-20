@@ -52,6 +52,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String GENE_SET_CHOICE = "gene_set_choice";
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
+    public static final String CASE_IDS_KEY = "case_ids_key";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
@@ -297,8 +298,27 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
+        
         HashSet<String> setOfCaseIds = null;
-        if (!caseSetId.equals("-1")) {
+        
+        String caseIdsKey = null;
+        
+        // user-specified cases, but case_ids parameter is missing,
+        // so try to retrieve case_ids by using case_ids_key parameter.
+        // this is required for survival plot requests  
+        if (caseSetId.equals("-1") &&
+        	caseIds == null)
+        {
+        	caseIdsKey = servletXssUtil.getCleanInput(request, CASE_IDS_KEY);
+        	
+        	if (caseIdsKey != null)
+        	{
+        		caseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+        	}
+        }
+        
+        if (!caseSetId.equals("-1"))
+        {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
@@ -308,9 +328,11 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         //if user specifies cases, add these to hashset, and send to GetMutationData
-        else {
+        else if (caseIds != null)
+        {
             String[] caseIdSplit = caseIds.split("\\s+");
             setOfCaseIds = new HashSet<String>();
+            
             for (String caseID : caseIdSplit){
                 if (null != caseID){
                    setOfCaseIds.add(caseID);
@@ -318,7 +340,14 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         
-        request.setAttribute(CASE_IDS, caseIds);
+        if (caseIdsKey == null)
+        {
+        	caseIdsKey = CaseSetUtil.shortenCaseIds(caseIds);
+        }
+        
+        // this will create a key even if the case set is a predefined set,
+        // because it is required to build a case id string in any case
+        request.setAttribute(CASE_IDS_KEY, caseIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
@@ -562,7 +591,7 @@ public class QueryBuilder extends HttpServlet {
                 	}
                 	else
                 	{
-                		List<String> invalidCases = CaseSetValidator.validateCaseSet(
+                		List<String> invalidCases = CaseSetUtil.validateCaseSet(
                 				cancerStudyIdentifier, caseIds);
                 		
                 		String caseSetErrMsg = "Invalid case(s) for the selected cancer study:";

@@ -95,7 +95,7 @@ function promptCustomCaseSetBuilder()
     	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
     	
     	// TODO temporary limiter for the number of cases
-    	_limitNumberOfCases();
+    	//_limitNumberOfCases();
     	
     	// update total number of cases & selected number of cases
     	
@@ -455,7 +455,7 @@ function refreshCustomCaseSet(checkbox, selector)
 	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
 	// TODO temporary limit to the number of cases
-	_limitNumberOfCases();
+	//_limitNumberOfCases();
 	
 	// update current number of included cases
 	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);

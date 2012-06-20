@@ -30,3 +30,4 @@ my-properties-files/
 cron-job-properties-files/
 cbio-cancer-genomics-portal.ipr
 cbio-cancer-genomics-portal.iws
+portal/db/oncotator_cache.sql

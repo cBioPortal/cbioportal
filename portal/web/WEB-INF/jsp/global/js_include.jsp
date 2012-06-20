@@ -14,6 +14,8 @@
 <script type="text/javascript" src="js/jslab-stdlib.js"></script>
 <script type="text/javascript" src="js/customCaseSet.js"></script>
 <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
+<script type="text/javascript" src="js/mutsig.js"></script>
 
 <!-- Google Analytics -->
 <script type="text/javascript">

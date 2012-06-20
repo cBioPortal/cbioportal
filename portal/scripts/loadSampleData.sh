@@ -33,3 +33,6 @@
 # Load network data
 ./importSif.pl ../sample_data/network/cell-map.sif CELLMAP
 ./importSif.pl ../sample_data/network/nci-nature.sif NCI_NATURE
+
+# Load MutSig data
+./importMutSig.pl ../test_data/test_mut_sig_data.txt ../test_data/testCancerStudy.txt

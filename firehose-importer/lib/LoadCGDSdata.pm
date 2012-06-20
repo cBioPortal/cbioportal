@@ -182,7 +182,7 @@ sub load_cancer_data{
 	  my $fullCanonicalMutSigMetaFile = File::Spec->catfile( @pathToDataFile, 'meta_mutsig.txt' );
 	  if ( $fileUtil->existent($fullCanonicalMutSigDataFile) && $fileUtil->existent($fullCanonicalMutSigMetaFile)) {
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
-		#system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
 	  }
 		  
 	  print "timestamp: ", timing(), "Loading $cancerDataDir complete.\n";

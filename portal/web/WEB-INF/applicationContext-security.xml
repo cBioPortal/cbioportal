@@ -54,6 +54,7 @@
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
 	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
@@ -70,6 +71,7 @@
 	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 
       <!-- everything else locked down by default -->

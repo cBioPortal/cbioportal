@@ -36,9 +36,29 @@ public class AnnotatedCaseSets {
     private CaseList determineDefaultCaseSet(List<CaseList> caseSetList) {
         List<CaseSetWithPriority> priCaseList = new ArrayList<CaseSetWithPriority>();
         for (CaseList caseSet : caseSetList) {
-            registerPriorityCaseList(caseSet, ALL_COMPLETE_TUMORS, 0, priCaseList);
-            registerPriorityCaseList(caseSet, ALL_TUMORS, 1, priCaseList);
-            registerPriorityCaseList(caseSet, ALL, 2, priCaseList);
+            Integer priority = null;
+
+            // These are the new category overrides
+            switch (caseSet.getCaseListCategory()) {
+                case ALL_CASES_WITH_MUTATION_AND_CNA_DATA:
+                    priority = 0;
+                    break;
+                case ALL_CASES_WITH_MUTATION_DATA:
+                    priority = 1;
+                    break;
+                case ALL_CASES_WITH_CNA_DATA:
+                    priority = 2;
+                    break;
+            }
+
+            // If category matches none of the overrides, fallback to the old way
+            if(priority == null) {
+                registerPriorityCaseList(caseSet, ALL_COMPLETE_TUMORS, 3, priCaseList);
+                registerPriorityCaseList(caseSet, ALL_TUMORS, 4, priCaseList);
+                registerPriorityCaseList(caseSet, ALL, 5, priCaseList);
+            } else {
+                priCaseList.add(new CaseSetWithPriority(caseSet, priority));
+            }
         }
 
         Collections.sort(priCaseList, new CaseSetWithPriorityComparator());

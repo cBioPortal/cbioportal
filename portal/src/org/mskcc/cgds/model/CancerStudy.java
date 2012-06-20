@@ -224,6 +224,6 @@ public class CancerStudy {
     }
 
     public boolean hasMutSigData() throws DaoException {
-        return DaoMutSig.getInstance().hasMutSig(this);
+        return !DaoMutSig.getInstance().hasMutsig(this);
     }
 }

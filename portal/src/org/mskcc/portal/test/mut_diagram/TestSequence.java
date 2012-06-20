@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram;
+package org.mskcc.portal.test.mut_diagram;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
@@ -20,11 +20,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import org.mskcc.portal.mut_diagram.*;
 
 /**
  * Unit test for Sequence.
  */
-public class SequenceTest {
+public class TestSequence {
     private Sequence sequence;
 
     @Before

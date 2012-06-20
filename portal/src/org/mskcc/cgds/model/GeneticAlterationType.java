@@ -119,13 +119,14 @@ public class GeneticAlterationType {
             = new GeneticAlterationType("PROTEIN_LEVEL");
     
     /**
-     * Protein level from protein array, such as RPPA
+     * Protein/phosphoprotein level from protein array, such as RPPA
      */
     public static final GeneticAlterationType PROTEIN_ARRAY_PROTEIN_LEVEL
             = new GeneticAlterationType("PROTEIN_ARRAY_PROTEIN_LEVEL");
     
     /**
      * Phosphorylation from protein array, such as RPPA
+     * @deprecated REMOVE THIS
      */
     public static final GeneticAlterationType PROTEIN_ARRAY_PHOSPHORYLATION
             = new GeneticAlterationType("PROTEIN_ARRAY_PHOSPHORYLATION");

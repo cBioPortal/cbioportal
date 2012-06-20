@@ -23,7 +23,7 @@ public class TestMutSigJSON extends TestCase {
 
         // should now reject because qval is too large
         mutsig = new MutSig(1, canonicalGene, 1, 502500, 20, "12", "12");
-        assertTrue(MutSigJSON.MutSigtoMap(mutsig).isEmpty());
+        assertFalse(MutSigJSON.MutSigtoMap(mutsig).isEmpty());
 
         // sometimes the qvals comes in a funny format
         mutsig = new MutSig(1, canonicalGene, 1, 502500, 20, "<1E-8", "<1E-8");

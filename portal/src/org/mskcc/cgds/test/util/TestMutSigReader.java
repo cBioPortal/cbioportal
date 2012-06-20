@@ -21,12 +21,6 @@ public class TestMutSigReader extends TestCase {
 
     ProgressMonitor pm = new ProgressMonitor();
     File cancers =  new File("test_data/cancers.txt");
-
-    public void testgetInternalId() throws Exception {
-
-        // since tcga_gbm has InternalID = 1 in the sample data (./loadSampleData.sh)
-        assertEquals(1, MutSigReader.getInternalId(properties));
-    }
     
     public void testloadMutSig() throws Exception {
 
@@ -50,7 +44,9 @@ public class TestMutSigReader extends TestCase {
         daoGeneOptimized.addGene(gene);
         daoGeneOptimized.addGene(gene2);
 
-        MutSigReader.loadMutSig(MutSigReader.getInternalId(properties), mutSigFile, pMonitor);
+        int cancerStudyId = MutSigReader.getInternalId(properties);
+        assertTrue(CancerStudy.NO_SUCH_STUDY != cancerStudyId);
+        MutSigReader.loadMutSig(cancerStudyId, mutSigFile, pMonitor);
 
         // Is the data in the database?
         MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);

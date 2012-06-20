@@ -118,10 +118,9 @@ public class DaoMutSig {
         CanonicalGene gene = daoGene.getGene(hugoGeneSymbol);
 
         if (gene == null) {
-            System.err.print("This HugoGeneSymbol does not exist in Database: " + hugoGeneSymbol);
-            return null;
+            throw new java.lang.IllegalArgumentException("This HugoGeneSymbol does not exist in Database: " + hugoGeneSymbol);
         } else {
-            Long entrezGeneID = gene.getEntrezGeneId();
+            long entrezGeneID = gene.getEntrezGeneId();
             try {
                 con = JdbcUtil.getDbConnection();
                 pstmt = con.prepareStatement
@@ -199,6 +198,31 @@ public class DaoMutSig {
         }
     }
 
+    public int countMutSig(int cancerStudy) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT count(*) FROM mut_sig WHERE CANCER_STUDY_ID = ?");
+            pstmt.setInt(1, cancerStudy);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+            return 0;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
     public ArrayList<MutSig> getAllMutSig(int cancerStudy, double qValueThreshold) throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
@@ -254,8 +278,13 @@ public class DaoMutSig {
         return mutSig;
     }
 
-    public boolean hasMutSig(CancerStudy cancerStudy) throws DaoException {
-        // nonempty list of MutSig means that the cancerStudy *has* MutSig data
-        return !getAllMutSig(cancerStudy.getInternalId()).isEmpty();
+    /**
+     * asks the database whether or not there are mutsigs for a given cancer study
+     * @param cancerStudy
+     * @return true or false
+     *
+     */
+    public boolean hasMutsig(CancerStudy cancerStudy) throws DaoException {
+        return countMutSig(cancerStudy.getInternalId()) == 0;
     }
 }

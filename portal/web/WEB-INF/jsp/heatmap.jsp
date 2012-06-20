@@ -69,7 +69,7 @@
                             String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
                             // was: ValueParser parser = new ValueParser(value, zScoreThreshold);
                             ValueParser valueParser = ValueParser.generateValueParser( geneWithScore.getGene(), value, 
-                                     zScoreThreshold, theOncoPrintSpecification );
+                                     zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                             if( null == valueParser){
                                System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
                                break;
@@ -82,6 +82,7 @@
                             out.println( "<div class=\"nowrap\">" );
                             out.println( valueParser.getMutationGlyph() );
                             out.println( valueParser.getMRNAGlyph() );
+                            out.println( valueParser.getRPPAGlyph() );
                             out.println( "<div>" );
 
 
@@ -185,7 +186,7 @@
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value, 
-                         zScoreThreshold, theOncoPrintSpecification );
+                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
                    break;
@@ -210,6 +211,12 @@
                 }
                 if (parser.isMRNAWayDown()) {
                     out.print ("DOWN;");
+                }
+                if (parser.isRPPAWayUp()) {
+                    out.print("RPPA-UP;");
+                }
+                if (parser.isRPPAWayDown()) {
+                    out.print("RPPA-DOWN;");
                 }
                 out.print ("\t");
             }

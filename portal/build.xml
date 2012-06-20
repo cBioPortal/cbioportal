@@ -231,6 +231,9 @@
     <!-- Force copy of gene_sets.txt -->
     <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/org/mskcc/portal/util" file="config/gene_sets.txt" />
 
+  	<!-- Force copy of human_readable_categories.txt -->
+  	<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/org/mskcc/portal/util" file="config/human_readable_categories.txt" />
+  	
     <!-- Force copy of antisamy.xml -->
     <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/" file="${config.dir}/antisamy.xml" />
 
@@ -272,7 +275,7 @@
   </target>
 
   <!-- ==================== Test Target ================================= -->
-  <target name="test" description="Runs all JUnit Tests">
+  <target name="test" depends="compile" description="Runs all JUnit Tests">
     <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
       <formatter type="brief" usefile="false" />
       <formatter type="xml" />

@@ -34,14 +34,20 @@ public class DaoGeneOptimized {
     }
 
     /**
-     * Adds a new Gene Record to the Database.
+     * Adds a new Gene Record to the Database. If the Entrez Gene ID is negative,
+     * a fake Entrez Gene ID will be assigned.
      * @param gene  Canonical Gene Object.
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
     public int addGene(CanonicalGene gene) throws DaoException {
         DaoGene daoGene = DaoGene.getInstance();
-        int ret = daoGene.addGene(gene);
+        int ret;
+        if (gene.getEntrezGeneId()>0) {
+            ret = daoGene.addGene(gene);
+        } else {
+            ret = daoGene.addGeneWithoutEntrezGeneId(gene);
+        }
         cacheGene(gene);
         return ret;
     }

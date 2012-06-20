@@ -133,7 +133,7 @@ sub generate_case_lists{
 						   "data_miRNA.txt", "data_microRNA_ZbyNorm.txt",
 						   "data_microRNA.txt", "data_microRNA_outliers.txt",
 						   "data_CNA_consensus.txt", "data_CNA_RAE.txt",
-						   "data_brca1_binary_methylation.txt", "",
+						   "data_brca1_binary_methylation.txt", "data_expression.txt",
 						   "data_protein.txt", "data_miRNA.txt", "data_expression_Zscores.txt",
 						   "data_mRNA_DBCG.txt", "data_mRNA_DBCG_Z.txt", "data_mRNA_FW_MDG.txt",
 						   "data_mRNA_MicMa.txt", "data_data_mRNA_ULL.txt",
@@ -709,7 +709,7 @@ sub create_case_lists{
 		$cancerCenter,
         # todo: make these table/config file driven
         [ $cghSource, $sequencedSource ],
-        'union',
+        'intersection',
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',
             stable_id => '<cancer>_<cancer_center>_cnaseq',

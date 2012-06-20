@@ -2,13 +2,20 @@ package org.mskcc.portal.util;
 
 import org.mskcc.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.util.GlobalProperties;
 import org.mskcc.portal.oncoPrintSpecLanguage.*;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.portal.model.ExtendedMutationMap;
 
 import org.apache.commons.lang.StringUtils;
+
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.image.BufferedImage;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,356 +26,831 @@ import java.util.*;
  * @author Ethan Cerami, Arthur Goldberg.
  */
 public class MakeOncoPrint {
-    public static int CELL_WIDTH = 8;
-    public static int CELL_HEIGHT = 18;
 
-    // support OncoPrints in both SVG and HTML; only HTML will have extra textual info,
-    // such as legend, %alteration
-    public enum OncoPrintType {
-        SVG, HTML
-    }
+	public static int CELL_HEIGHT = 21; // if this changes, ALTERATION_HEIGHT in raphaeljs-oncoprint.js should change
+
+	private static int HEADER_CANVAS_WIDTH_PIXELS = 430;  // used to compute case set description
+	private static String UNALTERED_CASE = "CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN";
+	private static String PERCENT_ALTERED_COLUMN_HEADING = "Total\\naltered";  // if new line is removed, raphaeljs-oncoprint.js - drawOncoPrintHeaderForSummaryTab & drawOncoPrintHeaderForCrossCancerSummary should change
+	private static String COPY_NUMBER_ALTERATION_FOOTNOTE = "Copy number alterations are putative.";
+	private static String CASE_SET_DESCRIPTION_LABEL = "Case Set: "; // if this changes, CASE_SET_DESCRIPTION_LABEL in raphaeljs-oncoprint.js should change
+	private static String CUSTOMIZE_ONCOPRINT_TOOLTIP = "Adjust the features and dimensions of the OncoPrint.";
+	private static String REMOVE_PADDING_TOOLTIP = "When this is set, whitespace between genomic alterations is removed.";
+	private static String SCALING_ONCOPRINT_INDICATOR = "Scaling OncoPrint...";
+	private static String ADD_PADDING_ONCOPRINT_INDICATOR = "Adding Whitespace...";
+	private static String REMOVE_PADDING_ONCOPRINT_INDICATOR = "Removing Whitespace...";
+	private static String REMOVE_UNALTERED_CASES_INDICATOR = "Removing Unaltered Cases...";
+	private static String ADD_UNALTERED_CASES_INDICATOR = "Adding Unaltered Cases...";
+	private static String UNSORT_SAMPLES_INDICATOR = "Unsorting Cases...";
+	private static String SORT_SAMPLES_INDICATOR = "Sorting Cases...";
 
     /**
      * Generate the OncoPrint in HTML or SVG.
+     * @param cancerTypeID              Cancer Study ID.
      * @param geneList                  List of Genes.
      * @param mergedProfile             Merged Data Profile.
+	 * @param mutationList              List of Mutations
      * @param caseSets                  All Case Sets for this Cancer Study.
      * @param caseSetId                 Selected Case Set ID.
      * @param zScoreThreshold           Z-Score Threshhold
-     * @param theOncoPrintType          OncoPrint Type.
-     * @param showAlteredColumns        Show only the altered columns.
      * @param geneticProfileIdSet       IDs for all Genomic Profiles.
      * @param profileList               List of all Genomic Profiles.
-	 * @param includeCaseSetDescription Include case set description boolean.
-	 * @param includeLegend             Include legend boolean.
+	 * @param forSummaryTab             If we are providing content for the Summary Tab (otherwise assume Cross Cancer Study Page)
      * @throws IOException IO Error.
      */
-    public static String makeOncoPrint(String geneList, ProfileData mergedProfile,
-									   ArrayList<CaseList> caseSets, String caseSetId, double zScoreThreshold,
-									   OncoPrintType theOncoPrintType,
-									   boolean showAlteredColumns,
+    public static String makeOncoPrint(String cancerTypeID,
+									   String geneList,
+									   ProfileData mergedProfile,
+									   ArrayList<ExtendedMutation> mutationList,
+									   ArrayList<CaseList> caseSets,
+									   String caseSetId,
+									   double zScoreThreshold,
+									   double rppaScoreThreshold,
 									   HashSet<String> geneticProfileIdSet,
 									   ArrayList<GeneticProfile> profileList,
-									   boolean includeCaseSetDescription,
-									   boolean includeLegend
-    ) throws IOException {
+									   boolean forSummaryTab) throws IOException {
+
         StringBuffer out = new StringBuffer();
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneList,
-                geneticProfileIdSet, profileList, zScoreThreshold);
+                geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
 
+		ExtendedMutationMap mutationMap =
+			(mutationList == null) ? null : new ExtendedMutationMap(mutationList, mergedProfile.getCaseIdList());
+
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
-        ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
         // TODO: make the gene sort order a user param, then call a method in ProfileDataSummary to sort
-        GeneticEvent matrix[][] = ConvertProfileDataToGeneticEvents.convert
-                (dataSummary, listOfGeneNames,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold);
+        GeneticEvent sortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
+			(dataSummary, listOfGeneNames,
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
+        GeneticEvent unsortedMatrix[][] = ConvertProfileDataToGeneticEvents.convert
+			(dataSummary, listOfGeneNames,
+			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         //  Sort Columns via Cascade Sorter
         ArrayList<EnumSet<CNA>> CNAsortOrder = new ArrayList<EnumSet<CNA>>();
-        CNAsortOrder.add(EnumSet.of(CNA.amplified));
-        CNAsortOrder.add(EnumSet.of(CNA.homoDeleted));
-        CNAsortOrder.add(EnumSet.of(CNA.Gained));
-        CNAsortOrder.add(EnumSet.of(CNA.HemizygouslyDeleted));
+        CNAsortOrder.add(EnumSet.of(CNA.AMPLIFIED));
+        CNAsortOrder.add(EnumSet.of(CNA.HOMODELETED));
+        CNAsortOrder.add(EnumSet.of(CNA.GAINED));
+        CNAsortOrder.add(EnumSet.of(CNA.HEMIZYGOUSLYDELETED));
         // combined because these are represented by the same color in the OncoPring
-        CNAsortOrder.add(EnumSet.of(CNA.diploid, CNA.None));
+        CNAsortOrder.add(EnumSet.of(CNA.DIPLOID, CNA.NONE));
 
         ArrayList<EnumSet<MRNA>> MRNAsortOrder = new ArrayList<EnumSet<MRNA>>();
-        MRNAsortOrder.add(EnumSet.of(MRNA.upRegulated));
-        MRNAsortOrder.add(EnumSet.of(MRNA.downRegulated));
+        MRNAsortOrder.add(EnumSet.of(MRNA.UPREGULATED));
+        MRNAsortOrder.add(EnumSet.of(MRNA.DOWNREGULATED));
 
         // combined because these are represented by the same color in the OncoPrint
-        MRNAsortOrder.add(EnumSet.of(MRNA.Normal, MRNA.notShown));
+        MRNAsortOrder.add(EnumSet.of(MRNA.NORMAL, MRNA.NOTSHOWN));
+
+        ArrayList<EnumSet<RPPA>> RPPAsortOrder = new ArrayList<EnumSet<RPPA>>();
+        RPPAsortOrder.add(EnumSet.of(RPPA.UPREGULATED));
+        RPPAsortOrder.add(EnumSet.of(RPPA.DOWNREGULATED));
+
+        // combined because these are represented by the same color in the OncoPrint
+        RPPAsortOrder.add(EnumSet.of(RPPA.NORMAL, RPPA.NOTSHOWN));
 
         GeneticEventComparator comparator = new GeneticEventComparator(
                 CNAsortOrder,
                 MRNAsortOrder,
+                RPPAsortOrder,
                 GeneticEventComparator.defaultMutationsSortOrder());
 
         CascadeSortOfMatrix sorter = new CascadeSortOfMatrix(comparator);
-        for (GeneticEvent[] row : matrix) {
+        for (GeneticEvent[] row : sortedMatrix) {
             for (GeneticEvent element : row) {
                 element.setGeneticEventComparator(comparator);
             }
         }
-        matrix = (GeneticEvent[][]) sorter.sort(matrix);
+        sortedMatrix = (GeneticEvent[][]) sorter.sort(sortedMatrix);
 
-        // optionally, show only columns with alterations
-        // depending on showAlteredColumns, find last column with alterations
-        int numColumnsToShow = matrix[0].length;
+		writeOncoPrint(out, cancerTypeID, unsortedMatrix, sortedMatrix,
+					   dataSummary, mutationMap, caseSets, caseSetId,
+					   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(),
+					   forSummaryTab);
 
-        if (showAlteredColumns) {
-            // identify last column with an alteration
-            // make HTML OncoPrint: not called if there are no genes
-
-            // have oncoPrint shows nothing when no cases are modified
-            numColumnsToShow = 0;
-            firstAlteration:
-            {
-
-                // iterate through cases from the end, stopping at first case with alterations
-                // (the sort order could sort unaltered cases before altered ones)
-                for (int j = matrix[0].length - 1; 0 <= j; j--) {
-
-                    // check all genes to determine if a case is altered
-                    for (int i = 0; i < matrix.length; i++) {
-                        GeneticEvent event = matrix[i][j];
-                        if (dataSummary.isGeneAltered(event.getGene(), event.caseCaseId())) {
-
-                            numColumnsToShow = j + 1;
-                            break firstAlteration;
-                        }
-                    }
-                }
-            }
-        }
-
-        // support both SVG and HTML oncoPrints
-        switch (theOncoPrintType) {
-
-            case SVG:
-                writeSVGOncoPrint(matrix, numColumnsToShow,
-                        out, mergedCaseList, geneWithScoreList);
-                break;          // exit the switch
-
-            case HTML:
-                int spacing = 0;
-                int padding = 1;
-
-                // the images are 4x bigger than this, which is necessary to create the necessary
-                // design; but width and height scale them down, so that the OncoPrint fits
-                // TODO: move these constants elsewhere, or derive from images directly
-                int width = 6;
-                int height = 17;
-
-                writeHTMLOncoPrint(caseSets, caseSetId, matrix, numColumnsToShow, showAlteredColumns,
-								   theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), dataSummary,
-								   out, spacing, padding, width, height, includeCaseSetDescription,
-								   includeLegend);
-                break;          // exit the switch
-        }
+		// outta here
         return out.toString();
-    }
-
-    static void writeSVGOncoPrint(GeneticEvent matrix[][], int numColumnsToShow,
-            StringBuffer out, ArrayList<String> mergedCaseList,
-            ArrayList<GeneWithScore> geneWithScoreList) {
-
-        int windowWidth = 300 + (CELL_WIDTH * mergedCaseList.size());
-        int windowHeight = 50 + (CELL_HEIGHT * geneWithScoreList.size());
-
-        out.append("<?xml version=\"1.0\"?>\n" +
-                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
-                "    \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                "<svg onload=\"init(evt)\" xmlns=\"http://www.w3.org/2000/svg\" " +
-                "version=\"1.1\" \n" +
-                "    width=\"" + windowWidth + "\" height=\"" + windowHeight + "\">\n");
-
-
-        //  Output One Gene per Row
-        int x = 0;
-        int y = 25;
-
-        out.append("<g font-family=\"Verdana\">");
-
-        for (int i = 0; i < matrix.length; i++) {
-            GeneticEvent rowEvent = matrix[i][0];
-            x = 160;
-            out.append("<text x=\"30\" y = \"" + (y + 15) + "\" fill = \"black\" " +
-                    "font-size = \"16\">\n"
-                    + rowEvent.getGene().toUpperCase() + "</text>");
-            for (int j = 0; j < numColumnsToShow; j++) {
-                GeneticEvent event = matrix[i][j];
-                String style = getCopyNumberStyle(event);
-                String mRNAStyle = getMRNAStyle(event);
-
-                boolean isMutated = event.isMutated();
-                int block_height = CELL_HEIGHT - 2;
-                out.append("\n<rect x=\"" + x + "\" y=\"" + y
-                        + "\" width=\"5\" stroke='" + mRNAStyle + "' height=\""
-                        + block_height + "\" fill=\"" + style + "\"\n" +
-                        " fill-opacity=\"1.0\"/>");
-                if (isMutated) {
-                    out.append("\n<rect x='" + x + "' y='" + (y + 5)
-                            + "' fill='green' width='5' height='6'/>");
-                }
-
-                x += CELL_WIDTH;
-            }
-            y += CELL_HEIGHT;
-        }
-        out.append("</g>");
-        out.append("</svg>\n");
     }
 
     /**
      * Generates an OncoPrint in HTML.
-     * @param caseSets                  List of all Case Sets.
-     * @param caseSetId                 Selected Case Set ID.
-     * @param matrix                    Matrix of Genomic Events.
-     * @param numColumnsToShow          Number of Columns to Show.
-     * @param showAlteredColumns        Flag to show only altered columns.
-     * @param theOncoPrintSpecification The OncoPrint Spec. Object.
-     * @param dataSummary               Data Summary Object.
-     * @param out                       HTML Out.
-     * @param cellspacing               Cellspacing.
-     * @param cellpadding               Cellpadding.
-     * @param width                     Width.
-     * @param height                    Height.
-	 * @param includeCaseSetDescription Include case set description boolean.
-	 * @param includeLegend             Include legend boolean.
+	 *
+	 * @param out StringBuffer
+	 * @param cancerTypeID String
+	 * @param unsortedMatrix GeneticEvent[][]
+	 * @param sortedMatrix GeneticEvent[][]
+	 * @param dataSummary ProfileDataSummary
+	 * @param mutationMap ExtendedMutationMap
+     * @param caseSets List<CaseList>
+     * @param caseSetId String
+     * @param theOncoPrintSpecification OncoPrintSpecification
+	 * @param forSummaryTab boolean
      */
-    static void writeHTMLOncoPrint(ArrayList<CaseList> caseSets, String caseSetId,
-								   GeneticEvent matrix[][],
-								   int numColumnsToShow, boolean showAlteredColumns,
-								   OncoPrintSpecification theOncoPrintSpecification,
-								   ProfileDataSummary dataSummary,
-								   StringBuffer out,
-								   int cellspacing, int cellpadding, int width, int height,
-								   boolean includeCaseSetDescription,
-								   boolean includeLegend
-		) {
+    static void writeOncoPrint(StringBuffer out,
+							   String cancerTypeID,
+							   GeneticEvent unsortedMatrix[][],
+							   GeneticEvent sortedMatrix[][],
+							   ProfileDataSummary dataSummary,
+							   ExtendedMutationMap mutationMap,
+							   List<CaseList> caseSets, String caseSetId,
+							   OncoPrintSpecification theOncoPrintSpecification,
+							   boolean forSummaryTab) {
+		//
+		// the follow vars are values of various HTML elements and javascript vars that get generated below
+		//
 
-        out.append("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n" +
-                "<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>") ;
+		// the overall div for the oncoprint
+		String oncoprintSection = "oncoprint_section_" + cancerTypeID;  // if this changes, dynamicQuery.jsp and crosscancer_results.jsp need updates
+		// each oncoprint is composed of a header, body & footer
+		String oncoprintHeaderDivName = "oncoprint_header_" + cancerTypeID;
+		String oncoprintBodyDivName = "oncoprint_body_" + cancerTypeID;
+		String oncoprintLegendDivName = "oncoprint_legend_" + cancerTypeID;
+		// these are not hardcoded as the name is shared between routines below
+		String oncoprintUnsortSamplesCheckboxName = "oncoprint_unsort_samples_checkbox_" + cancerTypeID;
+		String oncoprintUnsortSamplesLabelName = "oncoprint_unsort_samples_label_" + cancerTypeID;
+		String oncoprintFormControlsIndicatorName = "oncoprint_form_controls_indicator_" + cancerTypeID;
+		String oncoprintScalingSliderName = "oncoprint_scaling_slider_" + cancerTypeID;
+		String oncoprintCustomizeIndicatorName = "oncoprint_customize_indicator_" + cancerTypeID;
+		String oncoprintAccordionTitleName = "oncoprint_accordion_title_" + cancerTypeID;
+		String oncoprintRemovePaddingCheckboxName = "oncoprint_remove_padding_checkbox_" + cancerTypeID;
+		String oncoprintRemovePaddingLabelName = "oncoprint_remove_padding_label_" + cancerTypeID;
+		// names of various javascript variables used by the raphaeljs-oncoprint.js
+		String headerVariablesVarName = "HEADER_VARIABLES_" + cancerTypeID;
+		String longestLabelVarName = "LONGEST_LABEL_" + cancerTypeID;
+		String sortedGeneticAlterationsVarName = "GENETIC_ALTERATIONS_SORTED_" + cancerTypeID;
+		String unsortedGeneticAlterationsVarName = "GENETIC_ALTERATIONS_UNSORTED_" + cancerTypeID;
+		String geneticAlterationsLegendVarName = "GENETIC_ALTERATIONS_LEGEND_" + cancerTypeID;
+		String legendFootnoteVarName = "LEGEND_FOOTNOTE_" + cancerTypeID;
+		String oncoprintReferenceVarName = "ONCOPRINT_" + cancerTypeID;  // if this changes, dynamicQuery.jsp and crosscancer_results.jsp need updates
 
+		// oncoprint header
+		if (forSummaryTab) {
+			out.append("<div id=\"" + oncoprintSection + "\" class=\"oncoprint_section\">\n");
+			out.append("<p><h4>OncoPrint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>(<a href=\"faq.jsp#what-are-oncoprints\">What are OncoPrints?</a>)</small></h4>\n");
+			out.append("<p></p>\n");
+			out.append("<div style=\"width:800px;\">\n");
+			out.append("<div id=\"" + oncoprintSection + "\" class=\"oncoprint\">\n");
+		}
 
-        /*out.append("<script type=\"text/javascript\">\n"+
-                    "$(document).ready(function(){  \n" +
-                    "$(\".oncoprint_help\").tipTip({defaultPosition: \"right\", delay:\"100\", edgeOffset: 25});\n" +
-                    "});\n" +
-                    "</script>\n");
-        */
-        out.append("<div class=\"oncoprint\">\n");
-        if (includeCaseSetDescription) {
-            for (CaseList caseSet : caseSets) {
-                if (caseSetId.equals(caseSet.getStableId())) {
-                    out.append(
-                            "<p>Case Set: " + caseSet.getName()
-                                    + ":  " + caseSet.getDescription() + "</p>");
+		// include some javascript libs
+		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
+		if (forSummaryTab) {
+			out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
+			out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
+			out.append("<script type=\"text/javascript\">\n");
+			out.append("\tdojo.require(\"dijit.form.Slider\");\n");
+			out.append("</script>\n");
+		}
+
+		out.append("<script type=\"text/javascript\">\n");
+		// output oncoprint variables
+		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
+		// output longest label variable
+		out.append(writeJavascriptConstVariable(longestLabelVarName, getLongestLabel(sortedMatrix, dataSummary)));
+		// output sorted genetic alteration variable for oncoprint body
+		out.append(writeOncoPrintGeneticAlterationVariable(unsortedMatrix, dataSummary, mutationMap, unsortedGeneticAlterationsVarName));
+		out.append(writeOncoPrintGeneticAlterationVariable(sortedMatrix, dataSummary, mutationMap, sortedGeneticAlterationsVarName));
+		// output lengend footnote
+		String legendFootnote = getLegendFootnote(theOncoPrintSpecification.getUnionOfPossibleLevels());
+		out.append(writeJavascriptConstVariable(legendFootnoteVarName, legendFootnote));
+		// output genetic alteration variable for oncoprint legend
+		out.append(writeOncoPrintLegendGeneticAlterationVariable(geneticAlterationsLegendVarName,
+																 theOncoPrintSpecification.getUnionOfPossibleLevels()));
+		out.append("</script>\n");
+		if (forSummaryTab) {
+			// should come before raphaeljs divs
+			out.append(writeHTMLControls(oncoprintSection, oncoprintReferenceVarName, longestLabelVarName,
+										 headerVariablesVarName,oncoprintUnsortSamplesCheckboxName,
+										 oncoprintUnsortSamplesLabelName, oncoprintScalingSliderName,
+										 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
+										 oncoprintAccordionTitleName, oncoprintRemovePaddingCheckboxName,
+										 oncoprintRemovePaddingLabelName, sortedGeneticAlterationsVarName,
+										 unsortedGeneticAlterationsVarName, forSummaryTab, cancerTypeID));
+		}
+
+		// put the following divs (which contain raphael canvases) after HTML controls
+		// but before the document ready code which makes calls to raphaeljs.  Specifically,
+		// we need to put the divs before the call tot OncoPrintInit(..).  We do this tap dancing
+		// so that crosscancer studies can properly access the javascript vars we generate.
+		out.append("<div id=\"" + oncoprintHeaderDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<div id=\"" + oncoprintBodyDivName + "\" class=\"oncoprint\"></div>\n");
+		out.append("<br>\n");
+		out.append("<div id=\"" + oncoprintLegendDivName + "\" class=\"oncoprint\"></div>\n");
+
+		// on document ready, draw oncoprint header, oncoprint, oncoprint legend - comes after raphaeljs divs
+		out.append("<script type=\"text/javascript\">\n");
+		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
+														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
+														 longestLabelVarName, headerVariablesVarName,
+														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
+														 legendFootnoteVarName, oncoprintScalingSliderName,
+														 oncoprintFormControlsIndicatorName, oncoprintCustomizeIndicatorName,
+														 oncoprintAccordionTitleName, forSummaryTab));
+		out.append("</script>\n");
+
+		// oncoprint footer
+		if (forSummaryTab) {
+			out.append("</div>\n");
+			out.append("</div>\n");
+			out.append("<p>\n");
+			out.append("</div>\n");
+		}
+	}
+
+	/**
+	 * Creates javascript variable for header variables.
+	 *
+	 * @param matrix[][] GeneticEvent
+     * @param caseSets List<CaseList>
+     * @param caseSetId String
+	 * @param dataSummary ProfileDataSummary
+	 * @param varName String
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintHeaderVariables(GeneticEvent matrix[][],
+												ProfileDataSummary dataSummary,
+												List<CaseList> caseSets,
+												String caseSetId,
+												String varName) {
+		// output case set description
+		String caseSetDescription = getCaseSetDescription(caseSetId, caseSets);
+		String alteredStats = ("Altered in " + dataSummary.getNumCasesAffected() + " (" +
+							   alterationValueToString(dataSummary.getPercentCasesAffected())
+							   + ") of cases.");
+		String percentAlteredColumnHeading = PERCENT_ALTERED_COLUMN_HEADING;
+		String allSamplesColumnHeading = "All " + pluralize(matrix[0].length, " case") + " -->";
+		String alteredSamplesColumnHeading = (pluralize(dataSummary.getNumCasesAffected(), " case")
+											  + " with altered genes, out of " + pluralize(matrix[0].length, " total case") + " -->");
+															
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'CASE_SET_DESCRIPTION' : \"" + caseSetDescription + "\",\n");
+		builder.append("\t\t\t'ALTERED_STATS' : \"" + alteredStats + "\",\n");
+		builder.append("\t\t\t'PERCENT_ALTERED_COLUMN_HEADING' : \"" + percentAlteredColumnHeading + "\",\n");
+		builder.append("\t\t\t'ALL_SAMPLES_COLUMN_HEADING' : \"" + allSamplesColumnHeading + "\",\n");
+		builder.append("\t\t\t'ALTERED_SAMPLES_COLUMN_HEADING' : \"" + alteredSamplesColumnHeading + "\",\n");
+		// zap off last ',\n'
+		builder.delete(builder.length()-2, builder.length());
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+	/**
+	 * Creates javascript that represents genetic alteration matrix used for OncoPrint rendering.
+	 *
+	 * @param matrix[][] GeneticEvent
+	 * @param dataSummary ProfileDataSummary
+	 * @param mutationMap ExtendedMutationMap
+	 * @param varName String
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintGeneticAlterationVariable(GeneticEvent matrix[][],
+                ProfileDataSummary dataSummary, ExtendedMutationMap mutationMap, String varName) {
+
+            StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
+            builder.append("\t\tvar private = {\n");
+            builder.append("\t\t\t'" + varName + "' : [\n");
+
+            for (int i = 0; i < matrix.length; i++) {
+                GeneticEvent rowEvent = matrix[i][0];
+                String gene = rowEvent.getGene().toUpperCase();
+                String alterationValue =
+                        alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+                builder.append("\t\t\t\t{\n\t\t\t\t 'hugoGeneSymbol' : \"" + gene + "\",\n");
+                builder.append("\t\t\t\t 'percentAltered' : \"" + alterationValue  + "\",\n");
+                builder.append("\t\t\t\t 'alterations' : [\n");
+                for (int j = 0; j < matrix[0].length; j++) {
+                    GeneticEvent event = matrix[i][j];
+					Boolean sampleIsUnaltered = MakeOncoPrint.isSampleUnaltered(j, matrix);
+                    String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
+                    StringBuilder mutationDetails = new StringBuilder();
+                    if (event.isMutated() && mutationMap != null) {
+                        mutationDetails.append(", 'mutation' : [");
+                        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(gene, event.caseCaseId());
+                        for (ExtendedMutation mutation : mutations) {
+                            mutationDetails.append("\"" + mutation.getAminoAcidChange() + "\", ");
+                        }
+                        // zap off last ', '
+                        mutationDetails.delete(mutationDetails.length()-2, mutationDetails.length());
+                        mutationDetails.append("]");
+                    }
+                    builder.append("\t\t\t\t\t{ 'sample' : \"" + event.caseCaseId() + "\", " +
+								   "'unaltered_sample' : " + sampleIsUnaltered + ", " +
+								   "'alteration' : " + alterationSettings +
+								   mutationDetails.toString()  + "},\n");
                 }
+                
+                // zap off last ',\n'
+                builder.delete(builder.length()-2, builder.length());
+                builder.append("]\n");
+                builder.append("\t\t\t\t},\n");
             }
-        }
+            
+            // zap off last ',\n'
+            builder.delete(builder.length()-2, builder.length());
+            builder.append("\n\t\t\t]\n");
+            builder.append("\t\t};\n");
+            builder.append("\t\treturn {\n");
+            builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+            builder.append("\t\t};\n");
+            builder.append("\t})();\n");
 
-        // stats on pct alteration
-        out.append("<p>Altered in " + dataSummary.getNumCasesAffected() + " (" +
-                alterationValueToString(dataSummary.getPercentCasesAffected())
-                + ") of cases." + "</p>");
+            // outta here
+            return builder.toString();
+	}
 
-        // output table header
-        out.append(
-                "\n<table cellspacing='" + cellspacing +
-                        "' cellpadding='" + cellpadding +
-                        "'>\n" +
-                        "<thead>\n"
-        );
+	/**
+	 * Creates javascript that represents genetic alteration matrix used for legend rendering.
+	 *
+	 * @param varName String
+	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintLegendGeneticAlterationVariable(String varName,
+																OncoPrintGeneDisplaySpec allPossibleAlterations) {
 
-        int columnWidthOfLegend = 80;
-        //  heading that indicates columns are cases
-        // span multiple columns like legend
-        String caseHeading;
-        int numCases = matrix[0].length;
-        String rightArrow =  " &rarr;";
-        if (showAlteredColumns) {
-            caseHeading = pluralize(dataSummary.getNumCasesAffected(), " case")
-                    + " with altered genes, out of " + pluralize(numCases, " total case") + rightArrow;
-        } else {
-            caseHeading = "All " + pluralize(numCases, " case") + rightArrow;
-        }
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
 
-        out.append("\n<tr><th></th><th valign='bottom' width=\"50\">Total altered</th>\n<th colspan='"
-                + columnWidthOfLegend + "' align='left'>" + caseHeading + "</th>\n</tr>");
-        out.append("</thead>");
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'" + varName + "' : [\n");
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Amplified)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Amplification\",\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_AMPLIFIED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HomozygouslyDeleted)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Homozygous Deletion\",\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HOMODELETED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.Gained)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Gain\",\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_GAINED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+		}
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Hemizygous Deletion\",\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_HEMIZYGOUSLYDELETED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+		}
+        
+        // gene expression
+        ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Expression);
+        if (theResultDataTypeSpec != null) {
+			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation (RNA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_UPREGULATED | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+			}
+			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation (RNA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_DOWNREGULATED | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+			}
+		}
+        
+        // RPPA
+        theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.RPPA);
+        if (theResultDataTypeSpec != null) {
+			if (theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Up-regulation (RPPA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | NORMAL | RPPA_UPREGULATED\n\t\t\t\t},\n");
+			}
+			if (theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec() != null) {
+				builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Down-regulation (RPPA)\",\n");
+				builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | NORMAL | RPPA_DOWNREGULATED\n\t\t\t\t},\n");
+			}
+		}
+        
+        if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Mutation\",\n");
+			builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | MUTATED | RPPA_NOTSHOWN\n\t\t\t\t},\n");
+		}
 
-        for (int i = 0; i < matrix.length; i++) {
-            GeneticEvent rowEvent = matrix[i][0];
-			String gene = rowEvent.getGene().toUpperCase();
+		// zap off last ',\n'
+		builder.delete(builder.length()-2, builder.length());
+		builder.append("\n\t\t\t]\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
 
-            // new row
-            out.append("<tr>");
+		// outta here
+		return builder.toString();
+	}
 
-            // output cell with gene name, CSS does left justified
-            out.append("<td nowrap=\"nowrap\">" + gene + "</td>\n");
+	/**
+	 * Creates javascript which invokes (via jquery) OncoPrint drawing 
+	 * when document is ready.
+	 *
+	 * @param oncoprintSectionVarName String
+	 * @param oncoprintReferenceVarName String
+	 * @param headerElement String
+	 * @param bodyElement String
+	 * @param legendElement String
+	 * @param logestLabelVarName String
+	 * @param headerVariablesVarName String
+	 * @param geneticAlterationsVarName String
+	 * @param geneticAlterationsLegendVarName String
+	 * @param legendFootnoteVarName String
+	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintFormControlsIndicatorName String
+	 * @param oncoprintCustomizeIndicatorName String
+	 * @param oncoprintAccordionTitleName String
+	 * @param forSummaryTab String
+	 *
+	 * @return String
+	 */
+	static String writeOncoPrintDocumentReadyJavascript(String oncoprintSectionVarName,
+														String oncoprintReferenceVarName,
+														String headerElement,
+														String bodyElement,
+														String legendElement,
+														String longestLabelVarName,
+														String headerVariablesVarName,
+														String geneticAlterationsVarName,
+														String geneticAlterationsLegendVarName,
+														String legendFootnoteVarName,
+														String oncoprintScalingSliderName,
+														String oncoprintFormControlsIndicatorName,
+														String oncoprintCustomizeIndicatorName,
+														String oncoprintAccordionTitleName,
+														boolean forSummaryTab) {
 
-            // output total % altered, right justified
-            out.append("<td style=\" text-align: right\">");
-            out.append(alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene())));
-            out.append("</td>\n");
+		StringBuilder builder = new StringBuilder();
 
-            // for each case
-            for (int j = 0; j < numColumnsToShow; j++) {
-                GeneticEvent event = matrix[i][j];
+		// declare the oncoprint ref outside .ready so it is accessilble by page widgets
+		builder.append("\tvar " + oncoprintReferenceVarName + " = OncoPrintInit(" +
+					   "document.getElementById(\"" + headerElement + "\"), " +
+					   "document.getElementById(\"" + bodyElement + "\"), " +
+					   "document.getElementById(\"" + legendElement + "\"));\n");
+		// jquery on document ready
+		builder.append("\t$(document).ready(function() {\n");
+		// setup accordion javascript
+		if (forSummaryTab) {
+			builder.append("\t\t// for accordion functionality\n");
+			builder.append("\t\t$('#accordion .head').click(function() {\n");
+			builder.append("\t\t\t$(this).next().toggle();\n");
+			builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
+			builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t\treturn false;\n");
+			builder.append("\t\t}).next().hide();\n");
+		}
 
-                // get level of each datatype; concatenate to make image name
-                // color could later could be in configuration file
-                GeneticEventImpl.CNA CNAlevel = event.getCnaValue();
-                GeneticEventImpl.MRNA MRNAlevel = event.getMrnaValue();
+		// setup default properties - outside forSummaryTab
+		// because we need a valid reference from cross_cancer.do
+		builder.append("\t\t// for oncoprint generation\n");
 
-                // construct filename of icon representing this gene's genetic alteration event
-                StringBuffer iconFileName = new StringBuffer();
+		if (forSummaryTab) {
 
-                // TODO: fix; IMHO this is wrong; diploid should be different from None
-                String cnaName = CNAlevel.name();
-                if (cnaName.equals("None")) {
-                    cnaName = "diploid";
-                }
-                iconFileName.append(cnaName);
-                iconFileName.append("-");
+			// oncoprint header
+			builder.append("\t\tDrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
+						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+						   headerVariablesVarName + ", " + forSummaryTab  + ");\n");
 
-                iconFileName.append(MRNAlevel.name());
-                iconFileName.append("-");
+			// draw oncoprint
+			builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
+						   forSummaryTab + ");\n");
 
-                if (event.isMutated()) {
-                    iconFileName.append("mutated");
-                } else {
-                    iconFileName.append("normal");
-                }
-                iconFileName.append(".png");
+			// draw legend
+			builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
+						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+						   geneticAlterationsLegendVarName  + ".get('" + geneticAlterationsLegendVarName + "'), " +
+						   legendFootnoteVarName  + ".get('" + legendFootnoteVarName + "'));\n");
+			// handle tooltip drawing when page is first loaded
+			builder.append("\t\tvar currentLocation = window.location.pathname;\n");
+			builder.append("\t\tif (currentLocation.indexOf(\"index.do\") != -1 || currentLocation.indexOf(\"link.do\") != -1) { \n");
+			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t}\n");
+			// handle tooltip drawing when other tabs are clicked
+			builder.append("\t\t$(\"a\").click(function(event) {\n");
+			builder.append("\t\t\t\tvar tab = $(this).attr(\"href\");\n");
+			builder.append("\t\t\tif (tab == \"#summary\") {\n");
+			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t\t}\n");
+			builder.append("\t\t\t// we only clear if one of the inner index.do tabs are clicked\n"); 
+			builder.append("\t\t\t// otherwise we get a noticable tooltip clear before the page is reloaded\n");
+			builder.append("\t\t\telse if (tab.indexOf(\".jsp\") == -1) {\n");
+			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\t}\n");
+			builder.append("\t\t});\n");
+			// handle tooltip drawing when browser is resized
+			builder.append("\t\t$(window).resize(function() {\n");
+			builder.append("\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t});\n");
+			// oncoprint accordion title & compress checkbox tool-tip
+			builder.append("$(\".oncoprint_customize_help\").tipTip({maxWidth: \"150px\", defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
+		}
+		// end on document ready
+		builder.append("\t});\n");
 
+		// slider
+		if (forSummaryTab) {
+			builder.append("\t// for oncoprint slider functionality we use dojo\n");
+			builder.append("\tdojo.ready(function() {\n");
+			builder.append("\t\tvar slider = new dijit.form.HorizontalSlider({\n");
+			builder.append("\t\t\tname: \"" + oncoprintScalingSliderName + "\",\n");
+			builder.append("\t\t\tvalue: 100,\n");
+			builder.append("\t\t\tminimum: 1,\n");
+			builder.append("\t\t\tmaximum: 100,\n");
+			builder.append("\t\t\tshowButtons: false,\n");
+			builder.append("\t\t\tstyle: \"width:100px;\",\n");
+			builder.append("\t\t\tonChange: function(value) {\n");
+			builder.append("\t\t\t\tvar $spinner = $('#" + oncoprintCustomizeIndicatorName + "');\n");
+			builder.append("\t\t\t\t$spinner.text(\"" + SCALING_ONCOPRINT_INDICATOR  + "\");\n");
+			builder.append("\t\t\t\tScalarIndicator($spinner, true);\n");
+			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t\t\tsetTimeout(function() {\n");
+			builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
+			builder.append("\t\t\t\t\tScalarIndicator($spinner, false);\n");
+			builder.append("\t\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
+			builder.append("\t\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
+			builder.append("\t\t\t\t}, 100);\n");
+			builder.append("\t\t\t\treturn false;\n");
+			builder.append("\t\t\t}\n");
+			builder.append("\t\t}, \"" + oncoprintScalingSliderName + "\");\n");
+			builder.append("\t});\n");
+			builder.append("\tfunction ScalarIndicator($spinner, turnOn) {\n");
+			builder.append("\t\tif (turnOn) {\n");
+			builder.append("\t\t\t$spinner.css({'display' : 'inline'});\n");
+			builder.append("\t\t}\n");
+			builder.append("\t\telse {\n");
+			builder.append("\t\t\t$spinner.css({'display' : 'none'});\n");
+			builder.append("\t\t}\n");
+			builder.append("\t}\n");
+		}
+		// outta here
+		return builder.toString();
+	}
 
+	/**
+	 * Creates OncoPrint Control (checkboxes, submit button, etc).
+	 *
+	 * @param oncoprintSectionVarName String
+	 * @param oncoprintReferenceVarName String
+	 * @param longestLabelVarName String
+	 * @param headerVariablesVarName String
+	 * @param oncoprintUnsortSamplesCheckboxName String
+	 * @param oncoprintUnsortSamplesLabelName String
+	 * @param oncoprintScalingSliderName String
+	 * @param oncoprintFormControlsIndicatorName String
+	 * @param oncoprintCustomizeIndicatorName String
+	 * @param oncoprintAccordionTitleName String
+	 * @param oncoprintRemovePaddingCheckboxName String
+	 * @param oncoprintRemovePaddingLabelName String
+	 * @param sortedGeneticAlterationsVarName String
+	 * @param unsortedGeneticAlterationsVarName String
+	 * @param forSummaryTab boolean
+	 * @param cancerTypeID String
+	 *
+	 * @return String
+	 */
+	static String writeHTMLControls(String oncoprintSectionVarName,
+									String oncoprintReferenceVarName,
+									String longestLabelVarName,
+									String headerVariablesVarName,
+									String oncoprintUnsortSamplesCheckboxName,
+									String oncoprintUnsortSamplesLabelName,
+									String oncoprintScalingSliderName,
+									String oncoprintFormControlsIndicatorName,
+									String oncoprintCustomizeIndicatorName,
+									String oncoprintAccordionTitleName,
+									String oncoprintRemovePaddingCheckboxName,
+									String oncoprintRemovePaddingLabelName,
+									String sortedGeneticAlterationsVarName,
+									String unsortedGeneticAlterationsVarName,
+									boolean forSummaryTab,
+									String cancerTypeID) {
 
-                out.append("<td class='op_data_cell'>"
+		String formID = "oncoprintForm";
+		StringBuilder builder = new StringBuilder();
 
-                        + IMG(iconFileName.toString(), width, height, event.caseCaseId())
+		// form start
+		builder.append("<form id=\"" + formID + "\" action=\"oncoprint_converter.svg\" method=\"POST\"" +
+					   "onsubmit=\"this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName +
+					   "); return true;\"" + " target=\"_blank\">\n");
+		// add some hidden elements
+		builder.append("<input type=hidden name=\"xml\">\n");
+		builder.append("<input type=hidden name=\"longest_label_length\">\n");
+		builder.append("<input type=hidden name=\"format\" value=\"svg\">\n");
 
-                        // temporary tooltip = event.toString()+"\n"+event.caseCaseId()
-                        //+ IMG(iconFileName.toString(), width, height, event.toString()+"&lt;br/&gt;"+event.caseCaseId())
-                        + "</td>\n");
+		// export SVG button
+		builder.append("<P>Get OncoPrint:&nbsp;&nbsp&nbsp;<input type=\"submit\" value=\"SVG\">\n");
 
-            }
+		// form end
+		builder.append("</form>\n");
 
-            // TODO: learn how to fix: maybe Caitlin knows
-            // ugly hack to make table wide enough to fit legend
-            for (int c = numColumnsToShow; c < columnWidthOfLegend; c++) {
-                out.append("<td></td>\n");
-            }
+		// customize controls
+		builder.append("<div id=\"accordion\">\n");
+		builder.append("<div class='oncoprint_accordion_panel'>\n");
+		builder.append("<h1 class='head' id=\"customize_oncoprint_" + cancerTypeID + "\">\n");
+		//  output triangle icons - the float:left style is required;  otherwise icons appear on their own line.
+		builder.append("<span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span>\n");
+		builder.append("<span class='ui-icon ui-icon-triangle-1-s' style='float:left;display:none;'></span>\n");
+		builder.append("<span class='oncoprint_customize_help' id=\"" + oncoprintAccordionTitleName + "\" title=\"" + CUSTOMIZE_ONCOPRINT_TOOLTIP + "\">Customize OncoPrint</span>\n");
+        builder.append("</h1>\n");
+		builder.append("<div class='oncoprint_accordion_content' id=\"oncoprint_accordion_content_" + cancerTypeID + "\">\n");
+		// accordion content here
+		builder.append("<table>\n");
+		builder.append("<tr>\n");
+		// show altered checkbox
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
+					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
+					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
+					   "var removeText = '" +  REMOVE_UNALTERED_CASES_INDICATOR + "'; " +
+					   "var addText = '" + ADD_UNALTERED_CASES_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
+					   headerVariablesVarName + ", true); " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "} else { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "} " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "}, timerDelay); " +
+					   "return true;\">\n");
+		// show altered checkbox label
+		builder.append("<span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
+		builder.append("</td>\n");
+		// spacer
+		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
+		// sort/unsort altered checkbox
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
+					   "onClick=\"" +
+					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
+					   "var unsortText = '" +  UNSORT_SAMPLES_INDICATOR + "'; " +
+					   "var sortText = '" + SORT_SAMPLES_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "if (this.checked) { " +
+					   "$spinner.text(unsortText); timerDelay = 100; " +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "}, timerDelay); " +
+					   "} else { " +
+					   "$spinner.text(sortText); timerDelay = 100;" +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "}, timerDelay); " +
+					   "} " +
+					   "return true;\">\n");
+		// sort/unsort checkbox label
+		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
+		builder.append("</td>\n");
+		builder.append("</tr>\n");
+		builder.append("</table>\n");
+		// indicator
+		builder.append("<span class='oncoprint_indicator' id=\"" + oncoprintFormControlsIndicatorName + "\"></span>\n");
+		builder.append("<table class='soria'>\n");
+		builder.append("<tr>\n");
+		// scaling slider
+		builder.append("<td>OncoPrint Width:&nbsp;&nbsp;</td>\n");
+		builder.append("<td><div id=\"" + oncoprintScalingSliderName + "\"></div></td>\n");
+		// spacer
+		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
+		// remove padding checkbox
+		builder.append("<td>\n");
+		builder.append("<input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
+					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
+					   "var $spinner = $('#" + oncoprintCustomizeIndicatorName + "'); " + 
+					   "var addText = '" +  ADD_PADDING_ONCOPRINT_INDICATOR + "'; " +
+					   "var removeText = '" + REMOVE_PADDING_ONCOPRINT_INDICATOR + "'; " +
+					   "var timerDelay = 0;" +
+					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
+					   "ScalarIndicator($spinner, true); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "}, timerDelay); " +
+					   "} else { " +
+					   "setTimeout(function() { " +
+					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
+					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   "ScalarIndicator($spinner, false); " +
+					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
+					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
+					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
+					   "}, timerDelay); " +
+					   "}" +
+					   "return true;\">\n");
+		// remove padding label & help tooltip
+		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Whitespace</span>\n");
+		builder.append("&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'>\n");
+		builder.append("</td>\n");
+		builder.append("</tr>\n");
+		builder.append("</table>\n");
+		// indicator
+		builder.append("<span class='oncoprint_indicator' id=\"" + oncoprintCustomizeIndicatorName + "\"></span>\n");
+		// end content
+		builder.append("</div>\n");
+		builder.append("</div>\n");
+		builder.append("</div>\n");
 
-        }
-        out.append ("\n");
+		// outta here
+		return builder.toString();
+	}
 
-        // write table with legend
-        out.append("</tr>");
-        if (includeLegend) {
-            out.append("<tr>");
-            writeLegend(out, theOncoPrintSpecification.getUnionOfPossibleLevels(), 2,
-                    columnWidthOfLegend, width, height, cellspacing, cellpadding, width, 0.75f);
+	/**
+	 * Creates javascript var for given var name/value.
+	 *
+	 * @param varName String
+	 * @param varValue Sting
+	 *
+	 * @return String
+	 */
+	static String writeJavascriptConstVariable(String varName, String varValue) {
 
-            out.append("</table>");
-            out.append("</div>");
-        }
-    }
+		StringBuilder builder = new StringBuilder("\tvar " + varName + " = (function() {\n");
 
-    // pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
+		builder.append("\t\tvar private = {\n");
+		builder.append("\t\t\t'" + varName + "' : \"" + varValue + "\"\n");
+		builder.append("\t\t};\n");
+		builder.append("\t\treturn {\n");
+		builder.append("\t\t\tget : function(name) { return private[name]; }\n");
+		builder.append("\t\t};\n");
+		builder.append("\t})();\n");
+
+		// outta here
+		return builder.toString();
+	}
+
+    /**
+	 * pluralize a count + name; dumb, because doesn't consider adding 'es' to pluralize
+	 *
+	 * @param num  The count.
+	 * @param s The string to pluralize.
+	 *
+	 * @return String
+	 */
     static String pluralize(int num, String s) {
         if (num == 1) {
             return new String(num + s);
@@ -378,7 +860,8 @@ public class MakeOncoPrint {
     }
 
     /**
-     * format percentage
+     * Format percentage.
+	 *
      * <p/>
      * if value == 0 return "--"
      * case value
@@ -386,8 +869,9 @@ public class MakeOncoPrint {
      * 0<value<=0.01: return "<1%"
      * 1<value: return "<value>%"
      *
-     * @param value
-     * @return
+     * @param value double
+	 *
+     * @return String
      */
     static String alterationValueToString(double value) {
 
@@ -402,186 +886,161 @@ public class MakeOncoPrint {
         return f.out().toString() + "%";
     }
 
-    // directory containing images
-    static String imageDirectory = "images/oncoPrint/";
+	/**
+	 * Gets the legend footnote (if any).
+	 *
+	 * @param allPossibleAlterations OncoPrintGeneDisplaySpec
+	 *
+	 * @return String
+	 */
+	static String getLegendFootnote(OncoPrintGeneDisplaySpec allPossibleAlterations) {
 
-    static String IMG(String theImage, int width, int height) {
-        return IMG(theImage, width, height, null);
-    }
+        return (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) ?
+			COPY_NUMBER_ALTERATION_FOOTNOTE  : "";
+	}
 
-    static String IMG(String theImage, int width, int height, String toolTip) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<img src='" + imageDirectory + theImage +
-                "' alt='" + theImage + // TODO: FOR PRODUCTION; real ALT, should be description of genetic alteration
-                "' width='" + width + "' height='" + height+"'");
-        if (null != toolTip) {
-            sb.append(" class=\"oncoprint_help\" title=\"" + toolTip + "\"");
-        }
-        return sb.append("/>").toString();
-    }
+	/**
+	 * Constructs the OncoPrint case set description.
+	 *
+     * @param caseSetId String
+	 * @param caseSets List<CaseList>
+	 *
+	 * @return String
+	 */
+	static String getCaseSetDescription(String caseSetId, List<CaseList> caseSets) {
 
-    /**
-     * write legend for HTML OncoPrint
-     *
-     * @param out         writer for the output
-     * @param width       width of an icon
-     * @param height      height of an icon
-     * @param cellspacing TABLE attribute
-     * @param cellpadding TABLE attribute
-     * @param horizontalSpaceAfterDescription
-     *                    blank space, in pixels, after each description
-     */
-    public static void writeLegend(StringBuffer out, OncoPrintGeneDisplaySpec allPossibleAlterations,
-            int colsIndented, int colspan, int width, int height,
-            int cellspacing, int cellpadding,
-            int horizontalSpaceAfterDescription, float gap) {
+		String toReturn = new String();
+		StringBuilder builder = new StringBuilder();
+		for (CaseList caseSet : caseSets) {
+			if (caseSetId.equals(caseSet.getStableId())) {
+				builder.append(CASE_SET_DESCRIPTION_LABEL + caseSet.getName() +
+							   ": " + caseSet.getDescription());
+			}
+		}
+		// insert newlines as needed
+		int descriptionLength = 0;
+		String[] tokens = builder.toString().split(" ");
+		FontMetrics fontMetrics = getFontMetrics();
+		for (int lc = 0; lc < tokens.length; lc++) {
+			int newLength = fontMetrics.stringWidth(tokens[lc]);
+			// we do not have enough space to add token to this line, append newline, reset accumulator
+			if ((descriptionLength + newLength) > HEADER_CANVAS_WIDTH_PIXELS) {
+				if (toReturn.endsWith(" ")) {
+					toReturn = toReturn.trim();
+				}
+				toReturn += "\\n" + tokens[lc] + " ";
+				descriptionLength = fontMetrics.stringWidth(tokens[lc] + " " + CASE_SET_DESCRIPTION_LABEL);
+			}
+			else {
+				// this token fits on line, add it to return string, add length to accumulator
+				toReturn += tokens[lc];
+				descriptionLength += newLength;
+				// if this is not the last token in description, append space
+				if (lc <= tokens.length-1) {
+					newLength = fontMetrics.stringWidth(" ");
+					// if we can't fit space, append newline, reset accumulator
+					if ((descriptionLength + newLength) > HEADER_CANVAS_WIDTH_PIXELS) {
+						toReturn += "\\n";
+						descriptionLength = fontMetrics.stringWidth(CASE_SET_DESCRIPTION_LABEL);
+					}
+					// we can fit space on this line, add it to return string, add length to accumulator
+					else {
+						toReturn += " ";
+						descriptionLength += newLength;
+					}
+				}
+			}
+		}
 
-        int rowHeight = (int) ((1.0 + gap) * height);
+		// we need to replace " in string with \" otherwise javascript will puke
+		return (toReturn.indexOf("\"") != -1) ? toReturn.replace("\"", "\\\"") : toReturn;
+	}
 
-        // indent in enclosing table
-        // for horiz alignment, skip colsIndented columns
-        for (int i = 0; i < colsIndented; i++) {
-            out.append("<td></td>");
-        }
+	/**
+	 * Computes the longest (in pixels) gene, % altered string pairing.
+	 *
+	 * @param matrix[][] GeneticEvent
+	 * @param dataSummary ProfileDataSummary
+	 *
+	 * @return String
+	 */
+	private static String getLongestLabel(GeneticEvent matrix[][], ProfileDataSummary dataSummary) {
 
-        // TODO: FIX; LOOKS BAD WHEN colspan ( == number of columns == cases) is small
-        out.append("<td colspan='" + colspan + "'>");
+		int maxWidth = 0;
+		String longestLabel = null;
+		FontMetrics fontMetrics = getFontMetrics();
+        for (int lc = 0; lc < matrix.length; lc++) {
+            GeneticEvent rowEvent = matrix[lc][0];
+			String gene = rowEvent.getGene().toUpperCase();
+			String alterationValue =
+				alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+			String label = gene + alterationValue;
+			int width = fontMetrics.stringWidth(label);
+			if (width > maxWidth) {
+				maxWidth = width;
+				longestLabel = label;
+			}
+		}
+		
+		// outta here
+		return longestLabel;
+	}
 
-        // output table header
-        out.append(
-                "\n<table cellspacing='" + cellspacing +
-                        "' cellpadding='" + cellpadding + "'>" +
-                        "\n<tbody>");
+	/**
+	 * Determines if alteration is unaltered across gene set.
+	 *
+	 * @param column int (index into case list)
+	 * @param matrix[][] GeneticEvent
+	 *
+	 * @return boolean
+	 */
+	private static boolean isSampleUnaltered(int column, GeneticEvent matrix[][]) {
 
-        out.append("\n<tr>");
+		boolean toReturn = true;
 
-        /*
-        * TODO: make this data driven; use enumerations
-        */
-        // { "amplified-notShown-normal", "Amplification" }
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.Amplified)) {
-            outputLegendEntry(out, "amplified-notShown-normal", "Amplification",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-        // { "homoDeleted-notShown-normal", "Homozygous Deletion" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.HomozygouslyDeleted)) {
-            outputLegendEntry(out, "homoDeleted-notShown-normal", "Homozygous Deletion",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-        // { "Gained-notShown-normal", "Gain" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.Gained)) {
-            outputLegendEntry(out, "Gained-notShown-normal", "Gain",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
+		for (int i = 0; i < matrix.length; i++) {
+			GeneticEvent event = matrix[i][column];
+			if (!getGeneticEventAsString(event).equals(UNALTERED_CASE)) {
+				return false;
+			}
+		}
 
-        // { "HemizygouslyDeleted-notShown-normal", "Hemizygous Deletion" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration,
-                GeneticTypeLevel.HemizygouslyDeleted)) {
-            outputLegendEntry(out, "HemizygouslyDeleted-notShown-normal", "Hemizygous Deletion",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-upRegulated-normal", "Up-regulation" },
-        ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations
-                .getResultDataTypeSpec(GeneticDataTypes.Expression);
-        if (null != theResultDataTypeSpec &&
-                (null != theResultDataTypeSpec.getCombinedGreaterContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-upRegulated-normal", "Up-regulation", rowHeight,
-                    width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-downRegulated-normal", "Down-regulation" },
-        theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec
-                (GeneticDataTypes.Expression);
-        if (null != theResultDataTypeSpec &&
-                (null != theResultDataTypeSpec.getCombinedLesserContinuousDataTypeSpec())) {
-            outputLegendEntry(out, "diploid-downRegulated-normal", "Down-regulation",
-                    rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        // { "diploid-notShown-mutated", "Mutation" },
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
-            outputLegendEntry(out, "diploid-notShown-mutated", "Mutation", rowHeight, width, height,
-                    horizontalSpaceAfterDescription);
-        }
-
-        out.append("</tr>\n");
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration)) {
-            out.append("<tr>\n");
-            out.append("<td colspan='" + colspan / 4
-                    + "' style=\"vertical-align:bottom\" >"
-                    + "<div class=\"tiny\"> Copy number alterations are putative.<br/></div></td>\n");
-            out.append("</tr>");
-        }
-        out.append("</tbody></table></td></tr>");
-    }
-
-    private static void outputLegendEntry(StringBuffer out, String imageName,
-            String imageDescription, int rowHeight, int width, int height,
-            int horizontalSpaceAfterDescription) {
-        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
-                + IMG(imageName + ".png", width, height));
-        out.append("</td>\n");
-        out.append("<td height='" + rowHeight + "' style=\"vertical-align:bottom\" >"
-                + imageDescription);
-
-        // add some room after description
-        out.append("</td>\n");
-        out.append("<td width='" + horizontalSpaceAfterDescription + "'></td>\n");
-
-    }
+		// outta here
+		return toReturn;
+	}
 
     /**
-     * Gets the Correct Copy Number color for OncoPrint.
-     */
-    private static String getCopyNumberStyle(GeneticEvent event) {
+	 * Returns genetic event as string.
+	 *
+	 * @param event GeneticEvent
+	 *
+	 * @return String
+	 */
+	private static String getGeneticEventAsString(GeneticEvent event) {
 
-        switch (event.getCnaValue()) {
-            case amplified:
-                return "red";
-            case Gained:
-                return "lightpink";
-            case HemizygouslyDeleted:
-                return "lightblue";
-            case homoDeleted:
-                return "blue";
-            case diploid:
-            case None:
-                return "lightgray";
-        }
-        // TODO: throw exception
-        return "shouldNotBeReached"; // never reached
-    }
+		String cnaName = "CNA_" + event.getCnaValue().name().toUpperCase();
+		String mrnaName = "MRNA_" + event.getMrnaValue().name().toUpperCase();
+		String rppaName = "RPPA_" + event.getRPPAValue().name().toUpperCase();
+		String mutationName = (event.isMutated()) ? "MUTATED" : "NORMAL";
 
-    /**
-     * Gets the Correct mRNA color.
-     * Displayed in the rectangle boundary.
-     */
-    private static String getMRNAStyle(GeneticEvent event) {
+		// outta here
+		return (cnaName + " | " + mrnaName + " | " + mutationName + " | " + rppaName);
+	}
 
-        switch (event.getMrnaValue()) {
+	/*
+	 * Utility class to get a font metrics reference.
+	 *
+	 * return FontMetrics
+	 */
+	private static FontMetrics getFontMetrics() {
 
-            case upRegulated:
-                // if the mRNA is UpRegulated, then pink boundary;
-                // see colors at http://www.december.com/html/spec/colorsafecodes.html
-                return "#FF9999";
-            case notShown:
-                // white is the default, not showing mRNA expression level
-                return "white";
-            case downRegulated:
-                // downregulated, then blue boundary
-                return "#6699CC";
-        }
-        // TODO: throw exception
-        return "shouldNotBeReached"; // never reached
-    }
+		// this font/size corresponds to .oncoprint td specified in global_portal.css
+		BufferedImage image = new BufferedImage(HEADER_CANVAS_WIDTH_PIXELS,
+												HEADER_CANVAS_WIDTH_PIXELS,
+												BufferedImage.TYPE_INT_RGB);
+		Font portalFont = new Font("verdana", Font.PLAIN, 12);
+
+		// outta here
+		return image.getGraphics().getFontMetrics(portalFont);
+	}
 }

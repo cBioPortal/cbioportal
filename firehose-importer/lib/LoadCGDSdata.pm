@@ -162,7 +162,7 @@ sub load_cancer_data{
 	  my $fullCanonicalClinicalDataFile = File::Spec->catfile( @pathToDataFile, $clinicalDataFile );
 	  if ( $fileUtil->existent($fullCanonicalClinicalDataFile) ) {
 		print "importingClinicalData: $fullCanonicalClinicalDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportClinicalData " . $fullCanonicalClinicalDataFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportClinicalData " . $cancerDataDir . ' ' . $fullCanonicalClinicalDataFile ); 
 	  }
 	        
 	  # import a cancer's data

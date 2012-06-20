@@ -24,6 +24,10 @@ public class ImportGisticData {
                     "where gisticFile.txt is of the form <amp_genes.conf_99.txt> or <del_genes.conf_99.txt>");
             System.exit(1);
         }
+
+        // parse table from filename
+
+        // parse amp/del from filename
         
         boolean ampDel = false;
 
@@ -41,7 +45,7 @@ public class ImportGisticData {
         pMonitor.setMaxValue(numLines);
 
         int internalId = GisticReader.getCancerStudyInternalId(cancerStudyMetaData);
-        GisticReader.loadGistic(internalId, ampDel, gisticFile, pMonitor);
+//        GisticReader.loadGistic(internalId, ampDel, gisticFile, pMonitor);
 
         ConsoleUtil.showWarnings(pMonitor);
     }

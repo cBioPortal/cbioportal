@@ -51,6 +51,22 @@ public class Gistic {
     }
 
     /**
+     * Dummy gistic for passing between different methods that can only
+     * set disjoint sets of fields (see GisticReader.java)
+     */
+    public Gistic() {
+        this.gisticID = NO_SUCH_GISTIC;
+        this.cancerStudyId = -1;
+        this.chromosome = -1;
+        this.peakStart = -1;
+        this.peakEnd = -1;
+        this.qValue = null;
+        this.res_qValue = null;
+        this.genes_in_ROI = null;
+        this.ampDel = false;
+    }
+
+    /**
      * Calculates the size of the ROI
      * @return size of the peak in ROI
      */

@@ -6,12 +6,12 @@
     </ul>
     <div id="genes_tab">
 	    <div class="header">
-		  <span class="title"><label >Drugs</label></span><br><br>
+		  <span class="title"><label >Drugs Of Specified Genes</label></span><br><br>
 	      <div class="combo">
 			<select id="drop_down_select">
-			  <option value="SHOW_ALL">Show All Drugs</option>
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
 			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
+			  <option value="SHOW_ALL">Show All Drugs</option>
 			</select>
 		  </div>
 		    <span class="title"><label>Genes</label></span><br><br>

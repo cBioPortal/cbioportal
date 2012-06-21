@@ -174,23 +174,19 @@ function send2cytoscapeweb(graphml, div_id)
     		return "#FFFFFF";
     };
 
-//    var forceDirectedLayout = 
-//    {
-// 	   name: "ForceDirected",
-// 	   options:
-// 	   {
-//		   weightAttr: "weight"
-// 	   }
-//    };
     
     vis.ready(function() {
         // init UI of the network tab
         initNetworkUI(vis);
-
+   
+        //to hide drugs initially
+        _changeListener();
+	     
 	    // set the style programmatically
 	    document.getElementById("color").onclick = function(){
 	        vis.visualStyle(visual_style);
 	    };
+	    
 	});
 
     var draw_options = {
@@ -199,7 +195,6 @@ function send2cytoscapeweb(graphml, div_id)
         edgeLabelsVisible: false,
         edgesMerged: true,
         layout: "ForceDirected",
-//        layout: forceDirectedLayout,
         visualStyle: visual_style,
         panZoomControlVisible: true
     };

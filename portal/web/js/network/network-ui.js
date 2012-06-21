@@ -414,20 +414,22 @@ function _updateNodeInspectorForDrug(data, node)
 	
 	
 	// For Pub Med IDs	
-	if(data["INTERACTION_PUBMED_ID"] != null){
-		$("#node_inspector_content .data").append(
-				'<tr align="left" class="pubmed-data-row"><td>' +
-				'<strong>PubMed IDs:</strong></td></tr>');
-		
-		var pubmeds = new Array();			
-		var edges = _vis.edges();
-		
-		for ( var i = 0; i < edges.length; i++) 
+	
+	var pubmeds = new Array();			
+	var edges = _vis.edges();
+	var existed = false;
+	
+	for ( var i = 0; i < edges.length; i++) 
+	{
+		if (edges[i].data.source == node.data.id && edges[i].data["INTERACTION_PUBMED_ID"] != "") 
 		{
-			if (edges[i].data.source == node.data.id) 
-			{
-				$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+			if(existed == false){
+				$("#node_inspector_content .data").append(
+						'<tr align="left" class="pubmed-data-row"><td>' +
+						'<strong>PubMed IDs:'+edges[i].data["INTERACTION_PUBMED_ID"]+'</strong></td></tr>');
+				existed = true;
 			}
+			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
 		}
 	}
 }
@@ -2208,6 +2210,7 @@ function _initDropDown()
 	$("#drop_down_select").change(function(){
 			_changeListener();
 			});
+	//_changeListener();
 }
 
 
@@ -2344,7 +2347,7 @@ function _weightSliderStop(event, ui)
 	_filterBySlider();
 }
 /**
-*
+*Filters drugs by the drop down menu.
 */
 function _filterByDropDown()
 {

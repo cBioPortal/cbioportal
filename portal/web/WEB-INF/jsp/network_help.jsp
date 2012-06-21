@@ -18,6 +18,13 @@
 </p>
 
 <p class="heading">
+	Source of Drug Data
+<p>
+<p class="regular">
+	Drug data is derived from <a href="http://www.drugbank.ca" target="_blank">DrugBank Database</a>.
+</p>
+
+<p class="heading">
 	Seed Nodes vs. Linker Nodes
 </p>
 <p class="regular">

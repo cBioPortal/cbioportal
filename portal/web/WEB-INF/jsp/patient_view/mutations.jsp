@@ -69,7 +69,7 @@
                     },
                     {// mutsig
                         "sType": "mutsig-col",
-                        "bVisible": true,
+                        "bVisible": false,
                         "aTargets": [ 7 ]
                     },
                     {// mutsig

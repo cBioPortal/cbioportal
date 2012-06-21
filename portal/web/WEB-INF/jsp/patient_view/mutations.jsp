@@ -52,7 +52,7 @@
     };
     
     var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
-    function buildDataTable(aDataSet, table_id, sDom, iDisplayLength) {
+    function buildMutationsDataTable(aDataSet, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
@@ -108,7 +108,7 @@
                     return;
                 
                 // summary table
-                var mut_sumary = buildDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
+                var mut_sumary = buildMutationsDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-summary-table-name').html('Mutations of Interest');
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show more mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
@@ -120,9 +120,11 @@
                 $('#mutation_summary_wait').remove();
                 
                 // mutations
-                buildDataTable(aDataSet, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', -1);
+                buildMutationsDataTable(aDataSet, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
+                
+                $('#similar_patients_table').trigger('mutations-built');
             }
             ,"json"
         );

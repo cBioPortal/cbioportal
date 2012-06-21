@@ -31,7 +31,7 @@ if (isDemoMode!=null) {
 
 boolean showCNA = showPlaceHoder;
 boolean showPathways = showPlaceHoder;
-boolean showSimilarPatient = showPlaceHoder;
+boolean showSimilarPatient = showMutations;
 
 int numPatientInSameStudy;
 
@@ -57,11 +57,11 @@ if (patientViewError!=null) {
     <%}%>
 
     <%if(showPathways){%>
-    <li><a href='#pathways' class='patient-tab' title='Pathway View'>Pathways (under construction)</a></li>
+    <li><a href='#pathways' class='patient-tab' title='Pathway View'>Pathways</a></li>
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients (under construction)</a></li>
+    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients</a></li>
     <%}%>
     
     </ul>

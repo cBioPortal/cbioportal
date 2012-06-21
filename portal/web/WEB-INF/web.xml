@@ -131,6 +131,11 @@
     	<servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.MutationsJSON</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>SimilarPatientsJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.SimilarPatientsJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>oma_redirect</servlet-name>
@@ -285,6 +290,11 @@
     <servlet-mapping>
     	<servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>SimilarPatientsJSON</servlet-name>
+        <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
     
     <welcome-file-list>

@@ -168,7 +168,12 @@
     <servlet>
     	<servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.MutationsJSON</servlet-class>
-    </servlet>   
+    </servlet>  
+    
+    <servlet>
+    	<servlet-name>SimilarPatientsJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.SimilarPatientsJSON</servlet-class>
+    </servlet> 
 
     <servlet>
         <servlet-name>mutation_diagram_data_json</servlet-name>
@@ -293,6 +298,11 @@
     <servlet-mapping>
     	<servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>SimilarPatientsJSON</servlet-name>
+        <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>

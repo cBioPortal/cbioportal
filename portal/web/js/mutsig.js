@@ -107,7 +107,7 @@ var studySelected = function() {
                             { "bSortable" : true, "sType" : "scientific" },
                             { "bSortable" : false }
                         ],
-                        "aaSorting": [ [2,'asc'] ],
+                        "bSort": false,     // disable autosorting
                         "bPaginate": false,
                         "bFilter": false,
                         "iDisplayLength": 5,

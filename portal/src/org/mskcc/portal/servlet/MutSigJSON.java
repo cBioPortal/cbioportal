@@ -58,6 +58,8 @@ public class MutSigJSON extends HttpServlet {
     private class sortMutsigByRank implements Comparator<MutSig> {
         public int compare(MutSig mutSig1, MutSig mutSig2) {
 
+            // Collections.sort is in ascending order and
+            // we want the smallest q-value at the top
             return mutSig1.getRank() - mutSig2.getRank();
         }
     }

@@ -18,7 +18,7 @@ public class TestMutSigJSON extends TestCase {
 
         // test one of the values of the map.  probably a waste of time
         MutSig mutsig = new MutSig(1, canonicalGene, 1, 502500, 20, "<1E-11", "1E-8");
-        assertTrue(!MutSigJSON.MutSigtoMap((mutsig)).isEmpty());
+        assertTrue(!MutSigJSON.MutSigtoMap(mutsig).isEmpty());
         assertTrue(MutSigJSON.MutSigtoMap(mutsig).get("qval").equals("1E-8"));
 
         // should now reject because qval is too large

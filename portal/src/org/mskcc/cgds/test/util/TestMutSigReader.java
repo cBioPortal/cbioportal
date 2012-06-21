@@ -59,6 +59,5 @@ public class TestMutSigReader extends TestCase {
         assertEquals(mutSig.getNumBasesCovered(), 502500);
         assertTrue("<1E-11".equals(mutSig.getpValue()));
         assertTrue("<1E-8".equals(mutSig.getqValue()));
-
     }
 }

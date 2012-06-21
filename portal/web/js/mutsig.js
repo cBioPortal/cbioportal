@@ -131,7 +131,10 @@ var updateGeneList = function() {
     $('.MutSig :not(.checkall):checked').each(function(i) {
         genes.push((i !== 0 ? " " : "") + $(this).val());
     });
-    $('#gene_list').val((genes.toString()).replace(/,/g,''));
+
+    var gene_list_updated = $('#gene_list').text() + genes;
+    //$('#gene_list').val((genes.toString()).replace(/,/g,''));
+    $('#gene_list').text(gene_list_updated);
 };
 
 

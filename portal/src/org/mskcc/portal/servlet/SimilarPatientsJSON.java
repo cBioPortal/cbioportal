@@ -44,7 +44,7 @@ public class SimilarPatientsJSON extends HttpServlet {
         
         try {
             Map<String, List<ExtendedMutation>> similarMutations = getSimilarMutations(strMutations, patient);
-            export(table, similarMutations, patient);
+            export(table, similarMutations);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -84,13 +84,13 @@ public class SimilarPatientsJSON extends HttpServlet {
         return mapSampleMutations;
     }
     
-    private void export(JSONArray table, Map<String, List<ExtendedMutation>> similarMutations, String patient) 
+    private void export(JSONArray table, Map<String, List<ExtendedMutation>> similarMutations) 
             throws DaoException {
         
         for (Map.Entry<String, List<ExtendedMutation>> entry : similarMutations.entrySet()) {
             JSONArray row = new JSONArray();
             String simPatient = entry.getKey();
-            row.add(formatPatient(simPatient,patient));
+            row.add(simPatient);
             String cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
                     DaoCase.getCase(simPatient).getCancerStudyId()).getName();
             row.add(cancerStudy);
@@ -108,14 +108,6 @@ public class SimilarPatientsJSON extends HttpServlet {
         }
         sb.delete(sb.length()-2, sb.length());
         return sb.toString();
-    }
-    
-    private String formatPatient(String simPatient, String patient) {
-//        if (simPatient.equals(patient)) {
-//            return patient + " (self)";
-//        }
-        
-        return "<a href='patient.do?patient="+simPatient+"'>"+simPatient+"<a>";
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

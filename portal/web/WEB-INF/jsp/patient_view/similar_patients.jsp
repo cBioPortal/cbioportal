@@ -20,6 +20,14 @@ A genomic overview with events aligned across patients goes here...
                 "bDestroy": true,
                 "aaData": aDataSet,
                 "aoColumnDefs":[
+                    {// patient
+                        "aTargets": [ 0 ],
+                        "fnRender": function(obj) {
+                            var patientId = obj.aData[ obj.iDataColumn ];
+                            return "<a href='patient.do?patient="+patientId
+                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'>"+patientId+"<a>";;
+                        }
+                    },
                     {// # Shared Mutations
                         "bVisible": false,
                         "aTargets": [ 3 ]

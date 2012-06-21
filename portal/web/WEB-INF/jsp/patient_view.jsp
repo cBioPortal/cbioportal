@@ -43,6 +43,19 @@ if (patientViewError!=null) {
 } else {
     numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
 %>
+
+
+<table width="100%">
+    <tr>
+        <td><%=patientInfo%></td>
+        <td align="right"><%=diseaseInfo%></td>
+    </tr>
+    <tr>
+        <td ncol="2"><%=patientStatus%></td>
+    </tr>
+</table>
+
+
 <div id="patient-tabs">
     <ul>
         

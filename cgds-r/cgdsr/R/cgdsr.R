@@ -56,12 +56,9 @@ setMethodS3("getProfileData","CGDS", function(x, genes, geneticProfiles, caseLis
     "&id_type=", 'gene_symbol',
     sep="")
 
-  if (length(cases)>0) {
-    url = paste(url,"&case_list=", paste(cases,collapse=","),sep='')
-  } else {
-    url = paste(url,"&case_set_id=", caseList,sep='')
-    url = paste(url,"&case_ids_key=", caseIdsKey,sep='')
-  }
+  if (length(cases)>0) { url = paste(url,"&case_list=", paste(cases,collapse=","),sep='')
+  } else if (caseIdsKey != '') { url = paste(url,"&case_ids_key=", caseIdsKey,sep='')
+  } else { url = paste(url,"&case_set_id=", caseList,sep='') }
   
   df = processURL(x,url)
 
@@ -85,19 +82,16 @@ setMethodS3("getProfileData","CGDS", function(x, genes, geneticProfiles, caseLis
 setMethodS3("getClinicalData","CGDS", function(x, caseList='', cases=c(), caseIdsKey = '', ...) {
   url = paste(x$.url, "webservice.do?cmd=getClinicalData",sep="")
 
-  if (length(cases)>0) {
-    url = paste(url,"&case_list=", paste(cases,collapse=","),sep='')
-  } else {
-    url = paste(url,"&case_set_id=", caseList,sep='')
-    url = paste(url,"&case_ids_key=", caseIdsKey,sep='')
-  }
+  if (length(cases)>0) { url = paste(url,"&case_list=", paste(cases,collapse=","),sep='')
+  } else if (caseIdsKey != '') { url = paste(url,"&case_ids_key=", caseIdsKey,sep='')
+  } else { url = paste(url,"&case_set_id=", caseList,sep='') }
   
   df = processURL(x,url)
   rownames(df) = make.names(df$case_id)
   return(df[,-1])
 })
 
-setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, caseList='', cases=c(), skin='cont', skin.normals='', skin.col.gp = c(), add.corr = '', legend.pos = 'topright', ...) {
+setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, caseList='', cases=c(),  caseIdsKey = '', skin='cont', skin.normals='', skin.col.gp = c(), add.corr = '', legend.pos = 'topright', ...) {
 
   errormsg <- function(msg,error=TRUE) {
     # return empty plot with text
@@ -123,7 +117,7 @@ setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, case
   genesR = make.names(genes)
   
   # get data, check more than zero rows returned, otherwise return
-  df = getProfileData(x, genes, geneticProfiles, caseList, cases)
+  df = getProfileData(x, genes, geneticProfiles, caseList, cases, caseIdsKey)
   if (nrow(df) == 0) { return(errormsg(paste('empty data frame returned :\n',colnames(df)[1]))) }
 
   # check data returned with more than two genes or genetic profiles
@@ -262,7 +256,7 @@ setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, case
 
     # fetch mutation data for color coding    
     if (length(skin.col.gp == 1)) {
-      df.mut = getProfileData(x, genes, skin.col.gp, caseList, cases)
+      df.mut = getProfileData(x, genes, skin.col.gp, caseList, cases, caseIdsKey)
       if (nrow(df.mut) == 0) { return(errormsg(paste('empty data frame returned :\n',colnames(df.mut)[1]))) }
       # get matrix corresponding to df.nona
       df.mut = df.mut[rownames(df.nona),1]
@@ -311,7 +305,7 @@ setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, case
     col=rep("black",nrow(df))
     
     if (length(skin.col.gp) == 2) { # color by both CNA and mutation
-        df.col = getProfileData(x, genes, skin.col.gp, caseList, cases)
+        df.col = getProfileData(x, genes, skin.col.gp, caseList, cases, caseIdsKey)
       if (nrow(df.col) == 0) { return(errormsg(paste('empty data frame returned :\n',colnames(df.col)[1]))) }
       # because mut is text vector, we need to transform cna to integer vector instead of factor
       cna = as.integer(as.vector(df.col[,skin.col.gp[1]]))
@@ -324,7 +318,7 @@ setMethodS3("plot","CGDS", function(x, cancerStudy, genes, geneticProfiles, case
       pch[mut!="NaN"]=20
     }
     else if (length(skin.col.gp) == 1) { # color only by CNA
-      df.col = getProfileData(x, genes, skin.col.gp, caseList, cases)
+      df.col = getProfileData(x, genes, skin.col.gp, caseList, cases, caseIdsKey)
       if (nrow(df.col) == 0) { return(errormsg(paste('empty data frame returned :\n',colnames(df.col)[1]))) }
       # because mut is text vector, we need to transform cna to integer vector instead of factor
       cna = as.integer(as.vector(df.col[,1]))

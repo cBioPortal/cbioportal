@@ -17,9 +17,10 @@ String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
 String diseaseInfo = (String)request.getAttribute(PatientView.DISEASE_INFO);
 String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
+
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
-int numPatientInSameStudy;
+
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -27,6 +28,12 @@ if (isDemoMode!=null) {
 } else {
     showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 }
+
+boolean showCNA = showPlaceHoder;
+boolean showPathways = showPlaceHoder;
+boolean showSimilarPatient = showPlaceHoder;
+
+int numPatientInSameStudy;
 
 if (patientViewError!=null) {
     out.print(patient);
@@ -45,9 +52,15 @@ if (patientViewError!=null) {
     <li><a href='#mutations' class='patient-tab' title='Mutations'>Mutations</a></li>
     <%}%>
     
-    <%if(showPlaceHoder){%>
+    <%if(showCNA){%>
     <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alteration</a></li>
+    <%}%>
+
+    <%if(showPathways){%>
     <li><a href='#pathways' class='patient-tab' title='Pathway View'>Pathways (under construction)</a></li>
+    <%}%>
+    
+    <%if(showSimilarPatient){%>
     <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients (under construction)</a></li>
     <%}%>
     
@@ -63,15 +76,19 @@ if (patientViewError!=null) {
     </div>
     <%}%>
 
-    <%if(showPlaceHoder){%>
+    <%if(showCNA){%>
     <div class="patient-section" id="cna">
         <%@ include file="patient_view/cna.jsp" %>
     </div>
+    <%}%>
 
+    <%if(showPathways){%>
     <div class="patient-section" id="pathways">
         <%@ include file="patient_view/pathways.jsp" %>
     </div>
+    <%}%>
 
+    <%if(showSimilarPatient){%>
     <div class="patient-section" id="similar-patients">
         <%@ include file="patient_view/similar_patients.jsp" %>
     </div>

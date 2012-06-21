@@ -258,7 +258,6 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
-            edge.addAttribute("WEIGHT", 1.0);
             net.addEdge(edge, geneAID, geneBID);
         }
 
@@ -290,7 +289,6 @@ public final class NetworkIO {
                 edge.addAttribute("EXPERIMENTAL_TYPE", exp);
             }
 
-            edge.addAttribute("WEIGHT", 0.4);
             net.addEdge(edge, drugID, geneID);
         }
         

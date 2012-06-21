@@ -32,6 +32,25 @@
 </style>
 
 <script type="text/javascript">
+    
+    jQuery.fn.dataTableExt.oSort['mutsig-col-asc']  = function(x,y) {
+        if (x==null) {
+            return y==null ? 0 : 1;
+        }
+        if (y==null)
+            return -1;
+	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+    };
+
+    jQuery.fn.dataTableExt.oSort['mutsig-col-desc'] = function(x,y) {
+        if (isNaN(x)) {
+            return y==null ? 0 : 1;
+        }
+        if (y==null)
+            return -1;
+	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+    };
+    
     var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
     function buildDataTable(aDataSet, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
@@ -40,15 +59,25 @@
                 "bDestroy": true,
                 "aaData": aDataSet,
                 "aoColumnDefs":[
-                    {
+                    {// clinical trials
                         "bVisible": placeHolder,
                         "aTargets": [ 5 ]
                     },
-                    {
+                    {// note
                         "bVisible": placeHolder,
                         "aTargets": [ 6 ]
+                    },
+                    {// mutsig
+                        "sType": "mutsig-col",
+                        "bVisible": true,
+                        "aTargets": [ 7 ]
+                    },
+                    {// mutsig
+                        "bVisible": false,
+                        "aTargets": [ 8 ]
                     }
                 ],
+                "aaSorting": [[7,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -79,13 +108,14 @@
                     return;
                 
                 // summary table
-                buildDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
+                var mut_sumary = buildDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-summary-table-name').html('Mutations of Interest');
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show more mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');
                     return false;
                 });
+                mut_sumary.fnFilter('true', 8);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,10 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.Case;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.*;
 
 /**
  *
@@ -101,6 +99,19 @@ public class MutationsJSON extends HttpServlet {
         row.add("pending");
         // TODO: annotation
         row.add("pending");
+        
+        // mut sig
+        double mutSigQvalue;
+        try {
+            mutSigQvalue = getMutSigQValue(cancerStudy.getInternalId(), mutation.getGeneSymbol());
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        row.add(mutSigQvalue);
+        
+        // show in summary table
+        row.add(!Double.isNaN(mutSigQvalue));
+        
         table.add(row);
     }
     
@@ -143,7 +154,27 @@ public class MutationsJSON extends HttpServlet {
         return num;
     }
     
+    private static Map<Integer,Map<String,Double>> mutSigMap            // map from cancer study id
+            = mutSigMap = new HashMap<Integer,Map<String,Double>>();    // to map from gene to Q-value
     
+    private static double getMutSigQValue(int cancerStudyId, String gene) throws DaoException {
+        Map<String,Double> mapGeneQvalue;
+        synchronized(mutSigMap) {
+            mapGeneQvalue = mutSigMap.get(cancerStudyId);
+            if (mapGeneQvalue == null) {
+                mapGeneQvalue = new HashMap<String,Double>();
+                for (MutSig ms : DaoMutSig.getInstance().getAllMutSig(cancerStudyId)) {
+                    String qvalue = ms.getqValue();
+                    if (qvalue.startsWith("<")) {
+                        qvalue = qvalue.substring(1);
+                    }
+                    mapGeneQvalue.put(ms.getCanonicalGene().getHugoGeneSymbolAllCaps(), Double.valueOf(qvalue));
+                }
+            }
+        }
+        Double qvalue = mapGeneQvalue.get(gene);
+        return qvalue!=null ? qvalue : Double.NaN;
+    }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 

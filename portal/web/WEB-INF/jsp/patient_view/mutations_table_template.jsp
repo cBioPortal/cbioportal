@@ -12,5 +12,7 @@
                         </th>
                         <th>Clinical Trial</th>
                         <th>Notes</th>
+                        <th>MutSig</th>
+                        <th>Show in summary</th>
                     </tr>
                 </thead>

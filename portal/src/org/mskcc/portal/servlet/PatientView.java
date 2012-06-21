@@ -195,9 +195,12 @@ public class PatientView extends HttpServlet {
         Double dfsm = clinicalData.getDiseaseFreeSurvivalMonths();
         StringBuilder patientStatus = new StringBuilder();
         if (oss!=null) {
-            patientStatus.append(oss);
+            patientStatus.append("<font color='")
+                    .append(oss.equalsIgnoreCase("Living")||oss.equalsIgnoreCase("Alive") ? "green":"red")
+                    .append("'>")
+                    .append(oss)
+                    .append("</font>");
             if (osm!=null) {
-                
                 patientStatus.append(" (").append(osm.intValue()).append(" months)");
             }
         }
@@ -205,7 +208,12 @@ public class PatientView extends HttpServlet {
             if (patientStatus.length()!=0) {
                 patientStatus.append(", ");
             }
-            patientStatus.append(dfss);
+            
+            patientStatus.append("<font color='")
+                    .append(dfss.equalsIgnoreCase("DiseaseFree") ? "green":"red")
+                    .append("'>")
+                    .append(dfss)
+                    .append("</font>");
             if (dfsm!=null) {
                 patientStatus.append(" (").append(dfsm.intValue()).append(" months)");
             }

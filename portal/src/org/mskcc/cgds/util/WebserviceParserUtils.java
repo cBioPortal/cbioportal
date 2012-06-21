@@ -48,9 +48,7 @@ public final class WebserviceParserUtils {
                 caseList.add(_case);
             }
         } else {
-            throw new ProtocolException(WebService.CASE_SET_ID + ", " + 
-            		WebService.CASE_LIST + " or " + 
-            		WebService.CASE_IDS_KEY + " must be specified.");
+            throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
         }
         return caseList;
     }

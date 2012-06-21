@@ -20,7 +20,13 @@ CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_S
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
 int numPatientInSameStudy;
-boolean showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+String isDemoMode = request.getParameter("demo");
+boolean showPlaceHoder;
+if (isDemoMode!=null) {
+    showPlaceHoder = isDemoMode.equalsIgnoreCase("on");
+} else {
+    showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+}
 
 if (patientViewError!=null) {
     out.print(patient);

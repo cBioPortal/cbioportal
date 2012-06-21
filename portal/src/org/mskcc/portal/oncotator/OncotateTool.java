@@ -17,6 +17,7 @@ public class OncotateTool {
     private OncotatorService oncotatorService = OncotatorService.getInstance();
     private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
     private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
+    private final static long SLEEP_PERIOD = 5000;  // in ms
     
     public OncotateTool(File inputMafFile, File outputMafFile) throws IOException, DaoException {
         outputFileNames(inputMafFile, outputMafFile);
@@ -43,6 +44,12 @@ public class OncotateTool {
                 writeEmptyDataFields(writer);
             }
             writer.write("\n");
+            try {
+                //  Must go to sleep;  otherwise, we trigger the Broad's Limit.
+                Thread.sleep(SLEEP_PERIOD);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             dataLine = bufReader.readLine();
         }
         System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);

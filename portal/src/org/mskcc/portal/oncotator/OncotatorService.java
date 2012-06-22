@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -18,7 +19,8 @@ public class OncotatorService {
     private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
     private static final Logger logger = Logger.getLogger(OncotatorService.class);
     private DaoOncotatorCache cache;
-    
+    private final static long SLEEP_PERIOD = 5000;  // in ms
+
     private OncotatorService () {
         cache = DaoOncotatorCache.getInstance();
     }
@@ -34,16 +36,33 @@ public class OncotatorService {
         String observedAllele) throws IOException, DaoException {
         String key = createKey(chr, start, end, referenceAllele, observedAllele);
 
-        OncotatorRecord record = cache.get(key);
-        if (record == null) {
-            URL url = new URL(ONCOTATOR_BASE_URL + key);
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String content = WebFileConnect.readFile(in);
-            record = OncotatorParser.parseJSON(key, content);
-            cache.put(record);
-            return record;
-        } else {
-            return record;
+        BufferedReader in = null;
+        InputStream inputStream = null;
+        try {
+            OncotatorRecord record = cache.get(key);
+            if (record == null) {
+                try {
+                    //  Must go to sleep;  otherwise, we trigger the Broad's Limit.
+                    Thread.sleep(SLEEP_PERIOD);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                URL url = new URL(ONCOTATOR_BASE_URL + key);
+                inputStream = url.openStream();
+                in = new BufferedReader(new InputStreamReader(inputStream));
+                String content = WebFileConnect.readFile(in);
+                record = OncotatorParser.parseJSON(key, content);
+                cache.put(record);
+                return record;
+            } else {
+                return record;
+            }
+        } finally {
+            // Must close input stream!  Otherwise, we maintain too many open connections
+            // to the Broad.
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
     }
 

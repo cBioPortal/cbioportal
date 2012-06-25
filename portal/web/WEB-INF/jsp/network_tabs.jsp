@@ -6,7 +6,7 @@
     </ul>
     <div id="genes_tab">
 	    <div class="header">
-		  <span class="title"><label >Drugs Of Specified Genes</label></span><br><br>
+		  <span class="title"><label >Drugs of Specified Genes</label></span><br><br>
 	      <div class="combo">
 			<select id="drop_down_select">
 			  <option value="HIDE_DRUGS">Hide Drugs</option>

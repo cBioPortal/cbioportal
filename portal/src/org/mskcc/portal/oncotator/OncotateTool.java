@@ -52,6 +52,9 @@ public class OncotateTool {
                 System.out.println(coords + "\t" + (count-1));
             }
         }
+        
+        reader.close();
+        writer.close();
     }
 
     private void outputFileNames(File inputMafFile, File outputMafFile) {

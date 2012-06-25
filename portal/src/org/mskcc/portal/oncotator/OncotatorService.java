@@ -19,7 +19,7 @@ public class OncotatorService {
     private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
     private static final Logger logger = Logger.getLogger(OncotatorService.class);
     private DaoOncotatorCache cache;
-    private final static long SLEEP_PERIOD = 5000;  // in ms
+    private final static long SLEEP_PERIOD = 1000;  // in ms
 
     private OncotatorService () {
         cache = DaoOncotatorCache.getInstance();
@@ -57,6 +57,9 @@ public class OncotatorService {
             } else {
                 return record;
             }
+        } catch (IOException e) {
+            System.out.println("Got IO Error:  " + e.getMessage());
+            return new OncotatorRecord(key);
         } finally {
             // Must close input stream!  Otherwise, we maintain too many open connections
             // to the Broad.

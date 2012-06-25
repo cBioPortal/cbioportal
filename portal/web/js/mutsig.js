@@ -124,6 +124,7 @@ var studySelected = function() {
             });
 };
 
+// updates the gene_list based on what happens in the MutSig table.
 var updateGeneList = function() {
     "use strict";
 
@@ -135,14 +136,13 @@ var updateGeneList = function() {
     gene_list = gene_list.replace(/^ /ig, "");  // delete leading space
 
     // if gene_list is currently empty put all the checked mutsig genes into it.
-    // don't put in a leading space in the gene_list
     if (gene_list === "") {
 
         gene_list = [];
-        $('.MutSig :not(.checkall):checked').each(function(i) {     // don't select the Select All checkbox
-                gene_list.push((i !== 0 ? " " : "") + $(this).val());
-                });
-        gene_list = gene_list.join("");
+        $('.MutSig :not(.checkall):checked').map(function() {     // don't select the Select All checkbox
+            gene_list.push($(this).val());
+        });
+        gene_list = gene_list.join(" ");
     }
 
     else {
@@ -162,31 +162,69 @@ var updateGeneList = function() {
         // if they're there, delete them
         // you should be forced to know that your gene is recurrently mutated
         $('.MutSig input:not(:checked)').each(function() {
-                var unchecked = $(this).val();
-                if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
-                    gene_list = gene_list.replace(new RegExp(unchecked, "ig"), "");
+            var unchecked = $(this).val();
+            if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
+
+                // likely to be Onco Query
+                if (gene_list.search(':') !== -1) {
+                    var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\n|;)/.source, "ig");
+                    gene_list = gene_list.replace(unchecked_regexp, "");
                 }
-            });
-        }
+
+                // still want to remove the gene even if it is not part of a (nontrivial) onco query statement
+                gene_list = gene_list.replace(new RegExp(unchecked, "ig"), "");
+            }
+        });
+    }
 
     $('#gene_list').val(gene_list);
 };
 
+// updates the MutSig table based on what happens in the gene_list
+// namely, a user's deletions or additions of genes
 var updateMutSigTable = function() {
-    var gene_list = $('#gene_list').val().split(" ");
-    var gene_list_len = gene_list.length;
+
+    var gene_list = $('#gene_list').val();
+
+    gene_list = gene_list.replace(/DATATYPES.*(;|\n)\s?/g, "");      // don't want to even look at Onco Queries like these
+
+    // likely to be Onco Query
+    if (gene_list.search(/:/) !== -1) {
+        var commands = gene_list.split("\n"),
+            commands_len = commands.length,
+            genes = [],
+            i;
+
+        for (i = 0; i < commands_len; i += 1) {
+            _commands = commands[i].split(";");
+
+            var _commands_len = _commands.length, j;
+            for (j = 0; j < _commands_len; j += 1) {
+                genes.push(_commands[j]
+                        .replace(/:.*/g, ""));
+            }
+        }
+        gene_list = genes;
+    }
+
+    else {
+        gene_list = gene_list.split(" ");
+    }
 
     // clear all checks
     $('.MutSig :checkbox').attr('checked', false);
 
     // if genes in the gene_list are added
     // check them in the mutsig table
-    var i;
+    var i,
+        gene_list_len = gene_list.length;
     for (i = 0; i < gene_list_len; i += 1) {
         // select mutsig checkboxes that are in the gene list
         $('.MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
+
     }
+    return false;
 }
 
 $(document).ready( function () {
@@ -208,7 +246,6 @@ $(document).ready( function () {
     $('#gene_list').change(function () {
         if ( $('.MutSig').is(':visible') ) {
             updateMutSigTable();
-            console.log("updated MutSigTable");
         }
     });
 
@@ -224,8 +261,9 @@ $(document).ready( function () {
     $('#gene_list').keyup(function() {
         if ( $('.MutSig').is(':visible') ) {
             $('.MutSig_wrapper').slideUp('slow');
-            $($('#MutSig_view > .ui-icon')[0]).toggle();
-            $($('#MutSig_view > .ui-icon')[1]).toggle();
+
+            $($('#MutSig_view > .ui-icon')[0]).show();      // right arrow
+            $($('#MutSig_view > .ui-icon')[1]).hide();      // down arrow
         }
     });
 // -- end initialize --

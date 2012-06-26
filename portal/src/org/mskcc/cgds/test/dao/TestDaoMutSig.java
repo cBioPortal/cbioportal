@@ -32,12 +32,12 @@ public class TestDaoMutSig extends TestCase {
         // Add Gene TP53 to both gene table and mut_sig table
         CanonicalGene gene1 = new CanonicalGene(10298321, "TP53");
         daoGeneOptimized.addGene(gene1);
-        MutSig tp53 = new MutSig(1, gene1, 1, 145177, 48, "<1E-11", "<1E-8");
+        MutSig tp53 = new MutSig(1, gene1, 1, 145177, 48, 1E-11f, 1E-8f);
 
         // Add Gene PTEN to both gene table and mut_sig table
         CanonicalGene gene2 = new CanonicalGene(10298321, "PTEN");
         daoGeneOptimized.addGene(gene2);
-        MutSig pten = new MutSig(1, gene2, 2, 156252, 34, "<1E-11", "<1E-8");
+        MutSig pten = new MutSig(1, gene2, 2, 156252, 34, 1E-11f, 1E-8f);
         DaoMutSig.addMutSig(pten);
 
         //get tp53 from mutsig table using hugoGeneSymbol

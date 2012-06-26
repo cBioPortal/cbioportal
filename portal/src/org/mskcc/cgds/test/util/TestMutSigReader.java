@@ -57,7 +57,7 @@ public class TestMutSigReader extends TestCase {
         assertTrue("EGFR".equals(testGene.getHugoGeneSymbolAllCaps()));
         assertEquals(mutSig.getNumMutations(), 20);
         assertEquals(mutSig.getNumBasesCovered(), 502500);
-        assertTrue("<1E-11".equals(mutSig.getpValue()));
-        assertTrue("<1E-8".equals(mutSig.getqValue()));
+        assertTrue(1E-11f == mutSig.getpValue());
+        assertTrue(1E-8f == mutSig.getqValue());
     }
 }

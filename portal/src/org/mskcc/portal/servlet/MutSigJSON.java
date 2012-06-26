@@ -17,11 +17,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-// JSON servlet for fetching MutSig data.
-    // If there is no MutSig data, then return an empty JSON.
-    // @author Gideon Dresdner
 
-
+/**
+ *
+ * JSON servlet for fetching MutSig data.
+ * If there is no MutSig data, then return an empty JSON.
+ * @author Gideon Dresdner
+ */
 public class MutSigJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
@@ -90,7 +92,6 @@ public class MutSigJSON extends HttpServlet {
                     mutSigJSONArray.add(map);
                 }
             }
-
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 

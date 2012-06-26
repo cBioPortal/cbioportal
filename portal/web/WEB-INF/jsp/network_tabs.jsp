@@ -95,7 +95,7 @@
 	        	<tr class="reacts-with">
 		        	<td class="edge-type-checkbox">
 		        		<input type="checkbox" checked="checked">
-		        		<label>Reacts With</label>
+		        		<label>Reacts with</label>
 		        	</td>
 	        	</tr>
 	        	<tr class="reacts-with">
@@ -123,7 +123,7 @@
 	        	<tr class="targeted-by-drug">
 		        	<td class="edge-type-checkbox">
 		        		<input type="checkbox" checked="checked">
-		        		<label>Targeted By Drug</label>
+		        		<label>Targeted by Drug</label>
 		        	</td>
 	        	</tr>
 	        	<tr class="targeted-by-drug">

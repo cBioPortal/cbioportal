@@ -131,10 +131,6 @@ var updateGeneList = function() {
     // push all the genes in the gene_list onto a list
     var gene_list = $('#gene_list').val();
 
-    // remove spaces in gene_list
-    gene_list = gene_list.replace(/ {2,}/, "");                // delete 2 or more spaces in a row
-    gene_list = gene_list.replace(/^ /ig, "");  // delete leading space
-
     // if gene_list is currently empty put all the checked mutsig genes into it.
     if (gene_list === "") {
 
@@ -143,20 +139,20 @@ var updateGeneList = function() {
             gene_list.push($(this).val());
         });
         gene_list = gene_list.join(" ");
+
     }
 
     else {
         // look for the selected mutsigs in gene_list
         // if they're not there, append them
         $('.MutSig :not(.checkall):checked').each(function() {
-                    var checked = $(this).val();
+            var checked = $(this).val();
 
-                    if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
-                    checked = " " + checked;
-                    gene_list += checked;
-
-                    }
-            });
+            if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
+                checked = " " + checked;
+                gene_list += checked;
+            }
+        });
 
         // look for the unselected mutsigs in the gene_list
         // if they're there, delete them
@@ -172,12 +168,18 @@ var updateGeneList = function() {
                 }
 
                 // still want to remove the gene even if it is not part of a (nontrivial) onco query statement
-                gene_list = gene_list.replace(new RegExp(unchecked, "ig"), "");
+                var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s?/.source, "ig");    // regexp of unchecked + \s
+                gene_list = gene_list.replace(unchecked_regexp, "");
             }
         });
     }
 
     $('#gene_list').val(gene_list);
+
+    // remove spaces in gene_list
+    gene_list = gene_list.replace(/\s{2,}/, "");             // delete 2 or more spaces in a row
+    gene_list = gene_list.replace(/^ /ig, "");              // delete leading space
+    gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
 };
 
 // updates the MutSig table based on what happens in the gene_list

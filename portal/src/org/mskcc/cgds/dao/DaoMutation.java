@@ -77,8 +77,36 @@ public class DaoMutation {
                     mutation.getFunctionalImpactScore(), 
                     mutation.getLinkXVar(), 
                     mutation.getLinkPdb(), 
-                    mutation.getLinkMsa()
-              
+                    mutation.getLinkMsa(),
+                    mutation.getNcbiBuild(),
+                    mutation.getStrand(),
+                    mutation.getVariantType(),
+                    mutation.getReferenceAllele(),
+                    mutation.getTumorSeqAllele1(),
+                    mutation.getTumorSeqAllele2(),
+                    mutation.getDbSnpRs(),
+                    mutation.getDbSnpValStatus(),
+                    mutation.getMatchedNormSampleBarcode(),
+                    mutation.getMatchNormSeqAllele1(),
+                    mutation.getMatchNormSeqAllele2(),
+                    mutation.getTumorValidationAllele1(),
+                    mutation.getTumorValidationAllele2(),
+                    mutation.getMatchNormValidationAllele1(),
+                    mutation.getMatchNormValidationAllele2(),
+                    mutation.getVerificationStatus(),
+                    mutation.getSequencingPhase(),
+                    mutation.getSequenceSource(),
+                    mutation.getValidationMethod(),
+                    mutation.getScore(),
+                    mutation.getBamFile(),                    
+                    Integer.toString(mutation.getTumorAltCount()),
+                    Integer.toString(mutation.getTumorRefCount()),
+                    Integer.toString(mutation.getNormalAltCount()),
+                    Integer.toString(mutation.getNormalRefCount()),
+                    mutation.getOncotatorProteinChange(),
+                    mutation.getOncotatorVariantClassification(),
+                    mutation.getOncotatorDbSnpRs(),
+                    mutation.getOncotatorCosmicOverlapping()
               );
               
               // return 1 because normal insert will return 1 if no error occurs
@@ -93,8 +121,17 @@ public class DaoMutation {
                         + " `CENTER`, `SEQUENCER`, `MUTATION_STATUS`, `VALIDATION_STATUS`, `CHR`,"
                         + " `START_POSITION`, `END_POSITION`, `AMINO_ACID_CHANGE`, "
                         + " `MUTATION_TYPE`, `FUNCTIONAL_IMPACT_SCORE`, `LINK_XVAR`, `LINK_PDB`,"
-                        + " `LINK_MSA`)"
-                        + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                        + " `LINK_MSA`, `NCBI_BUILD`, `STRAND`, `VARIANT_TYPE`, `REFERENCE_ALLELE`,"
+                        + " `TUMOR_SEQ_ALLELE1`, `TUMOR_SEQ_ALLELE2`, `DB_SNP_RS`, `DB_SNP_VAL_STATUS`,"
+                        + " `MATCHED_NORM_SAMPLE_BARCODE`, `MATCH_NORM_SEQ_ALLELE1`, `MATCH_NORM_SEQ_ALLELE2`,"
+                        + " `TUMOR_VALIDATION_ALLELE1`, `TUMOR_VALIDATION_ALLELE2`,"
+                        + " `MATCH_NORM_VALIDATION_ALLELE1`, `MATCH_NORM_VALIDATION_ALLELE2`,"
+                        + " `VERIFICATION_STATUS`, `SEQUENCING_PHASE`, `SEQUENCE_SOURCE`, `VALIDATION_METHOD`,"
+                        + " `SCORE`, `BAM_FILE`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`,"
+                        + " `NORMAL_REF_COUNT`, `ONCOTATOR_PROTEIN_CHANGE`, `ONCOTATOR_VARIANT_CLASSIFICATION`,"
+                        + " `ONCOTATOR_DB_SNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`)"
+                        + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            
             pstmt.setInt(1, mutation.getGeneticProfileId());
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setLong(3, mutation.getGene().getEntrezGeneId());
@@ -111,6 +148,36 @@ public class DaoMutation {
             pstmt.setString(14, mutation.getLinkXVar());
             pstmt.setString(15, mutation.getLinkPdb());
             pstmt.setString(16, mutation.getLinkMsa());
+            pstmt.setString(17, mutation.getNcbiBuild());
+            pstmt.setString(18, mutation.getStrand());
+            pstmt.setString(19, mutation.getVariantType());
+            pstmt.setString(20, mutation.getReferenceAllele());
+            pstmt.setString(21, mutation.getTumorSeqAllele1());
+            pstmt.setString(22, mutation.getTumorSeqAllele2());
+            pstmt.setString(23, mutation.getDbSnpRs());
+            pstmt.setString(24, mutation.getDbSnpValStatus());
+            pstmt.setString(25, mutation.getMatchedNormSampleBarcode());
+            pstmt.setString(26, mutation.getMatchNormSeqAllele1());
+            pstmt.setString(27, mutation.getMatchNormSeqAllele2());
+            pstmt.setString(28, mutation.getTumorValidationAllele1());
+            pstmt.setString(29, mutation.getTumorValidationAllele2());
+            pstmt.setString(30, mutation.getMatchNormValidationAllele1());
+            pstmt.setString(31, mutation.getMatchNormValidationAllele2());
+            pstmt.setString(32, mutation.getVerificationStatus());
+            pstmt.setString(33, mutation.getSequencingPhase());
+            pstmt.setString(34, mutation.getSequenceSource());
+            pstmt.setString(35, mutation.getValidationMethod());
+            pstmt.setString(36, mutation.getScore());
+            pstmt.setString(37, mutation.getBamFile());                    
+            pstmt.setInt(38, mutation.getTumorAltCount());
+            pstmt.setInt(39, mutation.getTumorRefCount());
+            pstmt.setInt(40, mutation.getNormalAltCount());
+            pstmt.setInt(41, mutation.getNormalRefCount());
+            pstmt.setString(42, mutation.getOncotatorProteinChange());
+            pstmt.setString(43, mutation.getOncotatorVariantClassification());            
+            pstmt.setString(44, mutation.getOncotatorDbSnpRs());
+            pstmt.setString(45, mutation.getOncotatorCosmicOverlapping());
+            
             return pstmt.executeUpdate();
            }
         } catch (SQLException e) {
@@ -271,6 +338,7 @@ public class DaoMutation {
 
     private ExtendedMutation extractMutation(ResultSet rs) throws SQLException, DaoException {
         ExtendedMutation mutation = new ExtendedMutation();
+        
         mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
         mutation.setCaseId(rs.getString("CASE_ID"));
         long entrezId = rs.getLong("ENTREZ_GENE_ID");
@@ -290,6 +358,36 @@ public class DaoMutation {
         mutation.setLinkXVar(rs.getString("LINK_XVAR"));
         mutation.setLinkPdb(rs.getString("LINK_PDB"));
         mutation.setLinkMsa(rs.getString("LINK_MSA"));
+        mutation.setNcbiBuild(rs.getString("NCBI_BUILD"));
+        mutation.setStrand(rs.getString("STRAND"));
+        mutation.setVariantType(rs.getString("VARIANT_TYPE"));
+        mutation.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
+        mutation.setTumorSeqAllele1(rs.getString("TUMOR_SEQ_ALLELE1"));
+        mutation.setTumorSeqAllele2(rs.getString("TUMOR_SEQ_ALLELE2"));
+        mutation.setDbSnpRs(rs.getString("DB_SNP_RS"));
+        mutation.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
+        mutation.setMatchedNormSampleBarcode(rs.getString("MATCHED_NORM_SAMPLE_BARCODE"));
+        mutation.setMatchNormSeqAllele1(rs.getString("MATCH_NORM_SEQ_ALLELE1"));
+        mutation.setMatchNormSeqAllele2(rs.getString("MATCH_NORM_SEQ_ALLELE2"));
+        mutation.setTumorValidationAllele1(rs.getString("TUMOR_VALIDATION_ALLELE1"));
+        mutation.setTumorValidationAllele2(rs.getString("TUMOR_VALIDATION_ALLELE2"));
+        mutation.setMatchNormValidationAllele1(rs.getString("MATCH_NORM_VALIDATION_ALLELE1"));
+        mutation.setMatchNormValidationAllele2(rs.getString("MATCH_NORM_VALIDATION_ALLELE2"));
+        mutation.setVerificationStatus(rs.getString("VERIFICATION_STATUS"));
+        mutation.setSequencingPhase(rs.getString("SEQUENCING_PHASE"));
+        mutation.setSequenceSource(rs.getString("SEQUENCE_SOURCE"));
+        mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
+        mutation.setScore(rs.getString("SCORE"));
+        mutation.setBamFile(rs.getString("BAM_FILE"));        
+        mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
+        mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
+        mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
+        mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));        
+        mutation.setOncotatorProteinChange(rs.getString("ONCOTATOR_PROTEIN_CHANGE"));
+        mutation.setOncotatorVariantClassification(rs.getString("ONCOTATOR_VARIANT_CLASSIFICATION"));        
+        mutation.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DB_SNP_RS"));
+        mutation.setOncotatorCosmicOverlapping(rs.getString("ONCOTATOR_COSMIC_OVERLAPPING"));
+        
         return mutation;
     }
 

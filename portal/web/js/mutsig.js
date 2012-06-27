@@ -149,6 +149,7 @@ var updateGeneList = function() {
             var checked = $(this).val();
 
             if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
+                gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
                 checked = " " + checked;
                 gene_list += checked;
             }
@@ -157,14 +158,15 @@ var updateGeneList = function() {
         // look for the unselected mutsigs in the gene_list
         // if they're there, delete them
         // you should be forced to know that your gene is recurrently mutated
-        $('.MutSig input:not(:checked)').each(function() {
+        $('.MutSig input:not(.checkall):not(:checked)').each(function() {
             var unchecked = $(this).val();
             if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
 
                 // likely to be Onco Query
                 if (gene_list.search(':') !== -1) {
-                    var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\n|;)/.source, "ig");
+                    var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\;|\n)/.source, "ig");
                     gene_list = gene_list.replace(unchecked_regexp, "");
+                    console.log(unchecked_regexp);
                 }
 
                 // still want to remove the gene even if it is not part of a (nontrivial) onco query statement
@@ -179,7 +181,6 @@ var updateGeneList = function() {
     // remove spaces in gene_list
     gene_list = gene_list.replace(/\s{2,}/, "");             // delete 2 or more spaces in a row
     gene_list = gene_list.replace(/^ /ig, "");              // delete leading space
-    gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
 };
 
 // updates the MutSig table based on what happens in the gene_list

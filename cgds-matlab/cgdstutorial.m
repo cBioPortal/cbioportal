@@ -6,11 +6,11 @@
 % modify path to make toolbox functions globally available in matlab
 % this will depend on install location, and is only necessary if you want
 % to make the functions available from any directory
-addpath('/Users/yourusername/Documents/MATLAB/cgds');
+addpath('/Users/Erik/Documents/MATLAB/cgds');
 
 % Set web API URL (including trailing '/' but excluding 'webservice.do')
-cgdsURL = 'http://www.cbio.mskcc.org/public-portal/';
- 
+cgdsURL = 'http://www.cbioportal.org/public-portal/';
+
 %% Show toolbox help
 % Use 'helpwin cgds' if you prefer to display it in the Help window.
 help cgds;
@@ -51,7 +51,7 @@ profileData = getprofiledata(cgdsURL, 'gbm_tcga_sequenced', ...
 clinicalData = getclinicaldata(cgdsURL, 'gbm_tcga_sequenced')
 
 %% Survival plots for patients with and without IDH1 mutations
-isMutated = ~strcmp(profileData.data(2,:), 'NaN');
+isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
 isCensored = strcmp(clinicalData.overallSurvivalStatus, 'LIVING');
 ecdf(clinicalData.overallSurvivalMonths(isMutated), ...
      'censoring',isCensored(isMutated),'function','survivor');

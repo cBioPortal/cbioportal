@@ -16,8 +16,6 @@
     </script>
     <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
 
-    <span id="MutSig_view" style="word-wrap:break-word;float:right;"><span class='ui-icon ui-icon-triangle-1-e' style='float:left;'></span><span class='ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><a href="" id="toggle_mutsig">Recurrently Mutated Genes</a></span> 
-
 <%
 // Output step 4 form validation error
 if (step4ErrorMsg != null) {
@@ -353,8 +351,6 @@ if (step4ErrorMsg != null) {
 		#example_gene_set { clear: both; }
 	</style>
 
-<table class="MutSig"></table>
-
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
@@ -373,4 +369,6 @@ if (step4ErrorMsg != null) {
     
    <p id="example_gene_set"><span style="font-size:80%">Or Select from Example Gene Sets:<br>
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>
+
+    <button id="toggle_mutsig_dialog" onclick="promptMutsigTable();">Or Select from Recurrently Mutated Genes</button>
 </div>

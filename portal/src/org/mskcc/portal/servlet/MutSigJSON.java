@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  *
@@ -27,6 +30,7 @@ import java.util.*;
 public class MutSigJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
+    private static Log log = LogFactory.getLog(MutSigJSON.class);
 
     //
     // Initializes the servlet.
@@ -81,7 +85,16 @@ public class MutSigJSON extends HttpServlet {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
 
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
+
+            if (log.isWarnEnabled()) {
+                log.warn("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
+            }
+
             ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
+
+            if (log.isWarnEnabled()) {
+                log.warn("list of mutsigs associated with cancerStudy: " + mutSigList);
+            }
 
             Collections.sort(mutSigList, new sortMutsigByRank());
 

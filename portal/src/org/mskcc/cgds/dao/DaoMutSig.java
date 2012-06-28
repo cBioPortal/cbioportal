@@ -64,8 +64,8 @@ public class DaoMutSig {
                         Integer.toString(mutSig.getRank()),
                         Integer.toString(mutSig.getNumBasesCovered()),
                         Integer.toString(mutSig.getNumMutations()),
-                        mutSig.getpValue(),
-                        mutSig.getqValue());
+                        Float.toString(mutSig.getpValue()),
+                        Float.toString(mutSig.getqValue()));
 
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
@@ -88,9 +88,10 @@ public class DaoMutSig {
                     pstmt.setInt(3,mutSig.getRank());
                     pstmt.setInt(4,mutSig.getNumBasesCovered());
                     pstmt.setInt(5,mutSig.getNumMutations());
-                    pstmt.setString(6, mutSig.getpValue());
-                    pstmt.setString(7, mutSig.getqValue());
-                    
+                    pstmt.setFloat(6, mutSig.getpValue());
+                    pstmt.setFloat(7, mutSig.getqValue());
+
+
                     int rows = pstmt.executeUpdate();
                     return rows;
                 }
@@ -272,9 +273,8 @@ public class DaoMutSig {
                 rs.getInt("RANK"),
                 rs.getInt("NumBasesCovered"),
                 rs.getInt("numMutations"),
-                rs.getString("P_Value"),
-                rs.getString("Q_Value"));
-
+                rs.getFloat("P_Value"),
+                rs.getFloat("Q_Value"));
         return mutSig;
     }
 

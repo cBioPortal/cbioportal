@@ -47,7 +47,7 @@ public class TestMutSigReader extends TestCase {
         int cancerStudyId = MutSigReader.getInternalId(properties);
         assertTrue(CancerStudy.NO_SUCH_STUDY != cancerStudyId);
         MutSigReader.loadMutSig(cancerStudyId, mutSigFile, pMonitor);
-
+        
         // Is the data in the database?
         MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);
         assertTrue(mutSig != null);
@@ -57,8 +57,7 @@ public class TestMutSigReader extends TestCase {
         assertTrue("EGFR".equals(testGene.getHugoGeneSymbolAllCaps()));
         assertEquals(mutSig.getNumMutations(), 20);
         assertEquals(mutSig.getNumBasesCovered(), 502500);
-        assertTrue("<1E-11".equals(mutSig.getpValue()));
-        assertTrue("<1E-8".equals(mutSig.getqValue()));
-
+        assertTrue(1E-11f == mutSig.getpValue());
+        assertTrue(1E-8f == mutSig.getqValue());
     }
 }

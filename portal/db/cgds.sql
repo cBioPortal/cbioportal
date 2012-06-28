@@ -38,7 +38,8 @@ drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
 drop table IF EXISTS protein_array_cancer_study;
-drop table IF EXISTS protein_array_cancer_study;
+drop table IF EXISTS case_cna_event;
+drop table IF EXISTS cna_event;
 
 --
 -- Database: `cgds`
@@ -370,3 +371,16 @@ CREATE TABLE IF NOT EXISTS `_case` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   PRIMARY KEY (`CASE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `case_cna_event` (
+  `CNA_EVENT_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(255) NOT NULL,
+  PRIMARY KEY  (`CNA_EVENT_ID`, `CASE_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `cna_event` (
+  `CNA_EVENT_ID` int(11) NOT NULL auto_increment,
+  `ENTREZ_GENE_ID` bigint(20) NOT NULL,
+  `ALTERATION` TINYINT() NOT NULL, -- -2, -1, 1, 2
+  PRIMARY KEY  (`CNA_EVENT_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

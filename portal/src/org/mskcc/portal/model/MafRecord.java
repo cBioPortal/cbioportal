@@ -16,7 +16,7 @@ public class MafRecord {
     private String hugoGeneSymbol;
     private long entrezGeneId;
     private String referenceAllele;
-    private String variantClassification;
+    private String variantClassification; // mutation type
     private String variantType;
     private String center;
     private String strand;
@@ -27,7 +27,9 @@ public class MafRecord {
     private String mutationStatus;
     private String validationStatus;
 
-    public String getChr() {
+    private String sequencer;
+
+	public String getChr() {
         return chr;
     }
 
@@ -162,4 +164,12 @@ public class MafRecord {
     public void setValidationStatus(String validationStatus) {
         this.validationStatus = validationStatus;
     }
+    
+    public String getSequencer() {
+		return sequencer;
+	}
+
+	public void setSequencer(String sequencer) {
+		this.sequencer = sequencer;
+	}
 }

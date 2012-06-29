@@ -5,6 +5,8 @@ import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.portal.model.MafRecord;
+import org.mskcc.portal.util.MafUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -92,12 +94,16 @@ public class ImportExtendedMutationData{
         String line = buf.readLine();
         line = line.trim();
         String[] headers = line.split("\t");
+        
         headerMap = new HashMap<String, Integer>();
+        
         for( int i=0; i<headers.length; i++) {
             String header = headers[i];
             headerMap.put(header, i);
         }
 
+        MafUtil mafUtil = new MafUtil(line);
+        
         boolean fileHasOMAData = false;
 
         try {
@@ -112,13 +118,18 @@ public class ImportExtendedMutationData{
         }
 
         line = buf.readLine();
-        while( line != null) {
+        
+        while( line != null)
+        {
             if( pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
             }
-            if( !line.startsWith("#") && line.trim().length() > 0) {
+            
+            if( !line.startsWith("#") && line.trim().length() > 0)
+            {
                 String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
+                MafRecord record = mafUtil.parseRecord(line);
 
                 // process case id
                 // an example bar code looks like this:  TCGA-13-1479-01A-01W
@@ -135,40 +146,52 @@ public class ImportExtendedMutationData{
    					daoCase.addCase(caseId, geneticProfileId);
    				}
 
-                String center = getField( parts, "Center" );
-                String sequencer = getField(parts, "Sequencer");
-                String chr = getField( parts, "Chromosome");
-				String validationStatus = getField(parts, "Validation_Status");
+//                String center = getField( parts, "Center" );
+//                String sequencer = getField(parts, "Sequencer");
+//                String chr = getField( parts, "Chromosome");
+//				String validationStatus = getField(parts, "Validation_Status");
 
-				if (validationStatus == null || validationStatus.equalsIgnoreCase("Wildtype")) {
+                String validationStatus = record.getValidationStatus();
+                
+				if (validationStatus == null ||
+					validationStatus.equalsIgnoreCase("NA") ||
+					validationStatus.equalsIgnoreCase("Wildtype")) {
                     pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;
 				}
 
-				if (!validChrValues.contains(chr.toUpperCase())) {
-                    pMonitor.logWarning("Skipping entry with chromosome value: " + chr );
+				if (!validChrValues.contains(record.getChr().toUpperCase())) {
+                    pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
 					continue;
 				}
 
-                long startPosition = 0;
-                try {
-                    startPosition = Integer.parseInt( getField( parts, "Start_position"));
-                } catch( NumberFormatException e) {
-                    startPosition = 0;
-                }
+ //               long startPosition = record.getStartPosition();
+                
+                if (record.getStartPosition() < 0)
+                	record.setStartPosition(0);
+                
+//                try {
+//                    startPosition = Integer.parseInt( getField( parts, "Start_position"));
+//                } catch( NumberFormatException e) {
+//                    startPosition = 0;
+//                }
 
-                long endPosition = 0;
-                try {
-                    endPosition = Integer.parseInt( getField( parts, "End_position"));
-                } catch( NumberFormatException e) {
-                    endPosition = 0;
-                }
+//                long endPosition = record.getEndPosition();
+                
+                if (record.getEndPosition() < 0)
+                	record.setEndPosition(0);
+                
+//                try {
+//                    endPosition = Integer.parseInt( getField( parts, "End_position"));
+//                } catch( NumberFormatException e) {
+//                    endPosition = 0;
+//                }
                 
                 String aminoAcidChange = "MUTATED";
-                String mutationType = getField( parts, "Variant_Classification");
-                String mutationStatus = getField( parts, "Mutation_Status");
+//                String mutationType = getField( parts, "Variant_Classification");
+//                String mutationStatus = getField( parts, "Mutation_Status");
                 String functionalImpactScore = "";
                 String linkXVar = "";  
                 String linkMsa = "";
@@ -210,22 +233,24 @@ public class ImportExtendedMutationData{
                             + "and all mutation data associated with it!");
                 } else {
                     ExtendedMutation mutation = new ExtendedMutation();
+                    
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setCaseId(caseId);
                     mutation.setGene(gene);
-                    mutation.setSequencingCenter(center);
-                    mutation.setSequencer(sequencer);
+                    mutation.setSequencingCenter(record.getCenter());
+                    mutation.setSequencer(record.getSequencer());
                     mutation.setAminoAcidChange(aminoAcidChange);
-                    mutation.setMutationType(mutationType);
-                    mutation.setChr(chr);
-                    mutation.setStartPosition(startPosition);
-                    mutation.setEndPosition(endPosition);
-                    mutation.setValidationStatus(validationStatus);
-                    mutation.setMutationStatus(mutationStatus);
+                    mutation.setMutationType(record.getVariantClassification());
+                    mutation.setChr(record.getChr());
+                    mutation.setStartPosition(record.getStartPosition());
+                    mutation.setEndPosition(record.getEndPosition());
+                    mutation.setValidationStatus(record.getValidationStatus());
+                    mutation.setMutationStatus(record.getMutationStatus());
                     mutation.setFunctionalImpactScore(functionalImpactScore);
                     mutation.setLinkXVar(linkXVar);  
                     mutation.setLinkPdb(linkPdb);
                     mutation.setLinkMsa(linkMsa);
+                    
                     sequencedCaseSet.add(caseId);
 
                     //  Filter out Mutations

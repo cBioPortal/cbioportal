@@ -6,25 +6,28 @@ import org.mskcc.portal.model.MafRecord;
  * Utility Class for Parsing MAF Files.
  *
  * This utility class handles variable columns and column orderings within MAF Files.
+ * (Comments next to data fields indicate corresponding database columns or
+ * column headers in the MAF file).
  */
 public class MafUtil {
-    private int chrIndex = -1;
-    private int ncbiIndex = -1;
-    private int startPositionIndex = -1;
-    private int endPositionIndex = -1;
-    private int hugoGeneSymbolIndex = -1;
-    private int entrezGeneIdIndex = -1;
-    private int referenceAlleleIndex = -1;
-    private int variantClassificationIndex = -1;
-    private int variantTypeIndex = -1;
-    private int centerIndex = -1;
-    private int strandIndex = -1;
-    private int tumorSeqAllele1Index = -1;
-    private int tumorSeqAllele2Index = -1;
-    private int dbSNPIndex = -1;
-    private int tumorSampleIndex = -1;
-    private int mutationStatusIndex = -1;
-    private int validationStatusIndex = -1;
+    private int chrIndex = -1; // CHR
+    private int ncbiIndex = -1; // NCBI_BUILD
+    private int startPositionIndex = -1; // START_POSITION
+    private int endPositionIndex = -1; // END_POSITION
+    private int hugoGeneSymbolIndex = -1; 
+    private int entrezGeneIdIndex = -1; // ENTREZ_GENE_ID
+    private int referenceAlleleIndex = -1; // REFERENCE_ALLELE
+    private int variantClassificationIndex = -1; // MUTATION_TYPE 
+    private int variantTypeIndex = -1; // VARIANT_TYPE
+    private int centerIndex = -1; // CENTER
+    private int strandIndex = -1; // STRAND
+    private int tumorSeqAllele1Index = -1; // TUMOR_SEQ_ALLELE1
+    private int tumorSeqAllele2Index = -1; // TUMOR_SEQ_ALLELE1
+    private int dbSNPIndex = -1; // DB_SNP_RS
+    private int tumorSampleIndex = -1; //
+    private int mutationStatusIndex = -1; // MUTATION_STATUS
+    private int validationStatusIndex = -1; // VALIDATION_STATUS
+    private int sequencerIndex = -1; // SEQUENCER_INDEX
 
     /**
      * Constructor.
@@ -69,12 +72,15 @@ public class MafUtil {
                 mutationStatusIndex = i;
             } else if(header.equalsIgnoreCase("Validation_Status")) {
                 validationStatusIndex = i;
-            }
+            } else if(header.equalsIgnoreCase("Sequencer")) {
+	            sequencerIndex = i;
+	        }
+            
         }
     }
     
     public MafRecord parseRecord(String line) {
-        String parts[] = line.split("\t");
+        String parts[] = line.split("\t"); // TODO line.split("\t", -1); ?
         MafRecord record = new MafRecord();
         record.setCenter(getPartString(centerIndex, parts));
         record.setChr(getPartString(chrIndex, parts));
@@ -94,6 +100,7 @@ public class MafUtil {
         record.setVariantType(getPartString(variantTypeIndex, parts));
         record.setMutationStatus(getPartString(mutationStatusIndex, parts));
         record.setValidationStatus(getPartString(validationStatusIndex, parts));
+        record.setSequencer(getPartString(sequencerIndex, parts));
         return record;
     }
     

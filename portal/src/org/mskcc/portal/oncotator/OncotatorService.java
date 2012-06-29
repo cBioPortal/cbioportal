@@ -19,7 +19,7 @@ public class OncotatorService {
     private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
     private static final Logger logger = Logger.getLogger(OncotatorService.class);
     private DaoOncotatorCache cache;
-    private final static long SLEEP_PERIOD = 1000;  // in ms
+    private final static long SLEEP_PERIOD = 0;  // in ms
 
     private OncotatorService () {
         cache = DaoOncotatorCache.getInstance();

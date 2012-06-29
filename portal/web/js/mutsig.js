@@ -17,7 +17,11 @@
 // variable for the return DOM object returned by dataTable library
 var DATATABLE_FORMATTED = -1;
 
-// initialize and  bind for
+// what is the previous cancer study that has been selected?
+// this way we don't have to repeat queries
+var CANCER_STUDY_SELECTED = -1;
+
+// initialize and bind for
 // mutsig toggle button and mutsig dialog box
 var initMutsigDialogue = function() {
     "use strict";
@@ -35,13 +39,6 @@ var initMutsigDialogue = function() {
         minWidth: 636
         });
 
-    // set listener function for toggle button
-    // load mutsig data on click
-    $("#toggle_mutsig_dialog").click(function() {
-        $('#mutsig_dialog').dialog('open');
-        return;
-    });
-
     // set listener for mutsig select button
     $('#select_mutsig').click(function() {
         $('#mutsig_dialog').dialog('close');
@@ -49,7 +46,12 @@ var initMutsigDialogue = function() {
 
     // set listener for mutsig cancel button
     $('#cancel_mutsig').click(function() {
+
+        // close dialog box
         $('#mutsig_dialog').dialog('close');
+
+        // clear all checks
+        $('.MutSig :checkbox').attr('checked', false);
     });
 
     // make checkall check all
@@ -117,20 +119,43 @@ var mutsig_to_tr = function(mutsig) {
 var promptMutsigTable = function() {
     "use strict";
 
+    // open the dialog box
+    $('#mutsig_dialog').dialog('open');
+
+    // hide everything but show loader image
+    $('#mutsig_dialog').children().hide();
+    $('#mutsig_dialog #loader-img').show();
+
+
     // grab data to be sent to the server
     var cancerStudyId = $('#select_cancer_type').val();
+
+    // this was the last cancer study selected,
+    // no need to redo the query
+    if (CANCER_STUDY_SELECTED === cancerStudyId) {
+        console.log('skipped');
+        return;
+    }
+
+    // save the selected cancer study for later
+    CANCER_STUDY_SELECTED = cancerStudyId;
 
     // prepare data to be sent to server
     var data = {'selected_cancer_type': cancerStudyId };
 
+
     // reset the mutsig table if it has already been formatted
     if (DATATABLE_FORMATTED !== -1) {
+
         // remove dataTables formatting
         DATATABLE_FORMATTED.fnDestroy();
+
         // delete all elements
         $('.MutSig tbody').empty();
+
     }
 
+    // do AJAX
     $.get('MutSig.json', data, function(mutsigs) {
         var i;
         var len = mutsigs.length;
@@ -164,6 +189,12 @@ var promptMutsigTable = function() {
         DATATABLE_FORMATTED.fnDraw();
         DATATABLE_FORMATTED.fnDraw();
     });
+
+    // show everything but loader image
+    $('#mutsig_dialog').children().show();
+    $('#mutsig_dialog #loader-img').hide();
+
+    return;
 };
 
 // updates the gene_list based on what happens in the MutSig table.
@@ -270,7 +301,6 @@ var updateMutSigTable = function() {
         // select mutsig checkboxes that are in the gene list
         $('.MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
-
     }
     return false;
 }

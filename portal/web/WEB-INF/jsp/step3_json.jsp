@@ -47,7 +47,8 @@
 			</tr>
 		</table>
 	</div>
-    <div id="mutsig_dialog" title="Recurrently Mutated Genes" style="font-size: 11px;">
+    <div id="mutsig_dialog" title="Recurrently Mutated Genes" style="font-size: 11px; .ui-dialog {padding: 0em;};">
+        <img id='loader-img' src="images/ajax-loader.gif"/>
         <table class="MutSig">
             <thead>
                 <tr>
@@ -60,16 +61,10 @@
             <tbody>
             </tbody>
         </table>
-		<table id="mutsig_dialog_footer">
-   			<tr>
-   				<td>
+		<div id="mutsig_dialog_footer" style="float: right;">
 					<button id="cancel_mutsig" title="Cancel">Cancel</button>
-				</td>
-				<td>
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
-				</td>
-			</tr>
-		</table>
+		</div>
     </div>
 <%
 String customCaseListStyle = "none";

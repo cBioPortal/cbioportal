@@ -3,6 +3,8 @@ package org.mskcc.cgds.scripts;
 import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.CnaEvent;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 import org.apache.commons.lang.ArrayUtils;
@@ -179,6 +181,11 @@ public class ImportTabDelimData {
                                 }
                             } else if (genes.size()==1) {
                                 storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
+                                if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                                        && geneticProfile.getStableId().endsWith("gistic")) {
+                                    storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
+                                }
+                                
                                 numRecordsStored++;
                             } else {
                                 for (CanonicalGene gene : genes) {
@@ -225,6 +232,18 @@ public class ImportTabDelimData {
         if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
+        }
+    }
+    
+    private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
+        int n = values.length;
+        int i = values[0].equals(""+entrezGeneId) ? 1:0;
+        for (; i<n; i++) {
+            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
+                    || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, values[i]);
+                DaoCnaEvent.addCaseCnaEvent(event);
+            }
         }
     }
 

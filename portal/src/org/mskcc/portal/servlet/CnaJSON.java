@@ -19,6 +19,7 @@ import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.model.CnaEvent;
 import org.mskcc.cgds.model.GeneticProfile;
+import java.util.HashSet;
 
 /**
  *
@@ -46,6 +47,7 @@ public class CnaJSON extends HttpServlet {
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
         CancerStudy cancerStudy;
+        Map<Long, String> contextMap = Collections.emptyMap();
         
         String strNumAllCases = request.getParameter(PatientView.NUM_CASES_IN_SAME_STUDY);
         int numAllCases = strNumAllCases==null ? 0 : Integer.parseInt(strNumAllCases);
@@ -58,27 +60,18 @@ public class CnaJSON extends HttpServlet {
                 if (strNumAllCases==null) {
                     numAllCases = DaoCase.countCases(cancerStudy.getInternalId());
                 }
+                contextMap = getContextMap(cnaEvents, cnaProfile.getGeneticProfileId(), numAllCases);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
-        PrintWriter out = response.getWriter();
-        if (_case==null || cnaEvents.isEmpty()) {
-            try {
-                out.print("No copy number alteration in "+patient);
-            } finally {            
-                out.close();
-            }
-            return;
-        }
-        
-        HashMap<Long, String> mapGeneContent = new HashMap<Long,String>();
         for (CnaEvent cnaEvent : cnaEvents) {
-            export(table, cnaEvent, mapGeneContent, numAllCases);
+            export(table, cnaEvent, contextMap);
         }
 
         response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(table, out);
         } finally {            
@@ -86,8 +79,26 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
-    private void export(JSONArray table, CnaEvent cnaEvent, 
-            HashMap<Long, String> mapGeneContent, int numAllCases) 
+    private Map<Long, String> getContextMap(List<CnaEvent> cnaEvents, int cnaProfileId,
+            int numAllCases) throws DaoException {
+        HashSet<Long> eventIds = new HashSet<Long>();
+        for (CnaEvent ev : cnaEvents) {
+            eventIds.add(ev.getEventId());;
+        }
+        
+        Map<Long, Integer> countMap = DaoCnaEvent.countSamplesWithCnaEvents(eventIds, cnaProfileId);
+        
+        Map<Long, String> contextMap = new HashMap<Long, String>(countMap.size());
+        for (Map.Entry<Long, Integer> entry : countMap.entrySet()) {
+            int altCount = entry.getValue();
+            String context = String.format("%d (<b>%.1f%%</b>) ", altCount, 100.0*altCount/numAllCases);
+            contextMap.put(entry.getKey(), context);
+        }
+        
+        return contextMap;
+    }
+    
+    private void export(JSONArray table, CnaEvent cnaEvent, Map<Long, String> contextMap) 
             throws ServletException {
         JSONArray row = new JSONArray();
         try {
@@ -98,7 +109,7 @@ public class CnaJSON extends HttpServlet {
         }
         row.add(cnaEvent.getAlteration().getDescription());
         // TODO: context
-        String context = getContext(cnaEvent, mapGeneContent, numAllCases);
+        String context = contextMap.get(cnaEvent.getEventId());
         row.add(context);
         // TODO: clinical trial
         row.add("pending");
@@ -114,29 +125,6 @@ public class CnaJSON extends HttpServlet {
         row.add(includeInSummary);
         
         table.add(row);
-    }
-    
-    private String getContext(CnaEvent cnaEvent, HashMap<Long, String> mapGeneContent, 
-            int numAllCases) throws ServletException {
-        String ret = mapGeneContent.get(cnaEvent.getEntrezGeneId());
-        if (ret!=null) {
-            return ret;
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        int altCount;
-        try {
-            altCount = DaoCnaEvent.countSamplesWithCnaEvents(cnaEvent.getEventId(), cnaEvent.getCnaProfileId());
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        
-        String perc = String.format("<b>%.1f%%</b>", 100.0*altCount/numAllCases);
-        sb.append(altCount).append(" (").append(perc).append(")");
-        
-        ret = sb.toString();
-        mapGeneContent.put(cnaEvent.getEntrezGeneId(), ret);
-        return ret;
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

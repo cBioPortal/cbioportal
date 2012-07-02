@@ -103,9 +103,6 @@
         $.post("cna.json", 
             params,
             function(aDataSet){
-                if (aDataSet.length==0)
-                    return;
-                
                 // summary table
                 var cna_sumary = buildCnaDataTable(aDataSet, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
                 $('.cna-summary-table-name').html('Copy Number Alterations of Interest');

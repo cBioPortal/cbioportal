@@ -8,11 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.mskcc.cgds.model.CnaEvent;
-import java.util.Map;
-import java.util.EnumMap;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -127,21 +125,27 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static int countSamplesWithCnaEvents(long eventId, int profileId) throws DaoException {
+    public static Map<Long, Integer> countSamplesWithCnaEvents(Set<Long> eventIds, int profileId) throws DaoException {
+        if (eventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `GENETIC_PROFILE_ID`=?");
-            pstmt.setLong(1, eventId);
-            pstmt.setInt(2, profileId);
+            String sql = "SELECT `CNA_EVENT_ID`, count(*) FROM case_cna_event WHERE `GENETIC_PROFILE_ID`=" + profileId
+                    + " and `CNA_EVENT_ID` IN ("
+                    + StringUtils.join(eventIds, ",")
+                    + ") GROUP BY `CNA_EVENT_ID`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<Long, Integer> map = new HashMap<Long, Integer>();
             rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                map.put(rs.getLong(1), rs.getInt(2));
             }
-            return 0;
+            return map;
         } catch (SQLException e) {
             throw new DaoException(e);
         }

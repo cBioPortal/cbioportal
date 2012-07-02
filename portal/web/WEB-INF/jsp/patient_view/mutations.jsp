@@ -104,9 +104,6 @@
         $.post("mutations.json", 
             params,
             function(aDataSet){
-                if (aDataSet.length==0)
-                    return;
-                
                 // summary table
                 var mut_sumary = buildMutationsDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-summary-table-name').html('Mutations of Interest');

@@ -3,6 +3,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
+        $('#cna_summary_wrapper_table').hide();
     });
 </script>
 

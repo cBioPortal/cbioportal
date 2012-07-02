@@ -73,16 +73,6 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         
-        PrintWriter out = response.getWriter();
-        if (_case==null || mutations.isEmpty()) {
-            try {
-                out.print("No mutation data is available for "+patient);
-            } finally {            
-                out.close();
-            }
-            return;
-        }
-        
         HashMap<Long, Integer> mapGeneAlteredSamples = new HashMap<Long,Integer>();
         for (ExtendedMutation mutation : mutations) {
             export(table, mutation, cancerStudy, mutationProfile.getGeneticProfileId(),
@@ -90,6 +80,8 @@ public class MutationsJSON extends HttpServlet {
         }
 
         response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(table, out);
         } finally {            

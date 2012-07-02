@@ -34,8 +34,18 @@
 <%}%>
 
 <%if(showCNA){%>
-<br/>Copy number alteration events go here...
-<br/><br/>
+<br/>
+<div id="cna_summary_wait"><img src="images/ajax-loader.gif"/> Loading copy number alterations ...</div>
+<table cellpadding="0" cellspacing="0" border="0" id="cna_summary_wrapper_table" width="100%">
+    <tr>
+        <td>
+            <table cellpadding="0" cellspacing="0" border="0" class="display" id="cna_summary_table">
+                <%@ include file="cna_table_template.jsp"%>
+            </table>
+        </td>
+    </tr>
+</table>
+<br/>
 <%}%>
 
 <%if(showPlaceHoder){%>

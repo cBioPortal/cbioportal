@@ -10,7 +10,12 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
 <jsp:include page="css_include.jsp" flush="true" />
+<%if(request.getAttribute("in-patient-view")!=null){%>
+<jsp:include page="js_include_patient_view.jsp" flush="true" />
+<%} else {%>
 <jsp:include page="js_include.jsp" flush="true" />
+<%}%>
+<jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
 
     <script type="text/javascript">
         $(document).ready(function(){

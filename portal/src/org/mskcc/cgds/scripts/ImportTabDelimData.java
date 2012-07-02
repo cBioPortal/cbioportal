@@ -241,7 +241,7 @@ public class ImportTabDelimData {
         for (; i<n; i++) {
             if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
                     || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
-                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, values[i]);
+                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                 DaoCnaEvent.addCaseCnaEvent(event);
             }
         }

@@ -30,6 +30,7 @@ public class PatientView extends HttpServlet {
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
+    public static final String CNA_PROFILE = "cna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
@@ -129,6 +130,11 @@ public class PatientView extends HttpServlet {
             if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
                 if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), profile.getGeneticProfileId())) {
                     request.setAttribute(MUTATION_PROFILE, profile);
+                }
+            } else if (profile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                    && profile.getStableId().endsWith("_gistic")) {
+                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), profile.getGeneticProfileId())) {
+                    request.setAttribute(CNA_PROFILE, profile);
                 }
             }
         }

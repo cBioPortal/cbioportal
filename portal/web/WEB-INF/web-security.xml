@@ -171,6 +171,11 @@
     </servlet>  
     
     <servlet>
+    	<servlet-name>CnaJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CnaJSON</servlet-class>
+    </servlet>  
+    
+    <servlet>
     	<servlet-name>SimilarPatientsJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.SimilarPatientsJSON</servlet-class>
     </servlet> 
@@ -298,6 +303,11 @@
     <servlet-mapping>
     	<servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>CnaJSON</servlet-name>
+        <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

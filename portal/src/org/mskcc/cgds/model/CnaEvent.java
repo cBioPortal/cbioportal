@@ -1,6 +1,9 @@
 
 package org.mskcc.cgds.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author jgao
@@ -10,21 +13,62 @@ public class CnaEvent {
     private int cnaProfileId;
     private long eventId;
     private long entrezGeneId;
-    private String alteration; // "-2","2"
+    private CNA alteration;
+    
+    public static enum CNA {
+        AMP ((short)2, "Amplified"),
+        GAIN ((short)1, "Gained"),
+        HETLOSS ((short)-1, "Hemizygously deleted"),
+        HOMDEL ((short)-2, "Homozygously deleted");
+        
+        private short code;
+        private String desc;
+        
+        private CNA(short code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+        
+        private static Map<Short, CNA> cache = new HashMap<Short, CNA>();
+        static {
+            for (CNA cna : CNA.values()) {
+                cache.put(cna.code, cna);
+            }
+        }
+        
+        public static CNA getByCode(short code) {
+            return cache.get(code);
+        }
+        
+        public short getCode() {
+            return code;
+        }
+        
+        public String getDescription() {
+            return desc;
+        }
+    }
 
-    public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, String alteration) {
+    public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
         this.caseId = caseId;
         this.cnaProfileId = cnaProfileId;
         this.entrezGeneId = entrezGeneId;
-        this.alteration = alteration;
+        this.alteration = CNA.getByCode(alteration);
+        if (this.alteration == null) {
+            throw new IllegalArgumentException("wrong copy number alteration");
+        }
     }
 
-    public String getAlteration() {
+    public CNA getAlteration() {
         return alteration;
     }
 
-    public void setAlteration(String alteration) {
+    public void setAlteration(CNA alteration) {
         this.alteration = alteration;
+    }
+
+    public void setAlteration(short alteration) {
+        this.alteration = CNA.getByCode(alteration);
     }
 
     public String getCaseId() {

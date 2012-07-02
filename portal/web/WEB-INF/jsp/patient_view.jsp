@@ -5,6 +5,9 @@
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
 
 
+<%
+request.setAttribute("in-patient-view", true);
+%>
 <jsp:include page="global/header_above_bar.jsp" flush="true" />
 
 <tr>
@@ -21,6 +24,9 @@ CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_S
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
 
+GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(PatientView.CNA_PROFILE);
+boolean showCNA = cnaProfile!=null;
+
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -29,7 +35,6 @@ if (isDemoMode!=null) {
     showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 }
 
-boolean showCNA = showPlaceHoder;
 boolean showPathways = showPlaceHoder;
 boolean showSimilarPatient = showMutations;
 

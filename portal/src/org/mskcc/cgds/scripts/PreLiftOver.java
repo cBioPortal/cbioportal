@@ -9,16 +9,30 @@ import java.io.IOException;
 import org.mskcc.portal.model.MafRecord;
 import org.mskcc.portal.util.MafUtil;
 
+/**
+ * Pre-process class for the lift over tool. Extracts information from and input MAF file,
+ * and creates an output file compatible with the lift over tool.
+ * Each line of the output file represents a mutation:
+ *  chr# chr_start chr_end
+ * 
+ * @author Selcuk Onur Sumer
+ *
+ */
 public class PreLiftOver
 {
 	public static void main(String[] args)
 	{
 		String inputMaf = args[0];
 		
-		try {
+		try
+		{
 			extractPositions(inputMaf, "oldfile.txt");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		}
+		catch (IOException e)
+		{
+			System.out.println("Error while processing input: " + 
+					e.getMessage());
+			
 			e.printStackTrace();
 		}
 	}

@@ -36,7 +36,7 @@ if (isDemoMode!=null) {
 }
 
 boolean showPathways = showPlaceHoder;
-boolean showSimilarPatient = showMutations;
+boolean showSimilarPatient = showMutations | showCNA;
 
 int numPatientInSameStudy;
 

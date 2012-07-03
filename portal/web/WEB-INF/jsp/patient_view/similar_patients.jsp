@@ -21,9 +21,9 @@ A genomic overview with events aligned across patients goes here...
             s.push(''+mut.length+' mutations');
         }
         if (cna != null) {
-            s.push(''+cna.length+' copy number altered genes')
+            s.push(''+cna.length+' copy number alterations')
         }
-        return s.join(", ");
+        return s.join("<br/>");
     }
     
     function buildSimilarPatientsDataTable(aDataSet, table_id, sDom, iDisplayLength) {

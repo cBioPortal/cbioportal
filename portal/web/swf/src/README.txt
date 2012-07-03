@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-CytoscapeWeb revision 24995 (May 10, 2011 - 9:05 pm) was used to base network
+CytoscapeWeb revision 29261 (June 5, 2012 - 11:50 am) was used to base network
 visualization component for cBio portal! To reproduce necessary executables
 	portal/web/swf/CytoscapeWeb.swf and
 	portal/web/js/cytoscape_web/cytoscapeweb.min.js

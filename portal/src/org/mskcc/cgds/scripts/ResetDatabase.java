@@ -53,9 +53,13 @@ public class ResetDatabase {
         DaoProteinArrayData.getInstance().deleteAllRecords();
         DaoProteinArrayInfo.getInstance().deleteAllRecords();
         DaoProteinArrayTarget.getInstance().deleteAllRecords();
+        DaoDrug.getInstance().deleteAllRecords();
         DaoUniProtIdMapping.deleteAllRecords();
+        DaoDrugInteraction.getInstance().deleteAllRecords();
         DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
         daoSangerCensus.deleteAllRecords();
+        DaoTextCache daoTextCache = new DaoTextCache();
+        daoTextCache.deleteAllKeys();
     }
 
     public static void resetDatabase() throws DaoException {

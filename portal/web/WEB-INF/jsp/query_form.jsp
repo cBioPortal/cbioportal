@@ -56,7 +56,7 @@
 </script>
 <div class="main_query_panel">
     <div id="main_query_form">
-        <form id="main_form" action="index.do" method="get">
+        <form id="main_form" action="index.do" method="post">
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
         <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"

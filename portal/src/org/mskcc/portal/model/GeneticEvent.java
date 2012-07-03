@@ -104,6 +104,13 @@ public interface GeneticEvent {
      * @return mutations Value.
      */
     public mutations getMutationValue();
+
+    /**
+     * Gets the mutation type (amino acid change).
+     *
+     * @return mutation Type.
+     */
+    public String getMutationType();
     
     /**
      * Set the event's comparator.

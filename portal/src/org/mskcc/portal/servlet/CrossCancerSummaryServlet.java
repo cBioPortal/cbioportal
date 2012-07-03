@@ -212,7 +212,6 @@ public class CrossCancerSummaryServlet extends HttpServlet {
         String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerStudyId,
 														   geneListStr,
 														   mergedProfile,
-														   null,
 														   caseList,
 														   defaultCaseSet.getStableId(),
 														   zScore,

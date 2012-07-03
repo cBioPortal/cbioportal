@@ -99,6 +99,11 @@
 	    			</a>
 	    		</li>
 	    		<li>
+	    			<a id="show_drug_legend" onclick="handleMenuEvent('drug_legend')">
+	    				Drug Legend
+	    			</a>
+	    		</li>
+	    		<li>
 	    			<a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">
 	    				Interaction Legend
 	    			</a>

@@ -94,6 +94,9 @@ function promptCustomCaseSetBuilder()
     	// update the case set by taking intersection of all individual parameter sets
     	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
     	
+    	// TODO temporary limiter for the number of cases
+    	//_limitNumberOfCases();
+    	
     	// update total number of cases & selected number of cases
     	
     	$("#case_set_dialog_header #number_of_cases").empty();
@@ -236,11 +239,15 @@ function _initCustomCaseSelectionMap(categorySet)
 	
 	// second, update selection according to previous selection
 	// stored in a hidden variable
-	// (if _previousCancerStudyId is -1, then it means the page is just loaded,
+	//
+	// if _previousCancerStudyId is -1, then it means the page is just loaded,
 	// so we should update the selection by using the hidden variable
 	// clinical_param_selection. if _previousCancerStudyId is a valid id,
-	// then the previous selection should be ignored to reset the selection)
-	if (_previousCancerStudyId == -1)
+	// then the previous selection should be ignored to reset the selection
+	// if the selected study id mismatches the study id from the get request,
+	// the previous selection should also be ignored in this case.
+	if (_previousCancerStudyId == -1 &&
+		window.cancer_study_id_selected == $("#select_cancer_type").val())
 	{
 		var selection = JSON.parse($("#clinical_param_selection").val());
 		
@@ -447,6 +454,9 @@ function refreshCustomCaseSet(checkbox, selector)
 	// update the case set by taking intersection of all individual parameter sets
 	_customCaseSet = _intersectAllCaseSets(_caseSetFilter);
 	
+	// TODO temporary limit to the number of cases
+	//_limitNumberOfCases();
+	
 	// update current number of included cases
 	$("#case_set_dialog_header #current_number_of_cases").text(_customCaseSet.length);
 }
@@ -498,6 +508,31 @@ function _intersectAllCaseSets(caseSetFilter)
 	}
 	
 	return intersection;
+}
+
+/**
+ * TODO Temporary work-around for upper limit of number of user-defined cases.
+ */
+function _limitNumberOfCases()
+{
+	console.log("number of filtered cases: " + _customCaseSet.length);
+	
+	if (_customCaseSet.length > 400)
+	{
+		// disable the build button
+		$("#submit_custom_case_set").attr('disabled', true);
+		
+		// show the warning message
+		$("#case_set_dialog_header .custom_case_set_warning").text("Too many cases (max: 400)");
+	}
+	else
+	{
+		// enable the build button
+		$("#submit_custom_case_set").attr('disabled', false);
+		
+		// hide the warning message
+		$("#case_set_dialog_header .custom_case_set_warning").empty();
+	}
 }
 
 /**

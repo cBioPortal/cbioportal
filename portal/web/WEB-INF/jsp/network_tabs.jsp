@@ -1,11 +1,20 @@
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
-        <li><a href="#genes_tab"><span>Genes</span></a></li>
+        <li><a href="#genes_tab"><span>Genes & Drugs</span></a></li>
         <li><a href="#relations_tab"><span>Interactions</span></a></li>
         <li><a href="#help_tab"><span>Help</span></a></li>
     </ul>
     <div id="genes_tab">
 	    <div class="header">
+		  <span class="title"><label >Drugs of Specified Genes</label></span><br><br>
+	      <div class="combo">
+			<select id="drop_down_select">
+			  <option value="HIDE_DRUGS">Hide Drugs</option>
+			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
+			  <option value="SHOW_ALL">Show All Drugs</option>
+			</select>
+		  </div>
+		    <span class="title"><label>Genes</label></span><br><br>
 	    	<div id="slider_area">
 	    		<label>Filter Neighbors by Alteration (%)</label>
 	    		<div id="weight_slider_area">
@@ -86,7 +95,7 @@
 	        	<tr class="reacts-with">
 		        	<td class="edge-type-checkbox">
 		        		<input type="checkbox" checked="checked">
-		        		<label>Reacts With</label>
+		        		<label>Reacts with</label>
 		        	</td>
 	        	</tr>
 	        	<tr class="reacts-with">
@@ -104,6 +113,20 @@
 		        	</td>
 	        	</tr>
 	        	<tr class="state-change">
+	        		<td>
+	        			<div class="percent-bar"></div>
+	        		</td>
+	        		<td>
+	        			<div class="percent-value"></div>
+	        		</td>
+	        	</tr>
+	        	<tr class="targeted-by-drug">
+		        	<td class="edge-type-checkbox">
+		        		<input type="checkbox" checked="checked">
+		        		<label>Targeted by Drug</label>
+		        	</td>
+	        	</tr>
+	        	<tr class="targeted-by-drug">
 	        		<td>
 	        			<div class="percent-bar"></div>	        			
 	        		</td>
@@ -164,6 +187,12 @@
 <div id="node_legend" class="hidden-network-ui" title="Gene Legend">
 	<div id="node_legend_content" class="content ui-widget-content">
 		<img src="images/network/gene_legend.png"/>
+	</div>
+</div>
+
+<div id="drug_legend" class="hidden-network-ui" title="Drug Legend">
+	<div id="drug_legend_content" class="content ui-widget-content">
+		<img src="images/network/drug_legend.png"/>
 	</div>
 </div>
 

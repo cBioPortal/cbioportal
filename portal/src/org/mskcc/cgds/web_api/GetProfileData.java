@@ -54,7 +54,7 @@ public class GetProfileData {
         targetGeneticProfileIdList.add(geneticProfile.getStableId());
 
         ArrayList<String> targetCaseList = new ArrayList<String>();
-        String caseIdParts[] = caseIds.split("\\s");
+        String caseIdParts[] = caseIds.split("\\s+");
         for (String caseIdPart: caseIdParts) {
             targetCaseList.add(caseIdPart);
         }

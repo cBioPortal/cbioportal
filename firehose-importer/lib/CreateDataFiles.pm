@@ -934,6 +934,7 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 # None.  Simply rename the file
 sub create_mut_sig {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+
 	$data->write($CGDSfile);
 }
 

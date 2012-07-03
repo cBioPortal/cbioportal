@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.portal.network.*;
 import org.mskcc.cgds.dao.DaoGeneticAlteration;
 import org.mskcc.cgds.dao.DaoMutation;

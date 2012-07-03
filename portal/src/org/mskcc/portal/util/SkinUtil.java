@@ -175,4 +175,22 @@ public class SkinUtil {
         String authMessage = config.getProperty(PROPERTY_SKIN_AUTHORIZATION_MESSAGE);
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
     }
+
+    /**
+     * Gets the Data Sets Header.
+     * @return String
+     */
+    public static String getDataSetsHeader() {
+        Config config = Config.getInstance();
+        return config.getProperty("skin.data_sets_header");
+    }
+
+    /**
+     * Gets the Data Sets Footer.
+     * @return String
+     */
+    public static String getDataSetsFooter() {
+        Config config = Config.getInstance();
+        return config.getProperty("skin.data_sets_footer");
+    }
 }

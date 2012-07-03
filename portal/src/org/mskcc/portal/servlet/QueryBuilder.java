@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.mskcc.cgds.model.ClinicalData;
 import org.mskcc.portal.model.*;
 import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
@@ -31,6 +34,8 @@ import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.web_api.GetProfileData;
+import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cgds.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -47,6 +52,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String GENE_SET_CHOICE = "gene_set_choice";
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
+    public static final String CASE_IDS_KEY = "case_ids_key";
+    public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
@@ -56,6 +63,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String DFS_SURVIVAL_PLOT = "dfs_survival_plot";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";
+    public static final String STEP1_ERROR_MSG = "step1_error_msg";
     public static final String STEP2_ERROR_MSG = "step2_error_msg";
     public static final String STEP3_ERROR_MSG = "step3_error_msg";
     public static final String STEP4_ERROR_MSG = "step4_error_msg";
@@ -71,9 +79,10 @@ public class QueryBuilder extends HttpServlet {
     public static final String USER_ERROR_MESSAGE = "user_error_message";
     public static final String ATTRIBUTE_URL_BEFORE_FORWARDING = "ATTRIBUTE_URL_BEFORE_FORWARDING";
     public static final String Z_SCORE_THRESHOLD = "Z_SCORE_THRESHOLD";
+    public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final int MUTATION_DETAIL_LIMIT = 10;
+    public static final int MUTATION_DETAIL_LIMIT = 20;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
@@ -81,6 +90,9 @@ public class QueryBuilder extends HttpServlet {
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
 
     private ServletXssUtil servletXssUtil;
+
+	// class which process access control to cancer studies
+	private AccessControl accessControl;
 
     /**
      * Initializes the servlet.
@@ -91,6 +103,9 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
+			ApplicationContext context = 
+				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+			accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -146,7 +161,7 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get all Cancer Types
         try {
-            ArrayList<CancerStudy> cancerStudyList = GetCancerTypes.getCancerStudies();
+			List<CancerStudy> cancerStudyList = accessControl.getCancerStudies();
 
             if (cancerTypeId == null) {
                 cancerTypeId = cancerStudyList.get(0).getCancerStudyStableId();
@@ -188,7 +203,7 @@ public class QueryBuilder extends HttpServlet {
                                                caseSetId, caseIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(geneticProfileIdSet, profileList, geneList, caseSetId,
+                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, caseSetId,
                             caseIds, caseSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
@@ -206,6 +221,10 @@ public class QueryBuilder extends HttpServlet {
                                "An error occurred while trying to connect to the database.", xdebug);
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
+            forwardToErrorPage(httpServletRequest, httpServletResponse,
+                               "An error occurred while trying to connect to the database.", xdebug);
+        } catch (ProtocolException e) {
+            xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                "An error occurred while trying to connect to the database.", xdebug);
         }
@@ -252,21 +271,23 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      * 
     */
-    private void processData(HashSet<String> geneticProfileIdSet,
-                                ArrayList<GeneticProfile> profileList,
-                                String geneListStr,
-                                String caseSetId, String caseIds,
-                                ArrayList<CaseList> caseSetList,
-                                ServletContext servletContext, HttpServletRequest request,
-                                HttpServletResponse response,
-                                XDebug xdebug)
-            throws IOException, ServletException, DaoException {
+    private void processData(String cancerTypeId,
+							 HashSet<String> geneticProfileIdSet,
+							 ArrayList<GeneticProfile> profileList,
+							 String geneListStr,
+							 String caseSetId, String caseIds,
+							 ArrayList<CaseList> caseSetList,
+							 ServletContext servletContext, HttpServletRequest request,
+							 HttpServletResponse response,
+							 XDebug xdebug) throws IOException, ServletException, DaoException {
 
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       ParserOutput theOncoPrintSpecParserOutput =
+       double rppaScore = ZScoreUtil.getRPPAScore(request);
+       
+       ParserOutput theOncoPrintSpecParserOutput = 
                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
-                geneticProfileIdSet, profileList, zScore );
+                geneticProfileIdSet, profileList, zScore, rppaScore );
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
@@ -278,8 +299,27 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(GENE_LIST, geneList);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
+        
         HashSet<String> setOfCaseIds = null;
-        if (!caseSetId.equals("-1")) {
+        
+        String caseIdsKey = null;
+        
+        // user-specified cases, but case_ids parameter is missing,
+        // so try to retrieve case_ids by using case_ids_key parameter.
+        // this is required for survival plot requests  
+        if (caseSetId.equals("-1") &&
+        	caseIds == null)
+        {
+        	caseIdsKey = servletXssUtil.getCleanInput(request, CASE_IDS_KEY);
+        	
+        	if (caseIdsKey != null)
+        	{
+        		caseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+        	}
+        }
+        
+        if (!caseSetId.equals("-1"))
+        {
             for (CaseList caseSet : caseSetList) {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
@@ -289,9 +329,11 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         //if user specifies cases, add these to hashset, and send to GetMutationData
-        else {
+        else if (caseIds != null)
+        {
             String[] caseIdSplit = caseIds.split("\\s+");
             setOfCaseIds = new HashSet<String>();
+            
             for (String caseID : caseIdSplit){
                 if (null != caseID){
                    setOfCaseIds.add(caseID);
@@ -299,7 +341,14 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         
-        request.setAttribute(CASE_IDS, caseIds);
+        if (caseIdsKey == null)
+        {
+        	caseIdsKey = CaseSetUtil.shortenCaseIds(caseIds);
+        }
+        
+        // this will create a key even if the case set is a predefined set,
+        // because it is required to build a case id string in any case
+        request.setAttribute(CASE_IDS_KEY, caseIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
@@ -390,34 +439,44 @@ public class QueryBuilder extends HttpServlet {
             String output = servletXssUtil.getCleanInput(request, OUTPUT);
             String format = servletXssUtil.getCleanInput(request, FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+            double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
+            request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
+
+			// get oncoprint here - only if output == null or output = html
+			String oncoPrintHtml = "";
+			if (output == null || output.equals("html")) {
+				oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
+															geneListStr,
+															mergedProfile,
+															caseSetList,
+															caseSetId,
+															zScoreThreshold,
+															rppaScoreThreshold,
+															geneticProfileIdSet,
+															profileList,
+															true);
+			}
 
             if (output != null) {
-
-                String showAlteredColumns = servletXssUtil.getCleanInput(request, "showAlteredColumns");
-                boolean showAlteredColumnsBool = false;
-                if( showAlteredColumns != null && showAlteredColumns.equals("true")) {
-                    showAlteredColumnsBool = true;
-                }
-                if (output.equalsIgnoreCase("svg")) {
-                    outputSvg(response, geneListStr, mergedProfile, caseSetList, caseSetId,
-                            zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList);
-                } else if (output.equalsIgnoreCase("html")) {
-                    outputOncoprintHtml(response, geneListStr, mergedProfile, caseSetList,
-                            caseSetId, zScoreThreshold, showAlteredColumnsBool, geneticProfileIdSet,
-                            profileList,request);
-                } else if (output.equals("text")) {
+				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold);
+                            zScoreThreshold, rppaScoreThreshold);
                 } else if (output.equals(OS_SURVIVAL_PLOT)) {
                     outputOsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, clinicalDataList, format, response);
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
                 } else if (output.equals(DFS_SURVIVAL_PLOT)) {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, clinicalDataList, format, response);
-                }
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
+				// (via LinkOut servlet - report=oncoprint_html arg)
+                } else if (output.equals("html")) {
+					outputOncoprintHtml(response, oncoPrintHtml);
+				}
             } else {
+
+				// set oncoprint html in session for use in visualize.jsp
+				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
+				
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
                 RequestDispatcher dispatcher =
@@ -431,89 +490,57 @@ public class QueryBuilder extends HttpServlet {
     }
 
     private void outputDfsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
             ArrayList<ClinicalData> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS,
                 clinicalDataList, dataSummary, format, response);
     }
 
     private void outputOsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold,
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
             ArrayList<ClinicalData> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
                 clinicalDataList, dataSummary, format, response);
     }
 
     private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold) throws IOException {
+            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold) throws IOException {
         response.setContentType("text/plain");
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold );
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         PrintWriter writer = response.getWriter();
         writer.write("" + dataSummary.getPercentCasesAffected());
         writer.flush();
         writer.close();
     }
 
-    private void outputOncoprintHtml(HttpServletResponse response, String geneListStr,
-            ProfileData mergedProfile, ArrayList<CaseList> caseSetList, String caseSetId,
-            double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList,
-            HttpServletRequest request)
-            throws IOException {
+	private void outputOncoprintHtml(HttpServletResponse response, String oncoPrintHtml) throws IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-		String cancerStudyIdentifier = (String)request.getAttribute(CANCER_STUDY_ID);
         writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
                 "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
         writer.write ("<head>\n");
         writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
+		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n");
+		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>\n");
         writer.write ("<title>OncoPrint::Results</title>\n");
+        writer.write ("<link href=\"css/tipTip.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
         writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		writer.write ("<link href=\"css/redmond/jquery-ui-1.8.14.custom.css\" type=\"text/css\" rel=\"stylesheet\">\n");
         writer.write ("</head>\n");
         writer.write ("<body style=\"background-color:#FFFFFF\">\n");
-        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.HTML;
-        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile, caseSetList, caseSetId,
-												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true);
-        writer.write(out);
-        
-        // TODO: hacky way for su2c
-        if (cancerStudyIdentifier.equals("grayBreastCellLine")) {
-            writer.write("<br><div style=\"text-align:left\"><a target=\"_blank\" href=\"");
-            writer.write(GlobalProperties.getUcscCancerGenomicsUrl()+"dataset="
-                    + "grayBreastCellLineExon,grayBreastCellLineSNPSeg&displayas=geneset&genes=");
-            writer.write(StringUtils.join((java.util.List)request.getAttribute(GENE_LIST),","));
-            writer.write("\"><font color=\"#1974b8\" size=\"1\">UCSC Cancer Genomics Browser</font>"
-                    + "&nbsp;<img src=\"images/external-link-ltr-icon.png\"></a></div>\n");
-		}
-
+        writer.write ("<div id=\"content\">\n");
+        writer.write(oncoPrintHtml);
+        writer.write ("</div>\n");
         writer.write ("</body>\n");
         writer.write ("</html>\n");
-        writer.flush();
-        writer.close();
-    }
-
-    private void outputSvg(HttpServletResponse response, String geneListStr,
-            ProfileData mergedProfile, ArrayList<CaseList> caseSetList,
-            String caseSetId, double zScoreThreshold, boolean showAlteredColumnsBool,
-            HashSet<String> geneticProfileIdSet, ArrayList<GeneticProfile> profileList)
-            throws IOException {
-        response.setContentType("image/svg+xml");
-        MakeOncoPrint.OncoPrintType theOncoPrintType = MakeOncoPrint.OncoPrintType.SVG;
-        String out = MakeOncoPrint.makeOncoPrint(geneListStr, mergedProfile,
-												 caseSetList, caseSetId,
-												 zScoreThreshold, theOncoPrintType, showAlteredColumnsBool,
-												 geneticProfileIdSet, profileList, true, true);
-        PrintWriter writer = response.getWriter();
-        writer.write(out);
         writer.flush();
         writer.close();
     }
@@ -530,6 +557,15 @@ public class QueryBuilder extends HttpServlet {
         String tabIndex = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.TAB_INDEX);
         if (action != null) {
             if (action.equals(ACTION_SUBMIT)) {
+				// is user authorized for the study
+				String cancerStudyIdentifier = (String)httpServletRequest.getAttribute(CANCER_STUDY_ID);
+				if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
+                    httpServletRequest.setAttribute(STEP1_ERROR_MSG,
+													"You are not authorized to view the cancer study with id: '" +
+													cancerStudyIdentifier + "'. ");
+					errorsExist = true;
+				}
+						
                 if (geneticProfileIdSet.size() == 0) {
                     if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
                         httpServletRequest.setAttribute(STEP2_ERROR_MSG,
@@ -540,21 +576,53 @@ public class QueryBuilder extends HttpServlet {
                     }
                     errorsExist = true;
                 }
-                if (caseSetId.equals("-1") && caseIds.trim().length() == 0) {
-                    httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                            "Please enter at least one case ID below. ");
-                    errorsExist = true;
+                
+                // user-defined case set
+                if (caseIds != null &&
+                	caseSetId != null &&
+                	caseSetId.equals("-1"))
+                {
+                	// empty case list
+                	if (caseIds.trim().length() == 0)
+                	{
+                		httpServletRequest.setAttribute(STEP3_ERROR_MSG,
+                				"Please enter at least one case ID below. ");
+                		
+                		errorsExist = true;
+                	}
+                	else
+                	{
+                		List<String> invalidCases = CaseSetUtil.validateCaseSet(
+                				cancerStudyIdentifier, caseIds);
+                		
+                		String caseSetErrMsg = "Invalid case(s) for the selected cancer study:";
+                		
+                		// non-empty list, but contains invalid case IDs
+                		if (invalidCases.size() > 0)
+                		{
+                			// append case ids to the message
+                    		for (String caseId : invalidCases)
+                    		{
+                    			caseSetErrMsg += " " + caseId;
+                    		}
+                    		
+                			httpServletRequest.setAttribute(STEP3_ERROR_MSG,
+                					caseSetErrMsg);
+                    		
+                    		errorsExist = true;
+                		}
+                	}
                 }
 
                 errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
 
                 if (geneList != null && geneList.trim().length() > 0) {
                     // output any errors generated by the parser
+                    double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, httpServletRequest);
+                    double rppaScore = ZScoreUtil.getRPPAScore(httpServletRequest);
                     ParserOutput theOncoPrintSpecParserOutput =
                             OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-                             geneticProfileIdSet, profileList,
-                                    ZScoreUtil.getZScore(geneticProfileIdSet, profileList,
-                                            httpServletRequest ) );
+                            geneticProfileIdSet, profileList, zScore, rppaScore);
                     
                     if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0
                             <theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
@@ -612,7 +680,7 @@ public class QueryBuilder extends HttpServlet {
         }
         return errorsExist;
     }
-
+    
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)
             throws ServletException, IOException {

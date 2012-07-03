@@ -39,8 +39,6 @@ public class ImportMicroRNAIDs {
         String line = buf.readLine(); // skip first line
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         
-        int fakeEntrezId = -1;
-        
         List<CanonicalGene> mirnas = new ArrayList<CanonicalGene>();
         
         while ((line=buf.readLine()) != null) {
@@ -60,8 +58,7 @@ public class ImportMicroRNAIDs {
                     setAliases(parts[1],aliases);
                 }
                 
-                CanonicalGene mirna = new CanonicalGene(fakeEntrezId--, geneSymbol,
-                        aliases);
+                CanonicalGene mirna = new CanonicalGene(geneSymbol,aliases);
                 mirnas.add(mirna);
             }
         }

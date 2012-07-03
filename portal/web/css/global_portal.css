@@ -382,6 +382,41 @@ table td {
   color:black;
 }
 
+.oncoprint_accordion_panel {
+    background-color: #FFFFFF;
+}
+
+.oncoprint_accordion_panel h1 {
+	margin-top:0px;margin-bottom:0px;
+	font-family: verdana, arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 12px;
+	letter-spacing: -1px;
+	color: #2153AA;
+	text-align:justify;
+    cursor: default;
+}
+
+.oncoprint_accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.oncoprint_accordion_content {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.oncoprint_accordion_panel table {
+	padding-left:15px;
+}
+
+.oncoprint_accordion_panel td {
+    font-size:12px;
+    color:#666666;
+}
+
 .oncoprint {
     font-family: verdana, arial, sans-serif;
     font-size:13px !important;
@@ -410,6 +445,13 @@ table td {
     overflow-y:hidden;
     overflow-x:auto;
     padding-left:10px;
+}
+
+.oncoprint_indicator {
+	font-size: 10px;
+    color: #FF0000;
+	display: none;
+    padding-left:25px;
 }
 
 #frequency_plot {
@@ -1031,7 +1073,13 @@ cursor: default;
     border:1px solid #aaaaaa;
     -moz-border-radius: 10px;
     border-radius: 10px;
-    width: 780px;
+    width: 900px;
+}
+
+/* Divider in the accordion page */
+.crosscancer-hr {
+    width: 920px;
+    margin-bottom: 20px;
 }
 
 /* Accordion Panel H1 */
@@ -1133,7 +1181,7 @@ cursor: default;
 }
 
 /* Z-score threshold input (hidden until appropriate radio button selected) */
-#z_score_threshold {
+.score_threshold {
    display: none;
    margin-left: 64px;
    font-size: 90%;
@@ -1200,4 +1248,33 @@ h2.cross_cancer_header {
 .exp_error_text {
     font-weight:bold;
     font-size: 90%;
+}
+
+.mutation_diagram_details {
+    font-size: 90%;
+    font-family:arial;
+    background-color:#eeeeee;
+    width:50%;
+    padding:10px;
+    margin-left:25px;
+}
+
+.crosscancer-info {
+    float: left;
+    padding: 4px;
+}
+
+.crosscancer-info span {
+    cursor: default;
+}
+
+#crosscancer_summary_loading {
+    font-weight: bold;
+}
+
+/* IE 8 specific warning message on the cross-cancer query page */
+cc-ie-message {
+    padding: 15px;
+    background: #d3d3d3;
+    border-color: #1974B8;
 }

@@ -55,7 +55,7 @@
 					</td>
 				</tr>
 				</table>
-				<table>
+				<table id="network-resubmit-query">
 					<tr>
 	        			<td>
 	        				<label class="button-text">Submit New Query</label>

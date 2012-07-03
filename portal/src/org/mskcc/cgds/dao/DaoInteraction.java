@@ -124,7 +124,7 @@ public class DaoInteraction {
     public ArrayList<Interaction> getInteractions (CanonicalGene gene)
         throws DaoException {
         return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                false, true);
+							   false, true, null);
     }
 
     /**
@@ -139,7 +139,7 @@ public class DaoInteraction {
             boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes)
         throws DaoException {
         return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                seedGeneOnly, includeEdgesAmongLinkerGenes);
+							   seedGeneOnly, includeEdgesAmongLinkerGenes, null);
     }
     
     /**
@@ -151,7 +151,7 @@ public class DaoInteraction {
      */
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds)
         throws DaoException {
-        return getInteractions(entrezGeneIds, false, true);
+        return getInteractions(entrezGeneIds, false, true, null);
     }
 
     /**
@@ -163,17 +163,18 @@ public class DaoInteraction {
      * @throws DaoException Database Error.
      */
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
-            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes)
+												   boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, Connection con)
         throws DaoException {
         ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         if (entrezGeneIds.isEmpty()) {
             return interactionList;
         }
-        Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+			if (con == null) {
+				con = JdbcUtil.getDbConnection();
+			}
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
             if (seedGeneOnly) {
                 pstmt = con.prepareStatement
@@ -197,7 +198,7 @@ public class DaoInteraction {
                         allGenes.add(rs.getLong("GENE_A"));
                         allGenes.add(rs.getLong("GENE_B"));
                     }
-                    return getInteractions(allGenes, true, true);
+                    return getInteractions(allGenes, true, true, con);
                 } else {
                     while (rs.next()) {
                         Interaction interaction = extractInteraction(rs);

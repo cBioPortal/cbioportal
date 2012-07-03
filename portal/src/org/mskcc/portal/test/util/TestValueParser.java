@@ -59,7 +59,7 @@ public class TestValueParser extends TestCase {
       OncoPrintSpecification anOncoPrintSpecification = new OncoPrintSpecification(genes);
 
       OncoPrintGeneDisplaySpec aDefaultOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
-      aDefaultOncoPrintGeneDisplaySpec.setDefault( 1.0 );
+      aDefaultOncoPrintGeneDisplaySpec.setDefault( 1.0, 1.0 );
       GeneSet aGeneSet = new GeneSet();
       String[] moreGenes = { "P53", "Last" };
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = TestOncoPrintSpecificationLibrary
@@ -70,7 +70,7 @@ public class TestValueParser extends TestCase {
       }
       anOncoPrintSpecification.add(aGeneSet);
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 2.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 2.0, 1.0,
                aDefaultOncoPrintGeneDisplaySpec);
       assertTrue(parser.isMRNAWayUp());
       assertFalse(parser.isMRNAWayDown());
@@ -81,7 +81,7 @@ public class TestValueParser extends TestCase {
       assertTrue(parser.isGeneAltered());
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = ValueParser.generateValueParser("g1", "COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 2.0,
+      parser = ValueParser.generateValueParser("g1", "COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 2.0, 1.0,
                anOncoPrintSpecification);
       assertTrue(parser.isMRNAWayUp());
       assertFalse(parser.isMRNAWayDown());
@@ -92,7 +92,7 @@ public class TestValueParser extends TestCase {
       assertTrue(parser.isGeneAltered());
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:1;MRNA_EXPRESSION:-3;", 2.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:1;MRNA_EXPRESSION:-3;", 2.0, 1.0,
                aDefaultOncoPrintGeneDisplaySpec);
       assertFalse(parser.isMRNAWayUp());
       assertTrue(parser.isMRNAWayDown());
@@ -104,7 +104,7 @@ public class TestValueParser extends TestCase {
       assertTrue(parser.isGeneAltered());
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isMRNAWayUp());
       assertTrue(parser.isMRNAWayDown());
@@ -117,14 +117,14 @@ public class TestValueParser extends TestCase {
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
       // no such gene
-      parser = ValueParser.generateValueParser("None", "sdfdsf", 0.0, anOncoPrintSpecification);
+      parser = ValueParser.generateValueParser("None", "sdfdsf", 0.0,  1.0,anOncoPrintSpecification);
       assertEquals(null, parser);
 
       ParsedFullDataTypeSpec aParsedFullDataTypeSpec = new ParsedFullDataTypeSpec();
       aParsedFullDataTypeSpec.addSpec(new ConcreteDataTypeSpec(GeneticDataTypes.Methylation));
       aParsedFullDataTypeSpec.addSpec(new DiscreteDataTypeSpec(GeneticDataTypes.CopyNumberAlteration, ComparisonOp
                .convertCode(">"), GeneticTypeLevel.HemizygouslyDeleted));
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.5,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.5, 1.0,
                aParsedFullDataTypeSpec.cleanUpInput());
       assertFalse(parser.isMRNAWayUp());
       assertFalse(parser.isMRNAWayDown());
@@ -167,7 +167,7 @@ public class TestValueParser extends TestCase {
       aParsedFullDataTypeSpec = new ParsedFullDataTypeSpec();
       aParsedFullDataTypeSpec.addSpec(new DiscreteDataTypeSpec(GeneticDataTypes.Mutation, ComparisonOp
                .convertCode("<="), GeneticTypeLevel.Normal));
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.5,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.5, 1.0,
                aParsedFullDataTypeSpec.cleanUpInput());
       assertFalse(parser.isMutated());
       assertTrue(parser.wasSequenced());
@@ -180,7 +180,7 @@ public class TestValueParser extends TestCase {
       assertFalse(parser.wasSequenced());
       assertTrue(parser.isGeneAltered());
 
-      parser = ValueParser.generateValueParser("g1", "COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 1.0,
+      parser = ValueParser.generateValueParser("g1", "COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 1.0, 1.0,
                anOncoPrintSpecification);
 
       assertTrue(parser.isCnaAmplified());
@@ -191,7 +191,7 @@ public class TestValueParser extends TestCase {
                                            // zScore rules
       assertTrue(parser.isMutated());
 
-      parser = ValueParser.generateValueParser("P53", "COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0,
+      parser = ValueParser.generateValueParser("P53", "COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0, 1.0,
                anOncoPrintSpecification);
       assertFalse(parser.isCnaAmplified());
       assertTrue(parser.isCnaGained());
@@ -225,38 +225,38 @@ public class TestValueParser extends TestCase {
 
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = TestOncoPrintSpecificationLibrary
                .createTestOncoPrintGeneDisplaySpec();
-      ValueParser parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      ValueParser parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:0;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:0;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:-1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:-1;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:-2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:-2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("MUTATION:C135F;MRNA_EXPRESSION:1;", 0.0, theOncoPrintGeneDisplaySpec);
+      parser = new ValueParser("MUTATION:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0, theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:nan;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:nan;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION: JUNK;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION: JUNK;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:4;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:4;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertFalse(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 
@@ -268,7 +268,7 @@ public class TestValueParser extends TestCase {
       aParsedFullDataTypeSpec.addSpec( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
                GeneticTypeLevel.Diploid ) );
       theOncoPrintGeneDisplaySpec = aParsedFullDataTypeSpec.cleanUpInput();
-      parser = new ValueParser("COPY_NUMBER_ALTERATION:0;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0,
+      parser = new ValueParser("COPY_NUMBER_ALTERATION:0;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:1;", 0.0, 1.0,
                theOncoPrintGeneDisplaySpec);
       assertTrue(parser.isDiscreteTypeAltered(GeneticDataTypes.CopyNumberAlteration));
 

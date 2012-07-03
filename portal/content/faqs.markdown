@@ -53,6 +53,10 @@ The order of genes in the OncoPrint is determined by the order entered into the 
 
 We support and test on the following web browsers:  Internet Explorer 7.0 and above, Firefox 3.0 and above, Safari and Google Chrome.  Note hover that SVG images, which are used for downloadable OncoPrints, are not supported by Internet Explorer versions older than 9. If you notice any other incompatibilities, please let us know.
 
+# How can I query phosphoprotein levels in the portal?
+
+You need to input special IDs for each phosphoprotein/phopshosite such as <i>AKT_pS473</i> (which means AKT protein phosphorylated at serine residue at position 473). You could also input aliases such as <i>phosphoAKT1</i> or <i>phosphoprotein</i>, and the portal will ask you to select the phosphoprotein/phosphosite of your interest.
+
 # How can I query microRNAs in the portal?
 
 You can input either precusor or mature miRNA IDs. Since one precusor ID may correspond to multiple mature IDs and vise versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After entering a precusor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.
@@ -80,7 +84,8 @@ Yes.  The cBio Portal is available under a [GNU Lesser General Public License](h
 
 # How do I cite the portal?
 
-We are finalizing a portal paper right now.  In the meantime, you can cite us by URL:  The cBio Cancer Genomics Portal (http://www.cbioportal.org/).
+You can cite the portal paper:  Ethan Cerami, et. al.  *The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.*  Cancer Discovery. May 2012 2; 401.
+[Abstract](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract).
 
 # How do I get updates on new portal developments and new data sets?
 

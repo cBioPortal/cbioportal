@@ -78,6 +78,10 @@
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>
                     </li>
                    <li>
+                       <a href="http://groups.google.com/group/cbioportal"><img style="margin-top:4px; margin-bottom:4px;"
+                            src="images/google_groups.png" title="Open forum for questions, discussions and suggestions" alt="Google Groups"/></a>
+                   </li>
+                   <li>
                        <a href="http://cbio.mskcc.org"><img style="margin-top:6px; margin-bottom:4px; margin-right:-3px"
                             src="images/cbioLogo.png" title="cBio@MSKCC" alt="cBio@MSKCC"/></a>
                    </li>

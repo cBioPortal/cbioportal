@@ -3,37 +3,22 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.portal.network.*;
+import org.mskcc.cgds.dao.DaoGeneticAlteration;
+import org.mskcc.cgds.dao.DaoMutation;
+import org.mskcc.cgds.model.*;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.util.CaseSetUtil;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.XDebug;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
 
 /**
  * Retrieving 
@@ -80,7 +65,7 @@ public class NetworkServlet extends HttpServlet {
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
             Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
-            int nMiRNA = filterMiRNA(queryGenes);
+            int nMiRNA = filterNodes(queryGenes);
             if (nMiRNA>0) {
                 messages.append("MicroRNAs were excluded from the network query. ");
             }
@@ -256,6 +241,12 @@ public class NetworkServlet extends HttpServlet {
                 res.setContentType("text/"+(sif?"plain":"xml"));
             }
             
+            String gzip = req.getParameter("gzip");
+            boolean isGzip = gzip != null && gzip.equalsIgnoreCase("on");
+            if (isGzip) {
+                res.setHeader("Content-Encoding", "gzip");
+            }
+            
             NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
@@ -295,9 +286,15 @@ public class NetworkServlet extends HttpServlet {
                 writeMsg(messages.toString(), res);
             }
             
-            PrintWriter writer = res.getWriter();
-            writer.write(graph);
-            writer.flush();
+            if (isGzip) {
+                GZIPOutputStream out = new GZIPOutputStream(res.getOutputStream());
+                out.write(graph.getBytes());
+                out.close();
+            } else {
+                PrintWriter writer = res.getWriter();
+                writer.write(graph);
+                writer.close();
+            }
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to cancergenomics@cbio.mskcc.org!\n"+e.toString(), res);
@@ -305,14 +302,14 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private int filterMiRNA(Set<String> queryGenes) {
+    private int filterNodes(Set<String> queryGenes) {
         int n = 0;
         try {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
             for (Iterator<String> it = queryGenes.iterator(); it.hasNext();) {
                 String symbol = it.next();
                 CanonicalGene gene = daoGeneOptimized.getGene(symbol);
-                if (gene.isMicroRNA()) {
+                if (gene.isMicroRNA() || gene.isPhosphoProtein()) {
                     it.remove();
                     n++;
                 }
@@ -448,7 +445,9 @@ public class NetworkServlet extends HttpServlet {
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
             throws ServletException, DaoException {
-        String strCaseIds = req.getParameter(QueryBuilder.CASE_IDS);
+    	String caseIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
+    	String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+    	
         if (strCaseIds==null || strCaseIds.length()==0) {
             String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Case Sets for Selected Cancer Type
@@ -460,7 +459,8 @@ public class NetworkServlet extends HttpServlet {
                     }
                 }
         }
-        String[] caseArray = strCaseIds.split(" ");
+        //String[] caseArray = strCaseIds.split(" ");
+        String[] caseArray = strCaseIds.split("\\s+");
         Set<String> targetCaseIds = new HashSet<String>(caseArray.length);
         for (String caseId : caseArray) {
             targetCaseIds.add(caseId);

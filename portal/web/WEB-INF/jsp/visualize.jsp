@@ -35,10 +35,12 @@
             (QueryBuilder.GENETIC_PROFILE_IDS);
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+    double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
     ArrayList<CaseList> caseSets = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -62,10 +64,10 @@
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
              (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
              (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-             zScoreThreshold );
+             zScoreThreshold, rppaScoreThreshold );
 
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold );
+    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
 
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
@@ -98,10 +100,10 @@
     ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
-    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0
-                || countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PHOSPHORYLATION) > 0;
+    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
+    String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 
 
@@ -174,7 +176,7 @@
              });
              </script>
 
-            <p><a href="" title="Modify your original query.  Recommended over than hitting your browser's back button." id="toggle_query_form">
+            <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
             <p/>
@@ -193,23 +195,46 @@
                     Enumeration paramEnum = request.getParameterNames();
                     StringBuffer buf = new StringBuffer(request.getAttribute
                             (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
-                    while (paramEnum.hasMoreElements()) {
+                    
+                    while (paramEnum.hasMoreElements())
+                    {
                         String paramName = (String) paramEnum.nextElement();
                         String values[] = request.getParameterValues(paramName);
-                        if (values != null && values.length >0) {
-                            for (int i=0; i<values.length; i++) {
+                        
+                        if (values != null && values.length >0)
+                        {
+                            for (int i=0; i<values.length; i++)
+                            {
                                 String currentValue = values[i].trim();
-                                if (currentValue.contains("mutation")){
+                                
+                                if (currentValue.contains("mutation"))
+                                {
                                     showMutTab = true;
                                 }
-                                if (paramName.equals(QueryBuilder.GENE_LIST) || paramName.equals(QueryBuilder.CASE_IDS)
-                                    && currentValue != null) {
+                                
+                                if (paramName.equals(QueryBuilder.GENE_LIST)
+                                    && currentValue != null)
+                                {
                                     //  Spaces must be converted to semis
                                     currentValue = Utilities.appendSemis(currentValue);
                                     //  Extra spaces must be removed.  Otherwise OMA Links will not work.
                                     currentValue = currentValue.replaceAll("\\s+", " ");
                                     currentValue = URLEncoder.encode(currentValue);
                                 }
+                                else if (paramName.equals(QueryBuilder.CASE_IDS) ||
+                                		paramName.equals(QueryBuilder.CLINICAL_PARAM_SELECTION))
+                                {
+                                	// do not include case IDs anymore (just skip the parameter)
+                                	// if we need to support user-defined case lists in the future,
+                                	// we need to replace this "parameter" with the "attribute" caseIdsKey
+                                	
+                                	// also do not include clinical param selection parameter, since
+                                	// it is only related to user-defined case sets, we need to take care
+                                	// of unsafe characters such as '<' and '>' if we decide to add this
+                                	// parameter in the future
+                                	continue;
+                                }
+                                
                                 buf.append (paramName + "=" + currentValue + "&");
                             }
                         }
@@ -262,28 +287,41 @@
 
                     out.println ("</ul>");
 
+                    
                     out.println ("<div class=\"section\" id=\"bookmark_email\">");
-                    out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
-                            + buf.toString() + "'>" + request.getAttribute
-                            (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
+                    
+                 	// diable bookmark link if case set is user-defined 
+                    if (caseSetId.equals("-1"))
+                    {
+                    	out.println("<br>");
+                    	out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+                    }
+                    else
+                    {
+                        out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
+                                + buf.toString() + "'>" + request.getAttribute
+                                (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
 
-                    String longLink = buf.toString();
-                    out.println("<br><br>");
-                    out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                    out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
-                    out.println("<div id='bitly'></div>");
+                        String longLink = buf.toString();
+                        out.println("<br><br>");
+                        out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+                        out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                        out.println("<div id='bitly'></div>");
 
-					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
-					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
-					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
-					//out.println("<a href='http://goo.gl/'>Google</a>.");
+    					//out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>,");
+    					//out.println(" we recommend that you copy and paste the URL above into a URL shortening service, ");
+    					//out.println("such as <a href='https://bitly.com/'>Bitly</a> or ");
+    					//out.println("<a href='http://goo.gl/'>Google</a>.");
+                    }
+                 	
                     out.println("</div>");
                 }
 
                 %>
 
             <div class="section" id="summary">
-            <%@ include file="fingerprint.jsp" %>
+			<% //contents of fingerprint.jsp now come from attribute on request object %>
+			<%= oncoprintHTML %>
             <%@ include file="gene_info.jsp" %>
             </div>
 
@@ -350,6 +388,10 @@
 </form>
 
 <script type="text/javascript">
+	// to initially hide the network tab
+	//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
         if($(this).attr("href")=="#network") {

@@ -105,7 +105,7 @@ sub generate_case_lists{
         my( $cancer, $name ) = split( /\s*:\s*/, $line );
         print "\nProcessing $cancer ($name):\n";
 
-		my @possibleCancerCenter = ("tcga", "mskcc");
+		my @possibleCancerCenter = ("tcga", "mskcc", "scand");
 		foreach my $possibleCancerCenter (@possibleCancerCenter) {
 
 		  my $cancerInputDirectory = $cancer . "_"  . $possibleCancerCenter;
@@ -133,8 +133,10 @@ sub generate_case_lists{
 						   "data_miRNA.txt", "data_microRNA_ZbyNorm.txt",
 						   "data_microRNA.txt", "data_microRNA_outliers.txt",
 						   "data_CNA_consensus.txt", "data_CNA_RAE.txt",
-						   "data_brca1_binary_methylation.txt", "",
-						   "data_protein.txt", "data_miRNA.txt",
+						   "data_brca1_binary_methylation.txt", "data_expression.txt",
+						   "data_protein.txt", "data_miRNA.txt", "data_expression_Zscores.txt",
+						   "data_mRNA_DBCG.txt", "data_mRNA_DBCG_Z.txt", "data_mRNA_FW_MDG.txt",
+						   "data_mRNA_MicMa.txt", "data_data_mRNA_ULL.txt",
 						   "data_miRNA_median_Zscores.txt", "data_expression_merged_median_Zscores.txt");
 		  my %filesToSkip = map { $_ => 1 } @skipFiles;
 		  # interate over all data_*.txt files in CancersCGDSinputDir
@@ -404,6 +406,9 @@ sub createMetaFile{
             'profile_description'          => 'Expression levels for <genes> genes in <cases> <cancer> cases (microRNA-Seq).',
             'profile_name'                 => 'mRNA expression (microarray)'
         },
+        'mutsig' => {
+            'stable_id'                    => '<cancer>_tcga_mutsig', 
+        },
     };
 
     my $metaFilename = $dataFilename;
@@ -461,6 +466,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'all_thresholded.by_genes.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_acgh',
+			'case_list_category'    => 'all_cases_with_cna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors aCGH',
             'case_list_description' =>
@@ -470,6 +476,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'all_data_by_genes.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_log2CNA',
+			'case_list_category'    => 'all_cases_with_log2_cna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors log2 copy-number',
             'case_list_description' =>
@@ -479,6 +486,7 @@ sub create_case_lists{
             'FirehoseFile'          => '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_mrna',
+            'case_list_category'    => 'all_cases_with_mrna_array_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
             'case_list_description' =>
@@ -488,6 +496,7 @@ sub create_case_lists{
             'FirehoseFile'          => '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_rna_seq_mrna',
+			'case_list_category'    => 'all_cases_with_mrna_rnaseq_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
             'case_list_description' =>
@@ -499,6 +508,7 @@ sub create_case_lists{
             # todo: someday firehose will include normals data
 
             'stable_id'             => '<cancer>_<cancer_center>_normal_mrna',
+			'case_list_category'    => 'all_cases_with_normal_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Normal Samples with mRNA',
             'case_list_description' =>
@@ -510,6 +520,7 @@ sub create_case_lists{
             # todo: eventually treat recurrent tumors differently
 
             'stable_id'             => '<cancer>_<cancer_center>_sequenced',
+            'case_list_category'    => 'all_cases_with_mutation_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Sequenced Tumors',
             'case_list_description' =>
@@ -519,6 +530,7 @@ sub create_case_lists{
             'FirehoseFile'          => '<CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_microrna',
+			'case_list_category'    => 'all_cases_with_microrna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
             'case_list_description' =>
@@ -528,6 +540,7 @@ sub create_case_lists{
             'FirehoseFile'          => '<CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_methylation',
+            'case_list_category'    => 'all_cases_with_methylation_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with methylation data',
             'case_list_description' =>
@@ -551,6 +564,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_CNA.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_acgh',
+			'case_list_category'    => 'all_cases_with_cna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors aCGH',
             'case_list_description' =>
@@ -560,6 +574,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_log2CNA.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_log2CNA',
+			'case_list_category'    => 'all_cases_with_log2_cna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors log2 copy-number',
             'case_list_description' =>
@@ -569,6 +584,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_expression_median.txt',
             'xformFunc'               => \&tumorCaseID,
             'stable_id'             => '<cancer>_<cancer_center>_mrna',
+            'case_list_category'    => 'all_cases_with_mrna_array_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with mRNA data (Agilent microarray)',
             'case_list_description' =>
@@ -578,6 +594,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_RNA_Seq_expression_median.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_rna_seq_mrna',
+			'case_list_category'    => 'all_cases_with_mrna_rnaseq_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with mRNA data (RNA Seq)',
             'case_list_description' =>
@@ -589,6 +606,7 @@ sub create_case_lists{
             # todo: someday firehose will include normals data
 
             'stable_id'             => '<cancer>_<cancer_center>_normal_mrna',
+			'case_list_category'    => 'all_cases_with_normal_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Normal Samples with mRNA',
             'case_list_description' =>
@@ -600,6 +618,7 @@ sub create_case_lists{
             # todo: eventually treat recurrent tumors differently
 
             'stable_id'             => '<cancer>_<cancer_center>_sequenced',
+            'case_list_category'    => 'all_cases_with_mutation_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Sequenced Tumors',
             'case_list_description' =>
@@ -609,6 +628,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_expression_miRNA.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_microrna',
+			'case_list_category'    => 'all_cases_with_microrna_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with microRNA data (microRNA-Seq)',
             'case_list_description' =>
@@ -618,6 +638,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_methylation.txt',
             'xformFunc'               => \&tumorCaseID,
             'stable_id'             => '<cancer>_<cancer_center>_methylation',
+            'case_list_category'    => 'all_cases_with_methylation_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with methylation data',
             'case_list_description' =>
@@ -627,6 +648,7 @@ sub create_case_lists{
             'FirehoseFile'          => 'data_rppa.txt',
             'xformFunc'               => undef,
             'stable_id'             => '<cancer>_<cancer_center>_rppa',
+			'case_list_category'    => 'all_cases_with_rppa_data',
             'cancer_study_identifier'        => '<cancer>_<cancer_center>',
             'case_list_name'        => 'Tumors with RPPA data',
             'case_list_description' =>
@@ -640,7 +662,7 @@ sub create_case_lists{
         
     create_one_to_one_case_lists( $FirehoseFileMetadata_objects, $runSummary, File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'), 
         $cancer, $cancerCenter, $case_list_FileProperties, 
-        [qw( stable_id cancer_study_identifier case_list_name case_list_description )] ); 
+        [qw( stable_id case_list_category cancer_study_identifier case_list_name case_list_description )] ); 
     
 	my $cghSource = 'all_thresholded.by_genes.txt';
 	my $rnaSEQSource = '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt';
@@ -657,7 +679,7 @@ sub create_case_lists{
 	  $methylationSource = 'data_methylation.txt';
 	}
 
-    # create cases_all.txt
+    # create cases_all.txt (rgh, rnaSeq, mrna, mutation, methylation, rppa)
     create_many_to_one_case_lists( 
         $FirehoseFileMetadata_objects,
         $runSummary,
@@ -671,8 +693,29 @@ sub create_case_lists{
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',
             stable_id => '<cancer>_<cancer_center>_all',
+            case_list_category => 'all_cases_in_study',
             case_list_name =>  'All Tumors',
             case_list_description =>  'All tumor samples (<cases> samples)',
+        }
+    );
+
+    # create cases_cnaseq.txt (cna and mutation)
+    create_many_to_one_case_lists( 
+        $FirehoseFileMetadata_objects,
+        $runSummary,
+        File::Spec->catfile( $CancersCGDSinputDir, 'case_lists'),
+        'cases_cnaseq.txt',
+        $cancer,
+		$cancerCenter,
+        # todo: make these table/config file driven
+        [ $cghSource, $sequencedSource ],
+        'intersection',
+        {
+            cancer_study_identifier =>  '<cancer>_<cancer_center>',
+            stable_id => '<cancer>_<cancer_center>_cnaseq',
+            case_list_category => 'all_cases_with_mutation_and_cna_data',
+            case_list_name =>  'Tumors with sequencing and aCGH data',
+            case_list_description =>  'All tumor samples that have CNA and sequencing data (<cases> samples)',
         }
     );
 
@@ -703,6 +746,7 @@ sub create_case_lists{
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',
             stable_id => '<cancer>_<cancer_center>_3way_complete',
+            case_list_category => 'all_cases_with_mutation_and_cna_and_mrna_data',
             case_list_name =>  'All Complete Tumors',
             case_list_description =>  'All tumor samples that have mRNA, CNA and sequencing data (<cases> samples)',
         }
@@ -938,7 +982,7 @@ sub createCancerTypeNameFile{
 		}
         my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
-        my $url = "\"http://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
+        my $url = "\"https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";
     }else{
         $fileContent .= 'TBD' . "\n"; 

@@ -27,6 +27,10 @@ public class PlotServlet extends HttpServlet {
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
     private static final String UNDEFINED = "undefined";
+	private static final String R_RETURN_MESG = ("An error occurred processing your request.\\n" +
+												 "It may be that your gene/case set combination has no data\\n" +
+												 "for this data type.  If you believe this is an error,\\n" +
+												 "please contact us at cbioportal@googlegroups.com.");
 
     private static ServletXssUtil servletXssUtil;
 
@@ -41,7 +45,7 @@ public class PlotServlet extends HttpServlet {
             servletXssUtil = ServletXssUtil.getInstance();
         } catch (PolicyException e) {
             throw new ServletException (e);
-        }
+		}
     }
 
     /**
@@ -66,7 +70,7 @@ public class PlotServlet extends HttpServlet {
                     (servletXssUtil.getCleanInput(req, QueryBuilder.GENETIC_PROFILE_IDS));
             String skin = servletXssUtil.getCleanInput(req, SKIN);
             String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
-            String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);            
+            String caseIdsKey = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS_KEY);
             String format = servletXssUtil.getCleanInput(req, QueryBuilder.FORMAT);
             String skinColGroup = servletXssUtil.getCleanInput(req, SKIN_COL_GROUP);
             String skinNormals = servletXssUtil.getCleanInput(req, SKIN_NORMALS);
@@ -89,7 +93,7 @@ public class PlotServlet extends HttpServlet {
             }
 
             geneticProfiles = geneticProfiles.substring(0, geneticProfiles.length() - 1);
-            RConnection c = new RConnection();
+			RConnection c = new RConnection();
 
             if (format.equals("pdf")) {
                 res.setContentType("application/pdf");
@@ -128,27 +132,14 @@ public class PlotServlet extends HttpServlet {
             logger.debug("Web API URL is:  " + cgdsUrl);
 
             plot.append ("c = CGDS('" + cgdsUrl + "',TRUE);\n");
+			// add our own return mesg - must come before call to plot
+			plot.append("setPlotErrorMsg(c, \"" + R_RETURN_MESG + "\");\n");
             if (caseSetId != null && !caseSetId.equals("-1")) {
                 plot.append (String.format("plot(c, '%s', c(%s), c(%s), '%s', skin='%s' ",
                         cancerTypeId, genes, geneticProfiles, caseSetId, skin));
             } else {
-                ArrayList <String> caseList = new ArrayList<String>();
-                for (String currentCase : caseIds.split("[\\s,]+")) {
-                    currentCase = currentCase.trim();
-                    if (currentCase.length() > 0) {
-                        caseList.add(currentCase);
-                    }
-                }
-                StringBuffer caseBuffer = new StringBuffer();
-                for (int i=0; i<caseList.size(); i++) {
-                    caseBuffer.append ("\"" + caseList.get(i) + "\"");
-                    if (i < caseList.size() -1) {
-                        caseBuffer.append (",");
-                    }
-                }
-
-                plot.append (String.format("plot(c, '%s', c(%s), c(%s), cases=c(%s), skin='%s' ",
-                        cancerTypeId, genes, geneticProfiles, caseBuffer.toString(), skin));
+                plot.append (String.format("plot(c, '%s', c(%s), c(%s), caseIdsKey='%s', skin='%s' ",
+                        cancerTypeId, genes, geneticProfiles, caseIdsKey, skin));
             }
             if (skinColGroup != null && !skinColGroup.equals(UNDEFINED)) {
                 plot.append (", skin.col.gp=c(");
@@ -193,7 +184,7 @@ public class PlotServlet extends HttpServlet {
             byte[] imageBytes = xp.asBytes();
             res.setContentLength(imageBytes.length);
             res.getOutputStream().write(imageBytes);
-            c.close();
+			c.close();
         } catch (Exception e) {
             //  In the event of an exception, redirect to the Plot NA Image.
             logger.error(e);

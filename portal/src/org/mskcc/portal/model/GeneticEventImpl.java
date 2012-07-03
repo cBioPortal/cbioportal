@@ -10,15 +10,19 @@ import org.mskcc.portal.util.ValueParser;
  */
 public class GeneticEventImpl implements GeneticEvent {
 
-   public enum CNA { amplified, Gained, diploid, HemizygouslyDeleted, homoDeleted, None } // some values have lower case names to match filenames of icons that represent them
+   public enum CNA { AMPLIFIED, GAINED, DIPLOID, HEMIZYGOUSLYDELETED, HOMODELETED, NONE } 
    
-   public enum MRNA { upRegulated, Normal, downRegulated, notShown } // as above, some values have lower case names to match filenames of icons that represent them
+   public enum MRNA { UPREGULATED, NORMAL, DOWNREGULATED, NOTSHOWN }
 
-   public enum mutations { Mutated, UnMutated, None }
+   public enum RPPA { UPREGULATED, NORMAL, DOWNREGULATED, NOTSHOWN }
+
+   public enum mutations { MUTATED, UNMUTATED, NONE }
 
    private CNA cnaValue;
    private MRNA mrnaValue;
+   private RPPA rppaValue;
    private mutations isMutated;
+   private String mutationType; // mutation type
    private String gene;
    private String caseId;
    
@@ -45,7 +49,7 @@ public class GeneticEventImpl implements GeneticEvent {
          cnaValue = CNA.HomozygouslyDeleted;
       }
       */
-      cnaValue = CNA.None;
+      cnaValue = CNA.NONE;
       if( valueParser == null ){
          System.err.println( "in GeneticEventImpl w null valueParser gene: " + gene + " case: "+ caseId);
          return;
@@ -55,34 +59,44 @@ public class GeneticEventImpl implements GeneticEvent {
       if( null != theGeneticTypeLevel ){
          switch( valueParser.getCNAlevel() ){
             case Amplified:
-               cnaValue = CNA.amplified;
+               cnaValue = CNA.AMPLIFIED;
                break;
             case Diploid:
-               cnaValue = CNA.diploid;
+               cnaValue = CNA.DIPLOID;
                break;
             case Gained:
-               cnaValue = CNA.Gained;
+               cnaValue = CNA.GAINED;
                break;
             case HemizygouslyDeleted:
-               cnaValue = CNA.HemizygouslyDeleted;
+               cnaValue = CNA.HEMIZYGOUSLYDELETED;
                break;
             case HomozygouslyDeleted:
-               cnaValue = CNA.homoDeleted;
+               cnaValue = CNA.HOMODELETED;
                break;
          }
       }
 
-      mrnaValue = MRNA.notShown;
+      mrnaValue = MRNA.NOTSHOWN;
       if (valueParser.isMRNAWayUp()) {
-         mrnaValue = MRNA.upRegulated;
+         mrnaValue = MRNA.UPREGULATED;
       } else if (valueParser.isMRNAWayDown()) {
-         mrnaValue = MRNA.downRegulated;
+         mrnaValue = MRNA.DOWNREGULATED;
+      }
+
+      rppaValue = RPPA.NOTSHOWN;
+      if (valueParser.isRPPAWayUp()) {
+         rppaValue = RPPA.UPREGULATED;
+      } else if (valueParser.isRPPAWayDown()) {
+         rppaValue = RPPA.DOWNREGULATED;
       }
       
-      isMutated = mutations.UnMutated;
+      isMutated = mutations.UNMUTATED;
 
+	  mutationType = "Mutation cannot be determined";
       if (valueParser.isMutated()) {
-         isMutated = mutations.Mutated;
+         isMutated = mutations.MUTATED;
+		 // get type
+		 mutationType = valueParser.getMutationType();
       }
    }
    
@@ -110,6 +124,15 @@ public class GeneticEventImpl implements GeneticEvent {
     }
 
     /**
+     * Gets the RPPA Value.
+     * 
+     * @return RPPA Value.
+     */
+    public RPPA getRPPAValue() {
+        return rppaValue;
+    }
+
+    /**
      * Gets the mutation Value.
      *
      * @return mutation Value.
@@ -119,28 +142,37 @@ public class GeneticEventImpl implements GeneticEvent {
     }
 
     /**
+     * Gets the mutation type (amino acid change).
+     *
+     * @return mutation Type.
+     */
+    public String getMutationType() {
+		return mutationType;
+    }
+
+    /**
      * Constructor, to be used primarily by JUnit Tests.
      *
      * @cnaValue Copy Number Value, discretized -2, -1, 0, 1, 2.
      * @mrnaValue mRNA Value, discretized: -1, 0, 1
      */
-    public GeneticEventImpl(int cnaValue, int mrnaValue, boolean isMutated) {
+    public GeneticEventImpl(int cnaValue, int mrnaValue, int rppaValue, boolean isMutated) {
 
       switch (cnaValue) {
          case 2 :
-            this.cnaValue = CNA.amplified;
+            this.cnaValue = CNA.AMPLIFIED;
             break;
          case 1 :
-            this.cnaValue = CNA.Gained;
+            this.cnaValue = CNA.GAINED;
             break;
          case 0 :
-            this.cnaValue = CNA.diploid;
+            this.cnaValue = CNA.DIPLOID;
             break;
          case -1 :
-            this.cnaValue = CNA.HemizygouslyDeleted;
+            this.cnaValue = CNA.HEMIZYGOUSLYDELETED;
             break;
          case -2 :
-            this.cnaValue = CNA.homoDeleted;
+            this.cnaValue = CNA.HOMODELETED;
             break;
          default :
             throw new IllegalArgumentException("Illegal cnaValue: " + cnaValue);
@@ -148,30 +180,46 @@ public class GeneticEventImpl implements GeneticEvent {
 
       switch (mrnaValue) {
          case 1 :
-            this.mrnaValue = MRNA.upRegulated;
+            this.mrnaValue = MRNA.UPREGULATED;
             break;
          case 0 :
-            this.mrnaValue = MRNA.Normal;
+            this.mrnaValue = MRNA.NORMAL;
             break;
          case -1 :
-            this.mrnaValue = MRNA.downRegulated;
+            this.mrnaValue = MRNA.DOWNREGULATED;
             break;
          default :
             throw new IllegalArgumentException("Illegal mrnaValue: "
                   + mrnaValue);
       }
 
+      switch (rppaValue) {
+         case 1 :
+            this.rppaValue = RPPA.UPREGULATED;
+            break;
+         case 0 :
+            this.rppaValue = RPPA.NORMAL;
+            break;
+         case -1 :
+            this.rppaValue = RPPA.DOWNREGULATED;
+            break;
+         default :
+            throw new IllegalArgumentException("Illegal mrnaValue: "
+                  + rppaValue);
+      }
+
       if (isMutated) {
-         this.isMutated = mutations.Mutated;
+         this.isMutated = mutations.MUTATED;
       } else {
-         this.isMutated = mutations.UnMutated;
+         this.isMutated = mutations.UNMUTATED;
       }
    }
 
-    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, mutations isMutated) {
+    public GeneticEventImpl(CNA cnaValue, MRNA mrnaValue, RPPA rppaValue, mutations isMutated) {
 
        this.cnaValue = cnaValue;
        this.mrnaValue = mrnaValue;
+       this.rppaValue = rppaValue;
        this.isMutated = isMutated;
    }
 
@@ -181,7 +229,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isCnaAmplified() {
-        return(cnaValue == CNA.amplified);
+        return(cnaValue == CNA.AMPLIFIED);
     }
 
     /**
@@ -190,7 +238,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isCnaHomozygouslyDeleted() {
-       return(cnaValue == CNA.homoDeleted);
+       return(cnaValue == CNA.HOMODELETED);
     }
 
     /**
@@ -199,7 +247,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isCnaHeterozygousDeleted() {
-        return(cnaValue == CNA.HemizygouslyDeleted);
+        return(cnaValue == CNA.HEMIZYGOUSLYDELETED);
     }
 
     /**
@@ -208,7 +256,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isMRNAUpRegulated() {
-       return(mrnaValue == MRNA.upRegulated);
+       return(mrnaValue == MRNA.UPREGULATED);
     }
 
     /**
@@ -217,7 +265,25 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isMRNADownRegulated() {
-       return(mrnaValue == MRNA.downRegulated);
+       return(mrnaValue == MRNA.DOWNREGULATED);
+    }
+
+    /**
+     * Is the Gene RPPA upregulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPAUpRegulated() {
+       return(rppaValue == RPPA.UPREGULATED);
+    }
+
+    /**
+     * Is the Gene RPPA down-regulated?
+     *
+     * @return true or false.
+     */
+    public boolean isRPPADownRegulated() {
+       return(rppaValue == RPPA.DOWNREGULATED);
     }
 
     /**
@@ -226,7 +292,7 @@ public class GeneticEventImpl implements GeneticEvent {
      * @return true or false.
      */
     public boolean isMutated() {
-       return( isMutated == mutations.Mutated);
+       return( isMutated == mutations.MUTATED);
     }
 
     /**

@@ -1,3 +1,9 @@
+#network
+{
+	position:relative;
+	left: auto;
+}
+
 /* CytoscapeWeb dimensions */
 #vis_content
 {

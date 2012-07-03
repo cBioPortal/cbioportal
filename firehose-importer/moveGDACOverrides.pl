@@ -44,7 +44,9 @@ my $customFileProperties = {
 	'AGILENT-MRNA' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.<date><version>', '<CANCER>.transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.data.txt'],
 	'RNA-SEQ' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.Level_3.<date><version>', '<CANCER>.rnaseq__illumina<RNA-SEQ-PLATFORM>_rnaseq__unc_edu__Level_3__gene_expression__data.data.txt'],
 	'CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_thresholded.by_genes.txt'],
+	'LOG2CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_data_by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
+	'SEG' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version>', '<CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv'],
 };
 
 main();
@@ -91,7 +93,26 @@ sub moveGDACOverridesFile{
 	my $latestVersionOfLog2CNAFile;
 	if ( $customFileType eq "CNA" ) {
 	  $latestVersionOfLog2CNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_data_by_genes.txt", $cancer, $runDate );
-	  print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
+	  if (defined($latestVersionOfLog2CNAFile)) {
+		print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
+	  }
+	}
+
+	# if we are using custom Log2CNA, we will need to move over cna,
+	# lets get latest version before we get next version
+	my $latestVersionOfCNAFile;
+	if ( $customFileType eq "LOG2CNA" ) {
+	  $latestVersionOfCNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_thresholded.by_genes.txt", $cancer, $runDate );
+	  if (defined($latestVersionOfCNAFile)) {
+		print "latest version of CNA: $latestVersionOfCNAFile\n";
+	  }
+	}
+
+	# if we are processing MAF, we will need to move mut sig file,
+	# lets get latest version before we get next version
+	my $latestVersionOfMutSigFile = getLastestVersionOfFile( $CancersFirehoseDataDir, 'gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>', "<CANCER>.sig_genes.txt", $cancer, $runDate );
+	if (defined($latestVersionOfMutSigFile)) {
+	  print "latest version of MutSig: $latestVersionOfMutSigFile\n";
 	}
 
     my( $customFileDir, $customFileFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
@@ -116,14 +137,41 @@ sub moveGDACOverridesFile{
 		warn "Copying custom CNA and cannot find Log2CNA data\n";
 	  }
 	}
+
+	# if using custom LOG2CNA, lets now copy over cna
+	if ( $customFileType eq "LOG2CNA") {
+	  if (defined($latestVersionOfCNAFile) ) {
+		my $newCNAFile = File::Spec->catfile( $customFileDir, "all_thresholded.by_genes.txt" );
+		print "\ncopying cna:\n", "from: $latestVersionOfCNAFile\n", "  to: $newCNAFile\n";
+		system( "cp $latestVersionOfCNAFile $newCNAFile"); 
+		print `cmp  $latestVersionOfCNAFile $newCNAFile`;
+	  }
+	  else {
+		warn "Copying custom Log2CNA and cannot find CNA data\n";
+	  }
+	}
 	
-	# must also create an empty directory in which the sig_genes.txt file will be created    
+	# must also create a new directory in which the sig_genes.txt file will live
+	# and move an existing file if necessary
 	if ( $customFileType eq "MAF" ) {
-		my( $mutSigDir, $mutSigFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
-															  'gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>', '<CANCER>.sig_genes.txt',
-															  $cancer, $runDate );
-		print "making: $mutSigDir\n";
-		mkdir( $mutSigDir );
+
+	  my( $mutSigDir, $mutSigFile ) = getNextVersionOfFile( $CancersFirehoseDataDir, 
+															'gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>', '<CANCER>.sig_genes.txt',
+															$cancer, $runDate );
+	  print "making: $mutSigDir\n";
+	  mkdir( $mutSigDir );
+
+	  # if a file exists, move it
+	  if (defined($latestVersionOfMutSigFile) ) {
+		my $mutSigFilename = uc($cancer) . ".sig_genes.txt";
+		my $newMutSigFile = File::Spec->catfile( $mutSigDir, $mutSigFilename );
+		print "\ncopying mutsig:\n", "from: $latestVersionOfMutSigFile\n", "  to: $newMutSigFile\n";
+		system( "cp $latestVersionOfMutSigFile $newMutSigFile"); 
+		print `cmp  $latestVersionOfMutSigFile $newMutSigFile`;
+	  }
+	  else {
+		warn "Copying custom Mutation Assessor File (MAF) and cannot find MutSig data\n";
+	  }
 	}
 }
 
@@ -150,8 +198,13 @@ sub getNextVersionOfFile{
 		$customFileDir =~ s/<CANCER>/$cancer_UC/;
 		my $dateVersion = $runDate . "00.0.0";
 		$customFileDir =~ s/<date><version>/$dateVersion/;
-		print "cannot find dir to put customFile file, making: $customFileDir\n";
-		$nextDir = File::Util->new->make_dir($customFileDir);
+		if ( -d $customFileDir ) {
+		  $nextDir = $customFileDir;
+		}
+		else {
+		  print "cannot find dir to put customFile file, making: $customFileDir\n";
+		  $nextDir = File::Util->new->make_dir($customFileDir);
+		}
 		# latest dir/file did not exist, we need to set latestFile properly here
 		$latestFile = $fileNamePattern;
 		$latestFile =~ s/<CANCER>/$cancer_UC/;

@@ -12,6 +12,10 @@
     if (localzScoreThreshold == null) {
         localzScoreThreshold = "2.0";
     }
+    String localRppaScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
+    if (localRppaScoreThreshold == null) {
+        localRppaScoreThreshold = "1.0";
+    }
     if (localTabIndex == null) {
         localTabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {
@@ -38,6 +42,7 @@
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';
+    window.rppa_score_threshold = '<%= localRppaScoreThreshold %>';
 
     //  Store the currently selected genomic profiles within an associative array
     window.genomic_profile_id_selected = new Array();
@@ -51,10 +56,11 @@
 </script>
 <div class="main_query_panel">
     <div id="main_query_form">
-        <form id="main_form" action="index.do" method="get">
+        <form id="main_form" action="index.do" method="post">
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
-        
+        <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
+        	value='<%= request.getParameter("clinical_param_selection") %>'>
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>

@@ -117,6 +117,12 @@
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version> <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
 
+# mut sig file
+- create_mut_sig:
+    outfile: data_mutsig.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version> <CANCER>.sig_genes.txt
+
 ---
 # dependencies
 #- create_data_mRNA_median precluded_by create_data_both_mRNA_miRNA 

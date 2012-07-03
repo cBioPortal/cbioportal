@@ -9,6 +9,7 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+drop table IF EXISTS uniprot_id_mapping;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS users;
 drop table IF EXISTS authorities;
@@ -31,6 +32,8 @@ drop table IF EXISTS micro_rna_alteration;
 drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
+drop table if EXISTS clinical_free_form;
+drop table if EXISTS text_cache;
 
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
@@ -106,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `type_of_cancer` (
 CREATE TABLE IF NOT EXISTS `case_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
+  `CATEGORY` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
@@ -148,6 +152,18 @@ CREATE TABLE IF NOT EXISTS `gene_alias` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `GENE_ALIAS` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`,`GENE_ALIAS`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `uniprot_id_mapping`
+--
+
+CREATE TABLE IF NOT EXISTS `uniprot_id_mapping` (
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `UNIPROT_ID` varchar(255) NOT NULL,
+  PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -270,6 +286,13 @@ CREATE TABLE IF NOT EXISTS `clinical` (
   PRIMARY KEY (`CASE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+CREATE TABLE IF NOT EXISTS `clinical_free_form` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(256) NOT NULL,
+  `PARAM_NAME` varchar(256) NOT NULL,
+  `PARAM_VALUE` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Table structure for table `interaction`
 --
@@ -349,7 +372,16 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
 
--- --------------------------------------------------------
+--
+-- Table structure for table `text_cache`
+--
+
+CREATE TABLE IF NOT EXISTS `text_cache` (
+  `HASH_KEY` varchar(32) NOT NULL,
+  `TEXT` text NOT NULL,
+  `DATE_TIME_STAMP` datetime NOT NULL,
+  PRIMARY KEY (`HASH_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `drug_interaction`
@@ -364,7 +396,6 @@ CREATE TABLE `drug_interaction` (
   `PMIDS` varchar(1024) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
--- --------------------------------------------------------
 
 --
 -- Table structure for table `drug`
@@ -382,5 +413,3 @@ CREATE TABLE IF NOT EXISTS `drug` (
   PRIMARY KEY  (`DRUG_ID`),
   KEY `DRUG_NAME` (`DRUG_NAME`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------

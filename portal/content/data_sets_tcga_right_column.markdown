@@ -1,4 +1,4 @@
-<P>The Portal contains data for <b>4855 tumor samples from 19 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
+<P>The Portal contains data for <b>4852 tumor samples from 19 cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type='text/javascript'>
 google.load('visualization', '1.0', {'packages':['corechart']});
@@ -13,7 +13,7 @@ data.addRows([['Bladder Urothelial Carcinoma (TCGA)', 38],
 ['Colon and Rectum Adenocarcinoma (TCGA)', 590],
 ['Glioblastoma Multiforme (TCGA)', 585],
 ['Head and Neck Squamous Cell Carcinoma (TCGA)', 165],
-['Kidney Renal Clear Cell Carcinoma (TCGA)', 501],
+['Kidney Renal Clear Cell Carcinoma (TCGA)', 498],
 ['Kidney Renal Papillary Cell Carcinoma (TCGA)', 43],
 ['Acute Myeloid Leukemia (TCGA)', 199],
 ['Brain Lower Grade Glioma (TCGA)', 80],

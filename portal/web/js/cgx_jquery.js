@@ -79,7 +79,9 @@ function setUpPopEye(){
     );
 
     setInterval(function(){
-        if(!hovering && maxNextClicks >0){
+        if(!$("#custom_case_set_dialog").dialog("isOpen") &&
+        		!hovering && maxNextClicks >0)
+        {
             maxNextClicks--;
             $('a.ppy-next').click();
             $('.ppy-caption').hide();

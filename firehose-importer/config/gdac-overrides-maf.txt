@@ -4,7 +4,9 @@ COADREAD.maf.annotated  coadread
 GBM.maf.annotated  gbm
 KIRC.maf.annotated kirc
 LAML.maf.annotated laml
-LUAD.maf.annotated luad
 LUSC.maf.annotated  lusc
+LUAD.maf.annotated luad
 OV.maf.annotated ov
+PRAD.maf.annotated prad
+STAD.maf.annoted stad
 UCEC.maf.annotated  ucec

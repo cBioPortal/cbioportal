@@ -176,6 +176,9 @@
     <mkdir dir="${build.dir}/WEB-INF" />
     <mkdir dir="${build.dir}/WEB-INF/classes" />
     <mkdir dir="${build.dir}/META-INF" />
+    <mkdir dir="${junit.dir}" />
+    <mkdir dir="${junit.dir}/classes" />
+    <mkdir dir="${junit.dir}/reports" />
 
     <!-- Copy static content of this web application -->
     <copy todir="${build.dir}">
@@ -228,6 +231,9 @@
     <!-- Force copy of gene_sets.txt -->
     <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/org/mskcc/portal/util" file="config/gene_sets.txt" />
 
+  	<!-- Force copy of human_readable_categories.txt -->
+  	<copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/org/mskcc/portal/util" file="config/human_readable_categories.txt" />
+  	
     <!-- Force copy of antisamy.xml -->
     <copy overwrite="yes" todir="${build.dir}/WEB-INF/classes/" file="${config.dir}/antisamy.xml" />
 
@@ -269,19 +275,21 @@
   </target>
 
   <!-- ==================== Test Target ================================= -->
-  <target depends="compile" description="Runs all JUnit Tests" name="test">
-    <delete dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}" />
-    <mkdir dir="${junit.dir}/reports" />
+  <target name="test" depends="compile" description="Runs all JUnit Tests">
     <junit printsummary="yes" fork="yes" haltonfailure="no" dir="${basedir}" failureproperty="junit_test_failed">
       <formatter type="brief" usefile="false" />
       <formatter type="xml" />
       <batchtest fork="yes" todir="${junit.dir}">
-        <fileset dir="${src.dir}" includes="**/Test*.java" />
+        <fileset dir="${src.dir}">
+          <include name="**/Test*.java" />
+        </fileset>
       </batchtest>
-      <classpath refid="compile.classpath" />
+      <classpath>
+        <path refid="compile.classpath" />
+        <pathelement location="${junit.dir}/classes" />
+      </classpath>
     </junit>
-    <fail if="junit_test_failed" message="One or more JUnit  tests failed" />
+    <fail if="junit_test_failed" message="One or more JUnit tests failed" />
   </target>
 
   <target description="Inits Database in Preparation for Running JUnit Tests" name="init_db">

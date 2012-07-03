@@ -4,6 +4,7 @@ import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoCaseList;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.CaseListCategory;
 import org.mskcc.cgds.util.ConsoleUtil;
 import org.mskcc.cgds.util.ProgressMonitor;
 
@@ -43,6 +44,13 @@ public class ImportCaseList {
       }
 
       String caseListName = properties.getProperty("case_list_name");
+       
+      String caseListCategoryStr = properties.getProperty("case_list_category");
+      if (caseListCategoryStr  == null || caseListCategoryStr.length() == 0) {
+          throw new IllegalArgumentException("case_list_category is not specified");
+      }
+      CaseListCategory caseListCategory = CaseListCategory.get(caseListCategoryStr); 
+       
       String caseListDescription = properties.getProperty("case_list_description");
       String caseListStr = properties.getProperty("case_list_ids");
       if (caseListName == null) {
@@ -67,6 +75,7 @@ public class ImportCaseList {
       caseList = new CaseList();
       caseList.setStableId(stableId);
       caseList.setCancerStudyId( theCancerStudy.getInternalId());
+      caseList.setCaseListCategory(caseListCategory);
       caseList.setName(caseListName);
       caseList.setDescription(caseListDescription);
       caseList.setCaseList(caseIDsList);

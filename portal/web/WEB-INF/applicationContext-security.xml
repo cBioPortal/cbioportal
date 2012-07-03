@@ -53,6 +53,8 @@
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
 	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
@@ -69,6 +71,7 @@
 	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 
       <!-- everything else locked down by default -->
@@ -106,7 +109,9 @@
   <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
   </b:bean>
-  <b:bean id="customPermissionEvaluator" class="org.mskcc.cgds.util.CancerStudyPermissionEvaluator"/>
+  <b:bean id="customPermissionEvaluator" class="org.mskcc.cgds.util.CancerStudyPermissionEvaluator">
+     <b:constructor-arg ref="config"/>
+   </b:bean>
 
 <!--
     A custom UserDetailsService which will authenticate and establish authorities based on a backend database.
@@ -128,10 +133,12 @@
 <!-- 
      some beans to help with access control
 -->
-   <b:bean id="accessControl" class="org.mskcc.cgds.util.internal.AccessControlImpl"/>
+   <b:bean id="config" class="org.mskcc.cgds.util.Config"/>
+   <b:bean id="accessControl" class="org.mskcc.cgds.util.internal.AccessControlImpl">
+     <b:constructor-arg ref="config"/>
+   </b:bean>
    <b:bean id="portalUserDAO" class="org.mskcc.portal.dao.internal.PortalUserJDBCDAO">
      <b:constructor-arg ref="dataSource"/>
    </b:bean>
-
 
 </b:beans>

@@ -54,7 +54,7 @@ public class SurvivalPlot {
 
             rCode.append ("dev.off();");
             RConnection c = new RConnection();
-            System.out.println (rCode.toString());
+            //System.out.println (rCode.toString());
 
             c.parseAndEval(rCode.toString());
 

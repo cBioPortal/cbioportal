@@ -52,7 +52,7 @@ public class JdbcUtil {
 
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
-        ds.setMaxActive(10);
+        ds.setMaxActive(75);
     }
 
     /**
@@ -71,6 +71,16 @@ public class JdbcUtil {
     }
 
     /**
+     * Frees PreparedStatement and ResultSet.
+     *
+     * @param ps  Prepared Statement Object.
+     * @param rs  ResultSet Object.
+     */
+    public static void closeAll(PreparedStatement ps, ResultSet rs) {
+		JdbcUtil.closeAll(null, ps, rs);
+	}
+
+    /**
      * Frees Database Connection.
      *
      * @param con Connection Object.
@@ -80,7 +90,9 @@ public class JdbcUtil {
     public static void closeAll(Connection con, PreparedStatement ps,
             ResultSet rs) {
         try {
-            closeConnection(con);
+			if (con != null) {
+				closeConnection(con);
+			}
         } catch (SQLException e) {
             e.printStackTrace();
         }

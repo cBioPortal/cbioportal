@@ -70,38 +70,47 @@ public class OpenIDUserDetailsService
 
 		// get open id
         String id = token.getIdentityUrl();
+		id = id.toLowerCase();
 
 		// grab other open id attributes
         String email = null;
         String firstName = null;
         String lastName = null;
         String fullName = null;
-        List<OpenIDAttribute> attributes = token.getAttributes();
-        for (OpenIDAttribute attribute : attributes) {
-            if (attribute.getName().equals("email")) {
-                email = attribute.getValues().get(0);
-				email = email.toLowerCase();
-            }
-            if (attribute.getName().equals("firstname")) {
-                firstName = attribute.getValues().get(0);
-            }
-            if (attribute.getName().equals("lastname")) {
-                lastName = attribute.getValues().get(0);
-            }
-            if (attribute.getName().equals("fullname")) {
-                fullName = attribute.getValues().get(0);
-            }
-        }
-        if (fullName == null) {
-            StringBuilder fullNameBldr = new StringBuilder();
-            if (firstName != null) {
-                fullNameBldr.append(firstName);
-            }
-            if (lastName != null) {
-                fullNameBldr.append(" ").append(lastName);
-            }
-            fullName = fullNameBldr.toString();
-        }
+
+		// myopenid does not return attributes in the token
+		if (id.indexOf("myopenid") != -1) {
+			email = id;
+			fullName = id;
+		}
+		else {
+			List<OpenIDAttribute> attributes = token.getAttributes();
+			for (OpenIDAttribute attribute : attributes) {
+				if (attribute.getName().equals("email")) {
+					email = attribute.getValues().get(0);
+					email = email.toLowerCase();
+				}
+				if (attribute.getName().equals("firstname")) {
+					firstName = attribute.getValues().get(0);
+				}
+				if (attribute.getName().equals("lastname")) {
+					lastName = attribute.getValues().get(0);
+				}
+				if (attribute.getName().equals("fullname")) {
+					fullName = attribute.getValues().get(0);
+				}
+			}
+			if (fullName == null) {
+				StringBuilder fullNameBldr = new StringBuilder();
+				if (firstName != null) {
+					fullNameBldr.append(firstName);
+				}
+				if (lastName != null) {
+					fullNameBldr.append(" ").append(lastName);
+				}
+				fullName = fullNameBldr.toString();
+			}
+		}
 
 		// check if this user exists in our backend db
 		try {

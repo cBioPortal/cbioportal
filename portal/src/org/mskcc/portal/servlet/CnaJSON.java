@@ -101,6 +101,7 @@ public class CnaJSON extends HttpServlet {
     private void export(JSONArray table, CnaEvent cnaEvent, Map<Long, String> contextMap) 
             throws ServletException {
         JSONArray row = new JSONArray();
+        row.add(cnaEvent.getEventId());
         try {
             row.add(DaoGeneOptimized.getInstance().getGene(cnaEvent.getEntrezGeneId())
                     .getHugoGeneSymbolAllCaps());

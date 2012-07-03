@@ -5,12 +5,25 @@ A genomic overview with events aligned across patients goes here...
 <%}%>
 
 <script type="text/javascript">
-    function getMutationsString(mutationsTableData) {
+    function getEventIdString(eventTableData) {
         var s = [];
-        for (var i=0; i<mutationsTableData.length; i++) {
-            s.push(mutationsTableData[i][0]);
+        for (var i=0; i<eventTableData.length; i++) {
+            s.push(eventTableData[i][0]);
         }
         return s.join(" ");
+    }
+    
+    function renderSharedEvents(events) {
+        var mut = events['<%=SimilarPatientsJSON.MUTATION%>'];
+        var cna = events['<%=SimilarPatientsJSON.CNA%>'];
+        var s = [];
+        if (mut != null) {
+            s.push(''+mut.length+' mutations');
+        }
+        if (cna != null) {
+            s.push(''+cna.length+' copy number altered genes')
+        }
+        return s.join(", ");
     }
     
     function buildSimilarPatientsDataTable(aDataSet, table_id, sDom, iDisplayLength) {
@@ -25,10 +38,17 @@ A genomic overview with events aligned across patients goes here...
                         "fnRender": function(obj) {
                             var patientId = obj.aData[ obj.iDataColumn ];
                             return "<a href='patient.do?patient="+patientId
-                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'>"+patientId+"<a>";;
+                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'>"+patientId+"<a>";
                         }
                     },
-                    {// # Shared Mutations
+                    {// Shared events
+                        "aTargets": [ 2 ],
+                        "iDataSort": 3,
+                        "fnRender": function(obj) {
+                            return renderSharedEvents(obj.aData[ obj.iDataColumn ]);
+                        }
+                    },
+                    {// # Shared events
                         "bVisible": false,
                         "aTargets": [ 3 ]
                     }
@@ -49,19 +69,15 @@ A genomic overview with events aligned across patients goes here...
         $(table_id).css("width","100%");
         return oTable;
     }
+        
+    var mutations_built = false;
+    var cna_built = false;
     
-    $(document).ready(function(){
-        $('#mutation_wrapper_table').hide();
-        $('#similar_patients_table').live('mutations-built', function() {
-            if (<%=showMutations%>) {
-                var mutationsTable = $('#mutation_summary_table').dataTable();
-                var mutationsTableData = mutationsTable.fnGetData();
-                var strMutations = getMutationsString(mutationsTableData);
-                
+    var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
+            
+    function waitAndBuildSimilarPatientsDataTable() {
+        if (mutations_built==<%=showMutations%> && cna_built==<%=showCNA%>) {
                 // similar patients
-                var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
-                    <%=SimilarPatientsJSON.MUTATIONS%>:strMutations
-                };
                 $.post("similar_patients.json",
                     params,
                     function (simPatient) {
@@ -71,7 +87,24 @@ A genomic overview with events aligned across patients goes here...
                     }
                     ,"json"
                 );
-            }
+        }
+    }
+    
+    $(document).ready(function(){
+        $('#similar_patients_wrapper_table').hide();
+        $('#similar_patients_table').live('mutations-built', function() {
+            var mutationsTable = $('#mutation_table').dataTable();
+            var mutationsTableData = mutationsTable.fnGetData();
+            params['<%=SimilarPatientsJSON.MUTATION%>'] = getEventIdString(mutationsTableData);
+            mutations_built = true;
+            waitAndBuildSimilarPatientsDataTable();
+        });
+        $('#similar_patients_table').live('cna-built', function() {
+            var cnaTable = $('#cna_table').dataTable();
+            var cnaTableData = cnaTable.fnGetData();
+            params['<%=SimilarPatientsJSON.CNA%>'] = getEventIdString(cnaTableData);
+            cna_built = true;
+            waitAndBuildSimilarPatientsDataTable();
         });
     }
     );
@@ -87,8 +120,8 @@ A genomic overview with events aligned across patients goes here...
                     <tr valign="bottom">
                         <th>Patient</th>
                         <th>Cancer Study</th>
-                        <th>Shared Mutations</th>
-                        <th># Shared Mutations</th>
+                        <th>Shared Events</th>
+                        <th># Shared Events</th>
                     </tr>
                 </thead>
             </table>

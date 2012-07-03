@@ -58,25 +58,29 @@
                 "bDestroy": true,
                 "aaData": aDataSet,
                 "aoColumnDefs":[
+                    {// event id
+                        "bVisible": false,
+                        "aTargets": [ 0 ]
+                    },
                     {// clinical trials
                         "bVisible": placeHolder,
-                        "aTargets": [ 3 ]
+                        "aTargets": [ 4 ]
                     },
                     {// note
                         "bVisible": placeHolder,
-                        "aTargets": [ 4 ]
+                        "aTargets": [ 5 ]
                     },
                     {// gistic
                         "sType": "gistic-col",
                         "bVisible": false,
-                        "aTargets": [ 5 ]
+                        "aTargets": [ 6 ]
                     },
                     {// show in summary
                         "bVisible": false,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ 7 ]
                     }
                 ],
-                "aaSorting": [[5,'asc']],
+                "aaSorting": [[6,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -111,7 +115,7 @@
                     switchToTab('cna');
                     return false;
                 });
-                cna_sumary.fnFilter('true', 6);
+                cna_sumary.fnFilter('true', 7);
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

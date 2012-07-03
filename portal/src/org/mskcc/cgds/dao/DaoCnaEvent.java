@@ -96,6 +96,38 @@ public final class DaoCnaEvent {
         }
     }
     
+    public static Map<String, Set<Long>> getCasesWithAlterations(Collection<Long> eventIds) throws DaoException {
+        if (eventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT `CASE_ID`, `CNA_EVENT_ID` FROM case_cna_event"
+                    + " WHERE `CNA_EVENT_ID` IN ("
+                    + StringUtils.join(eventIds, ",") + ")";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String caseId = rs.getString("CASE_ID");
+                long eventId = rs.getLong("CNA_EVENT_ID");
+                Set<Long> events = map.get(caseId);
+                if (events == null) {
+                    events = new HashSet<Long>();
+                    map.put(caseId, events);
+                }
+                events.add(eventId);
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
     public static List<CnaEvent> getCnaEvents(String caseId, int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -3,9 +3,7 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +20,8 @@ import org.mskcc.cgds.dao.*;
 public class SimilarPatientsJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(SimilarPatientsJSON.class);
     
-    public static final String MUTATIONS = "mutations";
+    public static final String MUTATION = "mutation";
+    public static final String CNA = "cna";
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
     
@@ -37,13 +36,27 @@ public class SimilarPatientsJSON extends HttpServlet {
             throws ServletException, IOException {
         JSONArray table = new JSONArray();
 
-        String strMutations = request.getParameter(MUTATIONS);
+        String strMutations = request.getParameter(MUTATION);
+        String strCna = request.getParameter(CNA);
         String patient = request.getParameter(PatientView.PATIENT_ID);
         
         try {
-            Map<String, Set<Long>> similarMutations = DaoMutationEvent.getCasesWithMutations(parseMutationEventIds(strMutations));
-            similarMutations.remove(patient);
-            export(table, similarMutations);
+            Map<String, Set<Long>> similarMutations;
+            if (strMutations==null) {
+                similarMutations = Collections.emptyMap();
+            } else {
+                similarMutations = DaoMutationEvent.getCasesWithMutations(parseEventIds(strMutations));
+                similarMutations.remove(patient);
+            }
+            Map<String, Set<Long>> similarCnas;
+            if (strCna==null) {
+                similarCnas = Collections.emptyMap();
+            } else {
+                similarCnas = DaoCnaEvent.getCasesWithAlterations(parseEventIds(strCna));
+            }
+            similarCnas.remove(patient);
+            
+            export(table, similarMutations, similarCnas);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -57,8 +70,8 @@ public class SimilarPatientsJSON extends HttpServlet {
         }
     }
     
-    private Set<Long> parseMutationEventIds(String strMutations) {
-        String[] parts = strMutations.split(" ");
+    private Set<Long> parseEventIds(String str) {
+        String[] parts = str.split(" ");
         Set<Long> ret = new HashSet<Long>(parts.length);
         for (String strMut : parts) {
             try {
@@ -70,25 +83,36 @@ public class SimilarPatientsJSON extends HttpServlet {
         return ret;
     }
     
-    private void export(JSONArray table, Map<String, Set<Long>> similarMutations) 
+    private void export(JSONArray table, Map<String, Set<Long>> similarMutations, Map<String, Set<Long>> similarCnas) 
             throws DaoException {
-        
-        for (Map.Entry<String, Set<Long>> entry : similarMutations.entrySet()) {
+        Set<String> patients = new HashSet<String>();
+        patients.addAll(similarMutations.keySet());
+        patients.addAll(similarCnas.keySet());
+        for (String patient : patients) {
             JSONArray row = new JSONArray();
-            String simPatient = entry.getKey();
-            row.add(simPatient);
+            row.add(patient);
             String cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
-                    DaoCase.getCase(simPatient).getCancerStudyId()).getName();
+                    DaoCase.getCase(patient).getCancerStudyId()).getName();
             row.add(cancerStudy);
-            Set<Long> mutations = entry.getValue();
-            row.add(formatMutation(mutations));
-            row.add(mutations.size());
+            int nEvents = 0;
+            Map<String,Set<Long>> events = new HashMap<String,Set<Long>>(2);
+            
+            Set<Long> mutations = similarMutations.get(patient);
+            if (mutations != null) {
+                nEvents += mutations.size();
+                events.put(MUTATION, mutations);
+            }
+            
+            Set<Long> cna = similarCnas.get(patient);
+            if (cna != null) {
+                nEvents += cna.size();
+                events.put(CNA, cna);
+            }
+            
+            row.add(events);
+            row.add(nEvents);
             table.add(row);
         }
-    }
-    
-    private String formatMutation(Set<Long> mutations) {
-        return ""+mutations.size();
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

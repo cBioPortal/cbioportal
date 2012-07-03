@@ -1,6 +1,7 @@
 
                 <thead>
                     <tr valign="bottom">
+                        <th>CNA Event ID</th>
                         <th>Gene</th>
                         <th>Copy Number Alteration</th>
                         <th>Alteration Rate

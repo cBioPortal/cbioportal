@@ -21,6 +21,8 @@ var DATATABLE_FORMATTED = -1;
 // this way we don't have to repeat queries
 var CANCER_STUDY_SELECTED = -1;
 
+// todo: factor out #mutsig_dialog
+
 // initialize and bind for
 // mutsig toggle button and mutsig dialog box
 var initMutsigDialogue = function() {
@@ -55,7 +57,7 @@ var initMutsigDialogue = function() {
     });
 
     // make checkall check all
-    $('.checkall').live('click', function() {
+    $('#mutsig_dialog .checkall').live('click', function() {
         $(this).parents().find('.MutSig input').attr('checked', this.checked);
     });
 
@@ -63,6 +65,7 @@ var initMutsigDialogue = function() {
     $('#select_mutsig').click(updateGeneList);
 
     // bind UI for gene list -> mutsig table
+    // todo: is this not working right for some reason?
     $('#gene_list').change(function () {
         updateMutSigTable();
     });
@@ -72,6 +75,7 @@ var initMutsigDialogue = function() {
 
 // listen for a change in the selected cancer study and
 // handle appropriately
+// todo: refactor this
 var listenCancerStudy = function() {
     $('#select_cancer_type').change( function() {
 
@@ -122,27 +126,25 @@ var promptMutsigTable = function() {
     // open the dialog box
     $('#mutsig_dialog').dialog('open');
 
-    // hide everything but show loader image
-    $('#mutsig_dialog').children().hide();
-    $('#mutsig_dialog #loader-img').show();
-
-
-    // grab data to be sent to the server
-    var cancerStudyId = $('#select_cancer_type').val();
-
     // this was the last cancer study selected,
     // no need to redo the query
     if (CANCER_STUDY_SELECTED === cancerStudyId) {
-        console.log('skipped');
+        $('#mutsig_dialog #loader-img').hide();
         return;
     }
+
+    // hide everything but the loader image
+    $('#mutsig_dialog').children().hide();
+    $('#mutsig_dialog #loader-img').show();
+
+    // grab data to be sent to the server
+    var cancerStudyId = $('#select_cancer_type').val();
 
     // save the selected cancer study for later
     CANCER_STUDY_SELECTED = cancerStudyId;
 
     // prepare data to be sent to server
     var data = {'selected_cancer_type': cancerStudyId };
-
 
     // reset the mutsig table if it has already been formatted
     if (DATATABLE_FORMATTED !== -1) {
@@ -152,7 +154,6 @@ var promptMutsigTable = function() {
 
         // delete all elements
         $('.MutSig tbody').empty();
-
     }
 
     // do AJAX
@@ -164,6 +165,10 @@ var promptMutsigTable = function() {
         for (i = 0; i < len; i += 1) {
             $('.MutSig tbody').append(mutsig_to_tr(mutsigs[i]));
         }
+
+        // show everything but the loader image
+        $('#mutsig_dialog').children().show();
+        $('#mutsig_dialog #loader-img').hide();
 
         // use dataTable jQuery plugin
         // to style and add nice functionalities
@@ -261,7 +266,6 @@ var updateGeneList = function() {
 // namely, a user's deletions or additions of genes
 // gene_list -> MutSig table
 var updateMutSigTable = function() {
-
     var gene_list = $('#gene_list').val();
 
     // don't want to even look at Onco Queries like these,
@@ -291,7 +295,7 @@ var updateMutSigTable = function() {
     }
 
     // clear all checks
-    $('.MutSig :checkbox').attr('checked', false);
+    $('#mutsig_dialog .MutSig :checkbox').attr('checked', false);
 
     // if genes in the gene_list are added
     // check them in the mutsig table
@@ -299,8 +303,11 @@ var updateMutSigTable = function() {
         gene_list_len = gene_list.length;
     for (i = 0; i < gene_list_len; i += 1) {
         // select mutsig checkboxes that are in the gene list
-        $('.MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
+        $('#mutsig_dialog .MutSig :checkbox[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
+
+        //$('#mutsig_dialog .MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
+            //attr('checked', true);
     }
     return false;
 }

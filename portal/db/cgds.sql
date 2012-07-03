@@ -399,7 +399,7 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
 
 CREATE TABLE IF NOT EXISTS `oncotator_cache` (
-  `CACHE_KEY` varchar(100) NOT NULL,
+  `CACHE_KEY` varchar(255) NOT NULL,
   `GENE_SYMBOL` varchar(25),
   `GENOME_CHANGE` varchar(50),
   `PROTEIN_CHANGE` varchar(50),

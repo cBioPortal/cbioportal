@@ -8,9 +8,9 @@ A genomic overview with events aligned across patients goes here...
     function getMutationsString(mutationsTableData) {
         var s = [];
         for (var i=0; i<mutationsTableData.length; i++) {
-            s.push(mutationsTableData[i][0]+":"+mutationsTableData[i][1]);
+            s.push(mutationsTableData[i][0]);
         }
-        return s.join(",");
+        return s.join(" ");
     }
     
     function buildSimilarPatientsDataTable(aDataSet, table_id, sDom, iDisplayLength) {

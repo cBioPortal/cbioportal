@@ -232,6 +232,7 @@ public class ImportExtendedMutationData{
                     if( myMutationFilter.acceptMutation( mutation )) {
                         // add record to db
                         daoMutation.addMutation(mutation);
+                        DaoMutationEvent.addMutation(mutation);
                     }
                 }
             }

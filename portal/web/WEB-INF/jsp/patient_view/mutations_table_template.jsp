@@ -1,6 +1,7 @@
 
                 <thead>
                     <tr valign="bottom">
+                        <th>Mutation Event ID</th>
                         <th>Gene</th>
                         <th>Amino Acid Change</th>
                         <th>Mutation Type</th>

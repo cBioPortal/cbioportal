@@ -9,8 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.mskcc.cgds.model.CnaEvent;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cgds.model.CnaEvent;
 
 /**
  *
@@ -27,7 +27,7 @@ public final class DaoCnaEvent {
             con = JdbcUtil.getDbConnection();
             long eventId = addCnaEvent(cnaEvent, con);
             
-            if (eventExists(eventId, cnaEvent.getCaseId(), cnaEvent.getCnaProfileId(), con)) {
+            if (eventExists(eventId, cnaEvent.getCaseId(), con)) {
                 return 0;
             }
             
@@ -78,15 +78,14 @@ public final class DaoCnaEvent {
         }
     }
     
-    private static boolean eventExists(long eventId, String caseId, int profileId, Connection con) throws DaoException {
+    private static boolean eventExists(long eventId, String caseId, Connection con) throws DaoException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
+		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=?");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, caseId);
-            pstmt.setInt(3, profileId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1)>0;
@@ -125,7 +124,7 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static Map<Long, Integer> countSamplesWithCnaEvents(Set<Long> eventIds, int profileId) throws DaoException {
+    public static Map<Long, Integer> countSamplesWithCnaEvents(Collection<Long> eventIds, int profileId) throws DaoException {
         if (eventIds.isEmpty()) {
             return Collections.emptyMap();
         }

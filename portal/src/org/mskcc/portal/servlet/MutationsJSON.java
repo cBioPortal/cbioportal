@@ -3,10 +3,7 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +53,8 @@ public class MutationsJSON extends HttpServlet {
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
+        Map<Long, String> geneContextMap = Collections.emptyMap();
+        Map<Long, String> mutationContextMap = Collections.emptyMap();
         
         String strNumAllCases = request.getParameter(PatientView.NUM_CASES_IN_SAME_STUDY);
         int numAllCases = strNumAllCases==null ? 0 : Integer.parseInt(strNumAllCases);
@@ -64,19 +63,19 @@ public class MutationsJSON extends HttpServlet {
             mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (_case!=null && mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
-                mutations = DaoMutation.getInstance().getMutations(mutationProfile.getGeneticProfileId(),patient);
+                mutations = DaoMutationEvent.getMutationEvents(patient, mutationProfile.getGeneticProfileId());
                 if (strNumAllCases==null) {
                     numAllCases = DaoCase.countCases(cancerStudy.getInternalId());
                 }
+                geneContextMap = getGeneContextMap(mutations, mutationProfile.getGeneticProfileId(), numAllCases);
+                mutationContextMap = getMutationContextMap(mutations, mutationProfile.getGeneticProfileId(), numAllCases);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
-        HashMap<Long, Integer> mapGeneAlteredSamples = new HashMap<Long,Integer>();
         for (ExtendedMutation mutation : mutations) {
-            export(table, mutation, cancerStudy, mutationProfile.getGeneticProfileId(),
-                    mapGeneAlteredSamples, numAllCases, qvalue);
+            export(table, mutation, cancerStudy, qvalue, geneContextMap, mutationContextMap);
         }
 
         response.setContentType("application/json");
@@ -89,16 +88,55 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
-    private void export(JSONArray table, ExtendedMutation mutation, CancerStudy cancerStudy,
-            int profileId, HashMap<Long, Integer> mapGeneAlteredSamples, int numAllCases, double qvalueThreshold) 
+    private Map<Long, String> getGeneContextMap(List<ExtendedMutation> mutationEvents, int cnaProfileId,
+            int numAllCases) throws DaoException {
+        HashSet<Long> entrezGeneIds = new HashSet<Long>();
+        for (ExtendedMutation ev : mutationEvents) {
+            entrezGeneIds.add(ev.getEntrezGeneId());;
+        }
+        
+        Map<Long, Integer> countMap = DaoMutationEvent.countSamplesWithMutatedGenes(entrezGeneIds, cnaProfileId);
+        
+        Map<Long, String> contextMap = new HashMap<Long, String>(countMap.size());
+        for (Map.Entry<Long, Integer> entry : countMap.entrySet()) {
+            int altCount = entry.getValue();
+            String context = String.format("%d (<b>%.1f%%</b>) ", altCount, 100.0*altCount/numAllCases);
+            contextMap.put(entry.getKey(), context);
+        }
+        
+        return contextMap;
+    }
+    
+    private Map<Long, String> getMutationContextMap(List<ExtendedMutation> mutationEvents, int cnaProfileId,
+            int numAllCases) throws DaoException {
+        HashSet<Long> eventIds = new HashSet<Long>();
+        for (ExtendedMutation ev : mutationEvents) {
+            eventIds.add(ev.getMutationEventId());;
+        }
+        
+        Map<Long, Integer> countMap = DaoMutationEvent.countSamplesWithMutationEvents(eventIds, cnaProfileId);
+        
+        Map<Long, String> contextMap = new HashMap<Long, String>(countMap.size());
+        for (Map.Entry<Long, Integer> entry : countMap.entrySet()) {
+            int altCount = entry.getValue();
+            String context = String.format("%d (<b>%.1f%%</b>) ", altCount, 100.0*altCount/numAllCases);
+            contextMap.put(entry.getKey(), context);
+        }
+        
+        return contextMap;
+    }
+    
+    private void export(JSONArray table, ExtendedMutation mutation, CancerStudy cancerStudy, double qvalueThreshold,
+            Map<Long, String> geneContextMap, Map<Long, String> mutationContextMap) 
             throws ServletException {
         JSONArray row = new JSONArray();
+        row.add(mutation.getMutationEventId());
         row.add(mutation.getGeneSymbol());
         row.add(mutation.getAminoAcidChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
         // TODO: context
-        String context = getContext(mutation, cancerStudy, profileId, mapGeneAlteredSamples, numAllCases);
+        String context = getContext(mutation, geneContextMap, mutationContextMap);
         row.add(context);
         // TODO: clinical trial
         row.add("pending");
@@ -120,43 +158,15 @@ public class MutationsJSON extends HttpServlet {
         table.add(row);
     }
     
-    private String getContext(ExtendedMutation mutation, CancerStudy cancerStudy, int profileId, 
-            HashMap<Long, Integer> mapGeneAlteredSamples, int numAllCases) throws ServletException {
-        StringBuilder sb = new StringBuilder();
-        int numGeneMutated = countMutatedSamples(mutation.getEntrezGeneId(), null,
-                profileId, mapGeneAlteredSamples);
-        String percGeneMutated = String.format("<b>%.1f%%</b>", 100.0*numGeneMutated/numAllCases);
-        int numAAChange = countMutatedSamples(mutation.getEntrezGeneId(), mutation.getAminoAcidChange(),
-                profileId, null);
-        String percAAChange = String.format("<b>%.1f%%</b>", 100.0*numAAChange/numAllCases);
-        sb.append(mutation.getGeneSymbol()).append(": ").append(numGeneMutated)
-                .append(" (").append(percGeneMutated).append(")<br/>")
-                .append(mutation.getAminoAcidChange()).append(": ")
-                .append(numAAChange).append(" (").append(percAAChange)
-                .append(") ");
-        return sb.toString();
-    }
-    
-    private int countMutatedSamples(long entrez, String aminoAcidChange, int profileId,
-            HashMap<Long, Integer> mapGeneAlteredSamples) throws ServletException {
-        Integer numI;
-        if (mapGeneAlteredSamples!=null && (numI=mapGeneAlteredSamples.get(entrez))!=null) {
-            return numI;
-        }
+    private String getContext(ExtendedMutation mutation, Map<Long, String> geneContextMap, 
+            Map<Long, String> mutationContextMap) {
+        long entrez = mutation.getEntrezGeneId();
+        long mutEventId = mutation.getMutationEventId();
+        String symbol = mutation.getGeneSymbol();
+        String aaChange = mutation.getAminoAcidChange();
         
-        int num;
-        try {
-            num = DaoMutation.getInstance()
-                .countSamplesWithSpecificMutations(profileId, entrez, aminoAcidChange);
-        } catch(DaoException ex) {
-            throw new ServletException(ex);
-        }
-        
-        if (mapGeneAlteredSamples!=null) {
-            mapGeneAlteredSamples.put(entrez, num);
-        }
-        
-        return num;
+        return symbol + ": " + geneContextMap.get(entrez) + "<br/>"
+                + aaChange + ": " + mutationContextMap.get(mutEventId);
     }
     
     private static Map<Integer,Map<String,Double>> mutSigMap            // map from cancer study id

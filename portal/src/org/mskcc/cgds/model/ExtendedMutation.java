@@ -28,6 +28,7 @@ public class ExtendedMutation {
     private String linkXVar;
     private String linkPdb;
     private String linkMsa;
+    private long mutationEventId;
 
     public ExtendedMutation() {
     }
@@ -223,6 +224,16 @@ public class ExtendedMutation {
     @JsonIgnore
     public String getGeneSymbol() {
         return gene.getHugoGeneSymbolAllCaps();
+    }
+
+    @JsonIgnore
+    public long getMutationEventId() {
+        return mutationEventId;
+    }
+
+    @JsonIgnore
+    public void setMutationEventId(long mutationEventId) {
+        this.mutationEventId = mutationEventId;
     }
 
     @Override

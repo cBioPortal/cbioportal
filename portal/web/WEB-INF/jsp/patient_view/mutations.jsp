@@ -59,25 +59,29 @@
                 "bDestroy": true,
                 "aaData": aDataSet,
                 "aoColumnDefs":[
+                    {// event id
+                        "bVisible": false,
+                        "aTargets": [ 0 ]
+                    },
                     {// clinical trials
                         "bVisible": placeHolder,
-                        "aTargets": [ 5 ]
+                        "aTargets": [ 6 ]
                     },
                     {// note
                         "bVisible": placeHolder,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ 7 ]
                     },
                     {// mutsig
                         "sType": "mutsig-col",
                         "bVisible": false,
-                        "aTargets": [ 7 ]
-                    },
-                    {// mutsig
-                        "bVisible": false,
                         "aTargets": [ 8 ]
+                    },
+                    {// in overview
+                        "bVisible": false,
+                        "aTargets": [ 9 ]
                     }
                 ],
-                "aaSorting": [[7,'asc']],
+                "aaSorting": [[8,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -112,7 +116,7 @@
                     switchToTab('mutations');
                     return false;
                 });
-                mut_sumary.fnFilter('true', 8);
+                mut_sumary.fnFilter('true', 9);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

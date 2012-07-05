@@ -32,6 +32,8 @@ public class PatientView extends HttpServlet {
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
+    public static final String NUM_CASES_IN_SAME_MUTATION_PROFILE = "num_cases";
+    public static final String NUM_CASES_IN_SAME_CNA_PROFILE = "num_cases";
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
@@ -125,16 +127,23 @@ public class PatientView extends HttpServlet {
     private void setGeneticProfiles(HttpServletRequest request) throws DaoException {
         Case _case = (Case)request.getAttribute(PATIENT_CASE_OBJ);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        List<GeneticProfile> profiles = daoGeneticProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+        List<GeneticProfile> profiles = daoGeneticProfile.getAllGeneticProfiles(
+                cancerStudy.getInternalId());
         for (GeneticProfile profile : profiles) {
             if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), profile.getGeneticProfileId())) {
+                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), 
+                        profile.getGeneticProfileId())) {
                     request.setAttribute(MUTATION_PROFILE, profile);
+                    request.setAttribute(NUM_CASES_IN_SAME_MUTATION_PROFILE, 
+                            daoCaseProfile.countCasesInProfile(profile.getGeneticProfileId()));
                 }
-            } else if (profile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-                    && profile.getStableId().endsWith("_gistic")) {
-                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), profile.getGeneticProfileId())) {
+            } else if (profile.getGeneticAlterationType() == GeneticAlterationType
+                    .COPY_NUMBER_ALTERATION && profile.getStableId().endsWith("_gistic")) {
+                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), 
+                        profile.getGeneticProfileId())) {
                     request.setAttribute(CNA_PROFILE, profile);
+                    request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
+                            daoCaseProfile.countCasesInProfile(profile.getGeneticProfileId()));
                 }
             }
         }

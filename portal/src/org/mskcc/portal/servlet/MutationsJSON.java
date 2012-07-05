@@ -106,14 +106,13 @@ public class MutationsJSON extends HttpServlet {
         String eventIds = request.getParameter(MUTATION_EVENT_ID);
         
         GeneticProfile mutationProfile;
-        Map<Long, Integer> geneContextMap = Collections.emptyMap();
+        Map<String, Integer> geneContextMap = Collections.emptyMap();
         Map<Long, Integer> mutationContextMap = Collections.emptyMap();
         
         try {
             mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
-                geneContextMap = DaoMutationEvent.countSamplesWithMutatedGenesByEventIds(
-                        eventIds, mutationProfile.getGeneticProfileId());
+                geneContextMap = getGeneContextMap(eventIds, mutationProfile.getGeneticProfileId());
                 mutationContextMap = DaoMutationEvent.countSamplesWithMutationEvents(
                         eventIds, mutationProfile.getGeneticProfileId());
             }
@@ -121,7 +120,7 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         
-        Map<String, Map<Long, Integer>> map = new HashMap<String, Map<Long, Integer>>();
+        Map<String, Map<?, Integer>> map = new HashMap<String, Map<?, Integer>>();
         map.put(GENE_CONTEXT, geneContextMap);
         map.put(MUTATION_CONTEXT, mutationContextMap);
         
@@ -137,6 +136,18 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
+    private Map<String, Integer> getGeneContextMap(String eventIds, int profileId)
+            throws DaoException {
+        Map<Long, Integer> map = DaoMutationEvent.countSamplesWithMutatedGenesByEventIds(
+                        eventIds, profileId);
+        Map<String, Integer> ret = new HashMap<String, Integer>(map.size());
+        for (Map.Entry<Long, Integer> entry : map.entrySet()) {
+            ret.put(DaoGeneOptimized.getInstance().getGene(entry.getKey())
+                    .getHugoGeneSymbolAllCaps(), entry.getValue());
+        }
+        return ret;
+    }
+    
     private void export(JSONArray table, ExtendedMutation mutation, CancerStudy 
             cancerStudy, double qvalueThreshold) 
             throws ServletException {
@@ -146,8 +157,6 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getAminoAcidChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
-        // TODO: context
-        row.add("");
         // TODO: clinical trial
         row.add("pending");
         // TODO: annotation

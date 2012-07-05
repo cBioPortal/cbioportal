@@ -2,7 +2,6 @@
 <%@ page import="org.mskcc.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cgds.dao.DaoMutSig" %>
 
-
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";
         @import "css/data_table_ColVis.css";
@@ -66,23 +65,28 @@
                     },
                     {// clinical trials
                         "bVisible": placeHolder,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ 5 ]
                     },
                     {// note
                         "bVisible": placeHolder,
-                        "aTargets": [ 7 ]
+                        "aTargets": [ 6 ]
                     },
                     {// mutsig
                         "sType": "mutsig-col",
                         "bVisible": false,
-                        "aTargets": [ 8 ]
+                        "aTargets": [ 7 ]
                     },
                     {// in overview
                         "bVisible": false,
+                        "aTargets": [ 8 ]
+                    },
+                    {
+                        "mDataProp": null,
+                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
                         "aTargets": [ 9 ]
                     }
                 ],
-                "aaSorting": [[8,'asc']],
+                "aaSorting": [[7,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -99,12 +103,21 @@
         return oTable;
     }
     
+    numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
+    
     function updateMutationContext(mutationContext, geneContext, oTable) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             var eventId = oTable.fnGetData(row, 0);
-            var mutContext = mutationContext[eventId];
-            oTable.fnUpdate(mutContext, row, 5, false);
+            var gene = oTable.fnGetData(row, 1);
+            var aa = oTable.fnGetData(row, 2);
+            var mutCon = mutationContext[eventId];
+            var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
+            var geneCon = geneContext[gene];
+            var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
+            var context = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/>"
+                        + aa + ": " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
+            oTable.fnUpdate(context, row, 9, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -157,7 +170,7 @@
                     switchToTab('mutations');
                     return false;
                 });
-                mut_sumary.fnFilter('true', 9);
+                mut_sumary.fnFilter('true', 8);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

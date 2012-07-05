@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- * Data access object for Case table
+ * Data access object for case_profile table
  */
 public class DaoCaseProfile {
    
@@ -58,6 +58,27 @@ public class DaoCaseProfile {
             } else {
                 return false;
             }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public int countCasesInProfile(int geneticProfileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT count(*) FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

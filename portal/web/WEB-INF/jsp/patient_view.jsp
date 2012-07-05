@@ -38,7 +38,9 @@ if (isDemoMode!=null) {
 boolean showPathways = showPlaceHoder;
 boolean showSimilarPatient = showMutations | showCNA;
 
-int numPatientInSameStudy;
+int numPatientInSameStudy = 0;
+int numPatientInSameMutationProfile = 0;
+int numPatientInSameCnaProfile = 0;
 
 if (patientViewError!=null) {
     out.print(patient);
@@ -47,6 +49,14 @@ if (patientViewError!=null) {
     out.print(patientViewError);
 } else {
     numPatientInSameStudy = (Integer)request.getAttribute(PatientView.NUM_CASES_IN_SAME_STUDY);
+    if (mutationProfile!=null) {
+        numPatientInSameMutationProfile = (Integer)request.getAttribute(
+                PatientView.NUM_CASES_IN_SAME_MUTATION_PROFILE);
+    }
+    if (cnaProfile!=null) {
+        numPatientInSameCnaProfile = (Integer)request.getAttribute(
+                PatientView.NUM_CASES_IN_SAME_CNA_PROFILE);
+    }
 %>
 
 

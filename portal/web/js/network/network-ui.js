@@ -339,10 +339,12 @@ function _updateNodeInspectorForDrug(data, node)
 		
 		$("#node_inspector_content .data").append(
 		'<tr align="left" class="targets-data-row"><td>' +
-		'<strong>Number of Genes Targeted: </strong> ' + targets.length + 
+		'<strong>Number of Genes Targeted: </strong> ' + 
+		'<span class="num-of-drug-targets" title="' + data["TARGETS"] + '">' +
+		targets.length + '</span>' +
 		'</td></tr>');	
 		$("#node_inspector_content .targets-data-row td").append('<br><br>');
-
+		$(".num-of-drug-targets").tipTip();
 	}
 	
 	// For drug atc code

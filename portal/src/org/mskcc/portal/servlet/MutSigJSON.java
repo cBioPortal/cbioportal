@@ -15,18 +15,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-    // JSON servlet for fetching MutSig data.
-    // If there is no MutSig data, then return an empty JSON.
-    // @author Gideon Dresdner
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
+/**
+ *
+ * JSON servlet for fetching MutSig data.
+ * If there is no MutSig data, then return an empty JSON.
+ * @author Gideon Dresdner
+ */
 public class MutSigJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
+    private static Log log = LogFactory.getLog(MutSigJSON.class);
 
     //
     // Initializes the servlet.
@@ -43,8 +47,7 @@ public class MutSigJSON extends HttpServlet {
     // Make a map out of every mutsig
     // Add that map to the mutSigJSONArray
     // Returns the empty set, {}, if qval > 0.01 (specificed by Ethan)
-    public static Map MutSigtoMap(MutSig mutsig)
-    {
+    public static Map MutSigtoMap(MutSig mutsig) {
         Map map = new HashMap();
 
         map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
@@ -52,6 +55,19 @@ public class MutSigJSON extends HttpServlet {
         map.put("qval", mutsig.getqValue());
 
         return map;
+    }
+
+    /**
+     * Sort Mutsigs by rank, which is determined by q-value.
+     * So actually we are sorting by q-value
+     */
+    private class sortMutsigByRank implements Comparator<MutSig> {
+        public int compare(MutSig mutSig1, MutSig mutSig2) {
+
+            // Collections.sort is in ascending order and
+            // we want the smallest q-value at the top
+            return mutSig1.getRank() - mutSig2.getRank();
+        }
     }
 
     //
@@ -69,7 +85,18 @@ public class MutSigJSON extends HttpServlet {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
 
             DaoMutSig daoMutSig = DaoMutSig.getInstance();
+
+            if (log.isWarnEnabled()) {
+                log.warn("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
+            }
+
             ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
+
+            if (log.isWarnEnabled()) {
+                log.warn("list of mutsigs associated with cancerStudy: " + mutSigList);
+            }
+
+            Collections.sort(mutSigList, new sortMutsigByRank());
 
             for (MutSig mutsig : mutSigList) {
                 Map map = MutSigtoMap(mutsig);
@@ -78,7 +105,6 @@ public class MutSigJSON extends HttpServlet {
                     mutSigJSONArray.add(map);
                 }
             }
-
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 
@@ -99,4 +125,5 @@ public class MutSigJSON extends HttpServlet {
     {
         doGet(request, response);
     }
+
 }

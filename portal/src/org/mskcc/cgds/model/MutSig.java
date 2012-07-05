@@ -19,11 +19,11 @@ public class MutSig {
     private CanonicalGene canonicalGene;
     private int numBasesCovered;
     private int numMutations;
-    private String pValue;
-    private String qValue;
+    private float pValue;
+    private float qValue;
 
     public MutSig(int cancerType, CanonicalGene canonicalGene, int rank,
-            int numBasesCovered, int numMutations, String pValue, String qValue) {
+            int numBasesCovered, int numMutations, float pValue, float qValue) {
         this.cancerType = cancerType;
         this.rank = rank;
         this.canonicalGene = canonicalGene;
@@ -62,11 +62,11 @@ public class MutSig {
         return numMutations;
     }
 
-    public String getpValue() {
+    public float getpValue() {
         return pValue;
     }
 
-    public String getqValue() {
+    public float getqValue() {
         return qValue;
     }
 }

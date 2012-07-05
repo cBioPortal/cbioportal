@@ -143,12 +143,14 @@ public class MutSigReader {
             String hugoGeneSymbol = parts[hugoField];
             int numBasesCovered = Integer.parseInt(parts[BasesCoveredField]);
             int numMutations = Integer.parseInt(parts[numMutationsField]);
-            String pValue = parts[PvalField];
-            String qValue = parts[QvalField];
+
+            // ignoring '<' sign
+            float pValue = Float.valueOf(parts[PvalField].replace("<", ""));
+            float qValue = Float.valueOf(parts[QvalField].replace("<", ""));
 
             // Ignore everything with high q-value,
             // specified by Ethan
-            if (Float.parseFloat(qValue.replace("<","")) >= 0.1) {
+            if (qValue >= 0.1) {
                 line = buf.readLine();
                 continue;
             }

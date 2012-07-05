@@ -51,6 +51,25 @@
 			</tr>
 		</table>
 	</div>
+    <div id="mutsig_dialog" title="Recurrently Mutated Genes" style="font-size: 11px; .ui-dialog {padding: 0em;};">
+        <img id='loader-img' src="images/ajax-loader.gif"/>
+        <table class="MutSig">
+            <thead>
+                <tr>
+                    <th>Gene Symbol</th>
+                    <th>Num Mutations</th>
+                    <th>Q-Value</th>
+                    <th><input class="checkall" type="checkbox"></td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+		<div id="mutsig_dialog_footer" style="float: right;">
+					<button id="cancel_mutsig" title="Cancel">Cancel</button>
+					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
+		</div>
+    </div>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

@@ -57,17 +57,33 @@ var initMutsigDialogue = function() {
     });
 
     // make checkall check all
-    $('#mutsig_dialog .checkall').live('click', function() {
-        $(this).parents().find('.MutSig input').attr('checked', this.checked);
+    $('#mutsig_dialog .checkall').click(function() {
+        $(this).parents().find('.MutSig input').attr('checked', $(this).is(':checked'));
     });
+
+    // if checkall is checked then all mutsigs are checked
+    // note: the converse does not hold
+    //
+    //$('.MutSig :not(.checkall):checked').change(function() {
+    //    if (!$(this).is(':checked')) {
+    //        $('.MutSig .checkall').attr('checked', false);
+    //    }
+    //});
+
+    $('.MutSig :not(.checkall):checked').each($(this).change(function() {
+        if (!$(this).is(':checked')) {
+            $('.MutSig .checkall').attr('checked', false);
+        }
+    }));
 
     // bind UI for mutsig table -> gene list
     $('#select_mutsig').click(updateGeneList);
 
     // bind UI for gene list -> mutsig table
-    // todo: is this not working right for some reason?
-    $('#gene_list').change(function () {
-        updateMutSigTable();
+    $('#gene_list').change( function() {
+        if ($('mutsig_dialog').dialog('isOpen')) {
+            updateMutSigTable();
+        }
     });
 
     listenCancerStudy();
@@ -123,6 +139,9 @@ var mutsig_to_tr = function(mutsig) {
 var promptMutsigTable = function() {
     "use strict";
 
+    // grab data to be sent to the server
+    var cancerStudyId = $('#select_cancer_type').val();
+
     // open the dialog box
     $('#mutsig_dialog').dialog('open');
 
@@ -136,9 +155,6 @@ var promptMutsigTable = function() {
     // hide everything but the loader image
     $('#mutsig_dialog').children().hide();
     $('#mutsig_dialog #loader-img').show();
-
-    // grab data to be sent to the server
-    var cancerStudyId = $('#select_cancer_type').val();
 
     // save the selected cancer study for later
     CANCER_STUDY_SELECTED = cancerStudyId;
@@ -193,11 +209,15 @@ var promptMutsigTable = function() {
         // force columns to align correctly
         DATATABLE_FORMATTED.fnDraw();
         DATATABLE_FORMATTED.fnDraw();
+
+        // bind UI for gene list -> mutsig table
+        updateMutSigTable();
     });
 
     // show everything but loader image
     $('#mutsig_dialog').children().show();
     $('#mutsig_dialog #loader-img').hide();
+
 
     return;
 };
@@ -227,8 +247,7 @@ var updateGeneList = function() {
             var checked = $(this).val();
 
             if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
-                gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
-                //todo: $.trim
+                gene_list = $.trim(gene_list);
                 checked = " " + checked;
                 gene_list += checked;
             }
@@ -242,10 +261,11 @@ var updateGeneList = function() {
             if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
 
                 // likely to be Onco Query
+                // delete the entire OncoQuery statement associated with an unselected gene
                 if (gene_list.search(':') !== -1) {
                     var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\;|\n)/.source, "ig");
-                    gene_list = gene_list.replace(unchecked_regexp, "");
                     console.log(unchecked_regexp);
+                    gene_list = gene_list.replace(unchecked_regexp, "");
                 }
 
                 // still want to remove the gene even if it is not part of a (nontrivial) onco query statement
@@ -258,8 +278,8 @@ var updateGeneList = function() {
     $('#gene_list').val(gene_list);
 
     // remove spaces in gene_list
+    gene_list = $.trim(gene_list);
     gene_list = gene_list.replace(/\s{2,}/, "");            // delete 2 or more spaces in a row
-    gene_list = gene_list.replace(/^ /ig, "");              // delete leading space
 };
 
 // updates the MutSig table based on what happens in the gene_list
@@ -305,11 +325,7 @@ var updateMutSigTable = function() {
         // select mutsig checkboxes that are in the gene list
         $('#mutsig_dialog .MutSig :checkbox[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
-
-        //$('#mutsig_dialog .MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
-            //attr('checked', true);
     }
-    return false;
 }
 
 // todo: refactor this and put it in with other init functions in step3.json

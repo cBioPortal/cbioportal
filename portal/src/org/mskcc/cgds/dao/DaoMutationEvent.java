@@ -230,36 +230,33 @@ public final class DaoMutationEvent {
         }
     }
     
-    public static Map<Long, Integer> countSamplesWithMutatedGenesByEventIds(
+    public static Set<Long> getGenesOfMutations(
             Collection<Long> eventIds, int profileId) throws DaoException {
-        return countSamplesWithMutatedGenesByEventIds(StringUtils.join(eventIds, ","), profileId);
+        return getGenesOfMutations(StringUtils.join(eventIds, ","), profileId);
     }
     
-    public static Map<Long, Integer> countSamplesWithMutatedGenesByEventIds(
-            String concatEventIds, int profileId) throws DaoException {
+    public static Set<Long> getGenesOfMutations(String concatEventIds, int profileId)
+            throws DaoException {
         if (concatEventIds.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptySet();
         }
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT ENTREZ_GENE_ID, count(DISTINCT CASE_ID)"
-                    + " FROM case_mutation_event, mutation_event"
-                    + " WHERE GENETIC_PROFILE_ID=" + profileId
-                    + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
-                    + " AND mutation_event.MUTATION_EVENT_ID IN ("
-                    + concatEventIds
-                    + ") GROUP BY `ENTREZ_GENE_ID`";
+            String sql = "SELECT DISTINCT ENTREZ_GENE_ID FROM mutation_event "
+                    + "WHERE MUTATION_EVENT_ID in ("
+                    +       concatEventIds
+                    + ")";
             pstmt = con.prepareStatement(sql);
             
-            Map<Long, Integer> map = new HashMap<Long, Integer>();
+            Set<Long> set = new HashSet<Long>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                map.put(rs.getLong(1), rs.getInt(2));
+                set.add(rs.getLong(1));
             }
-            return map;
+            return set;
         } catch (SQLException e) {
             throw new DaoException(e);
         }

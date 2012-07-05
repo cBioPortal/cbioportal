@@ -138,8 +138,9 @@ public class MutationsJSON extends HttpServlet {
     
     private Map<String, Integer> getGeneContextMap(String eventIds, int profileId)
             throws DaoException {
-        Map<Long, Integer> map = DaoMutationEvent.countSamplesWithMutatedGenesByEventIds(
-                        eventIds, profileId);
+        Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
+        Map<Long, Integer> map = DaoMutationEvent.countSamplesWithMutatedGenes(
+                        genes, profileId);
         Map<String, Integer> ret = new HashMap<String, Integer>(map.size());
         for (Map.Entry<Long, Integer> entry : map.entrySet()) {
             ret.put(DaoGeneOptimized.getInstance().getGene(entry.getKey())

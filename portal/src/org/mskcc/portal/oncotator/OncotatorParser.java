@@ -8,32 +8,54 @@ import java.io.IOException;
 /**
  * Parses JSON Retrieved from Oncotator.
  */
-public class OncotatorParser {
+public class OncotatorParser
+{
 
-    public static OncotatorRecord parseJSON (String key, String json) throws IOException {
+	/**
+	 * Parses the JSON returned by the oncotator web service, and returns
+	 * the information as a new OncotateRecord instance.
+	 * 
+	 * @param key			chr#_start_end_allele1_allele2
+	 * @param json			JSON object returned by the web service
+	 * @return				new OncotatorRecord, or null if JSON has an error
+	 * @throws IOException
+	 */
+    public static OncotatorRecord parseJSON (String key, String json) throws IOException
+    {
         ObjectMapper m = new ObjectMapper();
         JsonNode rootNode = m.readValue(json, JsonNode.class);
-
+        
         OncotatorRecord oncotator = new OncotatorRecord(key);
+        
+        // check if JSON has an ERROR
+        
+        JsonNode errorNode = rootNode.path("ERROR");
+        if (!errorNode.isMissingNode())
+        {
+        	System.out.println("JSON parse error for " + key + ": " + errorNode.getTextValue());
+        	return null;
+        }
 
+        // proceed in case of no JSON error
+        
         JsonNode genomeChange = rootNode.path("genome_change");
-        if (genomeChange != null) {
+        if (!genomeChange.isMissingNode()) {
             oncotator.setGenomeChange(genomeChange.getTextValue());
         }
 
         JsonNode cosmic = rootNode.path("Cosmic_overlapping_mutations");
-        if (cosmic != null) {
+        if (!cosmic.isMissingNode()) {
             oncotator.setCosmicOverlappingMutations(cosmic.getTextValue());
         }
 
         JsonNode dbSnpRs = rootNode.path("dbSNP_RS");
-        if (dbSnpRs != null) {
+        if (!dbSnpRs.isMissingNode()) {
             oncotator.setDbSnpRs(dbSnpRs.getTextValue());
         }
 
         JsonNode bestTranscriptIndexNode = rootNode.path("best_canonical_transcript");
 
-        if (bestTranscriptIndexNode != null) {
+        if (!bestTranscriptIndexNode.isMissingNode()) {
             int transcriptIndex = bestTranscriptIndexNode.getIntValue();
             JsonNode transcriptsNode = rootNode.path("transcripts");
             JsonNode bestTranscriptNode = transcriptsNode.get(transcriptIndex);

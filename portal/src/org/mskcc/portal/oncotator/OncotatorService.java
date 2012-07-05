@@ -38,23 +38,40 @@ public class OncotatorService {
 
         BufferedReader in = null;
         InputStream inputStream = null;
-        try {
+        try 
+        {
             OncotatorRecord record = cache.get(key);
-            if (record == null) {
+            
+            // if record is null, then it is not cached yet
+            if (record == null)
+            {
                 try {
                     //  Must go to sleep;  otherwise, we trigger the Broad's Limit.
                     Thread.sleep(SLEEP_PERIOD);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                
                 URL url = new URL(ONCOTATOR_BASE_URL + key);
                 inputStream = url.openStream();
                 in = new BufferedReader(new InputStreamReader(inputStream));
                 String content = WebFileConnect.readFile(in);
                 record = OncotatorParser.parseJSON(key, content);
-                cache.put(record);
+                
+                // if record is null, then there is an error with JSON parsing
+                if (record != null)
+                {
+                	cache.put(record);
+                }
+                else
+                {
+                	record = new OncotatorRecord(key);
+                }
+                
                 return record;
-            } else {
+            }
+            else
+            {
                 return record;
             }
         } catch (IOException e) {

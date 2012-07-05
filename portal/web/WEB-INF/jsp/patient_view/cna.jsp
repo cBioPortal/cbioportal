@@ -1,4 +1,5 @@
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 
 
 <style type="text/css" title="currentStyle"> 
@@ -50,13 +51,47 @@
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
+    numPatientInSameCnaProfile = <%=numPatientInSameCnaProfile%>;
+    
+    function updateCnaContext(cnaContext, oTable) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            var eventId = oTable.fnGetData(row, 0);
+            var con = cnaContext[eventId];
+            var perc = 100.0 * con / numPatientInSameCnaProfile;
+            var context = con + " (<b>" + perc.toFixed(1) + "%</b>)<br/>";
+            oTable.fnUpdate(context, row, 7, false);
+        }
+        oTable.fnDraw();
+        oTable.css("width","100%");
+    }
+    
+    function loadCnaContextData(cnas, cna_table, cna_summary_table) {
+        var eventIds = getEventIdString(cnas);
+        
+        var params = {
+            <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
+            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
+            <%=CnaJSON.CNA_EVENT_ID%>:eventIds
+        };
+        
+        $.post("cna.json", 
+            params,
+            function(context){
+                updateCnaContext(context, cna_table);
+                updateCnaContext(context, cna_summary_table);
+            }
+            ,"json"
+        );
+    }
+    
     var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
-    function buildCnaDataTable(aDataSet, table_id, sDom, iDisplayLength) {
+    function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
                 "bDestroy": true,
-                "aaData": aDataSet,
+                "aaData": cnas,
                 "aoColumnDefs":[
                     {// event id
                         "bVisible": false,
@@ -64,23 +99,28 @@
                     },
                     {// clinical trials
                         "bVisible": placeHolder,
-                        "aTargets": [ 4 ]
+                        "aTargets": [ 3 ]
                     },
                     {// note
                         "bVisible": placeHolder,
-                        "aTargets": [ 5 ]
+                        "aTargets": [ 4 ]
                     },
                     {// gistic
                         "sType": "gistic-col",
                         "bVisible": false,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ 5 ]
                     },
                     {// show in summary
                         "bVisible": false,
+                        "aTargets": [ 6 ]
+                    },
+                    {
+                        "mDataProp": null,
+                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
                         "aTargets": [ 7 ]
                     }
                 ],
-                "aaSorting": [[6,'asc']],
+                "aaSorting": [[5,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -106,25 +146,27 @@
                         
         $.post("cna.json", 
             params,
-            function(aDataSet){
+            function(cnas){
+                // cna
+                var cna_table = buildCnaDataTable(cnas, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                $('#cna_wrapper_table').show();
+                $('#cna_wait').remove();
+                
+                $('#similar_patients_table').trigger('cna-built');
+                
                 // summary table
-                var cna_sumary = buildCnaDataTable(aDataSet, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
+                var cna_sumary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
                 $('.cna-summary-table-name').html('Copy Number Alterations of Interest');
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show more copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');
                     return false;
                 });
-                cna_sumary.fnFilter('true', 7);
+                cna_sumary.fnFilter('true', 6);
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                // cna
-                buildCnaDataTable(aDataSet, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
-                $('#cna_wrapper_table').show();
-                $('#cna_wait').remove();
-                
-                $('#similar_patients_table').trigger('cna-built');
+                loadCnaContextData(cnas, cna_table, cna_sumary);
             }
             ,"json"
         );

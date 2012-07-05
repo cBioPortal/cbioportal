@@ -13,7 +13,7 @@
                         <th>Mutation Rate
                             <img class="mutations_help" src="images/help.png" title="Number and percentage of 
                                  altered cases for genes and specific mutations out of <%=numPatientInSameMutationProfile%>
-                                 patients in <%=cancerStudy.getName()%> that have been sequenced."/>
+                                 patients in <%=cancerStudy.getName()%> profiled."/>
                         </th>
                     </tr>
                 </thead>

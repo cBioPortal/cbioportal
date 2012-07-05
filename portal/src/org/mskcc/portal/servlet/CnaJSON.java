@@ -15,11 +15,9 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.model.CnaEvent;
 import org.mskcc.cgds.model.GeneticProfile;
-import java.util.HashSet;
 
 /**
  *
@@ -28,6 +26,11 @@ import java.util.HashSet;
 public class CnaJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(CnaJSON.class);
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+    
+    public static final String CMD = "cmd";
+    public static final String GET_CONTEXT_CMD = "get_context";
+    public static final String CNA_EVENT_ID = "cna_id";
+    public static final String CNA_CONTEXT = "cna_context";
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,6 +41,16 @@ public class CnaJSON extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String cmd = request.getParameter(CMD);
+        if (cmd!=null && cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
+            processGetCnaContextRequest(request, response);
+        } else {
+            processGetCnaRequest(request, response);
+        }
+    }
+    
+    private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         JSONArray table = new JSONArray();
 
         String patient = request.getParameter(PatientView.PATIENT_ID);
@@ -46,28 +59,19 @@ public class CnaJSON extends HttpServlet {
         GeneticProfile cnaProfile;
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
-        CancerStudy cancerStudy;
-        Map<Long, String> contextMap = Collections.emptyMap();
-        
-        String strNumAllCases = request.getParameter(PatientView.NUM_CASES_IN_SAME_STUDY);
-        int numAllCases = strNumAllCases==null ? 0 : Integer.parseInt(strNumAllCases);
+
         try {
             _case = DaoCase.getCase(patient);
             cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             if (_case!=null && cnaProfile!=null) {
-                cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
                 cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
-                if (strNumAllCases==null) {
-                    numAllCases = DaoCase.countCases(cancerStudy.getInternalId());
-                }
-                contextMap = getContextMap(cnaEvents, cnaProfile.getGeneticProfileId(), numAllCases);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         for (CnaEvent cnaEvent : cnaEvents) {
-            export(table, cnaEvent, contextMap);
+            export(table, cnaEvent);
         }
 
         response.setContentType("application/json");
@@ -79,26 +83,35 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
-    private Map<Long, String> getContextMap(List<CnaEvent> cnaEvents, int cnaProfileId,
-            int numAllCases) throws DaoException {
-        HashSet<Long> eventIds = new HashSet<Long>();
-        for (CnaEvent ev : cnaEvents) {
-            eventIds.add(ev.getEventId());;
+    private void processGetCnaContextRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
+        String eventIds = request.getParameter(CNA_EVENT_ID);
+        
+        GeneticProfile cnaProfile;
+        Map<Long, Integer> contextMap = Collections.emptyMap();
+        
+        try {
+            cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
+            if (cnaProfile!=null) {
+                contextMap = DaoCnaEvent.countSamplesWithCnaEvents(
+                        eventIds, cnaProfile.getGeneticProfileId());
+            }
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
         }
+
+        response.setContentType("application/json");
         
-        Map<Long, Integer> countMap = DaoCnaEvent.countSamplesWithCnaEvents(eventIds, cnaProfileId);
-        
-        Map<Long, String> contextMap = new HashMap<Long, String>(countMap.size());
-        for (Map.Entry<Long, Integer> entry : countMap.entrySet()) {
-            int altCount = entry.getValue();
-            String context = String.format("%d (<b>%.1f%%</b>) ", altCount, 100.0*altCount/numAllCases);
-            contextMap.put(entry.getKey(), context);
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(contextMap, out);
+        } finally {            
+            out.close();
         }
-        
-        return contextMap;
     }
     
-    private void export(JSONArray table, CnaEvent cnaEvent, Map<Long, String> contextMap) 
+    private void export(JSONArray table, CnaEvent cnaEvent) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(cnaEvent.getEventId());
@@ -109,9 +122,6 @@ public class CnaJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         row.add(cnaEvent.getAlteration().getDescription());
-        // TODO: context
-        String context = contextMap.get(cnaEvent.getEventId());
-        row.add(context);
         // TODO: clinical trial
         row.add("pending");
         // TODO: annotation

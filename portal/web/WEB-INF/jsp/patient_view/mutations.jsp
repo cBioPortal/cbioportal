@@ -123,7 +123,7 @@
         oTable.css("width","100%");
     }
     
-    function loadContextData(mutations, mut_table, mut_summary_table) {
+    function loadMutationContextData(mutations, mut_table, mut_summary_table) {
         var eventIds = getEventIdString(mutations);
         
         var params = {
@@ -174,7 +174,7 @@
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
-                loadContextData(mutations, mut_table, mut_sumary);
+                loadMutationContextData(mutations, mut_table, mut_sumary);
             }
             ,"json"
         );

@@ -56,18 +56,14 @@ var initMutsigDialogue = function() {
         $('.MutSig :checkbox').attr('checked', false);
     });
 
-    // make checkall check all
-    $('#mutsig_dialog .checkall').live('click', function() {
-        $(this).parents().find('.MutSig input').attr('checked', this.checked);
-    });
-
     // bind UI for mutsig table -> gene list
     $('#select_mutsig').click(updateGeneList);
 
     // bind UI for gene list -> mutsig table
-    // todo: is this not working right for some reason?
-    $('#gene_list').change(function () {
-        updateMutSigTable();
+    $('#gene_list').change( function() {
+        if ($('mutsig_dialog').dialog('isOpen')) {
+            updateMutSigTable();
+        }
     });
 
     listenCancerStudy();
@@ -123,22 +119,17 @@ var mutsig_to_tr = function(mutsig) {
 var promptMutsigTable = function() {
     "use strict";
 
+    // grab data to be sent to the server
+    var cancerStudyId = $('#select_cancer_type').val();
+
     // open the dialog box
     $('#mutsig_dialog').dialog('open');
 
     // this was the last cancer study selected,
     // no need to redo the query
     if (CANCER_STUDY_SELECTED === cancerStudyId) {
-        $('#mutsig_dialog #loader-img').hide();
         return;
     }
-
-    // hide everything but the loader image
-    $('#mutsig_dialog').children().hide();
-    $('#mutsig_dialog #loader-img').show();
-
-    // grab data to be sent to the server
-    var cancerStudyId = $('#select_cancer_type').val();
 
     // save the selected cancer study for later
     CANCER_STUDY_SELECTED = cancerStudyId;
@@ -155,11 +146,18 @@ var promptMutsigTable = function() {
         // delete all elements
         $('.MutSig tbody').empty();
     }
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
     // do AJAX
     $.get('MutSig.json', data, function(mutsigs) {
         var i;
         var len = mutsigs.length;
+
+        // hide everything but the loader image
+        // this is here because of the *A* in AJAX
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
         // append MutSig data to table
         for (i = 0; i < len; i += 1) {
@@ -193,14 +191,44 @@ var promptMutsigTable = function() {
         // force columns to align correctly
         DATATABLE_FORMATTED.fnDraw();
         DATATABLE_FORMATTED.fnDraw();
+
+        // bind UI for gene list -> mutsig table
+        updateMutSigTable();
+
+        // create bindings for checkall mutsig UI
+        checkallMutsig();
     });
 
     // show everything but loader image
     $('#mutsig_dialog').children().show();
     $('#mutsig_dialog #loader-img').hide();
 
+
     return;
 };
+
+// binds UI for checkall mutsig checkbox
+var checkallMutsig = function() {
+    // make checkall check all
+    $('#mutsig_dialog .checkall').click(function() {
+        $(this).parents().find('.MutSig input').attr('checked', this.checked);
+    });
+
+    // checkall is checked iff. all mutsigs are checked
+    $('.MutSig :not(.checkall):checkbox').click(function() {
+        // if a box is unchecked (namely *this* box)
+        // the checkall is unchecked
+        if (!this.checked) {
+            $('.MutSig .checkall').attr('checked', false);
+            return;
+        }
+        // check if the number of unchecked boxes equals 0
+        // if so, checkall should be checked
+        if ($('.MutSig input:not(.checkall):not(:checked)').length === 0) {
+            $('.MutSig .checkall').attr('checked', true);
+        }
+    });
+}
 
 // updates the gene_list based on what happens in the MutSig table.
 // mutsig table (within mutsig dialog box) -> gene list
@@ -227,8 +255,7 @@ var updateGeneList = function() {
             var checked = $(this).val();
 
             if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
-                gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
-                //todo: $.trim
+                gene_list = $.trim(gene_list);
                 checked = " " + checked;
                 gene_list += checked;
             }
@@ -242,10 +269,11 @@ var updateGeneList = function() {
             if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
 
                 // likely to be Onco Query
+                // delete the entire OncoQuery statement associated with an unselected gene
                 if (gene_list.search(':') !== -1) {
                     var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\;|\n)/.source, "ig");
-                    gene_list = gene_list.replace(unchecked_regexp, "");
                     console.log(unchecked_regexp);
+                    gene_list = gene_list.replace(unchecked_regexp, "");
                 }
 
                 // still want to remove the gene even if it is not part of a (nontrivial) onco query statement
@@ -258,8 +286,8 @@ var updateGeneList = function() {
     $('#gene_list').val(gene_list);
 
     // remove spaces in gene_list
+    gene_list = $.trim(gene_list);
     gene_list = gene_list.replace(/\s{2,}/, "");            // delete 2 or more spaces in a row
-    gene_list = gene_list.replace(/^ /ig, "");              // delete leading space
 };
 
 // updates the MutSig table based on what happens in the gene_list
@@ -305,11 +333,7 @@ var updateMutSigTable = function() {
         // select mutsig checkboxes that are in the gene list
         $('#mutsig_dialog .MutSig :checkbox[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
-
-        //$('#mutsig_dialog .MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
-            //attr('checked', true);
     }
-    return false;
 }
 
 // todo: refactor this and put it in with other init functions in step3.json

@@ -79,6 +79,10 @@
 	box under the "Genes &amp; Drugs" tab.
 </p>
 <p class="regular">
+	Number of Genes Targeted shown in the drug inspector refers to the total number of genes
+	 (regardless of whether or not any such gene is in the current network of interest) targeted by this drug.
+</p>
+<p class="regular">
 	Click <a onclick="handleMenuEvent('drug_legend')">here</a> to see the drug legend.
 </p>
 

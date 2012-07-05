@@ -5,14 +5,6 @@ A genomic overview with events aligned across patients goes here...
 <%}%>
 
 <script type="text/javascript">
-    function getEventIdString(eventTableData) {
-        var s = [];
-        for (var i=0; i<eventTableData.length; i++) {
-            s.push(eventTableData[i][0]);
-        }
-        return s.join(" ");
-    }
-    
     function renderSharedEvents(events) {
         var mut = events['<%=SimilarPatientsJSON.MUTATION%>'];
         var cna = events['<%=SimilarPatientsJSON.CNA%>'];

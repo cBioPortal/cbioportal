@@ -162,6 +162,14 @@ function switchToTab(toTab) {
     $('.patient-section#'+toTab).show();
     $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
 }
+
+function getEventIdString(eventTableData) {
+    var s = [];
+    for (var i=0; i<eventTableData.length; i++) {
+        s.push(eventTableData[i][0]);
+    }
+    return s.join(",");
+}
 </script>
 
 </body>

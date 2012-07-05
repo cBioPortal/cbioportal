@@ -45,14 +45,14 @@ public class SimilarPatientsJSON extends HttpServlet {
             if (strMutations==null) {
                 similarMutations = Collections.emptyMap();
             } else {
-                similarMutations = DaoMutationEvent.getCasesWithMutations(parseEventIds(strMutations));
+                similarMutations = DaoMutationEvent.getCasesWithMutations(strMutations);
                 similarMutations.remove(patient);
             }
             Map<String, Set<Long>> similarCnas;
             if (strCna==null) {
                 similarCnas = Collections.emptyMap();
             } else {
-                similarCnas = DaoCnaEvent.getCasesWithAlterations(parseEventIds(strCna));
+                similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
             }
             similarCnas.remove(patient);
             
@@ -70,18 +70,18 @@ public class SimilarPatientsJSON extends HttpServlet {
         }
     }
     
-    private Set<Long> parseEventIds(String str) {
-        String[] parts = str.split(" ");
-        Set<Long> ret = new HashSet<Long>(parts.length);
-        for (String strMut : parts) {
-            try {
-                ret.add(Long.valueOf(strMut));
-            } catch (java.lang.NumberFormatException ex) {
-                logger.info(ex.getMessage());
-            }
-        }
-        return ret;
-    }
+//    private Set<Long> parseEventIds(String str) {
+//        String[] parts = str.split(" ");
+//        Set<Long> ret = new HashSet<Long>(parts.length);
+//        for (String strMut : parts) {
+//            try {
+//                ret.add(Long.valueOf(strMut));
+//            } catch (java.lang.NumberFormatException ex) {
+//                logger.info(ex.getMessage());
+//            }
+//        }
+//        return ret;
+//    }
     
     private void export(JSONArray table, Map<String, Set<Long>> similarMutations, Map<String, Set<Long>> similarCnas) 
             throws DaoException {

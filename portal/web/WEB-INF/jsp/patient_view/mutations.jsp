@@ -1,4 +1,5 @@
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cgds.dao.DaoMutSig" %>
 
 
@@ -52,12 +53,12 @@
     };
     
     var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
-    function buildMutationsDataTable(aDataSet, table_id, sDom, iDisplayLength) {
+    function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
                 "bDestroy": true,
-                "aaData": aDataSet,
+                "aaData": mutations,
                 "aoColumnDefs":[
                     {// event id
                         "bVisible": false,
@@ -98,18 +99,58 @@
         return oTable;
     }
     
+    function updateMutationContext(mutationContext, geneContext, oTable) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            var eventId = oTable.fnGetData(row, 0);
+            var mutContext = mutationContext[eventId];
+            oTable.fnUpdate(mutContext, row, 5, false);
+        }
+        oTable.fnDraw();
+        oTable.css("width","100%");
+    }
+    
+    function loadContextData(mutations, mut_table, mut_summary_table) {
+        var eventIds = getEventIdString(mutations);
+        
+        var params = {
+            <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
+            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
+            <%=MutationsJSON.MUTATION_EVENT_ID%>:eventIds
+        };
+        
+        $.post("mutations.json", 
+            params,
+            function(context){
+                var mutationContext = context[0]['<%=MutationsJSON.MUTATION_CONTEXT%>'];
+                var geneContext =  context[0]['<%=MutationsJSON.GENE_CONTEXT%>'];
+                updateMutationContext(mutationContext, geneContext, mut_table);
+                updateMutationContext(mutationContext, geneContext, mut_summary_table);
+            }
+            ,"json"
+        );
+    }
+    
     $(document).ready(function(){
         $('#mutation_wrapper_table').hide();
-        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
+        var params = {
+            <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
             <%=PatientView.NUM_CASES_IN_SAME_STUDY%>:'<%=numPatientInSameStudy%>'
         };
                         
         $.post("mutations.json", 
             params,
-            function(aDataSet){
+            function(mutations){
+                // mutations
+                var mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                $('#mutation_wrapper_table').show();
+                $('#mutation_wait').remove();
+                
+                $('#similar_patients_table').trigger('mutations-built');
+                
                 // summary table
-                var mut_sumary = buildMutationsDataTable(aDataSet, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
+                var mut_sumary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-summary-table-name').html('Mutations of Interest');
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show more mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
@@ -120,12 +161,7 @@
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
-                // mutations
-                buildMutationsDataTable(aDataSet, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
-                $('#mutation_wrapper_table').show();
-                $('#mutation_wait').remove();
-                
-                $('#similar_patients_table').trigger('mutations-built');
+                loadContextData(mutations, mut_table, mut_sumary);
             }
             ,"json"
         );

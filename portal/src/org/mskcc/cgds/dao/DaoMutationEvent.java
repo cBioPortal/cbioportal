@@ -131,7 +131,11 @@ public final class DaoMutationEvent {
     }
     
     public static Map<String, Set<Long>> getCasesWithMutations(Collection<Long> eventIds) throws DaoException {
-        if (eventIds.isEmpty()) {
+        return getCasesWithMutations(StringUtils.join(eventIds, ","));
+    }
+    
+    public static Map<String, Set<Long>> getCasesWithMutations(String concatEventIds) throws DaoException {
+        if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
         }
         Connection con = null;
@@ -141,7 +145,7 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection();
             String sql = "SELECT `CASE_ID`, `MUTATION_EVENT_ID` FROM case_mutation_event"
                     + " WHERE `MUTATION_EVENT_ID` IN ("
-                    + StringUtils.join(eventIds, ",") + ")";
+                    + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
             
             Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
@@ -163,7 +167,11 @@ public final class DaoMutationEvent {
     }
     
     public static Map<Long, Integer> countSamplesWithMutationEvents(Collection<Long> eventIds, int profileId) throws DaoException {
-        if (eventIds.isEmpty()) {
+        return countSamplesWithMutationEvents(StringUtils.join(eventIds, ","), profileId);
+    }
+    
+    public static Map<Long, Integer> countSamplesWithMutationEvents(String concatEventIds, int profileId) throws DaoException {
+        if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
         }
         Connection con = null;
@@ -174,7 +182,7 @@ public final class DaoMutationEvent {
             String sql = "SELECT `MUTATION_EVENT_ID`, count(*) FROM case_mutation_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                     + " AND `MUTATION_EVENT_ID` IN ("
-                    + StringUtils.join(eventIds, ",")
+                    + concatEventIds
                     + ") GROUP BY `MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             
@@ -190,7 +198,11 @@ public final class DaoMutationEvent {
     }
     
     public static Map<Long, Integer> countSamplesWithMutatedGenes(Collection<Long> entrezGeneIds, int profileId) throws DaoException {
-        if (entrezGeneIds.isEmpty()) {
+        return countSamplesWithMutatedGenes(StringUtils.join(entrezGeneIds, ","), profileId);
+    }
+    
+    public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
+        if (concatEntrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
         Connection con = null;
@@ -203,7 +215,42 @@ public final class DaoMutationEvent {
                     + " WHERE GENETIC_PROFILE_ID=" + profileId
                     + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
                     + " AND ENTREZ_GENE_ID IN ("
-                    + StringUtils.join(entrezGeneIds, ",")
+                    + concatEntrezGeneIds
+                    + ") GROUP BY `ENTREZ_GENE_ID`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<Long, Integer> map = new HashMap<Long, Integer>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getLong(1), rs.getInt(2));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    public static Map<Long, Integer> countSamplesWithMutatedGenesByEventIds(
+            Collection<Long> eventIds, int profileId) throws DaoException {
+        return countSamplesWithMutatedGenesByEventIds(StringUtils.join(eventIds, ","), profileId);
+    }
+    
+    public static Map<Long, Integer> countSamplesWithMutatedGenesByEventIds(
+            String concatEventIds, int profileId) throws DaoException {
+        if (concatEventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT ENTREZ_GENE_ID, count(DISTINCT CASE_ID)"
+                    + " FROM case_mutation_event, mutation_event"
+                    + " WHERE GENETIC_PROFILE_ID=" + profileId
+                    + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " AND mutation_event.MUTATION_EVENT_ID IN ("
+                    + concatEventIds
                     + ") GROUP BY `ENTREZ_GENE_ID`";
             pstmt = con.prepareStatement(sql);
             

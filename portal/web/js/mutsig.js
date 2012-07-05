@@ -56,26 +56,6 @@ var initMutsigDialogue = function() {
         $('.MutSig :checkbox').attr('checked', false);
     });
 
-    // make checkall check all
-    $('#mutsig_dialog .checkall').click(function() {
-        $(this).parents().find('.MutSig input').attr('checked', $(this).is(':checked'));
-    });
-
-    // if checkall is checked then all mutsigs are checked
-    // note: the converse does not hold
-    //
-    //$('.MutSig :not(.checkall):checked').change(function() {
-    //    if (!$(this).is(':checked')) {
-    //        $('.MutSig .checkall').attr('checked', false);
-    //    }
-    //});
-
-    $('.MutSig :not(.checkall):checked').each($(this).change(function() {
-        if (!$(this).is(':checked')) {
-            $('.MutSig .checkall').attr('checked', false);
-        }
-    }));
-
     // bind UI for mutsig table -> gene list
     $('#select_mutsig').click(updateGeneList);
 
@@ -148,13 +128,8 @@ var promptMutsigTable = function() {
     // this was the last cancer study selected,
     // no need to redo the query
     if (CANCER_STUDY_SELECTED === cancerStudyId) {
-        $('#mutsig_dialog #loader-img').hide();
         return;
     }
-
-    // hide everything but the loader image
-    $('#mutsig_dialog').children().hide();
-    $('#mutsig_dialog #loader-img').show();
 
     // save the selected cancer study for later
     CANCER_STUDY_SELECTED = cancerStudyId;
@@ -171,11 +146,18 @@ var promptMutsigTable = function() {
         // delete all elements
         $('.MutSig tbody').empty();
     }
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
     // do AJAX
     $.get('MutSig.json', data, function(mutsigs) {
         var i;
         var len = mutsigs.length;
+
+        // hide everything but the loader image
+        // this is here because of the *A* in AJAX
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
         // append MutSig data to table
         for (i = 0; i < len; i += 1) {
@@ -212,6 +194,9 @@ var promptMutsigTable = function() {
 
         // bind UI for gene list -> mutsig table
         updateMutSigTable();
+
+        // create bindings for checkall mutsig UI
+        checkallMutsig();
     });
 
     // show everything but loader image
@@ -221,6 +206,29 @@ var promptMutsigTable = function() {
 
     return;
 };
+
+// binds UI for checkall mutsig checkbox
+var checkallMutsig = function() {
+    // make checkall check all
+    $('#mutsig_dialog .checkall').click(function() {
+        $(this).parents().find('.MutSig input').attr('checked', this.checked);
+    });
+
+    // checkall is checked iff. all mutsigs are checked
+    $('.MutSig :not(.checkall):checkbox').click(function() {
+        // if a box is unchecked (namely *this* box)
+        // the checkall is unchecked
+        if (!this.checked) {
+            $('.MutSig .checkall').attr('checked', false);
+            return;
+        }
+        // check if the number of unchecked boxes equals 0
+        // if so, checkall should be checked
+        if ($('.MutSig input:not(.checkall):not(:checked)').length === 0) {
+            $('.MutSig .checkall').attr('checked', true);
+        }
+    });
+}
 
 // updates the gene_list based on what happens in the MutSig table.
 // mutsig table (within mutsig dialog box) -> gene list

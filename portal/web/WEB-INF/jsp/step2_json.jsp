@@ -28,7 +28,13 @@ if (step2ErrorMsg != null) {
 
 
 <%
-    Integer priority = (Integer) request.getAttribute(DATA_PRIORITY);
+    Integer priority;
+    try {
+        priority = Integer.parseInt(request.getParameter(DATA_PRIORITY));
+    } catch (NumberFormatException e) {
+        priority = 0;
+    }
+
     String checked[] = {"", "", ""};
     if(priority == null)
         priority = 0;

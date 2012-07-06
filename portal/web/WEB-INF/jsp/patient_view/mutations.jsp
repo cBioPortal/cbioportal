@@ -162,18 +162,18 @@
                 $('#similar_patients_table').trigger('mutations-built');
                 
                 // summary table
-                var mut_sumary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
+                var mut_summary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-summary-table-name').html('Mutations of Interest');
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show more mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');
                     return false;
                 });
-                mut_sumary.fnFilter('true', 8);
+                mut_summary.fnFilter('true', 8);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
-                loadMutationContextData(mutations, mut_table, mut_sumary);
+                loadMutationContextData(mutations, mut_table, mut_summary);
             }
             ,"json"
         );

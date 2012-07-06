@@ -162,11 +162,11 @@
                     switchToTab('cna');
                     return false;
                 });
-                cna_sumary.fnFilter('true', 6);
+                cna_summary.fnFilter('true', 6);
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                loadCnaContextData(cnas, cna_table, cna_summary);
+                //loadCnaContextData(cnas, cna_table, cna_summary);
             }
             ,"json"
         );

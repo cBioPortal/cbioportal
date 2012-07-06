@@ -42,6 +42,10 @@ public class DaoDrug {
     }
 
     public ArrayList<Drug> getDrugs(CanonicalGene gene) throws DaoException {
+        return getDrugs(gene.getEntrezGeneId());
+    }
+
+    public ArrayList<Drug> getDrugs(long entrez) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -50,7 +54,7 @@ public class DaoDrug {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
 		("SELECT * FROM drug WHERE ENTREZ_GENE_ID = ?");
-            pstmt.setLong(1, gene.getEntrezGeneId());
+            pstmt.setLong(1, entrez);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 Drug drug = extractDrug(rs);

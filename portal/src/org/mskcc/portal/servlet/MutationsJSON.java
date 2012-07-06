@@ -31,6 +31,7 @@ public class MutationsJSON extends HttpServlet {
     public static final String MUTATION_CONTEXT = "mutation_context";
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+    private static final DaoDrug daoDrug = new DaoDrug();
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -156,7 +157,13 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
         // TODO: clinical trial
-        row.add("pending");
+        List<Drug> drugs = null;
+        try {
+            drugs = daoDrug.getDrugs(mutation.getEntrezGeneId());
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        row.add(getDrugInfo(drugs));
         // TODO: annotation
         row.add("pending");
         
@@ -180,6 +187,15 @@ public class MutationsJSON extends HttpServlet {
         row.add(isSangerGene || !Double.isNaN(mutSigQvalue));
         
         table.add(row);
+    }
+    
+    private String getDrugInfo(List<Drug> drugs) {
+        StringBuilder sb = new StringBuilder();
+        for (Drug drug : drugs) {
+            sb.append(drug.getdrugId()).append(", ");
+        }
+        sb.delete(sb.length()-2, sb.length());
+        return sb.toString();
     }
     
     private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id

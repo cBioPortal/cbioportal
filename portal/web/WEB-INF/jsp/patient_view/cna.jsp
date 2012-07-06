@@ -70,7 +70,7 @@
             if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
             var eventId = oTable.fnGetData(row, 0);
             var context = cnaContextMap[eventId];
-            oTable.fnUpdate(context, row, 7, false);
+            oTable.fnUpdate(context, row, 7, false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -90,7 +90,6 @@
                 var cnaContextMap = getCnaContextMap(context);
                 updateCnaContext(cnaContextMap, cna_table, false);
                 updateCnaContext(cnaContextMap, cna_summary_table, true);
-                alert('done');
             }
             ,"json"
         );

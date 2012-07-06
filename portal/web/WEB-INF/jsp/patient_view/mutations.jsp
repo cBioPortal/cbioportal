@@ -121,7 +121,7 @@
             map[eventId] = context;
         }
         return map;
-    }
+     }
     
     function updateMutationContext(mutationContextMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
@@ -129,7 +129,7 @@
             if (summaryOnly && !oTable.fnGetData(row, 8)) continue;
             var eventId = oTable.fnGetData(row, 0);
             var context = mutationContextMap[eventId];
-            oTable.fnUpdate(context, row, 9, false);
+            oTable.fnUpdate(context, row, 9, false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");

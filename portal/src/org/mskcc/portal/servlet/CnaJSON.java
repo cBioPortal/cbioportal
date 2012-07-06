@@ -115,12 +115,14 @@ public class CnaJSON extends HttpServlet {
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(cnaEvent.getEventId());
+        String symbol = null;
         try {
-            row.add(DaoGeneOptimized.getInstance().getGene(cnaEvent.getEntrezGeneId())
-                    .getHugoGeneSymbolAllCaps());
+            symbol = DaoGeneOptimized.getInstance().getGene(cnaEvent.getEntrezGeneId())
+                    .getHugoGeneSymbolAllCaps();
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
+        row.add(symbol);
         row.add(cnaEvent.getAlteration().getDescription());
         // TODO: clinical trial
         row.add("pending");
@@ -132,7 +134,13 @@ public class CnaJSON extends HttpServlet {
         row.add(gistic);
         
         // show in summary table
-        boolean includeInSummary = gistic < 0.05;
+        boolean isSangerGene = false;
+        try {
+            isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        boolean includeInSummary = isSangerGene;
         row.add(includeInSummary);
         
         table.add(row);

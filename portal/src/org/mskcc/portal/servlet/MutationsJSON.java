@@ -150,7 +150,8 @@ public class MutationsJSON extends HttpServlet {
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
-        row.add(mutation.getGeneSymbol());
+        String symbol = mutation.getGeneSymbol();
+        row.add(symbol);
         row.add(mutation.getAminoAcidChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
@@ -170,7 +171,13 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutSigQvalue);
         
         // show in summary table
-        row.add(!Double.isNaN(mutSigQvalue));
+        boolean isSangerGene = false;
+        try {
+            isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        row.add(isSangerGene || !Double.isNaN(mutSigQvalue));
         
         table.add(row);
     }

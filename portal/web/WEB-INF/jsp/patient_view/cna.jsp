@@ -139,8 +139,7 @@
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
-            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
-            <%=PatientView.NUM_CASES_IN_SAME_STUDY%>:'<%=numPatientInSameStudy%>'
+            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>'
         };
                         
         $.post("cna.json", 
@@ -156,7 +155,7 @@
                 $('#similar_patients_table').trigger('cna-built');
                 
                 // summary table
-                var cna_sumary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
+                var cna_summary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
                 $('.cna-summary-table-name').html('Copy Number Alterations of Interest');
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show more copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
@@ -167,7 +166,7 @@
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                loadCnaContextData(cnas, cna_table, cna_sumary);
+                loadCnaContextData(cnas, cna_table, cna_summary);
             }
             ,"json"
         );

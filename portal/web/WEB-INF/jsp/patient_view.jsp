@@ -62,11 +62,11 @@ if (patientViewError!=null) {
 
 <table width="100%">
     <tr>
-        <td><%=patientInfo%></td>
-        <td align="right"><%=diseaseInfo%></td>
+        <td ncol="2"><b><u><%=patientInfo%></u></b></td>
     </tr>
     <tr>
-        <td ncol="2"><%=patientStatus%></td>
+        <td><%=diseaseInfo%></td>
+        <td align="right"><%=patientStatus%></td>
     </tr>
 </table>
 

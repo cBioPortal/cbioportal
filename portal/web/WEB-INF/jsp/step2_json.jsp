@@ -29,7 +29,7 @@ if (step2ErrorMsg != null) {
 
 <%
     Integer priority = (Integer) request.getAttribute(DATA_PRIORITY);
-    String checked[] = new String[3];
+    String checked[] = {"", "", ""};
     if(priority == null)
         priority = 0;
 

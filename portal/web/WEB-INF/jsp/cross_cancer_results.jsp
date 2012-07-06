@@ -34,7 +34,7 @@
     Integer caseSetPriority;
     try {
         caseSetPriority
-                = Integer.parseInt(request.getParameter(QueryBuilder.CASE_SET_PRIORITY).trim());
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
     } catch (NumberFormatException e) {
         caseSetPriority = 0;
     }
@@ -322,7 +322,7 @@
             var cancerID = cancerStudies[bundleIndex];
             $("#study_" + cancerID)
                 .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id='
-                    + cancerID + '&<%=QueryBuilder.CASE_SET_PRIORITY + "=" + caseSetPriority%>',
+                    + cancerID + '&<%=QueryBuilder.DATA_PRIORITY + "=" + caseSetPriority%>',
                         function() {
 
                             setTimeout(function() {

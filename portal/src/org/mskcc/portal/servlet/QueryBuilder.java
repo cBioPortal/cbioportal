@@ -88,7 +88,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
     public static final String INDEX_PAGE = "index.do";
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
-    public static final String CASE_SET_PRIORITY = "case_set_priority";
+    public static final String DATA_PRIORITY = "data_priority";
 
     private ServletXssUtil servletXssUtil;
 

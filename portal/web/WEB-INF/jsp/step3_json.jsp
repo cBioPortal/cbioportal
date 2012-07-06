@@ -77,12 +77,3 @@ if (step3ErrorMsg != null) {
 }
 %>
 </div>
-
-<div class="query_step_section" id="step3cross">
-    <span class="step_header">Select Patient/Case Set Priority:</span>
-    <select name="<%= QueryBuilder.CASE_SET_PRIORITY %>">
-        <option value="0">Tumors with mutation and CNA data</option>
-        <option value="1">Tumors with mutation data</option>
-        <option value="2">Tumors with CNA data</option>
-    </select>
-</div>

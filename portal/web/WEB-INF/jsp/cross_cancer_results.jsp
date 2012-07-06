@@ -548,16 +548,17 @@
                 <br/>
 
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
-                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
-                    |
-                    <a href="#" id="download_histogram" title="Downloads the current histogram in SVG format.">Download (SVG)</a>
-                    |
+
                     <select id="hist_toggle_box">
                         <option value="1">Show percent of altered cases (studies with mutation data)</option>
                         <option value="2">Show percent of altered cases (studies without mutation data)</option>
                         <option value="3">Show number of altered cases (studies with mutation data)</option>
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
                     </select>
+                     |
+                     <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                     |
+                     <a href="#" id="download_histogram" title="Downloads the current histogram in SVG format.">Export</a>
                 </div>
                 <div id="chart_div1" style="width: 975px; height: 450px;"></div>
                 <div id="chart_div2" style="width: 975px; height: 450px;"></div>

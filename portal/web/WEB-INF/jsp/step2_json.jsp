@@ -31,11 +31,11 @@ if (step2ErrorMsg != null) {
     <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mutcna" value=0 checked="true">
     <label for="pri_mutcna">Mutation and CNA</label>
 
-    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_cna" value=1>
-    <label for="pri_cna">Only CNA</label>
-
-    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mut" value=2>
+    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mut" value=1>
     <label for="pri_mut">Only Mutation</label>
+
+    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_cna" value=2>
+    <label for="pri_cna">Only CNA</label>
 </div>
 
 

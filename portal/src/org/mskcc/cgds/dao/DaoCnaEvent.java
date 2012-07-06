@@ -199,4 +199,31 @@ public final class DaoCnaEvent {
             throw new DaoException(e);
         }
     }
+    
+    public static Set<Long> getAlteredGenes(String concatEventIds, int profileId)
+            throws DaoException {
+        if (concatEventIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT DISTINCT ENTREZ_GENE_ID FROM cna_event "
+                    + "WHERE CNA_EVENT_ID in ("
+                    +       concatEventIds
+                    + ")";
+            pstmt = con.prepareStatement(sql);
+            
+            Set<Long> set = new HashSet<Long>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                set.add(rs.getLong(1));
+            }
+            return set;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
 }

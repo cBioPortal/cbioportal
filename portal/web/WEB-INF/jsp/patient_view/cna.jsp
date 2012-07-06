@@ -67,10 +67,10 @@
     function updateCnaContext(cnaContextMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
+            if (summaryOnly && !oTable.fnGetData(row, 4)) continue;
             var eventId = oTable.fnGetData(row, 0);
             var context = cnaContextMap[eventId];
-            oTable.fnUpdate(context, row, 7, false, false);
+            oTable.fnUpdate(context, row, 5, false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -95,6 +95,39 @@
         );
     }
     
+    function updateCnaDrugs(drugMap, oTable, summaryOnly) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            if (summaryOnly && !oTable.fnGetData(row, 4)) continue;
+            var gene = oTable.fnGetData(row, 1);
+            var context = drugMap[gene];
+            if (context==null) {
+                context = "";
+            }
+            oTable.fnUpdate(context, row, 6, false, false);
+        }
+        oTable.fnDraw();
+        oTable.css("width","100%");
+    }
+    
+    function loadCnaDrugData(cna_table, cna_summary_table) {
+        var params = {
+            <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_DRUG_CMD%>',
+            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
+            <%=CnaJSON.CNA_EVENT_ID%>:cnaEventIds
+        };
+        
+        $.post("cna.json", 
+            params,
+            function(drugs){
+                var drugMap = getDrugMap(drugs);
+                updateCnaDrugs(drugMap, cna_table, false);
+                updateCnaDrugs(drugMap, cna_summary_table, true);
+            }
+            ,"json"
+        );
+    }
+    
     function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -106,30 +139,33 @@
                         "bVisible": false,
                         "aTargets": [ 0 ]
                     },
-                    {// clinical trials
-                        "bVisible": placeHolder,
-                        "aTargets": [ 3 ]
-                    },
-                    {// note
-                        "bVisible": placeHolder,
-                        "aTargets": [ 4 ]
-                    },
                     {// gistic
                         "sType": "gistic-col",
                         "bVisible": false,
-                        "aTargets": [ 5 ]
+                        "aTargets": [ 3 ]
                     },
                     {// show in summary
                         "bVisible": false,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ 4 ]
                     },
-                    {
+                    {// context
                         "mDataProp": null,
                         "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "aTargets": [ 5 ]
+                    },
+                    {// Drugs
+                        "mDataProp": null,
+                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "aTargets": [ 6 ]
+                    },
+                    {// note
+                        "bVisible": placeHolder,
+                        "mDataProp": null,
+                        "sDefaultContent": "",
                         "aTargets": [ 7 ]
                     }
                 ],
-                "aaSorting": [[5,'asc']],
+                "aaSorting": [[3,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -172,11 +208,12 @@
                     switchToTab('cna');
                     return false;
                 });
-                cna_summary.fnFilter('true', 6);
+                cna_summary.fnFilter('true', 4);
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
                 loadCnaContextData(cna_table, cna_summary);
+                loadCnaDrugData(cna_table, cna_summary);
             }
             ,"json"
         );

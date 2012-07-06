@@ -172,7 +172,7 @@
             var gene = oTable.fnGetData(row, 1);
             var context = drugMap[gene];
             if (context==null) {
-                context = "N/A";
+                context = "";
             }
             oTable.fnUpdate(context, row, 8, false, false);
         }

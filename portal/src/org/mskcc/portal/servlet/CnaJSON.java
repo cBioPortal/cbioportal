@@ -3,10 +3,7 @@ package org.mskcc.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +26,7 @@ public class CnaJSON extends HttpServlet {
     
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
+    public static final String GET_DRUG_CMD = "get_drug";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CNA_CONTEXT = "cna_context";
     
@@ -42,11 +40,19 @@ public class CnaJSON extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String cmd = request.getParameter(CMD);
-        if (cmd!=null && cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
-            processGetCnaContextRequest(request, response);
-        } else {
-            processGetCnaRequest(request, response);
+        if (cmd!=null) {
+            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
+                processGetCnaContextRequest(request, response);
+                return;
+            }
+            
+            if (cmd.equalsIgnoreCase(GET_DRUG_CMD)) {
+                processGetDrugsRequest(request, response);
+                return;
+            }
         }
+            
+        processGetCnaRequest(request, response);
     }
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
@@ -111,6 +117,47 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
+    private void processGetDrugsRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
+        String eventIds = request.getParameter(CNA_EVENT_ID);
+        
+        GeneticProfile cnaProfile;
+        Map<String, List<String>> drugs = Collections.emptyMap();
+        
+        try {
+            cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
+            if (cnaProfile!=null) {
+                drugs = getDrugs(eventIds, cnaProfile.getGeneticProfileId());
+            }
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(drugs, out);
+        } finally {            
+            out.close();
+        }
+    }
+    
+    private Map<String, List<String>> getDrugs(String eventIds, int profileId)
+            throws DaoException {
+        Set<Long> genes = DaoCnaEvent.getAlteredGenes(eventIds, profileId);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes);
+        Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
+        for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
+            String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
+                    .getHugoGeneSymbolAllCaps();
+            ret.put(symbol, entry.getValue());
+        }
+        return ret;
+    }
+    
     private void export(JSONArray table, CnaEvent cnaEvent) 
             throws ServletException {
         JSONArray row = new JSONArray();
@@ -124,10 +171,6 @@ public class CnaJSON extends HttpServlet {
         }
         row.add(symbol);
         row.add(cnaEvent.getAlteration().getDescription());
-        // TODO: clinical trial
-        row.add("pending");
-        // TODO: annotation
-        row.add("pending");
         
         // TODO: GISTIC
         double gistic = Math.random();

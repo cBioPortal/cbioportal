@@ -180,6 +180,9 @@ function getEventIdString(eventTableData) {
     }
     return s.join(",");
 }
+
+var cnaEventIds = null;
+var mutEventIds = null;
 </script>
 
 </body>

@@ -87,14 +87,14 @@ A genomic overview with events aligned across patients goes here...
         $('#similar_patients_table').live('mutations-built', function() {
             var mutationsTable = $('#mutation_table').dataTable();
             var mutationsTableData = mutationsTable.fnGetData();
-            params['<%=SimilarPatientsJSON.MUTATION%>'] = getEventIdString(mutationsTableData);
+            params['<%=SimilarPatientsJSON.MUTATION%>'] = mutEventIds;
             mutations_built = true;
             waitAndBuildSimilarPatientsDataTable();
         });
         $('#similar_patients_table').live('cna-built', function() {
             var cnaTable = $('#cna_table').dataTable();
             var cnaTableData = cnaTable.fnGetData();
-            params['<%=SimilarPatientsJSON.CNA%>'] = getEventIdString(cnaTableData);
+            params['<%=SimilarPatientsJSON.CNA%>'] = cnaEventIds;
             cna_built = true;
             waitAndBuildSimilarPatientsDataTable();
         });

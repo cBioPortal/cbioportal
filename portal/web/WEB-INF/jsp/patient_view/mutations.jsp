@@ -124,12 +124,10 @@
     }
     
     function loadMutationContextData(mutations, mut_table, mut_summary_table) {
-        var eventIds = getEventIdString(mutations);
-        
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
             <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
-            <%=MutationsJSON.MUTATION_EVENT_ID%>:eventIds
+            <%=MutationsJSON.MUTATION_EVENT_ID%>:mutEventIds
         };
         
         $.post("mutations.json", 
@@ -159,6 +157,8 @@
                 var mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
+                
+                mutEventIds = getEventIdString(mutations);
                 
                 $('#similar_patients_table').trigger('mutations-built');
                 

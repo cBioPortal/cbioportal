@@ -67,12 +67,11 @@
     }
     
     function loadCnaContextData(cnas, cna_table, cna_summary_table) {
-        var eventIds = getEventIdString(cnas);
         
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
             <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
-            <%=CnaJSON.CNA_EVENT_ID%>:eventIds
+            <%=CnaJSON.CNA_EVENT_ID%>:cnaEventIds
         };
         
         $.post("cna.json", 
@@ -151,6 +150,8 @@
                 var cna_table = buildCnaDataTable(cnas, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
+                
+                cnaEventIds = getEventIdString(cnas);
                 
                 $('#similar_patients_table').trigger('cna-built');
                 

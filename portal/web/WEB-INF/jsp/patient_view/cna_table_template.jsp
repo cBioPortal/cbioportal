@@ -11,7 +11,7 @@
                         <th>Alteration Rate
                             <img class="cna_help" src="images/help.png" title="Number and percentage of 
                                  copy number altered cases out of <%=numPatientInSameCnaProfile%>
-                                  patients in <%=cancerStudy.getName()%> profiled."/>
+                                  patients profiled in <%=cancerStudy.getName()%>."/>
                         </th>
                     </tr>
                 </thead>

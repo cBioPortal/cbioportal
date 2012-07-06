@@ -66,7 +66,7 @@
         oTable.css("width","100%");
     }
     
-    function loadCnaContextData(cnas, cna_table, cna_summary_table) {
+    function loadCnaContextData(cna_table, cna_summary_table) {
         
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
@@ -166,7 +166,7 @@
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                //loadCnaContextData(cnas, cna_table, cna_summary);
+                loadCnaContextData(cnas, cna_table, cna_summary);
             }
             ,"json"
         );

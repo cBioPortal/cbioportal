@@ -123,7 +123,7 @@
         oTable.css("width","100%");
     }
     
-    function loadMutationContextData(mutations, mut_table, mut_summary_table) {
+    function loadMutationContextData(mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
             <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',

@@ -63,6 +63,12 @@
                         "bVisible": false,
                         "aTargets": [ 0 ]
                     },
+                    {// Shared events
+                        "aTargets": [ 2 ],
+                        "fnRender": function(obj) {
+                            return "<i>"+obj.aData[ obj.iDataColumn ]+"</i>";
+                        }
+                    },
                     {// clinical trials
                         "bVisible": placeHolder,
                         "aTargets": [ 5 ]
@@ -116,8 +122,8 @@
             var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
             var geneCon = geneContext[gene];
             var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
-            var context = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/>"
-                        + aa + ": " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
+            var context = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/><i>"
+                        + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
             map[eventId] = context;
         }
         return map;

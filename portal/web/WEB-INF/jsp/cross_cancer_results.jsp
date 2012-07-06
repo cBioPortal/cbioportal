@@ -399,13 +399,14 @@
 
            var options = {
               title: 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                title: 'Cancer Study',
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
                     title: 'Percent Altered',
@@ -423,13 +424,14 @@
             
 	    var options2 = {
               title: 'Percent Sample Alteration for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                title: 'Cancer Study',
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
 	            title: 'Percent Altered',
@@ -448,7 +450,6 @@
 
             var options3 = {
               title: 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
@@ -458,8 +459,10 @@
                 easing: 'linear'
         	  },
               hAxis: {
-                slantedTextAngle: 45
-              },
+                 title: 'Cancer Study',
+                 slantedTextAngle: 45,
+                 maxTextLines: 2
+               },
               yAxis: {
                 title: 'Number of cases'
               },
@@ -470,13 +473,14 @@
             
 	    var options4 = {
               title: 'Number of Altered Cases for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+               title: 'Cancer Study',
+               slantedTextAngle: 45,
+               maxTextLines: 2
               },
               animation: {
                 duration: 750,
@@ -555,13 +559,14 @@
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
                     </select>
                     |
-                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a> |
-                    <a href="#" id="download_histogram" title="Downloads the current histogram as an SVG file.">Download</a>
+                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                    <br/>
+                    <a href="#" id="download_histogram" title="Downloads the current histogram in SVG format.">Download (SVG)</a>
                 </div>
-                <div id="chart_div1" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div2" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div3" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div4" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div1" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div2" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div3" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div4" style="width: 975px; height: 450px;"></div>
                 <br/>
                 <br/>
 

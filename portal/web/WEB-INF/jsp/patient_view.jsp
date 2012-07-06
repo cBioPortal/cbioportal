@@ -200,6 +200,10 @@ function getDrugMap(drugs) {
     }
     return map;
 }
+
+function trimHtml(html) {
+    return html.replace(/<[^>]*>/g,"");
+}
 </script>
 
 </body>

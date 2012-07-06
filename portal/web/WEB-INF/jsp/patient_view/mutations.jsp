@@ -62,10 +62,16 @@
                         "bVisible": false,
                         "aTargets": [ 0 ]
                     },
-                    {// Shared events
+                    {// gene
+                        "aTargets": [ 1 ],
+                        "fnRender": function(obj) {
+                            return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
+                        }
+                    },
+                    {// aa change
                         "aTargets": [ 2 ],
                         "fnRender": function(obj) {
-                            return "<i>"+obj.aData[ obj.iDataColumn ]+"</i>";
+                            return "<b><i>"+obj.aData[ obj.iDataColumn ]+"</i></b>";
                         }
                     },
                     {// mutsig
@@ -118,8 +124,8 @@
         var nRows = mutations.length;
         for (var row=0; row<nRows; row++) {
             var eventId = mutations[row][0];
-            var gene = mutations[row][1];
-            var aa = mutations[row][2];
+            var gene = trimHtml(mutations[row][1]);
+            var aa = trimHtml(mutations[row][2]);
             var mutCon = mutationContext[eventId];
             var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
             var geneCon = geneContext[gene];
@@ -169,7 +175,7 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
-            var gene = oTable.fnGetData(row, 1);
+            var gene = trimHtml(oTable.fnGetData(row, 1));
             var context = drugMap[gene];
             if (context==null) {
                 context = "";

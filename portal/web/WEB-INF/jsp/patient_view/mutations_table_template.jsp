@@ -8,10 +8,10 @@
                         <th>Mutation Status</th>
                         <th>MutSig</th>
                         <th>Show in summary</th>
-                        <th>Mutation Rate
+                        <th>Study Mutation Rate
                             <img class="mutations_help" src="images/help.png" title="Number and percentage of 
                                  altered cases for genes and specific mutations out of <%=numPatientInSameMutationProfile%>
-                                 patients profiled in <%=cancerStudy.getName()%> profiled."/>
+                                 patients profiled in <%=cancerStudy.getName()%>."/>
                         </th>
                         <th>Drugs</th>
                         <th>Notes</th>

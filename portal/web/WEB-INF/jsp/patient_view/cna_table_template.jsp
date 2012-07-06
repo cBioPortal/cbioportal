@@ -6,7 +6,7 @@
                         <th>Copy Number Alteration</th>
                         <th>Gistic</th>
                         <th>Show in summary</th>
-                        <th>Alteration Rate
+                        <th>Study Alteration Rate
                             <img class="cna_help" src="images/help.png" title="Number and percentage of 
                                  copy number altered cases out of <%=numPatientInSameCnaProfile%>
                                   patients profiled in <%=cancerStudy.getName()%>."/>

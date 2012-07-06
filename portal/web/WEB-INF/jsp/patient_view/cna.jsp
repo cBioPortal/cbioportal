@@ -99,7 +99,7 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, 4)) continue;
-            var gene = oTable.fnGetData(row, 1);
+            var gene = trimHtml(oTable.fnGetData(row, 1));
             var context = drugMap[gene];
             if (context==null) {
                 context = "";
@@ -138,6 +138,18 @@
                     {// event id
                         "bVisible": false,
                         "aTargets": [ 0 ]
+                    },
+                    {// gene
+                        "aTargets": [ 1 ],
+                        "fnRender": function(obj) {
+                            return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
+                        }
+                    },
+                    {// alteration
+                        "aTargets": [ 2 ],
+                        "fnRender": function(obj) {
+                            return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
+                        }
                     },
                     {// gistic
                         "sType": "gistic-col",

@@ -30,7 +30,7 @@ A genomic overview with events aligned across patients goes here...
                         "fnRender": function(obj) {
                             var patientId = obj.aData[ obj.iDataColumn ];
                             return "<a href='patient.do?patient="+patientId
-                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'>"+patientId+"<a>";
+                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+patientId+"</b></a>";
                         }
                     },
                     {// Shared events

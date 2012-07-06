@@ -105,25 +105,37 @@
     
     numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
     
-    function updateMutationContext(mutationContext, geneContext, oTable) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
+    function getMutationContextMap(mutationContext, geneContext, mutations) {
+        var map = {};
+        var nRows = mutations.length;
         for (var row=0; row<nRows; row++) {
-            var eventId = oTable.fnGetData(row, 0);
-            var gene = oTable.fnGetData(row, 1);
-            var aa = oTable.fnGetData(row, 2);
+            var eventId = mutations[row][0];
+            var gene = mutations[row][1];
+            var aa = mutations[row][2];
             var mutCon = mutationContext[eventId];
             var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
             var geneCon = geneContext[gene];
             var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
             var context = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/>"
                         + aa + ": " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
+            map[eventId] = context;
+        }
+        return map;
+    }
+    
+    function updateMutationContext(mutationContextMap, oTable, summaryOnly) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            if (summaryOnly && !oTable.fnGetData(row, 8)) continue;
+            var eventId = oTable.fnGetData(row, 0);
+            var context = mutationContextMap[eventId];
             oTable.fnUpdate(context, row, 9, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
     }
     
-    function loadMutationContextData(mut_table, mut_summary_table) {
+    function loadMutationContextData(mutations, mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
             <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
@@ -133,10 +145,13 @@
         $.post("mutations.json", 
             params,
             function(context){
-                var mutationContext = context[0]['<%=MutationsJSON.MUTATION_CONTEXT%>'];
-                var geneContext =  context[0]['<%=MutationsJSON.GENE_CONTEXT%>'];
-                updateMutationContext(mutationContext, geneContext, mut_table);
-                updateMutationContext(mutationContext, geneContext, mut_summary_table);
+                var mutationContext = context['<%=MutationsJSON.MUTATION_CONTEXT%>'];
+                var geneContext =  context['<%=MutationsJSON.GENE_CONTEXT%>'];
+                var mutationContextMap = getMutationContextMap(mutationContext,
+                            geneContext, mutations);
+                
+                updateMutationContext(mutationContextMap, mut_table, false);
+                updateMutationContext(mutationContextMap, mut_summary_table, true);
             }
             ,"json"
         );

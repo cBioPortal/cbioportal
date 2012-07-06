@@ -53,13 +53,23 @@
     
     numPatientInSameCnaProfile = <%=numPatientInSameCnaProfile%>;
     
-    function updateCnaContext(cnaContext, oTable) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
-        for (var row=0; row<nRows; row++) {
-            var eventId = oTable.fnGetData(row, 0);
+    function getCnaContextMap(cnaContext) {
+        var map = {};
+        for (var eventId in cnaContext) {
             var con = cnaContext[eventId];
             var perc = 100.0 * con / numPatientInSameCnaProfile;
             var context = con + " (<b>" + perc.toFixed(1) + "%</b>)<br/>";
+            map[eventId] = context;
+        }
+        return map;
+    }
+    
+    function updateCnaContext(cnaContextMap, oTable, summaryOnly) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
+            var eventId = oTable.fnGetData(row, 0);
+            var context = cnaContextMap[eventId];
             oTable.fnUpdate(context, row, 7, false);
         }
         oTable.fnDraw();
@@ -77,8 +87,10 @@
         $.post("cna.json", 
             params,
             function(context){
-                updateCnaContext(context, cna_table);
-                updateCnaContext(context, cna_summary_table);
+                var cnaContextMap = getCnaContextMap(context);
+                updateCnaContext(cnaContextMap, cna_table, false);
+                updateCnaContext(cnaContextMap, cna_summary_table, true);
+                alert('done');
             }
             ,"json"
         );
@@ -166,7 +178,7 @@
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                loadCnaContextData(cnas, cna_table, cna_summary);
+                loadCnaContextData(cna_table, cna_summary);
             }
             ,"json"
         );

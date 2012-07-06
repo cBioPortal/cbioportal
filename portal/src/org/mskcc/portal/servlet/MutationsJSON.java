@@ -100,8 +100,6 @@ public class MutationsJSON extends HttpServlet {
     private void processGetMutationContextRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        JSONArray table = new JSONArray();
-
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         String eventIds = request.getParameter(MUTATION_EVENT_ID);
         
@@ -123,14 +121,12 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Map<?, Integer>> map = new HashMap<String, Map<?, Integer>>();
         map.put(GENE_CONTEXT, geneContextMap);
         map.put(MUTATION_CONTEXT, mutationContextMap);
-        
-        table.add(map);
 
         response.setContentType("application/json");
         
         PrintWriter out = response.getWriter();
         try {
-            JSONValue.writeJSONString(table, out);
+            JSONValue.writeJSONString(map, out);
         } finally {            
             out.close();
         }

@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%
     String step2ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP2_ERROR_MSG);
 %>
@@ -22,6 +23,19 @@ if (step2ErrorMsg != null) {
 }
 %>
 
+</div>
+
+
+<div class="query_step_section" id="step2cross">
+    <span class="step_header">Select Data Type Priority:</span>
+    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mutcna" value=0 checked="true">
+    <label for="pri_mutcna">Mutation and CNA</label>
+
+    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mut" value=1>
+    <label for="pri_mut">Only Mutation</label>
+
+    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_cna" value=2>
+    <label for="pri_cna">Only CNA</label>
 </div>
 
 

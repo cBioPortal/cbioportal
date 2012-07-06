@@ -93,16 +93,36 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
             httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);
 
+            //  Get priority settings
+            Integer dataTypePriority;
+            try {
+                dataTypePriority
+                        = Integer.parseInt(httpServletRequest.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+            } catch (NumberFormatException e) {
+                dataTypePriority = 0;
+            }
+            httpServletRequest.setAttribute(QueryBuilder.DATA_PRIORITY, dataTypePriority);
+
             //  Get the default case set
-            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
+            AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
             CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
             httpServletRequest.setAttribute(QueryBuilder.CASE_SET_ID, defaultCaseSet.getStableId());
 
             //  Get the default genomic profiles
             CategorizedGeneticProfileSet categorizedGeneticProfileSet =
                     new CategorizedGeneticProfileSet(geneticProfileList);
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet =
-                    categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
+            HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
+            switch (dataTypePriority) {
+                case 2:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
+                    break;
+                case 1:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
+                    break;
+                case 0:
+                default:
+                    defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
+            }
             httpServletRequest.setAttribute(DEFAULT_GENETIC_PROFILES, defaultGeneticProfileSet);
 
             //  Create URL for Cancer Study Details

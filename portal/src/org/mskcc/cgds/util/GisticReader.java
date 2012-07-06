@@ -2,8 +2,10 @@ package org.mskcc.cgds.util;
 
 import org.mskcc.cgds.dao.DaoCancerStudy;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;
 
 import java.io.*;
@@ -58,7 +60,7 @@ public class GisticReader {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public ArrayList<Gistic> parse_Table(File gisticFile, ProgressMonitor pMonitor) throws FileNotFoundException, IOException {
+    public ArrayList<Gistic> parse_Table(File gisticFile, ProgressMonitor pMonitor) throws FileNotFoundException, IOException, DaoException {
         ArrayList<Gistic> gistics = new ArrayList<Gistic>();
 
         MySQLbulkLoader.bulkLoadOff();
@@ -67,7 +69,8 @@ public class GisticReader {
 
         String line = buf.readLine();
 
-        // parse field names
+        // -- parse field names --
+        // would it be better to use <enums>?
         int chromosomeField = -1;
         int peakStartField = -1;
         int peakEndField = -1;
@@ -79,11 +82,11 @@ public class GisticReader {
         for (int i = 0 ; i < num_fields; i+=1) {
 
             if (fields[i].equals("chromosome")) {
-                peakStartField = i;
+                chromosomeField = i;
             }
 
             else if (fields[i].equals("peak_start")) {
-                chromosomeField = i;
+                peakStartField = i;
             }
 
             else if (fields[i].equals("peak_end")) {
@@ -104,35 +107,51 @@ public class GisticReader {
                     || fields[i].equals("region_end")
                     || fields[i].equals("enlarged_peak_start")
                     || fields[i].equals("enlarged_peak_end")
-                    || fields[i].equals("index"))  { continue; }       // ignore these fields
+                    || fields[i].equals("index"))   { continue; }       // ignore these fields
 
             else {
                 throw new IOException("bad file format.  Field: " + fields[i] + " not found");
             }
         }
-
+        
         assert(chromosomeField != -1);
         assert(peakStartField != -1);
         assert(peakEndField != -1);
         assert(genesField != -1);
-        // end parse field names
+        // -- end parse field names --
 
         // parse file
+        line = buf.readLine();
         while (line != null) {
 
-            fields = line.split("\n");
+            fields = line.split("\t");
 
             Gistic gistic = new Gistic();
+            
+            gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+            gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
+            gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
+            
+            // -- parse genes --
+            
+            
 
-            gistic.setChromosome(Integer.getInteger(fields[chromosomeField]));
-            gistic.setPeakStart(Integer.getInteger(fields[peakStartField])) ;
-            gistic.setPeakEnd(Integer.getInteger(fields[peakEndField])) ;
+            // parse out '[' and ']' chars.         ** Do these brackets have meaning? **
+            String[] _genes = fields[genesField].replace("[","")
+                    .replace("]", "")
+                    .split(",");
 
+            // map: _genes -> listof CanonicalGenes
+            ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            for (String gene : _genes) {
 
-            // parse out the genes
-            // ...
+                daoGene.guessGene(gene)
 
-            System.out.println("genes " + fields[genesField]);
+                genes.add();
+            }
+
+            // -- end parse genes
 
             gistics.add(gistic);
             line = buf.readLine();

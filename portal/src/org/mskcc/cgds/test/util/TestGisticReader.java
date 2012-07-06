@@ -13,7 +13,7 @@ public class TestGisticReader extends TestCase {
     public void testGisticReader() throws DaoException, IOException {
     File metadata = new File("./test_data/testCancerStudy.txt");
     File gisticFile = new File("test_data/test-gistic-amp.txt");
-    File gisticTable_file = new File("test_data/test-gistic-table-amp.txt");        // ** Create this file
+    File gisticTable_file = new File("test_data/test-gistic-table-amp.txt");
     ProgressMonitor pm = new ProgressMonitor();
 
     int cancerStudyId;
@@ -21,6 +21,7 @@ public class TestGisticReader extends TestCase {
 
     GisticReader reader = new GisticReader();
     reader.parse_Table(gisticTable_file, pm);
+
 
     }
 }

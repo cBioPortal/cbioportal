@@ -113,10 +113,10 @@ public class CrossCancerSummaryServlet extends HttpServlet {
                     new CategorizedGeneticProfileSet(geneticProfileList);
             HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
             switch (dataTypePriority) {
-                case 1:
+                case 2:
                     defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
                     break;
-                case 2:
+                case 1:
                     defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
                     break;
                 case 0:

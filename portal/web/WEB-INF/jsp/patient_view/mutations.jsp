@@ -51,7 +51,6 @@
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
-    var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -69,30 +68,33 @@
                             return "<i>"+obj.aData[ obj.iDataColumn ]+"</i>";
                         }
                     },
-                    {// clinical trials
-                        "bVisible": placeHolder,
-                        "aTargets": [ 5 ]
-                    },
-                    {// note
-                        "bVisible": placeHolder,
-                        "aTargets": [ 6 ]
-                    },
                     {// mutsig
                         "sType": "mutsig-col",
                         "bVisible": false,
-                        "aTargets": [ 7 ]
+                        "aTargets": [ 5 ]
                     },
                     {// in overview
                         "bVisible": false,
-                        "aTargets": [ 8 ]
+                        "aTargets": [ 6 ]
                     },
-                    {
+                    {// mutation rate
                         "mDataProp": null,
                         "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "aTargets": [ 7 ]
+                    },
+                    {// drugs
+                        "mDataProp": null,
+                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "aTargets": [ 8 ]
+                    },
+                    {// note
+                        "bVisible": placeHolder,
+                        "mDataProp": null,
+                        "sDefaultContent": "",
                         "aTargets": [ 9 ]
                     }
                 ],
-                "aaSorting": [[7,'asc']],
+                "aaSorting": [[5,'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -132,10 +134,10 @@
     function updateMutationContext(mutationContextMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 8)) continue;
+            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
             var eventId = oTable.fnGetData(row, 0);
             var context = mutationContextMap[eventId];
-            oTable.fnUpdate(context, row, 9, false, false);
+            oTable.fnUpdate(context, row, 7, false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -158,6 +160,39 @@
                 
                 updateMutationContext(mutationContextMap, mut_table, false);
                 updateMutationContext(mutationContextMap, mut_summary_table, true);
+            }
+            ,"json"
+        );
+    }
+    
+    function updateMutationDrugs(drugMap, oTable, summaryOnly) {
+        var nRows = oTable.fnSettings().fnRecordsTotal();
+        for (var row=0; row<nRows; row++) {
+            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
+            var gene = oTable.fnGetData(row, 1);
+            var context = drugMap[gene];
+            if (context==null) {
+                context = "N/A";
+            }
+            oTable.fnUpdate(context, row, 8, false, false);
+        }
+        oTable.fnDraw();
+        oTable.css("width","100%");
+    }
+    
+    function loadMutationDrugData(mut_table, mut_summary_table) {
+        var params = {
+            <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_DRUG_CMD%>',
+            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
+            <%=MutationsJSON.MUTATION_EVENT_ID%>:mutEventIds
+        };
+        
+        $.post("mutations.json", 
+            params,
+            function(drugs){
+                var drugMap = getDrugMap(drugs);
+                updateMutationDrugs(drugMap, mut_table, false);
+                updateMutationDrugs(drugMap, mut_summary_table, true);
             }
             ,"json"
         );
@@ -190,11 +225,12 @@
                     switchToTab('mutations');
                     return false;
                 });
-                mut_summary.fnFilter('true', 8);
+                mut_summary.fnFilter('true', 6);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
                 loadMutationContextData(mutations, mut_table, mut_summary);
+                loadMutationDrugData(mut_table, mut_summary);
             }
             ,"json"
         );

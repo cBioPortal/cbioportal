@@ -6,8 +6,6 @@
                         <th>Amino Acid Change</th>
                         <th>Mutation Type</th>
                         <th>Mutation Status</th>
-                        <th>Clinical Trial</th>
-                        <th>Notes</th>
                         <th>MutSig</th>
                         <th>Show in summary</th>
                         <th>Mutation Rate
@@ -15,5 +13,7 @@
                                  altered cases for genes and specific mutations out of <%=numPatientInSameMutationProfile%>
                                  patients profiled in <%=cancerStudy.getName()%> profiled."/>
                         </th>
+                        <th>Drugs</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>

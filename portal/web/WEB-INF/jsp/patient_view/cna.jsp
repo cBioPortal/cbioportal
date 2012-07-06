@@ -95,7 +95,6 @@
         );
     }
     
-    var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
     function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns

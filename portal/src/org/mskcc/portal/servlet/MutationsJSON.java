@@ -26,6 +26,7 @@ public class MutationsJSON extends HttpServlet {
     
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
+    public static final String GET_DRUG_CMD = "get_drug";
     public static final String MUTATION_EVENT_ID = "mutation_id";
     public static final String GENE_CONTEXT = "gene_context";
     public static final String MUTATION_CONTEXT = "mutation_context";
@@ -42,11 +43,19 @@ public class MutationsJSON extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String cmd = request.getParameter(CMD);
-        if (cmd!=null && cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
-            processGetMutationContextRequest(request, response);
-        } else {
-            processGetMutationsRequest(request, response);
+        if (cmd!=null) {
+            if (cmd.equalsIgnoreCase(GET_CONTEXT_CMD)) {
+                processGetMutationContextRequest(request, response);
+                return;
+            }
+            
+            if (cmd.equalsIgnoreCase(GET_DRUG_CMD)) {
+                processGetDrugsRequest(request, response);
+                return;
+            }
         }
+            
+        processGetMutationsRequest(request, response);
     }
     
     private void processGetMutationsRequest(HttpServletRequest request,
@@ -132,6 +141,47 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
+    private void processGetDrugsRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        String eventIds = request.getParameter(MUTATION_EVENT_ID);
+        
+        GeneticProfile mutationProfile;
+        Map<String, List<String>> drugs = Collections.emptyMap();
+        
+        try {
+            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            if (mutationProfile!=null) {
+                drugs = getDrugs(eventIds, mutationProfile.getGeneticProfileId());
+            }
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(drugs, out);
+        } finally {            
+            out.close();
+        }
+    }
+    
+    private Map<String, List<String>> getDrugs(String eventIds, int profileId)
+            throws DaoException {
+        Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes);
+        Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
+        for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
+            String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
+                    .getHugoGeneSymbolAllCaps();
+            ret.put(symbol, entry.getValue());
+        }
+        return ret;
+    }
+    
     private Map<String, Integer> getGeneContextMap(String eventIds, int profileId)
             throws DaoException {
         Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
@@ -155,16 +205,6 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getAminoAcidChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
-        // TODO: clinical trial
-        List<DrugInteraction> drugInteractions = null;
-        try {
-            drugInteractions = DaoDrugInteraction.getInstance().getInteractions(mutation.getEntrezGeneId());
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        row.add(getDrugInfo(drugInteractions));
-        // TODO: annotation
-        row.add("pending");
         
         // mut sig
         double mutSigQvalue;
@@ -186,16 +226,6 @@ public class MutationsJSON extends HttpServlet {
         row.add(isSangerGene || !Double.isNaN(mutSigQvalue));
         
         table.add(row);
-    }
-    
-    private String getDrugInfo(List<DrugInteraction> drugInteractions) {
-        StringBuilder sb = new StringBuilder();
-        for (DrugInteraction drugInteraction : drugInteractions) {
-            sb.append(drugInteraction.getDrug()).append(", ");
-        }
-        if (sb.length()>2)
-            sb.delete(sb.length()-2, sb.length());
-        return sb.toString();
     }
     
     private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id

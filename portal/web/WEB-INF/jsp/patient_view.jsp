@@ -183,6 +183,23 @@ function getEventIdString(eventTableData) {
 
 var cnaEventIds = null;
 var mutEventIds = null;
+var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
+
+function getDrugMap(drugs) {
+    var map = {};
+    for (var gene in drugs) {
+        var strs = [];
+        var drugs_arr = drugs[gene];
+        for (var i=0; i<drugs_arr.length; i++) {
+            var drug = drugs_arr[i];
+            strs.push("<a href=\"http://www.drugbank.ca/drugs/"+drug+"\">"
+                + drug + "</a>");
+        }
+        
+        map[gene] = strs.join("<br/>");
+    }
+    return map;
+}
 </script>
 
 </body>

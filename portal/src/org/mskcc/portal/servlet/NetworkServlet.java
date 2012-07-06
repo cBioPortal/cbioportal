@@ -20,6 +20,7 @@ import org.mskcc.portal.network.NetworkUtils;
 import org.mskcc.portal.network.Node;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.util.CaseSetUtil;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.XDebug;
 
@@ -443,7 +444,9 @@ public class NetworkServlet extends HttpServlet {
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
             throws ServletException, DaoException {
-        String strCaseIds = req.getParameter(QueryBuilder.CASE_IDS);
+    	String caseIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
+    	String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+    	
         if (strCaseIds==null || strCaseIds.length()==0) {
             String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Case Sets for Selected Cancer Type

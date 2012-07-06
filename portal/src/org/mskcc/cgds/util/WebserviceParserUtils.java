@@ -11,6 +11,7 @@ import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.servlet.WebService;
 import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.portal.util.CaseSetUtil;
 
 /**
  *
@@ -24,6 +25,13 @@ public final class WebserviceParserUtils {
             DaoException {
         String cases = request.getParameter(WebService.CASE_LIST);
         String caseSetId = request.getParameter(WebService.CASE_SET_ID);
+        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
+        
+        if (cases == null &&
+        	caseIdsKey != null)
+        {
+        	cases = CaseSetUtil.getCaseIds(caseIdsKey);
+        }
 
         ArrayList<String> caseList = new ArrayList<String>();
         if (caseSetId != null) {

@@ -1,16 +1,29 @@
 #!/bin/bash
 
 # ***
-# Downloads, unzips and imports the DrugBank data.
+# Downloads, unzips and puts the files under $CGDS_DATA_HOME/reference-data/ (DrugBank).
 #
 # Assumes you have unzip and wget installed in your PATH
 # ***
 
+# Check if we have all the variables set right
+echo -ne "Checking if the variables are set...\t\t" &&
+[ ! -z "${PORTAL_HOME} " ] && bash $PORTAL_HOME/scripts/env.sh && export ENV_CHECK=1 || export ENV_CHECK=0
+
+if [ $ENV_CHECK -lt 1 ]
+then
+	echo "[ failed ]"
+	exit -1
+else
+	echo "[ done ]"
+fi
+
 # configurables
-TMPDIR="/tmp"
+TMPDIR="$CGDS_DATA_HOME/reference-data"
 
 # Here goes the importing process
 TMPDIRDB=${TMPDIR}/drugbank
+
 
 # Create the dir and cd into that
 mkdir -p ${TMPDIRDB} && 
@@ -26,21 +39,10 @@ echo "[ done ]" &&
 
 echo -ne "Unzipping files...\t\t" &&
 unzip drugbank.xml.zip > /dev/null &&
+rm -f drugbank.xml.zip &&
 unzip target_links.csv.zip > /dev/null &&
+rm -f target_links.csv.zip &&
 echo "[ done ]" &&
 
 # Go back to where we were
-cd - > /dev/null &&
-
-# Now try to run the import script
-echo "Importing downloaded data..." &&
-cd $PORTAL_HOME/scripts/ &&
-perl importDrugData.pl ${TMPDIRDB}/drugbank.xml ${TMPDIRDB}/target_links.csv &&
-echo "[ done ]" &&
-# Go back again
-cd - > /dev/null &&
-
-# Clean-up
-echo -ne "Cleaning up...\t\t" &&
-rm -rf ${TMPDIRDB}
-echo "[ done ]"
+cd - > /dev/null

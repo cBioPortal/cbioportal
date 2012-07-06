@@ -45,6 +45,13 @@
 
 	<!-- SPRING SECURITY SETTINGS END -->
 
+	<!--
+	  - timeout after 12 hrs (default is 30 min)
+	-->
+	<session-config>
+	  <session-timeout>720</session-timeout>
+	</session-config>
+
     <servlet>
         <servlet-name>query_builder</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>

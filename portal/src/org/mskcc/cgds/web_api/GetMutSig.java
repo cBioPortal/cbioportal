@@ -86,8 +86,8 @@ public class GetMutSig {
 //        toReturn += Integer.toString(mutSig.getCandG()) + "\t";
 //        toReturn += Integer.toString(mutSig.getAandT()) + "\t";
 //        toReturn += Integer.toString(mutSig.getIndel()) + "\t";
-        toReturn += mutSig.getpValue() + "\t";
-        toReturn += mutSig.getqValue() + "\n";
+        toReturn += Float.toString(mutSig.getpValue()) + "\t";
+        toReturn += Float.toString(mutSig.getqValue()) + "\n";
         return toReturn;
     }
 

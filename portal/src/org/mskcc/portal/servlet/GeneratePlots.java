@@ -2,6 +2,7 @@ package org.mskcc.portal.servlet;
 
 import org.owasp.validator.html.PolicyException;
 import org.mskcc.portal.remote.GetCaseSets;
+import org.mskcc.portal.util.CaseSetUtil;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.dao.DaoException;
 
@@ -73,10 +74,10 @@ public class GeneratePlots extends HttpServlet {
             String caseSetId = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_SET_ID);
             String normalCaseSetId = servletXssUtil.getCleanInput(req, NORMAL_CASE_SET_ID);
             String includeNormals = servletXssUtil.getCleanInput(req, INCLUDE_NORMALS);
-            String caseIds = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS);
+            String caseIdsKey = servletXssUtil.getCleanInput(req, QueryBuilder.CASE_IDS_KEY);
             String plotType = servletXssUtil.getCleanInput(req, QueryBuilder.PLOT_TYPE);
             String xdebug = servletXssUtil.getCleanInput(req, QueryBuilder.XDEBUG);
-
+            
             res.setContentType("text/html");
             writer.print("<html><body>");
 
@@ -134,7 +135,9 @@ public class GeneratePlots extends HttpServlet {
                         url1.append("&" + PlotServlet.SKIN_NORMALS + "=" + normalCaseSetId);
                     }
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    //url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
+                    
                     if (xdebug != null) {
                         writer.append ("URL:  " + url1.toString());
                     }
@@ -163,7 +166,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (cnaProfileId + "," + mRNAProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						// we want to use gistic skin col group
 						String skinColGroup = cancerTypeId + "_gistic";
@@ -203,7 +206,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (methylationProfileId + "," + mRNAProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=meth_mrna_cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId
                         + "," + mutationProfileId);
@@ -239,7 +242,7 @@ public class GeneratePlots extends HttpServlet {
                     url1.append (mRNAProfileId + "," + rppaProteinProfileId);
                     url1.append ("&" + PlotServlet.SKIN + "=cna_mut");
                     url1.append ("&" + QueryBuilder.CASE_SET_ID + "=" + caseSetId);
-                    url1.append ("&" + QueryBuilder.CASE_IDS + "=" + URLEncoder.encode(caseIds));
+                    url1.append ("&" + QueryBuilder.CASE_IDS_KEY + "=" + caseIdsKey);
                     if (mutationProfileId != null && cnaProfileId != null) {
 						String mutationProfileStr = (mutationProfileId.equals("undefined")) ? "" : ("," + mutationProfileId);
                        url1.append ("&" + PlotServlet.SKIN_COL_GROUP + "=" + cnaProfileId + mutationProfileStr);
@@ -264,14 +267,20 @@ public class GeneratePlots extends HttpServlet {
             //  Output HTTP Parameters (only if XDEBUG is set)
             if (xdebug != null) {
                 writer.print("<P>Plot parameters:");
-                if (caseIds == null || caseIds.length() == 0) {
-                    caseIds = "[None specified]";
+//              if (caseIds == null || caseIds.length() == 0) {
+//                  caseIds = "[None specified]";
+//              }
+                
+                if (caseIdsKey == null) {
+                    caseIdsKey = "[None specified]";
                 }
+                
                 writer.print("<ul>");
                 writer.println("<li>Gene:  " + gene);
                 writer.println("<li>Cancer Type ID:  " + cancerTypeId);
                 writer.println("<li>Case Set ID:  " + caseSetId);
-                writer.println("<li>Case IDs:  " + caseIds);
+                //writer.println("<li>Case IDs:  " + caseIds);
+                writer.println("<li>Case IDs Key:  " + caseIdsKey);
                 writer.println("<li>Normal Case Set ID:  " + normalCaseSetId);
                 writer.println("<li>Include Normals:  " + includeNormals);
                 writer.println("<li>Mutation Profile ID:  " + mutationProfileId);

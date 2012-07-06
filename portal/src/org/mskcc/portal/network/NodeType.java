@@ -16,6 +16,7 @@ public enum NodeType {
     GENERIC_COMPLEX("GenericComplex","GenericComplex"),
     GENERIC_SMALL_MOLECULE("GenericSmallMolecule","GenericSmallMolecule"),
     GENERIC("Generic","Generic"),
+    DRUG("Drug", "Drug"),
     UNKNOWN("Unknown","Unknown");
     
     private final String desc;

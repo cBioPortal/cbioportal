@@ -30,7 +30,7 @@ public class ImportDrugs {
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        DaoDrug daoDrug = new DaoDrug();
+        DaoDrug daoDrug = DaoDrug.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         while (line != null) {

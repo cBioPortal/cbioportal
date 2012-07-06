@@ -75,4 +75,11 @@
         </p>
         <cite>&ndash; Postdoctoral Fellow, Harvard Medical School, Children's Hospital Boston</cite>
     </blockquote>
+    
+    <blockquote>
+        <p>
+            &nbsp;&nbsp;"This portal is truly the greatest thing since sliced bread. I am making discoveries with it not only in glioblastoma, my primary focus, but in other cancers as well -- it’s all so easy with this fantastic tool. And I am enjoying showing it to my colleagues, whose jaws also drop. Thank you a thousand times over for this beautiful public resource. I am looking forward to citing this soon in an upcoming paper..."
+        </p>
+        <cite>&ndash; Associate Professor, University of Virginia</cite>
+    </blockquote>
 </div>

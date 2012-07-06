@@ -31,7 +31,6 @@ public class MutationsJSON extends HttpServlet {
     public static final String MUTATION_CONTEXT = "mutation_context";
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-    private static final DaoDrug daoDrug = new DaoDrug();
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -157,13 +156,13 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
         // TODO: clinical trial
-        List<Drug> drugs = null;
+        List<DrugInteraction> drugInteractions = null;
         try {
-            drugs = daoDrug.getDrugs(mutation.getEntrezGeneId());
+            drugInteractions = DaoDrugInteraction.getInstance().getInteractions(mutation.getEntrezGeneId());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
-        row.add(getDrugInfo(drugs));
+        row.add(getDrugInfo(drugInteractions));
         // TODO: annotation
         row.add("pending");
         
@@ -189,12 +188,13 @@ public class MutationsJSON extends HttpServlet {
         table.add(row);
     }
     
-    private String getDrugInfo(List<Drug> drugs) {
+    private String getDrugInfo(List<DrugInteraction> drugInteractions) {
         StringBuilder sb = new StringBuilder();
-        for (Drug drug : drugs) {
-            sb.append(drug.getdrugId()).append(", ");
+        for (DrugInteraction drugInteraction : drugInteractions) {
+            sb.append(drugInteraction.getDrug()).append(", ");
         }
-        sb.delete(sb.length()-2, sb.length());
+        if (sb.length()>2)
+            sb.delete(sb.length()-2, sb.length());
         return sb.toString();
     }
     

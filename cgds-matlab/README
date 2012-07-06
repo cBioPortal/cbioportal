@@ -1,4 +1,4 @@
-cBio Cancer Genomics Data Server (CGDS) Matlab Toolbox v1.04 (Dec 22 2011)
+cBio Cancer Genomics Data Server (CGDS) Matlab Toolbox v1.05 (June 27 2012)
 Implemented by Erik Larsson (larsson@cbio.mskcc.org)
 
 Unzip in a directory of your choice. If you want to make the functions
@@ -12,8 +12,10 @@ Type 'helpwin cgds' to get an overview of available functions.
 
 
 Change log:
+1.05    27/06/12 Bugfixes to cgdstutorial.m (new CGDS URL, survival plot
+                 fix)
 1.04    22/12/11 Updated cgdstutorial.m to comply with changed naming
-                 conventions for case set IDs and genetic profile IDs.
+                 conventions for case set IDs and genetic profile IDs
 1.03    9/9/11   Minor update to cgdstutorial.m
 1.02    9/5/11   Adapted to changes in web API: getcancerstudies() replaces
                  getcancertypes(), new default URL

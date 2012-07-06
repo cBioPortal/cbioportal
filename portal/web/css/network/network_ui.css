@@ -266,6 +266,16 @@
 	font-size: 12pt;
 }
 
+#node_inspector_content .xref-row td a
+{
+	color:blue;
+}
+
+#node_inspector_content .atc_codes-data-row td a
+{
+	color:blue;
+}
+
 #node_inspector .percent-bar
 {
 	margin-top: 0.5em;
@@ -372,7 +382,7 @@
 
 #network_tabs
 {
-	width: 245px;
+	width: 270px;
 	height: 666px;
 }
 
@@ -410,12 +420,24 @@
  * ##################### Genes Tab ########################
  * ########################################################
  */
-
+ 
+ #genes_tab .title label
+ {
+	font-weight: bold;
+ }
+ 
+ #genes_tab .combo select
+{
+	height: 25px;
+	margin-bottom: 20px;
+	color: #666666;
+    font-family: verdana,arial,sans-serif;
+    font-size: 12px;
+}
 #genes_tab .header
 {
 	padding-bottom: 0.5em;
 	text-align: center;
-	width: 210px;
 }
 
 #genes_tab .header #search_box
@@ -439,8 +461,8 @@
 #genes_tab select
 {
 	/* dimensions of the select box */
-	width: 210px;
-	height: 480px;
+	width: 235px;
+	height: 380px;
 	
 	font-size: 12px;
 	
@@ -584,7 +606,7 @@
 #relations_tab, #genes_tab, #help_tab
 {
 	height: 575px;
-	width: 210px;
+	width: 235px;
 }
 
 #relations_tab #edge_source_filter
@@ -682,6 +704,11 @@
  * ########################################################
  */
 #node_legend img
+{
+	margin: 0.4em;
+}
+
+#drug_legend img
 {
 	margin: 0.4em;
 }

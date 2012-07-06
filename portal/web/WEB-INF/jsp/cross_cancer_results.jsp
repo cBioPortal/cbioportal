@@ -30,6 +30,15 @@
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
+    // Get priority settings
+    Integer caseSetPriority;
+    try {
+        caseSetPriority
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+    } catch (NumberFormatException e) {
+        caseSetPriority = 0;
+    }
+
     // Infer whether there is multiple genes or not (for histogram switching)
     int geneCount = 0;
     if(geneList.contains(":")) {
@@ -312,7 +321,8 @@
 
             var cancerID = cancerStudies[bundleIndex];
             $("#study_" + cancerID)
-                .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=' + cancerID,
+                .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id='
+                    + cancerID + '&<%=QueryBuilder.DATA_PRIORITY + "=" + caseSetPriority%>',
                         function() {
 
                             setTimeout(function() {

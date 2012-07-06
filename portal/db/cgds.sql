@@ -34,12 +34,17 @@ drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
 drop table if EXISTS sanger_cancer_census;
 drop table if EXISTS clinical_free_form;
+drop table if EXISTS text_cache;
+
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
 drop table IF EXISTS protein_array_cancer_study;
 drop table IF EXISTS case_cna_event;
 drop table IF EXISTS cna_event;
+
+drop table IF EXISTS drug;
+drop table IF EXISTS drug_interaction;
 
 --
 -- Database: `cgds`
@@ -365,6 +370,49 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
 
+--
+-- Table structure for table `text_cache`
+--
+
+CREATE TABLE IF NOT EXISTS `text_cache` (
+  `HASH_KEY` varchar(32) NOT NULL,
+  `TEXT` text NOT NULL,
+  `DATE_TIME_STAMP` datetime NOT NULL,
+  PRIMARY KEY (`HASH_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `drug_interaction`
+--
+
+CREATE TABLE `drug_interaction` (
+  `DRUG` char(30) NOT NULL,
+  `TARGET` bigint(20) NOT NULL,
+  `INTERACTION_TYPE` char(50) NOT NULL,
+  `DATA_SOURCE` varchar(256) NOT NULL,
+  `EXPERIMENT_TYPES` varchar(1024) DEFAULT NULL,
+  `PMIDS` varchar(1024) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `drug`
+--
+
+CREATE TABLE IF NOT EXISTS `drug` (
+  `DRUG_ID` char(30) NOT NULL,
+  `DRUG_RESOURCE` varchar(30) NOT NULL,
+  `DRUG_NAME` varchar(255) NOT NULL,
+  `DRUG_SYNONYMS` varchar(255) DEFAULT NULL,
+  `DRUG_DESCRIPTION` varchar(512) DEFAULT NULL,
+  `DRUG_XREF` varchar(255) DEFAULT NULL,
+  `DRUG_APPROVED` integer(1) DEFAULT 0,
+  `DRUG_ATC_CODE` varchar(255) DEFAULT NULL,
+  PRIMARY KEY  (`DRUG_ID`),
+  KEY `DRUG_NAME` (`DRUG_NAME`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
 CREATE TABLE IF NOT EXISTS `_case` (
   `CASE_ID` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
@@ -404,5 +452,4 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
   PRIMARY KEY  (`MUTATION_EVENT_ID`),
   UNIQUE (`ENTREZ_GENE_ID`, `MUTATION_STATUS`, `AMINO_ACID_CHANGE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
-
 

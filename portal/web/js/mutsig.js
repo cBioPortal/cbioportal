@@ -1,4 +1,3 @@
-//
 // AJAX and Dynamic jQuery for MutSig table
 //
 // AJAX :
@@ -14,6 +13,82 @@
 // Gideon Dresdner
 // April 2012
 
+
+// variable for the return DOM object returned by dataTable library
+var DATATABLE_FORMATTED = -1;
+
+// what is the previous cancer study that has been selected?
+// this way we don't have to repeat queries
+var CANCER_STUDY_SELECTED = -1;
+
+// todo: factor out #mutsig_dialog
+
+// initialize and bind for
+// mutsig toggle button and mutsig dialog box
+var initMutsigDialogue = function() {
+    "use strict";
+
+    // initialize mutsig button
+    // as hidden, and with JQuery UI style
+    $('#toggle_mutsig_dialog').hide();
+    $('#toggle_mutsig_dialog').button();
+
+    // set up modal dialog box for mutsig table (step 3)
+    $('#mutsig_dialog').dialog({autoOpen: false,
+        resizable: false,
+        modal: true,
+        minHeight: 315,
+        minWidth: 636
+        });
+
+    // set listener for mutsig select button
+    $('#select_mutsig').click(function() {
+        $('#mutsig_dialog').dialog('close');
+    });
+
+    // set listener for mutsig cancel button
+    $('#cancel_mutsig').click(function() {
+
+        // close dialog box
+        $('#mutsig_dialog').dialog('close');
+
+        // clear all checks
+        $('.MutSig :checkbox').attr('checked', false);
+    });
+
+    // bind UI for mutsig table -> gene list
+    $('#select_mutsig').click(updateGeneList);
+
+    // bind UI for gene list -> mutsig table
+    $('#gene_list').change( function() {
+        if ($('mutsig_dialog').dialog('isOpen')) {
+            updateMutSigTable();
+        }
+    });
+
+    listenCancerStudy();
+}
+
+// listen for a change in the selected cancer study and
+// handle appropriately
+// todo: refactor this
+var listenCancerStudy = function() {
+    $('#select_cancer_type').change( function() {
+
+        // get the cancer study (i.e. tcga_gbm)
+        var cancerStudyId = $('#select_cancer_type').val();
+
+        // if the selected cancer study has mutsig data,
+        // show the mutsig button
+        if (window.json.cancer_studies[cancerStudyId].has_mutsig_data) {
+            $('#toggle_mutsig_dialog').show();
+        } else {
+            $('#toggle_mutsig_dialog').hide();
+        }
+    });
+}
+
+//todo: rewrite this function. it is unnecessarily complex
 var mutsig_to_tr = function(mutsig) {
     "use strict";
     var click_append = $('<input>');
@@ -40,91 +115,123 @@ var mutsig_to_tr = function(mutsig) {
     return tr;
 };
 
-var studySelected = function() {
+// Displays the modal dialog for the mutsig table
+var promptMutsigTable = function() {
     "use strict";
+
+    // grab data to be sent to the server
     var cancerStudyId = $('#select_cancer_type').val();
 
-    if (json.cancer_studies[cancerStudyId].has_mutsig_data) {
-        $('#MutSig_view').show();
-        $('.MutSig_wrapper').show();
+    // open the dialog box
+    $('#mutsig_dialog').dialog('open');
+
+    // this was the last cancer study selected,
+    // no need to redo the query
+    if (CANCER_STUDY_SELECTED === cancerStudyId) {
+        return;
     }
-    else {
-        $('#MutSig_view').hide();
-        $('.MutSig_wrapper').hide();
+
+    // save the selected cancer study for later
+    CANCER_STUDY_SELECTED = cancerStudyId;
+
+    // prepare data to be sent to server
+    var data = {'selected_cancer_type': cancerStudyId };
+
+    // reset the mutsig table if it has already been formatted
+    if (DATATABLE_FORMATTED !== -1) {
+
+        // remove dataTables formatting
+        DATATABLE_FORMATTED.fnDestroy();
+
+        // delete all elements
+        $('.MutSig tbody').empty();
     }
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
-    // redo the query for every nontrivial selection
-    $('.MutSig_wrapper').before('<table class="MutSig"></table>');
-    $('.MutSig_wrapper').remove();
+    // do AJAX
+    $.get('MutSig.json', data, function(mutsigs) {
+        var i;
+        var len = mutsigs.length;
 
-    // if you select another cancer study, reset the arrow
-    $($('#MutSig_view > .ui-icon')[0]).show();
-    $($('#MutSig_view > .ui-icon')[1]).hide();
+        // hide everything but the loader image
+        // this is here because of the *A* in AJAX
+        $('#mutsig_dialog').children().hide();
+        $('#mutsig_dialog #loader-img').show();
 
-    // ignores '<', e.g. '<1E-8' === '1E-8'
-    $.fn.dataTableExt.oSort['scientific-asc'] = function(a,b) {
-        a = $('<div />').html(a).text();    // parse html entity &lt;
-        b = $('<div />').html(b).text();
+        // append MutSig data to table
+        for (i = 0; i < len; i += 1) {
+            $('.MutSig tbody').append(mutsig_to_tr(mutsigs[i]));
+        }
 
-        a = parseFloat(a.replace(/^[<>]/g,""));
-        b = parseFloat(b.replace(/^[<>]/g,""));
+        // show everything but the loader image
+        $('#mutsig_dialog').children().show();
+        $('#mutsig_dialog #loader-img').hide();
 
-        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
-    };
+        // use dataTable jQuery plugin
+        // to style and add nice functionalities
+        DATATABLE_FORMATTED = $('.MutSig').dataTable( {
+            "sScrollY": "200px",
+            "bJQueryUI": true,
+            "aaSorting": [],
+            "bAuthWidth": false,
+            "aoColumns": [
+                null,
+                null,
+                null,
+                { "bSortable" : false, "sWidth": "5%" }
+            ],
+            "bPaginate": false,
+            "bFilter": false,
+            "iDisplayLength": 5,
+            "bRetrieve": true,
+            "bDestroy": true
+        } );
 
-    $.fn.dataTableExt.oSort['scientific-desc'] = function(a,b) {
-        return $.fn.dataTableExt.oSort['scientific-asc'](b,a);
-    };
+        // force columns to align correctly
+        DATATABLE_FORMATTED.fnDraw();
+        DATATABLE_FORMATTED.fnDraw();
 
-    $.get('MutSig.json',
-            {'selected_cancer_type': cancerStudyId},
-            function(mutsigs) {
-                    var i;
-                    var len = mutsigs.length;
+        // bind UI for gene list -> mutsig table
+        updateMutSigTable();
 
-                    // header
-                    $('.MutSig').html('<thead><tr>'
-                                    + '<th>Gene Symbol</th>'
-                                    + '<th>Num Mutations</th>'
-                                    + '<th>Q-Value</th>'
-                                    + '<td><input class="checkall" type="checkbox"></td>'
-                                    + '</thead></tr>');
+        // create bindings for checkall mutsig UI
+        checkallMutsig();
+    });
 
-                // append MutSig data to table
-                    for (i = 0; i < len; i += 1) {
-                        $('.MutSig').append(mutsig_to_tr(mutsigs[i]));
-                    }
-
-                // use dataTable jQuery plugin
-                // to style and add nice functionalities
-                    $.fn.dataTableExt.oStdClasses.sWrapper = "MutSig_wrapper";
-
-                    $('.MutSig').dataTable( {
-                        "sScrollY": "200px",
-                        "aaSorting": [],     // disable autosorting
-                        "aoColumns": [
-                            null,
-                            null,
-                            { "bSortable" : true, "sType" : "scientific" },
-                            { "bSortable" : false, "sWidth": "5%" }
-                        ],
-                        "bPaginate": false,
-                        "bFilter": false,
-                        "iDisplayLength": 5,
-                        "bRetrieve": true,
-                        "bDestroy": true
-                    } );
-
-                    $('.MutSig_wrapper').hide();        // hide MutSig table initially
-                    $('.MutSig_wrapper').css('padding-bottom', '25px');
-                    $('.MutSig').css('width', '0%');    // hack. keep columns in line
+    // show everything but loader image
+    $('#mutsig_dialog').children().show();
+    $('#mutsig_dialog #loader-img').hide();
 
 
-                return false;
-            });
+    return;
 };
 
+// binds UI for checkall mutsig checkbox
+var checkallMutsig = function() {
+    // make checkall check all
+    $('#mutsig_dialog .checkall').click(function() {
+        $(this).parents().find('.MutSig input').attr('checked', this.checked);
+    });
+
+    // checkall is checked iff. all mutsigs are checked
+    $('.MutSig :not(.checkall):checkbox').click(function() {
+        // if a box is unchecked (namely *this* box)
+        // the checkall is unchecked
+        if (!this.checked) {
+            $('.MutSig .checkall').attr('checked', false);
+            return;
+        }
+        // check if the number of unchecked boxes equals 0
+        // if so, checkall should be checked
+        if ($('.MutSig input:not(.checkall):not(:checked)').length === 0) {
+            $('.MutSig .checkall').attr('checked', true);
+        }
+    });
+}
+
 // updates the gene_list based on what happens in the MutSig table.
+// mutsig table (within mutsig dialog box) -> gene list
 var updateGeneList = function() {
     "use strict";
 
@@ -139,7 +246,6 @@ var updateGeneList = function() {
             gene_list.push($(this).val());
         });
         gene_list = gene_list.join(" ");
-
     }
 
     else {
@@ -149,6 +255,7 @@ var updateGeneList = function() {
             var checked = $(this).val();
 
             if ( gene_list.search(new RegExp(checked, "i")) === -1 ) {
+                gene_list = $.trim(gene_list);
                 checked = " " + checked;
                 gene_list += checked;
             }
@@ -157,13 +264,15 @@ var updateGeneList = function() {
         // look for the unselected mutsigs in the gene_list
         // if they're there, delete them
         // you should be forced to know that your gene is recurrently mutated
-        $('.MutSig input:not(:checked)').each(function() {
+        $('.MutSig input:not(.checkall):not(:checked)').each(function() {
             var unchecked = $(this).val();
             if ( gene_list.search(new RegExp(unchecked, "i")) !== -1) {
 
                 // likely to be Onco Query
+                // delete the entire OncoQuery statement associated with an unselected gene
                 if (gene_list.search(':') !== -1) {
-                    var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\n|;)/.source, "ig");
+                    var unchecked_regexp = new RegExp(new RegExp(unchecked).source + /\s*:\s*.*(\;|\n)/.source, "ig");
+                    console.log(unchecked_regexp);
                     gene_list = gene_list.replace(unchecked_regexp, "");
                 }
 
@@ -177,18 +286,18 @@ var updateGeneList = function() {
     $('#gene_list').val(gene_list);
 
     // remove spaces in gene_list
-    gene_list = gene_list.replace(/\s{2,}/, "");             // delete 2 or more spaces in a row
-    gene_list = gene_list.replace(/^ /ig, "");              // delete leading space
-    gene_list = gene_list.replace(/ $/ig, "");              // delete trailing space
+    gene_list = $.trim(gene_list);
+    gene_list = gene_list.replace(/\s{2,}/, "");            // delete 2 or more spaces in a row
 };
 
 // updates the MutSig table based on what happens in the gene_list
 // namely, a user's deletions or additions of genes
+// gene_list -> MutSig table
 var updateMutSigTable = function() {
-
     var gene_list = $('#gene_list').val();
 
-    gene_list = gene_list.replace(/DATATYPES.*(;|\n)\s?/g, "");      // don't want to even look at Onco Queries like these
+    // don't want to even look at Onco Queries like these,
+    gene_list = gene_list.replace(/DATATYPES.*(;|\n)\s?/g, "");
 
     // likely to be Onco Query
     if (gene_list.search(/:/) !== -1) {
@@ -214,7 +323,7 @@ var updateMutSigTable = function() {
     }
 
     // clear all checks
-    $('.MutSig :checkbox').attr('checked', false);
+    $('#mutsig_dialog .MutSig :checkbox').attr('checked', false);
 
     // if genes in the gene_list are added
     // check them in the mutsig table
@@ -222,55 +331,13 @@ var updateMutSigTable = function() {
         gene_list_len = gene_list.length;
     for (i = 0; i < gene_list_len; i += 1) {
         // select mutsig checkboxes that are in the gene list
-        $('.MutSig :checkbox:[value=' +  gene_list[i].toUpperCase() + ']').
+        $('#mutsig_dialog .MutSig :checkbox[value=' +  gene_list[i].toUpperCase() + ']').
             attr('checked', true);
-
     }
-    return false;
 }
 
+// todo: refactor this and put it in with other init functions in step3.json
 $(document).ready( function () {
     "use strict";
-
-// -- initialize --
-// bind handlers to events
-    $('#MutSig_view').hide();   // MutSig toggle and table is initialized as hidden
-    $('.MutSig_wrapper').hide();
-
-    // make checkall check all
-    $('.checkall').live('click', function() {
-        $(this).parents().find('.MutSig input').attr('checked', this.checked);
-    });
-
-    $('.MutSig input').live('click', updateGeneList);
-    updateGeneList();
-
-    $('#gene_list').change(function () {
-        if ( $('.MutSig').is(':visible') ) {
-            updateMutSigTable();
-        }
-    });
-
-    $('#toggle_mutsig').click(function() {
-        $($('#MutSig_view > .ui-icon')[0]).toggle();
-        $($('#MutSig_view > .ui-icon')[1]).toggle();
-        updateMutSigTable();
-        $('.MutSig_wrapper').slideToggle('slow');
-        return false;
-    });
-
-    // make sure that the ui-icon is in the right place
-    $('#gene_list').keyup(function() {
-        if ( $('.MutSig').is(':visible') ) {
-            $('.MutSig_wrapper').slideUp('slow');
-
-            $($('#MutSig_view > .ui-icon')[0]).show();      // right arrow
-            $($('#MutSig_view > .ui-icon')[1]).hide();      // down arrow
-        }
-    });
-// -- end initialize --
-
-    $('#select_cancer_type').change( function() {
-        studySelected();
-    });
+    initMutsigDialogue();
 });

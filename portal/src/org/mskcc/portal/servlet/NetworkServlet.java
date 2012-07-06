@@ -11,15 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.portal.network.*;
 import org.mskcc.cgds.dao.DaoGeneticAlteration;
 import org.mskcc.cgds.dao.DaoMutation;
 import org.mskcc.cgds.model.*;
-import org.mskcc.portal.network.Network;
-import org.mskcc.portal.network.NetworkIO;
-import org.mskcc.portal.network.NetworkUtils;
-import org.mskcc.portal.network.Node;
 import org.mskcc.portal.remote.GetCaseSets;
 import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.portal.util.CaseSetUtil;
 import org.mskcc.portal.util.GeneticProfileUtil;
 import org.mskcc.portal.util.XDebug;
 
@@ -144,6 +142,9 @@ public class NetworkServlet extends HttpServlet {
                 
                 Set<Node> queryNodes = new HashSet<Node>();
                 for (Node node : network.getNodes()) {
+                    if(node.getType().equals(NodeType.DRUG))
+                        continue;
+
                     String ngnc = NetworkUtils.getSymbol(node);
                     if (ngnc==null) {
                         continue;
@@ -155,8 +156,7 @@ public class NetworkServlet extends HttpServlet {
                             continue;
                         }
                     }
-                    
-                    
+
                     CanonicalGene canonicalGene = daoGeneOptimized.getGene(ngnc);
                     if (canonicalGene==null) {
                         continue;
@@ -251,6 +251,9 @@ public class NetworkServlet extends HttpServlet {
             NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
+                    if(node.getType().equals(NodeType.DRUG))
+                        return (String) node.getAttribute("NAME");
+
                     String symbol = NetworkUtils.getSymbol(node);
                     if (symbol!=null) {
                         return symbol;
@@ -323,7 +326,7 @@ public class NetworkServlet extends HttpServlet {
         if ("small".equals(netSize)) {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
-                    return !isInQuery(node);
+                    return !isInQuery(node) || !node.getType().equals(NodeType.DRUG);
                 }
             });
             return true;
@@ -331,7 +334,7 @@ public class NetworkServlet extends HttpServlet {
             NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
                 public boolean select(Node node) {
                     String inMedium = (String)node.getAttribute("IN_MEDIUM");
-                    return inMedium==null || !inMedium.equals("true");
+                    return inMedium==null || !inMedium.equals("true") || !node.getType().equals(NodeType.DRUG);
                 }
             });
             return true;
@@ -384,7 +387,7 @@ public class NetworkServlet extends HttpServlet {
         
         List<Node> nodesToRemove = new ArrayList<Node>();
         for (Node node : network.getNodes()) {
-            if (isInQuery(node)) {
+            if (isInQuery(node) || node.getType().equals(NodeType.DRUG)) {
                 continue;
             }
             
@@ -443,7 +446,9 @@ public class NetworkServlet extends HttpServlet {
     
     private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
             throws ServletException, DaoException {
-        String strCaseIds = req.getParameter(QueryBuilder.CASE_IDS);
+    	String caseIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
+    	String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+    	
         if (strCaseIds==null || strCaseIds.length()==0) {
             String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Case Sets for Selected Cancer Type

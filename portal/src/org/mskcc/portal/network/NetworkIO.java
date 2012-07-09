@@ -1,32 +1,25 @@
 
 package org.mskcc.portal.network;
 
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.model.DrugInteraction;
-import org.mskcc.cgds.model.Interaction;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.scripts.drug.AbstractDrugInfoImporter;
-import org.mskcc.portal.util.GlobalProperties;
-import org.mskcc.portal.remote.ConnectionManager;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.mskcc.cgds.dao.*;
+import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cgds.model.Drug;
+import org.mskcc.cgds.model.DrugInteraction;
+import org.mskcc.cgds.model.Interaction;
+import org.mskcc.cgds.scripts.drug.AbstractDrugInfoImporter;
+import org.mskcc.portal.remote.ConnectionManager;
+import org.mskcc.portal.util.GlobalProperties;
 
 /**
  *
@@ -531,7 +524,7 @@ public final class NetworkIO {
             to.append("   <data key=\"");
             to.append(attr);
             to.append("\">");
-            to.append(value);
+            to.append(StringEscapeUtils.escapeXml(value.toString()));
             to.append("</data>\n");
 
             String type = getAttrType(value);

@@ -9,42 +9,43 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-drop table IF EXISTS uniprot_id_mapping;
-drop table IF EXISTS cancer_study;
-drop table IF EXISTS users;
-drop table IF EXISTS authorities;
-drop table IF EXISTS type_of_cancer;
-drop table IF EXISTS mut_sig;
 drop table IF EXISTS _case;
-drop table IF EXISTS case_profile;
+drop table IF EXISTS authorities;
+drop table IF EXISTS cancer_study;
 drop table IF EXISTS cancer_type;
+drop table IF EXISTS case_cna_event;
 drop table IF EXISTS case_list;
 drop table IF EXISTS case_list_list;
+drop table IF EXISTS case_mutation_event;
+drop table IF EXISTS case_profile;
+drop table IF EXISTS clinical;
+drop table if EXISTS clinical_free_form;
+drop table IF EXISTS cna_event;
+drop table IF EXISTS copy_number_seg;
+drop table IF EXISTS drug;
+drop table IF EXISTS drug_interaction;
 drop table IF EXISTS gene;
 drop table IF EXISTS gene_alias;
 drop table IF EXISTS gene_in_profile;
 drop table IF EXISTS genetic_alteration;
 drop table IF EXISTS genetic_profile_cases;
 drop table IF EXISTS genetic_profile;
-drop table IF EXISTS micro_rna;
-drop table IF EXISTS mutation;
-drop table IF EXISTS mutation_frequency;
-drop table IF EXISTS micro_rna_alteration;
-drop table IF EXISTS clinical;
 drop table IF EXISTS interaction;
-drop table if EXISTS sanger_cancer_census;
-drop table if EXISTS clinical_free_form;
-drop table if EXISTS text_cache;
-
+drop table IF EXISTS micro_rna;
+drop table IF EXISTS micro_rna_alteration;
+drop table IF EXISTS mutation;
+drop table IF EXISTS mutation_event;
+drop table IF EXISTS mutation_frequency;
+drop table IF EXISTS mut_sig;
 drop table IF EXISTS protein_array_info;
 drop table IF EXISTS protein_array_target;
 drop table IF EXISTS protein_array_data;
 drop table IF EXISTS protein_array_cancer_study;
-drop table IF EXISTS case_cna_event;
-drop table IF EXISTS cna_event;
-
-drop table IF EXISTS drug;
-drop table IF EXISTS drug_interaction;
+drop table if EXISTS sanger_cancer_census;
+drop table if EXISTS text_cache;
+drop table IF EXISTS type_of_cancer;
+drop table IF EXISTS uniprot_id_mapping;
+drop table IF EXISTS users;
 
 --
 -- Database: `cgds`
@@ -453,3 +454,14 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
   UNIQUE (`ENTREZ_GENE_ID`, `MUTATION_STATUS`, `AMINO_ACID_CHANGE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
 
+CREATE TABLE IF NOT EXISTS `copy_number_seg` (
+  `COPY_NUMBER_SEG_ID` int(255) NOT NULL auto_increment,
+  `CASE_ID` varchar(255) NOT NULL,
+  `CHROMOSOME` tinyint(2) NOT NULL,
+  `START` int(11) NOT NULL,
+  `END` int(11) NOT NULL,
+  `NUM_PROBES` int(11) NOT NULL,
+  `SEGMENT_MEAN` double NOT NULL,
+  PRIMARY KEY (`COPY_NUMBER_SEG_ID`),
+  UNIQUE(`CASE_ID`, `CHROMOSOME`, `START`, `END`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

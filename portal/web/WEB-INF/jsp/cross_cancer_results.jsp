@@ -5,6 +5,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="java.io.IOException" %>
 
 <%
     String siteTitle = SkinUtil.getTitle();
@@ -193,6 +194,22 @@
         drawChart();
 
         $("#histogram_sort").tipTip();
+        $("#download_histogram").tipTip();
+
+        $("#download_histogram").click(function(event) {
+            event.preventDefault();
+
+            // Snip from http://bit.ly/NbPagq
+            var chartContainer = document.getElementById("chart_div" + shownHistogram);
+            var chartArea = chartContainer.getElementsByTagName('iframe')[0].
+                 contentDocument.getElementById('chartArea');
+            var svg = chartArea.innerHTML;
+
+            // Our custom form submission
+            $("#histogram_svg_xml").val(svg);
+            $("#histogram_download_form").submit();
+        });
+
         $("#histogram_sort").click(function(event) {
             event.preventDefault(); // Not to scroll to the top
             sortPermanently = !sortPermanently;
@@ -382,13 +399,13 @@
 
            var options = {
               title: 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
                     title: 'Percent Altered',
@@ -406,13 +423,13 @@
             
 	    var options2 = {
               title: 'Percent Sample Alteration for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
 	            title: 'Percent Altered',
@@ -431,7 +448,6 @@
 
             var options3 = {
               title: 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
@@ -441,8 +457,9 @@
                 easing: 'linear'
         	  },
               hAxis: {
-                slantedTextAngle: 45
-              },
+                 slantedTextAngle: 45,
+                 maxTextLines: 2
+               },
               yAxis: {
                 title: 'Number of cases'
               },
@@ -453,13 +470,13 @@
             
 	    var options4 = {
               title: 'Number of Altered Cases for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+               slantedTextAngle: 45,
+               maxTextLines: 2
               },
               animation: {
                 duration: 750,
@@ -531,21 +548,29 @@
                 <br/>
 
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
+
                     <select id="hist_toggle_box">
                         <option value="1">Show percent of altered cases (studies with mutation data)</option>
                         <option value="2">Show percent of altered cases (studies without mutation data)</option>
                         <option value="3">Show number of altered cases (studies with mutation data)</option>
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
                     </select>
-                    |
-                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                     |
+                     <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                     |
+                     <a href="#" id="download_histogram" title="Downloads the current histogram in SVG format.">Export</a>
                 </div>
-                <div id="chart_div1" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div2" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div3" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div4" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div1" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div2" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div3" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div4" style="width: 975px; height: 450px;"></div>
                 <br/>
                 <br/>
+
+                <form id="histogram_download_form" method="POST" action="histogram_converter.svg">
+                    <input type="hidden" name="format" value="svg">
+                    <input type="hidden" name="xml" id="histogram_svg_xml" value="">
+                </form>
 
                 <hr align="left" class="crosscancer-hr"/>
                 <h1 class="crosscancer-header">Details for Each Cancer Study</h1>

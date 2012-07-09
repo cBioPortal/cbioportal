@@ -176,6 +176,11 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>histogram_converter</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
@@ -291,7 +296,12 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
     </servlet-mapping>   
-
+     
+     <servlet-mapping>
+        <servlet-name>oncoprint_converter</servlet-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+     </servlet-mapping>   
+     
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>

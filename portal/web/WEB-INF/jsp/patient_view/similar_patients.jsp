@@ -61,43 +61,31 @@ A genomic overview with events aligned across patients goes here...
         $(table_id).css("width","100%");
         return oTable;
     }
-        
-    var mutations_built = false;
-    var cna_built = false;
     
-    var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
-            
     function waitAndBuildSimilarPatientsDataTable() {
-        if (mutations_built==<%=showMutations%> && cna_built==<%=showCNA%>) {
-                // similar patients
-                $.post("similar_patients.json",
-                    params,
-                    function (simPatient) {
-                        buildSimilarPatientsDataTable(simPatient, '#similar_patients_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
-                        $('#similar_patients_wrapper_table').show();
-                        $('#similar_patients_wait').remove();
-                    }
-                    ,"json"
-                );
+        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
+        if (geObs.hasMut) {
+            params['<%=SimilarPatientsJSON.MUTATION%>'] = mutEventIds;
         }
+        if (geObs.hasCna) {
+            params['<%=SimilarPatientsJSON.CNA%>'] = cnaEventIds;
+        }
+        
+        // similar patients
+        $.post("similar_patients.json",
+            params,
+            function (simPatient) {
+                buildSimilarPatientsDataTable(simPatient, '#similar_patients_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                $('#similar_patients_wrapper_table').show();
+                $('#similar_patients_wait').remove();
+            }
+            ,"json"
+        );
     }
     
     $(document).ready(function(){
         $('#similar_patients_wrapper_table').hide();
-        $('#similar_patients_table').live('mutations-built', function() {
-            var mutationsTable = $('#mutation_table').dataTable();
-            var mutationsTableData = mutationsTable.fnGetData();
-            params['<%=SimilarPatientsJSON.MUTATION%>'] = mutEventIds;
-            mutations_built = true;
-            waitAndBuildSimilarPatientsDataTable();
-        });
-        $('#similar_patients_table').live('cna-built', function() {
-            var cnaTable = $('#cna_table').dataTable();
-            var cnaTableData = cnaTable.fnGetData();
-            params['<%=SimilarPatientsJSON.CNA%>'] = cnaEventIds;
-            cna_built = true;
-            waitAndBuildSimilarPatientsDataTable();
-        });
+        geObs.subscribeMutCna(waitAndBuildSimilarPatientsDataTable);
     }
     );
 </script>

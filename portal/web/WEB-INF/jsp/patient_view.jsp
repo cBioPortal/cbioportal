@@ -144,6 +144,7 @@ if (patientViewError!=null) {
 $(document).ready(function(){
     setUpPatientTabs();
     initTabs();
+    initGenomicsOverview();
 });
 
 function setUpPatientTabs() {
@@ -165,6 +166,11 @@ function initTabs() {
             return false;
     }).filter(':first').click();
     
+}
+
+function initGenomicsOverview() {
+    var r = Raphael("genomic-overview", 0, 0, 800, 600);
+    plotChromosomes(r);
 }
 
 function switchToTab(toTab) {
@@ -204,6 +210,9 @@ function getDrugMap(drugs) {
 function trimHtml(html) {
     return html.replace(/<[^>]*>/g,"");
 }
+
+var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
+
 </script>
 
 </body>

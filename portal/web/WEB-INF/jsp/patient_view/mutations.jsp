@@ -221,7 +221,7 @@
                 
                 mutEventIds = getEventIdString(mutations);
                 
-                $('#similar_patients_table').trigger('mutations-built');
+                geObs.fire('mutations-built');
                 
                 // summary table
                 var mut_summary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);

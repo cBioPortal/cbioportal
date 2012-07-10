@@ -16,7 +16,10 @@
 <%if(showPlaceHoder){%>
 <br/>Genomic overview image goes here... (below is a mockup)<br/>
 <img src="http://cbio.mskcc.org/~jgao/genomic-over-mockup.png">
-<br/><br/>
+<br/>
+
+<div id="genomic-overview"></div>
+<br/>
 <%}%>
         
 <%if(showMutations){%>

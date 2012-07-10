@@ -210,7 +210,7 @@
                 
                 cnaEventIds = getEventIdString(cnas);
                 
-                $('#similar_patients_table').trigger('cna-built');
+                geObs.fire('cna-built');
                 
                 // summary table
                 var cna_summary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);

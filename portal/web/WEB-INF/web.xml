@@ -304,6 +304,11 @@
         <url-pattern>/netviz.jsp</url-pattern>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+    </filter-mapping>
+
     <!-- Required by the Apache FileUpload tool. -->
     <listener>
         <listener-class>

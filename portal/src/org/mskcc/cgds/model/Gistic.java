@@ -20,8 +20,8 @@ public class Gistic {
     private int peakStart;
     private int peakEnd;
     private ArrayList<CanonicalGene> genes_in_ROI;
-    private String qValue;
-    private String res_qValue;
+    private float qValue;
+    private float res_qValue;
     private boolean ampDel;
 
     /**
@@ -35,9 +35,8 @@ public class Gistic {
      * @param genes_in_ROI      genes in the ROI
      * @param amp_del           region is amplified or deleted. To set use Gistic.AMPLIFIED or Gistic.DELETED
      */
-
     public Gistic(int cancerStudyId, int chromosome, int peakStart, int peakEnd,
-                  String qValue, String res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
+                  float qValue, float res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
 
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = cancerStudyId;
@@ -60,9 +59,9 @@ public class Gistic {
         this.chromosome = -1;
         this.peakStart = -1;
         this.peakEnd = -1;
-        this.qValue = null;
-        this.res_qValue = null;
-        this.genes_in_ROI = null;
+        this.qValue = -1f;
+        this.res_qValue = -1f;
+        this.genes_in_ROI = new ArrayList<CanonicalGene>();
         this.ampDel = false;
     }
 
@@ -73,6 +72,34 @@ public class Gistic {
 
     public int peakSize() {
         return this.peakEnd - this.peakStart;
+    }
+    
+    @Override public String toString() {
+        
+        String ampdel;
+
+        if (this.ampDel == Gistic.AMPLIFIED) {
+            ampdel = "amp";
+            
+        } else {
+            ampdel = "del";
+        }
+
+        return String.format("cancerStudyId=%d, " +
+                "chromosome: %d, " +
+                "peakStart: %d, " +
+                "peakEnd: %d, " +
+                "qValue: %f, " +
+                "res_qValue: %f, " +
+                "genes_in_ROI: %s, " +
+                "ampDel: %s", this.cancerStudyId,
+                this.chromosome,
+                this.peakStart,
+                this.peakEnd,
+                this.qValue,
+                this.res_qValue,
+                this.genes_in_ROI,
+                ampdel);
     }
 
     /**
@@ -125,10 +152,21 @@ public class Gistic {
     }
 
     /**
+     * Adds a gene to the genes in the ROI.
+     * N.B. All this method does is wrap the add function.
+     * It does not fancy. Specifically,
+     * it does *not* check for duplicates.
+     * @param gene
+     */
+    public void addGene(CanonicalGene gene) {
+        this.genes_in_ROI.add(gene);
+    }
+
+    /**
      * Sets the q-value of the ROI
      * @param qValue
      */
-    public void setqValue(String qValue) {
+    public void setqValue(float qValue) {
         this.qValue = qValue;
     }
 
@@ -136,7 +174,7 @@ public class Gistic {
      * Sets the residue q-value of the ROI
      * @param res_qValue
      */
-    public void setRes_qValue(String res_qValue) {
+    public void setRes_qValue(float res_qValue) {
         this.res_qValue = res_qValue;
     }
 
@@ -191,7 +229,7 @@ public class Gistic {
      * @return q-value of wide peak
      */
 
-    public String getqValue() {
+    public float getqValue() {
         return qValue;
     }
 
@@ -200,7 +238,7 @@ public class Gistic {
      * @return residual q-value of wide peak
      */
 
-    public String getRes_qValue() {
+    public float getRes_qValue() {
         return res_qValue;
     }
 

@@ -2,11 +2,13 @@ package org.mskcc.cgds.test.util;
 
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.Gistic;
 import org.mskcc.cgds.util.GisticReader;
 import org.mskcc.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class TestGisticReader extends TestCase {
 
@@ -20,8 +22,14 @@ public class TestGisticReader extends TestCase {
     cancerStudyId = GisticReader.getCancerStudyInternalId(metadata);
 
     GisticReader reader = new GisticReader();
-    reader.parse_Table(gisticTable_file, pm);
 
-
+    // just make sure they run
+    ArrayList<Gistic> table_reads = reader.parse_Table(gisticTable_file);
+    
+//    for (Gistic g : table_reads) {
+//        System.out.println(g);
+//    }
+        
+    reader.parseNonTabular(gisticFile);
     }
 }

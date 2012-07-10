@@ -57,7 +57,7 @@
             <param-name>db_password</param-name>
             <param-value>db_password__value</param-value>
         </init-param>
-        <load-on-startup/>
+        <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet>

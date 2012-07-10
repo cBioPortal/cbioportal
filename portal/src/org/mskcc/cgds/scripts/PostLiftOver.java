@@ -22,12 +22,53 @@ public class PostLiftOver
 	
 	public static void main(String[] args)
 	{
-		System.out.println("original file: " + args[0]);
-		System.out.println("mapped file: " + args[1]);
-		System.out.println("unmapped file: " + args[2]);
-		System.out.println("output maf: " + args[3]);
+		String originialFile = args[0];
+		String mappedFile = args[1];
+		String unmappedFile = args[2];
+		String outputMaf = args[3];
+		
+		try
+		{
+			// sanity check: assert (# of entries in original file) ==
+			// (total # of entries in both mapped & unmapped file)
+			// if not, then it means there is an error during lift over process
+			if (sizeMismatch(originialFile,
+					mappedFile,
+					unmappedFile))
+			{
+				System.out.println("Input sizes do not match! Error while lifting over?");
+			}
+			else
+			{
+				updatePositions(originialFile,
+						mappedFile,
+						unmappedFile,
+						outputMaf);
+			}
+			
+		}
+		catch (IOException e)
+		{
+			System.out.println("Error while processing files: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
+	/**
+	 * Updates the positions of the source input file by using mapped and
+	 * unmapped outputs. Writes the results to the given output file. This
+	 * function assumes that liftOver script runs without any problems.
+	 * In other words, this function works correctly if the number of entries
+	 * in the input file is equal to the total number of entries in the
+	 * mapped and unmapped files. Otherwise resulting output MAF file may
+	 * contain incorrect information.
+	 * 
+	 * @param inputFile		original input MAF file
+	 * @param mappedFile	mapped file created by liftOver
+	 * @param unmappedFile	unmapped file created by liftOver
+	 * @param outputFile	output file with updated coordinates
+	 * @throws IOException	if an IO error occurs
+	 */
 	public static void updatePositions(String inputFile,
 			String mappedFile,
 			String unmappedFile,
@@ -38,7 +79,7 @@ public class PostLiftOver
 		BufferedReader mappedIn = new BufferedReader(
         		new FileReader(mappedFile));
 		BufferedReader unmappedIn = new BufferedReader(
-        		new FileReader(mappedFile));
+        		new FileReader(unmappedFile));
 		
 		BufferedWriter bufWriter = new BufferedWriter(
 				new FileWriter(outputFile));
@@ -50,6 +91,15 @@ public class PostLiftOver
         String unmappedLine = getUnmappedLine(unmappedIn);
         MafRecord record;
         
+        // for debugging purposes
+        int sourceRow = 2; // (including header)
+        int mappedRow = 1;
+        int unmappedRow = 1;
+        
+        // write the header line to the output
+        bufWriter.write(headerLine);
+        bufWriter.newLine();
+        
         while ((sourceLine = sourceIn.readLine()) != null)
         {
         	// get a single record per line
@@ -59,27 +109,100 @@ public class PostLiftOver
         	if (unmappedLine != null &&
         		isUnmapped(record, unmappedLine))
         	{
-        		// TODO what to do with unmapped records?
+        		// skip unmapped lines (do not include)
+        		// bufWriter.write(sourceLine);
         		
         		// get next line from unmapped file
         		unmappedLine = getUnmappedLine(unmappedIn);
+        		
+        		unmappedRow++;
         	}
+        	// record is lifted over successfully, update the positions 
         	else
         	{
-        		String[] mappedParts = mappedLine.split("//s");
+        		String[] mappedParts = mappedLine.split("\\s");
         		
-        		if (mappedParts[0].equals("chr" + record.getChr()))
+        		String sourceChr = record.getChr();
+        		
+        		if (sourceChr.equals("MT"))
         		{
-        			// TODO update record and write to output
+        			sourceChr = "M";
         		}
-        		else
+        		
+    			StringBuffer buffer = new StringBuffer();
+    			
+    			long startPos = Long.parseLong(mappedParts[1]);
+    			long endPos = Long.parseLong(mappedParts[2]);
+    			boolean chrChanged = false;
+    			
+    			// one more sanity check...
+        		if (!mappedParts[0].equals("chr" + sourceChr))
         		{
-        			// TODO there is something wrong...
+            		// print a warning message about the chromosome number change..
+            		System.out.println("Warning: chromosome numbers mismatch");
+            		System.out.println("source(" + sourceRow + "): chr" + sourceChr + " " + 
+            				record.getStartPosition() + " " + record.getEndPosition());
+            		System.out.println("mapped(" + mappedRow + "): " + mappedLine);
+            		
+            		chrChanged = true;
         		}
+    			
+    			if (startPos == endPos - 1)
+    			{
+    				startPos++;
+    			}
+    			
+    			String sourceParts[] = sourceLine.split("\t", -1);
+    			
+    			// update start & end positions
+    			for (int i = 0; i < sourceParts.length; i++)
+    			{
+					if (util.getStartPositionIndex() == i)
+					{
+						// replace with new start position
+						buffer.append(startPos);
+					}
+					else if (util.getEndPositionIndex() == i)
+					{
+						// replace with new end position
+						buffer.append(endPos);
+					}
+					else if (chrChanged &&
+							util.getChrIndex() == i)
+					{
+						// replace with new chr number
+						buffer.append(mappedParts[0].replaceAll("chr", ""));
+					}
+					else if (util.getNcbiIndex() == i)
+					{
+						// also update the build from 18 to 19 (36 to 37)
+						buffer.append(record.getNcbiBuild().replace(
+								"18", "19").replace("36", "37"));
+					}
+					else
+					{
+						// just copy the original content
+						buffer.append(sourceParts[i]);
+					}
+					
+					if (i < sourceParts.length - 1)
+					{
+						buffer.append("\t");
+					}
+				}
+    			
+    			// update record and write to output
+    			bufWriter.write(buffer.toString());
         		
         		// get next line from mapped file
         		mappedLine = mappedIn.readLine();
+        		
+        		mappedRow++;
         	}
+        	
+        	bufWriter.newLine();
+        	
+        	sourceRow++;
         }
         
         sourceIn.close();
@@ -88,16 +211,82 @@ public class PostLiftOver
         bufWriter.close();
 	}
 	
+	private static boolean sizeMismatch(String inputFile,
+			String mappedFile,
+			String unmappedFile) throws IOException
+	{
+		BufferedReader sourceIn = new BufferedReader(
+        		new FileReader(inputFile));
+		BufferedReader mappedIn = new BufferedReader(
+        		new FileReader(mappedFile));
+		BufferedReader unmappedIn = new BufferedReader(
+        		new FileReader(unmappedFile));
+		
+		int sourceCount = 0;
+		int mappedCount = 0;
+		int unmappedCount = 0;
+		
+		while (sourceIn.readLine() != null)
+		{
+			sourceCount++;
+		}
+		
+		sourceIn.close();
+		
+		while (mappedIn.readLine() != null)
+		{
+			mappedCount++;
+		}
+		
+		mappedIn.close();
+		
+		while (getUnmappedLine(unmappedIn) != null)
+		{
+			unmappedCount++;
+		}
+		
+		unmappedIn.close();
+		
+		
+		boolean mismatch = true;
+		
+		if (sourceCount - 1 == mappedCount + unmappedCount)
+		{
+			mismatch = false;
+		}
+		
+		return mismatch;
+	}
+	
 	private static boolean isUnmapped(MafRecord record,
 			String unmappedLine)
 	{
 		boolean unmapped = false;
-		String[] parts = unmappedLine.split("//s");
+		String[] parts = unmappedLine.split("\\s");
+    	
+    	// adjust startPos & chr to match liftOver output
+    	// (because they are adjusted in PreLiftOver to create an input
+		// compatible with liftOver tool) 
+    	
+		long startPos = record.getStartPosition();
+    	long endPos = record.getEndPosition();
+    	
+    	if (startPos == endPos)
+    	{
+    		startPos--;
+    	}
+    	
+    	String chr = record.getChr();
+    	
+    	if (chr.equals("MT"))
+    	{
+    		chr = "M";
+    	}
 		
 		// compare chr, start & end positions
-		if (parts[0].equals("chr" + record.getChr()) &&
-			record.getStartPosition() == Long.parseLong(parts[1]) &&
-			record.getEndPosition() == Long.parseLong(parts[2]))
+		if (parts[0].equals("chr" + chr) &&
+			startPos == Long.parseLong(parts[1]) &&
+			endPos == Long.parseLong(parts[2]))
 		{
 			unmapped = true;
 		}

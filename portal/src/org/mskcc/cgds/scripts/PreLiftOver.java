@@ -50,10 +50,35 @@ public class PreLiftOver
         String line;
         MafRecord record;
         
+        long startPos, endPos;
+        String chr;
+        
         while ((line = bufReader.readLine()) != null)
         {
         	record = util.parseRecord(line);
-        	bufWriter.write("chr" + record.getChr() + " " + record.getStartPosition() + " " + record.getEndPosition());
+        	startPos = record.getStartPosition();
+        	endPos = record.getEndPosition();
+        	
+        	// if start&end pos are the same, then the coordinate range
+        	// in BED format specifies a region of size 0.
+        	// BED coordinates are zero-based, half-open.  See:
+        	// http://genome.ucsc.edu/FAQ/FAQformat.html#format1
+        	// and
+        	// http://genomewiki.ucsc.edu/index.php/Coordinate_Transforms 
+        	if (startPos == endPos)
+        	{
+        		startPos--;
+        	}
+        	
+        	chr = record.getChr();
+        	
+        	// chrMT is not recognized so replace it with M
+        	if (chr.equals("MT"))
+        	{
+        		chr = "M";
+        	}
+        	
+        	bufWriter.write("chr" + chr + "\t" + startPos + "\t" + endPos);
         	bufWriter.newLine();
         }
         

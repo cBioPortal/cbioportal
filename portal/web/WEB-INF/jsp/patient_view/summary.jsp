@@ -4,7 +4,15 @@
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
+        initGenomicsOverview();
     });
+
+    function initGenomicsOverview() {
+        var width = 1200;
+        var height = 100;
+        var paper = createRaphaelCanvas("genomics-overview", width, height);
+        plotChromosomes(paper, width);
+    }
 </script>
 
 
@@ -17,10 +25,10 @@
 <br/>Genomic overview image goes here... (below is a mockup)<br/>
 <img src="http://cbio.mskcc.org/~jgao/genomic-over-mockup.png">
 <br/>
-
-<div id="genomic-overview"></div>
-<br/>
 <%}%>
+
+<div id="genomics-overview"></div>
+<br/>
         
 <%if(showMutations){%>
 <br/>

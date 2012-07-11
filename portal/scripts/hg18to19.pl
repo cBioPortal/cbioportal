@@ -11,15 +11,18 @@ require "../scripts/env.pl";
 ################################################################
 
 # extract required information from the MAF file
+print ("[info] Creating input files for lift over tool...\n");
 system ("$JAVA_HOME/bin/java -Xmx1192M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.PreLiftOver $ARGV[0]");
 
 # run the liftOver tool for conversion
+print ("[info] Running liftOver tool...\n");
 system ("./liftOver oldfile.txt hg18ToHg19.over.chain newfile.txt unmapped.txt");
 
 # process files created by liftOver to update old MAF
-system ("$JAVA_HOME/bin/java -Xmx1192M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.PostLiftOver newfile.txt unmapped.txt $ARGV[1]");
+print ("[info] Updating positions and creating the new MAF...\n");
+system ("$JAVA_HOME/bin/java -Xmx1192M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.PostLiftOver $ARGV[0] newfile.txt unmapped.txt $ARGV[1]");
 
 # clean intermediate files
-# unlink("oldfile.txt");
-# unlink("newfile.txt");
-# unlink("unmapped.txt");
+unlink("oldfile.txt");
+unlink("newfile.txt");
+unlink("unmapped.txt");

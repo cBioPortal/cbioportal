@@ -80,6 +80,7 @@ public class OncotateTool {
         writer.write(TAB + "ONCOTATOR_PROTEIN_CHANGE");
         writer.write(TAB + "ONCOTATOR_COSMIC_OVERLAPPING");
         writer.write(TAB + "ONCOTATOR_DBSNP_RS");
+        writer.write(TAB + "ONCOTATOR_GENE_SYMBOL");
         writer.write("\n");
     }
 
@@ -146,10 +147,12 @@ public class OncotateTool {
         String cosmicOverlapping = oncotatorRecord.getCosmicOverlappingMutations();
         String dbSnpRs = oncotatorRecord.getDbSnpRs();
         String variantClassification = oncotatorRecord.getVariantClassification();
+        String geneSymbol = oncotatorRecord.getGene();
         writer.write(TAB + outputField(variantClassification));
         writer.write(TAB + outputField(proteinChange));
         writer.write(TAB + outputField(cosmicOverlapping));
         writer.write(TAB + outputField(dbSnpRs));
+        writer.write(TAB + outputField(geneSymbol));
     }
     
     private String outputField(String field) {

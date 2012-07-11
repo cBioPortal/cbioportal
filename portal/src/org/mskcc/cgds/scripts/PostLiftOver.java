@@ -20,6 +20,13 @@ import org.mskcc.portal.util.MafUtil;
 public class PostLiftOver
 {
 	
+	/**
+	 * Arguments:
+	 *  1) original input (MAF) file.
+	 *  2) mapped file created by the liftOver tool.
+	 *  3) unmapped file created by the liftOver tool.
+	 *  4) name of the new output file to be created.
+	 */
 	public static void main(String[] args)
 	{
 		String originialFile = args[0];
@@ -109,6 +116,9 @@ public class PostLiftOver
         	if (unmappedLine != null &&
         		isUnmapped(record, unmappedLine))
         	{
+        		System.out.println("[warning] cannot lift over (line:" + sourceRow + "): " +
+        				"[gene:" + record.getHugoGeneSymbol() + "] " + unmappedLine);
+        		
         		// skip unmapped lines (do not include)
         		// bufWriter.write(sourceLine);
         		
@@ -135,14 +145,14 @@ public class PostLiftOver
     			long endPos = Long.parseLong(mappedParts[2]);
     			boolean chrChanged = false;
     			
-    			// one more sanity check...
         		if (!mappedParts[0].equals("chr" + sourceChr))
         		{
             		// print a warning message about the chromosome number change..
-            		System.out.println("Warning: chromosome numbers mismatch");
-            		System.out.println("source(" + sourceRow + "): chr" + sourceChr + " " + 
-            				record.getStartPosition() + " " + record.getEndPosition());
-            		System.out.println("mapped(" + mappedRow + "): " + mappedLine);
+            		System.out.println("[warning] chromosome numbers mismatch (gene:" + record.getHugoGeneSymbol() + ")");
+            		System.out.println("source(line:" + sourceRow + "): chr" + sourceChr + " " + 
+            				record.getStartPosition() + " " +
+            				record.getEndPosition());
+            		System.out.println("mapped(line:" + mappedRow + "): " + mappedLine);
             		
             		chrChanged = true;
         		}
@@ -211,6 +221,18 @@ public class PostLiftOver
         bufWriter.close();
 	}
 	
+	/**
+	 * Compares original input file to the two output files created by
+	 * the liftOver tool to verify that number of entries in the original
+	 * input file is equal to total number of entries in both the mapped
+	 * and the unmapped files. 
+	 * 
+	 * @param inputFile		original input
+	 * @param mappedFile	mapped file (created by liftOver)
+	 * @param unmappedFile	unmapped file (created by liftOver)
+	 * @return				true if sizes mismatch, false otherwise
+	 * @throws IOException	if an IO error occurs
+	 */
 	private static boolean sizeMismatch(String inputFile,
 			String mappedFile,
 			String unmappedFile) throws IOException
@@ -258,6 +280,13 @@ public class PostLiftOver
 		return mismatch;
 	}
 	
+	/**
+	 * Checks if the given record is in the unmapped file (created by liftOver).
+	 * 
+	 * @param record		record to be checked
+	 * @param unmappedLine	a line from the unmapped file
+	 * @return				true if the record is unmapped, false otherwise
+	 */
 	private static boolean isUnmapped(MafRecord record,
 			String unmappedLine)
 	{
@@ -294,6 +323,14 @@ public class PostLiftOver
 		return unmapped;
 	}
 	
+	/**
+	 * Skips any comment lines and retrieves a data line from the unmapped file
+	 * (created by liftOver).
+	 * 
+	 * @param unmappedIn	input reader for the unmapped file
+	 * @return				a data line from the unmapped file, or null if EOF
+	 * @throws IOException	if an IO occurs
+	 */
 	private static String getUnmappedLine(BufferedReader unmappedIn) throws IOException
 	{
 		String unmappedLine = unmappedIn.readLine();

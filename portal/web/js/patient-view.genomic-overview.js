@@ -98,6 +98,11 @@ function plotCnSeg(p,config,seg,chmInfo) {
         var w = chmInfo.loc2scale(1,end-start,config.width);
         var r = p.rect(x,0,w,config.rowHeight);
         r.attr("stroke-width",0);
-        r.attr("fill",config.getCnColor(segMean));
+        var cl = config.getCnColor(segMean);
+        r.attr("fill",cl);
+        r.attr("stroke", cl);
+        r.attr("stroke-width", 1);
+        r.attr("opacity", 0.5);
+        r.translate(0.5, 0.5);
     }
 }

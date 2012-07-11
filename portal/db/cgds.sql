@@ -455,7 +455,7 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
 
 CREATE TABLE IF NOT EXISTS `copy_number_seg` (
-  `COPY_NUMBER_SEG_ID` int(255) NOT NULL auto_increment,
+  `SEG_ID` int(255) NOT NULL auto_increment,
   `CASE_ID` varchar(255) NOT NULL,
   `CHROMOSOME` tinyint(2) NOT NULL,
   `START` int(11) NOT NULL,

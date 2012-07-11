@@ -9,9 +9,11 @@
 
     function initGenomicsOverview() {
         var width = 1200;
-        var height = 100;
-        var paper = createRaphaelCanvas("genomics-overview", width, height);
-        plotChromosomes(paper, width);
+        var yRuler = 50;
+        var ticHeight = 10;
+        var margin = 5;
+        var paper = createRaphaelCanvas("genomics-overview", width+margin, yRuler+ticHeight+margin);
+        plotChromosomes(paper,0,yRuler,width,ticHeight);
     }
 </script>
 
@@ -31,7 +33,6 @@
 <br/>
         
 <%if(showMutations){%>
-<br/>
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%">
     <tr>
@@ -46,7 +47,6 @@
 <%}%>
 
 <%if(showCNA){%>
-<br/>
 <div id="cna_summary_wait"><img src="images/ajax-loader.gif"/> Loading copy number alterations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="cna_summary_wrapper_table" width="100%">
     <tr>

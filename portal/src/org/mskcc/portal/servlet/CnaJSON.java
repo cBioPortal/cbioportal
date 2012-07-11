@@ -14,6 +14,7 @@ import org.json.simple.JSONValue;
 import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.model.CnaEvent;
+import org.mskcc.cgds.model.CopyNumberSegment;
 import org.mskcc.cgds.model.GeneticProfile;
 
 /**
@@ -27,6 +28,7 @@ public class CnaJSON extends HttpServlet {
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
+    public static final String GET_SEGMENT_CMD = "get_segment";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CNA_CONTEXT = "cna_context";
     
@@ -48,6 +50,11 @@ public class CnaJSON extends HttpServlet {
             
             if (cmd.equalsIgnoreCase(GET_DRUG_CMD)) {
                 processGetDrugsRequest(request, response);
+                return;
+            }
+            
+            if (cmd.equalsIgnoreCase(GET_SEGMENT_CMD)) {
+                processGetSegmentsRequest(request, response);
                 return;
             }
         }
@@ -77,7 +84,7 @@ public class CnaJSON extends HttpServlet {
         }
         
         for (CnaEvent cnaEvent : cnaEvents) {
-            export(table, cnaEvent);
+            exportCnaEvent(table, cnaEvent);
         }
 
         response.setContentType("application/json");
@@ -145,6 +152,35 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
+    private void processGetSegmentsRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        JSONArray table = new JSONArray();
+
+        String patients = request.getParameter(PatientView.PATIENT_ID);
+        
+        List<CopyNumberSegment> segs = Collections.emptyList();
+        
+        try {
+            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(patients.split("[, ]+")));
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        
+        for (CopyNumberSegment seg : segs) {
+            exportCopyNumberSegment(table, seg);
+        }
+
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(table, out);
+        } finally {            
+            out.close();
+        }
+    }
+    
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
             throws DaoException {
         Set<Long> genes = DaoCnaEvent.getAlteredGenes(eventIds, profileId);
@@ -158,7 +194,7 @@ public class CnaJSON extends HttpServlet {
         return ret;
     }
     
-    private void export(JSONArray table, CnaEvent cnaEvent) 
+    private void exportCnaEvent(JSONArray table, CnaEvent cnaEvent) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(cnaEvent.getEventId());
@@ -186,6 +222,18 @@ public class CnaJSON extends HttpServlet {
         boolean includeInSummary = isSangerGene;
         row.add(includeInSummary);
         
+        table.add(row);
+    }
+    
+    private void exportCopyNumberSegment(JSONArray table, CopyNumberSegment seg) 
+            throws ServletException {
+        JSONArray row = new JSONArray();
+        row.add(seg.getCaseId());
+        row.add(seg.getChromosome());
+        row.add(seg.getStart());
+        row.add(seg.getEnd());
+        row.add(seg.getNumProbes());
+        row.add(seg.getSegMean());
         table.add(row);
     }
     

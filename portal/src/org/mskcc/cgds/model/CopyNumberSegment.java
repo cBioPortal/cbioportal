@@ -6,7 +6,7 @@ package org.mskcc.cgds.model;
  * @author jgao
  */
 public class CopyNumberSegment {
-    private int segId;
+    private long segId;
     private String sample;
     private int chromosome; // 1-24
     private long start;
@@ -55,11 +55,11 @@ public class CopyNumberSegment {
         this.sample = sample;
     }
 
-    public int getSegId() {
+    public long getSegId() {
         return segId;
     }
 
-    public void setSegId(int segId) {
+    public void setSegId(long segId) {
         this.segId = segId;
     }
 

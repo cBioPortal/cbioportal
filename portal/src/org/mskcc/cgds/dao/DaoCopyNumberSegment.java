@@ -5,10 +5,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cgds.model.CopyNumberSegment;
 
@@ -43,20 +43,20 @@ public final class DaoCopyNumberSegment {
         }
     }
     
-    public static Map<String, CopyNumberSegment> getSegmentForACase(
+    public static List<CopyNumberSegment> getSegmentForACase(
             String caseId) throws DaoException {
         return getSegmentForCases(Collections.singleton(caseId));
     }
     
-    public static Map<String, CopyNumberSegment> getSegmentForCases(
-            Set<String> caseIds) throws DaoException {
+    public static List<CopyNumberSegment> getSegmentForCases(
+            Collection<String> caseIds) throws DaoException {
         if (caseIds.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         
         String concatCaseIds = "('"+StringUtils.join(caseIds, "','")+"')";
         
-        Map<String, CopyNumberSegment> map = new HashMap<String, CopyNumberSegment>();
+        List<CopyNumberSegment> segs = new ArrayList<CopyNumberSegment>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -65,8 +65,19 @@ public final class DaoCopyNumberSegment {
             pstmt = con.prepareStatement
                     ("SELECT * FROM copy_number_seg WHERE `CASE_ID` IN "
                     + concatCaseIds);
-            pstmt.executeQuery();
-            return map;
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                CopyNumberSegment seg = new CopyNumberSegment(
+                        rs.getString("CASE_ID"),
+                        rs.getInt("CHROMOSOME"),
+                        rs.getLong("START"),
+                        rs.getLong("END"),
+                        rs.getInt("NUM_PROBES"),
+                        rs.getDouble("SEGMENT_MEAN"));
+                seg.setSegId(rs.getLong("SEG_ID"));
+                segs.add(seg);
+            }
+            return segs;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

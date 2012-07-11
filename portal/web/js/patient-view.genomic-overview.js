@@ -33,20 +33,17 @@ ChmInfo.prototype = {
 };
 var chmInfo = new ChmInfo();
 
-function plotChromosomes(p, width) {
-    var mg = 10;
-    var h = 15
-    drawLine(mg,h,width-mg,h,p);
-    var chmLen = width-2*mg;
+function plotChromosomes(p, x, y, width, ticHeight) {
+    drawLine(x,y,x+width,y,p);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
-        var x = mg+chmInfo.loc2scale(i,0,chmLen);
-        drawLine(x,5,x,h,p);
+        var xt = x+chmInfo.loc2scale(i,0,width);
+        drawLine(xt,y,xt,y+ticHeight,p);
         
-        var m = mg+chmInfo.middle(i,chmLen);
-        p.text(m,10,i);
+        var m = x+chmInfo.middle(i,width);
+        p.text(m,y+ticHeight,i);
     }
-    drawLine(width-mg,5,width-mg,h,p);
+    drawLine(x+width,y,x+width,y+ticHeight,p);
 
 }
 
@@ -57,4 +54,8 @@ function drawLine(x1, y1, x2, y2, p) {
     line.attr("stroke-width", "1");
     line.attr("opacity", 0.5);
     line.translate(0.5, 0.5);
+}
+
+function plotCnSeg() {
+    
 }

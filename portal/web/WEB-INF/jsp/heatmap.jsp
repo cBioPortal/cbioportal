@@ -63,7 +63,8 @@
                     //  Output One Case per Row
                     for (String caseId : mergedCaseList) {
                         out.println("<tr>");
-                        out.println("<th bgcolor='#BBBBBB'><nobr>" + caseId + "&nbsp;</nobr></th>");
+                        out.println("<th bgcolor='#BBBBBB'><nobr><a href=\"patient.do?patient=" + caseId
+                                + "\">" + caseId + "</a>&nbsp;</nobr></th>");
                         int dataCounter=0;
                         for (GeneWithScore geneWithScore : geneWithScoreList) {
                             String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);

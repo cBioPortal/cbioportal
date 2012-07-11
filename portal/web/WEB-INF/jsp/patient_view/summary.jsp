@@ -1,4 +1,4 @@
-
+<%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -8,12 +8,33 @@
     });
 
     function initGenomicsOverview() {
-        var width = 1200;
-        var yRuler = 50;
-        var ticHeight = 10;
-        var margin = 5;
-        var paper = createRaphaelCanvas("genomics-overview", width+margin, yRuler+ticHeight+margin);
-        plotChromosomes(paper,0,yRuler,width,ticHeight);
+        var chmInfo = new ChmInfo();
+        var config = new GenomicOverviewConfig();
+        var paper = createRaphaelCanvas("genomics-overview", config);
+        plotChromosomes(paper,config,chmInfo);
+        
+        if (geObs.hasCna) {
+            plotCopyNumberOverview(paper,config,chmInfo);
+        }
+    }
+    
+    function plotCopyNumberOverview(paper,config,chmInfo) {
+        var params = {
+            <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
+            <%=PatientView.PATIENT_ID%>:'<%=patient%>'
+        };
+
+        $.post("cna.json", 
+            params,
+            function(segs){
+                for (var i=0; i<segs.length; i++) {
+                    plotCnSeg(paper,config,segs[i],chmInfo);
+                }
+            }
+            ,"json"
+        );
+        $.post()
+    
     }
 </script>
 

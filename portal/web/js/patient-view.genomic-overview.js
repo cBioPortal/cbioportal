@@ -1,6 +1,16 @@
+function GenomicOverviewConfig() {
+    this.width = 1200;
+    this.rows = 1;
+    this.rowHeight = 20;
+    this.rowMargin = 5;
+    this.yRuler = this.rows*(this.rowHeight+this.rowMargin);
+    this.ticHeight = 10;
+    this.canvasWidth = this.width + 5;
+    this.canvasHeight = this.yRuler+this.ticHeight+this.rowMargin;
+}
 
-function createRaphaelCanvas(elementId, width, height) {
-    return Raphael(elementId, width, height);
+function createRaphaelCanvas(elementId, config) {
+    return Raphael(elementId, config.canvasWidth, config.canvasHeight);
 }
 
 function getChmEndsPerc(chms, total) {
@@ -31,19 +41,18 @@ ChmInfo.prototype = {
         return this.loc2scale(chm,loc,width);
     }
 };
-var chmInfo = new ChmInfo();
 
-function plotChromosomes(p, x, y, width, ticHeight) {
-    drawLine(x,y,x+width,y,p);
+function plotChromosomes(p,config,chmInfo) {
+    drawLine(0,config.yRuler,config.width,config.yRuler,p);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
-        var xt = x+chmInfo.loc2scale(i,0,width);
-        drawLine(xt,y,xt,y+ticHeight,p);
+        var xt = chmInfo.loc2scale(i,0,config.width);
+        drawLine(xt,config.yRuler,xt,config.yRuler+config.ticHeight,p);
         
-        var m = x+chmInfo.middle(i,width);
-        p.text(m,y+ticHeight,i);
+        var m = chmInfo.middle(i,config.width);
+        p.text(m,config.yRuler+config.ticHeight,i);
     }
-    drawLine(x+width,y,x+width,y+ticHeight,p);
+    drawLine(config.width,config.yRuler,config.width,config.yRuler+config.ticHeight,p);
 
 }
 
@@ -56,6 +65,12 @@ function drawLine(x1, y1, x2, y2, p) {
     line.translate(0.5, 0.5);
 }
 
-function plotCnSeg() {
-    
+function plotCnSeg(p,config,seg,chmInfo) {
+    var chm = seg[1];
+    var start = seg[2];
+    var end = seg[3];
+    var segMean = seg[5];
+    var x = chmInfo.loc2scale(chm,start,config.width);
+    var w = chmInfo.loc2scale(1,end-start,config.width);
+    p.rect(x,0,w,config.rowHeight).attr("fill","#f00");
 }

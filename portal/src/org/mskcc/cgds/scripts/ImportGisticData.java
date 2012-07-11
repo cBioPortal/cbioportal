@@ -44,7 +44,8 @@ public class ImportGisticData {
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
 
-        int internalId = GisticReader.getCancerStudyInternalId(cancerStudyMetaData);
+        GisticReader gisticReader = new GisticReader();
+        int internalId = gisticReader.getCancerStudyInternalId(cancerStudyMetaData);
 //        GisticReader.loadGistic(internalId, ampDel, gisticFile, pMonitor);
 
         ConsoleUtil.showWarnings(pMonitor);

@@ -50,8 +50,8 @@ public class DaoGistic {
             pstmt.setInt(2, gistic.getChromosome()) ;
             pstmt.setInt(3, gistic.getPeakStart());
             pstmt.setInt(4, gistic.getPeakEnd());
-            pstmt.setFloat(5, gistic.getqValue());
-            pstmt.setFloat(6, gistic.getRes_qValue());
+            pstmt.setDouble(5, gistic.getqValue());
+            pstmt.setDouble(6, gistic.getRes_qValue());
             pstmt.setBoolean(7, gistic.getAmpDel());
             pstmt.executeUpdate();
 
@@ -147,8 +147,8 @@ public class DaoGistic {
                     rs.getInt("CHROMOSOME") ,
                     rs.getInt("WIDE_PEAK_START"),
                     rs.getInt("WIDE_PEAK_END"),
-                    rs.getFloat("Q_VALUE"),
-                    rs.getFloat("RES_Q_VALUE") ,
+                    rs.getDouble("Q_VALUE"),
+                    rs.getDouble("RES_Q_VALUE") ,
                     genes,
                     rs.getBoolean("AMP_DEL"));
 

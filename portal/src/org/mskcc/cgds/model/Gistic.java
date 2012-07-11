@@ -20,8 +20,8 @@ public class Gistic {
     private int peakStart;
     private int peakEnd;
     private ArrayList<CanonicalGene> genes_in_ROI;
-    private float qValue;
-    private float res_qValue;
+    private double qValue;
+    private double res_qValue;
     private boolean ampDel;
 
     /**
@@ -36,7 +36,7 @@ public class Gistic {
      * @param amp_del           region is amplified or deleted. To set use Gistic.AMPLIFIED or Gistic.DELETED
      */
     public Gistic(int cancerStudyId, int chromosome, int peakStart, int peakEnd,
-                  float qValue, float res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
+                  double qValue, double res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
 
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = cancerStudyId;
@@ -166,7 +166,7 @@ public class Gistic {
      * Sets the q-value of the ROI
      * @param qValue
      */
-    public void setqValue(float qValue) {
+    public void setqValue(double qValue) {
         this.qValue = qValue;
     }
 
@@ -174,7 +174,7 @@ public class Gistic {
      * Sets the residue q-value of the ROI
      * @param res_qValue
      */
-    public void setRes_qValue(float res_qValue) {
+    public void setRes_qValue(double res_qValue) {
         this.res_qValue = res_qValue;
     }
 
@@ -229,7 +229,7 @@ public class Gistic {
      * @return q-value of wide peak
      */
 
-    public float getqValue() {
+    public double getqValue() {
         return qValue;
     }
 
@@ -238,7 +238,7 @@ public class Gistic {
      * @return residual q-value of wide peak
      */
 
-    public float getRes_qValue() {
+    public double getRes_qValue() {
         return res_qValue;
     }
 

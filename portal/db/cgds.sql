@@ -370,11 +370,12 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
 
 CREATE TABLE `gistic` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
   `CHROMOSOME` int(11) NOT NULL,
   `WIDE_PEAK_START` int(11) NOT NULL,
   `WIDE_PEAK_END` int(11) NOT NULL,
-  `Q_VALUE` float NOT NULL,
-  `RES_Q_VALUE` float NOT NULL,
+  `Q_VALUE` double NOT NULL,
+  `RES_Q_VALUE` double NOT NULL,
   `AMP_DEL` tinyint(1) NOT NULL,
   PRIMARY KEY (`GISTIC_ROI_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

@@ -35,17 +35,18 @@ var chmInfo = new ChmInfo();
 
 function plotChromosomes(p, width) {
     var mg = 10;
-    drawLine(mg,20,width-mg,20,p);
-    var chmLen = width-mg;
+    var h = 15
+    drawLine(mg,h,width-mg,h,p);
+    var chmLen = width-2*mg;
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
         var x = mg+chmInfo.loc2scale(i,0,chmLen);
-        drawLine(x,0,x,20,p);
+        drawLine(x,5,x,h,p);
         
         var m = mg+chmInfo.middle(i,chmLen);
-        p.text(m,15,i);
+        p.text(m,10,i);
     }
-    drawLine(width-mg,0,width-mg,20,p);
+    drawLine(width-mg,5,width-mg,h,p);
 
 }
 

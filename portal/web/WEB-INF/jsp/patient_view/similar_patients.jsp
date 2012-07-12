@@ -100,7 +100,7 @@ A genomic overview with events aligned across patients goes here...
                     <tr valign="bottom">
                         <th>Patient</th>
                         <th>Cancer Study</th>
-                        <th>Shared Events</th>
+                        <th>Shared Events of Interest</th>
                         <th># Shared Events</th>
                     </tr>
                 </thead>

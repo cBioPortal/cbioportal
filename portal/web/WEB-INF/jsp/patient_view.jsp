@@ -151,6 +151,7 @@ function setUpPatientTabs() {
     // state of tabs when user navigates away from page and back
     $('#patient-tabs').tabs({cookie:{expires:1, name:"patient-tab"}});
     $('#patient-tabs').show();
+    fixCytoscapeWebRedraw();
 }
 
 function initTabs() {
@@ -165,6 +166,20 @@ function initTabs() {
             return false;
     }).filter(':first').click();
     
+}
+
+function fixCytoscapeWebRedraw() {
+    // to initially hide the network tab
+    $("#pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    
+    // to fix problem of flash repainting
+    $("a.patient-tab").click(function(){
+        if($(this).attr("href")=="#pathways") {
+            $("#pathways").removeAttr('style');
+        } else {
+            $("#pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+        }
+    });
 }
 
 function switchToTab(toTab) {

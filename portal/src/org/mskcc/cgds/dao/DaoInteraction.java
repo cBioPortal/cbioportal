@@ -153,6 +153,17 @@ public class DaoInteraction {
         throws DaoException {
         return getInteractions(entrezGeneIds, false, true, null);
     }
+    
+    /**
+     * Gets all Interactions involving the Specified Genes.
+     * @param entrezGeneIds Entrez Gene IDs.
+     * @return ArrayList of Interaction Objects.
+     * @throws DaoException Database Error.
+     */
+    public ArrayList<Interaction> getInteractionsAmongSeeds (Collection<Long> entrezGeneIds)
+        throws DaoException {
+        return getInteractions(entrezGeneIds, true, false, null);
+    }
 
     /**
      * Gets all Interactions involving the Specified Genes.
@@ -163,7 +174,7 @@ public class DaoInteraction {
      * @throws DaoException Database Error.
      */
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
-												   boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, Connection con)
+            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, Connection con)
         throws DaoException {
         ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         if (entrezGeneIds.isEmpty()) {

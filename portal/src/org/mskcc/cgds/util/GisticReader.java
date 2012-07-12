@@ -1,9 +1,13 @@
 package org.mskcc.cgds.util;
 
+import org.junit.experimental.theories.internal.ParameterizedAssertionError;
 import org.mskcc.cgds.dao.*;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;
+import org.mskcc.cgds.validate.ValidateGistic;
+import org.mskcc.cgds.validate.validationException;
+import sun.security.validator.ValidatorException;
 
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
@@ -40,8 +44,7 @@ public class GisticReader {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
 
         if (cancerStudy == null) {
-            throw new DaoException("no CancerStudy associated with \""
-                    + cancerStudyIdentifier + "\" cancer_study_identifier");
+            throw new DaoException(cancerStudyIdentifier);
         }
 
         return cancerStudy.getInternalId();
@@ -58,7 +61,7 @@ public class GisticReader {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public ArrayList<Gistic> parse_Table(File gisticFile) throws FileNotFoundException, IOException, DaoException {
+    public ArrayList<Gistic> parse_Table(File gisticFile) throws FileNotFoundException, IOException, DaoException, validationException {
         ArrayList<Gistic> gistics = new ArrayList<Gistic>();
 
         MySQLbulkLoader.bulkLoadOff();
@@ -68,7 +71,7 @@ public class GisticReader {
         String line = buf.readLine();
 
         // -- parse field names --
-        // would it be better to use <enums>?
+        // todo: would it be better to use <enums>?
         int chromosomeField = -1;
         int peakStartField = -1;
         int peakEndField = -1;
@@ -76,6 +79,8 @@ public class GisticReader {
 
         String[] fields = line.split("\t");
         int num_fields = fields.length;
+
+        ValidateGistic.validateFieldNames_tabularFile(fields);
 
         for (int i = 0 ; i < num_fields; i+=1) {
 
@@ -93,22 +98,6 @@ public class GisticReader {
 
             else if (fields[i].equals("genes_in_region")) {
                 genesField = i;
-            }
-
-            else if (fields[i].equals("genes_in_peak")
-                    || fields[i].equals("n_genes_on_chip")
-                    || fields[i].equals("genes_on_chip")
-                    || fields[i].equals("top 3")
-                    || fields[i].equals("n_genes_in_region")
-                    || fields[i].equals("n_genes_in_peak")
-                    || fields[i].equals("region_start")
-                    || fields[i].equals("region_end")
-                    || fields[i].equals("enlarged_peak_start")
-                    || fields[i].equals("enlarged_peak_end")
-                    || fields[i].equals("index"))   { continue; }       // ignore these fields
-
-            else {
-                throw new IOException("bad file format.  Field: " + fields[i] + " not found");
             }
         }
 
@@ -145,7 +134,7 @@ public class GisticReader {
                 CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
                 if (canonicalGene == null) {
-                    throw new DaoException("Canonical Gene not found for: " + gene);
+                    throw new DaoException(gene);
                 }
 
                 genes.add(canonicalGene);
@@ -169,19 +158,18 @@ public class GisticReader {
      * @param gisticFile    Gistic data file
      * @return
      */
-    public ArrayList<Gistic> parse_NonTabular(File gisticFile) throws FileNotFoundException, IOException, DaoException {
+    public ArrayList<Gistic> parse_NonTabular(File gisticFile) throws FileNotFoundException, IOException, DaoException, validationException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(gisticFile);
         BufferedReader buf = new BufferedReader(reader);
 
         /**
-         *
          * read each line of the file,
          * determine which feature that line (row) is representing,
          * fill the gistics accordingly
          *
-         * note: we parse the genes so that we have
-         * something to map the gistics parsed here to gistics parsed elsewhere
+         * note: we parse the genes in order to map between
+         * gistics parsed here and gistics parsed elsewhere
          */
         String line = buf.readLine();
         int example_no = line.split("\t").length;    // todo:is there a better way?
@@ -195,13 +183,8 @@ public class GisticReader {
         String[] split;
         while (line != null) {
             split = line.split("\t");
-            
-            // sometimes a trailing tab is omitted,
-            // but anything more than that should be caught
-            if ((split.length < example_no - 1) || (split.length > example_no + 1)) {
-                throw new IOException(String.format("Number of features is not the same for all examples " +
-                        "(assumed no_of_examples=%d, but given %d)", example_no, split.length));
-            }
+
+            ValidateGistic.validateNonTabularRow(split);
 
             if (split[0].equals("q value")) {
                 for (int i = 0; i < example_no - 1; i += 1) {       // i = 0 is the name of the feature
@@ -216,13 +199,9 @@ public class GisticReader {
             }
 
             else if (split[0].equals("genes in wide peak") || split[0].equals("")) {
-                /** assuming that if the place where there is normally a field instead contains
-                 * the empty string, then it actually contains a gene
-                 * this is because genes are separated by newline characters instead of by commas.
-                 */
 
             // genes are stuck on at the ends of the file
-            // so lengths vary and you cannot depend on the constant, example_no
+            // so the number of fields of a gene line may vary
             int no_fields = split.length;
 
                 for (int i = 0; i < no_fields - 1; i += 1) {
@@ -239,20 +218,12 @@ public class GisticReader {
                     CanonicalGene gene = DaoGeneOptimized.getInstance().getNonAmbiguousGene(gene_str);
 
                     if (gene == null) {
-                        throw new DaoException("Canonical Gene not found for: " + gene);
+                        throw new DaoException(gene.toString());
                     }
 
                     gistics.get(i).addGene(gene);
                 }
             }
-
-            else if (split[0].equals("cytoband")
-                    || split[0].equals("wide peak boundaries")) { line = buf.readLine(); continue; }       // ignore these fields
-
-            else {
-                throw new IOException("bad file format.  Field: " + split[0] + " not found");
-            }
-            
 
             line = buf.readLine();
         }
@@ -261,19 +232,76 @@ public class GisticReader {
     }
 
     /**
+     * Merges the fields from two gistics.  Specifically, merges:
+     * q-value, residual q-value, chromosome, peak_start, and peak_end
+     *
+     * Note: Does *not* check that gistics are a match
+     * @param g1 Gistic object
+     * @param g2 Gistic object
+     * @return Gistic object
+     */
+    public Gistic mergeGistics(Gistic g1, Gistic g2) throws IOException {
+        CanonicalGene g1_first_gene = g1.getGenes_in_ROI().get(0);
+        CanonicalGene g2_first_gene = g2.getGenes_in_ROI().get(0);
+        
+        int no_genes_g1 = g1.getGenes_in_ROI().size();
+        int no_genes_g2 = g2.getGenes_in_ROI().size();
+        
+        Gistic dummyGistic = new Gistic();
+
+            // merges into g1
+            // merge q-value
+            if (g1.getqValue() == dummyGistic.getqValue()) {
+
+                assert(g2.getqValue() != dummyGistic.getqValue());
+                g1.setqValue(g2.getqValue());
+            }
+
+            // merge residual q-value
+            if (g1.getRes_qValue() == dummyGistic.getRes_qValue()) {
+
+                assert(g2.getRes_qValue() != dummyGistic.getRes_qValue());
+                g1.setRes_qValue(g2.getRes_qValue());
+            }
+
+            // merge chromosome into g1
+            if (g1.getChromosome() == dummyGistic.getqValue()) {
+
+                assert(g2.getChromosome() != dummyGistic.getqValue());
+                g1.setChromosome(g2.getChromosome());
+            }
+
+            // merge peak_start into g1
+            if (g1.getPeakStart() == dummyGistic.getPeakStart()) {
+
+                assert(g2.getPeakStart() != dummyGistic.getPeakStart());
+                g1.setPeakStart(g2.getPeakStart());
+            }
+
+            // merge peak_end into g1
+            if (g1.getPeakEnd() == dummyGistic.getPeakEnd()) {
+
+                assert(g2.getPeakEnd() != dummyGistic.getPeakEnd());
+                g1.setPeakEnd(g2.getPeakEnd());
+            }
+
+        return g1;
+    }
+        
+    //todo: Obvious downside, twice as many gistic objects are created than what is needed.
+    /**
      * Merges two orthogonal gistics together.  Specifically, merge their:
      * q-value, residual q-value, chromosome, peak_start, and peak_end)
      *
      * The gistics data is located in two separate files which are parsed separately.
      * This method merges the gistic objects parsed from the two files.
      *
-     * @param g1
-     * @param g2
+     * @param g1 ArrayList of gistics
+     * @param g2 ArrayList of gistics
      * @return
      * @throws Exception
      */
-    //todo: Obvious downside, twice as many gistic objects are created than what is needed.
-    public ArrayList<Gistic> mergeGistics(ArrayList<Gistic> g1, ArrayList<Gistic> g2, boolean ampdel) throws IOException {
+    public ArrayList<Gistic> mergeGisticLists(ArrayList<Gistic> g1, ArrayList<Gistic> g2, boolean ampdel) throws IOException, validationException {
         
         int g1_len = g1.size();
         int g2_len = g2.size();
@@ -282,140 +310,70 @@ public class GisticReader {
             throw new IOException(String.format("Cannot merge Gistic arrays of different sizes: %d, %d", g1_len, g2_len));
         }
 
-        /**
-         * merge g2 into g1
-         * For each gistic in g1, find its partner in g2 by common gene set,
-         * then merge them.
-         */
-
         Gistic dummyGistic = new Gistic();  // used for comparison to figure out which fields are dummy
 
         // iterate over g1
         for (int i = 0; i < g1_len; i+=1) {     //todo: change this loop
-
             // g1 objects for comparison
             ArrayList<CanonicalGene> g1_genes = g1.get(i).getGenes_in_ROI();
             CanonicalGene g1_first_gene = g1_genes.get(0);
             int no_genes_g1 = g1_genes.size();
 
             Gistic g1_i = g1.get(i);
-            // iterate over g2
+
+            // look for a gistic match in g2
             for (int j = 0; j < g2_len; j+=1) { // g1_len == g2_len
                 // g2 objects for comparison
                 ArrayList<CanonicalGene> g2_genes = g2.get(j).getGenes_in_ROI();
                 CanonicalGene g2_first_gene = g2_genes.get(0);
                 int no_genes_g2 = g2_genes.size();
 
-                /**
-                 * compare and merge.
-                 * if they have the same number of genes and their first gene is the same,
-                 * it's highly likely that they are a match
-                 */
+                // if they have the same number of genes and their first gene is the same,
+                // then they are (very) likely to be a match
                 if (g1_first_gene.equals(g2_first_gene) && no_genes_g1 == no_genes_g2) {
-                    // merge q-value
-                    if (g1_i.getqValue() == dummyGistic.getqValue()) {
+                    Gistic merged_gistic = mergeGistics(g1.get(i), g2.get(j));
+                    merged_gistic.setAmpDel(ampdel);
 
-                        assert(g2.get(j).getqValue() != dummyGistic.getqValue());
-                        g1_i.setqValue(g2.get(j).getqValue());
-                        g1.set(i, g1_i);
-
-                    } 
-
-                    // merge residual q-value into g1
-                    if (g1_i.getRes_qValue() == dummyGistic.getRes_qValue()) {
-
-                        assert(g2.get(j).getRes_qValue() != dummyGistic.getRes_qValue());
-                        g1_i.setRes_qValue(g2.get(j).getRes_qValue());
-                        g1.set(1, g1_i);
-                    }
-
-                    // merge chromosome into g1
-                    if (g1_i.getChromosome() == dummyGistic.getqValue()) {
-
-                        assert(g2.get(j).getChromosome() != dummyGistic.getqValue());
-                        g1_i.setChromosome(g2.get(j).getChromosome());
-                        g1.set(1, g1_i);
-                    }
-
-                    // merge peak_start into g1
-                    if (g1_i.getPeakStart() == dummyGistic.getPeakStart()) {
-
-                        assert(g2.get(j).getPeakStart() != dummyGistic.getPeakStart());
-                        g1_i.setPeakStart(g2.get(j).getPeakStart());
-                        g1.set(1, g1_i);
-                    }
-
-                    // merge peak_end into g1
-                    if (g1_i.getPeakEnd() == dummyGistic.getPeakEnd()) {
-
-                        assert(g2.get(j).getPeakEnd() != dummyGistic.getPeakEnd());
-                        g1_i.setPeakEnd(g2.get(j).getPeakEnd());
-                        g1.set(1, g1_i);
-                    }
-
+                    // merge into g1
+                    g1.set(i, merged_gistic);
                 }
             }
 
-            // set ampdel
-            g1.get(i).setAmpDel(ampdel);
-
-            // match was not found for some field
-            if (g1_i.getGenes_in_ROI() == dummyGistic.getGenes_in_ROI()
-                    || g1_i.getChromosome() == dummyGistic.getChromosome()
-                    || g1_i.getqValue() == dummyGistic.getqValue()
-                    || g1_i.getRes_qValue() == dummyGistic.getRes_qValue()
-                    || g1_i.getPeakStart() == dummyGistic.getPeakStart()
-                    || g1_i.getPeakEnd() == dummyGistic.getPeakEnd()
-                    || g1_i.getAmpDel() == dummyGistic.getAmpDel()) {
-                
-//                System.out.println(g1_i);
-                throw new IOException("One of the fields:" +
-                        "[Genes in ROI, Chromosome, Peak Start, Peak End, Amplification/Deletion] " +
-                        "was not filled");
-            }
+            ValidateGistic.validateBean(g1_i);
         }
         return g1;
     }
     
-    public boolean parseAmpDel(File gistic_file) throws IOException {
+    public boolean parseAmpDel(File gistic_file) throws IOException, validationException {
 
         boolean amp = gistic_file.getName().indexOf("amp") != -1 ? true : false;    // likely to be Amplified ROI
         boolean del = gistic_file.getName().indexOf("del") != -1 ? true : false;    // likely to be Deleted ROI
         
         if (amp && del) {
-            throw new IOException("gistic files can only be amplified or deleted, not both.");
+            throw new validationException("Amp == Del");
         }
 
         return amp ? Gistic.AMPLIFIED : Gistic.DELETED;
     }
 
-    public void loadGistic(int cancerStudyInternalId, File table_file, File nontable_file) throws IOException, DaoException, SQLException {
-        
-        boolean table_ampdel = parseAmpDel(table_file);
-        boolean nontable_ampdel = parseAmpDel(nontable_file);
+    public void loadGistic(int cancerStudyInternalId, File table_file, File nontable_file, boolean ampdel) throws IOException, DaoException, SQLException, validationException {
         
         ArrayList<Gistic> gistics;
-        
-        if (table_ampdel != nontable_ampdel) {
-            throw new IOException("Gisitic files must be both either regions of " +
-                    "amplification or of deletion");
-        }
 
-        if (table_ampdel == Gistic.AMPLIFIED) {     // table_ampdel == nontable_ampdel
-            gistics = mergeGistics(parse_Table(table_file),
+        if (ampdel == Gistic.AMPLIFIED) {     // table_ampdel == nontable_ampdel
+            gistics = mergeGisticLists(parse_Table(table_file),
                     parse_NonTabular(nontable_file),
                     Gistic.AMPLIFIED);
         }
 
-        else if (table_ampdel == Gistic.DELETED) {
-            gistics = mergeGistics(parse_Table(table_file),
+        else if (ampdel == Gistic.DELETED) {
+            gistics = mergeGisticLists(parse_Table(table_file),
                     parse_NonTabular(nontable_file),
                     Gistic.DELETED);
         }
 
         else {
-            throw new IOException("Gisitic files must be both either regions of " +
-                    "amplification or of deletion");
+            throw new validationException("");
         }
 
         // set the Cancer Study internal ID

@@ -49,6 +49,7 @@ public class Gistic {
         this.ampDel = amp_del;
     }
 
+    // todo: refactor this to be a method : Gistic.getDummyGistic();  What is the syntax for factory methods?
     /**
      * Dummy gistic for passing between different methods that can only
      * set disjoint sets of fields (see GisticReader.java)

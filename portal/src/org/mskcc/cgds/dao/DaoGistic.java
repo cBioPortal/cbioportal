@@ -2,6 +2,8 @@ package org.mskcc.cgds.dao;
 
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;
+import org.mskcc.cgds.validate.ValidateGistic;
+import org.mskcc.cgds.validate.validationException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -76,7 +78,6 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-
     public static void addGisticGenes(Gistic gistic) throws SQLException, DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
         PreparedStatement pstmt = null;
@@ -113,8 +114,7 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-
-    private static Gistic extractGistic(ResultSet rs) throws SQLException, DaoException {
+    private static Gistic extractGistic(ResultSet rs) throws SQLException, DaoException, validationException {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
@@ -158,6 +158,7 @@ public class DaoGistic {
             JdbcUtil.closeAll(con, pstmt, _rs);
         }
 
+        ValidateGistic.validateBean(gistic);
         return gistic;
     }
 
@@ -170,8 +171,7 @@ public class DaoGistic {
      * @return
      * @throws DaoException
      */
-
-    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException {
+    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException, validationException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -208,7 +208,7 @@ public class DaoGistic {
      * @return
      */
 
-    public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException {
+    public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException, validationException {
 
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -15,6 +15,7 @@ public class Config {
         try {
            String props = "build.properties";
             InputStream in = this.getClass().getResourceAsStream( props );
+            //InputStream in = this.getClass().getClassLoader().getResourceAsStream( props );
             if( null == in ){
                System.err.println( "Properties file '" + props + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
                      "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");

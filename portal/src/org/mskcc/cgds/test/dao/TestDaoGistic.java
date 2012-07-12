@@ -6,13 +6,14 @@ import org.mskcc.cgds.dao.DaoGistic;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;
 import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cgds.validate.validationException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class TestDaoGistic extends TestCase {
 
-    public void testDaoGistic() throws SQLException, DaoException {
+    public void testDaoGistic() throws SQLException, DaoException, validationException {
         
         ResetDatabase.resetDatabase();
         DaoGistic.deleteAllRecords();

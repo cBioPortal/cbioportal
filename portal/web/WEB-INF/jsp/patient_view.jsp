@@ -147,9 +147,7 @@ $(document).ready(function(){
 });
 
 function setUpPatientTabs() {
-     // generate tabs for results page; set cookies to preserve
-    // state of tabs when user navigates away from page and back
-    $('#patient-tabs').tabs({cookie:{expires:1, name:"patient-tab"}});
+    $('#patient-tabs').tabs();
     $('#patient-tabs').show();
     fixCytoscapeWebRedraw();
 }

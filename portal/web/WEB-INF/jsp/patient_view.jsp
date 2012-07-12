@@ -81,7 +81,7 @@ if (patientViewError!=null) {
     <%}%>
     
     <%if(showCNA){%>
-    <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alteration</a></li>
+    <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alterations</a></li>
     <%}%>
 
     <%if(showPathways){%>

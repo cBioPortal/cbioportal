@@ -168,6 +168,11 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>histogram_converter</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>MutSigJSON</servlet-name>
@@ -287,6 +292,11 @@
      <servlet-mapping>
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
+     </servlet-mapping>   
+     
+     <servlet-mapping>
+        <servlet-name>histogram_converter</servlet-name>
+        <url-pattern>/histogram_converter.svg</url-pattern>
     </servlet-mapping>   
 
     <servlet-mapping>
@@ -332,6 +342,11 @@
     <filter-mapping>
         <filter-name>FileUpload</filter-name>
         <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
     </filter-mapping>
 
     <!-- Required by the Apache FileUpload tool. -->

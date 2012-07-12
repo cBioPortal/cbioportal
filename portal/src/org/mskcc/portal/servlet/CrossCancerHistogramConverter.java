@@ -28,29 +28,24 @@
 // package
 package org.mskcc.portal.servlet;
 
-// imports
-import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.FileUploadRequestWrapper;
 
+import org.mskcc.portal.util.XDebug;
+import org.owasp.validator.html.PolicyException;
+
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.owasp.validator.html.PolicyException;
-
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.util.regex.Matcher;
+import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
 /**
- * Servlet responsible for converting OncoPrint into SVG.
+ * Servlet responsible for converting cross-cancer histogram into SVG.
  */
-public class OncoPrintConverter extends HttpServlet {
+public class CrossCancerHistogramConverter extends HttpServlet {
 
 	private Pattern svgXPosPattern;
     private ServletXssUtil servletXssUtil;
@@ -58,7 +53,7 @@ public class OncoPrintConverter extends HttpServlet {
     /**
      * Initializes the servlet.
      *
-     * @throws ServletException
+     * @throws javax.servlet.ServletException
      */
     public void init() throws ServletException {
 
@@ -77,7 +72,7 @@ public class OncoPrintConverter extends HttpServlet {
      *
      * @param httpServletRequest  HttpServletRequest
      * @param httpServletResponse HttpServletResponse
-     * @throws ServletException
+     * @throws javax.servlet.ServletException
      */
     protected void doGet(HttpServletRequest httpServletRequest,
                          HttpServletResponse httpServletResponse) throws ServletException,
@@ -91,7 +86,7 @@ public class OncoPrintConverter extends HttpServlet {
      *
      * @param httpServletRequest  HttpServletRequest
      * @param httpServletResponse HttpServletResponse
-     * @throws ServletException
+     * @throws javax.servlet.ServletException
      */
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
@@ -100,31 +95,15 @@ public class OncoPrintConverter extends HttpServlet {
         XDebug xdebug = new XDebug( httpServletRequest );
 		xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-		String xml = "";
-		String format = "";
-		if (httpServletRequest instanceof FileUploadRequestWrapper) {
-
-			// get instance of our request wrapper
-			FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper)httpServletRequest;
-
-			// get format parameter
-			format = wrapper.getParameter("format");
-
-			// get xml parameter
-			xml = wrapper.getParameter("xml");
-		}
-		else {
-			format = servletXssUtil.getCleanInput(httpServletRequest, "format");
-			// TODO - update antisamy.xml to support svg-xml
-			xml = httpServletRequest.getParameter("xml");
-		}
-
-		// sanity check
+		// get format - only support SVG
+		String format = servletXssUtil.getCleanInput(httpServletRequest, "format");
 		if (!format.equals("svg")) {
 			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
 		}
 
-		// outta here
+        // get svgDOM xml - TODO - update antisamy.xml to support svg-xml
+		String xml = httpServletRequest.getParameter("xml");
+
 		convertToSVG(httpServletResponse, xml);
 	}
 

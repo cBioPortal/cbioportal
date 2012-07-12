@@ -1,4 +1,5 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="static org.mskcc.portal.servlet.QueryBuilder.DATA_PRIORITY" %>
 <%
     String step2ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP2_ERROR_MSG);
 %>
@@ -26,15 +27,30 @@ if (step2ErrorMsg != null) {
 </div>
 
 
+<%
+    Integer priority;
+    try {
+        priority = Integer.parseInt(request.getParameter(DATA_PRIORITY));
+    } catch (NumberFormatException e) {
+        priority = 0;
+    }
+
+    String checked[] = {"", "", ""};
+    if(priority == null)
+        priority = 0;
+
+    checked[priority] = " checked";
+%>
+
 <div class="query_step_section" id="step2cross">
     <span class="step_header">Select Data Type Priority:</span>
-    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mutcna" value=0 checked="true">
+    <input type="radio" name="<%= DATA_PRIORITY %>" id="pri_mutcna" value=0<%=checked[0]%>>
     <label for="pri_mutcna">Mutation and CNA</label>
 
-    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_mut" value=1>
+    <input type="radio" name="<%= DATA_PRIORITY %>" id="pri_mut" value=1<%=checked[1]%>>
     <label for="pri_mut">Only Mutation</label>
 
-    <input type="radio" name="<%= QueryBuilder.DATA_PRIORITY %>" id="pri_cna" value=2>
+    <input type="radio" name="<%= DATA_PRIORITY %>" id="pri_cna" value=2<%=checked[2]%>>
     <label for="pri_cna">Only CNA</label>
 </div>
 

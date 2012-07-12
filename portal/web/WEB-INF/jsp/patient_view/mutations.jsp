@@ -220,6 +220,7 @@
                 $('#mutation_wait').remove();
                 
                 mutEventIds = getEventIdString(mutations);
+                overviewMutEventIds = getEventIdString(mutations,6);
                 
                 geObs.fire('mutations-built');
                 

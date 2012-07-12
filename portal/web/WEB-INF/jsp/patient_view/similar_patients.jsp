@@ -65,10 +65,10 @@ A genomic overview with events aligned across patients goes here...
     function waitAndBuildSimilarPatientsDataTable() {
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
         if (geObs.hasMut) {
-            params['<%=SimilarPatientsJSON.MUTATION%>'] = mutEventIds;
+            params['<%=SimilarPatientsJSON.MUTATION%>'] = overviewMutEventIds;
         }
         if (geObs.hasCna) {
-            params['<%=SimilarPatientsJSON.CNA%>'] = cnaEventIds;
+            params['<%=SimilarPatientsJSON.CNA%>'] = overviewCnaEventIds;
         }
         
         // similar patients

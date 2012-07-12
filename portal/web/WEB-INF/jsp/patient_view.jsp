@@ -173,16 +173,19 @@ function switchToTab(toTab) {
     $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
 }
 
-function getEventIdString(eventTableData) {
+function getEventIdString(eventTableData,overviewCol) {
     var s = [];
     for (var i=0; i<eventTableData.length; i++) {
-        s.push(eventTableData[i][0]);
+        if (overviewCol==null || eventTableData[i][overviewCol])
+            s.push(eventTableData[i][0]);
     }
     return s.join(",");
 }
 
 var cnaEventIds = null;
+var overviewCnaEventIds = null;
 var mutEventIds = null;
+var overviewMutEventIds = null;
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 
 function getDrugMap(drugs) {

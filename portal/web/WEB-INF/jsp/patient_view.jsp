@@ -35,7 +35,7 @@ if (isDemoMode!=null) {
     showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 }
 
-boolean showPathways = showPlaceHoder;
+boolean showPathways = showMutations | showCNA;
 boolean showSimilarPatient = showMutations | showCNA;
 
 int numPatientInSameStudy = 0;

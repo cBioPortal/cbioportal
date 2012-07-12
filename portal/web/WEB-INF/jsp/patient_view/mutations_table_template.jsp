@@ -13,7 +13,7 @@
                                  altered cases for genes and specific mutations out of <%=numPatientInSameMutationProfile%>
                                  patients profiled in <%=cancerStudy.getName()%>."/>
                         </th>
-                        <th>Drugs</th>
+                        <th>Potential Drugs</th>
                         <th>Notes</th>
                     </tr>
                 </thead>

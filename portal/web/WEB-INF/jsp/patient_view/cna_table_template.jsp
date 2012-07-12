@@ -11,7 +11,7 @@
                                  copy number altered cases out of <%=numPatientInSameCnaProfile%>
                                   patients profiled in <%=cancerStudy.getName()%>."/>
                         </th>
-                        <th>Drugs</th>
+                        <th>Potential Drugs</th>
                         <th>Notes</th>
                     </tr>
                 </thead>

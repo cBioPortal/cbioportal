@@ -30,4 +30,4 @@
 ./importMutSig.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_mutsig.txt
 
 # Copy number segment
-./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/ucec_tcga_nocnv_hg19.seg
+./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/ucec_tcga.seg

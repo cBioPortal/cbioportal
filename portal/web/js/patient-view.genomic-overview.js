@@ -7,7 +7,7 @@ function GenomicOverviewConfig() {
     this.ticHeight = 10;
     this.canvasWidth = this.width + 5;
     this.canvasHeight = this.yRuler+this.ticHeight+this.rowMargin;
-    this.cnTh = [0.1,1.5];
+    this.cnTh = [0.2,1.5];
 }
 GenomicOverviewConfig.prototype = {
     getCnColor: function(cnValue) {

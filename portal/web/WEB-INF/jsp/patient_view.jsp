@@ -85,7 +85,7 @@ if (patientViewError!=null) {
     <%}%>
 
     <%if(showPathways){%>
-    <li><a href='#pathways' class='patient-tab' title='Pathway View'>Pathways</a></li>
+    <li><a href='#pathways' class='patient-tab' title='Pathway View'>Network</a></li>
     <%}%>
     
     <%if(showSimilarPatient){%>
@@ -173,11 +173,11 @@ function switchToTab(toTab) {
     $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
 }
 
-function getEventIdString(eventTableData,overviewCol) {
+function getEventString(eventTableData,dataCol,overviewCol) {
     var s = [];
     for (var i=0; i<eventTableData.length; i++) {
         if (overviewCol==null || eventTableData[i][overviewCol])
-            s.push(eventTableData[i][0]);
+            s.push(eventTableData[i][dataCol]);
     }
     return s.join(",");
 }
@@ -186,6 +186,9 @@ var cnaEventIds = null;
 var overviewCnaEventIds = null;
 var mutEventIds = null;
 var overviewMutEventIds = null;
+var overviewCnaGenes = null;
+var overviewMutGenes = null;
+
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 
 function getDrugMap(drugs) {

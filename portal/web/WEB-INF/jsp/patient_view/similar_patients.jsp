@@ -62,7 +62,7 @@ A genomic overview with events aligned across patients goes here...
         return oTable;
     }
     
-    function waitAndBuildSimilarPatientsDataTable() {
+    function buildSimilarPatientsDataTable() {
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
         if (geObs.hasMut) {
             params['<%=SimilarPatientsJSON.MUTATION%>'] = overviewMutEventIds;
@@ -85,7 +85,7 @@ A genomic overview with events aligned across patients goes here...
     
     $(document).ready(function(){
         $('#similar_patients_wrapper_table').hide();
-        geObs.subscribeMutCna(waitAndBuildSimilarPatientsDataTable);
+        geObs.subscribeMutCna(buildSimilarPatientsDataTable);
     }
     );
 </script>

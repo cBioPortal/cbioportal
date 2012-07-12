@@ -219,8 +219,9 @@
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
                 
-                mutEventIds = getEventIdString(mutations);
-                overviewMutEventIds = getEventIdString(mutations,6);
+                mutEventIds = getEventString(mutations,0);
+                overviewMutEventIds = getEventString(mutations,0,6);
+                overviewMutGenes = getEventString(mutations,1,6);
                 
                 geObs.fire('mutations-built');
                 

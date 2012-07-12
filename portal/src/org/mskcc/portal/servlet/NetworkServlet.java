@@ -65,7 +65,7 @@ public class NetworkServlet extends HttpServlet {
 
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
-            Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
+            Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split("[, ]+")));
             int nMiRNA = filterNodes(queryGenes);
             if (nMiRNA>0) {
                 messages.append("MicroRNAs were excluded from the network query. ");

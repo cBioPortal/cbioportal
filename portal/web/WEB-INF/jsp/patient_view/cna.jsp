@@ -208,8 +208,9 @@
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
                 
-                cnaEventIds = getEventIdString(cnas);
-                overviewCnaEventIds = getEventIdString(cnas,4);
+                cnaEventIds = getEventString(cnas,0);
+                overviewCnaEventIds = getEventString(cnas,0,4);
+                overviewCnaGenes = getEventString(cnas,1,4);
                 
                 geObs.fire('cna-built');
                 

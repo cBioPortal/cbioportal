@@ -29,14 +29,12 @@ public class ImportGisticData {
         boolean amp = gistic_file.getName().indexOf("amp") != -1 ? true : false;    // likely to be Amplified ROI
         boolean del = gistic_file.getName().indexOf("del") != -1 ? true : false;    // likely to be Deleted ROI
 
-        ValidateGistic.validateAmpdels(amp, del);
-
         return amp ? Gistic.AMPLIFIED : Gistic.DELETED;
     }
 
     // command line utility
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
+        if (args.length != 3) {
             System.out.printf("command line usage:  importGistic.pl <CancerStudyMetaData.txt> <gistic_nontableFile.txt> <gistic_tableFile.txt>");
             System.exit(1);
         }
@@ -49,20 +47,18 @@ public class ImportGisticData {
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
         // try and help the user from making a mistake
-        boolean i = true;
-        while (i) {
-            if ((nontableFile.getName().indexOf("table") != -1)
-                    || tableFile.getName().indexOf("table") == -1) {
+        if ((nontableFile.getName().indexOf("table") != -1)
+                || tableFile.getName().indexOf("table") == -1) {
+            boolean i = true;
+            while (i) {
                 System.out.println("It appears that your non-table file has the word table in it." +
-                        "Is this a problem (y/n)?");
+                        "Continue? (y/n)?");
                 String yn = stdin.readLine();
-                if (yn.equals("n")) {
-                    i = false;
-                    System.exit(1);
+                if (yn.equals("y")) {
+                    break;
                 }
-                else if (yn.equals("y")) {
-                    i = false;
-                    continue;
+                else if (yn.equals("n")) {
+                    break;
                 }
             }
         }
@@ -70,12 +66,16 @@ public class ImportGisticData {
         // parse amp/del from filename
         boolean ampDel_table = false;
         boolean ampDel_nontable = false;
+        
+        ampDel_table = parseAmpDel(tableFile);
+        ampDel_nontable = parseAmpDel(nontableFile);
         try {
-            ampDel_table = parseAmpDel(tableFile);
-            ampDel_nontable = parseAmpDel(nontableFile);
+            System.out.println(ampDel_nontable);
+            System.out.println(ampDel_table);
+            ValidateGistic.validateAmpdels(ampDel_nontable, ampDel_table);
         } catch (validationException e) {
             System.out.println("There was an error in parsing 'amplified' " +
-                    "or 'deleted' from the gistic filenames");
+                    "or 'deleted' from the gistic filenames: " + e);
             System.exit(1);
         }
         

@@ -93,7 +93,7 @@ public class MutationsJSON extends HttpServlet {
         }
         
         for (ExtendedMutation mutation : mutations) {
-            export(table, mutation, cancerStudy, qvalue);
+            exportMutation(table, mutation, cancerStudy, qvalue);
         }
 
         response.setContentType("application/json");
@@ -195,11 +195,14 @@ public class MutationsJSON extends HttpServlet {
         return ret;
     }
     
-    private void export(JSONArray table, ExtendedMutation mutation, CancerStudy 
+    private void exportMutation(JSONArray table, ExtendedMutation mutation, CancerStudy 
             cancerStudy, double qvalueThreshold) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
+        row.add(mutation.getChr());
+        row.add(mutation.getStartPosition());
+        row.add(mutation.getEndPosition());
         String symbol = mutation.getGeneSymbol();
         row.add(symbol);
         row.add(mutation.getAminoAcidChange());

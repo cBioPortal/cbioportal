@@ -9,7 +9,7 @@
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig();
+        var config = new GenomicOverviewConfig(geObs.hasMut?1:0,geObs.hasCna?1:0);
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         
@@ -27,14 +27,14 @@
         $.post("cna.json", 
             params,
             function(segs){
-                for (var i=0; i<segs.length; i++) {
-                    plotCnSeg(paper,config,segs[i],chmInfo);
-                }
+                plotCnSegs(paper,config,chmInfo,segs);
             }
             ,"json"
         );
-        $.post()
+    }
     
+    function plotMutationsOverview(paper,config,chmInfo) {
+        
     }
 </script>
 

@@ -51,6 +51,7 @@
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
+    var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,mutsig:8,overview:9,mutrate:10,drug:11,note:12};
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -60,16 +61,28 @@
                 "aoColumnDefs":[
                     {// event id
                         "bVisible": false,
-                        "aTargets": [ 0 ]
+                        "aTargets": [ mutTableIndices["id"] ]
+                    },
+                    {// chr
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["chr"] ]
+                    },
+                    {// start
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["start"] ]
+                    },
+                    {// end
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["end"] ]
                     },
                     {// gene
-                        "aTargets": [ 1 ],
+                        "aTargets": [ mutTableIndices["gene"] ],
                         "fnRender": function(obj) {
                             return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
                         }
                     },
                     {// aa change
-                        "aTargets": [ 2 ],
+                        "aTargets": [ mutTableIndices["aa"] ],
                         "fnRender": function(obj) {
                             return "<b><i>"+obj.aData[ obj.iDataColumn ]+"</i></b>";
                         }
@@ -77,30 +90,30 @@
                     {// mutsig
                         "sType": "mutsig-col",
                         "bVisible": false,
-                        "aTargets": [ 5 ]
+                        "aTargets": [ mutTableIndices["mutsig"] ]
                     },
                     {// in overview
                         "bVisible": false,
-                        "aTargets": [ 6 ]
+                        "aTargets": [ mutTableIndices["overview"] ]
                     },
                     {// mutation rate
                         "mDataProp": null,
                         "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
-                        "aTargets": [ 7 ]
+                        "aTargets": [ mutTableIndices["mutrate"] ]
                     },
                     {// drugs
                         "mDataProp": null,
                         "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
-                        "aTargets": [ 8 ]
+                        "aTargets": [ mutTableIndices["drug"] ]
                     },
                     {// note
                         "bVisible": placeHolder,
                         "mDataProp": null,
                         "sDefaultContent": "",
-                        "aTargets": [ 9 ]
+                        "aTargets": [ mutTableIndices["note"] ]
                     }
                 ],
-                "aaSorting": [[5,'asc']],
+                "aaSorting": [[mutTableIndices["mutsig"],'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -124,8 +137,8 @@
         var nRows = mutations.length;
         for (var row=0; row<nRows; row++) {
             var eventId = mutations[row][0];
-            var gene = trimHtml(mutations[row][1]);
-            var aa = trimHtml(mutations[row][2]);
+            var gene = trimHtml(mutations[row][mutTableIndices["gene"]]);
+            var aa = trimHtml(mutations[row][mutTableIndices["aa"]]);
             var mutCon = mutationContext[eventId];
             var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
             var geneCon = geneContext[gene];
@@ -140,10 +153,10 @@
     function updateMutationContext(mutationContextMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
-            var eventId = oTable.fnGetData(row, 0);
+            if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
+            var eventId = oTable.fnGetData(row, mutTableIndices["id"]);
             var context = mutationContextMap[eventId];
-            oTable.fnUpdate(context, row, 7, false, false);
+            oTable.fnUpdate(context, row, mutTableIndices["mutrate"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -174,13 +187,13 @@
     function updateMutationDrugs(drugMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 6)) continue;
-            var gene = trimHtml(oTable.fnGetData(row, 1));
+            if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
+            var gene = trimHtml(oTable.fnGetData(row, mutTableIndices["gene"]));
             var context = drugMap[gene];
             if (context==null) {
                 context = "";
             }
-            oTable.fnUpdate(context, row, 8, false, false);
+            oTable.fnUpdate(context, row, mutTableIndices["drug"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -219,9 +232,9 @@
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
                 
-                mutEventIds = getEventString(mutations,0);
-                overviewMutEventIds = getEventString(mutations,0,6);
-                overviewMutGenes = getEventString(mutations,1,6);
+                mutEventIds = getEventString(mutations,mutTableIndices["id"]);
+                overviewMutEventIds = getEventString(mutations,mutTableIndices["id"],mutTableIndices["overview"]);
+                overviewMutGenes = getEventString(mutations,mutTableIndices["gene"],mutTableIndices["overview"]);
                 
                 geObs.fire('mutations-built');
                 
@@ -233,7 +246,7 @@
                     switchToTab('mutations');
                     return false;
                 });
-                mut_summary.fnFilter('true', 6);
+                mut_summary.fnFilter('true', mutTableIndices["overview"]);
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

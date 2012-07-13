@@ -114,28 +114,33 @@ public final class DaoMutationEvent {
             pstmt.setString(1, caseId);
             pstmt.setInt(2, profileId);
             rs = pstmt.executeQuery();
-            List<ExtendedMutation> events = new ArrayList<ExtendedMutation>();
-            while (rs.next()) {
-                ExtendedMutation event = new ExtendedMutation(
-                        DaoGeneOptimized.getInstance().getGene(rs.getLong("ENTREZ_GENE_ID")),
-                        rs.getString("VALIDATION_STATUS"),
-                        rs.getString("MUTATION_STATUS"),
-                        rs.getString("MUTATION_TYPE"));
-                event.setCaseId(rs.getString("CASE_ID"));
-                event.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
-                event.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
-                event.setChr(rs.getString("CHR"));
-                event.setStartPosition(rs.getLong("START_POSITION"));
-                event.setEndPosition(rs.getLong("END_POSITION"));
-                event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
-                events.add(event);
-            }
-            return events;
+            
+            return extractMutations(rs);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+    }
+    
+    private static List<ExtendedMutation> extractMutations(ResultSet rs) throws SQLException, DaoException {
+        List<ExtendedMutation> events = new ArrayList<ExtendedMutation>();
+        while (rs.next()) {
+            ExtendedMutation event = new ExtendedMutation(
+                    DaoGeneOptimized.getInstance().getGene(rs.getLong("ENTREZ_GENE_ID")),
+                    rs.getString("VALIDATION_STATUS"),
+                    rs.getString("MUTATION_STATUS"),
+                    rs.getString("MUTATION_TYPE"));
+            event.setCaseId(rs.getString("CASE_ID"));
+            event.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+            event.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
+            event.setChr(rs.getString("CHR"));
+            event.setStartPosition(rs.getLong("START_POSITION"));
+            event.setEndPosition(rs.getLong("END_POSITION"));
+            event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
+            events.add(event);
+        }
+        return events;
     }
     
     public static Map<String, Set<Long>> getCasesWithMutations(Collection<Long> eventIds) throws DaoException {

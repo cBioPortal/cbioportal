@@ -1,12 +1,12 @@
-function GenomicOverviewConfig() {
+function GenomicOverviewConfig(nMut, nCna) {
+    this.nMut = nMut;
+    this.nCna = nCna;
     this.width = 1200;
-    this.rows = 1;
-    this.rowHeight = 20;
+    this.mutHeight = 10;
+    this.cnaHeight = 20;
     this.rowMargin = 5;
-    this.yRuler = this.rows*(this.rowHeight+this.rowMargin);
     this.ticHeight = 10;
-    this.canvasWidth = this.width + 5;
-    this.canvasHeight = this.yRuler+this.ticHeight+this.rowMargin;
+    this.yCurr = this.rowMargin;
     this.cnTh = [0.2,1.5];
 }
 GenomicOverviewConfig.prototype = {
@@ -20,11 +20,17 @@ GenomicOverviewConfig.prototype = {
             return "rgb("+c+","+c+",255)";
         else
             return "rgb(255,"+c+","+c+")";
+    },
+    canvasWidth: function() {
+        return this.width + 5;
+    },
+    canvasHeight: function() {
+        return this.yCurr+this.ticHeight+this.nMut*this.mutHeight+this.nCna*this.cnaHeight+(this.nMut+this.nCna)*this.rowMargin;
     }
 };
 
 function createRaphaelCanvas(elementId, config) {
-    return Raphael(elementId, config.canvasWidth, config.canvasHeight);
+    return Raphael(elementId, config.canvasWidth(), config.canvasHeight());
 }
 
 function getChmEndsPerc(chms, total) {
@@ -63,17 +69,18 @@ ChmInfo.prototype = {
 };
 
 function plotChromosomes(p,config,chmInfo) {
-    drawLine(0,config.yRuler,config.width,config.yRuler,p);
+    var yRuler = config.yCurr+config.ticHeight;
+    drawLine(0,yRuler,config.width,yRuler,p);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
         var xt = chmInfo.loc2scale(i,0,config.width);
-        drawLine(xt,config.yRuler,xt,config.yRuler+config.ticHeight,p);
+        drawLine(xt,yRuler,xt,config.yCurr,p);
         
         var m = chmInfo.middle(i,config.width);
-        p.text(m,config.yRuler+config.ticHeight,chmInfo.chmName(i));
+        p.text(m,yRuler-config.rowMargin,chmInfo.chmName(i));
     }
-    drawLine(config.width,config.yRuler,config.width,config.yRuler+config.ticHeight,p);
-
+    drawLine(config.width,yRuler,config.width,config.yCurr,p);
+    config.yCurr = yRuler+config.rowMargin;
 }
 
 function drawLine(x1, y1, x2, y2, p) {
@@ -85,23 +92,26 @@ function drawLine(x1, y1, x2, y2, p) {
     line.translate(0.5, 0.5);
 }
 
-function plotCnSeg(p,config,seg,chmInfo) {
-    var chm = (seg[1]=='X'||seg[1]=='Y'||seg[1]=='x'||seg[1]=='y') ? 23 : parseInt(seg[1]);
-    if (1 <= chm && chm <= 23) {
-        var segMean = seg[5];
-        if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
-            var start = seg[2];
-            var end = seg[3];
-            var x = chmInfo.loc2scale(chm,start,config.width);
-            var w = chmInfo.loc2scale(1,end-start,config.width);
-            var r = p.rect(x,0,w,config.rowHeight);
-            r.attr("stroke-width",0);
-            var cl = config.getCnColor(segMean);
-            r.attr("fill",cl);
-            r.attr("stroke", cl);
-            r.attr("stroke-width", 1);
-            r.attr("opacity", 0.5);
-            r.translate(0.5, 0.5);
+function plotCnSegs(p,config,chmInfo,segs) {
+    for (var i=0; i<segs.length; i++) {
+        var seg = segs[i];
+        var chm = (seg[1]=='X'||seg[1]=='Y'||seg[1]=='x'||seg[1]=='y') ? 23 : parseInt(seg[1]);
+        if (1 <= chm && chm <= 23) {
+            var segMean = seg[5];
+            if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
+                var start = seg[2];
+                var end = seg[3];
+                var x = chmInfo.loc2scale(chm,start,config.width);
+                var w = chmInfo.loc2scale(1,end-start,config.width);
+                var r = p.rect(x,config.yCurr,w,config.cnaHeight);
+                var cl = config.getCnColor(segMean);
+                r.attr("fill",cl);
+                r.attr("stroke", cl);
+                r.attr("stroke-width", 1);
+                r.attr("opacity", 0.5);
+                r.translate(0.5, 0.5);
+            }
         }
     }
+    config.yCurr += config.cnaHeight + config.rowMargin;
 }

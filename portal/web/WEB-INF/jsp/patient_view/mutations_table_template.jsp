@@ -2,6 +2,9 @@
                 <thead>
                     <tr valign="bottom">
                         <th>Mutation Event ID</th>
+                        <th>Chromosome</th>
+                        <th>Start Position</th>
+                        <th>End Position</th>
                         <th>Gene</th>
                         <th>Amino Acid Change</th>
                         <th>Mutation Type</th>

@@ -2,7 +2,7 @@ function GenomicOverviewConfig(nMut, nCna) {
     this.nMut = nMut;
     this.nCna = nCna;
     this.width = 1200;
-    this.mutHeight = 10;
+    this.mutHeight = 6;
     this.cnaHeight = 20;
     this.rowMargin = 5;
     this.ticHeight = 10;
@@ -92,15 +92,29 @@ function drawLine(x1, y1, x2, y2, p) {
     line.translate(0.5, 0.5);
 }
 
-function plotCnSegs(p,config,chmInfo,segs) {
+function plotMuts(p,config,chmInfo,muts,chrCol,startCol,endCol) {
+    for (var i=0; i<muts.length; i++) {
+        var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
+        if (loc==null) continue;
+        var x = chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.width);
+        var y = config.yCurr + config.mutHeight/2;
+        var c = p.circle(x,y,config.mutHeight/2);
+        c.attr("fill","green");
+        c.attr("stroke-width", 0)
+    }
+    config.yCurr += config.mutHeight + config.rowMargin;
+}
+
+function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {
     for (var i=0; i<segs.length; i++) {
-        var seg = segs[i];
-        var chm = (seg[1]=='X'||seg[1]=='Y'||seg[1]=='x'||seg[1]=='y') ? 23 : parseInt(seg[1]);
+        var loc = extractLoc(segs[i],chrCol,[startCol,endCol,segCol]);
+        if (loc==null) continue;
+        var chm = loc[0];
         if (1 <= chm && chm <= 23) {
-            var segMean = seg[5];
+            var segMean = loc[3];
             if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
-                var start = seg[2];
-                var end = seg[3];
+                var start = loc[1];
+                var end = loc[2];
                 var x = chmInfo.loc2scale(chm,start,config.width);
                 var w = chmInfo.loc2scale(1,end-start,config.width);
                 var r = p.rect(x,config.yCurr,w,config.cnaHeight);
@@ -114,4 +128,16 @@ function plotCnSegs(p,config,chmInfo,segs) {
         }
     }
     config.yCurr += config.cnaHeight + config.rowMargin;
+}
+
+function extractLoc(data,chrCol,cols) {
+    var chm = (data[chrCol]=='X'||data[chrCol]=='Y'||data[chrCol]=='x'||data[chrCol]=='y') ? 23 : parseInt(data[1]);
+    if (isNaN(chm) || chm < 1 || chm > 23) {
+        return null;
+    }
+    var ret = [chm];
+    for (var i=0; i<cols.length; i++) {
+        ret.push(data[cols[i]]);
+    }
+    return ret;
 }

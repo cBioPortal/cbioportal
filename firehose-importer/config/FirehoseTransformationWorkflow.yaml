@@ -115,7 +115,7 @@
 - create_igv_seg:
     outfile: <CANCER>_tcga.seg
     dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version> <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
+        - gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.Level_3.<date><version> <CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.seg.txt
 
 # mut sig file
 - create_mut_sig:

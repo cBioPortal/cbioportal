@@ -56,6 +56,11 @@ public class DrugBankImporter extends AbstractDrugInfoImporter {
             if(groups.contains("nutraceutical"))
                 continue;
 
+            // If the affected organism is not human, then skip it
+            List<String> affectedOrganisms = dbDrug.getAffectedOrganisms().getAffectedOrganism();
+            if(!affectedOrganisms.isEmpty() && !affectedOrganisms.contains("Humans and other mammals"))
+                continue;
+
             List<String> atcCodes = dbDrug.getAtcCodes().getAtcCode();
             drug.setATCCode(StringUtils.join(atcCodes, ","));
 

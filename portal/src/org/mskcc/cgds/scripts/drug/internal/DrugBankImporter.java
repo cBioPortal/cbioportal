@@ -49,7 +49,12 @@ public class DrugBankImporter extends AbstractDrugInfoImporter {
             drug.setSynonyms(buildDelimitedText(dbDrug.getSynonyms().getSynonym()));
             drug.setDescription(dbDrug.getDescription());
             drug.setExternalReference(buildDelimitedText(dbDrug.getExternalLinks().getExternalLink()));
-            drug.setApprovedFDA(dbDrug.getGroups().getGroup().contains("approved"));
+            List<String> groups = dbDrug.getGroups().getGroup();
+            drug.setApprovedFDA(groups.contains("approved"));
+
+            // If the drug is only nutraceutical, just ignore it (e.g. ATP and vitamin C)
+            if(groups.contains("nutraceutical"))
+                continue;
 
             List<String> atcCodes = dbDrug.getAtcCodes().getAtcCode();
             drug.setATCCode(StringUtils.join(atcCodes, ","));

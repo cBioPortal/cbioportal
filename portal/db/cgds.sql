@@ -450,6 +450,9 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
   `MUTATION_STATUS` varchar(25) NOT NULL COMMENT 'Germline, Somatic or LOH.',
   `AMINO_ACID_CHANGE` varchar(255) NOT NULL,
   `MUTATION_TYPE` varchar(255) NOT NULL COMMENT 'e.g. Missense, Nonsence, etc.',
+  `CHR` varchar(5) NOT NULL,
+  `START_POSITION` bigint(20) NOT NULL,
+  `END_POSITION` bigint(20) NOT NULL,
   PRIMARY KEY  (`MUTATION_EVENT_ID`),
   UNIQUE (`ENTREZ_GENE_ID`, `MUTATION_STATUS`, `AMINO_ACID_CHANGE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
@@ -457,10 +460,10 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
 CREATE TABLE IF NOT EXISTS `copy_number_seg` (
   `SEG_ID` int(255) NOT NULL auto_increment,
   `CASE_ID` varchar(255) NOT NULL,
-  `CHROMOSOME` tinyint(2) NOT NULL,
+  `CHR` varchar(5) NOT NULL,
   `START` int(11) NOT NULL,
   `END` int(11) NOT NULL,
   `NUM_PROBES` int(11) NOT NULL,
   `SEGMENT_MEAN` double NOT NULL,
-  PRIMARY KEY (`COPY_NUMBER_SEG_ID`)
+  PRIMARY KEY (`SEG_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

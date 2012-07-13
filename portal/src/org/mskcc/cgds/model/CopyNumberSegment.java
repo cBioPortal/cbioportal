@@ -8,27 +8,27 @@ package org.mskcc.cgds.model;
 public class CopyNumberSegment {
     private long segId;
     private String sample;
-    private int chromosome; // 1-24
+    private String chr; // 1-22,X/Y,M
     private long start;
     private long end;
     private int numProbes;
     private double segMean;
 
-    public CopyNumberSegment(String sample, int chromosome, long start, long end, int numProbes, double segMean) {
+    public CopyNumberSegment(String sample, String chr, long start, long end, int numProbes, double segMean) {
         this.sample = sample;
-        this.chromosome = chromosome;
+        this.chr = chr;
         this.start = start;
         this.end = end;
         this.numProbes = numProbes;
         this.segMean = segMean;
     }
 
-    public int getChromosome() {
-        return chromosome;
+    public String getChr() {
+        return chr;
     }
 
-    public void setChromosome(int chromosome) {
-        this.chromosome = chromosome;
+    public void setChr(String chr) {
+        this.chr = chr;
     }
 
     public long getEnd() {

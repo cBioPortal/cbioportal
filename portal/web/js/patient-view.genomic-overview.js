@@ -58,9 +58,6 @@ ChmInfo.prototype = {
         if (chm == 23) {
             return "X/Y";
         }
-        if (chm == 24) {
-            return "M";
-        }
         return chm;
     }
 };
@@ -89,20 +86,22 @@ function drawLine(x1, y1, x2, y2, p) {
 }
 
 function plotCnSeg(p,config,seg,chmInfo) {
-    var chm = seg[1];
-    var segMean = seg[5];
-    if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
-        var start = seg[2];
-        var end = seg[3];
-        var x = chmInfo.loc2scale(chm,start,config.width);
-        var w = chmInfo.loc2scale(1,end-start,config.width);
-        var r = p.rect(x,0,w,config.rowHeight);
-        r.attr("stroke-width",0);
-        var cl = config.getCnColor(segMean);
-        r.attr("fill",cl);
-        r.attr("stroke", cl);
-        r.attr("stroke-width", 1);
-        r.attr("opacity", 0.5);
-        r.translate(0.5, 0.5);
+    var chm = (seg[1]=='X'||seg[1]=='Y'||seg[1]=='x'||seg[1]=='y') ? 23 : parseInt(seg[1]);
+    if (1 <= chm && chm <= 23) {
+        var segMean = seg[5];
+        if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
+            var start = seg[2];
+            var end = seg[3];
+            var x = chmInfo.loc2scale(chm,start,config.width);
+            var w = chmInfo.loc2scale(1,end-start,config.width);
+            var r = p.rect(x,0,w,config.rowHeight);
+            r.attr("stroke-width",0);
+            var cl = config.getCnColor(segMean);
+            r.attr("fill",cl);
+            r.attr("stroke", cl);
+            r.attr("stroke-width", 1);
+            r.attr("opacity", 0.5);
+            r.translate(0.5, 0.5);
+        }
     }
 }

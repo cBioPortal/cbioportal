@@ -64,11 +64,15 @@ public final class DaoMutationEvent {
             // no existing, create new
             pstmt = con.prepareStatement
 		("INSERT INTO mutation_event (`ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, "
-                    + "`MUTATION_STATUS`, `MUTATION_TYPE`) VALUES(?,?,?,?)");
+                    + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
+                    + "`END_POSITION`) VALUES(?,?,?,?,?,?,?)");
             pstmt.setLong(1, mutation.getEntrezGeneId());
             pstmt.setString(2, mutation.getAminoAcidChange());
             pstmt.setString(3, mutation.getMutationStatus());
             pstmt.setString(4, mutation.getMutationType());
+            pstmt.setString(5, mutation.getChr());
+            pstmt.setLong(6, mutation.getStartPosition());
+            pstmt.setLong(7, mutation.getEndPosition());
             pstmt.executeUpdate();
             return addMutationEvent(mutation, con);
         } catch (SQLException e) {
@@ -102,7 +106,8 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
-                    + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE"
+                    + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
+                    + " CHR, START_POSITION, END_POSITION"
                     + " FROM case_mutation_event, mutation_event"
                     + " WHERE `CASE_ID`=? AND `GENETIC_PROFILE_ID`=? AND"
                     + " case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
@@ -119,6 +124,9 @@ public final class DaoMutationEvent {
                 event.setCaseId(rs.getString("CASE_ID"));
                 event.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
                 event.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
+                event.setChr(rs.getString("CHR"));
+                event.setStartPosition(rs.getLong("START_POSITION"));
+                event.setEndPosition(rs.getLong("END_POSITION"));
                 event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
                 events.add(event);
             }

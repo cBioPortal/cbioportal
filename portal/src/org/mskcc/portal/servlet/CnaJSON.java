@@ -229,7 +229,7 @@ public class CnaJSON extends HttpServlet {
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(seg.getCaseId());
-        row.add(seg.getChromosome());
+        row.add(seg.getChr());
         row.add(seg.getStart());
         row.add(seg.getEnd());
         row.add(seg.getNumProbes());

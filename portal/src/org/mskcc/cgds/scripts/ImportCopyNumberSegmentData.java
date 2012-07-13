@@ -54,27 +54,14 @@ public class ImportCopyNumberSegmentData {
             if (m.matches()) {
                 caseId = m.group(1);
             }
-            int chm = parseChm(strs[1]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = Integer.parseInt(strs[4]);
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(caseId, chm, start, end, numProbes, segMean);
+            CopyNumberSegment cns = new CopyNumberSegment(caseId, strs[1], start, end, numProbes, segMean);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }
-    }
-    
-    private int parseChm(String strChm) {
-        if (strChm.equalsIgnoreCase("X") || strChm.equalsIgnoreCase("Y")) {
-            return 23;
-        }
-        
-        if (strChm.equalsIgnoreCase("M")) {
-            return 24;
-        }
-        
-        return Integer.parseInt(strChm);
     }
     
     public static void main(String[] args) throws Exception {

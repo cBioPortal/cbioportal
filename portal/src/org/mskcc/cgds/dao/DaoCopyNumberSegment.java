@@ -26,11 +26,11 @@ public final class DaoCopyNumberSegment {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("INSERT INTO copy_number_seg (`CASE_ID`, `CHROMOSOME`,"
+                    ("INSERT INTO copy_number_seg (`CASE_ID`, `CHR`,"
                         + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`)"
                         + " VALUES (?,?,?,?,?,?)");
             pstmt.setString(1, seg.getCaseId());
-            pstmt.setInt(2, seg.getChromosome());
+            pstmt.setString(2, seg.getChr());
             pstmt.setLong(3, seg.getStart());
             pstmt.setLong(4, seg.getEnd());
             pstmt.setInt(5, seg.getNumProbes());
@@ -69,7 +69,7 @@ public final class DaoCopyNumberSegment {
             while (rs.next()) {
                 CopyNumberSegment seg = new CopyNumberSegment(
                         rs.getString("CASE_ID"),
-                        rs.getInt("CHROMOSOME"),
+                        rs.getString("CHR"),
                         rs.getLong("START"),
                         rs.getLong("END"),
                         rs.getInt("NUM_PROBES"),

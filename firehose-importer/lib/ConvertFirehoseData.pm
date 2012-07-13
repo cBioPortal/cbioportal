@@ -407,6 +407,7 @@ sub createMetaFile{
             'profile_name'                 => 'mRNA expression (microarray)'
         },
         'mutsig' => {
+			'profile_description'          => 'Mutation Significance data as provided by the Broad Firehose system.',
             'stable_id'                    => '<cancer>_tcga_mutsig', 
         },
     };

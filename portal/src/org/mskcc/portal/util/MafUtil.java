@@ -9,7 +9,8 @@ import org.mskcc.portal.model.MafRecord;
  * (Comments next to data fields indicate corresponding database columns or
  * column headers in the MAF file).
  */
-public class MafUtil {
+public class MafUtil
+{
     private int chrIndex = -1; // CHR
     private int ncbiIndex = -1; // NCBI_BUILD
     private int startPositionIndex = -1; // START_POSITION
@@ -24,23 +25,49 @@ public class MafUtil {
     private int tumorSeqAllele1Index = -1; // TUMOR_SEQ_ALLELE1
     private int tumorSeqAllele2Index = -1; // TUMOR_SEQ_ALLELE1
     private int dbSNPIndex = -1; // DB_SNP_RS
-    private int tumorSampleIndex = -1; //
+    private int tumorSampleIndex = -1;
     private int mutationStatusIndex = -1; // MUTATION_STATUS
     private int validationStatusIndex = -1; // VALIDATION_STATUS
     private int sequencerIndex = -1; // SEQUENCER_INDEX
-
+    private int dbSnpValStatusIndex = -1; // DB_SNP_VAL_STATUS
+    private int matchedNormSampleBarcodeIndex = -1; // MATCHED_NORM_SAMPLE_BARCODE
+    private int matchNormSeqAllele1Index = -1; // MATCH_NORM_SEQ_ALLELE1
+    private int matchNormSeqAllele2Index = -1; // MATCH_NORM_SEQ_ALLELE2
+    private int tumorValidationAllele1Index = -1; // TUMOR_VALIDATION_ALLELE1
+    private int tumorValidationAllele2Index = -1; // TUMOR_VALIDATION_ALLELE2
+    private int matchNormValidationAllele1Index = -1; // MATCH_NORM_VALIDATION_ALLELE1
+    private int matchNormValidationAllele2Index = -1; // MATCH_NORM_VALIDATION_ALLELE2
+    private int verificationStatusIndex = -1; // VERIFICATION_STATUS
+    private int sequencingPhaseIndex = -1; // SEQUENCING_PHASE
+    private int sequenceSourceIndex = -1; // SEQUENCE_SOURCE
+    private int validationMethodIndex = -1; // VALIDATION_METHOD
+    private int scoreIndex = -1; // SCORE
+    private int bamFileIndex = -1; // BAM_FILE
+    private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
+    private int tumorRefCountIndex = -1; // TUMOR_REF_COUNT
+    private int normalAltCountIndex = -1; // NORMAL_ALT_COUNT
+    private int normalRefCountIndex = -1; // NORMAL_REF_COUNT
+    private int oncoProteinChangeIndex = -1; // ONCOTATOR_PROTEIN_CHANGE
+    private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
+    private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
+    private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
+    
     /**
      * Constructor.
      * 
      * @param headerLine    Header Line.
      */
-    public MafUtil(String headerLine) {
+    public MafUtil(String headerLine)
+    {
         String parts[] = headerLine.split("\t");
-        for (int i=0; i<parts.length; i++) {
+        
+        for (int i=0; i<parts.length; i++)
+        {
             String header = parts[i];
+            
             if (header.equalsIgnoreCase("Chromosome")) {
                 chrIndex = i;        
-            } else if(header.equals("NCBI_Build")) {
+            } else if(header.equalsIgnoreCase("NCBI_Build")) {
                 ncbiIndex = i;   
             } else if(header.equalsIgnoreCase("Start_Position")) {
                 startPositionIndex = i;
@@ -58,7 +85,7 @@ public class MafUtil {
                 variantTypeIndex = i;
             } else if(header.equalsIgnoreCase("Center")) {
                 centerIndex = i;
-            } else if(header.equals("Strand")) {
+            } else if(header.equalsIgnoreCase("Strand")) {
                 strandIndex = i;
             } else if(header.equalsIgnoreCase("Tumor_Seq_Allele1")) {
                 tumorSeqAllele1Index = i;
@@ -74,17 +101,61 @@ public class MafUtil {
                 validationStatusIndex = i;
             } else if(header.equalsIgnoreCase("Sequencer")) {
 	            sequencerIndex = i;
+	        } else if(header.equalsIgnoreCase("dbSNP_Val_Status")) {
+	        	dbSnpValStatusIndex = i;
+	        } else if(header.equalsIgnoreCase("Matched_Norm_Sample_Barcode")) {
+	        	matchedNormSampleBarcodeIndex = i;
+	        } else if(header.equalsIgnoreCase("Match_Norm_Seq_Allele1")) {
+	        	matchNormSeqAllele1Index = i;
+	        } else if(header.equalsIgnoreCase("Match_Norm_Seq_Allele2")) {
+	        	matchNormSeqAllele2Index = i;
+	        } else if(header.equalsIgnoreCase("Tumor_Validation_Allele1")) {
+	        	tumorValidationAllele1Index = i;
+	        } else if(header.equalsIgnoreCase("Tumor_Validation_Allele2")) {
+	        	tumorValidationAllele2Index = i;
+	        } else if(header.equalsIgnoreCase("Match_Norm_Validation_Allele1")) {
+	        	matchNormValidationAllele1Index = i;
+	        } else if(header.equalsIgnoreCase("Match_Norm_Validation_Allele2")) {
+	        	matchNormValidationAllele2Index = i;
+	        } else if(header.equalsIgnoreCase("Verification_Status")) {
+	        	verificationStatusIndex = i;
+	        } else if(header.equalsIgnoreCase("Sequencing_Phase")) {
+	        	sequencingPhaseIndex = i;
+	        } else if(header.equalsIgnoreCase("Sequence_Source")) {
+	        	sequenceSourceIndex = i;
+	        } else if(header.equalsIgnoreCase("Validation_Method")) {
+	        	validationMethodIndex = i;
+	        } else if(header.equalsIgnoreCase("Score")) {
+	        	scoreIndex = i;
+	        } else if(header.equalsIgnoreCase("BAM_file")) {
+	        	bamFileIndex = i;
+	        } else if(header.equalsIgnoreCase("ONCOTATOR_PROTEIN_CHANGE")) {
+	        	oncoProteinChangeIndex = i;
+	        } else if(header.equalsIgnoreCase("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+	        	oncoVariantClassificationIndex = i;
+	        } else if(header.equalsIgnoreCase("ONCOTATOR_COSMIC_OVERLAPPING")) {
+	        	oncoCosmicOverlappingIndex = i;
+	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
+	        	oncoDbSnpRsIndex = i;
+	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
+	        	tumorRefCountIndex = i;
+	        } else if(header.equalsIgnoreCase("t_alt_count")) { // TODO alternative header names?
+	        	tumorAltCountIndex = i;
+	        } else if(header.equalsIgnoreCase("i_t_ref_count")) { // TODO is it correct header name?
+	        	normalRefCountIndex= i;
+	        } else if(header.equalsIgnoreCase("i_t_alt_count")) { // TODO is it correct header name?
+	        	normalAltCountIndex = i;
 	        }
-            
         }
     }
     
-    public MafRecord parseRecord(String line) {
+    public MafRecord parseRecord(String line)
+    {
         String parts[] = line.split("\t"); // TODO line.split("\t", -1); ?
+        
         MafRecord record = new MafRecord();
         record.setCenter(getPartString(centerIndex, parts));
         record.setChr(getPartString(chrIndex, parts));
-        record.setDbSNP_RS(getPartString(dbSNPIndex, parts));
         record.setStartPosition(getPartLong(startPositionIndex, parts));
         record.setEndPosition(getPartLong(endPositionIndex, parts));
         record.setEntrezGeneId(getPartLong(entrezGeneIdIndex, parts));
@@ -101,6 +172,29 @@ public class MafUtil {
         record.setMutationStatus(getPartString(mutationStatusIndex, parts));
         record.setValidationStatus(getPartString(validationStatusIndex, parts));
         record.setSequencer(getPartString(sequencerIndex, parts));
+        record.setDbSnpValStatus(getPartString(dbSnpValStatusIndex, parts));
+        record.setMatchedNormSampleBarcode(getPartString(matchedNormSampleBarcodeIndex, parts));
+        record.setMatchNormSeqAllele1(getPartString(matchNormSeqAllele1Index, parts));
+        record.setMatchNormSeqAllele2(getPartString(matchNormSeqAllele2Index, parts));
+        record.setTumorValidationAllele1(getPartString(tumorValidationAllele1Index, parts));
+        record.setTumorValidationAllele2(getPartString(tumorValidationAllele2Index, parts));
+        record.setMatchNormValidationAllele1(getPartString(matchNormValidationAllele1Index, parts));
+        record.setMatchNormValidationAllele2(getPartString(matchNormValidationAllele2Index, parts));
+        record.setVerificationStatus(getPartString(verificationStatusIndex, parts));
+        record.setSequencingPhase(getPartString(sequencingPhaseIndex, parts));
+        record.setSequenceSource(getPartString(sequenceSourceIndex, parts));
+        record.setValidationMethod(getPartString(validationMethodIndex, parts));
+        record.setScore(getPartString(scoreIndex, parts));
+        record.setBamFile(getPartString(bamFileIndex, parts));
+        record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
+        record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
+        record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
+        record.setNormalRefCount(getPartInt(normalRefCountIndex, parts));
+        record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
+        record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
+        record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
+        record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
+
         return record;
     }
     
@@ -121,7 +215,19 @@ public class MafUtil {
         } catch (NumberFormatException e) {
             return MafRecord.NA_LONG;
         }
-    }    
+    }
+    
+    private Integer getPartInt(int index, String[] parts)
+    {
+        try {
+            String part = parts[index];
+            return Integer.parseInt(part);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return MafRecord.NA_INT;
+        } catch (NumberFormatException e) {
+            return MafRecord.NA_INT;
+        }
+    }
 
     public int getChrIndex() {
         return chrIndex;
@@ -186,4 +292,100 @@ public class MafUtil {
     public int getMutationStatusIndex() {
         return mutationStatusIndex;
     }
+
+	public int getValidationStatusIndex() {
+		return validationStatusIndex;
+	}
+
+	public int getSequencerIndex() {
+		return sequencerIndex;
+	}
+
+	public int getDbSnpValStatusIndex() {
+		return dbSnpValStatusIndex;
+	}
+
+	public int getMatchedNormSampleBarcodeIndex() {
+		return matchedNormSampleBarcodeIndex;
+	}
+
+	public int getMatchNormSeqAllele1Index() {
+		return matchNormSeqAllele1Index;
+	}
+
+	public int getMatchNormSeqAllele2Index() {
+		return matchNormSeqAllele2Index;
+	}
+
+	public int getTumorValidationAllele1Index() {
+		return tumorValidationAllele1Index;
+	}
+
+	public int getTumorValidationAllele2Index() {
+		return tumorValidationAllele2Index;
+	}
+
+	public int getMatchNormValidationAllele1Index() {
+		return matchNormValidationAllele1Index;
+	}
+
+	public int getMatchNormValidationAllele2Index() {
+		return matchNormValidationAllele2Index;
+	}
+
+	public int getVerificationStatusIndex() {
+		return verificationStatusIndex;
+	}
+
+	public int getSequencingPhaseIndex() {
+		return sequencingPhaseIndex;
+	}
+
+	public int getSequenceSourceIndex() {
+		return sequenceSourceIndex;
+	}
+
+	public int getValidationMethodIndex() {
+		return validationMethodIndex;
+	}
+
+	public int getScoreIndex() {
+		return scoreIndex;
+	}
+
+	public int getBamFileIndex() {
+		return bamFileIndex;
+	}
+
+	public int getTumorAltCountIndex() {
+		return tumorAltCountIndex;
+	}
+
+	public int getTumorRefCountIndex() {
+		return tumorRefCountIndex;
+	}
+
+	public int getNormalAltCountIndex() {
+		return normalAltCountIndex;
+	}
+
+	public int getNormalRefCountIndex() {
+		return normalRefCountIndex;
+	}
+
+	public int getOncoProteinChangeIndex() {
+		return oncoProteinChangeIndex;
+	}
+
+	public int getOncoVariantClassificationIndex() {
+		return oncoVariantClassificationIndex;
+	}
+
+	public int getOncoCosmicOverlappingIndex() {
+		return oncoCosmicOverlappingIndex;
+	}
+
+	public int getOncoDbSnpRsIndex() {
+		return oncoDbSnpRsIndex;
+	}
 }

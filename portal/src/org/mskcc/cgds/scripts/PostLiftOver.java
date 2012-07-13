@@ -119,7 +119,7 @@ public class PostLiftOver
         		System.out.println("[warning] cannot lift over (line:" + sourceRow + "): " +
         				"[gene:" + record.getHugoGeneSymbol() + "] " + unmappedLine);
         		
-        		// skip unmapped lines (do not include)
+        		// skip unmapped lines (do not include in the output file)
         		// bufWriter.write(sourceLine);
         		
         		// get next line from unmapped file

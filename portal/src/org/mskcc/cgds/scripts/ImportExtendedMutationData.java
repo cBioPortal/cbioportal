@@ -249,8 +249,37 @@ public class ImportExtendedMutationData{
                     mutation.setFunctionalImpactScore(functionalImpactScore);
                     mutation.setLinkXVar(linkXVar);  
                     mutation.setLinkPdb(linkPdb);
-                    mutation.setLinkMsa(linkMsa);
-                    
+                    mutation.setLinkMsa(linkMsa);                    
+                	mutation.setNcbiBuild(record.getNcbiBuild());
+                	mutation.setStrand(record.getStrand());
+                	mutation.setVariantType(record.getVariantType());
+                	mutation.setReferenceAllele(record.getReferenceAllele());
+                	mutation.setTumorSeqAllele1(record.getTumorSeqAllele1());
+                	mutation.setTumorSeqAllele2(record.getTumorSeqAllele2());
+                	mutation.setDbSnpRs(record.getDbSNP_RS());
+                	mutation.setDbSnpValStatus(record.getDbSnpValStatus());
+                	mutation.setMatchedNormSampleBarcode(record.getMatchedNormSampleBarcode());
+                	mutation.setMatchNormSeqAllele1(record.getMatchNormSeqAllele1());
+                	mutation.setMatchNormSeqAllele2(record.getMatchNormSeqAllele2());
+                	mutation.setTumorValidationAllele1(record.getTumorValidationAllele1());
+                	mutation.setTumorValidationAllele2(record.getTumorValidationAllele2());
+                	mutation.setMatchNormValidationAllele1(record.getMatchNormValidationAllele1());
+                	mutation.setMatchNormValidationAllele2(record.getMatchNormValidationAllele2());
+                	mutation.setVerificationStatus(record.getVerificationStatus());
+                	mutation.setSequencingPhase(record.getSequencingPhase());
+                	mutation.setSequenceSource(record.getSequenceSource());
+                	mutation.setValidationMethod(record.getValidationMethod());
+                	mutation.setScore(record.getScore());
+                	mutation.setBamFile(record.getBamFile());
+                	mutation.setTumorAltCount(record.getTumorAltCount());
+                	mutation.setTumorRefCount(record.getTumorRefCount());
+                	mutation.setNormalAltCount(record.getNormalAltCount());
+                	mutation.setNormalRefCount(record.getNormalRefCount());
+                	mutation.setOncotatorProteinChange(record.getOncotatorProteinChange());
+                	mutation.setOncotatorVariantClassification(record.getOncotatorVariantClassification());
+                	mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
+                	mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
+                	
                     sequencedCaseSet.add(caseId);
 
                     //  Filter out Mutations

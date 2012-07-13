@@ -1,13 +1,12 @@
 package org.mskcc.portal.model;
 
-import javax.management.StringValueExp;
-
 /**
  * Encapsulates Details Regarding a Single MAF Record.
  */
 public class MafRecord {
     public final static String NA_STRING = "NA";
     public final static long NA_LONG = -1L;
+    public final static int NA_INT = -1;
 
     private String chr;
     private String ncbiBuild;
@@ -18,7 +17,7 @@ public class MafRecord {
     private String referenceAllele;
     private String variantClassification; // mutation type
     private String variantType;
-    private String center;
+    private String center; // sequencing center
     private String strand;
     private String tumorSeqAllele1;
     private String tumorSeqAllele2;
@@ -26,8 +25,32 @@ public class MafRecord {
     private String tumorSampleID;
     private String mutationStatus;
     private String validationStatus;
-
+    
     private String sequencer;
+    private String dbSnpValStatus;
+    private String matchedNormSampleBarcode;
+    private String matchNormSeqAllele1;
+    private String matchNormSeqAllele2;
+    private String tumorValidationAllele1;
+    private String tumorValidationAllele2;
+    private String matchNormValidationAllele1;
+    private String matchNormValidationAllele2;
+    private String verificationStatus;
+    private String sequencingPhase;
+    private String sequenceSource;
+    private String validationMethod;
+    private String score;
+    private String bamFile;
+    
+    private int tumorAltCount;
+    private int tumorRefCount;
+    private int normalAltCount;
+    private int normalRefCount;
+    
+    private String oncotatorProteinChange;
+    private String oncotatorVariantClassification;
+    private String oncotatorCosmicOverlapping;
+    private String oncotatorDbSnpRs;
 
 	public String getChr() {
         return chr;
@@ -172,4 +195,183 @@ public class MafRecord {
 	public void setSequencer(String sequencer) {
 		this.sequencer = sequencer;
 	}
+
+	public String getDbSnpValStatus() {
+		return dbSnpValStatus;
+	}
+
+	public void setDbSnpValStatus(String dbSnpValStatus) {
+		this.dbSnpValStatus = dbSnpValStatus;
+	}
+
+	public String getMatchedNormSampleBarcode() {
+		return matchedNormSampleBarcode;
+	}
+
+	public void setMatchedNormSampleBarcode(String matchedNormSampleBarcode) {
+		this.matchedNormSampleBarcode = matchedNormSampleBarcode;
+	}
+
+	public String getMatchNormSeqAllele1() {
+		return matchNormSeqAllele1;
+	}
+
+	public void setMatchNormSeqAllele1(String matchNormSeqAllele1) {
+		this.matchNormSeqAllele1 = matchNormSeqAllele1;
+	}
+
+	public String getMatchNormSeqAllele2() {
+		return matchNormSeqAllele2;
+	}
+
+	public void setMatchNormSeqAllele2(String matchNormSeqAllele2) {
+		this.matchNormSeqAllele2 = matchNormSeqAllele2;
+	}
+
+	public String getTumorValidationAllele1() {
+		return tumorValidationAllele1;
+	}
+
+	public void setTumorValidationAllele1(String tumorValidationAllele1) {
+		this.tumorValidationAllele1 = tumorValidationAllele1;
+	}
+
+	public String getTumorValidationAllele2() {
+		return tumorValidationAllele2;
+	}
+
+	public void setTumorValidationAllele2(String tumorValidationAllele2) {
+		this.tumorValidationAllele2 = tumorValidationAllele2;
+	}
+
+	public String getMatchNormValidationAllele1() {
+		return matchNormValidationAllele1;
+	}
+
+	public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
+		this.matchNormValidationAllele1 = matchNormValidationAllele1;
+	}
+
+	public String getMatchNormValidationAllele2() {
+		return matchNormValidationAllele2;
+	}
+
+	public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
+		this.matchNormValidationAllele2 = matchNormValidationAllele2;
+	}
+
+	public String getVerificationStatus() {
+		return verificationStatus;
+	}
+
+	public void setVerificationStatus(String verificationStatus) {
+		this.verificationStatus = verificationStatus;
+	}
+
+	public String getSequencingPhase() {
+		return sequencingPhase;
+	}
+
+	public void setSequencingPhase(String sequencingPhase) {
+		this.sequencingPhase = sequencingPhase;
+	}
+
+	public String getSequenceSource() {
+		return sequenceSource;
+	}
+
+	public void setSequenceSource(String sequenceSource) {
+		this.sequenceSource = sequenceSource;
+	}
+
+	public String getValidationMethod() {
+		return validationMethod;
+	}
+
+	public void setValidationMethod(String validationMethod) {
+		this.validationMethod = validationMethod;
+	}
+
+	public String getScore() {
+		return score;
+	}
+
+	public void setScore(String score) {
+		this.score = score;
+	}
+
+	public String getBamFile() {
+		return bamFile;
+	}
+
+	public void setBamFile(String bamFile) {
+		this.bamFile = bamFile;
+	}
+
+	public int getTumorAltCount() {
+		return tumorAltCount;
+	}
+
+	public void setTumorAltCount(int tumorAltCount) {
+		this.tumorAltCount = tumorAltCount;
+	}
+
+	public int getTumorRefCount() {
+		return tumorRefCount;
+	}
+
+	public void setTumorRefCount(int tumorRefCount) {
+		this.tumorRefCount = tumorRefCount;
+	}
+
+	public int getNormalAltCount() {
+		return normalAltCount;
+	}
+
+	public void setNormalAltCount(int normalAltCount) {
+		this.normalAltCount = normalAltCount;
+	}
+
+	public int getNormalRefCount() {
+		return normalRefCount;
+	}
+
+	public void setNormalRefCount(int normalRefCount) {
+		this.normalRefCount = normalRefCount;
+	}
+
+	public String getOncotatorProteinChange() {
+		return oncotatorProteinChange;
+	}
+
+	public void setOncotatorProteinChange(String oncotatorProteinChange) {
+		this.oncotatorProteinChange = oncotatorProteinChange;
+	}
+
+	public String getOncotatorVariantClassification() {
+		return oncotatorVariantClassification;
+	}
+
+	public void setOncotatorVariantClassification(
+			String oncotatorVariantClassification) {
+		this.oncotatorVariantClassification = oncotatorVariantClassification;
+	}
+
+	public String getOncotatorCosmicOverlapping() {
+		return oncotatorCosmicOverlapping;
+	}
+
+	public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping) {
+		this.oncotatorCosmicOverlapping = oncotatorCosmicOverlapping;
+	}
+
+	public String getOncotatorDbSnpRs() {
+		return oncotatorDbSnpRs;
+	}
+
+	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
+		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+	}
+	
+	
 }

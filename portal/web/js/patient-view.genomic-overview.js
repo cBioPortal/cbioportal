@@ -2,7 +2,7 @@ function GenomicOverviewConfig(nMut, nCna) {
     this.nMut = nMut;
     this.nCna = nCna;
     this.width = 1200;
-    this.mutHeight = 6;
+    this.mutHeight = 20;
     this.cnaHeight = 20;
     this.rowMargin = 5;
     this.ticHeight = 10;
@@ -71,39 +71,54 @@ ChmInfo.prototype = {
 
 function plotChromosomes(p,config,chmInfo) {
     var yRuler = config.yCurr+config.ticHeight;
-    drawLine(0,yRuler,config.width,yRuler,p);
+    drawLine(0,yRuler,config.width,yRuler,p,'#000',1);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
         var xt = chmInfo.loc2scale(i,0,config.width);
-        drawLine(xt,yRuler,xt,config.yCurr,p);
+        drawLine(xt,yRuler,xt,config.yCurr,p,'#000',1);
         
         var m = chmInfo.middle(i,config.width);
         p.text(m,yRuler-config.rowMargin,chmInfo.chmName(i));
     }
-    drawLine(config.width,yRuler,config.width,config.yCurr,p);
+    drawLine(config.width,yRuler,config.width,config.yCurr,p,'#000',1);
     config.yCurr = yRuler+config.rowMargin;
 }
 
-function drawLine(x1, y1, x2, y2, p) {
+function drawLine(x1, y1, x2, y2, p, cl, width) {
     var path = "M" + x1 + " " + y1 + " L" + x2 + " " + y2;
     var line = p.path(path);
-    line.attr("stroke", "#000");
-    line.attr("stroke-width", 1);
+    line.attr("stroke", cl);
+    line.attr("stroke-width", width);
     line.attr("opacity", 0.5);
     line.translate(0.5, 0.5);
 }
 
 function plotMuts(p,config,chmInfo,muts,chrCol,startCol,endCol) {
+    var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
         if (loc==null) continue;
-        var x = chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.width);
-        var y = config.yCurr + config.mutHeight/2;
-        var c = p.circle(x,y,config.mutHeight/2);
-        c.attr("fill","green");
-        c.attr("stroke-width", 0)
+        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.width));
+        if (pixelMap[x]==null)
+            pixelMap[x] = [];
+        pixelMap[x].push(i);
     }
-    config.yCurr += config.mutHeight + config.rowMargin;
+    
+    var maxCount = 0;
+    for (var i=0; i<=config.width; i++) {
+        var arr = pixelMap[i];
+        if (arr && arr.length>maxCount)
+            maxCount=arr.length;
+    }
+    
+    for (var i=0; i<=config.width; i++) {
+        var arr = pixelMap[i];
+        if (arr) {
+            drawLine(i,config.yCurr,i,config.yCurr+config.mutHeight*arr.length/maxCount,p,'#0f0',3);
+        }
+    }
+    
+    config.yCurr += config.mutHeight+config.rowMargin;
 }
 
 function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {

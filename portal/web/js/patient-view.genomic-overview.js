@@ -8,6 +8,7 @@ function GenomicOverviewConfig(nMut, nCna) {
     this.ticHeight = 10;
     this.yCurr = this.rowMargin;
     this.cnTh = [0.2,1.5];
+    this.cnLengthTh = 50000;
 }
 GenomicOverviewConfig.prototype = {
     getCnColor: function(cnValue) {
@@ -111,20 +112,22 @@ function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {
         if (loc==null) continue;
         var chm = loc[0];
         if (1 <= chm && chm <= 23) {
+            var start = loc[1];
+            var end = loc[2];
             var segMean = loc[3];
-            if (Math.abs(segMean)>config.cnTh[0]&&chm<=chmInfo.hg19.length) {
-                var start = loc[1];
-                var end = loc[2];
-                var x = chmInfo.loc2scale(chm,start,config.width);
-                var w = chmInfo.loc2scale(1,end-start,config.width);
-                var r = p.rect(x,config.yCurr,w,config.cnaHeight);
-                var cl = config.getCnColor(segMean);
-                r.attr("fill",cl);
-                r.attr("stroke", cl);
-                r.attr("stroke-width", 1);
-                r.attr("opacity", 0.5);
-                r.translate(0.5, 0.5);
-            }
+            if (Math.abs(segMean)<config.cnTh[0]||chm>chmInfo.hg19.length)
+                continue;
+            if (end-start<config.cnLengthTh) //filter cnv
+                continue;
+            var x = chmInfo.loc2scale(chm,start,config.width);
+            var w = chmInfo.loc2scale(1,end-start,config.width);
+            var r = p.rect(x,config.yCurr,w,config.cnaHeight);
+            var cl = config.getCnColor(segMean);
+            r.attr("fill",cl);
+            r.attr("stroke", cl);
+            r.attr("stroke-width", 1);
+            r.attr("opacity", 0.5);
+            r.translate(0.5, 0.5);
         }
     }
     config.yCurr += config.cnaHeight + config.rowMargin;

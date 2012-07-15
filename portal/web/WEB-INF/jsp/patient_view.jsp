@@ -37,6 +37,7 @@ if (isDemoMode!=null) {
 
 boolean showPathways = showMutations | showCNA;
 boolean showSimilarPatient = showMutations | showCNA;
+boolean showGenomicOverview = showMutations | showCNA;
 
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;

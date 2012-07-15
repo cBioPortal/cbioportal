@@ -44,8 +44,10 @@
 <br/><br/>
 <%}%>
 
+<%if(showGenomicOverview){%>
 <div id="genomics-overview"></div>
 <br/>
+<%}%>
         
 <%if(showMutations){%>
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
@@ -73,9 +75,4 @@
     </tr>
 </table>
 <br/>
-<%}%>
-
-<%if(showPlaceHoder){%>
-<br/>What else???
-<br/><br/>
 <%}%>

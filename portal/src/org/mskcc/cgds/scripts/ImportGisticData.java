@@ -70,8 +70,8 @@ public class ImportGisticData {
         ampDel_table = parseAmpDel(tableFile);
         ampDel_nontable = parseAmpDel(nontableFile);
         try {
-            System.out.println(ampDel_nontable);
-            System.out.println(ampDel_table);
+//            System.out.println(ampDel_nontable);
+//            System.out.println(ampDel_table);
             ValidateGistic.validateAmpdels(ampDel_nontable, ampDel_table);
         } catch (validationException e) {
             System.out.println("There was an error in parsing 'amplified' " +

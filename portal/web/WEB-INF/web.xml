@@ -5,8 +5,9 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
     <display-name>Cancer Genomics Portal</display-name>
+    <display-name>Apache-Axis</display-name>
 
-	<!-- SPRING SECURITY SETTINGS START -->
+    <!-- SPRING SECURITY SETTINGS START -->
 
     <!--
       - Location of the XML file that defines the root application context
@@ -18,8 +19,49 @@
 		  /WEB-INF/classes/applicationContext-security.xml
 		</param-value>
 	</context-param>
+    <servlet>
+        <display-name>Apache-Axis Servlet</display-name>
+        <servlet-name>AxisServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <display-name>Axis Admin Servlet</display-name>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>SOAPMonitorService</display-name>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <servlet-class>org.apache.axis.monitor.SOAPMonitorService</servlet-class>
+        <init-param>
+            <param-name>SOAPMonitorPort</param-name>
+            <param-value>5101</param-value>
+        </init-param>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/servlet/AxisServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>*.jws</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <url-pattern>/SOAPMonitor</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/servlet/AdminServlet</url-pattern>
+    </servlet-mapping>
 
-	<!-- SPRING SECURITY SETTINGS END -->
+    <!-- SPRING SECURITY SETTINGS END -->
 
 	<!--
 	  - timeout after 12 hrs (default is 30 min)
@@ -27,6 +69,10 @@
 	<session-config>
 	  <session-timeout>720</session-timeout>
 	</session-config>
+    <mime-mapping>
+        <extension>wsdl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
@@ -149,6 +195,11 @@
         <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>GisticJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.GisticJSON</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -262,6 +313,11 @@
 	<servlet-mapping>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GisticJSON</servlet-name>
+        <url-pattern>/Gistic.json</url-pattern>
     </servlet-mapping>
     
     <welcome-file-list>

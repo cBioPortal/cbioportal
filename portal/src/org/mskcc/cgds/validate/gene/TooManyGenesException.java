@@ -1,4 +1,4 @@
-package org.mskcc.portal.validator.gene;
+package org.mskcc.cgds.validate.gene;
 
 /**
  * Indicates that the User has Specified Too Many Genes.

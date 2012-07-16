@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -25,8 +23,8 @@ import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.*;
 import org.mskcc.portal.util.*;
 import org.mskcc.portal.r_bridge.SurvivalPlot;
-import org.mskcc.portal.validator.gene.GeneValidator;
-import org.mskcc.portal.validator.gene.GeneValidationException;
+import org.mskcc.cgds.validate.gene.GeneValidator;
+import org.mskcc.cgds.validate.gene.GeneValidationException;
 import org.mskcc.cgds.model.CancerStudy;
 import org.mskcc.cgds.model.CaseList;
 import org.mskcc.cgds.model.GeneticProfile;

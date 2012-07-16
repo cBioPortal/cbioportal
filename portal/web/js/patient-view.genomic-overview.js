@@ -170,8 +170,7 @@ function extractLoc(data,chrCol,cols) {
 // see: http://jsfiddle.net/QK7hw/403/
 function genomicOverviewTip() {
     this.tipDiv = null;
-    this.tipText = "";
-    this.mouseOver = false;
+    this.node = null;
 }
 genomicOverviewTip.prototype = {
     setTipDiv: function(tipDiv) {
@@ -181,14 +180,20 @@ genomicOverviewTip.prototype = {
         this.tipDiv.offset({left:x,top:y});
     },
     addTip: function (node, txt) {
-        var self = this;
-        $(node).mouseenter(function(){
-            self.tipText = txt;
-            self.tipDiv.fadeIn();
-            self.over = true;
+        var tipObj = this;
+        $(node).mouseenter(function(e){
+            tipObj.node = node;
+            setTimeout(function(){
+                if (node==tipObj.node) {
+                    tipObj.tipDiv.fadeIn();
+                    tipObj.setTipDivLoc(e.clientX+pageXOffset+10,e.clientY+pageYOffset+10);
+                    tipObj.tipDiv.text(txt);
+                }
+            },500);
+            
         }).mouseleave(function(){
-            self.tipDiv.fadeOut(200);
-            self.over = false;
+            tipObj.tipDiv.fadeOut(200);
+            tipObj.node = null;
         });
     }
 };
@@ -198,10 +203,4 @@ var goTip = new genomicOverviewTip();
 $(document).ready(function(){
     goTip.setTipDiv($("#genomic-overview-tip").hide());
 
-    $(document).mousemove(function(e){
-        if(goTip.over) {
-            goTip.setTipDivLoc(e.clientX+10,e.clientY+10);
-            goTip.tipDiv.text(goTip.tipText);
-        }
-    });
 });

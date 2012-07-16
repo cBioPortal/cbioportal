@@ -20,9 +20,10 @@ system ("./liftOver oldfile.txt hg18ToHg19.over.chain newfile.txt unmapped.txt")
 
 # process files created by liftOver to update old MAF
 print ("[info] Updating positions and creating the new MAF...\n");
-system ("$JAVA_HOME/bin/java -Xmx1192M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.PostLiftOver $ARGV[0] newfile.txt unmapped.txt $ARGV[1]");
+system ("$JAVA_HOME/bin/java -Xmx1192M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.PostLiftOver $ARGV[0] newfile.txt unmapped.txt auxfile.txt $ARGV[1]");
 
 # clean intermediate files
 unlink("oldfile.txt");
+unlink("auxfile.txt");
 unlink("newfile.txt");
 unlink("unmapped.txt");

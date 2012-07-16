@@ -26,7 +26,7 @@ public class PreLiftOver
 		
 		try
 		{
-			extractPositions(inputMaf, "oldfile.txt");
+			extractPositions(inputMaf, "oldfile.txt", "auxfile.txt");
 		}
 		catch (IOException e)
 		{
@@ -37,13 +37,26 @@ public class PreLiftOver
 		}
 	}
 	
+	/**
+	 * Extracts start & end position information from the given input (MAF)
+	 * file and creates the main output file. Also, creates an aux file
+	 * to store the row number with adjusted positions (for lift over)  
+	 * 
+	 * @param inputFile
+	 * @param outputFile
+	 * @param auxFile
+	 * @throws IOException
+	 */
 	public static void extractPositions(String inputFile,
-			String outputFile) throws IOException
+			String outputFile,
+			String auxFile) throws IOException
 	{
 		BufferedReader bufReader = new BufferedReader(
         		new FileReader(inputFile));
 		BufferedWriter bufWriter = new BufferedWriter(
 				new FileWriter(outputFile));
+		BufferedWriter auxWriter = new BufferedWriter(
+				new FileWriter(auxFile));				
 		
         String headerLine = bufReader.readLine();
         MafUtil util = new MafUtil(headerLine);
@@ -52,6 +65,7 @@ public class PreLiftOver
         
         long startPos, endPos;
         String chr;
+        int row = 2; // including header
         
         while ((line = bufReader.readLine()) != null)
         {
@@ -67,7 +81,13 @@ public class PreLiftOver
         	// http://genomewiki.ucsc.edu/index.php/Coordinate_Transforms 
         	if (startPos == endPos)
         	{
+        		// adjust start position
         		startPos--;
+        		
+        		// write line number to the aux file for reference in PostLiftOver
+        		// to the adjusted lines
+        		auxWriter.write(Integer.toString(row));
+        		auxWriter.newLine();
         	}
         	
         	chr = record.getChr();
@@ -80,9 +100,12 @@ public class PreLiftOver
         	
         	bufWriter.write("chr" + chr + "\t" + startPos + "\t" + endPos);
         	bufWriter.newLine();
+        	
+        	row++;
         }
         
         bufReader.close();
         bufWriter.close();
+        auxWriter.close();
 	}
 }

@@ -32,7 +32,8 @@ public class PostLiftOver
 		String originialFile = args[0];
 		String mappedFile = args[1];
 		String unmappedFile = args[2];
-		String outputMaf = args[3];
+		String auxFile = args[3];
+		String outputMaf = args[4];
 		
 		try
 		{
@@ -50,6 +51,7 @@ public class PostLiftOver
 				updatePositions(originialFile,
 						mappedFile,
 						unmappedFile,
+						auxFile,
 						outputMaf);
 			}
 			
@@ -74,11 +76,13 @@ public class PostLiftOver
 	 * @param mappedFile	mapped file created by liftOver
 	 * @param unmappedFile	unmapped file created by liftOver
 	 * @param outputFile	output file with updated coordinates
+	 * @param auxFile		aux file containing info of position-adjusted rows
 	 * @throws IOException	if an IO error occurs
 	 */
 	public static void updatePositions(String inputFile,
 			String mappedFile,
 			String unmappedFile,
+			String auxFile,
 			String outputFile) throws IOException
 	{
 		BufferedReader sourceIn = new BufferedReader(
@@ -87,6 +91,8 @@ public class PostLiftOver
         		new FileReader(mappedFile));
 		BufferedReader unmappedIn = new BufferedReader(
         		new FileReader(unmappedFile));
+		BufferedReader auxIn = new BufferedReader(
+        		new FileReader(auxFile));
 		
 		BufferedWriter bufWriter = new BufferedWriter(
 				new FileWriter(outputFile));
@@ -96,12 +102,14 @@ public class PostLiftOver
         String sourceLine;
         String mappedLine = mappedIn.readLine();
         String unmappedLine = getUnmappedLine(unmappedIn);
+        Integer modifiedRow = getNextModRow(auxIn);
         MafRecord record;
         
-        // for debugging purposes
+        // for tracking purposes
         int sourceRow = 2; // (including header)
         int mappedRow = 1;
         int unmappedRow = 1;
+        boolean modified;
         
         // write the header line to the output
         bufWriter.write(headerLine);
@@ -111,6 +119,18 @@ public class PostLiftOver
         {
         	// get a single record per line
         	record = util.parseRecord(sourceLine);
+        	
+        	// check if positions of current record is modified by PreLiftOver
+        	if (modifiedRow != null &&
+        		sourceRow == modifiedRow)
+        	{
+        		modified = true;
+        		modifiedRow = getNextModRow(auxIn);
+        	}
+        	else
+        	{
+        		modified = false;
+        	}
         	
         	// check if current record matches the unmapped file
         	if (unmappedLine != null &&
@@ -157,10 +177,20 @@ public class PostLiftOver
             		chrChanged = true;
         		}
     			
-    			if (startPos == endPos - 1)
-    			{
-    				startPos++;
-    			}
+        		// re-adjust start & end positions (to be compatible with oncotator)
+        		if (modified)
+        		{
+        			startPos++;
+        		}
+        		
+        		// below condition check may also work for all records,
+        		// but using modified row number is the safest way.   		
+//    			if (startPos == endPos - 1 &&
+//    				!record.getReferenceAllele().equals("-") &&
+//    				record.getReferenceAllele().length() == 1)
+//    			{
+//    				startPos++;
+//    			}
     			
     			String sourceParts[] = sourceLine.split("\t", -1);
     			
@@ -187,7 +217,8 @@ public class PostLiftOver
 					{
 						// also update the build from 18 to 19 (36 to 37)
 						buffer.append(record.getNcbiBuild().replace(
-								"18", "19").replace("36", "37"));
+								"18", "19").replace("36.1", "37").replace(
+										"36", "37"));
 					}
 					else
 					{
@@ -203,6 +234,7 @@ public class PostLiftOver
     			
     			// update record and write to output
     			bufWriter.write(buffer.toString());
+    			bufWriter.newLine();
         		
         		// get next line from mapped file
         		mappedLine = mappedIn.readLine();
@@ -210,14 +242,13 @@ public class PostLiftOver
         		mappedRow++;
         	}
         	
-        	bufWriter.newLine();
-        	
         	sourceRow++;
         }
         
         sourceIn.close();
         mappedIn.close();
         unmappedIn.close();
+        auxIn.close();
         bufWriter.close();
 	}
 	
@@ -329,7 +360,7 @@ public class PostLiftOver
 	 * 
 	 * @param unmappedIn	input reader for the unmapped file
 	 * @return				a data line from the unmapped file, or null if EOF
-	 * @throws IOException	if an IO occurs
+	 * @throws IOException	if an IO error occurs
 	 */
 	private static String getUnmappedLine(BufferedReader unmappedIn) throws IOException
 	{
@@ -342,5 +373,26 @@ public class PostLiftOver
 		}
 		
 		return unmappedLine;
+	}
+	
+	/**
+	 * Retrieves the next modified row (record) number from the aux file.
+	 * If there is no more row number, then returns null.
+	 * 
+	 * @param auxIn			aux file reader
+	 * @return				next modified row number
+	 * @throws IOException	if an IO error occurs
+	 */
+	private static Integer getNextModRow(BufferedReader auxIn) throws IOException
+	{
+		String line = auxIn.readLine();
+		Integer row = null;
+		
+		if (line != null)
+		{
+			row = Integer.parseInt(line);
+		}
+		
+		return row;
 	}
 }

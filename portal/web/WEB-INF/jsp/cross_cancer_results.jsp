@@ -25,7 +25,10 @@
     // Divide histograms only if we are interested in mutations
     boolean divideHistograms = (dataPriority != 2);
 
+    // Check if we wanna show only the mutation data
+    boolean onlyMutationData = (dataPriority == 1);
 
+    int skippedCancerStudies = 0;
     // Now pool the cancer studies
     ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
                            cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
@@ -36,7 +39,13 @@
         } else if(cancerStudy.hasMutationData()) {
             cancerStudiesWithMutations.add(cancerStudy);
         } else {
-            cancerStudiesWithOutMutations.add(cancerStudy);
+            // If user wants to get only the mutation data
+            // don't even add these studies to the list since they don't have any
+            if(!onlyMutationData) {
+                cancerStudiesWithOutMutations.add(cancerStudy);
+            } else {
+                skippedCancerStudies++;
+            }
         }
     }
 
@@ -100,6 +109,7 @@
     var shownHistogram = 1;
     var multipleGenes = <%=multipleGenes%>;
     var divideHistograms = <%=divideHistograms%>;
+    var onlyMutationData = <%=(dataPriority == 1)%>;
     var maxAlterationPercent = 0;
     var lastStudyLoaded = false;
 
@@ -567,8 +577,12 @@
                         <option value="3">Show number of altered cases (studies with mutation data)</option>
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
                         <%
+                            } else if(onlyMutationData) {
+                        %>
+                        <option value="1">Show percent of altered cases (studies with mutation data)</option>
+                        <option value="3">Show number of altered cases (studies with mutation data)</option>
+                        <%
                             } else {
-
                         %>
                         <option value="1">Show percent of altered cases</option>
                         <option value="3">Show number of altered cases</option>
@@ -678,14 +692,28 @@
                     </div>
                     <div class="sortable">
 
-                    <% if(divideHistograms) { %>
-                    <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
-                    <% } %>
+                            <% if(divideHistograms) { %>
+                            <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
+                            <% }
+
+                            outputCancerStudies(cancerStudiesWithOutMutations, out);
+
+                        } else if(onlyMutationData) { // Show a message to the user if only mutation data is wanted
+                    %>
+
+                        <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
+                            <p>
+                                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
+                                </span>
+                                Since the data priority is set to 'Only Mutations', <%=skippedCancerStudies%> cancer
+                                studies that do not have mutation data are excluded from this view.
+                            </p>
+                        </div>
+                        <br/>
 
                     <%
-                            outputCancerStudies(cancerStudiesWithOutMutations, out);
-                       }
-                     %>
+                        }
+                    %>
                     </div>
                 </div>
 

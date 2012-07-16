@@ -1,6 +1,7 @@
 function GenomicOverviewConfig(nRows) {
     this.nRows = nRows;
-    this.GenomeWidth = 1200;
+    this.GenomeWidth = 1140;
+    this.xGenome = 60;
     this.rowHeight = 20;
     this.rowMargin = 5;
     this.ticHeight = 10;
@@ -20,7 +21,7 @@ GenomicOverviewConfig.prototype = {
             return "rgb(255,"+c+","+c+")";
     },
     canvasWidth: function() {
-        return this.GenomeWidth + 5;
+        return this.xGenome+this.GenomeWidth+5;
     },
     canvasHeight: function() {
         return 2*this.rowMargin+this.ticHeight+this.nRows*(this.rowHeight+this.rowMargin);
@@ -54,12 +55,12 @@ ChmInfo.prototype = {
     loc2perc : function(chm,loc) {
         return this.perc[chm-1] + loc/this.total;
     },
-    loc2scale : function(chm,loc,width) {
-        return this.loc2perc(chm,loc) * width;
+    loc2scale : function(chm,loc,goConfig) {
+        return this.loc2perc(chm,loc)*goConfig.GenomeWidth+goConfig.xGenome;
     },
-    middle : function(chm, width) {
+    middle : function(chm, goConfig) {
         var loc = this.hg19[chm]/2;
-        return this.loc2scale(chm,loc,width);
+        return this.loc2scale(chm,loc,goConfig);
     },
     chmName : function(chm) {
         if (chm == 23) {
@@ -71,16 +72,16 @@ ChmInfo.prototype = {
 
 function plotChromosomes(p,config,chmInfo) {
     var yRuler = config.rowMargin+config.ticHeight;
-    drawLine(0,yRuler,config.GenomeWidth,yRuler,p,'#000',1);
+    drawLine(config.xGenome,yRuler,config.xGenome+config.GenomeWidth,yRuler,p,'#000',1);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
-        var xt = chmInfo.loc2scale(i,0,config.GenomeWidth);
+        var xt = chmInfo.loc2scale(i,0,config);
         drawLine(xt,yRuler,xt,config.rowMargin,p,'#000',1);
         
-        var m = chmInfo.middle(i,config.GenomeWidth);
+        var m = chmInfo.middle(i,config);
         p.text(m,yRuler-config.rowMargin,chmInfo.chmName(i));
     }
-    drawLine(config.GenomeWidth,yRuler,config.GenomeWidth,config.rowMargin,p,'#000',1);
+    drawLine(config.xGenome+config.GenomeWidth,yRuler,config.xGenome+config.GenomeWidth,config.rowMargin,p,'#000',1);
 }
 
 function drawLine(x1, y1, x2, y2, p, cl, width) {
@@ -96,54 +97,59 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
-        if (loc==null) continue;
-        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.GenomeWidth));
+        if (loc==null||loc[0]>chmInfo.hg19.length) continue;
+        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config));
         if (pixelMap[x]==null)
             pixelMap[x] = [];
         pixelMap[x].push(i);
     }
     
     var maxCount = 0;
-    for (var i=0; i<=config.GenomeWidth; i++) {
+    for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr && arr.length>maxCount)
             maxCount=arr.length;
     }
     
     var yRow = config.yRow(row);
-    for (var i=0; i<=config.GenomeWidth; i++) {
+    for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr) {
             drawLine(i,yRow,i,yRow+config.rowHeight*arr.length/maxCount,p,'#0f0',3);
         }
     }
+    
+    p.text(0,yRow+config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
+    p.text(config.xGenome-5,yRow+config.rowHeight/2,muts.length).attr({'text-anchor': 'end'});
 }
 
 function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     var yRow = config.yRow(row);
+    var genomeMeasured = 0;
+    var genomeAltered = 0;
     for (var i=0; i<segs.length; i++) {
         var loc = extractLoc(segs[i],chrCol,[startCol,endCol,segCol]);
-        if (loc==null) continue;
+        if (loc==null||loc[0]>chmInfo.hg19.length) continue;
         var chm = loc[0];
-        if (1 <= chm && chm <= 23) {
-            var start = loc[1];
-            var end = loc[2];
-            var segMean = loc[3];
-            if (Math.abs(segMean)<config.cnTh[0]||chm>chmInfo.hg19.length)
-                continue;
-            if (end-start<config.cnLengthTh) //filter cnv
-                continue;
-            var x = chmInfo.loc2scale(chm,start,config.GenomeWidth);
-            var w = chmInfo.loc2scale(1,end-start,config.GenomeWidth);
-            var r = p.rect(x,yRow,w,config.rowHeight);
-            var cl = config.getCnColor(segMean);
-            r.attr("fill",cl);
-            r.attr("stroke", cl);
-            r.attr("stroke-width", 1);
-            r.attr("opacity", 0.5);
-            r.translate(0.5, 0.5);
-        }
+        var start = loc[1];
+        var end = loc[2];
+        var segMean = loc[3];
+        genomeMeasured += end-start;
+        if (Math.abs(segMean)<config.cnTh[0]) continue;
+        if (end-start<config.cnLengthTh) continue; //filter cnv
+        genomeAltered += end-start;
+        var x1 = chmInfo.loc2scale(chm,start,config);
+        var x2 = chmInfo.loc2scale(chm,end,config);
+        var r = p.rect(x1,yRow,x2-x1,config.rowHeight);
+        var cl = config.getCnColor(segMean);
+        r.attr("fill",cl);
+        r.attr("stroke", cl);
+        r.attr("stroke-width", 1);
+        r.attr("opacity", 0.5);
+        r.translate(0.5, 0.5);
     }
+    p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
+    p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end'});
 }
 
 function extractLoc(data,chrCol,cols) {

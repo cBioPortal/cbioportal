@@ -15,7 +15,7 @@
         if (geObs.hasMut) {
             geObs.subscribeMut(function(){
                 var muts = $('#mutation_table').dataTable().fnGetData();
-                plotMuts(paper,config,chmInfo,0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end']);
+                plotMuts(paper,config,chmInfo,geObs.hasCna?1:0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end']);
             });
         }
         
@@ -33,7 +33,7 @@
         $.post("cna.json", 
             params,
             function(segs){
-                plotCnSegs(paper,config,chmInfo,geObs.hasMut?1:0,segs,1,2,3,5);
+                plotCnSegs(paper,config,chmInfo,0,segs,1,2,3,5);
             }
             ,"json"
         );

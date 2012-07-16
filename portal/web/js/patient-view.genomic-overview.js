@@ -111,16 +111,16 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
             maxCount=arr.length;
     }
     
-    var yRow = config.yRow(row);
+    var yRow = config.yRow(row)+config.rowHeight;
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr) {
-            drawLine(i,yRow,i,yRow+config.rowHeight*arr.length/maxCount,p,'#0f0',3);
+            drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',3);
         }
     }
     
-    p.text(0,yRow+config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
-    p.text(config.xGenome-5,yRow+config.rowHeight/2,muts.length).attr({'text-anchor': 'end'});
+    p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
+    p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end'});
 }
 
 function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {

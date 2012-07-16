@@ -1,12 +1,9 @@
-function GenomicOverviewConfig(nMut, nCna) {
-    this.nMut = nMut;
-    this.nCna = nCna;
-    this.width = 1200;
-    this.mutHeight = 20;
-    this.cnaHeight = 20;
+function GenomicOverviewConfig(nRows) {
+    this.nRows = nRows;
+    this.GenomeWidth = 1200;
+    this.rowHeight = 20;
     this.rowMargin = 5;
     this.ticHeight = 10;
-    this.yCurr = this.rowMargin;
     this.cnTh = [0.2,1.5];
     this.cnLengthTh = 50000;
 }
@@ -23,10 +20,13 @@ GenomicOverviewConfig.prototype = {
             return "rgb(255,"+c+","+c+")";
     },
     canvasWidth: function() {
-        return this.width + 5;
+        return this.GenomeWidth + 5;
     },
     canvasHeight: function() {
-        return this.yCurr+this.ticHeight+this.nMut*this.mutHeight+this.nCna*this.cnaHeight+(this.nMut+this.nCna)*this.rowMargin;
+        return 2*this.rowMargin+this.ticHeight+this.nRows*(this.rowHeight+this.rowMargin);
+    },
+    yRow: function(row) {
+        return 2*this.rowMargin+this.ticHeight+row*(this.rowHeight+this.rowMargin);
     }
 };
 
@@ -70,18 +70,17 @@ ChmInfo.prototype = {
 };
 
 function plotChromosomes(p,config,chmInfo) {
-    var yRuler = config.yCurr+config.ticHeight;
-    drawLine(0,yRuler,config.width,yRuler,p,'#000',1);
+    var yRuler = config.rowMargin+config.ticHeight;
+    drawLine(0,yRuler,config.GenomeWidth,yRuler,p,'#000',1);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
-        var xt = chmInfo.loc2scale(i,0,config.width);
-        drawLine(xt,yRuler,xt,config.yCurr,p,'#000',1);
+        var xt = chmInfo.loc2scale(i,0,config.GenomeWidth);
+        drawLine(xt,yRuler,xt,config.rowMargin,p,'#000',1);
         
-        var m = chmInfo.middle(i,config.width);
+        var m = chmInfo.middle(i,config.GenomeWidth);
         p.text(m,yRuler-config.rowMargin,chmInfo.chmName(i));
     }
-    drawLine(config.width,yRuler,config.width,config.yCurr,p,'#000',1);
-    config.yCurr = yRuler+config.rowMargin;
+    drawLine(config.GenomeWidth,yRuler,config.GenomeWidth,config.rowMargin,p,'#000',1);
 }
 
 function drawLine(x1, y1, x2, y2, p, cl, width) {
@@ -93,35 +92,35 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     line.translate(0.5, 0.5);
 }
 
-function plotMuts(p,config,chmInfo,muts,chrCol,startCol,endCol) {
+function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
         if (loc==null) continue;
-        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.width));
+        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config.GenomeWidth));
         if (pixelMap[x]==null)
             pixelMap[x] = [];
         pixelMap[x].push(i);
     }
     
     var maxCount = 0;
-    for (var i=0; i<=config.width; i++) {
+    for (var i=0; i<=config.GenomeWidth; i++) {
         var arr = pixelMap[i];
         if (arr && arr.length>maxCount)
             maxCount=arr.length;
     }
     
-    for (var i=0; i<=config.width; i++) {
+    var yRow = config.yRow(row);
+    for (var i=0; i<=config.GenomeWidth; i++) {
         var arr = pixelMap[i];
         if (arr) {
-            drawLine(i,config.yCurr,i,config.yCurr+config.mutHeight*arr.length/maxCount,p,'#0f0',3);
+            drawLine(i,yRow,i,yRow+config.rowHeight*arr.length/maxCount,p,'#0f0',3);
         }
     }
-    
-    config.yCurr += config.mutHeight+config.rowMargin;
 }
 
-function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {
+function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
+    var yRow = config.yRow(row);
     for (var i=0; i<segs.length; i++) {
         var loc = extractLoc(segs[i],chrCol,[startCol,endCol,segCol]);
         if (loc==null) continue;
@@ -134,9 +133,9 @@ function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {
                 continue;
             if (end-start<config.cnLengthTh) //filter cnv
                 continue;
-            var x = chmInfo.loc2scale(chm,start,config.width);
-            var w = chmInfo.loc2scale(1,end-start,config.width);
-            var r = p.rect(x,config.yCurr,w,config.cnaHeight);
+            var x = chmInfo.loc2scale(chm,start,config.GenomeWidth);
+            var w = chmInfo.loc2scale(1,end-start,config.GenomeWidth);
+            var r = p.rect(x,yRow,w,config.rowHeight);
             var cl = config.getCnColor(segMean);
             r.attr("fill",cl);
             r.attr("stroke", cl);
@@ -145,7 +144,6 @@ function plotCnSegs(p,config,chmInfo,segs,chrCol,startCol,endCol,segCol) {
             r.translate(0.5, 0.5);
         }
     }
-    config.yCurr += config.cnaHeight + config.rowMargin;
 }
 
 function extractLoc(data,chrCol,cols) {

@@ -9,13 +9,15 @@
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig(geObs.hasMut?1:0,geObs.hasCna?1:0);
+        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0));
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
-        geObs.subscribeMut(function(){
-            var muts = $('#mutation_table').dataTable().fnGetData();
-            plotMuts(paper,config,chmInfo,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end']);
-        });
+        if (geObs.hasMut) {
+            geObs.subscribeMut(function(){
+                var muts = $('#mutation_table').dataTable().fnGetData();
+                plotMuts(paper,config,chmInfo,0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end']);
+            });
+        }
         
         if (geObs.hasCna) {
             plotCopyNumberOverview(paper,config,chmInfo);
@@ -31,7 +33,7 @@
         $.post("cna.json", 
             params,
             function(segs){
-                plotCnSegs(paper,config,chmInfo,segs,1,2,3,5);
+                plotCnSegs(paper,config,chmInfo,geObs.hasMut?1:0,segs,1,2,3,5);
             }
             ,"json"
         );

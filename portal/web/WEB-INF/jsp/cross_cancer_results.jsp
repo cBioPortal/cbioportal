@@ -570,7 +570,7 @@
 
                     <select id="hist_toggle_box">
                         <%
-                            if(divideHistograms) {
+                            if(divideHistograms && !onlyMutationData) {
                         %>
                         <option value="1">Show percent of altered cases (studies with mutation data)</option>
                         <option value="2">Show percent of altered cases (studies without mutation data)</option>
@@ -701,12 +701,14 @@
                         } else if(onlyMutationData) { // Show a message to the user if only mutation data is wanted
                     %>
 
+                        <br/>
+                        <br/>
                         <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
                             <p>
                                 <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
                                 </span>
-                                Since the data priority is set to 'Only Mutations', <%=skippedCancerStudies%> cancer
-                                studies that do not have mutation data are excluded from this view.
+                                Since the data priority is set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have mutation data are excluded from this view.
                             </p>
                         </div>
                         <br/>

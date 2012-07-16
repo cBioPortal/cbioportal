@@ -91,6 +91,7 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     line.attr("stroke-width", width);
     line.attr("opacity", 0.5);
     line.translate(0.5, 0.5);
+    return line;
 }
 
 function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
@@ -115,7 +116,8 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr) {
-            drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',3);
+            var l = drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',3);
+            goTip.addTip(l.node, arr.length+" mutations");
         }
     }
     
@@ -163,3 +165,43 @@ function extractLoc(data,chrCol,cols) {
     }
     return ret;
 }
+
+// support for tooltips
+// see: http://jsfiddle.net/QK7hw/403/
+function genomicOverviewTip() {
+    this.tipDiv = null;
+    this.tipText = "";
+    this.mouseOver = false;
+}
+genomicOverviewTip.prototype = {
+    setTipDiv: function(tipDiv) {
+        this.tipDiv = tipDiv;
+    },
+    setTipDivLoc: function(x,y) {
+        this.tipDiv.offset({left:x,top:y});
+    },
+    addTip: function (node, txt) {
+        var self = this;
+        $(node).mouseenter(function(){
+            self.tipText = txt;
+            self.tipDiv.fadeIn();
+            self.over = true;
+        }).mouseleave(function(){
+            self.tipDiv.fadeOut(200);
+            self.over = false;
+        });
+    }
+};
+
+var goTip = new genomicOverviewTip();
+
+$(document).ready(function(){
+    goTip.setTipDiv($("#genomic-overview-tip").hide());
+
+    $(document).mousemove(function(e){
+        if(goTip.over) {
+            goTip.setTipDivLoc(e.clientX+10,e.clientY+10);
+            goTip.tipDiv.text(goTip.tipText);
+        }
+    });
+});

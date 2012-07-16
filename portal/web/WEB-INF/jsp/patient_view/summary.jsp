@@ -1,5 +1,16 @@
 <%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 
+<style type="text/css" title="currentStyle">
+#genomic-overview-tip {
+    position : absolute;
+    border : 1px solid gray;
+    background-color : #efefef;
+    padding : 3px;
+    z-index : 1000;
+    max-width : 200px;
+}
+</style>
+
 <script type="text/javascript">
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
@@ -47,6 +58,7 @@
 <%}%>
 
 <%if(showGenomicOverview){%>
+<div id="genomic-overview-tip"></div>
 <div id="genomics-overview"></div>
 <br/>
 <%}%>

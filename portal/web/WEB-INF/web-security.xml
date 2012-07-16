@@ -293,8 +293,8 @@
     </servlet-mapping>
 
      <servlet-mapping>
-        <servlet-name>oncoprint_converter</servlet-name>
-        <url-pattern>/oncoprint_converter.svg</url-pattern>
+        <servlet-name>histogram_converter</servlet-name>
+        <url-pattern>/histogram_converter.svg</url-pattern>
     </servlet-mapping>   
      
      <servlet-mapping>

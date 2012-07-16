@@ -13,10 +13,27 @@
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
 
+    // Get priority settings
+    Integer dataPriority;
+    try {
+        dataPriority
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+    } catch (NumberFormatException e) {
+        dataPriority = 0;
+    }
+
+    // Divide histograms only if we are interested in mutations
+    boolean divideHistograms = (dataPriority != 2);
+
+
+    // Now pool the cancer studies
     ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
                            cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
     for(CancerStudy cancerStudy: cancerStudies) {
-        if(cancerStudy.hasMutationData()) {
+        if(!divideHistograms) {
+          // A dirty maneuver to show all studies within a single histogram
+          cancerStudiesWithMutations.add(cancerStudy);
+        } else if(cancerStudy.hasMutationData()) {
             cancerStudiesWithMutations.add(cancerStudy);
         } else {
             cancerStudiesWithOutMutations.add(cancerStudy);
@@ -30,15 +47,6 @@
 
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-
-    // Get priority settings
-    Integer caseSetPriority;
-    try {
-        caseSetPriority
-                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
-    } catch (NumberFormatException e) {
-        caseSetPriority = 0;
-    }
 
     // Infer whether there is multiple genes or not (for histogram switching)
     int geneCount = 0;
@@ -91,6 +99,7 @@
     var genesQueried = "";
     var shownHistogram = 1;
     var multipleGenes = <%=multipleGenes%>;
+    var divideHistograms = <%=divideHistograms%>;
     var maxAlterationPercent = 0;
     var lastStudyLoaded = false;
 
@@ -339,7 +348,7 @@
             var cancerID = cancerStudies[bundleIndex];
             $("#study_" + cancerID)
                 .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id='
-                    + cancerID + '&<%=QueryBuilder.DATA_PRIORITY + "=" + caseSetPriority%>',
+                    + cancerID + '&<%=QueryBuilder.DATA_PRIORITY + "=" + dataPriority%>',
                         function() {
 
                             setTimeout(function() {
@@ -398,7 +407,7 @@
            }
 
            var options = {
-              title: 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')',
+              title: divideHistograms ? 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')' : 'Percent Sample Alteration for Each Cancer Study (' + genesQueried + ')',
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
@@ -447,7 +456,7 @@
             histogramChart2.draw(histogramView2, options2);
 
             var options3 = {
-              title: 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')',
+              title: divideHistograms ? 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')' : 'Number of Altered Cases for Each Cancer Study (' + genesQueried + ')',
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
@@ -550,10 +559,22 @@
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
 
                     <select id="hist_toggle_box">
+                        <%
+                            if(divideHistograms) {
+                        %>
                         <option value="1">Show percent of altered cases (studies with mutation data)</option>
                         <option value="2">Show percent of altered cases (studies without mutation data)</option>
                         <option value="3">Show number of altered cases (studies with mutation data)</option>
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
+                        <%
+                            } else {
+
+                        %>
+                        <option value="1">Show percent of altered cases</option>
+                        <option value="3">Show number of altered cases</option>
+                        <%
+                            }
+                        %>
                     </select>
                      |
                      <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
@@ -644,18 +665,23 @@
                     });
                 </script>
 
-
-
-
                 <div id="accordion">
+
+                    <% if(divideHistograms) { %>
                     <h2 class="cross_cancer_header">Studies with Mutation Data</h2>
+                    <% } %>
+
                     <div class="sortable">
                     <% outputCancerStudies(cancerStudiesWithMutations, out); %>
                     <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
                     %>
                     </div>
                     <div class="sortable">
+
+                    <% if(divideHistograms) { %>
                     <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
+                    <% } %>
+
                     <%
                             outputCancerStudies(cancerStudiesWithOutMutations, out);
                        }

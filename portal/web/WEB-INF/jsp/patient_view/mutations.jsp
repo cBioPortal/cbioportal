@@ -240,7 +240,7 @@
                 
                 // summary table
                 var mut_summary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
-                $('.mutation-summary-table-name').html('Mutations of Interest (out of '+mutations.length+' mutations)');
+                $('.mutation-summary-table-name').html(overviewMutEventIds.length+' mutations of Interest (out of '+mutations.length+' mutations)');
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "+mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');

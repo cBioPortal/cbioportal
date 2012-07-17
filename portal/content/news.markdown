@@ -1,9 +1,17 @@
+# July 17, 2012
+
+* Added mutation data for the TCGA lung squamous cell carcinoma and breast cancer projects (manuscripts in press at Nature).
+* All data updated to the __latest Broad Firehose run__ (May 25, 2012).
+* _Drug information_ added to the network view (via Drugbank).
+* _Improved cross-cancer_ queries: Option to select data types, export of summary graphs.
+* Users can now base queries on frequently mutated genes (from _MutSig_ via Firehose).
+
 # May 16, 2012
 
 * All data updated to the __latest Broad Firehose run__ (March 21, 2012).
-* Extended cross-cancer functionality, enabling users to query across all cancer studies in our database.
-* New "build a case" functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
-* New OncoPrint features, including more compact OncoPrints, and support for RPPA visualization.
+* Extended _cross-cancer_ functionality, enabling users to query across all cancer studies in our database.
+* New _"build a case"_ functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
+* New OncoPrint features, including more _compact OncoPrints_, and support for _RPPA_ visualization.
 
 # February 27, 2012
 

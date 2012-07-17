@@ -98,7 +98,7 @@
 
             var port = 60151;
             var dataUrl = "<%= segFileURL %>" + segFile;
-            var genomeID = "hg18";
+            var genomeID = "hg19";
             var mergeFlag = false;
             var locusString = genes;
             var trackName = null;

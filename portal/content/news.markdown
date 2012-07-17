@@ -1,5 +1,6 @@
 # July 17, 2012
 
+* Added mutation data for the TCGA lung squamous cell carcinoma and breast cancer projects (manuscripts in press at Nature).
 * All data updated to the __latest Broad Firehose run__ (May 25, 2012).
 * _Drug information_ added to the network view (via Drugbank).
 * _Improved cross-cancer_ queries: Option to select data types, export of summary graphs.

@@ -200,6 +200,8 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
         r.attr("stroke-width", 1);
         r.attr("opacity", 0.5);
         r.translate(0.5, 0.5);
+        var tip = "Mean copy number log2 value: "+segMean+"<br/>from "+loc2string([chm,start],chmInfo)+"<br/>to "+loc2string([chm,end],chmInfo);
+        goTip.addTip(r.node, tip);
     }
     p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end'});
@@ -236,7 +238,8 @@ genomicOverviewTip.prototype = {
         });
     },
     setTipDivLoc: function(x,y) {
-        this.tipDiv.offset({left:x,top:y});
+        var l = x<800 ? (x+10) : (x-this.tipDiv.outerWidth()-10);
+        this.tipDiv.offset({left:l,top:(y+10)});
     },
     addTip: function (node, txt) {
         var tipObj = this;
@@ -245,8 +248,8 @@ genomicOverviewTip.prototype = {
             setTimeout(function(){
                 if (node==tipObj.node) {
                     tipObj.tipDiv.fadeIn();
-                    tipObj.setTipDivLoc(e.clientX+pageXOffset+10,e.clientY+pageYOffset+10);
                     tipObj.tipDiv.html(txt);
+                    tipObj.setTipDivLoc(e.clientX+pageXOffset,e.clientY+pageYOffset);
                 }
             },400);
             

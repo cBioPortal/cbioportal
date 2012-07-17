@@ -7,7 +7,7 @@
     background-color : #efefef;
     padding : 3px;
     z-index : 1000;
-    max-width : 600px;
+    max-width : 300px;
 }
 </style>
 

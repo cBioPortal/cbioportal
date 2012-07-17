@@ -1,16 +1,16 @@
-# July 17, 2012
+# July 18, 2012
 
 * All data updated to the __latest Broad Firehose run__ (May 25, 2012).
-* _Drug information_ added to the network view (via Drugbank).
-* _Improved cross-cancer_ queries: Option to select data types, export of summary graphs.
-* Users can now base queries on frequently mutated genes (from _MutSig_ via Firehose).
+* __Drug information__ added to the network view (via Drugbank).
+* __Improved cross-cancer__ queries: Option to select data types, export of summary graphs.
+* Users can now base queries on frequently mutated genes (from __MutSig__ via Firehose).
 
 # May 16, 2012
 
 * All data updated to the __latest Broad Firehose run__ (March 21, 2012).
-* Extended _cross-cancer_ functionality, enabling users to query across all cancer studies in our database.
-* New _"build a case"_ functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
-* New OncoPrint features, including more _compact OncoPrints_, and support for _RPPA_ visualization.
+* Extended __cross-cancer__ functionality, enabling users to query across all cancer studies in our database.
+* New __"build a case"__ functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
+* New OncoPrint features, including more __compact OncoPrints__, and support for __RPPA__ visualization.
 
 # February 27, 2012
 

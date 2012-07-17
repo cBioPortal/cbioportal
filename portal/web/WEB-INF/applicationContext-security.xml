@@ -73,6 +73,7 @@
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/histogram_converter.svg*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 
       <!-- everything else locked down by default -->

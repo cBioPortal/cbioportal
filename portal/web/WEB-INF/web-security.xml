@@ -130,6 +130,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>MutSigJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.MutSigJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>plot</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PlotServlet</servlet-class>
     </servlet>
@@ -296,6 +301,11 @@
     <servlet-mapping>
     	<servlet-name>CheckGeneSymbolJSON</servlet-name>
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>MutSigJSON</servlet-name>
+        <url-pattern>/MutSig.json</url-pattern>
     </servlet-mapping>
 
 	<servlet-mapping>

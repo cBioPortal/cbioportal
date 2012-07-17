@@ -302,6 +302,10 @@ function trimHtml(html) {
     return html.replace(/<[^>]*>/g,"");
 }
 
+function idRegEx(ids) {
+    return "(^"+ids.join("$)|(^")+"$)";
+}
+
 var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 
 </script>

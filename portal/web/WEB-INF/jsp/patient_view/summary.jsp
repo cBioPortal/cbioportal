@@ -26,7 +26,7 @@
         if (geObs.hasMut) {
             geObs.subscribeMut(function(){
                 var muts = $('#mutation_table').dataTable().fnGetData();
-                plotMuts(paper,config,chmInfo,geObs.hasCna?1:0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end']);
+                plotMuts(paper,config,chmInfo,geObs.hasCna?1:0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end'],mutTableIndices['id']);
             });
         }
         

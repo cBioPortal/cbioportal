@@ -120,7 +120,7 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     return line;
 }
 
-function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
+function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
@@ -129,7 +129,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
         var xBin = x-x%config.pixelsPerBinMut;
         if (pixelMap[xBin]==null)
             pixelMap[xBin] = [];
-        pixelMap[xBin].push(i);
+        pixelMap[xBin].push(muts[i][idCol]);
     }
     
     var maxCount = 0;
@@ -153,7 +153,8 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
             r.translate(0.5, 0.5);
             var locStart = chmInfo.xpixil2loc(config,pixil);
             var locEnd = chmInfo.xpixil2loc(config,pixil+config.pixelsPerBinMut,locStart[0]);
-            var tip = arr.length+" mutations<br/>from "+loc2string(locStart,chmInfo)+"<br/>to "+loc2string(locEnd,chmInfo);
+            var tip = '<a href="#" onclick="filterMutationsTableByIds(\''+idRegEx(arr)+'\');switchToTab(\'mutations\');return false;">'+arr.length+' mutations</a>'
+                        +"<br/>from "+loc2string(locStart,chmInfo)+"<br/>to "+loc2string(locEnd,chmInfo);
             goTip.addTip(r.node, tip);
         }
     }

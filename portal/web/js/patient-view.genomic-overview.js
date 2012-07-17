@@ -117,7 +117,6 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr) {
-            //var l = drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',1);
             var h = config.rowHeight*arr.length/maxCount;
             var r = p.rect(i*config.pixelsPerBinMut,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
@@ -179,10 +178,18 @@ function extractLoc(data,chrCol,cols) {
 function genomicOverviewTip() {
     this.tipDiv = null;
     this.node = null;
+    this.overTip = false;
 }
 genomicOverviewTip.prototype = {
     setTipDiv: function(tipDiv) {
         this.tipDiv = tipDiv;
+        var tipObj = this;
+        tipDiv.mouseenter(function(e){
+            tipObj.overTip = true;            
+        }).mouseleave(function(){
+            tipObj.overTip = false;
+            tipObj.tipDiv.fadeOut(200);
+        });
     },
     setTipDivLoc: function(x,y) {
         this.tipDiv.offset({left:x,top:y});
@@ -197,11 +204,16 @@ genomicOverviewTip.prototype = {
                     tipObj.setTipDivLoc(e.clientX+pageXOffset+10,e.clientY+pageYOffset+10);
                     tipObj.tipDiv.text(txt);
                 }
-            },500);
+            },400);
             
         }).mouseleave(function(){
-            tipObj.tipDiv.fadeOut(200);
             tipObj.node = null;
+            setTimeout(function(){
+                if (!tipObj.overTip) {
+                    tipObj.tipDiv.fadeOut(200);
+                }
+            },400);
+            
         });
     }
 };

@@ -123,7 +123,7 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
 function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
-        var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
+        var loc = extractLoc(muts[i],chrCol,startCol,endCol);
         if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
         var x = Math.round(chmInfo.loc2xpixil(loc[0],(loc[1]+loc[2])/2,config));
         var xBin = x-x%config.pixelsPerBinMut;
@@ -182,12 +182,12 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     var genomeMeasured = 0;
     var genomeAltered = 0;
     for (var i=0; i<segs.length; i++) {
-        var loc = extractLoc(segs[i],chrCol,[startCol,endCol,segCol]);
+        var loc = extractLoc(segs[i],chrCol,startCol,endCol);
         if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
         var chm = loc[0];
         var start = loc[1];
         var end = loc[2];
-        var segMean = loc[3];
+        var segMean = segs[i][segCol];
         genomeMeasured += end-start;
         if (Math.abs(segMean)<config.cnTh[0]) continue;
         if (end-start<config.cnLengthTh) continue; //filter cnv
@@ -208,16 +208,12 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end'});
 }
 
-function extractLoc(data,chrCol,cols) {
+function extractLoc(data,chrCol,startCol,endCol) {
     var chm = (data[chrCol]=='X'||data[chrCol]=='Y'||data[chrCol]=='x'||data[chrCol]=='y') ? 23 : parseInt(data[1]);
     if (isNaN(chm) || chm < 1 || chm > 23) {
         return null;
     }
-    var ret = [chm];
-    for (var i=0; i<cols.length; i++) {
-        ret.push(data[cols[i]]);
-    }
-    return ret;
+    return [chm,data[startCol],data[endCol]];
 }
 
 // support for tooltips

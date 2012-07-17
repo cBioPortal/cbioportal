@@ -10,7 +10,7 @@ A genomic overview with events aligned across patients goes here...
         var cna = events['<%=SimilarPatientsJSON.CNA%>'];
         var s = [];
         if (mut != null) {
-            s.push(''+mut.length+' mutations');
+            s.push('<a href="#" onclick="filterMutationsTableByIds(\''+mut.join('|')+'\');switchToTab(\'mutations\');return false;">'+mut.length+' mutations</a>');
         }
         if (cna != null) {
             s.push(''+cna.length+' copy number alterations')

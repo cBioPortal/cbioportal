@@ -217,7 +217,10 @@
         );
     }
     
+    var mut_table;
+    var mut_summary_table;
     $(document).ready(function(){
+        $('#mutation_id_filter_msg').hide();
         $('#mutation_wrapper_table').hide();
         var params = {
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
@@ -228,7 +231,7 @@
             params,
             function(mutations){
                 // mutations
-                var mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
                 
@@ -239,27 +242,38 @@
                 geObs.fire('mutations-built');
                 
                 // summary table
-                var mut_summary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
+                mut_summary_table = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "+mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');
                     return false;
                 });
-                mut_summary.fnFilter('true', mutTableIndices["overview"]);
-                $('.mutation-summary-table-name').html(mut_summary.fnSettings().fnRecordsDisplay()+' mutations of Interest (out of '+mutations.length+' mutations)');
+                mut_summary_table.fnFilter('true', mutTableIndices["overview"]);
+                $('.mutation-summary-table-name').html(mut_summary_table.fnSettings().fnRecordsDisplay()+' mutations of Interest (out of '+mutations.length+' mutations)');
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
-                loadMutationContextData(mutations, mut_table, mut_summary);
-                loadMutationDrugData(mut_table, mut_summary);
+                loadMutationContextData(mutations, mut_table, mut_summary_table);
+                loadMutationDrugData(mut_table, mut_summary_table);
             }
             ,"json"
         );
     });
+    
+    function filterMutationsTableByIds(mutIdsRegEx) {
+        mut_table.fnFilter(mutIdsRegEx, mutTableIndices["id"],true);
+        $('#mutation_id_filter_msg').show();
+    }
+    
+    function unfilterMutationsTableByIds() {
+        mut_table.fnFilter("", mutTableIndices["id"]);
+        $('#mutation_id_filter_msg').hide();
+    }
 </script>
 
 <div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>
-
+<div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
+<button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
 <table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%">
     <tr>
         <td>

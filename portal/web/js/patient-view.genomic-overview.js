@@ -56,12 +56,12 @@ ChmInfo.prototype = {
     loc2perc : function(chm,loc) {
         return this.perc[chm-1] + loc/this.total;
     },
-    loc2scale : function(chm,loc,goConfig) {
+    loc2xpixil : function(chm,loc,goConfig) {
         return this.loc2perc(chm,loc)*goConfig.GenomeWidth+goConfig.xGenome;
     },
     middle : function(chm, goConfig) {
         var loc = this.hg19[chm]/2;
-        return this.loc2scale(chm,loc,goConfig);
+        return this.loc2xpixil(chm,loc,goConfig);
     },
     chmName : function(chm) {
         if (chm == 23) {
@@ -76,7 +76,7 @@ function plotChromosomes(p,config,chmInfo) {
     drawLine(config.xGenome,yRuler,config.xGenome+config.GenomeWidth,yRuler,p,'#000',1);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
-        var xt = chmInfo.loc2scale(i,0,config);
+        var xt = chmInfo.loc2xpixil(i,0,config);
         drawLine(xt,yRuler,xt,config.rowMargin,p,'#000',1);
         
         var m = chmInfo.middle(i,config);
@@ -100,10 +100,11 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
         if (loc==null||loc[0]>chmInfo.hg19.length) continue;
-        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config)/config.pixelsPerBinMut);
-        if (pixelMap[x]==null)
-            pixelMap[x] = [];
-        pixelMap[x].push(i);
+        var x = Math.round(chmInfo.loc2xpixil(loc[0],(loc[1]+loc[2])/2,config));
+        var xBin = x-x%config.pixelsPerBinMut;
+        if (pixelMap[xBin]==null)
+            pixelMap[xBin] = [];
+        pixelMap[xBin].push(i);
     }
     
     var maxCount = 0;
@@ -118,7 +119,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
         var arr = pixelMap[i];
         if (arr) {
             var h = config.rowHeight*arr.length/maxCount;
-            var r = p.rect(i*config.pixelsPerBinMut,yRow-h,config.pixelsPerBinMut,h);
+            var r = p.rect(i,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
             r.attr("stroke", "#0f0");
             r.attr("stroke-width", 1);
@@ -147,8 +148,8 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
         if (Math.abs(segMean)<config.cnTh[0]) continue;
         if (end-start<config.cnLengthTh) continue; //filter cnv
         genomeAltered += end-start;
-        var x1 = chmInfo.loc2scale(chm,start,config);
-        var x2 = chmInfo.loc2scale(chm,end,config);
+        var x1 = chmInfo.loc2xpixil(chm,start,config);
+        var x2 = chmInfo.loc2xpixil(chm,end,config);
         var r = p.rect(x1,yRow,x2-x1,config.rowHeight);
         var cl = config.getCnColor(segMean);
         r.attr("fill",cl);

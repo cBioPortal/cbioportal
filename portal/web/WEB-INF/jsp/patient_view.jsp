@@ -13,6 +13,7 @@ request.setAttribute("in-patient-view", true);
 
 <tr>
     <td>
+        <div id="content">    
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
@@ -146,6 +147,7 @@ if (patientViewError!=null) {
 <%  
 }
 %>
+        </div>
     </td>
 </tr>
 

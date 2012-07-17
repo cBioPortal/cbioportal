@@ -2,6 +2,7 @@ function GenomicOverviewConfig(nRows) {
     this.nRows = nRows;
     this.GenomeWidth = 1140;
     this.xGenome = 60;
+    this.pixelsPerBinMut = 3;
     this.rowHeight = 20;
     this.rowMargin = 5;
     this.ticHeight = 10;
@@ -99,7 +100,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
         if (loc==null||loc[0]>chmInfo.hg19.length) continue;
-        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config));
+        var x = Math.round(chmInfo.loc2scale(loc[0],(loc[1]+loc[2])/2,config)/config.pixelsPerBinMut);
         if (pixelMap[x]==null)
             pixelMap[x] = [];
         pixelMap[x].push(i);
@@ -116,8 +117,15 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         if (arr) {
-            var l = drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',3);
-            goTip.addTip(l.node, arr.length+" mutations");
+            //var l = drawLine(i,yRow,i,yRow-config.rowHeight*arr.length/maxCount,p,'#0f0',1);
+            var h = config.rowHeight*arr.length/maxCount;
+            var r = p.rect(i*config.pixelsPerBinMut,yRow-h,config.pixelsPerBinMut,h);
+            r.attr("fill","#0f0");
+            r.attr("stroke", "#0f0");
+            r.attr("stroke-width", 1);
+            r.attr("opacity", 0.5);
+            r.translate(0.5, 0.5);
+            goTip.addTip(r.node, arr.length+" mutations");
         }
     }
     

@@ -191,7 +191,12 @@
     <servlet>
     	<servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.MutationsJSON</servlet-class>
-    </servlet>  
+    </servlet>
+    
+    <servlet>
+    	<servlet-name>DrugsJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.DrugsJSON</servlet-class>
+    </servlet>
     
     <servlet>
     	<servlet-name>CnaJSON</servlet-name>
@@ -331,6 +336,11 @@
     <servlet-mapping>
     	<servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>DrugsJSON</servlet-name>
+        <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -1,5 +1,6 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.portal.servlet.DrugsJSON" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
@@ -124,6 +125,24 @@ if (patientViewError!=null) {
     <%}%>
 
 </div>
+    
+<div id="drugs_dialog" title="Drugs" style="font-size: 11px; .ui-dialog {padding: 0em;};">
+    <img id='drugs-loader-img' src="images/ajax-loader.gif"/>
+    <table id="drugs_table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Synonyms</th>
+                <th>FDA Approved?</th>
+                <th>Description</th>
+                <th>Data Source</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 <%  
 }
 %>
@@ -145,6 +164,7 @@ if (patientViewError!=null) {
 $(document).ready(function(){
     setUpPatientTabs();
     initTabs();
+    initDrugDialog();
 });
 
 function setUpPatientTabs() {
@@ -163,8 +183,71 @@ function initTabs() {
             $('#patient-tabs ul a').removeClass('selected');
             $(this).addClass('selected');
             return false;
-    }).filter(':first').click();
-    
+    }).filter(':first').click();   
+}
+
+function initDrugDialog() {
+    $('#drugs_dialog').dialog({autoOpen: false,
+        modal: true,
+        minHeight: 200,
+        maxHeight: 600,
+        height: 200,
+        minWidth: 300,
+        minWidth: 800
+        });
+}
+
+function openDrugDialog(drugIds) {
+    $('#drugs_dialog').dialog('open');
+    $('#drugs-loader-img').show();
+    $('drugs_table').hide();
+    var params = {
+        <%=DrugsJSON.DRUG_IDS%>: drugIds
+    };
+
+    $.post("drugs.json", 
+        params,
+        function(drugs){
+            $('#drugs_table').dataTable( {
+                "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>',
+                "bJQueryUI": true,
+                "bDestroy": true,
+                "aaData": drugs,
+                "aoColumnDefs":[
+                    {// data source
+                        "aTargets": [ 3 ],
+                        "fnRender": function(obj) {
+                            return obj.aData[ obj.iDataColumn ]?"Yes":"No";
+                        }
+                    },
+                    {// data source
+                        "aTargets": [ 5 ],
+                        "fnRender": function(obj) {
+                            var source = obj.aData[ obj.iDataColumn ];
+                            if (source.toLowerCase()!="drugbank") return source;
+                            var drugId = obj.aData[ 0 ];
+                            return "<a href=\"http://www.drugbank.ca/drugs/"+drugId+"\" target=\"_blank\">"+ source + "</a>";
+                        }
+                    }
+                ],
+                "oLanguage": {
+                    "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                    "sInfoFiltered": "",
+                    "sLengthMenu": "Show _MENU_ per page"
+                },
+                "iDisplayLength": 25,
+                "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+            } );
+
+            // help
+            $('.mutations_help').tipTip();
+
+            $('#drugs_table').css("width","100%");
+            $('#drugs_table').show();
+            $('#drugs-loader-img').remove();
+        }
+        ,"json"
+    );
 }
 
 function fixCytoscapeWebRedraw() {
@@ -208,15 +291,9 @@ var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 function getDrugMap(drugs) {
     var map = {};
     for (var gene in drugs) {
-        var strs = [];
-        var drugs_arr = drugs[gene];
-        for (var i=0; i<drugs_arr.length; i++) {
-            var drug = drugs_arr[i];
-            strs.push("<a href=\"http://www.drugbank.ca/drugs/"+drug+"\">"
-                + drug + "</a>");
-        }
-        
-        map[gene] = strs.join("<br/>");
+        var d = drugs[gene];
+        var strDrugs = d.join(',');
+        map[gene] = "<a href=\"#\" onclick=\"openDrugDialog('"+strDrugs+"'); return false;\">"+d.length+" drug"+(d.length>1?"s":"")+"</a>";
     }
     return map;
 }

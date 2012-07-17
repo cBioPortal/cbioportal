@@ -216,13 +216,13 @@
                 
                 // summary table
                 var cna_summary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
-                $('.cna-summary-table-name').html(overviewCnaEventIds.length+' copy Number Alterations (CNAs) of Interest (out of '+cnas.length+" CNAs)");
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');
                     return false;
                 });
                 cna_summary.fnFilter('true', 4);
+                $('.cna-summary-table-name').html(cna_summary.fnSettings().fnRecordsDisplay()+' copy Number Alterations (CNAs) of Interest (out of '+cnas.length+" CNAs)");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

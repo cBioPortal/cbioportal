@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+import java.util.Collection;
+import java.util.Collections;
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cgds.model.Drug;
 
 /**
@@ -109,6 +111,37 @@ public class DaoDrug {
             } else {
                 return null;
             }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    public ArrayList<Drug> getDrugs(Collection<String> drugIds) throws DaoException {
+        ArrayList<Drug> drugList = new ArrayList<Drug>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM drug WHERE DRUG_ID in ('"
+                    + StringUtils.join(drugIds, "','")+"')");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Drug drug = new Drug();
+                drug.setId(rs.getString("DRUG_ID"));
+                drug.setResource(rs.getString("DRUG_RESOURCE"));
+                drug.setName(rs.getString("DRUG_NAME"));
+                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
+                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
+                drug.setExternalReference(rs.getString("DRUG_XREF"));
+                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
+                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
+                drugList.add(drug);
+            }
+            return drugList;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

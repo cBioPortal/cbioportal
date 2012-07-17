@@ -56,6 +56,7 @@
         <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
+        <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>

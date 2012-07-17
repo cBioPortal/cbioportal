@@ -193,9 +193,9 @@ function initDrugDialog() {
         modal: true,
         minHeight: 200,
         maxHeight: 600,
-        height: 200,
+        height: 400,
         minWidth: 300,
-        minWidth: 800
+        width: 800
         });
 }
 

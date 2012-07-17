@@ -202,5 +202,4 @@ var goTip = new genomicOverviewTip();
 
 $(document).ready(function(){
     goTip.setTipDiv($("#genomic-overview-tip").hide());
-
 });

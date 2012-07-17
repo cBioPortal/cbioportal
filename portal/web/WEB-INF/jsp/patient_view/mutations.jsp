@@ -12,7 +12,7 @@
         .mutation-summary-table-name {
                 float: left;
                 font-weight: bold;
-                font-size: 130%;
+                font-size: 120%;
         }
         .mutation-show-more {
             float: left;
@@ -240,8 +240,8 @@
                 
                 // summary table
                 var mut_summary = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
-                $('.mutation-summary-table-name').html('Mutations of Interest');
-                $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show more mutations</a>");
+                $('.mutation-summary-table-name').html('Mutations of Interest (out of '+mutations.length+' mutations)');
+                $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "+mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');
                     return false;

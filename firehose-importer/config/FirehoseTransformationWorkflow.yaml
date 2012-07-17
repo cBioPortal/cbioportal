@@ -111,9 +111,15 @@
         - gdac.broadinstitute.org_<CANCER>.Correlate_Methylation_vs_mRNA.Level_4.<date><version> Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
         - gdac.broadinstitute.org_<CANCER>.Merge_methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.<date><version> <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
 
-# .seg file required for igv linking
-- create_igv_seg:
-    outfile: <CANCER>_tcga.seg
+# .seg file required for IGV linking (hg 18)
+- create_hg18_seg:
+    outfile: <CANCER>_tcga_scna_hg18.seg
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.Level_3.<date><version> <CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.seg.txt
+
+# .seg file required for patient view (hg 19)
+- create_hg19_seg:
+    outfile: <CANCER>_tcga_scna_minus_germline_cnv_hg19.seg
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.Level_3.<date><version> <CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.seg.txt
 

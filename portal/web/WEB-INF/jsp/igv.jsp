@@ -94,11 +94,11 @@
             var genes = geneList;
             genes = genes.replace(/\s+/gi, "%20");
 
-            var segFile = cancerTypeId + ".seg";
+            var segFile = cancerTypeId + "_scna_hg18.seg";
 
             var port = 60151;
             var dataUrl = "<%= segFileURL %>" + segFile;
-            var genomeID = "hg19";
+            var genomeID = "hg18";
             var mergeFlag = false;
             var locusString = genes;
             var trackName = null;

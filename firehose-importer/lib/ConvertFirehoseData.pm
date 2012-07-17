@@ -968,8 +968,11 @@ sub createCancerTypeNameFile{
     my $fileContent = "type_of_cancer: " . $cancer . "\n"; 
     $fileContent .= "cancer_study_identifier: " . $cancer . "_tcga" . "\n";
     $fileContent .= 'name: ';
-    if( defined( $name ) ){
-        $fileContent .= $name . " (TCGA, Provisional)"  . "\n"; 
+    if ( defined( $name ) ){
+	  $fileContent .= $name . " (TCGA, Provisional)" . "\n";
+	  if ($cancer eq 'brca' || $cancer eq 'lusc') {
+		$fileContent =~ s/, Provisional//;
+	  }
         
         # TCGA<full cancer name here>.<# of samples>   samples.
 		# remove methylation data from array before getting union
@@ -984,7 +987,15 @@ sub createCancerTypeNameFile{
         my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
         my $url = "\"https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
+	  if ($cancer eq 'brca') {
+		$fileContent .= "description: <a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Cancer project. $cases cases.<br><i>Nature in press.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.";
+	  }
+	  elsif ($cancer eq 'lusc') {
+		$fileContent .= "description: <a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Lung Squamous Cell Carcinoma project. $cases cases.<br><i>Nature in press.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.";
+	  }
+	  else {
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";
+	  }
     }else{
         $fileContent .= 'TBD' . "\n"; 
         $fileContent .= "description: TBD\n";

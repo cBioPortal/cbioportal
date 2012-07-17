@@ -5,6 +5,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="java.io.IOException" %>
 
 <%
     String siteTitle = SkinUtil.getTitle();
@@ -12,13 +13,39 @@
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
 
+    // Get priority settings
+    Integer dataPriority;
+    try {
+        dataPriority
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+    } catch (NumberFormatException e) {
+        dataPriority = 0;
+    }
+
+    // Divide histograms only if we are interested in mutations
+    boolean divideHistograms = (dataPriority != 2);
+
+    // Check if we wanna show only the mutation data
+    boolean onlyMutationData = (dataPriority == 1);
+
+    int skippedCancerStudies = 0;
+    // Now pool the cancer studies
     ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
                            cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
     for(CancerStudy cancerStudy: cancerStudies) {
-        if(cancerStudy.hasMutationData()) {
+        if(!divideHistograms) {
+          // A dirty maneuver to show all studies within a single histogram
+          cancerStudiesWithMutations.add(cancerStudy);
+        } else if(cancerStudy.hasMutationData()) {
             cancerStudiesWithMutations.add(cancerStudy);
         } else {
-            cancerStudiesWithOutMutations.add(cancerStudy);
+            // If user wants to get only the mutation data
+            // don't even add these studies to the list since they don't have any
+            if(!onlyMutationData) {
+                cancerStudiesWithOutMutations.add(cancerStudy);
+            } else {
+                skippedCancerStudies++;
+            }
         }
     }
 
@@ -81,6 +108,8 @@
     var genesQueried = "";
     var shownHistogram = 1;
     var multipleGenes = <%=multipleGenes%>;
+    var divideHistograms = <%=divideHistograms%>;
+    var onlyMutationData = <%=(dataPriority == 1)%>;
     var maxAlterationPercent = 0;
     var lastStudyLoaded = false;
 
@@ -184,6 +213,22 @@
         drawChart();
 
         $("#histogram_sort").tipTip();
+        $("#download_histogram").tipTip();
+
+        $("#download_histogram").click(function(event) {
+            event.preventDefault();
+
+            // Snip from http://bit.ly/NbPagq
+            var chartContainer = document.getElementById("chart_div" + shownHistogram);
+            var chartArea = chartContainer.getElementsByTagName('iframe')[0].
+                 contentDocument.getElementById('chartArea');
+            var svg = chartArea.innerHTML;
+
+            // Our custom form submission
+            $("#histogram_svg_xml").val(svg);
+            $("#histogram_download_form").submit();
+        });
+
         $("#histogram_sort").click(function(event) {
             event.preventDefault(); // Not to scroll to the top
             sortPermanently = !sortPermanently;
@@ -312,7 +357,8 @@
 
             var cancerID = cancerStudies[bundleIndex];
             $("#study_" + cancerID)
-                .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id=' + cancerID,
+                .load('cross_cancer_summary.do?gene_list=<%= geneList %>&cancer_study_id='
+                    + cancerID + '&<%=QueryBuilder.DATA_PRIORITY + "=" + dataPriority%>',
                         function() {
 
                             setTimeout(function() {
@@ -371,14 +417,14 @@
            }
 
            var options = {
-              title: 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
+              title: divideHistograms ? 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')' : 'Percent Sample Alteration for Each Cancer Study (' + genesQueried + ')',
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
                     title: 'Percent Altered',
@@ -396,13 +442,13 @@
             
 	    var options2 = {
               title: 'Percent Sample Alteration for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+                slantedTextAngle: 45,
+                maxTextLines: 2
               },
               vAxis: {
 	            title: 'Percent Altered',
@@ -420,8 +466,7 @@
             histogramChart2.draw(histogramView2, options2);
 
             var options3 = {
-              title: 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
+              title: divideHistograms ? 'Number of Altered Cases for Each Cancer Study with Mutation data (' + genesQueried + ')' : 'Number of Altered Cases for Each Cancer Study (' + genesQueried + ')',
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
@@ -431,8 +476,9 @@
                 easing: 'linear'
         	  },
               hAxis: {
-                slantedTextAngle: 45
-              },
+                 slantedTextAngle: 45,
+                 maxTextLines: 2
+               },
               yAxis: {
                 title: 'Number of cases'
               },
@@ -443,13 +489,13 @@
             
 	    var options4 = {
               title: 'Number of Altered Cases for Each Cancer Study without Mutation Data (' + genesQueried + ')',
-              hAxis: {title: 'Cancer Study'},
               colors: multipleGenes ? ['#aaaaaa', '#eeeeee'] : ['#aaaaaa',  '#008000', '#002efa', '#ff2617', '#eeeeee'],
               legend: {
                 position: 'bottom'
               },
               hAxis: {
-                slantedTextAngle: 45
+               slantedTextAngle: 45,
+               maxTextLines: 2
               },
               animation: {
                 duration: 750,
@@ -521,21 +567,45 @@
                 <br/>
 
                 <div id="historam_toggle" style="text-align: right; padding-right: 125px">
+
                     <select id="hist_toggle_box">
+                        <%
+                            if(divideHistograms && !onlyMutationData) {
+                        %>
                         <option value="1">Show percent of altered cases (studies with mutation data)</option>
                         <option value="2">Show percent of altered cases (studies without mutation data)</option>
                         <option value="3">Show number of altered cases (studies with mutation data)</option>
                         <option value="4">Show number of altered cases (studies without mutation data)</option>
+                        <%
+                            } else if(onlyMutationData) {
+                        %>
+                        <option value="1">Show percent of altered cases (studies with mutation data)</option>
+                        <option value="3">Show number of altered cases (studies with mutation data)</option>
+                        <%
+                            } else {
+                        %>
+                        <option value="1">Show percent of altered cases</option>
+                        <option value="3">Show number of altered cases</option>
+                        <%
+                            }
+                        %>
                     </select>
-                    |
-                    <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                     |
+                     <a href="#" id="histogram_sort" title="Sorts/unsorts histograms by alteration in descending order">Sort</a>
+                     |
+                     <a href="#" id="download_histogram" title="Downloads the current histogram in SVG format.">Export</a>
                 </div>
-                <div id="chart_div1" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div2" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div3" style="width: 975px; height: 400px;"></div>
-                <div id="chart_div4" style="width: 975px; height: 400px;"></div>
+                <div id="chart_div1" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div2" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div3" style="width: 975px; height: 450px;"></div>
+                <div id="chart_div4" style="width: 975px; height: 450px;"></div>
                 <br/>
                 <br/>
+
+                <form id="histogram_download_form" method="POST" action="histogram_converter.svg">
+                    <input type="hidden" name="format" value="svg">
+                    <input type="hidden" name="xml" id="histogram_svg_xml" value="">
+                </form>
 
                 <hr align="left" class="crosscancer-hr"/>
                 <h1 class="crosscancer-header">Details for Each Cancer Study</h1>
@@ -609,22 +679,43 @@
                     });
                 </script>
 
-
-
-
                 <div id="accordion">
+
+                    <% if(divideHistograms) { %>
                     <h2 class="cross_cancer_header">Studies with Mutation Data</h2>
+                    <% } %>
+
                     <div class="sortable">
                     <% outputCancerStudies(cancerStudiesWithMutations, out); %>
                     <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
                     %>
                     </div>
                     <div class="sortable">
-                    <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
-                    <%
+
+                            <% if(divideHistograms) { %>
+                            <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
+                            <% }
+
                             outputCancerStudies(cancerStudiesWithOutMutations, out);
-                       }
-                     %>
+
+                        } else if(onlyMutationData) { // Show a message to the user if only mutation data is wanted
+                    %>
+
+                        <br/>
+                        <br/>
+                        <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
+                            <p>
+                                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
+                                </span>
+                                Since the data priority is set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have mutation data are excluded from this view.
+                            </p>
+                        </div>
+                        <br/>
+
+                    <%
+                        }
+                    %>
                     </div>
                 </div>
 

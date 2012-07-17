@@ -194,6 +194,16 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>histogram_converter</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>MutSigJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.MutSigJSON</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>GisticJSON</servlet-name>
@@ -299,18 +309,28 @@
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
-    
+
      <servlet-mapping>
-    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-name>CheckGeneSymbolJSON</servlet-name>
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
-    </servlet-mapping>   
+    </servlet-mapping>
 	
      <servlet-mapping>
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
+     </servlet-mapping>   
+     
+     <servlet-mapping>
+        <servlet-name>histogram_converter</servlet-name>
+        <url-pattern>/histogram_converter.svg</url-pattern>
     </servlet-mapping>   
 
-	<servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MutSigJSON</servlet-name>
+        <url-pattern>/MutSig.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <url-pattern>/ClinicalFreeForm.json</url-pattern>
     </servlet-mapping>
@@ -323,7 +343,7 @@
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>
-    
+
     <filter>
         <filter-name>FileUpload</filter-name>
         <display-name>File Upload</display-name>
@@ -338,6 +358,11 @@
     <filter-mapping>
         <filter-name>FileUpload</filter-name>
         <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
     </filter-mapping>
 
     <!-- Required by the Apache FileUpload tool. -->

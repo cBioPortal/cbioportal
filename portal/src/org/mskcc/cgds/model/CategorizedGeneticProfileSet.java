@@ -76,9 +76,42 @@ public class CategorizedGeneticProfileSet {
      * @return HashMap of Genetic Profiles, indexed by their stable IDs.
      */
     public HashMap<String, GeneticProfile> getDefaultMutationAndCopyNumberMap() {
+        return getDefaultGeneticProfileMap(true, true);
+    }
+
+    /**
+     * Gets a hashMap of the default mutation profiles.
+     *
+     * @return HashMap of Genetic Profiles, indexed by their stable IDs.
+     */
+    public HashMap<String, GeneticProfile> getDefaultMutationMap() {
+        return getDefaultGeneticProfileMap(false, true);
+    }
+
+    /**
+     * Gets a hashMap of the default copy number profiles.
+     *
+     * @return HashMap of Genetic Profiles, indexed by their stable IDs.
+     */
+    public HashMap<String, GeneticProfile> getDefaultCopyNumberMap() {
+        return getDefaultGeneticProfileMap(true, false);
+    }
+
+    /**
+     * Gets a hashMap of the default mutation and copy number profiles.
+     * Provides functionality to exclude one of the profile types.
+     *
+     * @return HashMap of Genetic Profiles, indexed by their stable IDs.
+     */
+    private HashMap<String, GeneticProfile> getDefaultGeneticProfileMap(boolean includeCNA, boolean includeMutation) {
         HashMap<String, GeneticProfile> defaultProfileSet = new HashMap<String, GeneticProfile>();
-        conditionallyAddProfileToSet(getDefaultCnaProfile(), defaultProfileSet);
-        conditionallyAddProfileToSet(getDefaultMutationProfile(), defaultProfileSet);
+
+        if(includeCNA)
+            conditionallyAddProfileToSet(getDefaultCnaProfile(), defaultProfileSet);
+
+        if(includeMutation)
+            conditionallyAddProfileToSet(getDefaultMutationProfile(), defaultProfileSet);
+
         return defaultProfileSet;
     }
 

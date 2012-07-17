@@ -1,3 +1,10 @@
+# July 17, 2012
+
+* All data updated to the __latest Broad Firehose run__ (May 25, 2012).
+* Drug information added to the network view (via Drugbank)
+* Improved cross-cancer queries: Option to select data types, export of summary graphs.
+* Users can now base queries on frequently mutated genes (from MutSig via Firehose).
+
 # May 16, 2012
 
 * All data updated to the __latest Broad Firehose run__ (March 21, 2012).

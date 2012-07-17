@@ -67,6 +67,8 @@ sub run{
 		$rppafile,           # full filename of rppa antibodies file
 		$sangerfile,           # full filename of sanger census file
 		$uniprotMappingFile,   # full filename of uniprot mapping file
+		$drugDataFile,   # full filename of drug data file
+		$drugTargetFile,   # full filename of drug target file
         $nameOfPerCancerGermlineWhitelist,  # base filename of per cancer germline whitelist file, if any
         $nameOfPerCancerSomaticWhitelist,   # base filename of per cancer somatic whitelist file, if any
 		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cgds.scripts.ImportProfileData
@@ -76,7 +78,7 @@ sub run{
 
 	# check that required options are set
 	my $util = Utilities->new( "" );
-	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile, $uniprotMappingFile );
+	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile, $uniprotMappingFile, $drugDataFile, $drugTargetFile );
 
 	my $cmdLineCP = set_up_classpath( $cgdsHome );
 	
@@ -106,6 +108,9 @@ sub run{
 
 	# Load up UniProt ID Mapping (for Mutation Diagrams)
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
+
+	# Load up Drug Data (for drug-network view)
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.drug.ImportDrugBank " . $drugDataFile . " " . $drugTargetFile );
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );
@@ -182,7 +187,7 @@ sub load_cancer_data{
 	  my $fullCanonicalMutSigMetaFile = File::Spec->catfile( @pathToDataFile, 'meta_mutsig.txt' );
 	  if ( $fileUtil->existent($fullCanonicalMutSigDataFile) && $fileUtil->existent($fullCanonicalMutSigMetaFile)) {
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
-		#system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
 	  }
 		  
 	  print "timestamp: ", timing(), "Loading $cancerDataDir complete.\n";

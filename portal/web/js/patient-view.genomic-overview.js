@@ -59,6 +59,31 @@ ChmInfo.prototype = {
     loc2xpixil : function(chm,loc,goConfig) {
         return this.loc2perc(chm,loc)*goConfig.GenomeWidth+goConfig.xGenome;
     },
+    perc2loc : function(xPerc,startChm) {
+        var chm;
+        if (!startChm) {//binary search
+            var low = 1, high = this.hg19.length-1, i;
+            while (low <= high) {
+                i = Math.floor((low + high) / 2);
+                if (this.perc[i] == xPerc) {return i;}; 
+                if (this.perc[i] > xPerc)  {high = i - 1;};
+                if (this.perc[i] < xPerc)  {low = i + 1;};
+            }
+            chm = low;
+        } else {//linear search
+            var i;
+            for (i=startChm; i<this.hg19.length; i++) {
+                if (xPerc<=this.perc[i]) break;
+            }
+            chm = i;
+        }
+        var loc = Math.round(this.total*(xPerc-this.perc[chm-1]));
+        return [chm,loc];
+    },
+    xpixil2loc : function(goConfig,x,startChm) {
+        var xPerc = (x-goConfig.xGenome)/goConfig.GenomeWidth;
+        return this.perc2loc(xPerc,startChm);
+    },
     middle : function(chm, goConfig) {
         var loc = this.hg19[chm]/2;
         return this.loc2xpixil(chm,loc,goConfig);
@@ -99,7 +124,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,[startCol,endCol]);
-        if (loc==null||loc[0]>chmInfo.hg19.length) continue;
+        if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
         var x = Math.round(chmInfo.loc2xpixil(loc[0],(loc[1]+loc[2])/2,config));
         var xBin = x-x%config.pixelsPerBinMut;
         if (pixelMap[xBin]==null)
@@ -117,20 +142,38 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol) {
     var yRow = config.yRow(row)+config.rowHeight;
     for (var i in pixelMap) {
         var arr = pixelMap[i];
+        var pixil = parseInt(i);
         if (arr) {
             var h = config.rowHeight*arr.length/maxCount;
-            var r = p.rect(i,yRow-h,config.pixelsPerBinMut,h);
+            var r = p.rect(pixil,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
             r.attr("stroke", "#0f0");
             r.attr("stroke-width", 1);
             r.attr("opacity", 0.5);
             r.translate(0.5, 0.5);
-            goTip.addTip(r.node, arr.length+" mutations");
+            var locStart = chmInfo.xpixil2loc(config,pixil);
+            var locEnd = chmInfo.xpixil2loc(config,pixil+config.pixelsPerBinMut,locStart[0]);
+            var tip = arr.length+" mutations<br/>from "+loc2string(locStart,chmInfo)+"<br/>to "+loc2string(locEnd,chmInfo);
+            goTip.addTip(r.node, tip);
         }
     }
     
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end'});
+}
+
+function loc2string(loc,chmInfo) {
+    return "chm"+chmInfo.chmName(loc[0])+":"+addCommas(loc[1]);
+}
+
+function addCommas(x)
+{
+    var strX = x.toString();
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(strX)) {
+            strX = strX.replace(rgx, '$1' + ',' + '$2');
+    }
+    return strX;
 }
 
 function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
@@ -139,7 +182,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     var genomeAltered = 0;
     for (var i=0; i<segs.length; i++) {
         var loc = extractLoc(segs[i],chrCol,[startCol,endCol,segCol]);
-        if (loc==null||loc[0]>chmInfo.hg19.length) continue;
+        if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
         var chm = loc[0];
         var start = loc[1];
         var end = loc[2];
@@ -203,7 +246,7 @@ genomicOverviewTip.prototype = {
                 if (node==tipObj.node) {
                     tipObj.tipDiv.fadeIn();
                     tipObj.setTipDivLoc(e.clientX+pageXOffset+10,e.clientY+pageYOffset+10);
-                    tipObj.tipDiv.text(txt);
+                    tipObj.tipDiv.html(txt);
                 }
             },400);
             

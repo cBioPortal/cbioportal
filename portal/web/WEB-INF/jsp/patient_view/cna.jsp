@@ -194,8 +194,11 @@
         return oTable;
     }
     
+    var cna_table;
+    var cna_summary_table;
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
+        $('#cna_id_filter_msg').hide();
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>'
         };
@@ -204,7 +207,7 @@
             params,
             function(cnas){
                 // cna
-                var cna_table = buildCnaDataTable(cnas, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                cna_table = buildCnaDataTable(cnas, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
                 
@@ -215,26 +218,40 @@
                 geObs.fire('cna-built');
                 
                 // summary table
-                var cna_summary = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
+                cna_summary_table = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 5);
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');
                     return false;
                 });
-                cna_summary.fnFilter('true', 4);
-                $('.cna-summary-table-name').html(cna_summary.fnSettings().fnRecordsDisplay()+' copy Number Alterations (CNAs) of Interest (out of '+cnas.length+" CNAs)");
+                cna_summary_table.fnFilter('true', 4);
+                $('.cna-summary-table-name').html(cna_summary_table.fnSettings().fnRecordsDisplay()+' copy Number Alterations (CNAs) of Interest (out of '+cnas.length+" CNAs)");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
-                loadCnaContextData(cna_table, cna_summary);
-                loadCnaDrugData(cna_table, cna_summary);
+                loadCnaContextData(cna_table, cna_summary_table);
+                loadCnaDrugData(cna_table, cna_summary_table);
             }
             ,"json"
         );
     });
+    
+    function filterCnaTableByIds(mutIdsRegEx) {
+        var n = cna_table.fnSettings().fnRecordsDisplay();
+        cna_table.fnFilter(mutIdsRegEx, 0,true);
+        if (n!=cna_table.fnSettings().fnRecordsDisplay())
+            $('#cna_id_filter_msg').show();
+    }
+    
+    function unfilterCnaTableByIds() {
+        cna_table.fnFilter("", 0);
+        $('#cna_id_filter_msg').hide();
+    }
 </script>
 
 <div id="cna_wait"><img src="images/ajax-loader.gif"/></div>
+<div id="cna_id_filter_msg"><font color="red">The following table contains filtered copy number alterations (CNAs).</font>
+<button onclick="unfilterCnaTableByIds(); return false;" style="font-size: 1em;">Show all CNAs</button></div>
 
 <table cellpadding="0" cellspacing="0" border="0" id="cna_wrapper_table" width="100%">
     <tr>

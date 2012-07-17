@@ -261,8 +261,10 @@
     });
     
     function filterMutationsTableByIds(mutIdsRegEx) {
+        var n = mut_table.fnSettings().fnRecordsDisplay();
         mut_table.fnFilter(mutIdsRegEx, mutTableIndices["id"],true);
-        $('#mutation_id_filter_msg').show();
+        if (n!=mut_table.fnSettings().fnRecordsDisplay())
+            $('#mutation_id_filter_msg').show();
     }
     
     function unfilterMutationsTableByIds() {

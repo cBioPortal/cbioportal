@@ -13,7 +13,7 @@ A genomic overview with events aligned across patients goes here...
             s.push('<a href="#" onclick="filterMutationsTableByIds(\''+mut.join('|')+'\');switchToTab(\'mutations\');return false;">'+mut.length+' mutations</a>');
         }
         if (cna != null) {
-            s.push(''+cna.length+' copy number alterations')
+            s.push('<a href="#" onclick="filterCnaTableByIds(\''+cna.join('|')+'\');switchToTab(\'cna\');return false;">'+cna.length+' copy number alterations</a>');
         }
         return s.join("<br/>");
     }

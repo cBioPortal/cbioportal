@@ -31,6 +31,12 @@
 
 <jsp:include page="global/header.jsp" flush="true" />
 
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#td-content').width("70%");
+});
+</script>
+
     <table cellspacing="2px">
         <tr>
             <td>

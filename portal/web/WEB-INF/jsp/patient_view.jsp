@@ -9,11 +9,7 @@
 <%
 request.setAttribute("in-patient-view", true);
 %>
-<jsp:include page="global/header_above_bar.jsp" flush="true" />
-
-<tr>
-    <td>
-        <div id="content">    
+<jsp:include page="global/header.jsp" flush="true" />
 
 <%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);

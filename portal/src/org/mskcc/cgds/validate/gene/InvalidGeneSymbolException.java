@@ -1,4 +1,4 @@
-package org.mskcc.portal.validator.gene;
+package org.mskcc.cgds.validate.gene;
 
 import org.mskcc.portal.util.StringListUtil;
 

@@ -367,6 +367,17 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
 
+CREATE TABLE `gistic` (
+  `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CHROMOSOME` int(11) NOT NULL,
+  `WIDE_PEAK_START` int(11) NOT NULL,
+  `WIDE_PEAK_END` int(11) NOT NULL,
+  `Q_VALUE` double NOT NULL,
+  `RES_Q_VALUE` double NOT NULL,
+  `AMP_DEL` tinyint(1) NOT NULL,
+  PRIMARY KEY (`GISTIC_ROI_ID`)
+
 --
 -- Table structure for table `text_cache`
 --
@@ -391,6 +402,15 @@ CREATE TABLE `drug_interaction` (
   `PMIDS` varchar(1024) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `gistic_to_gene`
+--
+
+CREATE TABLE `gistic_to_gene` (
+  `GISTIC_ROI_ID` bigint(20) NOT NULL,
+  `ENTREZ_GENE_ID` bigint(20) NOT NULL,
+  PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `drug`

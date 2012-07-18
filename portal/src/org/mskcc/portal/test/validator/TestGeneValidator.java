@@ -5,10 +5,10 @@ import org.mskcc.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.portal.validator.gene.InvalidGeneSymbolException;
-import org.mskcc.portal.validator.gene.TooManyGenesException;
-import org.mskcc.portal.validator.gene.GeneValidationException;
-import org.mskcc.portal.validator.gene.GeneValidator;
+import org.mskcc.cgds.validate.gene.InvalidGeneSymbolException;
+import org.mskcc.cgds.validate.gene.TooManyGenesException;
+import org.mskcc.cgds.validate.gene.GeneValidationException;
+import org.mskcc.cgds.validate.gene.GeneValidator;
 
 import java.util.ArrayList;
 

@@ -2,9 +2,7 @@ package org.mskcc.cgds.validate;
 
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;
-import sun.net.idn.StringPrep;
 
-import java.io.File;
 import java.util.ArrayList;
 
 // todo: later this can be refactored into a factory method.

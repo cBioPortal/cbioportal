@@ -175,10 +175,10 @@ function initTabs() {
     var tabContainers = $('.patient-section');
     tabContainers.hide().filter(':first').show();
 
-    $('#patient-tabs ul a').click(function () {
+    $('.patient-tab').click(function () {
             tabContainers.hide();
             tabContainers.filter(this.hash).show();
-            $('#patient-tabs ul a').removeClass('selected');
+            $('.patient-tab').removeClass('selected');
             $(this).addClass('selected');
             return false;
     }).filter(':first').click();   

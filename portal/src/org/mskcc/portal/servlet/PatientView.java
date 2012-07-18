@@ -181,7 +181,10 @@ public class PatientView extends HttpServlet {
         
         // disease info
         StringBuilder diseaseInfo = new StringBuilder();
-        diseaseInfo.append(cancerStudy.getName());
+        diseaseInfo.append("<a href=\"study.do?cancer_study_id=")
+                .append(cancerStudy.getCancerStudyStableId()).append("\">")
+                .append(cancerStudy.getName())
+                .append("</a>");
         
         String histology = guessClinicalData(clinicalFreeForms,
                 new String[]{"histology", "histological_type"});

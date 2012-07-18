@@ -10,8 +10,8 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
 <jsp:include page="css_include.jsp" flush="true" />
-<%if(request.getAttribute("in-patient-view")!=null){%>
-<jsp:include page="js_include_patient_view.jsp" flush="true" />
+<%if(request.getAttribute("standard_js_only")!=null){%>
+<jsp:include page="js_include_standard.jsp" flush="true" />
 <%} else {%>
 <jsp:include page="js_include.jsp" flush="true" />
 <%}%>

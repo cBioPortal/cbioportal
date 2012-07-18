@@ -51,6 +51,7 @@
         <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
         <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/patient.do*" access="isAuthenticated()"/>
+        <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>

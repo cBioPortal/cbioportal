@@ -7,7 +7,7 @@
 
 
 <%
-request.setAttribute("in-patient-view", true);
+request.setAttribute("standard_js_only", true);
 %>
 <jsp:include page="global/header.jsp" flush="true" />
 

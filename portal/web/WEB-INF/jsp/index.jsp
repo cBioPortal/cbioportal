@@ -50,7 +50,7 @@ $(document).ready(function(){
                       the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
                       at <a href="http://www.mskcc.org/">Memorial
                       Sloan-Kettering Cancer Center</a>. </p>
-					  <p>Please cite: <i>Cancer Discovery</i>. May 2012 2; 401. [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</p>
+					  <p><i>Cancer Discovery</i>. May 2012 2; 401. [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</p>
 					  </div>
                    </td>
                    <td valign=top>

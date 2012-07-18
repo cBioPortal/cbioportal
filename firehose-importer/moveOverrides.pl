@@ -43,8 +43,8 @@ sub main{
 		my $fromDirectory = File::Spec->catdir($overridesDirectory, $cancerDirectory);
 		# construct to directory
 		my $toDirectory = File::Spec->catdir($stagingFilesDirectory, $cancerDirectory);
-		# if toDirectory exists, remove it
-		if (-d $toDirectory) {
+		# if toDirectory exists, remove it - dont remove lusc & brca - we only want the cancer study meta file
+		if (-d $toDirectory && $cancerDirectory ne "brca_tcga" && $cancerDirectory ne "lusc_tcga" ) {
 		  system("rm -rf $toDirectory");
 		}
 		print "\ncopying directory:\n", "source: $fromDirectory\n", "  target: $toDirectory\n";

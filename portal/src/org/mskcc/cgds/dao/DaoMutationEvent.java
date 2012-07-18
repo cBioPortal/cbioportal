@@ -143,10 +143,57 @@ public final class DaoMutationEvent {
         return events;
     }
     
+    /**
+     * return the number of mutations for each case
+     * @param caseIds
+     * @param profileId
+     * @return Map &lt; case id, mutation count &gt;
+     * @throws DaoException 
+     */
+    public static Map<String, Integer> countMutationEvents(Collection<String> caseIds,
+            int profileId) throws DaoException {
+        if (caseIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
+                    + " WHERE `GENETIC_PROFILE_ID`=" + profileId
+                    + " AND `CASE_ID` IN ('"
+                    + StringUtils.join(caseIds,"','")
+                    + "') GROUP BY `CASE_ID`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    /**
+     * get events for each case
+     * @param concatEventIds
+     * @return Map &lt; case id, list of event ids &gt;
+     * @throws DaoException 
+     */
     public static Map<String, Set<Long>> getCasesWithMutations(Collection<Long> eventIds) throws DaoException {
         return getCasesWithMutations(StringUtils.join(eventIds, ","));
     }
     
+    /**
+     * get events for each case
+     * @param concatEventIds event ids concatenated by comma (,)
+     * @return Map &lt; case id, list of event ids &gt;
+     * @throws DaoException 
+     */
     public static Map<String, Set<Long>> getCasesWithMutations(String concatEventIds) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -183,6 +230,13 @@ public final class DaoMutationEvent {
         return countSamplesWithMutationEvents(StringUtils.join(eventIds, ","), profileId);
     }
     
+    /**
+     * return the number of samples for each mutation event
+     * @param concatEventIds
+     * @param profileId
+     * @return Map &lt; event id, sampleCount &gt;
+     * @throws DaoException 
+     */
     public static Map<Long, Integer> countSamplesWithMutationEvents(String concatEventIds, int profileId) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -214,6 +268,13 @@ public final class DaoMutationEvent {
         return countSamplesWithMutatedGenes(StringUtils.join(entrezGeneIds, ","), profileId);
     }
     
+    /**
+     * return the number of samples for each mutated genes
+     * @param concatEntrezGeneIds
+     * @param profileId
+     * @return Map &lt; entrez, sampleCount &gt;
+     * @throws DaoException 
+     */
     public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
         if (concatEntrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
@@ -248,6 +309,13 @@ public final class DaoMutationEvent {
         return getGenesOfMutations(StringUtils.join(eventIds, ","), profileId);
     }
     
+    /**
+     * return entrez gene ids of the mutations specified by their mutaiton event ids.
+     * @param concatEventIds
+     * @param profileId
+     * @return
+     * @throws DaoException 
+     */
     public static Set<Long> getGenesOfMutations(String concatEventIds, int profileId)
             throws DaoException {
         if (concatEventIds.isEmpty()) {

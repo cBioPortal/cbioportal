@@ -5,10 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cgds.model.CopyNumberSegment;
 
@@ -78,6 +75,67 @@ public final class DaoCopyNumberSegment {
                 segs.add(seg);
             }
             return segs;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public static double getCopyNumberActeredFraction(String caseId,
+            double cutoff) throws DaoException {
+        Double d = getCopyNumberActeredFraction(Collections.singleton(caseId), cutoff)
+                .get(caseId);
+        return d==null ? Double.NaN : d.doubleValue();
+    }
+    
+    public static Map<String,Double> getCopyNumberActeredFraction(Collection<String> caseIds,
+            double cutoff) throws DaoException {
+        Map<String,Long> alteredLength = getCopyNumberAlteredLength(caseIds, cutoff);
+        Map<String,Long> measuredLength = getCopyNumberAlteredLength(caseIds, 0);
+        Map<String,Double> fraction = new HashMap<String,Double>(alteredLength.size());
+        for (String caseId : caseIds) {
+            Long ml = measuredLength.get(caseId);
+            if (ml==null || ml==0) {
+                continue;
+            }
+            long al = alteredLength.get(caseId);
+            fraction.put(caseId, 1.0*al/ml);
+        }
+        return fraction;
+    }
+    
+    private static Map<String,Long> getCopyNumberAlteredLength(Collection<String> caseIds,
+            double cutoff) throws DaoException {
+        Map<String,Long> map = new HashMap<String,Long>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sql = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            if (cutoff>0) {
+                sql = "SELECT  `CASE_ID`, SUM(`END`-`START`)"
+                    + " FROM `copy_number_seg`"
+                    + " WHERE ABS(`SEGMENT_MEAN`)>=" + cutoff
+                    + " AND `CASE_ID` IN ('" + StringUtils.join(caseIds,"','") +"')"
+                    + " GROUP BY `CASE_ID`";
+            } else {
+                sql = "SELECT  `CASE_ID`, SUM(`END`-`START`)"
+                    + " FROM `copy_number_seg`"
+                    + " WHERE `CASE_ID` IN ('" + StringUtils.join(caseIds,"','") +"')"
+                    + " GROUP BY `CASE_ID`";
+            }
+            
+            System.out.println(sql);
+            
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getLong(2));
+            }
+            
+            return map;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

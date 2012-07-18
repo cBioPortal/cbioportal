@@ -8,10 +8,6 @@
 
 <%
 request.setAttribute("standard_js_only", true);
-%>
-<jsp:include page="global/header.jsp" flush="true" />
-
-<%
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
@@ -60,6 +56,7 @@ if (patientViewError!=null) {
     }
 %>
 
+<jsp:include page="global/header.jsp" flush="true" />
 
 <table width="100%">
     <tr>

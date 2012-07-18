@@ -67,7 +67,7 @@ var initMutsigDialogue = function() {
     });
 
     listenCancerStudy();
-}
+};
 
 // listen for a change in the selected cancer study and
 // handle appropriately
@@ -86,7 +86,7 @@ var listenCancerStudy = function() {
             $('#toggle_mutsig_dialog').hide();
         }
     });
-}
+};
 
 //todo: rewrite this function. it is unnecessarily complex
 var mutsig_to_tr = function(mutsig) {

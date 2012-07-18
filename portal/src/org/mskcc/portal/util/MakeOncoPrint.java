@@ -642,8 +642,8 @@ public class MakeOncoPrint {
 		StringBuilder builder = new StringBuilder();
 
 		// form start
-		builder.append("<form id=\"" + formID + "\" action=\"oncoprint_converter.svg\" method=\"POST\"" +
-					   "onsubmit=\"this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName +
+		builder.append("<form id=\"" + formID + "\" action=\"oncoprint_converter.svg\" enctype=\"multipart/form-data\" method=\"POST\"" +
+					   " onsubmit=\"this.elements['xml'].value=GetOncoPrintBodyXML(" + oncoprintReferenceVarName +
 					   "); return true;\"" + " target=\"_blank\">\n");
 		// add some hidden elements
 		builder.append("<input type=hidden name=\"xml\">\n");

@@ -8,6 +8,7 @@ package org.cytoscapeweb.view.render
 	import flare.vis.data.DataSprite;
 	import flare.vis.data.NodeSprite;
 	
+	import flash.display.*;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -18,6 +19,7 @@ package org.cytoscapeweb.view.render
 	
 	import mx.utils.StringUtil;
 	
+	import org.alivepdf.display.Display;
 	import org.cytoscapeweb.util.GraphUtils;
 	import org.cytoscapeweb.util.NodeShapes;
 	
@@ -59,27 +61,32 @@ package org.cytoscapeweb.view.render
 			var g:Graphics = d.graphics;
 			g.clear();
 			
-			if (lineAlpha > 0 && d.lineWidth > 0) {
+			if (lineAlpha > 0 && d.lineWidth > 0) 
+			{
 				var pixelHinting:Boolean = d.shape === NodeShapes.ROUND_RECTANGLE;
 				g.lineStyle(d.lineWidth, d.lineColor, lineAlpha, pixelHinting);
 			}
 			
-			if (fillAlpha > 0) {
+			if (fillAlpha > 0) 
+			{
 				// 1. Draw the background color:
 				// Using a bit mask to avoid transparent mdes when fillcolor=0xffffffff.
 				// See https://sourceforge.net/forum/message.php?msg_id=7393265
 				g.beginFill(0xffffff & d.fillColor, fillAlpha);
-				drawShape(d, d.shape, size);
+				drawShape(d, d.shape, null);
 				g.endFill();
 				
 				// 2. Draw an image on top:
-				drawImage(d, size);
+				drawImage(d,0,0);
 			}
 		}
 		
 		// Draws the corresponding shape on given sprite
-		private function drawShape(d:DataSprite, shape:String, size:Number):void {
+		protected override function drawShape(st:Sprite, shape:String, bounds:Rectangle):void 
+		{
+			var d:DataSprite = st as DataSprite;
 			var g:Graphics = d.graphics;
+			var size:Number = d.size*defaultSize;
 			
 			switch (shape) {
 				case null:
@@ -129,8 +136,10 @@ package org.cytoscapeweb.view.render
 			}
 		}
 		
-		private function drawImage(d:DataSprite, size:Number):void {
+		protected override function drawImage(d:DataSprite, w:Number, h:Number):void 
+		{
 			var url:String = d.props.imageUrl;
+			var size:Number = d.size*defaultSize;
 			
 			if (size > 0 && url != null && StringUtil.trim(url).length > 0) {
 				// Load the image into the cache first?
@@ -163,7 +172,7 @@ package org.cytoscapeweb.view.render
 						m.translate(-(bd.width*scale)/2, -(bd.height*scale)/2);
 						
 						d.graphics.beginBitmapFill(bd, m, false, true);
-						drawShape(d, d.shape, size);
+						drawShape(d, d.shape, null);
 						d.graphics.endFill();
 					}
 				}

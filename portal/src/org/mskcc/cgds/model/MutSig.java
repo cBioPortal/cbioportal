@@ -12,48 +12,31 @@ import org.mskcc.cgds.dao.DaoException;
  * This simplifies the process of switching back between the two, and ensuring
  * a stable system in which gene IDs do not fluctuate.
  */
+
 public class MutSig {
     private int cancerType;
     private int rank;
     private CanonicalGene canonicalGene;
     private int numBasesCovered;
     private int numMutations;
-    private int nVal;
-    private int nVer;
-    private int cpg;
-    private int cAndG;
-    private int aAndT;
-    private int inDel;
-    private String pValue;
-    private String qValue;
-    private Double adjustedQValue;
+    private float pValue;
+    private float qValue;
 
-    public MutSig(int cancerType, CanonicalGene canonicalGene, int rank, 
-            int numBasesCovered, int numMutations, int nVal, int nVer, int cpg,
-                  int cAndG, int aAndT, int Indel, String pValue, String qValue,
-                  Double adjustedQValue) {
+    public MutSig(int cancerType, CanonicalGene canonicalGene, int rank,
+            int numBasesCovered, int numMutations, float pValue, float qValue) {
         this.cancerType = cancerType;
         this.rank = rank;
         this.canonicalGene = canonicalGene;
         this.numBasesCovered = numBasesCovered;
         this.numMutations = numMutations;
-        this.nVal = nVal;
-        this.nVer = nVer;
-        this.cpg = cpg;
-        this.cAndG = cAndG;
-        this.aAndT = aAndT;
-        this.inDel = Indel;
         this.pValue = pValue;
         this.qValue = qValue;
-        this.adjustedQValue = adjustedQValue;
     }
+    // ignoring fields :
+    //      nVal, nVer, cpg, cAndG, aAndT, inDel, adjustedQValue
 
-    /*
-     * The following GET methods will return each specific data type in this Instance of MutSig
-     * note: getCanonicalGene will return a CanonicalGene object. To extract the HugoGeneSymbol
-     * or EntrezGeneID from the CanonicalGene, use the appropriate get methods on the Canonical
-     * Gene object.
-     */
+
+//  note: getCanonicalGene will return a CanonicalGene object.
 
     public MutSig getInstance() throws DaoException {
         return this;
@@ -79,39 +62,11 @@ public class MutSig {
         return numMutations;
     }
 
-    public int getnVal() {
-        return nVal;
-    }
-
-    public int getnVer() {
-        return nVer;
-    }
-
-    public int getCpG() {
-        return cpg;
-    }
-
-    public int getCandG() {
-        return cAndG;
-    }
-
-    public int getAandT() {
-        return aAndT;
-    }
-
-    public int getIndel() {
-        return inDel;
-    }
-
-    public String getpValue() {
+    public float getpValue() {
         return pValue;
     }
 
-    public String getqValue() {
+    public float getqValue() {
         return qValue;
-    }
-
-    public Double getAdjustedQValue(){
-        return adjustedQValue;
     }
 }

@@ -351,7 +351,6 @@ if (step4ErrorMsg != null) {
 		#example_gene_set { clear: both; }
 	</style>
 
-
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
@@ -370,4 +369,6 @@ if (step4ErrorMsg != null) {
     
    <p id="example_gene_set"><span style="font-size:80%">Or Select from Example Gene Sets:<br>
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>
+
+    <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Or Select from Recurrently Mutated Genes</button>
 </div>

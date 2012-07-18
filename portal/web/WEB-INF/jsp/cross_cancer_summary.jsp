@@ -31,6 +31,22 @@
     int fingerPrintPanelHeight = 120 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String percentCasesAffected = percentFormat.format(dataSummary.getPercentCasesAffected());
+
+    CaseList defaultCaseList = null;
+    String caseListNames = "";
+    for (CaseList caseList : caseSetList) {
+        if(caseList.getStableId().equals(defaultCaseSetId)) {
+            defaultCaseList = caseList;
+            caseListNames += defaultCaseList.getName();
+        }
+    }
+    assert defaultCaseList != null;
+
+    // This, we are going to show it as info box
+    String cs = "Case set:  " + caseListNames;
+
+    // This, we are going to use it in the total percentage
+    Integer numOfCases = defaultCaseList.getCaseList().size();
 %>
 
 <script type="text/javascript">
@@ -40,7 +56,7 @@ $(document).ready(function(){
     $(".crosscancer-info").tipTip();
 
     var ajaxPercentAltered = "#percent_altered_<%= cancerStudyId %>";
-    $(ajaxPercentAltered).html("Altered in <%= percentCasesAffected %> of cases.");
+    $(ajaxPercentAltered).html("Altered in <%= percentCasesAffected %> of <%= numOfCases %> cases.");
     $("#stats_percent_altered_<%= cancerStudyId %>").hide();
     $("#stats_num_altered_<%= cancerStudyId %>").hide();
     $("#stats_num_all_<%= cancerStudyId %>").hide();
@@ -63,14 +79,8 @@ $(document).ready(function(){
     <span class="text">Genomic Profiles</span>
 </span>
 <%
-    StringBuffer cs = new StringBuffer ("Case set:  ");
-    for (CaseList caseSet:  caseSetList) {
-        if (caseSet.getStableId().equals(defaultCaseSetId)) {
-            cs.append (caseSet.getName());
-        }
-    }
 %>
-<span class="ui-state-default ui-corner-all crosscancer-info" title="<%=cs.toString()%>">
+<span class="ui-state-default ui-corner-all crosscancer-info" title="<%=cs%>">
     <span class="ui-icon ui-icon-info" style="float: left;"></span>
     <span class="text">Case Sets</span>
 </span>

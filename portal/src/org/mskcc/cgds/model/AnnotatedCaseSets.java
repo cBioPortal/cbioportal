@@ -14,8 +14,12 @@ public class AnnotatedCaseSets {
 
     private CaseList defaultCaseList;
 
+    public AnnotatedCaseSets(List<CaseList> caseSetList, Integer priorityLevel) {
+        this.defaultCaseList = determineDefaultCaseSet(caseSetList, priorityLevel);
+    }
+
     public AnnotatedCaseSets(List<CaseList> caseSetList) {
-        this.defaultCaseList = determineDefaultCaseSet(caseSetList);
+        this(caseSetList, 0);
     }
 
     /**
@@ -30,10 +34,12 @@ public class AnnotatedCaseSets {
     /**
      * This code makes an attempts at selecting the "best" default case set.
      *
+     *
      * @param caseSetList List of all Case Sets.
+     * @param priorityLevel Priority level, all priorities below this one will be ignored
      * @return the "best" default case set.
      */
-    private CaseList determineDefaultCaseSet(List<CaseList> caseSetList) {
+    private CaseList determineDefaultCaseSet(List<CaseList> caseSetList, Integer priorityLevel) {
         List<CaseSetWithPriority> priCaseList = new ArrayList<CaseSetWithPriority>();
         for (CaseList caseSet : caseSetList) {
             Integer priority = null;
@@ -57,6 +63,10 @@ public class AnnotatedCaseSets {
                 registerPriorityCaseList(caseSet, ALL_TUMORS, 4, priCaseList);
                 registerPriorityCaseList(caseSet, ALL, 5, priCaseList);
             } else {
+                // If we define a higher t-hold, just shift the priority level
+                if(priority < priorityLevel)
+                    priority += 10;
+
                 priCaseList.add(new CaseSetWithPriority(caseSet, priority));
             }
         }

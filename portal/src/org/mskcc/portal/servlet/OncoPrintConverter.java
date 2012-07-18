@@ -30,6 +30,7 @@ package org.mskcc.portal.servlet;
 
 // imports
 import org.mskcc.portal.util.XDebug;
+import org.mskcc.portal.util.FileUploadRequestWrapper;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -38,6 +39,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
 import org.owasp.validator.html.PolicyException;
 
 import java.io.PrintWriter;
@@ -98,14 +100,29 @@ public class OncoPrintConverter extends HttpServlet {
         XDebug xdebug = new XDebug( httpServletRequest );
 		xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-		// get format - only support SVG
-		String format = servletXssUtil.getCleanInput(httpServletRequest, "format");
+		String xml = "";
+		String format = "";
+		if (httpServletRequest instanceof FileUploadRequestWrapper) {
+
+			// get instance of our request wrapper
+			FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper)httpServletRequest;
+
+			// get format parameter
+			format = wrapper.getParameter("format");
+
+			// get xml parameter
+			xml = wrapper.getParameter("xml");
+		}
+		else {
+			format = servletXssUtil.getCleanInput(httpServletRequest, "format");
+			// TODO - update antisamy.xml to support svg-xml
+			xml = httpServletRequest.getParameter("xml");
+		}
+
+		// sanity check
 		if (!format.equals("svg")) {
 			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
 		}
-
-        // get svgDOM xml - TODO - update antisamy.xml to support svg-xml
-		String xml = httpServletRequest.getParameter("xml");
 
 		// outta here
 		convertToSVG(httpServletResponse, xml);

@@ -80,14 +80,14 @@ public class GetMutSig {
         toReturn += Integer.toString(mutSig.getRank()) + "\t";
         toReturn += Integer.toString(mutSig.getNumBasesCovered()) + "\t";
         toReturn += Integer.toString(mutSig.getNumMutations()) + "\t";
-        toReturn += Integer.toString(mutSig.getnVal()) + "\t";
-        toReturn += Integer.toString(mutSig.getnVer()) + "\t";
-        toReturn += Integer.toString(mutSig.getCpG()) + "\t";
-        toReturn += Integer.toString(mutSig.getCandG()) + "\t";
-        toReturn += Integer.toString(mutSig.getAandT()) + "\t";
-        toReturn += Integer.toString(mutSig.getIndel()) + "\t";
-        toReturn += mutSig.getpValue() + "\t";
-        toReturn += mutSig.getqValue() + "\n";
+//        toReturn += Integer.toString(mutSig.getnVal()) + "\t";
+//        toReturn += Integer.toString(mutSig.getnVer()) + "\t";
+//        toReturn += Integer.toString(mutSig.getCpG()) + "\t";
+//        toReturn += Integer.toString(mutSig.getCandG()) + "\t";
+//        toReturn += Integer.toString(mutSig.getAandT()) + "\t";
+//        toReturn += Integer.toString(mutSig.getIndel()) + "\t";
+        toReturn += Float.toString(mutSig.getpValue()) + "\t";
+        toReturn += Float.toString(mutSig.getqValue()) + "\n";
         return toReturn;
     }
 

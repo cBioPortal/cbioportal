@@ -168,6 +168,7 @@ function userClickedMainTab(tabAction) {
 //  is selected in Step 1
 function crossCancerStudySelected() {
      $('#step2').hide();
+     $('#step2cross').show();
      $('#step3').hide();
      $('#step5').hide();
      $('#cancer_study_desc').hide();
@@ -176,6 +177,7 @@ function crossCancerStudySelected() {
 //  Display extra steps when an individual cancer study is selected
 function singleCancerStudySelected() {
     $("#step2").show();
+    $('#step2cross').hide();
     $("#step3").show();
     $("#step5").show();
     $("#cancer_study_desc").show();

@@ -5,6 +5,7 @@
 <div class="query_step_section">
 <span class="step_header">Select Cancer Study:</span>
 <select id="select_cancer_type" name="<%= QueryBuilder.CANCER_STUDY_ID %>">
+    hello world
 </select>
 
 <%

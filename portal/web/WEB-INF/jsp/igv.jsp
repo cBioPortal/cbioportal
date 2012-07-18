@@ -94,7 +94,7 @@
             var genes = geneList;
             genes = genes.replace(/\s+/gi, "%20");
 
-            var segFile = cancerTypeId + ".seg";
+            var segFile = cancerTypeId + "_scna_hg18.seg";
 
             var port = 60151;
             var dataUrl = "<%= segFileURL %>" + segFile;

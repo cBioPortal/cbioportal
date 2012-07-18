@@ -15,11 +15,13 @@ var _controlFunctions;
 var IN_SAME_COMPONENT = "IN_SAME_COMPONENT";
 var REACTS_WITH = "REACTS_WITH";
 var STATE_CHANGE = "STATE_CHANGE";
+var DRUG_TARGET = "DRUG_TARGET";
 var OTHER = "OTHER";
 
 // node type constants
 var PROTEIN = "Protein";
 var SMALL_MOLECULE = "SmallMolecule";
+var DRUG = "Drug";
 var UNKNOWN = "Unknown";
 
 // default values for sliders
@@ -45,6 +47,7 @@ var ENTER_KEYCODE = "13";
 
 // name of the graph layout
 var _graphLayout = {name: "ForceDirected"};
+//var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
 // force directed layout options
 var _layoutOptions;
@@ -60,6 +63,9 @@ var _alreadyFiltered;
 
 // array of genes filtered due to slider
 var _filteredBySlider;
+
+// array of drugs filtered due to drop down
+var _filteredByDropDown;
 
 // array of nodes filtered due to disconnection
 var _filteredByIsolation;
@@ -100,6 +106,7 @@ function initNetworkUI(vis)
 	// init filter arrays
 	_alreadyFiltered = new Array();
 	_filteredBySlider = new Array();
+	_filteredByDropDown = new Array();
 	_filteredByIsolation = new Array();	
 	_edgeTypeVisibility = _edgeTypeArray();
 	_edgeSourceVisibility = _edgeSourceArray();
@@ -114,9 +121,11 @@ function initNetworkUI(vis)
 	_initLayoutOptions();
 
 	_initMainMenu();
+
 	_initDialogs();
 	_initPropsUI();
 	_initSliders();
+	_initDropDown();
 	_initTooltipStyle();
 	
 	// add listener for the main tabs to hide dialogs when user selects
@@ -154,6 +163,7 @@ function hideDialogs(evt, ui)
 	$("#node_inspector").dialog("close");
 	$("#edge_inspector").dialog("close");
 	$("#node_legend").dialog("close");
+	$("#drug_legend").dialog("close");
 	$("#edge_legend").dialog("close");
 }
 
@@ -296,7 +306,7 @@ function showNodeInspector(evt)
 	
 	var data = evt.target.data;
 	
-	_updateNodeInspectorContent(data);
+	_updateNodeInspectorContent(data, evt.target);
 	
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
@@ -311,6 +321,123 @@ function showNodeInspector(evt)
 	}
 }
 
+/**
+ * Updates node inspector data for drug node type
+ * @param data double clicked node's ( drug for this method ) data
+ * */
+function _updateNodeInspectorForDrug(data, node)
+{
+	var targets = new Array();
+	var atc_codes = new Array();
+	var synonyms = new Array();
+	var description;
+	
+	//For number of targeted genes
+	if (data["TARGETS"] != "") 
+	{	
+		targets = data["TARGETS"].split(";");
+		
+		$("#node_inspector_content .data").append(
+		'<tr align="left" class="targets-data-row"><td>' +
+		'<strong>Number of Genes Targeted: </strong> ' + 
+		'<span class="num-of-drug-targets" title="' + data["TARGETS"] + '">' +
+		targets.length + '</span>' +
+		'</td></tr>');	
+		$("#node_inspector_content .targets-data-row td").append('<br><br>');
+		$(".num-of-drug-targets").tipTip();
+	}
+	
+	// For drug atc code
+	
+	var href = "http://www.whocc.no/atc_ddd_index/?code=";
+	if (data["ATC_CODE"] != "") 
+	{
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="atc_codes-data-row"><td>' +
+				'<strong>Drug Class(ATC codes): </strong></td></tr>');
+		
+		atc_codes = data["ATC_CODE"].split(",");
+		
+		for ( var i = 0; i < atc_codes.length; i++) 
+		{	
+			$("#node_inspector_content .atc_codes-data-row td").append('<a href="' + href+ atc_codes[i] + '" target="_blank">' +
+			atc_codes[i] + '</a>');
+			if (i != atc_codes.length - 1) 
+			{
+				$("#node_inspector_content .atc_codes-data-row td").append(', ');
+			}
+		}
+		
+		$("#node_inspector_content .atc_codes-data-row td").append('<br><br>');
+	}
+	
+	
+	// For drug Synonyms
+
+	if (data["SYNONYMS"] != "") 
+	{
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="synonyms-data-row"><td>' +
+				'<strong>Synonyms: </strong></td></tr>');
+		
+		synonyms = data["SYNONYMS"].split(";");	
+		if(synonyms.length == 1)
+		{
+			$("#node_inspector_content .synonyms-data-row td").append(synonyms[0]);
+			$("#node_inspector_content .synonyms-data-row td").append('<br>');
+		}
+		else
+			for ( var i = 0; i < synonyms.length; i++) 
+			{
+				$("#node_inspector_content .synonyms-data-row td").append('<p style="margin: 0px;"> -' + synonyms[i] + '</p>');
+			}
+		$("#node_inspector_content .synonyms-data-row td").append('<br>');
+	}
+	
+	
+	
+	// For Drug description
+	var description = data["DESCRIPTION"];
+	if(description != ""){
+		$("#node_inspector_content .data").append(
+				'<tr align="left" class="description-data-row"><td>' +
+				'<strong>Description: </strong></td></tr>');
+		$("#node_inspector_content .description-data-row td").append(description);
+		$("#node_inspector_content .description-data-row td").append('<br><br>');
+	}
+	
+	// For FDA approval
+	$("#node_inspector_content .data").append(
+			'<tr align="left" class="fda-data-row"><td>' +
+			'<strong>FDA Approval: </strong></td></tr>');
+	
+	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
+	
+	$("#node_inspector_content .fda-data-row td").append(fda_approval);
+	$("#node_inspector_content .fda-data-row td").append('<br>');
+	
+	
+	// For Pub Med IDs	
+	
+	var pubmeds = new Array();			
+	var edges = _vis.edges();
+	var existed = false;
+	
+	for ( var i = 0; i < edges.length; i++) 
+	{
+		if (edges[i].data.source == node.data.id && edges[i].data["INTERACTION_PUBMED_ID"] != "") 
+		{
+			if(existed == false){
+				$("#node_inspector_content .data").append(
+						'<tr align="left" class="pubmed-data-row"><td>' +
+						'<strong>PubMed IDs:'+edges[i].data["INTERACTION_PUBMED_ID"]+'</strong></td></tr>');
+				existed = true;
+			}
+			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+		}
+	}
+}
+
 
 /**
  * Updates the content of the node inspector with respect to the provided data.
@@ -318,7 +445,7 @@ function showNodeInspector(evt)
  * 
  * @param data	node data containing necessary fields
  */
-function _updateNodeInspectorContent(data)
+function _updateNodeInspectorContent(data, node)
 {
 	// set title
 	
@@ -335,10 +462,26 @@ function _updateNodeInspectorContent(data)
 	
 	// clean xref, percent, and data rows
 	
+	// These rows for drug view of node inspector.
+	$("#node_inspector_content .data .targets-data-row").remove();
+	$("#node_inspector_content .data .atc_codes-data-row").remove();
+	$("#node_inspector_content .data .synonyms-data-row").remove();
+	$("#node_inspector_content .data .description-data-row").remove();
+	$("#node_inspector_content .data .fda-data-row").remove();
+	$("#node_inspector_content .data .pubmed-data-row").remove();
+	
+	// For non drug view of node inspector
 	$("#node_inspector_content .data .data-row").remove();
+	
 	$("#node_inspector_content .xref .xref-row").remove();
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
+	
+	
+	if (data.type == DRUG) 
+	{
+		_updateNodeInspectorForDrug(data, node);
+	}
 	
 		
 	//_addDataRow("node", "ID", data.id);
@@ -394,6 +537,7 @@ function _updateNodeInspectorContent(data)
 		_addXrefEntry('node', links[i].href, links[i].text);
 	}
 }
+
 
 /**
  * Add percentages (genomic profile data) to the node inspector with their
@@ -570,6 +714,8 @@ function showEdgeInspector(evt)
 		
 		var edges = evt.target.edges;
 		
+//		_addDataRow("edge", "Weight", _toTitleCase(evt.target.data["weight"]));
+
 		// add information for each edge
 		
 		for (var i = 0; i < edges.length; i++)
@@ -592,8 +738,10 @@ function showEdgeInspector(evt)
 				"Source",
 				data["INTERACTION_DATA_SOURCE"],
 				TOP_ROW_CLASS);
+
+//			_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 			
-			if (data["INTERACTION_PUBMED_ID"] == null)
+			if (data["INTERACTION_PUBMED_ID"] == "NA")
 			{
 				// no PubMed ID, add only type information
 				_addDataRow("edge",
@@ -622,8 +770,9 @@ function showEdgeInspector(evt)
 	{
 		_addDataRow("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
 		_addDataRow("edge", "Type", _toTitleCase(data["type"]));
+//		_addDataRow("edge", "Weight", _toTitleCase(data["weight"]));
 		
-		if (data["INTERACTION_PUBMED_ID"] != null)
+		if (data["INTERACTION_PUBMED_ID"] != "NA")
 		{
 			_addPubMedIds(data, false);
 		}
@@ -659,7 +808,6 @@ function _addPubMedIds(data, summaryEdge)
 	var ids = data["INTERACTION_PUBMED_ID"].split(";");
 	var link, xref;
 	var links = new Array();
-	
 	// collect pubmed id(s) into an array
 	
 	for (var i = 0; i < ids.length; i++)
@@ -717,7 +865,7 @@ function showGeneDetails(evt)
 	// TODO position the inspector, (also center the selected gene?)
 	
 	// update inspector content
-	_updateNodeInspectorContent(node.data);
+	_updateNodeInspectorContent(node.data, node);
 	
 	// open inspector panel
 	$("#node_inspector").dialog("open").height("auto");
@@ -907,6 +1055,9 @@ function updateEdges()
 	_edgeTypeVisibility[STATE_CHANGE] =
 		$("#relations_tab .state-change input").is(":checked");
 	
+	_edgeTypeVisibility[DRUG_TARGET] =
+		$("#relations_tab .targeted-by-drug input").is(":checked");
+	
 	_edgeTypeVisibility[OTHER] =
 		$("#relations_tab .other input").is(":checked");
 	
@@ -1059,10 +1210,67 @@ function geneVisibility(element)
 }
 
 /**
- * Determines the visibility of a gene (node) for filtering purposes. This
- * function is designed to filter genes by the slider value.
+ * Determines the visibility of a drug (node) for filtering purposes. This
+ * function is designed to filter drugs by the drop down selection.
  * 
  * @param element	gene to be checked for visibility criteria
+ * @return			true if the gene should be visible, false otherwise
+ */
+function dropDownVisibility(element)
+{
+	var visible = false;
+	var weight;
+	var selectedOption = $("#drop_down_select").val();
+	// if an element is already filtered then it should remain invisible 
+	if (_alreadyFiltered[element.data.id] != null )
+	{
+		visible = false;
+	}
+	// if an element is a seed node, then it should be visible
+	// (if it is not filtered manually)
+	else if (element.data["IN_QUERY"] != null &&
+			element.data["IN_QUERY"].toLowerCase() == "true")
+	{
+		visible = true;
+	}
+	else
+	{	
+		
+		//if the node is a drug then check the drop down selection
+		
+		if(element.data.type == "Drug"){
+			if(selectedOption.toString() == "HIDE_DRUGS"){
+				visible = false;
+			}else if(selectedOption.toString() == "SHOW_ALL"){
+				visible = true;
+			}else{  // check FDA approved
+				if( element.data.FDA_APPROVAL == "true")
+					visible = true;
+				else
+					visible = false;
+			}
+		}
+		else
+			visible = true;
+		
+		if (!visible)
+		{
+			// if the element should be filtered,
+			// then add it to the required maps
+			_filteredByDropDown[element.data.id] = element;
+			_alreadyFiltered[element.data.id] = element;
+		}
+	}
+	
+	return visible;
+}
+
+
+/**
+ * Determines the visibility of a gene(node) for filtering purposes. This
+ * function is designed to filter nodes by the slider value.
+ * 
+ * @param element	node to be checked for visibility criteria
  * @return			true if the gene should be visible, false otherwise
  */
 function sliderVisibility(element)
@@ -1082,15 +1290,16 @@ function sliderVisibility(element)
 	{
 		visible = true;
 	}
+	
 	else
 	{	
 		// get the weight of the node
 		weight = _geneWeightMap[element.data.id];
 		
 		// if the weight of the current node is below the threshold value
-		// then it should be filtered
+		// then it should be filtered (also check the element is not a drug)
 		
-		if (weight != null)
+		if (weight != null && element.data.type != "Drug")
 		{
 			if (weight >= _geneWeightThreshold)
 			{
@@ -1406,12 +1615,21 @@ function _removeHighlights()
 }
 
 /**
- * Displays the node legend in a separate panel.
+ * Displays the gene legend in a separate panel.
  */
 function _showNodeLegend()
 {
 	// open legend panel
 	$("#node_legend").dialog("open").height("auto");
+}
+
+/**
+ * Displays the drug legend in a separate panel.
+ */
+function _showDrugLegend()
+{
+	// open legend panel
+	$("#drug_legend").dialog("open").height("auto");
 }
 
 /**
@@ -1563,6 +1781,7 @@ function _setVisibility(visible)
 			$("#node_inspector").removeClass("hidden-network-ui");
 			$("#edge_inspector").removeClass("hidden-network-ui");
 			$("#node_legend").removeClass("hidden-network-ui");
+			$("#drug_legend").removeClass("hidden-network-ui");
 			$("#edge_legend").removeClass("hidden-network-ui");
 			$("#settings_dialog").removeClass("hidden-network-ui");
 		}
@@ -1577,6 +1796,7 @@ function _setVisibility(visible)
 			$("#node_inspector").addClass("hidden-network-ui");
 			$("#edge_inspector").addClass("hidden-network-ui");
 			$("#node_legend").addClass("hidden-network-ui");
+			$("#drug_legend").addClass("hidden-network-ui");
 			$("#edge_legend").addClass("hidden-network-ui");
 			$("#settings_dialog").addClass("hidden-network-ui");
 		}
@@ -1649,6 +1869,7 @@ function _xrefArray()
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
 	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
+	linkMap["drugbank"] = "http://www.drugbank.ca/drugs/" + ID_PLACE_HOLDER;
 	linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;
@@ -1667,6 +1888,7 @@ function _edgeTypeArray()
 	typeArray[IN_SAME_COMPONENT] = true;
 	typeArray[REACTS_WITH] = true;
 	typeArray[STATE_CHANGE] = true;
+	typeArray[DRUG_TARGET] = true;
 	typeArray[OTHER] = true;
 	
 	return typeArray;
@@ -1875,7 +2097,6 @@ function _initMainMenu()
 	$("#auto_layout").addClass(LAST_CLASS);
 	
 	$("#show_node_legend").addClass(FIRST_CLASS);
-	$("#show_node_legend").addClass(MENU_SEPARATOR_CLASS);	
 	$("#show_edge_legend").addClass(LAST_CLASS);
 	
 	// init check icons for checkable menu items
@@ -1979,12 +2200,30 @@ function _initDialogs()
 		resizable: false, 
 		width: 440});
 	
+	// adjust drug legend
+	$("#drug_legend").dialog({autoOpen: false, 
+		resizable: false, 
+		width: 320});
+	
 	// adjust edge legend
 	$("#edge_legend").dialog({autoOpen: false, 
 		resizable: false, 
 		width: 280,
-		height: 140});
+		height: 152});
 }
+
+/**
+ * Initializes the drop down menu.
+ */
+function _initDropDown()
+{
+	// add select listener for drop down menu
+	$("#drop_down_select").change(function(){
+			_changeListener();
+			});
+	//_changeListener();
+}
+
 
 /**
  * Initializes the gene filter sliders.
@@ -1992,6 +2231,7 @@ function _initDialogs()
 function _initSliders()
 {
 	// add key listeners for input fields
+	
 	$("#weight_slider_field").keypress(_keyPressListener);
 	$("#affinity_slider_field").keypress(_keyPressListener);
 	
@@ -2013,23 +2253,48 @@ function _initSliders()
 }
 
 /**
+ * Recursive function, that adds a new line after each 60 characters in given parameter and returns it
+ * */
+function _adjustToolTipText(text)
+{
+	if (text.length > 60) 
+	{
+		return text.substr(0,60) + "\n" +  _adjustToolTipText(text.substr(60,text.length));
+	}
+	else
+		return text;
+}
+
+/**
  * Initializes tooltip style for genes.
+ * 
+ * 
  */
 function _initTooltipStyle()
 {	
 	// create a function and add it to the Visualization object
-	_vis["customTooltip"] = function (data) {
+	_vis["customTooltip"] = function (data) 
+	{
 		var text;
-		
-		if (data["PERCENT_ALTERED"] == null)
+				
+		if (data.type != DRUG) 
 		{
-			text = "n/a";
+			if (data["PERCENT_ALTERED"] == null)
+			{
+				text = "n/a";
+			}
+			else
+			{
+				text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+			}
 		}
+		// For Drug Nodes, their full label are shown on mouse over, in tool tip
 		else
 		{
-			text = Math.round(100 * data["PERCENT_ALTERED"]) + "%";
+
+			text = _adjustToolTipText(data.label);
 		}
-		
+
 		return "<b>" + text + "</b>";
 		//return text;
 	};
@@ -2091,6 +2356,41 @@ function _weightSliderStop(event, ui)
 	
 	// update filters
 	_filterBySlider();
+}
+/**
+*Filters drugs by the drop down menu.
+*/
+function _filterByDropDown()
+{
+	// remove previous filters due to slider
+	for (var key in _filteredByDropDown)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// remove previous filters due to disconnection
+	for (var key in _filteredByIsolation)
+	{
+		_alreadyFiltered[key] = null;
+	}
+	
+	// reset required filter arrays
+	_filteredByDropDown = new Array();
+	_filteredByIsolation = new Array();
+	
+	// remove filters
+	//_vis.removeFilter("nodes", false);
+	
+	// filter with new drop down selection 
+	_vis.filter("nodes", dropDownVisibility);
+	
+    // also, filter disconnected nodes if necessary
+    _filterDisconnected();
+    
+    
+    // visualization changed, perform layout if necessary
+	_visChanged();
+
 }
 
 /**
@@ -2162,6 +2462,17 @@ function _affinitySliderChange(event, ui)
 	// update filters
 	_filterBySlider();
 }
+
+/**
+*changeListener for the changes on the drop down menu
+*
+*/
+function _changeListener(){
+	//update drug filters
+	_filterByDropDown();
+
+}
+
 
 /**
  * Key listener for input fields on the genes tab.
@@ -2442,6 +2753,7 @@ function _refreshRelationsTab()
 	percentages[IN_SAME_COMPONENT] = 0;
 	percentages[REACTS_WITH] = 0;
 	percentages[STATE_CHANGE] = 0;	
+	percentages[DRUG_TARGET] = 0;
 	
 	// for each edge increment count of the correct edge type 
 	for (var i=0; i < edges.length; i++)
@@ -2452,7 +2764,8 @@ function _refreshRelationsTab()
 	percentages[OTHER] = edges.length -
 		(percentages[IN_SAME_COMPONENT] +
 		percentages[REACTS_WITH] +
-		percentages[STATE_CHANGE]);
+		percentages[STATE_CHANGE] +
+		percentages[DRUG_TARGET]);
 	
 	if (percentages[OTHER] == 0)
 	{
@@ -2478,9 +2791,20 @@ function _refreshRelationsTab()
 		"width", Math.ceil(percent * 0.85) + "%");
 	
 	$("#relations_tab .in-same-component .percent-bar").css(
-		"background-color", "#CD976B");
+		"background-color", "#904930");
 	
 	$("#relations_tab .in-same-component .percent-value").text(
+		percent.toFixed(1) + "%");
+	
+	percent = (percentages[DRUG_TARGET] * 100 / edges.length);
+	
+	$("#relations_tab .targeted-by-drug .percent-bar").css(
+		"width", Math.ceil(percent * 0.85) + "%");
+	
+	$("#relations_tab .targeted-by-drug .percent-bar").css(
+		"background-color", "#E6A90F");
+	
+	$("#relations_tab .targeted-by-drug .percent-value").text(
 		percent.toFixed(1) + "%");
 	
 	percent = (percentages[REACTS_WITH] * 100 / edges.length);
@@ -2565,6 +2889,7 @@ function _initControlFunctions()
 	_controlFunctions["remove_highlights"] = _removeHighlights;
 	_controlFunctions["hide_non_selected"] = filterNonSelected;
 	_controlFunctions["node_legend"] = _showNodeLegend;
+	_controlFunctions["drug_legend"] = _showDrugLegend;
 	_controlFunctions["edge_legend"] = _showEdgeLegend;
 	
 	
@@ -2724,6 +3049,25 @@ function _geneSort(node1, node2)
  */
 function _performLayout()
 {
+//    var field = { name: "weight", type: "number", defValue: 1.0 };
+//    _vis.addDataField("edges", field);
+//
+//    var edges = _vis.edges();
+//
+//    for (var i=0; i < edges.length; i++)
+//    {
+//    	if (edges[i].data.type == "DRUG_TARGET")
+//    	{    		
+//    		edges[i].data.weight = 0.2;
+//    	}
+//    	else
+//		{
+//    		edges[i].data.weight = 1.0;
+//		}
+//
+//    	_vis.updateData("edges", [edges[i]], edges[i].data);
+//    }
+    
 	_vis.layout(_graphLayout);
 }
 

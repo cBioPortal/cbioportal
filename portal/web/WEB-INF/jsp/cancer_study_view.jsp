@@ -11,15 +11,6 @@ request.setAttribute("standard_js_only", true);
 <jsp:include page="global/header.jsp" flush="true" />
 
 <%
-CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANCER_STUDY);
-String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
-
-GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
-boolean showMutations = mutationProfile!=null;
-
-GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
-boolean showCNA = false;
-
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -27,6 +18,15 @@ if (isDemoMode!=null) {
 } else {
     showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 }
+
+CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANCER_STUDY);
+String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
+
+GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
+boolean showMutations = showPlaceHoder;
+
+GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
+boolean showCNA = showPlaceHoder;
 
 if (cancerStudyViewError!=null) {
     out.print(cancerStudyViewError);
@@ -104,7 +104,6 @@ $(document).ready(function(){
 function setUpStudyTabs() {
     $('#study-tabs').tabs();
     $('#study-tabs').show();
-    fixCytoscapeWebRedraw();
 }
 
 function initTabs() {

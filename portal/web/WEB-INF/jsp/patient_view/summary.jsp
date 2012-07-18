@@ -12,7 +12,6 @@
 </style>
 
 <script type="text/javascript" src="js/patient-view.genomic-overview.js"></script>
-<script type="text/javascript" src="js/patient-view.genomic-event-observer.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
@@ -23,6 +22,7 @@
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
         var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0));
+        config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         if (geObs.hasMut) {

@@ -53,3 +53,6 @@ authorization=false
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]
 bitly.api_key=[put your bitly api key here]
+
+patient_view_placeholder=false
+patient_view_genomic_overview_cna_cutoff=0.2,1.5

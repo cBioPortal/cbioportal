@@ -124,6 +124,12 @@ public class SkinUtil {
         Config config = Config.getInstance();
         return Boolean.parseBoolean(config.getProperty("patient_view_placeholder"));
     }
+    
+    public static double[] getPatientViewGenomicOverviewCnaCutoff() {
+        Config config = Config.getInstance();
+        String[] strs = config.getProperty("patient_view_genomic_overview_cna_cutoff").split(",");
+        return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
+    }
 
     /**
      * Determines whether we should show the news tab.

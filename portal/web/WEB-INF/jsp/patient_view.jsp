@@ -37,6 +37,8 @@ boolean showPathways = showMutations | showCNA;
 boolean showSimilarPatient = showMutations | showCNA;
 boolean showGenomicOverview = showMutations | showCNA;
 
+double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
+
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;
 int numPatientInSameCnaProfile = 0;
@@ -158,6 +160,7 @@ if (patientViewError!=null) {
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 
+<script type="text/javascript" src="js/patient-view.genomic-event-observer.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
     setUpPatientTabs();

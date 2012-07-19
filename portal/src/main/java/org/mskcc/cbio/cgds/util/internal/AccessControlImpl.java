@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cgds.util.internal;
+package org.mskcc.cbio.cgds.util.internal;
 
 // imports
 import org.mskcc.cgds.dao.DaoException;

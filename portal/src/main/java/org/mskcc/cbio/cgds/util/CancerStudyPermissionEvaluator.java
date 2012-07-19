@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 
 // imports
 import org.mskcc.cgds.model.CancerStudy;

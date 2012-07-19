@@ -1,4 +1,4 @@
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 
 import org.junit.experimental.theories.internal.ParameterizedAssertionError;
 import org.mskcc.cgds.dao.*;

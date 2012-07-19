@@ -1,4 +1,4 @@
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 /**
  * Collected methods which allow easy implementation of <code>equals</code>.
  * 

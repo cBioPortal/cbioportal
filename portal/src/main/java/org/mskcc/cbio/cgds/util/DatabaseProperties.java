@@ -1,4 +1,4 @@
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 
 /**
  * Stores db props (name, id, pw, host) from build.properties

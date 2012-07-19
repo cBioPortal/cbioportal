@@ -1,4 +1,4 @@
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 
 import java.io.InputStream;
 import java.io.IOException;

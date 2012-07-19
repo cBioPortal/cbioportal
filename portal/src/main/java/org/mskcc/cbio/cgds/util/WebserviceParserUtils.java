@@ -1,5 +1,5 @@
 
-package org.mskcc.cgds.util;
+package org.mskcc.cbio.cgds.util;
 
 
 import java.util.ArrayList;

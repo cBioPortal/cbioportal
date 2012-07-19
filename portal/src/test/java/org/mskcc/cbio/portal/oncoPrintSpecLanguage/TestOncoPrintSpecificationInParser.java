@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.test.oncoPrintSpecLanguage;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;

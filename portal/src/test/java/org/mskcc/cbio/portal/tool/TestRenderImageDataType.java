@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.tool;
+package org.mskcc.cbio.portal.test.tool;
 
 import java.io.BufferedReader;
 import java.io.File;

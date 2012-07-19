@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.util;
+package org.mskcc.cbio.portal.test.util;
 
 import java.io.File;
 import java.io.FileInputStream;

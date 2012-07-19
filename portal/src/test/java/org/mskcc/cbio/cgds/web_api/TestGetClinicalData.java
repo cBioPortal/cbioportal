@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.web_api;
+package org.mskcc.cbio.cgds.test.web_api;
 
 import junit.framework.TestCase;
 

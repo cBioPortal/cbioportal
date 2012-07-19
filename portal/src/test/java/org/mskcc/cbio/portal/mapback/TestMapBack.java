@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.mapback;
+package org.mskcc.cbio.portal.test.mapback;
 
 import junit.framework.TestCase;
 import org.mskcc.portal.mapback.MapBack;

@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cgds.test.dao;
+package org.mskcc.cbio.cgds.test.dao;
 
 // imports
 import org.mskcc.cgds.model.User;

@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.model;
+package org.mskcc.cbio.portal.test.model;
 
 
 import java.util.ArrayList;

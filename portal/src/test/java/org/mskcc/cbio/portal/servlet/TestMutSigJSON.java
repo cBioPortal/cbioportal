@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.servlet;
+package org.mskcc.cbio.portal.test.servlet;
 
 import junit.framework.TestCase;
 import org.junit.Test;

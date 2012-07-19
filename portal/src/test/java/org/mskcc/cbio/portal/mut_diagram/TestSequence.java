@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.mut_diagram;
+package org.mskcc.cbio.portal.test.mut_diagram;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;

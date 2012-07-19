@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.validator;
+package org.mskcc.cbio.portal.test.validator;
 
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoGeneOptimized;

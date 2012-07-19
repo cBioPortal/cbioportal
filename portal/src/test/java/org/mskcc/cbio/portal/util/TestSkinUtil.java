@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.util;
+package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
 import org.mskcc.portal.util.SkinUtil;

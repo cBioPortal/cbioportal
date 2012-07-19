@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.stats;
+package org.mskcc.cbio.portal.test.stats;
 
 import junit.framework.TestCase;
 import org.mskcc.portal.stats.FisherExact;

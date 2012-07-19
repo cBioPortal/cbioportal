@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.dao;
+package org.mskcc.cbio.cgds.test.dao;
 
 import java.util.Arrays;
 import junit.framework.TestCase;

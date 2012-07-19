@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cgds.test.scripts;
+package org.mskcc.cbio.cgds.test.scripts;
 
 // imports
 import org.mskcc.cgds.model.User;

@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.util;
+package org.mskcc.cbio.cgds.test.util;
 
 import java.io.File;
 

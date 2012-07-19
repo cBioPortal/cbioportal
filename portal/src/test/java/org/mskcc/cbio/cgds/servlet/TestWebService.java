@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.servlet;
+package org.mskcc.cbio.cgds.test.servlet;
 
 import java.io.IOException;
 import java.io.File;

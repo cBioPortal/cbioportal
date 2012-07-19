@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.graph;
+package org.mskcc.cbio.cgds.test.graph;
 
 import junit.framework.TestCase;
 import org.mskcc.cgds.dao.DaoException;

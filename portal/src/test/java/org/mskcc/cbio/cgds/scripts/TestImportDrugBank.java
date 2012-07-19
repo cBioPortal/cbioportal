@@ -1,4 +1,4 @@
-package org.mskcc.cgds.test.scripts;
+package org.mskcc.cbio.cgds.test.scripts;
 
 import au.com.bytecode.opencsv.CSVReader;
 import junit.framework.TestCase;

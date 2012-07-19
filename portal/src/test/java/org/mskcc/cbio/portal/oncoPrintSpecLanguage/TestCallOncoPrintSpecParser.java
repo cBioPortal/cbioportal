@@ -1,4 +1,4 @@
-package org.mskcc.portal.test.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.test.oncoPrintSpecLanguage;
 
 import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;

@@ -241,7 +241,7 @@ sub collectAndOutputDBMSloadMeasures {
 					my @tmp = split( ' ', $measuredDataType ); # keep just first dir
 					$measuredDataType = $tmp[0];
 				
-					$measuredDataType =~ s/ clobber.*$//g; # get rid of other args to org.mskcc.cgds.scripts.ImportProfileData
+					$measuredDataType =~ s/ clobber.*$//g; # get rid of other args to org.mskcc.cbio.cgds.scripts.ImportProfileData
 
 					$timings->{$loadScript}->{$measuredDataType}->{$loadType} = $minutes;
 

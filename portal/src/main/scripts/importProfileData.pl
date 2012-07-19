@@ -18,12 +18,12 @@ if( -e $loadTypeFile ){
 	open(my $in,  "<",  $loadTypeFile )  or die "Can't open $loadTypeFile: $!";
 	my $loadType = <$in>;
 	print "Load type is '$loadType'.\n";
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProfileData $args --loadMode $loadType");
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProfileData $args --loadMode $loadType");
 	$elapsedMin = (time - $startTime)/60;
 	print sprintf("%.1f", $elapsedMin), "\t(min) to run ImportProfileData on\t", "$args --loadMode $loadType";
 }else{
 	# $loadTypeFile does not exist, so compareDirectAndBulkDBMSload.pl is not being run
-	my $cmd = "$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProfileData $args --loadMode bulkLoad";
-	print "-DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProfileData $args --loadMode bulkLoad\n";
+	my $cmd = "$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProfileData $args --loadMode bulkLoad";
+	print "-DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProfileData $args --loadMode bulkLoad\n";
 	system( $cmd );
 }

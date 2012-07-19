@@ -29,7 +29,12 @@ DataTableWrapper.prototype = {
         var converter = new MatrixDataTypeConverter();
         converter.convertTypes(matrix);
         this.colTypes = converter.colTypes;
-        this.dataTable = google.visualization.arrayToDataTable(converter.dataMatrix);
+        this.dataTable = new google.visualization.DataTable();
+        for (var i=0; i<converter.dataMatrix[0].length; i++) {
+            var h = converter.dataMatrix[0][i];
+            this.dataTable.addColumn(this.colTypes[h],h);
+        }
+        this.dataTable.addRows(converter.dataMatrix.slice(1));
     }
 };
 var dataTableWrapper = new DataTableWrapper();

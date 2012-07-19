@@ -91,8 +91,7 @@
 					 String sequenced = (stats.getSequenced() != 0) ? stats.getSequenced().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + sequenced + "</td>");
 					 // aCGH
-					 String aCGH = (stats.getACGH() == 0) ? "" :
-						 ("<a href=\"" + segFileURL + stableID + ".seg\">" + stats.getACGH() + "</a>");
+					 String aCGH = (stats.getACGH() != 0) ? stats.getACGH().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + aCGH  + "</td>");
 					 // RNA-Seq
 					 String rnaSEQ = (stats.getRNASEQ() != 0) ? stats.getRNASEQ().toString() : "";

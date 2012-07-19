@@ -1,20 +1,20 @@
 package org.mskcc.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoClinicalData;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.model.CancerStudy;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoClinicalData;
+import org.mskcc.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.util.ConsoleUtil;
+import org.mskcc.cgds.util.FileUtil;
+import org.mskcc.cgds.util.ProgressMonitor;
 
 /**
  * Imports Clinical Data.
@@ -32,6 +32,7 @@ public class ImportClinicalData {
     private int ageCol = -1;
     private CancerStudy cancerStudy;
     private ArrayList<String> freeFormHeaders = new ArrayList<String>();
+    private List<Integer> freeFormInludeColumns = new ArrayList<Integer>();
 
     /**
      * Constructor.
@@ -99,15 +100,12 @@ public class ImportClinicalData {
                             ageAtDiagnosis);
                     
                     if (cancerStudy != null) {
-                        for (int i = 1; i < parts.length; i++) {
+                        for (int i : freeFormInludeColumns) {
                             String name = freeFormHeaders.get(i);
                             String value = parts[i];
                             
-                            if (!this.excludeFromFreeFormTable(name))
-                            {
-                            	daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
-                            			caseId, name, value);
-                            }
+                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
+                                            caseId, name, value);
                         }
                     }
                 }
@@ -159,48 +157,20 @@ public class ImportClinicalData {
             
             if (caseIdNames.contains(header)) {
                 caseIdCol = i;
-            }
-            if (osStatusNames.contains(header)) {
+            } else if (osStatusNames.contains(header)) {
                 osStatusCol = i;
-            }
-            if (osMonthsNames.contains(header)) {
+            } else if (osMonthsNames.contains(header)) {
                 osMonthsCol = i;
-            }
-            if (dfsMonthsNames.contains(header)) {
+            } else if (dfsMonthsNames.contains(header)) {
                 dfsMonthCol = i;
-            }
-            if (dfsStatusNames.contains(header)) {
+            } else if (dfsStatusNames.contains(header)) {
                 dfsStatusCol = i;
-            }
-            if (ageNames.contains(header)) {
+            } else if (ageNames.contains(header)) {
                 ageCol = i;
+            } else {
+                freeFormInludeColumns.add(i);
             }
         }
-    }
-
-    /**
-     * Decides whether to exclude the given header from the clinical free form
-     * table. Headers such as CASE_ID, OS_STATUS, DFS_STATUS should not be
-     * included in the free form table.
-     * 
-     * @param header	header to be checked
-     * @return			true if the header should be excluded, false otherwise
-     */
-    private boolean excludeFromFreeFormTable(String header)
-    {
-    	boolean exclude = false;
-    	
-    	if (header.equalsIgnoreCase("case_id") ||
-    		header.equalsIgnoreCase("caseid") ||
-    		header.equalsIgnoreCase("os_status") ||
-    		header.equalsIgnoreCase("osstatus") ||
-    		header.equalsIgnoreCase("dfs_status") ||
-    		header.equalsIgnoreCase("dfsstatus"))
-    	{
-    		exclude = true;
-    	}
-    	
-    	return exclude;
     }
     
     private Double getDouble(String parts[], int index) {

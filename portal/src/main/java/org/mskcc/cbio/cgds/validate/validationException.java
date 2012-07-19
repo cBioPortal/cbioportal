@@ -1,4 +1,4 @@
-package org.mskcc.cgds.validate;
+package org.mskcc.cbio.cgds.validate;
 
 public class validationException extends Exception {
     /**

@@ -1,4 +1,4 @@
-package org.mskcc.cgds.validate;
+package org.mskcc.cbio.cgds.validate;
 
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Gistic;

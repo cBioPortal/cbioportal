@@ -1,4 +1,4 @@
-package org.mskcc.cgds.validate.gene;
+package org.mskcc.cbio.cgds.validate.gene;
 
 /**
  * Encapsulates a Gene Validation Exception.

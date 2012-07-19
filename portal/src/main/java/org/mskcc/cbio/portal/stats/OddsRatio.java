@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.stats;
 
-import org.mskcc.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
 
 import java.util.ArrayList;
 

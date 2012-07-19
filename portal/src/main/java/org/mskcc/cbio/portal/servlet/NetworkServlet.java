@@ -9,17 +9,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.portal.network.*;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.model.*;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.util.CaseSetUtil;
-import org.mskcc.portal.util.GeneticProfileUtil;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.network.*;
+import org.mskcc.cbio.cgds.dao.DaoGeneticAlteration;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.portal.util.GeneticProfileUtil;
+import org.mskcc.cbio.portal.util.XDebug;
 
 /**
  * Retrieving 

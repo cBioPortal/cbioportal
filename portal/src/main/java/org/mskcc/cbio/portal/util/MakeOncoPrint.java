@@ -1,15 +1,15 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.portal.model.GeneticEventImpl.CNA;
-import org.mskcc.portal.model.GeneticEventImpl.MRNA;
-import org.mskcc.portal.model.GeneticEventImpl.RPPA;
-import org.mskcc.portal.model.*;
-import org.mskcc.portal.util.GlobalProperties;
-import org.mskcc.portal.oncoPrintSpecLanguage.*;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.portal.model.ExtendedMutationMap;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.RPPA;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 import org.apache.commons.lang.StringUtils;
 

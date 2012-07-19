@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 import java.util.HashSet;

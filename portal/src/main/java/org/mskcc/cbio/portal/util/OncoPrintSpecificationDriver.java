@@ -3,14 +3,14 @@ package org.mskcc.cbio.portal.util;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 public class OncoPrintSpecificationDriver {
 

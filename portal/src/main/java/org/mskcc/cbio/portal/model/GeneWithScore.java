@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
 
 /**
  * Encapsulates a Gene with a Score.

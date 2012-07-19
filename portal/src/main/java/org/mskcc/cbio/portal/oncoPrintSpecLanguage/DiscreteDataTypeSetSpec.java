@@ -2,9 +2,9 @@ package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.EnumSet;
 import java.util.Iterator;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
-import org.mskcc.portal.util.EqualsUtil;
-import org.mskcc.portal.util.HashCodeUtil;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.HashCodeUtil;
 
 /**
  * Represent a discrete dataTypeSpec, like CNA or mutation.

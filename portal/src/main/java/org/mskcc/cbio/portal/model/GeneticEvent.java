@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.portal.model.GeneticEventImpl.*;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.*;
 
 /**
  * Interface for Encapsulating Information Regarding One Gene in One Sample.

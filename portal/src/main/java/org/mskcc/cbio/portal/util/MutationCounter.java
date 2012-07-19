@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.portal.model.ExtendedMutationMap;
-import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutationMap;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
 import java.text.DecimalFormat;

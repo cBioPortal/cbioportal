@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mskcc.portal.mut_diagram.FeatureService;
-import org.mskcc.portal.mut_diagram.Sequence;
+import org.mskcc.cbio.portal.mut_diagram.FeatureService;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

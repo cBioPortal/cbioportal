@@ -2,10 +2,10 @@ package org.mskcc.cbio.portal.util;
 
 import java.util.ArrayList;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
 
 /**
  * 

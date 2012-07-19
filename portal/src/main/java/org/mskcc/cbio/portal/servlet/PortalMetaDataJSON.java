@@ -2,17 +2,17 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
-import org.mskcc.portal.model.GeneSet;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.util.GeneSetUtil;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.util.GeneSetUtil;
+import org.mskcc.cbio.portal.util.XDebug;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

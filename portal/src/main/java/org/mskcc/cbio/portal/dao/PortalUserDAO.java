@@ -2,8 +2,8 @@
 package org.mskcc.cbio.portal.dao;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAuthorities;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
 
 /**
  * Interface to use to retrieve

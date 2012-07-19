@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
 public enum GeneticDataTypes {
    CopyNumberAlteration(DataTypeCategory.Discrete, "CNA"), 

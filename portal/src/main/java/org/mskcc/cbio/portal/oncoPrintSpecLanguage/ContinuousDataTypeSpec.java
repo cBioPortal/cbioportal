@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 import static java.lang.System.out;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
-import org.mskcc.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.util.EqualsUtil;
 
 /**
  * generically record and access the Continuous DataTypeSpecs, Expression and

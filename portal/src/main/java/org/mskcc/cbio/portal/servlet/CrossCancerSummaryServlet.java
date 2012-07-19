@@ -1,17 +1,17 @@
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.util.*;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.ProfileDataSummary;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cgds.model.AnnotatedCaseSets;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.web_api.GetProfileData;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.cgds.model.AnnotatedCaseSets;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;

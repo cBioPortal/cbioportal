@@ -2,9 +2,9 @@
 package org.mskcc.cbio.portal.openIDlogin;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.portal.dao.PortalUserDAO;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
+import org.mskcc.cbio.portal.dao.PortalUserDAO;
 
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;

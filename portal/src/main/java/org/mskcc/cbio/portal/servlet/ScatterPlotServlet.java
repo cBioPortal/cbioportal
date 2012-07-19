@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import org.mskcc.cgds.util.WebserviceParserUtils;
-import org.mskcc.portal.remote.GetProteinArrayData;
+import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.remote.GetProteinArrayData;
 
 import org.owasp.validator.html.PolicyException;
 

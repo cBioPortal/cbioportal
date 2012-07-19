@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.owasp.validator.html.PolicyException;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.portal.util.CaseSetUtil;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.dao.DaoException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

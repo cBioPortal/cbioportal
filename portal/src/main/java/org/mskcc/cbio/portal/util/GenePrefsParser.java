@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.portal.model.GeneCounterPrefs;
+import org.mskcc.cbio.portal.model.GeneCounterPrefs;
 
 import java.util.HashMap;
 

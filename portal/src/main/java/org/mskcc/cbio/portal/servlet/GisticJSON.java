@@ -2,13 +2,13 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGistic;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Gistic;
-import org.mskcc.cgds.validate.validationException;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGistic;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.cgds.validate.validationException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;

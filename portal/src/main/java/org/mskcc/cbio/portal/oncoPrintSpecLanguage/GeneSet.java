@@ -2,7 +2,7 @@ package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.ArrayList;
 
-import org.mskcc.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.EqualsUtil;
 
 /**
  * Stores either a single gene with an OncoPrint spec, or a set of genes in

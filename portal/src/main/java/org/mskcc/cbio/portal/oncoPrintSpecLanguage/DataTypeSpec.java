@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
 /**
  * DataTypeSpec is an abstract class at the root of a set of classes that 

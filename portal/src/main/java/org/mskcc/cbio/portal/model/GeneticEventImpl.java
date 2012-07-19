@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.util.ValueParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.util.ValueParser;
 
 /**
  * Implementation of Genetic Event Interface.

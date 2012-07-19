@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.portal.model.GeneSet;
+import org.mskcc.cbio.portal.model.GeneSet;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;

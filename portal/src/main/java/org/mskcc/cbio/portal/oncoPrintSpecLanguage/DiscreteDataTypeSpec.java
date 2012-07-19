@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 import static java.lang.System.out;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
 /**
  * Generically record and access an inequality of one of the Discrete DataTypeSpecs, CNA and Mutation.

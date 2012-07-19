@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.portal.util.ValueParser;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.ValueParser;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

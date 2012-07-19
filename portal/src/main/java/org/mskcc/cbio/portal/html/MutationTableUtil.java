@@ -1,9 +1,9 @@
 package org.mskcc.cbio.portal.html;
 
-import org.mskcc.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.portal.html.special_gene.SpecialGene;
-import org.mskcc.portal.util.SequenceCenterUtil;
-import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.util.SequenceCenterUtil;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
 

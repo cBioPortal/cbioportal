@@ -2,9 +2,9 @@ package org.mskcc.cbio.portal.tool;
 
 import java.util.HashSet;
 
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.util.ValueParser;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.util.ValueParser;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 /**
  * Render an "image" datatype, which includes a value and a link to a list of images.

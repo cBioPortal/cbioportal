@@ -7,7 +7,7 @@ options {
 @header { 
 	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 	import java.util.ArrayList; 
-	import org.mskcc.portal.oncoPrintSpecLanguage.*;
+	import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 	import static java.lang.System.out;
 }
 

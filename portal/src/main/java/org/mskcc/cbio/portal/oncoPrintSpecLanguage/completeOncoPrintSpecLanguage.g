@@ -6,7 +6,7 @@ grammar completeOncoPrintSpecLanguage;
 @parser::header { 
 	package main;
 	import java.util.ArrayList; 
-	import org.mskcc.portal.oncoPrintSpecLanguage.*;
+	import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 	import static java.lang.System.out;
 }
 @lexer::header{

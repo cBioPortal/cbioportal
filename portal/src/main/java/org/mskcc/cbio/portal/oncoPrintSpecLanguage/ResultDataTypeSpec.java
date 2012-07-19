@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
-import org.mskcc.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.EqualsUtil;
 
 /**
  * holds a data type spec; an OncoPrintGeneDisplaySpec contains one of these for each data type.

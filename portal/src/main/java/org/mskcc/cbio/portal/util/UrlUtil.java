@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.portal.servlet.QueryBuilder;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;

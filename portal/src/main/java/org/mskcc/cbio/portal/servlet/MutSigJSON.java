@@ -2,11 +2,11 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoMutSig;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.MutSig;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.MutSig;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;

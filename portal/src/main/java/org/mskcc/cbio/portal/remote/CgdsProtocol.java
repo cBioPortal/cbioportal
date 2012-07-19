@@ -8,9 +8,9 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.mskcc.portal.util.Config;
-import org.mskcc.portal.util.ResponseUtil;
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.Config;
+import org.mskcc.cbio.portal.util.ResponseUtil;
+import org.mskcc.cbio.portal.util.XDebug;
 
 import java.io.IOException;
 

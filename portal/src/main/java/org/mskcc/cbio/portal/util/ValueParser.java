@@ -1,18 +1,18 @@
 package org.mskcc.cbio.portal.util;
 
 import java.util.HashMap;
-import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;
-import org.mskcc.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 /**
  * Takes a String encoding of genetic data created by ProfileMerger, and some

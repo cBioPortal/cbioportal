@@ -2,9 +2,9 @@
 package org.mskcc.cbio.portal.dao.internal;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.portal.dao.PortalUserDAO;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
+import org.mskcc.cbio.portal.dao.PortalUserDAO;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;

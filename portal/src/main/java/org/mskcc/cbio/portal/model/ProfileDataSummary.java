@@ -7,10 +7,10 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.util.ValueParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.util.ValueParser;
 
 /**
  * Utility Class for Summarizing Profile Data.

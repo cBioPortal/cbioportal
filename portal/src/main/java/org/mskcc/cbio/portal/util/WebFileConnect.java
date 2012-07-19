@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cgds.web_api.WebApiUtil;
+import org.mskcc.cbio.cgds.web_api.WebApiUtil;
 
 import java.io.BufferedReader;
 import java.io.File;

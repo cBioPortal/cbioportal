@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.portal.util.OmaLinkUtil;
+import org.mskcc.cbio.portal.util.OmaLinkUtil;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

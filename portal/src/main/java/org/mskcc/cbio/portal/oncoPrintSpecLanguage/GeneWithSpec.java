@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
-import org.mskcc.portal.util.EqualsUtil;
-import org.mskcc.portal.util.HashCodeUtil;
+import org.mskcc.cbio.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.HashCodeUtil;
 
 /**
  * a gene with an OncoPrint Spec

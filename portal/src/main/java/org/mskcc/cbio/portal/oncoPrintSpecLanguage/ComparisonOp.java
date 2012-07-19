@@ -2,7 +2,7 @@ package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.Arrays;
 
-import org.mskcc.portal.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.EqualsUtil;
 
 enum ComparisonOpDirection{
     Bigger,

@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoUniProtIdMapping;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.portal.mut_diagram.IdMappingService;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoUniProtIdMapping;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
 
 /**
  * Implementation of IdMappingService that reads from the CGDS data source.

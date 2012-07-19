@@ -29,7 +29,7 @@
 package org.mskcc.cbio.portal.servlet;
 
 
-import org.mskcc.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;

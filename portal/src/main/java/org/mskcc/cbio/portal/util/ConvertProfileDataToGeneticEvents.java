@@ -2,11 +2,11 @@ package org.mskcc.cbio.portal.util;
 
 import java.util.ArrayList;
 
-import org.mskcc.portal.model.GeneticEvent;
-import org.mskcc.portal.model.GeneticEventImpl;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.ProfileDataSummary;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.model.GeneticEvent;
+import org.mskcc.cbio.portal.model.GeneticEventImpl;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 
 /**
  * Utility Class to Convert Profile Data to a Matrix of Genetic Events.

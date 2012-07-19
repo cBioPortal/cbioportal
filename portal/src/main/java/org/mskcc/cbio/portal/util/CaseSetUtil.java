@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoTextCache;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.portal.remote.GetCaseSets;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoTextCache;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
 
 /**
  * Utility class for the user-defined case sets (case ID list).

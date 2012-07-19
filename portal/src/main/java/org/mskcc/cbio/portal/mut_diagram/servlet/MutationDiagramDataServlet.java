@@ -21,17 +21,17 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.CollectionType;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.portal.mut_diagram.FeatureService;
-import org.mskcc.portal.mut_diagram.IdMappingService;
-import org.mskcc.portal.mut_diagram.Markup;
-import org.mskcc.portal.mut_diagram.Pileup;
-import org.mskcc.portal.mut_diagram.Sequence;
-import org.mskcc.portal.mut_diagram.impl.CacheFeatureService;
-import org.mskcc.portal.mut_diagram.impl.CgdsIdMappingService;
-import org.mskcc.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.mut_diagram.FeatureService;
+import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
+import org.mskcc.cbio.portal.mut_diagram.Markup;
+import org.mskcc.cbio.portal.mut_diagram.Pileup;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
+import org.mskcc.cbio.portal.mut_diagram.impl.CacheFeatureService;
+import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
+import org.mskcc.cbio.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
 
 import com.google.common.collect.ImmutableList;
 

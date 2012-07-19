@@ -15,13 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.ClinicalFreeForm;
-import org.mskcc.cgds.model.ClinicalParameterMap;
-import org.mskcc.portal.util.CategoryLabelReader;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
+import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.util.CategoryLabelReader;
 import org.owasp.validator.html.PolicyException;
 
 public class ClinicalFreeFormJSON extends HttpServlet

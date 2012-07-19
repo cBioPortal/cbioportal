@@ -12,14 +12,14 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.model.DrugInteraction;
-import org.mskcc.cgds.model.Interaction;
-import org.mskcc.cgds.scripts.drug.AbstractDrugInfoImporter;
-import org.mskcc.portal.remote.ConnectionManager;
-import org.mskcc.portal.util.GlobalProperties;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.DrugInteraction;
+import org.mskcc.cbio.cgds.model.Interaction;
+import org.mskcc.cbio.cgds.scripts.drug.AbstractDrugInfoImporter;
+import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
  *

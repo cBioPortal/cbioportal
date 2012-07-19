@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-//import org.mskcc.portal.test.util.TestCascadeSortOfMatrix;
+//import org.mskcc.cbio.portal.test.util.TestCascadeSortOfMatrix;
 
 //import static org.junit.Assert.assertArrayEquals;
 

@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.CollectionType;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.mskcc.portal.mut_diagram.Sequence;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.ImmutableList;

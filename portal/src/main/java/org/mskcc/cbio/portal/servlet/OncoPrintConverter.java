@@ -29,8 +29,8 @@
 package org.mskcc.cbio.portal.servlet;
 
 // imports
-import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.util.FileUploadRequestWrapper;
+import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;

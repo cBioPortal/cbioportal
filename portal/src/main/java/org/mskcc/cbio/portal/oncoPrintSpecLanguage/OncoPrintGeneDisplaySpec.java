@@ -2,8 +2,8 @@ package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.EnumMap;
 
-import org.mskcc.portal.util.Direction;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.util.Direction;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
 /**
  * Stores and implements the filter for a gene's data. 

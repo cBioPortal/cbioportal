@@ -1,15 +1,15 @@
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.portal.util.XDebug;
-import org.mskcc.portal.model.LinkOutRequest;
-import org.mskcc.portal.remote.GetGeneticProfiles;
-import org.mskcc.portal.remote.GetCaseSets;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cgds.model.AnnotatedCaseSets;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.model.LinkOutRequest;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.cgds.model.AnnotatedCaseSets;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.apache.commons.collections15.iterators.IteratorEnumeration;
 
 import javax.servlet.http.HttpServlet;

@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.html.special_gene;
 
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.portal.mapback.MapBack;
-import org.mskcc.portal.mapback.Brca1;
-import org.mskcc.portal.mapback.Brca2;
-import org.mskcc.portal.html.HtmlUtil;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.mapback.MapBack;
+import org.mskcc.cbio.portal.mapback.Brca1;
+import org.mskcc.cbio.portal.mapback.Brca2;
+import org.mskcc.cbio.portal.html.HtmlUtil;
 
 import java.util.ArrayList;
 

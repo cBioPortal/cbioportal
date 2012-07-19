@@ -5,10 +5,10 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 
-import org.mskcc.portal.model.GeneticEventImpl.CNA;
-import org.mskcc.portal.model.GeneticEventImpl.MRNA;
-import org.mskcc.portal.model.GeneticEventImpl.RPPA;
-import org.mskcc.portal.model.GeneticEventImpl.mutations;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.RPPA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.mutations;
 
 /**
  * Provides configurable comparison and equals of GeneticEventImpls. 

@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.html.special_gene;
 
-import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
 

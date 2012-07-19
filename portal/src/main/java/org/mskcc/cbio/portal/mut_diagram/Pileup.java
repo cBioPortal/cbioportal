@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.mskcc.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;

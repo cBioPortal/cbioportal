@@ -1,13 +1,13 @@
 package org.mskcc.cbio.portal.remote;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoProteinArrayData;
-import org.mskcc.cgds.dao.DaoProteinArrayInfo;
-import org.mskcc.cgds.model.ProteinArrayData;
-import org.mskcc.cgds.model.ProteinArrayInfo;
-import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoProteinArrayData;
+import org.mskcc.cbio.cgds.dao.DaoProteinArrayInfo;
+import org.mskcc.cbio.cgds.model.ProteinArrayData;
+import org.mskcc.cbio.cgds.model.ProteinArrayInfo;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 
 import java.rmi.RemoteException;
 import java.util.Collection;

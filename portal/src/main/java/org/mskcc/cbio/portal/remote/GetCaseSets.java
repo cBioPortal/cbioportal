@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.remote;
 
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CaseList;
 
 import java.util.ArrayList;
 

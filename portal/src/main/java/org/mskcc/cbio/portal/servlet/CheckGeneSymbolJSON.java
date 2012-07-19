@@ -2,9 +2,9 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;

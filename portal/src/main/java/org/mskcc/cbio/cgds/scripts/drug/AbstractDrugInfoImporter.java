@@ -1,4 +1,4 @@
-package org.mskcc.cgds.scripts.drug;
+package org.mskcc.cbio.cgds.scripts.drug;
 
 import org.mskcc.cgds.dao.DaoDrug;
 import org.mskcc.cgds.dao.DaoException;

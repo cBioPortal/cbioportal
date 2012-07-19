@@ -1,4 +1,4 @@
-package org.mskcc.cgds.scripts.drug;
+package org.mskcc.cbio.cgds.scripts.drug;
 
 import au.com.bytecode.opencsv.CSVReader;
 import org.mskcc.cgds.scripts.drug.internal.DrugBankImporter;

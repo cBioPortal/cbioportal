@@ -1,4 +1,4 @@
-package org.mskcc.cgds.scripts;
+package org.mskcc.cbio.cgds.scripts;
 
 import java.io.BufferedReader;
 import java.io.File;

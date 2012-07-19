@@ -1,4 +1,4 @@
-package org.mskcc.cgds.scripts.drug.internal;
+package org.mskcc.cbio.cgds.scripts.drug.internal;
 
 import org.mskcc.cgds.scripts.drug.DrugDataResource;
 

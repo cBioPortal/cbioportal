@@ -1,4 +1,4 @@
-package org.mskcc.cgds.scripts;
+package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cgds.dao.*;
 

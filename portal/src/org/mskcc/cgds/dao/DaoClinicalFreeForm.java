@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cgds.model.ClinicalFreeForm;
 import org.mskcc.cgds.model.ClinicalParameterMap;
 
@@ -173,6 +174,55 @@ public class DaoClinicalFreeForm {
             rs = pstmt.executeQuery();
             
             return retrieveClinicalFreeFormData(rs);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Retrieves all rows in the clinical_free_form table for the specified cases,
+     * and returns a list of ClinicalFreeForm instances where each instance represents
+     * a single row in the table.
+     * 
+     * @param caseIds
+     * @return list of all ClinicalFreeForm instances for the given cancer study id
+     */
+    public List<ClinicalFreeForm> getCasesByCases(Collection<String> caseIds) throws DaoException
+    {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try{
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`" +
+                    "WHERE CASE_ID IN('"
+                    + StringUtils.join(caseIds,"','") +"')");
+            rs = pstmt.executeQuery();
+            
+            ArrayList<ClinicalFreeForm> dataList = new ArrayList<ClinicalFreeForm>();
+            
+            while (rs.next())
+            {
+            	// get all values as String
+                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                String caseId = rs.getString("CASE_ID");
+                String paramName = rs.getString("PARAM_NAME");
+                String paramValue = rs.getString("PARAM_VALUE");
+                
+                // create new ClinicalFreeForm instance
+                ClinicalFreeForm data = new ClinicalFreeForm(cancerStudyId,
+                	caseId,
+                	paramName,
+                	paramValue);
+                
+                // add it to the list
+                dataList.add(data);
+            }
+            
+            return dataList;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

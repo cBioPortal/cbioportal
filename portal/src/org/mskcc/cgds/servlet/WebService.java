@@ -63,6 +63,7 @@ public class WebService extends HttpServlet {
     public static final String SECRET_KEY = "secret_key";
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
+    public static final String INCLUDE_FREE_FORM_CLINICAL_DATA = "include_free_form";
 
     /**
      * Shutdown the Servlet.
@@ -379,8 +380,9 @@ public class WebService extends HttpServlet {
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
+        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
         HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
-        String out = GetClinicalData.getClinicalData(caseSet);
+        String out = GetClinicalData.getClinicalData(caseSet, "1".equals(includeFreeForm));
         writer.print(out);
     }
 

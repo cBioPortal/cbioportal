@@ -94,7 +94,9 @@ if (cancerStudyViewError!=null) {
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="js/cancer-study-view.clinical-data.js"></script>
+
 <script type="text/javascript">
 var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var caseSetId = '<%=caseSetId%>';

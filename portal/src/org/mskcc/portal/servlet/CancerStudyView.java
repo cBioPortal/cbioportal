@@ -109,6 +109,10 @@ public class CancerStudyView extends HttpServlet {
             return false;
         }
         
+        if (request.getAttribute(QueryBuilder.CASE_SET_ID)==null) {
+            request.setAttribute(QueryBuilder.CASE_SET_ID, cancerStudy.getCancerStudyStableId()+"_all");
+        }
+        
         request.setAttribute(CANCER_STUDY, cancerStudy);
         request.setAttribute(QueryBuilder.HTML_TITLE, cancerStudy.getName());
         return true;

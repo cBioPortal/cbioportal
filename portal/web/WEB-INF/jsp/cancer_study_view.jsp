@@ -1,5 +1,6 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.CancerStudyView" %>
+<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
@@ -7,10 +8,6 @@
 
 <%
 request.setAttribute("standard_js_only", true);
-%>
-<jsp:include page="global/header.jsp" flush="true" />
-
-<%
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -21,6 +18,8 @@ if (isDemoMode!=null) {
 
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANCER_STUDY);
 String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
+
+String caseSetId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
 boolean showMutations = showPlaceHoder;
@@ -33,6 +32,7 @@ if (cancerStudyViewError!=null) {
 } else {
 %>
 
+<jsp:include page="global/header.jsp" flush="true" />
 
 <table width="100%">
     <tr>
@@ -94,11 +94,15 @@ if (cancerStudyViewError!=null) {
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 
+<script type="text/javascript" src="js/cancer-study-view.clinical-data.js"></script>
 <script type="text/javascript">
+var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var caseSetId = '<%=caseSetId%>';
+
 $(document).ready(function(){
     setUpStudyTabs();
     initTabs();
-    initDrugDialog();
+    loadClinicalData(studyId,caseSetId);
 });
 
 function setUpStudyTabs() {

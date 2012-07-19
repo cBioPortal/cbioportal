@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.test.html;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 
 import java.util.ArrayList;
 

@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.test.model;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.model.*;
+import org.mskcc.cbio.cgds.model.*;
 
 import java.util.ArrayList;
 import java.util.List;

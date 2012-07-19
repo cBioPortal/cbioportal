@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

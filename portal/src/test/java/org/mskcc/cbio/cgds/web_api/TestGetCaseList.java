@@ -2,13 +2,13 @@ package org.mskcc.cbio.cgds.test.web_api;
 
 import java.io.File;
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.scripts.ImportCaseList;
-import org.mskcc.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.web_api.GetCaseLists;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.scripts.ImportCaseList;
+import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.web_api.GetCaseLists;
 
 /**
  * JUnit test for GetCaseLists class.

@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.test.model;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 

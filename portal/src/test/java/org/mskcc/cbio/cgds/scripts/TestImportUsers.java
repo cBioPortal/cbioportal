@@ -2,12 +2,12 @@
 package org.mskcc.cbio.cgds.test.scripts;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.scripts.ImportUsers;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.dao.DaoUser;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
+import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.scripts.ImportUsers;
 
 import junit.framework.TestCase;
 

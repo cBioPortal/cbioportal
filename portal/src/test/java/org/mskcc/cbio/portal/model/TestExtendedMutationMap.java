@@ -1,8 +1,8 @@
 package org.mskcc.cbio.portal.test.model;
 
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.portal.model.ExtendedMutationMap;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 import java.util.ArrayList;
 

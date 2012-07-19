@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.test.dao;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoClinicalData;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 
 import java.util.ArrayList;
 import java.util.HashSet;

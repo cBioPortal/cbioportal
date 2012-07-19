@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCase;
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.CaseListCategory;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoCase;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.CaseListCategory;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 

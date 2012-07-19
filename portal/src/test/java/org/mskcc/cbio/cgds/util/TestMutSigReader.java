@@ -1,16 +1,16 @@
 package org.mskcc.cbio.cgds.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoMutSig;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.MutSig;
-import org.mskcc.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.MutSigReader;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.MutSig;
+import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.util.MutSigReader;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 

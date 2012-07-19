@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.portal.mut_diagram.Pileup;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.mut_diagram.Pileup;
 
 import com.google.common.collect.ImmutableList;
 

@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.portal.model.ExtendedMutationMap;
-import org.mskcc.portal.util.MutationCounter;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutationMap;
+import org.mskcc.cbio.portal.util.MutationCounter;
 
 import java.util.ArrayList;
 

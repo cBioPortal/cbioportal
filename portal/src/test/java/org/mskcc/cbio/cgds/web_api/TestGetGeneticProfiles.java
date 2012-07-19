@@ -1,15 +1,15 @@
 package org.mskcc.cbio.cgds.test.web_api;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoTypeOfCancer;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.TypeOfCancer;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.web_api.GetGeneticProfiles;
 
 /**
  * JUnit test for GeneticProfile class.

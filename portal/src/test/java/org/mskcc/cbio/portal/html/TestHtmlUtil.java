@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.test.html;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.html.HtmlUtil;
+import org.mskcc.cbio.portal.html.HtmlUtil;
 
 import java.util.ArrayList;
 

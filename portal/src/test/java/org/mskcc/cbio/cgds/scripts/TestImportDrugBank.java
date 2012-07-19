@@ -2,13 +2,13 @@ package org.mskcc.cbio.cgds.test.scripts;
 
 import au.com.bytecode.opencsv.CSVReader;
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoDrug;
-import org.mskcc.cgds.dao.DaoDrugInteraction;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.scripts.drug.internal.DrugBankImporter;
-import org.mskcc.cgds.scripts.drug.internal.DrugBankResource;
+import org.mskcc.cbio.cgds.dao.DaoDrug;
+import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.scripts.drug.internal.DrugBankImporter;
+import org.mskcc.cbio.cgds.scripts.drug.internal.DrugBankResource;
 
 import java.io.File;
 import java.io.FileReader;

@@ -1,14 +1,14 @@
 package org.mskcc.cbio.portal.test.validator;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.validate.gene.InvalidGeneSymbolException;
-import org.mskcc.cgds.validate.gene.TooManyGenesException;
-import org.mskcc.cgds.validate.gene.GeneValidationException;
-import org.mskcc.cgds.validate.gene.GeneValidator;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.validate.gene.InvalidGeneSymbolException;
+import org.mskcc.cbio.cgds.validate.gene.TooManyGenesException;
+import org.mskcc.cbio.cgds.validate.gene.GeneValidationException;
+import org.mskcc.cbio.cgds.validate.gene.GeneValidator;
 
 import java.util.ArrayList;
 

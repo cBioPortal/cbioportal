@@ -2,9 +2,9 @@ package org.mskcc.cbio.portal.test.servlet;
 
 import junit.framework.TestCase;
 import org.junit.Test;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.MutSig;
-import org.mskcc.portal.servlet.MutSigJSON;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.MutSig;
+import org.mskcc.cbio.portal.servlet.MutSigJSON;
 
 import java.util.HashSet;
 

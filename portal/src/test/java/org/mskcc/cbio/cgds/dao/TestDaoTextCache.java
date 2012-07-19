@@ -5,9 +5,9 @@ import java.util.Calendar;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoTextCache;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoTextCache;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoTextCache extends TestCase
 {

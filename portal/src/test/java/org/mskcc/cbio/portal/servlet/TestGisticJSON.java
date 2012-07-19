@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.test.servlet;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoGistic;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Gistic;
-import org.mskcc.portal.servlet.GisticJSON;
+import org.mskcc.cbio.cgds.dao.DaoGistic;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.portal.servlet.GisticJSON;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

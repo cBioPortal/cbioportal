@@ -2,10 +2,10 @@ package org.mskcc.cbio.cgds.test.dao;
 
 import java.util.Arrays;
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 import java.util.HashSet;
 

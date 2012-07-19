@@ -1,8 +1,8 @@
 package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.model.GeneSet;
-import org.mskcc.portal.util.GeneSetReader;
+import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.util.GeneSetReader;
 
 import java.io.File;
 import java.io.IOException;

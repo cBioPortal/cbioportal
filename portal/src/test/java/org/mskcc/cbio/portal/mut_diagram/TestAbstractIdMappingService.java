@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.test.mut_diagram;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.portal.mut_diagram.IdMappingService;
-import org.mskcc.portal.mut_diagram.impl.CgdsIdMappingService;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
+import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
 
 /**
  * Abstract unit test for implementations of IdMappingService.

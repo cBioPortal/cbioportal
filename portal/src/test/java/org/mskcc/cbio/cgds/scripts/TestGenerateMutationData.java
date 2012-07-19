@@ -2,9 +2,9 @@ package org.mskcc.cbio.cgds.test.scripts;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.scripts.GenerateMutationData;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.scripts.GenerateMutationData;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 

@@ -15,22 +15,22 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
-import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;
-import org.mskcc.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneSet;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTLexer;
-import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTParser;
-import org.mskcc.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTwalker;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneSet;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTLexer;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTwalker;
 
 /**
  * Tests the parser version that generates and walks an AST.

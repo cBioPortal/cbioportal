@@ -1,14 +1,14 @@
 package org.mskcc.cbio.cgds.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoGistic;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Gistic;
-import org.mskcc.cgds.util.GisticReader;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoGistic;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.cgds.util.GisticReader;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

@@ -3,20 +3,20 @@ package org.mskcc.cbio.portal.test.util;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;
-import org.mskcc.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneSet;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
-import org.mskcc.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
-import org.mskcc.portal.util.ValueParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneSet;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
+import org.mskcc.cbio.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
+import org.mskcc.cbio.portal.util.ValueParser;
 
 public class TestValueParser extends TestCase {
    // TODO: reorganize to test individual methods separately in different

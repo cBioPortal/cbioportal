@@ -1,11 +1,11 @@
 package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.util.ProfileMerger;
-import org.mskcc.portal.util.WebFileConnect;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.util.ProfileMerger;
+import org.mskcc.cbio.portal.util.WebFileConnect;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 
 import java.util.ArrayList;
 import java.util.Set;

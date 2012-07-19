@@ -9,10 +9,10 @@ import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
-import org.mskcc.portal.mut_diagram.FeatureService;
-import org.mskcc.portal.mut_diagram.Sequence;
-import org.mskcc.portal.mut_diagram.impl.CacheFeatureService;
-import org.mskcc.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
+import org.mskcc.cbio.portal.mut_diagram.FeatureService;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
+import org.mskcc.cbio.portal.mut_diagram.impl.CacheFeatureService;
+import org.mskcc.cbio.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
 
 import com.google.common.cache.CacheLoader;
 

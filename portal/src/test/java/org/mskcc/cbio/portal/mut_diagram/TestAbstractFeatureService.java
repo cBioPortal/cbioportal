@@ -4,10 +4,10 @@ import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SING
 
 import junit.framework.TestCase;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mskcc.portal.mut_diagram.FeatureService;
-import org.mskcc.portal.mut_diagram.Sequence;
-import org.mskcc.portal.mut_diagram.impl.CacheFeatureService;
-import org.mskcc.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
+import org.mskcc.cbio.portal.mut_diagram.FeatureService;
+import org.mskcc.cbio.portal.mut_diagram.Sequence;
+import org.mskcc.cbio.portal.mut_diagram.impl.CacheFeatureService;
+import org.mskcc.cbio.portal.mut_diagram.impl.PfamGraphicsCacheLoader;
 
 import java.util.List;
 

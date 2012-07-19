@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.test.stats;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.stats.FisherExact;
+import org.mskcc.cbio.portal.stats.FisherExact;
 
 public class TestFisherExact extends TestCase {
 

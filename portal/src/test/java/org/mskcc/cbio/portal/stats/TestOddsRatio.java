@@ -1,15 +1,15 @@
 package org.mskcc.cbio.portal.test.stats;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.model.ProfileDataSummary;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.stats.OddsRatio;
-import org.mskcc.portal.util.ProfileMerger;
-import org.mskcc.portal.util.WebFileConnect;
-import org.mskcc.portal.util.ZScoreUtil;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.stats.OddsRatio;
+import org.mskcc.cbio.portal.util.ProfileMerger;
+import org.mskcc.cbio.portal.util.WebFileConnect;
+import org.mskcc.cbio.portal.util.ZScoreUtil;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 
 import java.io.File;
 import java.io.IOException;

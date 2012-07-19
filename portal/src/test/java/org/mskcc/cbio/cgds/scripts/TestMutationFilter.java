@@ -3,12 +3,12 @@ package org.mskcc.cbio.cgds.test.scripts;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.scripts.MutationFilter;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.scripts.MutationFilter;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
  * JUnit tests for MutationFilter class.

@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.util.OmaLinkUtil;
+import org.mskcc.cbio.portal.util.OmaLinkUtil;
 
 import java.net.MalformedURLException;
 

@@ -2,14 +2,14 @@ package org.mskcc.cbio.cgds.test.scripts;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.scripts.ImportExtendedMutationData;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.scripts.ImportExtendedMutationData;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

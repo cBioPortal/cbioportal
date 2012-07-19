@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.scripts.NormalizeExpressionLevels;
+import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
 
 public class TestNormalizeExpressionLevels extends TestCase {
    

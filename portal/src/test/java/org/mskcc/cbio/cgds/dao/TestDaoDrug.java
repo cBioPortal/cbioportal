@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoDrug;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoDrug;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoDrug extends TestCase {
     public void testDaoDrug() throws DaoException {

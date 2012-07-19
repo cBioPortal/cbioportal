@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.SkinUtil;
 
 /**
  * Tests the SkinUtil Class.

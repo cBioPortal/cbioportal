@@ -1,7 +1,7 @@
 package org.mskcc.cbio.portal.test.oncoPrintSpecLanguage;
 
-import org.mskcc.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
 import junit.framework.TestCase;
 

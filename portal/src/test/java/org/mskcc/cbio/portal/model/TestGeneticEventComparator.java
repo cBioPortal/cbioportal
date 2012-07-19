@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.mskcc.portal.model.GeneticEventComparator;
-import org.mskcc.portal.model.GeneticEventImpl;
-import org.mskcc.portal.model.GeneticEventImpl.CNA;
-import org.mskcc.portal.model.GeneticEventImpl.MRNA;
-import org.mskcc.portal.model.GeneticEventImpl.RPPA;
-import org.mskcc.portal.model.GeneticEventImpl.mutations;
+import org.mskcc.cbio.portal.model.GeneticEventComparator;
+import org.mskcc.cbio.portal.model.GeneticEventImpl;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.MRNA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.RPPA;
+import org.mskcc.cbio.portal.model.GeneticEventImpl.mutations;
 
 public class TestGeneticEventComparator {
 

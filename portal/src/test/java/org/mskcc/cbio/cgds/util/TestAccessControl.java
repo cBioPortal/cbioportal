@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.test.util;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.User;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.User;
 
 import java.io.IOException;
 

@@ -1,9 +1,9 @@
 package org.mskcc.cbio.portal.test.mapback;
 
 import junit.framework.TestCase;
-import org.mskcc.portal.mapback.MapBack;
-import org.mskcc.portal.mapback.Brca1;
-import org.mskcc.portal.mapback.Brca2;
+import org.mskcc.cbio.portal.mapback.MapBack;
+import org.mskcc.cbio.portal.mapback.Brca1;
+import org.mskcc.cbio.portal.mapback.Brca2;
 
 public class TestMapBack extends TestCase {
 

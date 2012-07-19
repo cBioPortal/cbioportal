@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoInteraction;
-import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Interaction;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoInteraction;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Interaction;
 
 import java.util.ArrayList;
 

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.dao.DaoUser;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
  * JUnit test for DaoUser class.

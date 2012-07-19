@@ -1,11 +1,11 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 

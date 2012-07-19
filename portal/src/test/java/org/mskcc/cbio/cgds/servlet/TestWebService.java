@@ -7,19 +7,19 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCase;
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
-import org.mskcc.cgds.model.*;
-import org.mskcc.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.servlet.WebService;
-import org.mskcc.cgds.test.util.NullHttpServletRequest;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoCase;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoUser;
+import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.servlet.WebService;
+import org.mskcc.cbio.cgds.test.util.NullHttpServletRequest;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * JUnit test for WebService class.

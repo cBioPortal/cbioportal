@@ -7,24 +7,24 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mskcc.portal.util.Direction;
-import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;
-import org.mskcc.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneSet;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
-import org.mskcc.portal.oncoPrintSpecLanguage.UniqueEnumPrefix;
-import org.mskcc.portal.oncoPrintSpecLanguage.Utilities;
-import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
+import org.mskcc.cbio.portal.util.Direction;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneSet;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.UniqueEnumPrefix;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
 /**
  * test my library of OncoPrintSpec classes, without the parser

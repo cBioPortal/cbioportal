@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.test.dao;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cgds.scripts.ResetDatabase;
-import org.mskcc.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 
 import junit.framework.TestCase;
 

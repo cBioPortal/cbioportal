@@ -2,10 +2,10 @@
 package org.mskcc.cbio.cgds.test.dao;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
-import org.mskcc.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
+import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 import junit.framework.TestCase;
 import java.util.Arrays;

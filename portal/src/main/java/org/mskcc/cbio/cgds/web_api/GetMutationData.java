@@ -1,13 +1,13 @@
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoMutation;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.model.Gene;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.servlet.WebService;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.Gene;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.servlet.WebService;
 
 import java.util.ArrayList;
 

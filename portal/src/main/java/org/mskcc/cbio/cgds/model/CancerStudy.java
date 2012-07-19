@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.model;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoMutSig;
-import org.mskcc.cgds.util.EqualsUtil;
-import org.mskcc.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.cgds.util.EqualsUtil;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
 import java.util.ArrayList;
 

@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Interaction;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Interaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

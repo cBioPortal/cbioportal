@@ -2,9 +2,9 @@
 package org.mskcc.cbio.cgds.util;
 
 // imports
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 
 import org.springframework.security.access.prepost.PostFilter;
 

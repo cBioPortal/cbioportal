@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.model;
 
-import org.mskcc.cgds.util.EqualsUtil;
+import org.mskcc.cbio.cgds.util.EqualsUtil;
 
 /**
  * This represents a user, identified by an email address.

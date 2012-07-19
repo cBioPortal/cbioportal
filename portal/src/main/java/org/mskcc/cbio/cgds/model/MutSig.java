@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.model;
 
-import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoException;
 
 /**
  * @author Lennart Bastian

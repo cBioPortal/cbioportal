@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.dao.*;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.dao.*;
 
 import java.io.File;
 import java.io.IOException;

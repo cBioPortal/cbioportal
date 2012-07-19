@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoTypeOfCancer;
-import org.mskcc.cgds.model.TypeOfCancer;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.FileInputStream;

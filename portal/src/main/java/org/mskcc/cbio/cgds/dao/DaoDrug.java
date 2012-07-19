@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.mskcc.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.Drug;
 
 /**
  * Data access object for Drug table

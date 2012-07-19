@@ -19,12 +19,12 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoUniProtIdMapping;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.portal.remote.ConnectionManager;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoUniProtIdMapping;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.remote.ConnectionManager;
 
 /**
  * Import data into the uniprot_id_mapping table.

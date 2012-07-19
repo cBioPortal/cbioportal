@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.util;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.MutSig;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.MutSig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

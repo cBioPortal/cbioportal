@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.GeneticProfileReader;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.GeneticProfileReader;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 import java.io.File;
 

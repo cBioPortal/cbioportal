@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoTypeOfCancer;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.TypeOfCancer;
-import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 
 /**
  * Get Types of Cancer and Cancer Studies.

@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.servlet.WebService;
-import org.mskcc.cgds.web_api.ProtocolException;
-import org.mskcc.portal.util.CaseSetUtil;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.servlet.WebService;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**
  *

@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.scripts.drug;
 
 import au.com.bytecode.opencsv.CSVReader;
-import org.mskcc.cgds.scripts.drug.internal.DrugBankImporter;
+import org.mskcc.cbio.cgds.scripts.drug.internal.DrugBankImporter;
 
 import java.io.File;
 import java.io.FileReader;

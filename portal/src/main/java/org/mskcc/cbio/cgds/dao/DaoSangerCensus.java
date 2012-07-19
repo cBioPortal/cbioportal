@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.SangerCancerGene;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.SangerCancerGene;
 
 /**
  * Data access object for Sanger Cancer Gene Cenusus Table.

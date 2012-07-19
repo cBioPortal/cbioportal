@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.ExtendedMutation;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;

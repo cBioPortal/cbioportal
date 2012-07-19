@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.mskcc.cgds.model.User;
+import org.mskcc.cbio.cgds.model.User;
 
 /**
  * A User. They must have an EMAIL & ENABLED.

@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.*;
+import org.mskcc.cbio.cgds.model.*;
 
 import java.util.ArrayList;
 import java.util.Collections;

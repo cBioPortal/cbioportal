@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cgds.model.Gene;
-import org.mskcc.cgds.model.MicroRna;
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.util.GeneComparator;
-import org.mskcc.cgds.dao.DaoMicroRna;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.Gene;
+import org.mskcc.cbio.cgds.model.MicroRna;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.util.GeneComparator;
+import org.mskcc.cbio.cgds.dao.DaoMicroRna;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 
 import java.util.Date;
 import java.util.ArrayList;

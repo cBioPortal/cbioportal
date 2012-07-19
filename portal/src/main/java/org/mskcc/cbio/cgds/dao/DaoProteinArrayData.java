@@ -1,7 +1,7 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.ProteinArrayData;
+import org.mskcc.cbio.cgds.model.ProteinArrayData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -2,7 +2,7 @@ package org.mskcc.cbio.cgds.dao;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
-import org.mskcc.cgds.util.DatabaseProperties;
+import org.mskcc.cbio.cgds.util.DatabaseProperties;
 
 import java.sql.*;
 

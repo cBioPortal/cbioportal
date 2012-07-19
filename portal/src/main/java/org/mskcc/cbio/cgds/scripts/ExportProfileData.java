@@ -1,13 +1,13 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cgds.dao.DaoGeneticProfileCases;
-import org.mskcc.cgds.dao.DaoGeneticAlteration;
-import org.mskcc.cgds.model.GeneticProfile;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfileCases;
+import org.mskcc.cbio.cgds.dao.DaoGeneticAlteration;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
 
 import java.io.FileWriter;
 import java.io.IOException;

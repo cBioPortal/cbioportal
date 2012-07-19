@@ -2,13 +2,13 @@
 package org.mskcc.cbio.cgds.scripts;
 
 // imports
-import org.mskcc.cgds.model.User;
-import org.mskcc.cgds.dao.DaoUser;
-import org.mskcc.cgds.model.UserAuthorities;
-import org.mskcc.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.cgds.dao.DaoUser;
+import org.mskcc.cbio.cgds.model.UserAuthorities;
+import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
 
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;

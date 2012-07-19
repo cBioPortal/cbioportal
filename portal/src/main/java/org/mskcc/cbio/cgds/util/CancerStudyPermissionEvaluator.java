@@ -2,8 +2,8 @@
 package org.mskcc.cbio.cgds.util;
 
 // imports
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.portal.openIDlogin.OpenIDUserDetails;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.openIDlogin.OpenIDUserDetails;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

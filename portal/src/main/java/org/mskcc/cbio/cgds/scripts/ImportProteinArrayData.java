@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.*;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * Import protein array data into database

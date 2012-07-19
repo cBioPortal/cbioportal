@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.graph;
 
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Interaction;
-import org.mskcc.cgds.dao.DaoInteraction;
-import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Interaction;
+import org.mskcc.cbio.cgds.dao.DaoInteraction;
+import org.mskcc.cbio.cgds.dao.DaoException;
 
 import java.util.ArrayList;
 import java.util.Collection;

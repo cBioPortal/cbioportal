@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.CaseListCategory;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.CaseListCategory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

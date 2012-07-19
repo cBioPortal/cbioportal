@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoDrug;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoDrug;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 
 import java.io.File;
 import java.io.IOException;

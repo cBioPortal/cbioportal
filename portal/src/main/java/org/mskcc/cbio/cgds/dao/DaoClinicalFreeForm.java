@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.ClinicalFreeForm;
-import org.mskcc.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
+import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

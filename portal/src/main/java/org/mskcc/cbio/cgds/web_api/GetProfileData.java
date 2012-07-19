@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.*;
-import org.mskcc.cgds.servlet.WebService;
-import org.mskcc.portal.model.ProfileData;
-import org.mskcc.portal.util.WebFileConnect;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.cgds.servlet.WebService;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.util.WebFileConnect;
 
 import java.util.ArrayList;
 import java.io.IOException;

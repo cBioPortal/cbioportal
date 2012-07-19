@@ -2,7 +2,7 @@ package org.mskcc.cbio.cgds.util;
 
 // imports
 import java.util.Comparator;
-import org.mskcc.cgds.model.Gene;
+import org.mskcc.cbio.cgds.model.Gene;
 
 /**
  * Compares two genes for equivalency (ref and standard symbol).

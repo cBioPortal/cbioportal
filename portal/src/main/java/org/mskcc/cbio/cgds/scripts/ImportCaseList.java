@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.model.CaseListCategory;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.CaseListCategory;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.FileInputStream;

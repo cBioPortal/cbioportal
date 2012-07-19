@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.*;
+import org.mskcc.cbio.cgds.dao.*;
 
 /**
  * Empty the database.

@@ -1,8 +1,8 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoCaseList;
-import org.mskcc.cgds.model.CaseList;
-import org.mskcc.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.util.ArrayList;
 

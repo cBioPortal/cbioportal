@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.validate.gene;
 
-import org.mskcc.portal.util.StringListUtil;
+import org.mskcc.cbio.portal.util.StringListUtil;
 
 import java.util.ArrayList;
 

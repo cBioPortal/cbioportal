@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Drug;
-import org.mskcc.cgds.model.DrugInteraction;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.DrugInteraction;
 
 import java.io.IOException;
 import java.sql.Connection;

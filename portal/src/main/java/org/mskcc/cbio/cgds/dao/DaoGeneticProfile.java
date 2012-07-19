@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cgds.model.GeneticAlterationType;
-import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

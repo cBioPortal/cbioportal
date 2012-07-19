@@ -1,7 +1,7 @@
 package org.mskcc.cbio.cgds.validate;
 
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Gistic;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Gistic;
 
 import java.util.ArrayList;
 

@@ -1,9 +1,9 @@
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoMutSig;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.MutSig;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.MutSig;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;

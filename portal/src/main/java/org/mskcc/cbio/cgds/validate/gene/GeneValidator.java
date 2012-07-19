@@ -1,10 +1,10 @@
 package org.mskcc.cbio.cgds.validate.gene;
 
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.portal.util.OncoPrintSpecificationDriver;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver;
 
 import java.util.ArrayList;
 

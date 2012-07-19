@@ -1,6 +1,6 @@
 package org.mskcc.cbio.cgds.scripts.drug.internal;
 
-import org.mskcc.cgds.scripts.drug.DrugDataResource;
+import org.mskcc.cbio.cgds.scripts.drug.DrugDataResource;
 
 import java.io.IOException;
 import java.io.InputStream;

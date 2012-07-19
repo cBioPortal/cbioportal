@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.mskcc.portal.util.CacheUtil;
+import org.mskcc.cbio.portal.util.CacheUtil;
 
 public class DaoTextCache
 {	

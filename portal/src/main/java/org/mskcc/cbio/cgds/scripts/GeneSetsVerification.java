@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.mskcc.portal.model.GeneSet;
-import org.mskcc.portal.util.GeneSetUtil;
+import org.mskcc.cbio.portal.model.GeneSet;
+import org.mskcc.cbio.portal.util.GeneSetUtil;
 
 /**
  * The class verify if the gene symbols in the sample gene sets are the latest

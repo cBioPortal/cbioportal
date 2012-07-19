@@ -1,13 +1,13 @@
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cgds.dao.DaoClinicalData;
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.util.ConsoleUtil;
-import org.mskcc.cgds.util.FileUtil;
-import org.mskcc.cgds.util.ProgressMonitor;
-import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 
 import java.io.BufferedReader;
 import java.io.File;

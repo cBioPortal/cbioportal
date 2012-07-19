@@ -1,12 +1,12 @@
 package org.mskcc.cbio.cgds.util;
 
 import org.junit.experimental.theories.internal.ParameterizedAssertionError;
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.model.CanonicalGene;
-import org.mskcc.cgds.model.Gistic;
-import org.mskcc.cgds.validate.ValidateGistic;
-import org.mskcc.cgds.validate.validationException;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.cgds.validate.ValidateGistic;
+import org.mskcc.cbio.cgds.validate.validationException;
 import sun.security.validator.ValidatorException;
 
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;

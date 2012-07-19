@@ -2,12 +2,12 @@
 package org.mskcc.cbio.cgds.util.internal;
 
 // imports
-import org.mskcc.cgds.dao.DaoException;
-import org.mskcc.cgds.dao.DaoCancerStudy;
-import org.mskcc.cgds.model.CancerStudy;
-import org.mskcc.cgds.util.Config;
-import org.mskcc.cgds.util.AccessControl;
-import org.mskcc.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.util.Config;
+import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

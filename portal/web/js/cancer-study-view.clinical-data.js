@@ -22,19 +22,17 @@ function loadClinicalData(cancerStudyId,caseSetId) {
 
 function DataTableWrapper() {
     this.dataTable = null;
-    this.colTypes = null;
 }
 DataTableWrapper.prototype = {
     setDataMatrix: function(matrix) {
         var converter = new MatrixDataTypeConverter();
         converter.convertTypes(matrix);
-        this.colTypes = converter.colTypes;
-        this.dataTable = new google.visualization.DataTable();
-        for (var i=0; i<converter.dataMatrix[0].length; i++) {
-            var h = converter.dataMatrix[0][i];
-            this.dataTable.addColumn(this.colTypes[h],h);
+        this.dataTable = google.visualization.arrayToDataTable(converter.dataMatrix);
+        for (var i=matrix[0].length-1; i>=0; i--) {
+            if (converter.isColumnNA(i)) {
+                this.dataTable.removeColumn(i);
+            }
         }
-        this.dataTable.addRows(converter.dataMatrix.slice(1));
     }
 };
 var dataTableWrapper = new DataTableWrapper();
@@ -49,11 +47,11 @@ MatrixDataTypeConverter.prototype = {
         this.colTypes = this.determineColumnTypes(this.dataMatrix);
         var headers = this.dataMatrix[0];
         for (var c=0; c<headers.length; c++) {
-            if (this.colTypes[headers[c]]=='number') {
+            if (this.colTypes[c]=='number') {
                 for (var r=1; r<this.dataMatrix.length; r++) {
                     this.dataMatrix[r][c] = parseFloat(this.dataMatrix[r][c]);
                 }
-            } else if (this.colTypes[headers[c]]=='boolean') {
+            } else if (this.colTypes[c]=='boolean') {
                 for (var r=1; r<this.dataMatrix.length; r++) {
                     var dl = this.dataMatrix[r][c].toLowerCase()
                     this.dataMatrix[r][c] = dl=='true' || dl=='y';
@@ -64,7 +62,7 @@ MatrixDataTypeConverter.prototype = {
     determineColumnTypes: function (dataMatrix) {
         var rows = dataMatrix.length;
         var headers = dataMatrix[0];
-        var types = {};
+        var types = [];
         var cols = headers.length;
         for (var c=0; c<cols; c++) {
             var type = headers[c].match(/_cluster$/) ? 'string' : null;
@@ -77,7 +75,7 @@ MatrixDataTypeConverter.prototype = {
                 else if (type!=this.getType(d))
                     type = 'string';
             }
-            types[headers[c]] = type;
+            types.push(type);
         }
         return types;
     },
@@ -95,5 +93,8 @@ MatrixDataTypeConverter.prototype = {
     isBool: function (str) {
         this.regex = new RegExp('^(true)|(false)|(y)|(n)$');
         return this.regex.test(str.toLowerCase());
+    },
+    isColumnNA: function(col) {
+        return this.colTypes[col] == null;
     }
 };

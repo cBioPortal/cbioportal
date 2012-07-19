@@ -53,8 +53,14 @@ MatrixDataTypeConverter.prototype = {
                 }
             } else if (this.colTypes[c]=='boolean') {
                 for (var r=1; r<this.dataMatrix.length; r++) {
-                    var dl = this.dataMatrix[r][c].toLowerCase()
+                    var dl = this.dataMatrix[r][c].toLowerCase();
                     this.dataMatrix[r][c] = dl=='true' || dl=='y';
+                }
+            } else if (this.colTypes[c]=='boolean') {
+                for (var r=1; r<this.dataMatrix.length; r++) {
+                    // hacky way to deal with empty rows
+                    // the column will be removed later
+                    this.dataMatrix[r][c] = " ";
                 }
             }
         }

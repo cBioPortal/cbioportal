@@ -1,5 +1,4 @@
 
-var clinicalData;
 google.load('visualization', '1', {packages:['table']});
 function loadClinicalData(cancerStudyId,caseSetId) {
     var params = {cmd:'getClinicalData',
@@ -14,68 +13,82 @@ function loadClinicalData(cancerStudyId,caseSetId) {
               for (var i=0; i<rows.length; i++) {
                   matrix.push(rows[i].split('\t'));
               }
-              
-              var types = convertTypes(matrix);
-              
-              clinicalData = google.visualization.arrayToDataTable(matrix);
+
+              dataTableWrapper.setDataMatrix(matrix);
               var table = new google.visualization.Table(document.getElementById('summary'));
-              table.draw(clinicalData, {showRowNumber: true});
+              table.draw(dataTableWrapper.dataTable, {showRowNumber: true});
           })
 }
 
-function convertTypes(dataMatrix) {
-    var types = determineColumnTypes(dataMatrix);
-    var headers = dataMatrix[0];
-    for (var c=0; c<headers.length; c++) {
-        if (types[headers[c]]=='number') {
-            for (var r=1; r<dataMatrix.length; r++) {
-                dataMatrix[r][c] = parseFloat(dataMatrix[r][c]);
-            }
-        } else if (types[headers[c]]=='boolean') {
-            for (var r=1; r<dataMatrix.length; r++) {
-                var dl = dataMatrix[r][c].toLowerCase()
-                dataMatrix[r][c] = dl=='true' || dl=='y';
+function DataTableWrapper() {
+    this.dataTable = null;
+    this.colTypes = null;
+}
+DataTableWrapper.prototype = {
+    setDataMatrix: function(matrix) {
+        var converter = new MatrixDataTypeConverter();
+        converter.convertTypes(matrix);
+        this.colTypes = converter.colTypes;
+        this.dataTable = google.visualization.arrayToDataTable(converter.dataMatrix);
+    }
+};
+var dataTableWrapper = new DataTableWrapper();
+
+function MatrixDataTypeConverter() {
+    this.dataMatrix = null;
+    this.colTypes = null;
+}
+MatrixDataTypeConverter.prototype = {
+    convertTypes: function (dataMatrix) {
+        this.dataMatrix = dataMatrix;
+        this.colTypes = this.determineColumnTypes(this.dataMatrix);
+        var headers = this.dataMatrix[0];
+        for (var c=0; c<headers.length; c++) {
+            if (this.colTypes[headers[c]]=='number') {
+                for (var r=1; r<this.dataMatrix.length; r++) {
+                    this.dataMatrix[r][c] = parseFloat(this.dataMatrix[r][c]);
+                }
+            } else if (this.colTypes[headers[c]]=='boolean') {
+                for (var r=1; r<this.dataMatrix.length; r++) {
+                    var dl = this.dataMatrix[r][c].toLowerCase()
+                    this.dataMatrix[r][c] = dl=='true' || dl=='y';
+                }
             }
         }
-    }
-    return types;
-}
-
-function determineColumnTypes(dataMatrix) {
-    var rows = dataMatrix.length;
-    var headers = dataMatrix[0];
-    var types = {};
-    var cols = headers.length;
-    for (var c=0; c<cols; c++) {
-        var type = headers[c].match(/_cluster$/) ? 'string' : null;
-        for (var r=1; r<rows; r++) {
-            if (type=='string') break;
-            var d = dataMatrix[r][c];
-            if (d.length==0) continue;
-            if (type==null)
-                type = getType(d);
-            else if (type!=getType(d))
-                type = 'string';
+    },
+    determineColumnTypes: function (dataMatrix) {
+        var rows = dataMatrix.length;
+        var headers = dataMatrix[0];
+        var types = {};
+        var cols = headers.length;
+        for (var c=0; c<cols; c++) {
+            var type = headers[c].match(/_cluster$/) ? 'string' : null;
+            for (var r=1; r<rows; r++) {
+                if (type=='string') break;
+                var d = dataMatrix[r][c];
+                if (d.length==0) continue;
+                if (type==null)
+                    type = this.getType(d);
+                else if (type!=this.getType(d))
+                    type = 'string';
+            }
+            types[headers[c]] = type;
         }
-        types[headers[c]] = type;
+        return types;
+    },
+    getType: function(str) {
+        if (this.isNum(str))
+            return 'number';
+        if (this.isBool(str))
+            return 'boolean';
+        return 'string';
+    },
+    isNum: function (str) {
+        this.regex = new RegExp('^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$');
+        return this.regex.test(str);
+    },
+    isBool: function (str) {
+        this.regex = new RegExp('^(true)|(false)|(y)|(n)$');
+        return this.regex.test(str.toLowerCase());
     }
-    return types;
-}
-
-function getType(str) {
-    if (isNum(str))
-        return 'number';
-    if (isBool(str))
-        return 'boolean';
-    return 'string';
-}
-
-function isNum(str) {
-    this.regex = new RegExp('^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$');
-    return this.regex.test(str);
-}
-
-function isBool(str) {
-    this.regex = new RegExp('^(true)|(false)|(y)|(n)$');
-    return this.regex.test(str.toLowerCase());
-}
+};

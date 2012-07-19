@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 /**
  * Encapsulates a single XDebug Parameter name/value.

@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 /**
  * Derived from the web:  http://stackoverflow.com/questions/356807/java-double-comparison-epsilon

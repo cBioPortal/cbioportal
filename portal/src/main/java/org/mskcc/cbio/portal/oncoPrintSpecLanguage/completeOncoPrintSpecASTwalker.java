@@ -1,7 +1,7 @@
 // $ANTLR 3.2 Sep 23, 2009 12:02:23 ../completeOncoPrintSpecASTwalker.g 2010-12-14 17:00:19
 // TODO: upgrade to ANTLR 3.3
 
-	package org.mskcc.portal.oncoPrintSpecLanguage;
+	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 	import java.util.ArrayList; 
 	import org.mskcc.portal.oncoPrintSpecLanguage.*;
 	import static java.lang.System.out;

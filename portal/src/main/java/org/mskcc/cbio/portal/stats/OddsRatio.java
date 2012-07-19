@@ -1,4 +1,4 @@
-package org.mskcc.portal.stats;
+package org.mskcc.cbio.portal.stats;
 
 import org.mskcc.portal.model.ProfileDataSummary;
 

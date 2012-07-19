@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 import java.util.HashMap;
 import org.mskcc.portal.oncoPrintSpecLanguage.ComparisonOp;

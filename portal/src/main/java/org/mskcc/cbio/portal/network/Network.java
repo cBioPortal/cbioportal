@@ -1,5 +1,5 @@
 
-package org.mskcc.portal.network;
+package org.mskcc.cbio.portal.network;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;

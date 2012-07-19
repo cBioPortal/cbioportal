@@ -1,4 +1,4 @@
-package org.mskcc.portal.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 /**
  * used to report errors in the AST walker 

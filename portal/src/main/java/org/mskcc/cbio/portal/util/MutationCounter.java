@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 import org.mskcc.portal.model.ExtendedMutationMap;
 import org.mskcc.cgds.model.ExtendedMutation;

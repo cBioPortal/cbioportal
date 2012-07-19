@@ -1,5 +1,5 @@
 // package
-package org.mskcc.portal.openIDlogin;
+package org.mskcc.cbio.portal.openIDlogin;
 
 // imports
 import org.mskcc.cgds.model.User;

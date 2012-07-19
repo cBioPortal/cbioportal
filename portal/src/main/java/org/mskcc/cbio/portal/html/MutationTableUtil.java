@@ -1,4 +1,4 @@
-package org.mskcc.portal.html;
+package org.mskcc.cbio.portal.html;
 
 import org.mskcc.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.portal.html.special_gene.SpecialGene;

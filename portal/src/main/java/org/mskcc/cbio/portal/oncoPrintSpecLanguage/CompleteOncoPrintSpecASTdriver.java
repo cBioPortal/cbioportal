@@ -1,4 +1,4 @@
-package org.mskcc.portal.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import static java.lang.System.out;
 

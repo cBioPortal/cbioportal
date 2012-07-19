@@ -1,4 +1,4 @@
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;

@@ -5,7 +5,7 @@ options {
 	ASTLabelType=CommonTree;
 }
 @header { 
-	package org.mskcc.portal.oncoPrintSpecLanguage;
+	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 	import java.util.ArrayList; 
 	import org.mskcc.portal.oncoPrintSpecLanguage.*;
 	import static java.lang.System.out;

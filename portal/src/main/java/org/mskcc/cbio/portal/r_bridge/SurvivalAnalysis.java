@@ -1,4 +1,4 @@
-package org.mskcc.portal.r_bridge;
+package org.mskcc.cbio.portal.r_bridge;
 
 import org.mskcc.portal.model.ProfileDataSummary;
 import org.mskcc.cgds.model.ClinicalData;

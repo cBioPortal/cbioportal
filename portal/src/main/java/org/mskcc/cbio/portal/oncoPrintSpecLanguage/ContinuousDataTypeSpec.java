@@ -1,4 +1,4 @@
-package org.mskcc.portal.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 import static java.lang.System.out;
 import org.mskcc.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 import org.mskcc.portal.util.EqualsUtil;

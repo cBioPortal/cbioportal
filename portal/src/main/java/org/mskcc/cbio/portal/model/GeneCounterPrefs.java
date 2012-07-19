@@ -1,4 +1,4 @@
-package org.mskcc.portal.model;
+package org.mskcc.cbio.portal.model;
 
 // TODO: I think this can be deleted
 public class GeneCounterPrefs {

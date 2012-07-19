@@ -1,5 +1,5 @@
 
-package org.mskcc.portal.network;
+package org.mskcc.cbio.portal.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;

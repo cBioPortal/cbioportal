@@ -1,4 +1,4 @@
-package org.mskcc.portal.remote;
+package org.mskcc.cbio.portal.remote;
 
 import org.apache.commons.httpclient.URI;
 import org.mskcc.cgds.dao.DaoException;

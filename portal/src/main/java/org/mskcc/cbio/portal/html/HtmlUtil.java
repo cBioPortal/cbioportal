@@ -1,4 +1,4 @@
-package org.mskcc.portal.html;
+package org.mskcc.cbio.portal.html;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package org.mskcc.portal.mapback;
+package org.mskcc.cbio.portal.mapback;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 import java.net.URL;
 import java.net.MalformedURLException;

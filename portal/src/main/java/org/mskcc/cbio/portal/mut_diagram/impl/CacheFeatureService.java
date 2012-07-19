@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram.impl;
+package org.mskcc.cbio.portal.mut_diagram.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

@@ -1,4 +1,4 @@
-package org.mskcc.portal.model;
+package org.mskcc.cbio.portal.model;
 
 import org.mskcc.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.portal.util.ValueParser;

@@ -1,5 +1,5 @@
 // package
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 // imports
 import org.mskcc.cgds.dao.DaoCaseList;

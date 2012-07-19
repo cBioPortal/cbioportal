@@ -1,4 +1,4 @@
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import javax.servlet.http.*;

@@ -2,14 +2,14 @@ grammar completeOncoPrintSpecAST;
 
 options {output=AST;} 
 @parser::header { 
-	package org.mskcc.portal.oncoPrintSpecLanguage;
+	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 	import java.util.ArrayList; 
 	import org.mskcc.portal.oncoPrintSpecLanguage.*;
 	import static java.lang.System.out;
 	import java.io.PrintStream;
 }
 @lexer::header{
-	package org.mskcc.portal.oncoPrintSpecLanguage;
+	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 }
 
 @members{

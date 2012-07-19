@@ -1,4 +1,4 @@
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.portal.remote.GetCaseSets;

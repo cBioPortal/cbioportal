@@ -1,4 +1,4 @@
-package org.mskcc.portal.r_bridge;
+package org.mskcc.cbio.portal.r_bridge;
 
 import java.io.InputStream;
 import java.io.BufferedReader;

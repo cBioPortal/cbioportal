@@ -1,4 +1,4 @@
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.AntiSamy;

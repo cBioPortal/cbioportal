@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 /**
  * Utility Class Containing Skin Configuration Options.

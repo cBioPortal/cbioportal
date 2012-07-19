@@ -1,4 +1,4 @@
-package org.mskcc.portal.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import org.mskcc.portal.util.EqualsUtil;
 import org.mskcc.portal.util.HashCodeUtil;

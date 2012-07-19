@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 /**
  * Collected methods which allow easy implementation of <code>equals</code>.

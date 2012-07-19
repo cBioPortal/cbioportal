@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram.impl;
+package org.mskcc.cbio.portal.mut_diagram.impl;
 
 import java.net.URL;
 import java.util.LinkedList;

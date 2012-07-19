@@ -1,4 +1,4 @@
-package org.mskcc.portal.html.special_gene;
+package org.mskcc.cbio.portal.html.special_gene;
 
 import org.mskcc.cgds.model.ExtendedMutation;
 import org.mskcc.portal.mapback.MapBack;

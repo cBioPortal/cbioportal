@@ -1,5 +1,5 @@
 
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.mskcc.portal.model;
+package org.mskcc.cbio.portal.model;
 
 import org.mskcc.portal.servlet.ServletXssUtil;
 import org.mskcc.cgds.web_api.ProtocolException;

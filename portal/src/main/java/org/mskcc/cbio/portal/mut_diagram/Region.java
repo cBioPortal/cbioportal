@@ -1,4 +1,4 @@
-package org.mskcc.portal.mut_diagram;
+package org.mskcc.cbio.portal.mut_diagram;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.portal.servlet.QueryBuilder;

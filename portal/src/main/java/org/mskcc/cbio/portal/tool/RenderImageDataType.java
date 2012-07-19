@@ -1,4 +1,4 @@
-package org.mskcc.portal.tool;
+package org.mskcc.cbio.portal.tool;
 
 import java.util.HashSet;
 

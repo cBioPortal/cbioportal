@@ -1,4 +1,4 @@
-package org.mskcc.portal.util;
+package org.mskcc.cbio.portal.util;
 
 /**
  * use to indicate whether a value (e.g., mRNA) is higher or lower than an upper or lower threshold;

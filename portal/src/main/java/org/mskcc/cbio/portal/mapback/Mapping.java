@@ -1,4 +1,4 @@
-package org.mskcc.portal.mapback;
+package org.mskcc.cbio.portal.mapback;
 
 /**
  * Mapping between local NT position and global chromosomal position.

@@ -26,7 +26,7 @@
  **/
 
 // package
-package org.mskcc.portal.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 
 import org.mskcc.portal.util.XDebug;

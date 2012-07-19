@@ -1,4 +1,4 @@
-package org.mskcc.portal.html;
+package org.mskcc.cbio.portal.html;
 
 import org.apache.log4j.Logger;
 import org.mskcc.cgds.model.ExtendedMutation;

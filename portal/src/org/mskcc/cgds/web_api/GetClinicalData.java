@@ -21,7 +21,7 @@ public class GetClinicalData {
      * @return String of Output.
      * @throws DaoException Database Error.
      */
-    public static String getClinicalData(Set<String> caseIdList)
+    public static String getClinicalData(Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
         DaoClinicalData daoClinical = new DaoClinicalData();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
@@ -32,22 +32,26 @@ public class GetClinicalData {
             mapClinicalData.put(cd.getCaseId(), cd);
         }
         
-        List<ClinicalFreeForm> clinicalFreeForms = daoClinicalFreeForm.getCasesByCases(caseIdList);
-        Map<String,Map<String,String>> mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
-        Set<String> freeFormParams = new HashSet<String>();
-        for (ClinicalFreeForm cff : clinicalFreeForms) {
-            freeFormParams.add(cff.getParamName());
-            String caseId = cff.getCaseId();
-            Map<String,String> cffs = mapClinicalFreeForms.get(caseId);
-            if (cffs==null) {
-                cffs = new HashMap<String,String>();
-                mapClinicalFreeForms.put(caseId, cffs);
+        Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
+        Set<String> freeFormParams = Collections.emptySet();
+        if (includeFreeFormData) {
+            List<ClinicalFreeForm> clinicalFreeForms = daoClinicalFreeForm.getCasesByCases(caseIdList);
+            mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
+            freeFormParams = new HashSet<String>();
+            for (ClinicalFreeForm cff : clinicalFreeForms) {
+                freeFormParams.add(cff.getParamName());
+                String caseId = cff.getCaseId();
+                Map<String,String> cffs = mapClinicalFreeForms.get(caseId);
+                if (cffs==null) {
+                    cffs = new HashMap<String,String>();
+                    mapClinicalFreeForms.put(caseId, cffs);
+                }
+                cffs.put(cff.getParamName(),cff.getParamValue());
             }
-            cffs.put(cff.getParamName(),cff.getParamValue());
         }
 
         StringBuilder buf = new StringBuilder();
-        if (!caseSurvivalList.isEmpty() || !clinicalFreeForms.isEmpty()) {
+        if (!caseSurvivalList.isEmpty() || !freeFormParams.isEmpty()) {
             buf.append("case_id");
             if (!caseSurvivalList.isEmpty()) {
                     buf.append("\toverall_survival_months\toverall_survival_status\t")

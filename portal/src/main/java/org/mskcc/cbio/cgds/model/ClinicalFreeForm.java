@@ -1,4 +1,4 @@
-package org.mskcc.cgds.model;
+package org.mskcc.cbio.cgds.model;
 
 /**
  * Represents a single row in the clinical_free_form table.

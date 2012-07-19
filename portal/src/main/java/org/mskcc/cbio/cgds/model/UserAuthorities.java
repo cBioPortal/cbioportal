@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cgds.model;
+package org.mskcc.cbio.cgds.model;
 
 // imports
 import java.util.Collection;

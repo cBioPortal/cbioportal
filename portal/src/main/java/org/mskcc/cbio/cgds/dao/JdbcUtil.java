@@ -1,4 +1,4 @@
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;

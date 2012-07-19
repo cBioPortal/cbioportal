@@ -1,4 +1,4 @@
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import java.io.BufferedWriter;
 import java.io.File;

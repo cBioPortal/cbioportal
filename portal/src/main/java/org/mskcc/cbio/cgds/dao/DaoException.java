@@ -1,4 +1,4 @@
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 /**
  * Exception Occurred while reading/writing data to database.

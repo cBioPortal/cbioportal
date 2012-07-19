@@ -1,5 +1,5 @@
 
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

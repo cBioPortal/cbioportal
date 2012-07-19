@@ -1,4 +1,4 @@
-package org.mskcc.cgds.graph;
+package org.mskcc.cbio.cgds.graph;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;

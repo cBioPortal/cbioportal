@@ -1,4 +1,4 @@
-package org.mskcc.cgds.servlet;
+package org.mskcc.cbio.cgds.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;

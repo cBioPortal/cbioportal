@@ -1,4 +1,4 @@
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

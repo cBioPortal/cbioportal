@@ -1,4 +1,4 @@
-package org.mskcc.cgds.graph;
+package org.mskcc.cbio.cgds.graph;
 
 import org.mskcc.cgds.model.CanonicalGene;
 import org.mskcc.cgds.model.Interaction;

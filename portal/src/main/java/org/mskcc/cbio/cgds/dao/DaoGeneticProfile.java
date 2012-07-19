@@ -1,4 +1,4 @@
-package org.mskcc.cgds.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cgds.model.GeneticAlterationType;
 import org.mskcc.cgds.model.GeneticProfile;

@@ -1,4 +1,4 @@
-package org.mskcc.cgds.model;
+package org.mskcc.cbio.cgds.model;
 
 import java.util.Collections;
 import java.util.HashMap;

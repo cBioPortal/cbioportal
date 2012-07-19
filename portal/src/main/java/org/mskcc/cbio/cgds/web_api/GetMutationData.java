@@ -1,4 +1,4 @@
-package org.mskcc.cgds.web_api;
+package org.mskcc.cbio.cgds.web_api;
 
 import org.mskcc.cgds.dao.DaoException;
 import org.mskcc.cgds.dao.DaoGeneticProfile;

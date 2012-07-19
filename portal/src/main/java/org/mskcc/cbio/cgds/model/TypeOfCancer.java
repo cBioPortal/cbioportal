@@ -1,4 +1,4 @@
-package org.mskcc.cgds.model;
+package org.mskcc.cbio.cgds.model;
 
 /**
  * A TypeOfCancer is a clinical cancer type, such as Glioblastoma, Ovarian, etc.

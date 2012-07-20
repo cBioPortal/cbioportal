@@ -13,21 +13,44 @@
         loadCnaFraction(caseIds);
     });
     
+    function CaseSelectObserver() {
+        this.funcs = {};
+        this.caseId = null;
+    }
+    CaseSelectObserver.prototype = {
+        subscribe: function(listener,func) {
+            this.funcs[listener] = func;
+            func.call(window,this.caseId);
+        },
+        fireSelection: function(caseId,source) {
+            if (caseId == this.caseId) return;
+            this.caseId = caseId;
+            for (var listener in this.funcs) {
+                if (listener==source) continue;
+                var func = this.funcs[listener];
+                func.call(window,caseId);
+            }
+        }
+    };
+    var csObs = new CaseSelectObserver();
+    
     function setupCaseSelect(caseIds) {
+        var caseSelect = $('#case-select');
         for (var i=0; i<caseIds.length; i++) {
-            $('#case-select')
+            caseSelect
                 .append($("<option></option>")
                 .attr("value",caseIds[i])
                 .attr("id",caseIds[i]+"_select")
                 .text(caseIds[i]));
         }
-    }
-    
-    function setCaseSelect(caseId) {
-        if (caseId)
-            $("#"+caseId+"_select").attr("selected","selected");
-        else
-            $("#null_case_select").attr("selected","selected");
+        csObs.subscribe('case-select',function(caseId){
+            var op = caseId ? $("#"+caseId+"_select") : $("#null_case_select");
+            op.attr("selected","selected");
+        });
+        caseSelect.change(function(e) {
+            var caseId = $('#case-select  option:selected').attr('value');
+            csObs.fireSelection(caseId,'case-select')
+        });
     }
     
     var clincialDataTableWrapper = null;
@@ -94,7 +117,9 @@
     function mergeTablesAndVisualize() {
         var dt = mergeDataTables();
         if (dt) {
-            var headerMap = getHeadersMap(dt);
+            var headerMap = getHeaderMap(dt);
+            var caseMap = getCaseMap(dt);
+            
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
             
@@ -114,16 +139,21 @@
                 vAxis: {title: scatterDataView.getColumnLabel(1)},
                 legend: 'none'
             };
-            scatter.draw(scatterDataView,options);
             google.visualization.events.addListener(scatter, 'select', function(e){
                 var s = scatter.getSelection();
-                if (!s) {
-                    setCaseSelect(null);
-                } else {
-                    var caseId = dt.getValue(s[0].row,0);
-                    setCaseSelect(caseId);
-                }
+                var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
+                csObs.fireSelection(caseId, 'scatter-plot');
             });
+            
+            google.visualization.events.addListener(scatter, 'ready', function(e){
+                csObs.subscribe('scatter-plot',function(caseId) {
+                    var ix = caseMap[caseId];
+                    // this is not working due to a google bug
+                    // http://goo.gl/dXvDN
+                    scatter.setSelection(ix==null?null:[ix]);
+                });
+            });
+            scatter.draw(scatterDataView,options);
         }
     }
     
@@ -156,11 +186,20 @@
         return dt;
     }
     
-    function getHeadersMap(dataTable) {
+    function getHeaderMap(dataTable) {
         var map = {};
         var cols = dataTable.getNumberOfColumns();
         for (var i=0; i<cols; i++) {
             map[dataTable.getColumnLabel(i)] = i;
+        }
+        return map;
+    }
+    
+    function getCaseMap(dataTable) {
+        var map = {};
+        var rows = dataTable.getNumberOfRows();
+        for (var i=0; i<rows; i++) {
+            map[dataTable.getValue(i,0)] = i;
         }
         return map;
     }

@@ -138,6 +138,14 @@
 	  <version>1.2.16</version>
 	</dependency>
 
+	<!-- mysql -->
+	<dependency>
+	  <groupId>mysql</groupId>
+	  <artifactId>mysql-connector-java</artifactId>
+	  <version>5.1.21</version>
+	  <scope>runtime</scope>
+	</dependency>
+
 	<!-- opencsv -->
 	<dependency>
 	  <groupId>net.sf.opencsv</groupId>

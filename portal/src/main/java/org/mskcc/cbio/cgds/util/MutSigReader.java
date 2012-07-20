@@ -15,7 +15,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Properties;
 
-import static org.mskcc.cgds.dao.DaoMutSig.addMutSig;
+import static org.mskcc.cbio.cgds.dao.DaoMutSig.addMutSig;
 
 /*
  * Reads and loads a MutSig file.

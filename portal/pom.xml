@@ -247,7 +247,7 @@
 	  </plugin>
 	</plugins>
 
-	<!-- exclude some resources -->
+	<!-- prevent some resources from getting into war -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>

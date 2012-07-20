@@ -127,32 +127,27 @@
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
-            drawDataTable(dt);
+            drawDataTable(dt,'clinical-data-table');
             
             var colCna = headerMap['copy_number_altered_fraction'];
             var colMut = headerMap['mutation_count'];
-            plotMutVsCna(dt,colCna,colMut,caseMap);
+            plotMutVsCna(dt,colCna,colMut,caseMap,true,'scatter-plot');
         }
     }
     
-    function drawDataTable(dt) {
+    function drawDataTable(dt,divId) {
             var tableDataView = new google.visualization.DataView(dt);
-            var table = new google.visualization.Table(document.getElementById('clinical-data-table'));
+            var table = new google.visualization.Table(document.getElementById(divId));
             table.draw(tableDataView,{allowHtml: true, showRowNumber: true});
     }
     
-    function plotMutVsCna(dt,colCna,colMut,caseMap) {
+    function plotMutVsCna(dt,colCna,colMut,caseMap,vLog,divId) {
             var scatterDataView = new google.visualization.DataView(dt);
             scatterDataView.setColumns(
                 [{calc:function(dt,row){return 100*dt.getValue(row,colCna);},type:'number'},
                  colMut,
                  {calc:function(dt,row){return dt.getValue(row,0);},type:'string',role:'tooltip'}]);
-            var scatter = new google.visualization.ScatterChart(document.getElementById('scatter-plot'));
-            var options = {
-                hAxis: {title: "Copy number alteration percentage (%)"},
-                vAxis: {title: "# of mutations"},
-                legend: 'none'
-            };
+            var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
             google.visualization.events.addListener(scatter, 'select', function(e){
                 var s = scatter.getSelection();
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
@@ -167,6 +162,11 @@
                     scatter.setSelection(ix==null?null:[ix]);
                 });
             });
+            var options = {
+                hAxis: {title: "Copy number alteration percentage (%)"},
+                vAxis: {title: "# of mutations", logScale:vLog},
+                legend: 'none'
+            };
             scatter.draw(scatterDataView,options);
     }
     

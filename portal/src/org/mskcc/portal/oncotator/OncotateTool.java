@@ -16,6 +16,7 @@ public class OncotateTool {
     private int buildNumErrors = 0;
     private OncotatorService oncotatorService = OncotatorService.getInstance();
     private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
+    private static int ONCO_HEADERS_COUNT = 5;
     private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
 
     public OncotateTool(File inputMafFile, File outputMafFile) throws IOException, DaoException {
@@ -28,12 +29,18 @@ public class OncotateTool {
         
         int numRecordsProcessed = 0;
         FileWriter writer = new FileWriter(outputMafFile);
+        
         writeHeaders(headerLine, writer);
-        while (dataLine != null) {
+        
+        while (dataLine != null)
+        {
             MafRecord mafRecord = mafUtil.parseRecord(dataLine);
             String variantClassification = mafRecord.getVariantClassification();
 
-            writer.write(dataLine.trim());
+            // adjust data line before writing to make sure the consistency
+            // among the lines
+            writer.write(this.adjustDataLine(dataLine, mafUtil));
+            
             //  Skip Silent Mutations
             if (!variantClassification.equalsIgnoreCase("Silent")) {
                 conditionallyOncotateRecord(mafRecord, writer);
@@ -45,6 +52,7 @@ public class OncotateTool {
             writer.write("\n");
             dataLine = bufReader.readLine();
         }
+        
         System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
         for (String coords:  genomicCountMap.keySet()) {
             Integer count = genomicCountMap.get(coords);
@@ -69,18 +77,27 @@ public class OncotateTool {
     }
 
     private void writeEmptyDataFields(FileWriter writer) throws IOException {
-        for (int i=0; i<4; i++) {
+        for (int i=0; i<ONCO_HEADERS_COUNT; i++) {
             writer.write(TAB + "");
         }
     }
 
-    private void writeHeaders(String headerLine, FileWriter writer) throws IOException {
+    private void writeHeaders(String headerLine, FileWriter writer) throws IOException
+    {
         writer.write(headerLine.trim());
-        writer.write(TAB + "ONCOTATOR_VARIANT_CLASSIFICATION");
-        writer.write(TAB + "ONCOTATOR_PROTEIN_CHANGE");
-        writer.write(TAB + "ONCOTATOR_COSMIC_OVERLAPPING");
-        writer.write(TAB + "ONCOTATOR_DBSNP_RS");
-        writer.write(TAB + "ONCOTATOR_GENE_SYMBOL");
+        
+        // write new headers only if the oncotator headers do not already exist
+        // in the current MAF file (assuming if it contains one of the oncotator
+        // headers, then it contains all of them)
+        if (!headerLine.contains("ONCOTATOR_VARIANT_CLASSIFICATION"))
+        {
+        	writer.write(TAB + "ONCOTATOR_VARIANT_CLASSIFICATION");
+            writer.write(TAB + "ONCOTATOR_PROTEIN_CHANGE");
+            writer.write(TAB + "ONCOTATOR_COSMIC_OVERLAPPING");
+            writer.write(TAB + "ONCOTATOR_DBSNP_RS");
+            writer.write(TAB + "ONCOTATOR_GENE_SYMBOL");
+        }
+        
         writer.write("\n");
     }
 
@@ -167,6 +184,61 @@ public class OncotateTool {
                                      String refAllele, String tumorAllele) {
         return chr + "_" + start + "_" + end + "_" + refAllele 
                 + "_" + tumorAllele;
+    }
+    
+    /**
+     * Adjusts the data line for consistency.
+     * 
+     * If the data is already oncotated removes last ONCO_HEADERS_COUNT columns
+     * to enable re-oncotation. Otherwise adjusts the data line to have columns
+     * exactly the same as the number of column headers to prevent incorrect
+     * oncotating.
+     * 
+     * @param dataLine	line to be adjusted
+     * @param util		MAF util containing header information
+     * @return			adjusted data line
+     */
+    private String adjustDataLine(String dataLine, MafUtil util)
+    {
+    	//String line = dataLine.trim();
+    	String line = new String(dataLine);
+    	String[] parts = line.split(TAB, -1);
+    	
+    	// diff should be zero if (# of headers == # of data cols)
+    	int diff = util.getHeaderCount() - parts.length;
+    	
+    	// check if already oncotated
+    	boolean oncotated = (util.getOncoVariantClassificationIndex() != -1);
+    	
+    	// file already oncotated
+    	if (oncotated)
+    	{
+        	line = new String();
+        	
+    		// remove last ONCO_HEADERS_COUNT data columns
+    		// (to enable overwrite instead of appending new cols to the end)
+    		for (int i = 0; i < parts.length - ONCO_HEADERS_COUNT; i++)
+    		{
+    			line += parts[i];
+    			
+    			if (i != parts.length - ONCO_HEADERS_COUNT - 1)
+    			{
+    				line += TAB;
+    			}
+    				
+    		}
+    	}
+    	// not oncotated, but header and data mismatch
+    	else if (diff > 0)
+    	{
+    		// append appropriate number of tabs
+    		for (int i = 0; i < diff; i++)
+    		{
+    			line += TAB;
+    		}
+    	}
+    	
+    	return line;
     }
 
     public static void main(String[] args) {

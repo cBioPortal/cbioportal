@@ -52,22 +52,29 @@ public class MafUtil
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
     
-    /**
+    private int headerCount; // number of headers in the header line
+
+	/**
      * Constructor.
      * 
      * @param headerLine    Header Line.
      */
     public MafUtil(String headerLine)
     {
-        String parts[] = headerLine.split("\t");
+        // split header names
+    	String parts[] = headerLine.split("\t");
         
+    	// update header count
+        this.headerCount = parts.length;
+        
+        // find required header indices
         for (int i=0; i<parts.length; i++)
         {
             String header = parts[i];
             
             if (header.equalsIgnoreCase("Chromosome")) {
                 chrIndex = i;        
-            } else if(header.equalsIgnoreCase("NCBI_Build")) {
+            } else if(header.equals("NCBI_Build")) {
                 ncbiIndex = i;   
             } else if(header.equalsIgnoreCase("Start_Position")) {
                 startPositionIndex = i;
@@ -85,7 +92,7 @@ public class MafUtil
                 variantTypeIndex = i;
             } else if(header.equalsIgnoreCase("Center")) {
                 centerIndex = i;
-            } else if(header.equalsIgnoreCase("Strand")) {
+            } else if(header.equals("Strand")) {
                 strandIndex = i;
             } else if(header.equalsIgnoreCase("Tumor_Seq_Allele1")) {
                 tumorSeqAllele1Index = i;
@@ -387,5 +394,9 @@ public class MafUtil
 
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
+	}
+	
+    public int getHeaderCount() {
+		return headerCount;
 	}
 }

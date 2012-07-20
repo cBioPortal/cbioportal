@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+  <!-- module meta data -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.mskcc.cbio</groupId>
   <artifactId>portal</artifactId>
@@ -8,10 +9,12 @@
   <name>Maven Quick Start Archetype</name>
   <url>http://maven.apache.org</url>
 
+  <!-- properties -->
   <properties>
 	<spring.version>3.1.1.RELEASE</spring.version>
   </properties>
 
+  <!-- dependencies -->
   <dependencies>
 
 	<!-- antisamy -->
@@ -58,6 +61,12 @@
 	  <groupId>commons-lang</groupId>
 	  <artifactId>commons-lang</artifactId>
 	  <version>2.4</version>
+	</dependency>
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>apache-log4j-extras</artifactId>
+	  <version>1.1</version>
+	  <scope>test</scope>
 	</dependency>
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
@@ -207,6 +216,8 @@
   </dependencies>
 
   <build>
+
+	<!-- plugins -->
 	<plugins>
 
 	  <!-- java 1.6 support -->
@@ -220,7 +231,37 @@
 		</configuration>
 	  </plugin>
 
+	  <!-- surefire (test) config -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<configuration>
+		  <testFailureIgnore>false</testFailureIgnore>
+		  <systemProperties>
+			<property>
+			  <name>log4j.configuration</name>
+			  <value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
+			</property>
+		  </systemProperties>
+		</configuration>
+	  </plugin>
 	</plugins>
+
+	<!-- exclude some resources -->
+	<resources>
+	  <resource>
+		<directory>src/main/resources</directory>
+		<excludes>
+		  <exclude>ant/**</exclude>
+		  <exclude>artwork/**</exclude>
+		  <exclude>content/**</exclude>
+		  <exclude>db/**</exclude>
+		  <exclude>sample_data/**</exclude>
+		  <exclude>tutorials/**</exclude>
+		</excludes>
+	  </resource>
+	</resources>
+
   </build>
 
 </project>

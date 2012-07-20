@@ -7,10 +7,28 @@
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
         loadCnaFraction(caseIds);
     });
+    
+    function setupCaseSelect(caseIds) {
+        for (var i=0; i<caseIds.length; i++) {
+            $('#case-select')
+                .append($("<option></option>")
+                .attr("value",caseIds[i])
+                .attr("id",caseIds[i]+"_select")
+                .text(caseIds[i]));
+        }
+    }
+    
+    function setCaseSelect(caseId) {
+        if (caseId)
+            $("#"+caseId+"_select").attr("selected","selected");
+        else
+            $("#null_case_select").attr("selected","selected");
+    }
     
     var clincialDataTableWrapper = null;
     function loadClinicalData(caseSetId) {
@@ -77,16 +95,19 @@
         var dt = mergeDataTables();
         if (dt) {
             var headerMap = getHeadersMap(dt);
+            var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
+            formatter.format(dt, [0]);
             
             var tableDataView = new google.visualization.DataView(dt);
             //tableDataView.setColumns([0,1,2]);
             var table = new google.visualization.Table(document.getElementById('clinical-data-table'));
-            table.draw(tableDataView);
+            table.draw(tableDataView,{allowHtml: true, showRowNumber: true});
             
             var scatterDataView = new google.visualization.DataView(dt);
-            scatterDataView.setColumns([headerMap['copy_number_altered_fraction'],
-                                        headerMap['mutation_count'],
-                                        {sourceColumn:0,role:'tooltip'}]);
+            var colCna = headerMap['copy_number_altered_fraction'];
+            var colMut = headerMap['mutation_count'];
+            scatterDataView.setColumns([colCna,colMut,
+                                        {calc:function(dt,row){return dt.getValue(row,0);},type:'string',role:'tooltip'}]);
             var scatter = new google.visualization.ScatterChart(document.getElementById('scatter-plot'));
             var options = {
                 hAxis: {title: scatterDataView.getColumnLabel(0)},
@@ -94,7 +115,20 @@
                 legend: 'none'
             };
             scatter.draw(scatterDataView,options);
+            google.visualization.events.addListener(scatter, 'select', function(e){
+                var s = scatter.getSelection();
+                if (!s) {
+                    setCaseSelect(null);
+                } else {
+                    var caseId = dt.getValue(s[0].row,0);
+                    setCaseSelect(caseId);
+                }
+            });
         }
+    }
+    
+    function formatPatientLink(caseId) {
+        return '<a href="patient.do?<%=PatientView.PATIENT_ID%>='+caseId+'">'+caseId+'</a>'
     }
     
     function mergeDataTables() {
@@ -140,19 +174,30 @@
     }
 </script>
 
+<div>
+    <form name="input" action="patient.do" method="get">
+        <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select">select one case</option></select>
+        <input type="submit" value="More About This Case" />
+    </form>
+</div>
+
 <table>
     <tr>
-        <td width="600px">
+        <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Histograms</legend>
-                <div id="histogram"></div>
+                <div id="histogram" style="width:500px;height:400px;display:block;">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
             </fieldset>
         </td>
         
-        <td width="600px">
+        <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Scatter plots</legend>
-                <div id="scatter-plot"></div>
+                <div id="scatter-plot" style="width:500px;height:400px;display:block;">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
             </fieldset>
         </td>
     </tr>

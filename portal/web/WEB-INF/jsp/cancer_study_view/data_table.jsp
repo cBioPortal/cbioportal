@@ -6,4 +6,4 @@
 }
 </style>
 
-<div id="clinical-data-table"></div>
+<div id="clinical-data-table"><img src="images/ajax-loader.gif"/></div>

@@ -1,0 +1,218 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.mskcc.cbio</groupId>
+  <artifactId>portal</artifactId>
+  <packaging>war</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Maven Quick Start Archetype</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+	<spring.version>3.1.1.RELEASE</spring.version>
+  </properties>
+
+  <dependencies>
+
+	<!-- antisamy -->
+	<dependency>
+	  <groupId>org.owasp</groupId>
+	  <artifactId>antisamy</artifactId>
+	  <version>1.4</version>
+	</dependency>
+
+	<!-- antlr -->
+	<dependency>
+	  <groupId>org.antlr</groupId>
+	  <artifactId>antlr-runtime</artifactId>
+	  <version>3.2</version>
+	</dependency>
+
+	<!-- apache commons -->
+	<dependency>
+	  <groupId>commons-collections</groupId>
+	  <artifactId>commons-collections</artifactId>
+	  <version>3.2.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>com.kenai.nbpwr</groupId>
+	  <artifactId>org-apache-commons-dbcp</artifactId>
+	  <version>1.2.2-201002241055</version>
+	</dependency>
+	<dependency>
+	  <groupId>commons-fileupload</groupId>
+	  <artifactId>commons-fileupload</artifactId>
+	  <version>1.2.2</version>
+	</dependency>
+	<dependency>
+	  <groupId>commons-httpclient</groupId>
+	  <artifactId>commons-httpclient</artifactId>
+	  <version>3.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.apache.httpcomponents</groupId>
+	  <artifactId>httpcore</artifactId>
+	  <version>4.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>commons-lang</groupId>
+	  <artifactId>commons-lang</artifactId>
+	  <version>2.4</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-math</artifactId>
+	  <version>2.2</version>
+	</dependency>
+
+	<!-- easy cache -->
+	<dependency>
+	  <groupId>net.sf.ehcache</groupId>
+	  <artifactId>ehcache-core</artifactId>
+	  <version>2.3.0</version>
+	</dependency>
+	
+	<!-- guava -->
+	<dependency>
+	  <groupId>com.google.guava</groupId>
+	  <artifactId>guava</artifactId>
+	  <version>10.0.1</version>
+	</dependency>
+
+	<!-- jackson -->
+	<dependency>
+	  <groupId>org.codehaus.jackson</groupId>
+	  <artifactId>jackson-core-asl</artifactId>
+	  <version>1.9.3</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.codehaus.jackson</groupId>
+	  <artifactId>jackson-mapper-asl</artifactId>
+	  <version>1.9.3</version>
+	</dependency>
+
+	<!-- javax servlet -->
+	<dependency>
+	  <groupId>javax.servlet</groupId>
+	  <artifactId>servlet-api</artifactId>
+	  <version>2.3</version>
+	</dependency>
+
+	<!-- jopt -->
+	<dependency>
+	  <groupId>net.sf.jopt-simple</groupId>
+	  <artifactId>jopt-simple</artifactId>
+	  <version>3.0-rc2</version>
+	</dependency>
+
+	<!-- json simple  -->
+	<dependency>
+	  <groupId>com.googlecode.json-simple</groupId>
+	  <artifactId>json-simple</artifactId>
+	  <version>1.1</version>
+	</dependency>
+
+	<!-- jung -->
+	<dependency>
+	  <groupId>net.sf.jung</groupId>
+	  <artifactId>jung-api</artifactId>
+	  <version>2.0.1</version>
+	</dependency>
+	<dependency>
+	  <groupId>net.sf.jung</groupId>
+	  <artifactId>jung-graph-impl</artifactId>
+	  <version>2.0.1</version>
+	</dependency>
+
+	<!-- junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+    </dependency>
+
+	<!-- log4j -->
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>log4j</artifactId>
+	  <version>1.2.16</version>
+	</dependency>
+
+	<!-- opencsv -->
+	<dependency>
+	  <groupId>net.sf.opencsv</groupId>
+	  <artifactId>opencsv</artifactId>
+	  <version>2.3</version>
+	</dependency>
+
+	<!-- rserve -->
+	<dependency>
+	  <groupId>org.nuiton.thirdparty</groupId>
+	  <artifactId>REngine</artifactId>
+	  <version>0.6-1</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.nuiton.thirdparty</groupId>
+	  <artifactId>Rserve</artifactId>
+	  <version>0.6-1</version>
+	</dependency>
+
+	<!-- spring 3 -->
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-core</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-jdbc</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+
+	<!-- spring security -->
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-acl</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-config</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-core</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-openid</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-web</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+
+  </dependencies>
+
+  <build>
+	<plugins>
+
+	  <!-- java 1.6 support -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.0.2</version>
+		<configuration>
+		  <source>1.6</source>
+		  <target>1.6</target>
+		</configuration>
+	  </plugin>
+
+	</plugins>
+  </build>
+
+</project>

@@ -16,6 +16,7 @@ import org.mskcc.cgds.model.Case;
 import org.mskcc.cgds.model.CnaEvent;
 import org.mskcc.cgds.model.CopyNumberSegment;
 import org.mskcc.cgds.model.GeneticProfile;
+import org.mskcc.portal.util.SkinUtil;
 
 /**
  *
@@ -29,6 +30,7 @@ public class CnaJSON extends HttpServlet {
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
     public static final String GET_SEGMENT_CMD = "get_segment";
+    public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CNA_CONTEXT = "cna_context";
     
@@ -55,6 +57,11 @@ public class CnaJSON extends HttpServlet {
             
             if (cmd.equalsIgnoreCase(GET_SEGMENT_CMD)) {
                 processGetSegmentsRequest(request, response);
+                return;
+            }
+            
+            if (cmd.equalsIgnoreCase(GET_CNA_FRACTION_CMD)) {
+                processCnaFractionsRequest(request, response);
                 return;
             }
         }
@@ -176,6 +183,31 @@ public class CnaJSON extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(table, out);
+        } finally {            
+            out.close();
+        }
+    }
+    
+    private void processCnaFractionsRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        String strCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
+        List<String> caseIds = strCaseIds==null ? null : Arrays.asList(strCaseIds.split("[ ,]+"));
+        
+        Map<String, Double> fraction = Collections.emptyMap();
+        
+        try {
+            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(caseIds,
+                    SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(fraction, out);
         } finally {            
             out.close();
         }

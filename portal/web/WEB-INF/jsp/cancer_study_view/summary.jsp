@@ -1,5 +1,6 @@
 
 <%@ page import="org.mskcc.portal.servlet.MutationsJSON" %>
+<%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
 
 under construction
@@ -11,6 +12,7 @@ under construction
     $(document).ready(function(){
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
+        loadCnaFraction(caseIds);
     });
     
     var clincialDataTableWrapper = null;
@@ -53,6 +55,26 @@ under construction
             ,"json"
         );
     }
+
+    var cnaDataTableWrapper = null;
+    function loadCnaFraction(caseIds) {
+        if (cnaProfileId==null) return;
+        var params = {
+            <%=CnaJSON.CMD%>: '<%=CnaJSON.GET_CNA_FRACTION_CMD%>',
+            <%=QueryBuilder.CASE_IDS%>: caseIds.join(' ')
+        };
+
+        $.post("cna.json", 
+            params,
+            function(cnaFracs){
+                cnaDataTableWrapper = new DataTableWrapper();
+                // TODO: what if no segment available
+                cnaDataTableWrapper.setDataMap(cnaFracs,['case_id','copy_number_altered_fraction']);
+                mergeTablesAndVisualize();
+            }
+            ,"json"
+        );
+    }
     
     function mergeTablesAndVisualize() {
         var dt = mergeDataTables();
@@ -65,7 +87,8 @@ under construction
     
     function mergeDataTables() {
         if (clincialDataTableWrapper==null ||
-            (mutationProfileId!=null && mutDataTableWrapper==null)) {
+            (mutationProfileId!=null && mutDataTableWrapper==null) ||
+            (cnaProfileId!=null && cnaDataTableWrapper==null)) {
             return null;
         }
         
@@ -73,6 +96,11 @@ under construction
         
         if (mutDataTableWrapper!=null) {
             dt = google.visualization.data.join(dt, mutDataTableWrapper.dataTable,
+                    'full', [[0,0]], makeContInxArray(1,dt.getNumberOfColumns()-1),[1]);
+        }
+        
+        if (cnaDataTableWrapper!=null) {
+            dt = google.visualization.data.join(dt, cnaDataTableWrapper.dataTable,
                     'full', [[0,0]], makeContInxArray(1,dt.getNumberOfColumns()-1),[1]);
         }
         

@@ -16,11 +16,11 @@ import java.io.File;
 
 public class TestMutSigReader extends TestCase {
 
-    File properties = new File("test_data/testCancerStudy.txt");
-    File mutSigFile = new File("test_data/test_mut_sig_data.txt");
+    File properties = new File("/testCancerStudy.txt");
+    File mutSigFile = new File("/test_mut_sig_data.txt");
 
     ProgressMonitor pm = new ProgressMonitor();
-    File cancers =  new File("test_data/cancers.txt");
+    File cancers =  new File("/cancers.txt");
     
     public void testloadMutSig() throws Exception {
 
@@ -32,7 +32,7 @@ public class TestMutSigReader extends TestCase {
 
         // Add cancers to a fresh database
         // Add a cancer study whose standardId is "tcga_gbm"
-        // In accordance with test_data/testCancerStudy.txt
+        // In accordance with /testCancerStudy.txt
         CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
         assertEquals(1, cancerStudy.getInternalId());

@@ -19,16 +19,16 @@ public class TestGetCaseList extends TestCase {
 
       ResetDatabase.resetDatabase();
       // load cancers
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
       // corresponds to cancer_study_identifier: gbm in
-      // test_data/case_list_test.txt
+      // /case_list_test.txt
       CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "GBM", false);
       DaoCancerStudy.addCancerStudy(cancerStudy);
 
       ProgressMonitor pMonitor = new ProgressMonitor();
       pMonitor.setConsoleMode(false);
-      File file = new File("test_data/case_list_test.txt");
+      File file = new File("/case_list_test.txt");
 
       ImportCaseList.importCaseList(file, pMonitor);
       String[] caseList = GetCaseLists.getCaseLists("GBM").split("\n");

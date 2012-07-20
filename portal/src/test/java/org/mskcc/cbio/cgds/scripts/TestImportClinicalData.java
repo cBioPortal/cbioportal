@@ -29,7 +29,7 @@ public class TestImportClinicalData extends TestCase {
     public void testImportClinicalData() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
-        File file = new File("test_data/clinical_test.txt");
+        File file = new File("/clinical_test.txt");
         ImportClinicalData importClinicalData = new ImportClinicalData(file, pMonitor);
         importClinicalData.importData();
 

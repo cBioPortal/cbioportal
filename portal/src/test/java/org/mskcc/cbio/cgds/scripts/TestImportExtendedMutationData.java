@@ -26,7 +26,7 @@ public class TestImportExtendedMutationData extends TestCase {
 
             ProgressMonitor pMonitor = new ProgressMonitor();
             pMonitor.setConsoleMode(false);
-            File file = new File("test_data/data_mutations_extended.txt");
+            File file = new File("/data_mutations_extended.txt");
             ImportExtendedMutationData parser;
 
             try {
@@ -45,7 +45,7 @@ public class TestImportExtendedMutationData extends TestCase {
             validateMutationAminoAcid (1, "TCGA-AA-3664", 89, "S116R"); // Unknown  Somatic
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "test_data/test_germline_white_list_file2.txt");
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
             // put on: CLEC7A
             parser.importData();
             checkBasicFilteringRules();
@@ -54,7 +54,7 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "test_data/test_germline_white_list_file2.txt");
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();
@@ -63,7 +63,7 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "test_data/test_germline_white_list_file2.txt");
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();

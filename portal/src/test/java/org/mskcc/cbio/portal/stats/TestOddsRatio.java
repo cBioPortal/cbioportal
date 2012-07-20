@@ -24,7 +24,7 @@ public class TestOddsRatio extends TestCase {
                 new GeneticProfile("gbm", 1,
                         GeneticAlterationType.COPY_NUMBER_ALTERATION,
                         "CNA", "CNA", true);
-        String matrix0[][] = WebFileConnect.retrieveMatrix(new File("test_data/cna_sample2.txt"));
+        String matrix0[][] = WebFileConnect.retrieveMatrix(new File("/cna_sample2.txt"));
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);
         

@@ -19,7 +19,7 @@ public class TestImportGeneData extends TestCase {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("test_data/genes_test.txt");
+        File file = new File("/genes_test.txt");
         ImportGeneData parser = new ImportGeneData(file, pMonitor);
         parser.importData();
 

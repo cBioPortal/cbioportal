@@ -12,8 +12,8 @@ import java.io.File;
 public class TestCutInvalidCases extends TestCase {
 
     public void testCutInvalidCases() throws Exception {
-        File casesExcludedFile = new File("test_data/cases_excluded_test.txt");
-        File dataFile = new File("test_data/cna_test.txt");
+        File casesExcludedFile = new File("/cases_excluded_test.txt");
+        File dataFile = new File("/cna_test.txt");
         ProgressMonitor pMonitor = new ProgressMonitor();
         CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
                 dataFile, pMonitor);

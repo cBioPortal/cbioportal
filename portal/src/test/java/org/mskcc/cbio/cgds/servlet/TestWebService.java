@@ -257,7 +257,7 @@ public class TestWebService extends TestCase {
       DaoUser.addUser(user2);
 
       // load cancers
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
       // make a couple of private studies (1 and 2)
       privateCancerStudy1 = new CancerStudy( "name", "description", "study1", "brca", false );

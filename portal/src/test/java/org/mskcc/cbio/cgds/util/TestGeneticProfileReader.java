@@ -22,7 +22,7 @@ public class TestGeneticProfileReader extends TestCase {
     public void testGeneticProfileReader() throws Exception {
         ResetDatabase.resetDatabase();
         // load cancers
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
         DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         daoGeneticProfile.deleteAllRecords();
@@ -33,7 +33,7 @@ public class TestGeneticProfileReader extends TestCase {
                 "gbm", "gbm", true);
         DaoCancerStudy.addCancerStudy(cancerStudy);
 
-        File file = new File("test_data/genetic_profile_test.txt");
+        File file = new File("/genetic_profile_test.txt");
         GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfile(file);
         assertEquals("Barry", geneticProfile.getTargetLine());
         assertEquals("Blah Blah.", geneticProfile.getProfileDescription());

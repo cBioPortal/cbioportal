@@ -27,7 +27,7 @@ public class TestDaoCancerStudy extends TestCase {
     public void testDaoCancerStudy() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
         // load cancers
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
         CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description", "gbm", "brca", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
@@ -82,7 +82,7 @@ public class TestDaoCancerStudy extends TestCase {
     public void testDaoCancerStudy2() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
         // load cancers
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
         CancerStudy cancerStudy1 = new CancerStudy("GBM public study x", "GBM Description",
                 "tcga_gbm1", "brca", true);

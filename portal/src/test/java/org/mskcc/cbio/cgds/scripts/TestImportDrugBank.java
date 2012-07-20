@@ -24,11 +24,11 @@ public class TestImportDrugBank extends TestCase {
         DrugBankResource drugBankResource = new DrugBankResource();
         drugBankResource.setName("DrugBank");
         drugBankResource.setVersion("201101");
-        File testFile = new File("test_data/test_drugbank_small.xml");
+        File testFile = new File("/test_drugbank_small.xml");
         drugBankResource.setResourceURL("file://" + testFile.getAbsolutePath());
 
         DrugBankImporter drugBankImporter = new DrugBankImporter(drugBankResource);
-        drugBankImporter.importDrugBankGeneList(new CSVReader(new FileReader("test_data/test_drugbank_targets.csv")));
+        drugBankImporter.importDrugBankGeneList(new CSVReader(new FileReader("/test_drugbank_targets.csv")));
 
         assertEquals(92, drugBankImporter.getGeneMap().size());
         // We don't have all the genes loaded up yet, so we will just fake that

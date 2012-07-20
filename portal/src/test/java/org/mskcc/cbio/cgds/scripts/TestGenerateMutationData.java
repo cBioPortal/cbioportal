@@ -16,10 +16,10 @@ public class TestGenerateMutationData extends TestCase {
     public void testGenerateMutationData() throws Exception {
         ResetDatabase.resetDatabase();
 
-        File allCasesFile = new File ("test_data/all_cases.txt");
-        File sequencedGeneFile = new File ("test_data/sequenced_genes.txt");
-        File sequencedCasesFile = new File ("test_data/sequenced_cases.txt");
-        File mutationDataFile = new File ("test_data/mutations.txt");
+        File allCasesFile = new File ("/all_cases.txt");
+        File sequencedGeneFile = new File ("/sequenced_genes.txt");
+        File sequencedCasesFile = new File ("/sequenced_cases.txt");
+        File mutationDataFile = new File ("/mutations.txt");
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
         GenerateMutationData util = new GenerateMutationData (allCasesFile, sequencedGeneFile,

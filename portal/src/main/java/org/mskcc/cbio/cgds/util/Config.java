@@ -13,7 +13,7 @@ public class Config {
 
     private Config () {
         try {
-           String props = "build.properties";
+           String props = "/build.properties";
             InputStream in = this.getClass().getResourceAsStream( props );
 //            InputStream in = this.getClass().getClassLoader().getResourceAsStream( props );
 

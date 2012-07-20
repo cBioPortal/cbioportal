@@ -100,7 +100,7 @@ public class TestMutationFilter extends TestCase {
                  
       // create MutationFilter
       MutationFilter myMutationFilter = new MutationFilter( 
-               "test_data/test_germline_white_list_file.txt");
+               "/test_germline_white_list_file.txt");
 
       alwaysRejectTheseMutations( myMutationFilter );      
       tryGermlineMutations( myMutationFilter );      

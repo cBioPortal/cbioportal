@@ -11,8 +11,8 @@ import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
 
 public class TestNormalizeExpressionLevels extends TestCase {
    
-   String Args[] = { "test_data/test_all_thresholded.by_genes.txt", "test_data/test_PR_GDAC_CANCER.medianexp.txt",
-   "test_data/data_mRNA_ZbyNorm.txt", "4" };
+   String Args[] = { "/test_all_thresholded.by_genes.txt", "/test_PR_GDAC_CANCER.medianexp.txt",
+   "/data_mRNA_ZbyNorm.txt", "4" };
    public void testNormalizeExpressionLevels(){
       
       try {
@@ -20,7 +20,7 @@ public class TestNormalizeExpressionLevels extends TestCase {
          NormalizeExpressionLevels.main(Args);
          // compare with correct
          String line;
-         Process p = Runtime.getRuntime().exec("diff "+ "test_data/correct_data_mRNA_ZbyNorm.txt " + Args[2] );
+         Process p = Runtime.getRuntime().exec("diff "+ "/correct_data_mRNA_ZbyNorm.txt " + Args[2] );
          BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()) );
          while ((line = input.readLine()) != null) {
             assertEquals ( "", line );

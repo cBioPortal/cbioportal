@@ -25,7 +25,7 @@ public class TestRenderImageDataType extends TestCase {
               new GeneticProfile("ovarian_cna", 1,
               GeneticAlterationType.COPY_NUMBER_ALTERATION,
                       "Ovarian CNA", "Ovarian CNA", true);
-      String matrix0[][] = WebFileConnect.retrieveMatrix(new File("test_data/cna_sample.txt"));
+      String matrix0[][] = WebFileConnect.retrieveMatrix(new File("/cna_sample.txt"));
       ProfileData data0 = new ProfileData(profile0, matrix0);
       profileList.add(data0);
 
@@ -34,7 +34,7 @@ public class TestRenderImageDataType extends TestCase {
               ("ovarian_protein", 1, GeneticAlterationType.PROTEIN_LEVEL,
               "Ovarian Protein", "Ovarian Protein", true);
       String matrix1[][] = WebFileConnect.retrieveMatrix(
-               new File("test_data/protein_sample.txt"));
+               new File("/protein_sample.txt"));
       ProfileData data1 = new ProfileData(profile1, matrix1);
       profileList.add(data1);
 
@@ -43,7 +43,7 @@ public class TestRenderImageDataType extends TestCase {
 
       assertEquals(null, RenderImageDataType.render( "PHOSPHORYLATION", mergedProfile ));
       
-      BufferedReader in = new BufferedReader(new FileReader( new File("test_data/protein_sample_table.html") ));
+      BufferedReader in = new BufferedReader(new FileReader( new File("/protein_sample_table.html") ));
       
       String generatedTable = RenderImageDataType.render( "PROTEIN_LEVEL", mergedProfile );
       String generatedTableRows[] = generatedTable.split( "\n" ); 

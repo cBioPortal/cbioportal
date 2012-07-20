@@ -27,7 +27,7 @@ public class TestProfileMerger extends TestCase {
         GeneticProfile profile0 = new GeneticProfile
                 ("gbm", 1, GeneticAlterationType.COPY_NUMBER_ALTERATION,
                         "CNA", "NA", true);
-        String matrix0[][] = WebFileConnect.retrieveMatrix(new File("test_data/cna_sample.txt"));
+        String matrix0[][] = WebFileConnect.retrieveMatrix(new File("/cna_sample.txt"));
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);
 
@@ -35,7 +35,7 @@ public class TestProfileMerger extends TestCase {
                 ("gbm", 1, GeneticAlterationType.MUTATION_EXTENDED,
                         "MUTATION", "NA", true);
         String matrix1[][] = WebFileConnect.retrieveMatrix(
-                new File("test_data/mutation_sample.txt"));
+                new File("/mutation_sample.txt"));
         ProfileData data1 = new ProfileData(profile1, matrix1);
         profileList.add(data1);
 

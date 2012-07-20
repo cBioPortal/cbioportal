@@ -18,7 +18,7 @@ public class TestCategoryLabelReader extends TestCase
      */
     public void testCategoryLabelReader() throws IOException
     {
-        File file = new File("test_data/test_readable_categories.txt");
+        File file = new File("/test_readable_categories.txt");
         FileInputStream fin = new FileInputStream (file);
 
         Map<String, String> labelMap = CategoryLabelReader.readCategoryLabelMap(fin);

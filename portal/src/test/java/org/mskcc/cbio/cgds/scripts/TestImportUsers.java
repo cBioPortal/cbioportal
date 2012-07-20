@@ -20,7 +20,7 @@ public class TestImportUsers extends TestCase {
 
       ResetDatabase.resetDatabase();
       
-      String args[] = {"./test_data/test-users.txt"};
+      String args[] = {".//test-users.txt"};
       ImportUsers.main(args);
 
       User user = DaoUser.getUserByEmail("Dhorak@yahoo.com");

@@ -38,7 +38,7 @@ public class TestGetTypesOfCancer extends TestCase {
         }
 
         // then, load cancers
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
 
         //  Verify a few of the data lines
         String output = GetTypesOfCancer.getTypesOfCancer();
@@ -68,7 +68,7 @@ public class TestGetTypesOfCancer extends TestCase {
         }
 
         // then, load one sample cancer study
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("test_data/cancers.txt"));
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
         CancerStudy tcgaGbm = new CancerStudy("TCGA GBM", "TCGA GBM Project", "tcga_gbm" ,
                 "GBM", true);
 

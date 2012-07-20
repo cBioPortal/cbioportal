@@ -19,9 +19,9 @@ import java.util.Set;
 public class TestGisticReader extends TestCase {
 
     public void testGisticReader() throws DaoException, IOException, Exception {
-//    File metadata = new File("./test_data/testCancerStudy.txt");
-//    File gisticFile = new File("test_data/test-gistic-amp.txt");
-//    File gisticTable_file = new File("test_data/test-gistic-table-amp.txt");
+//    File metadata = new File(".//testCancerStudy.txt");
+//    File gisticFile = new File("/test-gistic-amp.txt");
+//    File gisticTable_file = new File("/test-gistic-table-amp.txt");
 //    ProgressMonitor pm = new ProgressMonitor();
 //    Gistic dummyGistic = new Gistic();
 //

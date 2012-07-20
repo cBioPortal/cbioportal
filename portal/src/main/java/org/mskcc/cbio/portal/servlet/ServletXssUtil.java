@@ -23,7 +23,7 @@ public class ServletXssUtil {
      * @throws PolicyException Policy Error.
      */
     private ServletXssUtil() throws PolicyException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("antisamy.xml");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("/antisamy.xml");
         policy = Policy.getInstance(inputStream);
         as = new AntiSamy();
     }

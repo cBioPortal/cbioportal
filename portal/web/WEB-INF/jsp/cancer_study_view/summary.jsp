@@ -144,7 +144,7 @@
     function plotMutVsCna(dt,colCna,colMut,caseMap,vLog,divId) {
             var scatterDataView = new google.visualization.DataView(dt);
             scatterDataView.setColumns(
-                [{calc:function(dt,row){return 100*dt.getValue(row,colCna);},type:'number'},
+                [colCna,
                  colMut,
                  {calc:function(dt,row){return dt.getValue(row,0);},type:'string',role:'tooltip'}]);
             var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
@@ -163,8 +163,8 @@
                 });
             });
             var options = {
-                hAxis: {title: "Copy number alteration percentage (%)"},
-                vAxis: {title: "# of mutations", logScale:vLog},
+                hAxis: {title: "Copy number alteration percentage (%)", format:'#%'},
+                vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
                 legend: 'none'
             };
             scatter.draw(scatterDataView,options);

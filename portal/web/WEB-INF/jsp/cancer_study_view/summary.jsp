@@ -3,12 +3,9 @@
 <%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
 
-under construction
-<div id="clinicalTable"></div>
-
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">   
-    google.load('visualization', '1', {packages:['table']}); 
+    google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
@@ -79,11 +76,19 @@ under construction
     function mergeTablesAndVisualize() {
         var dt = mergeDataTables();
         if (dt) {
-            var table = new google.visualization.Table(document.getElementById('clinicalTable'));
-            table.draw(dt);
+            var headerMap = getHeadersMap(dt);
+            
+            var tableDataView = new google.visualization.DataView(dt);
+            //tableDataView.setColumns([0,1,2]);
+            var table = new google.visualization.Table(document.getElementById('clinical-data-table'));
+            table.draw(tableDataView);
+            
+            var scatterDataView = new google.visualization.DataView(dt);
+            scatterDataView.setColumns([headerMap['mutation_count'],headerMap['copy_number_altered_fraction']]);
+            var scatter = new google.visualization.ScatterChart(document.getElementById('scatter-plot'));
+            scatter.draw(scatterDataView);
         }
     }
-    
     
     function mergeDataTables() {
         if (clincialDataTableWrapper==null ||
@@ -110,6 +115,15 @@ under construction
         return dt;
     }
     
+    function getHeadersMap(dataTable) {
+        var map = {};
+        var cols = dataTable.getNumberOfColumns();
+        for (var i=0; i<cols; i++) {
+            map[dataTable.getColumnLabel(i)] = i;
+        }
+        return map;
+    }
+    
     function makeContInxArray(start,end) {
         var ix = [];
         for (var i=start; i<=end; i++) {
@@ -118,3 +132,14 @@ under construction
         return ix;
     }
 </script>
+
+
+<fieldset>
+    <legend style="color:blue;font-weight:bold;">Histograms</legend>
+    <div id="histogram"></div>
+</fieldset>
+<fieldset>
+    <legend style="color:blue;font-weight:bold;">Scatter plots</legend>
+    <div id="scatter-plot"></div>
+</fieldset>
+<div id="clinicalTable"></div>

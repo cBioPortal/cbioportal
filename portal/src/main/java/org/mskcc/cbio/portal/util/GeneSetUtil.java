@@ -34,7 +34,7 @@ public class GeneSetUtil {
      * @throws IOException IO Error.
      */
     private GeneSetUtil() throws IOException {
-        InputStream in = this.getClass().getResourceAsStream("gene_sets.txt");
+        InputStream in = this.getClass().getResourceAsStream("/gene_sets.txt");
         geneSetList = GeneSetReader.readGeneSets(in);
         in.close();
     }

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.servlet;
+package org.mskcc.cbio.cgds.servlet;
 
 import java.io.StringWriter;
 

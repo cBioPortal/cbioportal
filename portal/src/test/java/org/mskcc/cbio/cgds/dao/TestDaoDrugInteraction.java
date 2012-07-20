@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.servlet;
+package org.mskcc.cbio.cgds.servlet;
 
 /*
  * from: http://www.java2s.com/Open-Source/Java-Document/Content-Management-System/

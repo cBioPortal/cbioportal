@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.servlet;
+package org.mskcc.cbio.cgds.servlet;
 
 import java.io.IOException;
 import java.io.File;
@@ -18,7 +18,7 @@ import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.servlet.WebService;
-import org.mskcc.cbio.cgds.test.util.NullHttpServletRequest;
+import org.mskcc.cbio.cgds.util.NullHttpServletRequest;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.model;
+package org.mskcc.cbio.cgds.model;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.*;

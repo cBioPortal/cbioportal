@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.scripts;
+package org.mskcc.cbio.cgds.scripts;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.cgds.test.dao;
+package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;

@@ -1,6 +1,5 @@
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.CancerStudyView" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
@@ -22,10 +21,12 @@ String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR
 String caseSetId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
-boolean showMutations = showPlaceHoder;
+boolean hasMutation = mutationProfile!=null;
+boolean showMutationsTab = showPlaceHoder && hasMutation;
 
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
-boolean showCNA = showPlaceHoder;
+boolean hasCNA = cnaProfile!=null;
+boolean showCNATab = showPlaceHoder && hasCNA;
 
 if (cancerStudyViewError!=null) {
     out.print(cancerStudyViewError);
@@ -49,11 +50,11 @@ if (cancerStudyViewError!=null) {
         
     <li><a href='#summary' class='study-tab' title='Events of Interest'>Summary</a></li>
     
-    <%if(showMutations){%>
+    <%if(showMutationsTab){%>
     <li><a href='#mutations' class='study-tab' title='Mutations'>Mutations</a></li>
     <%}%>
     
-    <%if(showCNA){%>
+    <%if(showCNATab){%>
     <li><a href='#cna' class='study-tab' title='Copy Number Alterations'>Copy Number Alterations</a></li>
     <%}%>
     
@@ -63,13 +64,13 @@ if (cancerStudyViewError!=null) {
         <%@ include file="cancer_study_view/summary.jsp" %>
     </div>
 
-    <%if(showMutations){%>
+    <%if(showMutationsTab){%>
     <div class="study-section" id="mutations">
         <%@ include file="cancer_study_view/mutations.jsp" %>
     </div>
     <%}%>
 
-    <%if(showCNA){%>
+    <%if(showCNATab){%>
     <div class="study-section" id="cna">
         <%@ include file="cancer_study_view/cna.jsp" %>
     </div>
@@ -94,17 +95,17 @@ if (cancerStudyViewError!=null) {
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="js/cancer-study-view.clinical-data.js"></script>
 
 <script type="text/javascript">
 var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var mutationProfileId = <%=mutationProfile==null%>?null:'<%=mutationProfile.getStableId()%>';
+var cnaProfileId = <%=cnaProfile==null%>?null:'<%=cnaProfile.getStableId()%>';
 var caseSetId = '<%=caseSetId%>';
 
 $(document).ready(function(){
     setUpStudyTabs();
     initTabs();
-    loadClinicalData(studyId,caseSetId);
 });
 
 function setUpStudyTabs() {

@@ -63,7 +63,8 @@
                     //  Output One Case per Row
                     for (String caseId : mergedCaseList) {
                         out.println("<tr>");
-                        out.println("<th bgcolor='#BBBBBB'><nobr><a href=\"patient.do?patient=" + caseId
+                        out.println("<th bgcolor='#BBBBBB'><nobr><a href=\"patient.do?"
+                                    + org.mskcc.portal.servlet.PatientView.PATIENT_ID+"=" + caseId
                                 + "\">" + caseId + "</a>&nbsp;</nobr></th>");
                         int dataCounter=0;
                         for (GeneWithScore geneWithScore : geneWithScoreList) {

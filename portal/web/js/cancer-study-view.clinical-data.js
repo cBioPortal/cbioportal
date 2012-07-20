@@ -1,25 +1,4 @@
 
-google.load('visualization', '1', {packages:['table']});
-function loadClinicalData(cancerStudyId,caseSetId) {
-    var params = {cmd:'getClinicalData',
-                 case_set_id:caseSetId,
-                 include_free_form:1};
-    $.get("webservice.do",
-          params,
-          function(data){
-              //$('#summary').html("<table><tr><td>"+data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/[\r\n]+/g,"</td></tr><tr><td>").replace(/\t/g,"</td><td>")+"</td></tr></table>");
-              var rows = data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").match(/[^\r\n]+/g);
-              var matrix = [];
-              for (var i=0; i<rows.length; i++) {
-                  matrix.push(rows[i].split('\t'));
-              }
-
-              dataTableWrapper.setDataMatrix(matrix);
-              var table = new google.visualization.Table(document.getElementById('summary'));
-              table.draw(dataTableWrapper.dataTable, {showRowNumber: true});
-          })
-}
-
 function DataTableWrapper() {
     this.dataTable = null;
 }
@@ -33,6 +12,14 @@ DataTableWrapper.prototype = {
                 this.dataTable.removeColumn(i);
             }
         }
+    },
+    getColumnData: function(col) {
+        var data = [];
+        var rows = this.dataTable.getNumberOfRows();
+        for (var i=0; i<rows; i++) {
+            data.push(this.dataTable.getValue(i,col));
+        }
+        return data;
     }
 };
 var dataTableWrapper = new DataTableWrapper();
@@ -47,20 +34,14 @@ MatrixDataTypeConverter.prototype = {
         this.colTypes = this.determineColumnTypes(this.dataMatrix);
         var headers = this.dataMatrix[0];
         for (var c=0; c<headers.length; c++) {
-            if (this.colTypes[c]=='number') {
-                for (var r=1; r<this.dataMatrix.length; r++) {
+            for (var r=1; r<this.dataMatrix.length; r++) {
+                if (this.dataMatrix[r][c].length==0) {
+                    this.dataMatrix[r][c] = null;
+                } else if (this.colTypes[c]=='number') {
                     this.dataMatrix[r][c] = parseFloat(this.dataMatrix[r][c]);
-                }
-            } else if (this.colTypes[c]=='boolean') {
-                for (var r=1; r<this.dataMatrix.length; r++) {
+                } else if (this.colTypes[c]=='boolean') {
                     var dl = this.dataMatrix[r][c].toLowerCase();
                     this.dataMatrix[r][c] = dl=='true' || dl=='y';
-                }
-            } else if (this.colTypes[c]=='boolean') {
-                for (var r=1; r<this.dataMatrix.length; r++) {
-                    // hacky way to deal with empty rows
-                    // the column will be removed later
-                    this.dataMatrix[r][c] = " ";
                 }
             }
         }

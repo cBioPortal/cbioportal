@@ -29,7 +29,7 @@ A genomic overview with events aligned across patients goes here...
                         "aTargets": [ 0 ],
                         "fnRender": function(obj) {
                             var patientId = obj.aData[ obj.iDataColumn ];
-                            return "<a href='patient.do?patient="+patientId
+                            return "<a href='patient.do?<%=PatientView.PATIENT_ID%>="+patientId
                                 + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+patientId+"</b></a>";
                         }
                     },

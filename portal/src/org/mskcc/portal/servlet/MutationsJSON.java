@@ -27,6 +27,7 @@ public class MutationsJSON extends HttpServlet {
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
+    public static final String COUNT_MUTATIONS_CMD = "count_mutations";
     public static final String MUTATION_EVENT_ID = "mutation_id";
     public static final String GENE_CONTEXT = "gene_context";
     public static final String MUTATION_CONTEXT = "mutation_context";
@@ -51,6 +52,11 @@ public class MutationsJSON extends HttpServlet {
             
             if (cmd.equalsIgnoreCase(GET_DRUG_CMD)) {
                 processGetDrugsRequest(request, response);
+                return;
+            }
+            
+            if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
+                processCountMutationsRequest(request, response);
                 return;
             }
         }
@@ -164,6 +170,35 @@ public class MutationsJSON extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             JSONValue.writeJSONString(drugs, out);
+        } finally {            
+            out.close();
+        }
+    }
+    
+    private void processCountMutationsRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        String strCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
+        List<String> caseIds = strCaseIds==null ? null : Arrays.asList(strCaseIds.split("[ ,]+"));
+        
+        GeneticProfile mutationProfile;
+        Map<String, Integer> count = Collections.emptyMap();
+        
+        try {
+            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            if (mutationProfile!=null) {
+                count = DaoMutationEvent.countMutationEvents(mutationProfile.getGeneticProfileId(),caseIds);
+            }
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        try {
+            JSONValue.writeJSONString(count, out);
         } finally {            
             out.close();
         }

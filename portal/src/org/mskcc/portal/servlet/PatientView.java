@@ -26,7 +26,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "error";
-    public static final String PATIENT_ID = "patient";
+    public static final String PATIENT_ID = "case_id";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";

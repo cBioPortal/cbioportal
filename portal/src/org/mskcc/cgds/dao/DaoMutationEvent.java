@@ -145,26 +145,31 @@ public final class DaoMutationEvent {
     
     /**
      * return the number of mutations for each case
-     * @param caseIds
+     * @param caseIds if null, return all case available
      * @param profileId
      * @return Map &lt; case id, mutation count &gt;
      * @throws DaoException 
      */
-    public static Map<String, Integer> countMutationEvents(Collection<String> caseIds,
-            int profileId) throws DaoException {
-        if (caseIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
+    public static Map<String, Integer> countMutationEvents(
+            int profileId, Collection<String> caseIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
-                    + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                    + " AND `CASE_ID` IN ('"
-                    + StringUtils.join(caseIds,"','")
-                    + "') GROUP BY `CASE_ID`";
+            String sql;
+            if (caseIds==null) {
+                sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
+                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId
+                        + " GROUP BY `CASE_ID`";
+                
+            } else {
+                sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
+                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId
+                        + " AND `CASE_ID` IN ('"
+                        + StringUtils.join(caseIds,"','")
+                        + "') GROUP BY `CASE_ID`";
+            }
             pstmt = con.prepareStatement(sql);
             
             Map<String, Integer> map = new HashMap<String, Integer>();

@@ -1,5 +1,5 @@
 
-<style type="text/css" title="currentStyle">
+<style type="text/css">
 #clinical-data-table {
     width: 1200px;
     overflow-x:scroll;

@@ -27,7 +27,7 @@ String jsonCaseIds = JSONValue.toJSONString(caseIds);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
 boolean hasMutation = mutationProfile!=null;
-boolean showMutationsTab = showPlaceHoder && hasMutation;
+boolean showMutationsTab = hasMutation;
 
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
 boolean hasCNA = cnaProfile!=null;

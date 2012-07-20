@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.util;
+package org.mskcc.cbio.portal.util;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -15,7 +15,7 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
-import org.mskcc.cbio.portal.test.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
 import org.mskcc.cbio.portal.util.ValueParser;
 
 public class TestValueParser extends TestCase {

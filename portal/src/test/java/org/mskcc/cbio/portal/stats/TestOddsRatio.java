@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.stats;
+package org.mskcc.cbio.portal.stats;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.ProfileData;

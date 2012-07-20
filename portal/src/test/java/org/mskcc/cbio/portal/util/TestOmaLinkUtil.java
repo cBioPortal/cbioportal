@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.util;
+package org.mskcc.cbio.portal.util;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;

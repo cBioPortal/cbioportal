@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.oncoPrintSpecLanguage;
+package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
 import java.util.ArrayList;
 import java.util.Arrays;

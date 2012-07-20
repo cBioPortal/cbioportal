@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.html;
+package org.mskcc.cbio.portal.html;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;

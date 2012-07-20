@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoGistic;

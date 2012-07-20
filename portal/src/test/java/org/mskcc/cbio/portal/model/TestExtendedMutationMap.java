@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.model;
+package org.mskcc.cbio.portal.model;
 
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;

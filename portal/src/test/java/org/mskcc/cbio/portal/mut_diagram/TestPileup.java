@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.mut_diagram;
+package org.mskcc.cbio.portal.mut_diagram;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.test.mut_diagram;
+package org.mskcc.cbio.portal.mut_diagram;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoException;

@@ -2,17 +2,21 @@
 package org.mskcc.portal.servlet;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.mskcc.cgds.dao.*;
-import org.mskcc.cgds.model.*;
+import org.mskcc.cgds.dao.DaoCancerStudy;
+import org.mskcc.cgds.dao.DaoCaseList;
+import org.mskcc.cgds.dao.DaoException;
+import org.mskcc.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cgds.model.CancerStudy;
+import org.mskcc.cgds.model.CaseList;
+import org.mskcc.cgds.model.GeneticAlterationType;
+import org.mskcc.cgds.model.GeneticProfile;
 import org.mskcc.cgds.util.AccessControl;
 import org.mskcc.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
@@ -32,9 +36,7 @@ public class CancerStudyView extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-    private static final DaoCaseProfile daoCaseProfile = new DaoCaseProfile();
-    private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
-    private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
+    private static final DaoCaseList daoCaseList = new DaoCaseList();
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -109,9 +111,20 @@ public class CancerStudyView extends HttpServlet {
             return false;
         }
         
-        if (request.getAttribute(QueryBuilder.CASE_SET_ID)==null) {
-            request.setAttribute(QueryBuilder.CASE_SET_ID, cancerStudy.getCancerStudyStableId()+"_all");
+        String caseListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
+        if (caseListId==null) {
+            caseListId = cancerStudy.getCancerStudyStableId()+"_all";
+            request.setAttribute(QueryBuilder.CASE_SET_ID, caseListId);
         }
+        
+        CaseList caseList = daoCaseList.getCaseListByStableId(caseListId);
+        if (caseList==null) {
+            request.setAttribute(ERROR,
+                    "Could not find case list of '" + caseListId + "'. ");
+            return false;
+        }
+        
+        request.setAttribute(QueryBuilder.CASE_IDS, caseList.getCaseList());
         
         request.setAttribute(CANCER_STUDY, cancerStudy);
         request.setAttribute(QueryBuilder.HTML_TITLE, cancerStudy.getName());

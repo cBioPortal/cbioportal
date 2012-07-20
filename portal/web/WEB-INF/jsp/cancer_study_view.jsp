@@ -1,9 +1,12 @@
+<%@page import="org.json.simple.JSONValue"%>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.CancerStudyView" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
-
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.json.simple.JSONValue" %>
 
 <%
 request.setAttribute("standard_js_only", true);
@@ -19,6 +22,8 @@ CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANC
 String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 
 String caseSetId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
+List<String> caseIds = (List<String>)request.getAttribute(QueryBuilder.CASE_IDS);
+String jsonCaseIds = JSONValue.toJSONString(caseIds);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStudyView.MUTATION_PROFILE);
 boolean hasMutation = mutationProfile!=null;
@@ -102,6 +107,7 @@ var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfile==null%>?null:'<%=mutationProfile.getStableId()%>';
 var cnaProfileId = <%=cnaProfile==null%>?null:'<%=cnaProfile.getStableId()%>';
 var caseSetId = '<%=caseSetId%>';
+var caseIds = <%=jsonCaseIds%>;
 
 $(document).ready(function(){
     setUpStudyTabs();

@@ -3,7 +3,7 @@ function DataTableWrapper() {
     this.dataTable = null;
 }
 DataTableWrapper.prototype = {
-    setDataMatrix: function(matrix) {
+    setDataMatrixAndFixTypes: function(matrix) {
         var converter = new MatrixDataTypeConverter();
         converter.convertTypes(matrix);
         this.dataTable = google.visualization.arrayToDataTable(converter.dataMatrix);
@@ -12,6 +12,13 @@ DataTableWrapper.prototype = {
                 this.dataTable.removeColumn(i);
             }
         }
+    },
+    setDataMap: function(map,headers) {
+        var arr = [headers];
+        for (var key in map) {
+            arr.push([key,map[key]]);
+        }
+        this.dataTable = google.visualization.arrayToDataTable(arr);
     },
     getColumnData: function(col) {
         var data = [];
@@ -22,7 +29,6 @@ DataTableWrapper.prototype = {
         return data;
     }
 };
-var dataTableWrapper = new DataTableWrapper();
 
 function MatrixDataTypeConverter() {
     this.dataMatrix = null;

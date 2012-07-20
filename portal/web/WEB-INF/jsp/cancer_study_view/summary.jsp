@@ -9,10 +9,12 @@ under construction
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table']}); 
     $(document).ready(function(){
-        loadClinicalData(caseSetId,mutationProfileId,cnaProfileId);
+        loadClinicalData(caseSetId);
+        loadMutationCount(mutationProfileId,caseIds);
     });
     
-    function loadClinicalData(caseSetId, mutationProfileId, cnaProfileId) {
+    var clincialDataTableWrapper = null;
+    function loadClinicalData(caseSetId) {
         var params = {cmd:'getClinicalData',
                     case_set_id:caseSetId,
                     include_free_form:1};
@@ -26,17 +28,15 @@ under construction
                     matrix.push(rows[i].split('\t'));
                 }
 
-                dataTableWrapper.setDataMatrix(matrix);
-                var caseIds = dataTableWrapper.getColumnData(0);
-                if (mutationProfileId!=null) {
-                    dataTableWrapper.dataTable.addColumn('number','mutation_count');
-                    var mutCol = dataTableWrapper.dataTable.getNumberOfColumns()-1;
-                    loadMutationCount(mutationProfileId,caseIds,mutCol);
-                }
+                clincialDataTableWrapper = new DataTableWrapper();
+                clincialDataTableWrapper.setDataMatrixAndFixTypes(matrix);
+                mergeTablesAndVisualize();
             })
     }
 
-    function loadMutationCount(mutationProfileId,caseIds,ixCol) {
+    var mutDataTableWrapper = null;
+    function loadMutationCount(mutationProfileId,caseIds) {
+        if (mutationProfileId==null) return;
         var params = {
             <%=MutationsJSON.CMD%>: '<%=MutationsJSON.COUNT_MUTATIONS_CMD%>',
             <%=QueryBuilder.CASE_IDS%>: caseIds.join(' '),
@@ -46,15 +46,47 @@ under construction
         $.post("mutations.json", 
             params,
             function(mutationCounts){
-                for (var i=0; i<caseIds.length; i++) {
-                    dataTableWrapper.dataTable.setCell(i,ixCol,mutationCounts[caseIds[i]]);
-                }
-                
-                var table = new google.visualization.Table(document.getElementById('clinicalTable'));
-                table.draw(dataTableWrapper.dataTable, {showRowNumber: true});
+                mutDataTableWrapper = new DataTableWrapper();
+                mutDataTableWrapper.setDataMap(mutationCounts,['case_id','mutation_count']);
+                mergeTablesAndVisualize();
             }
             ,"json"
         );
     }
-
+    
+    function mergeTablesAndVisualize() {
+        var dt = mergeDataTables();
+        if (dt) {
+            var table = new google.visualization.Table(document.getElementById('clinicalTable'));
+            table.draw(dt);
+        }
+    }
+    
+    
+    function mergeDataTables() {
+        if (clincialDataTableWrapper==null ||
+            (mutationProfileId!=null && mutDataTableWrapper==null)) {
+            return null;
+        }
+        
+        var dt = clincialDataTableWrapper.dataTable;
+        
+        if (mutDataTableWrapper!=null) {
+            dt = google.visualization.data.join(dt, mutDataTableWrapper.dataTable,
+                    'full', [[0,0]], makeContInxArray(1,dt.getNumberOfColumns()-1),[1]);
+        }
+        
+        clincialDataTableWrapper = null;
+        mutDataTableWrapper = null;
+        
+        return dt;
+    }
+    
+    function makeContInxArray(start,end) {
+        var ix = [];
+        for (var i=start; i<=end; i++) {
+            ix.push(i);
+        }
+        return ix;
+    }
 </script>

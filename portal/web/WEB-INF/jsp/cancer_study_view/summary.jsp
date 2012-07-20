@@ -84,9 +84,16 @@
             table.draw(tableDataView);
             
             var scatterDataView = new google.visualization.DataView(dt);
-            scatterDataView.setColumns([headerMap['mutation_count'],headerMap['copy_number_altered_fraction']]);
+            scatterDataView.setColumns([headerMap['copy_number_altered_fraction'],
+                                        headerMap['mutation_count'],
+                                        {sourceColumn:0,role:'tooltip'}]);
             var scatter = new google.visualization.ScatterChart(document.getElementById('scatter-plot'));
-            scatter.draw(scatterDataView);
+            var options = {
+                hAxis: {title: scatterDataView.getColumnLabel(0)},
+                vAxis: {title: scatterDataView.getColumnLabel(1)},
+                legend: 'none'
+            };
+            scatter.draw(scatterDataView,options);
         }
     }
     
@@ -133,13 +140,23 @@
     }
 </script>
 
+<table>
+    <tr>
+        <td width="600px">
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Histograms</legend>
+                <div id="histogram"></div>
+            </fieldset>
+        </td>
+        
+        <td width="600px">
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Scatter plots</legend>
+                <div id="scatter-plot"></div>
+            </fieldset>
+        </td>
+    </tr>
+    
+</table>
 
-<fieldset>
-    <legend style="color:blue;font-weight:bold;">Histograms</legend>
-    <div id="histogram"></div>
-</fieldset>
-<fieldset>
-    <legend style="color:blue;font-weight:bold;">Scatter plots</legend>
-    <div id="scatter-plot"></div>
-</fieldset>
 <div id="clinicalTable"></div>

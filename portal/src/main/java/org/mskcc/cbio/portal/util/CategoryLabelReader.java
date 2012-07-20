@@ -18,7 +18,7 @@ public class CategoryLabelReader
 	/**
 	 * Resource filename for the map content.
 	 */
-	public static final String CATEGORY_MAP_FILE = "human_readable_categories.txt";
+	public static final String CATEGORY_MAP_FILE = "/human_readable_categories.txt";
 	
 	/**
 	 * Singleton instance.

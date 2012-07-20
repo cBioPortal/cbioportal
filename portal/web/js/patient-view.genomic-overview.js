@@ -64,10 +64,9 @@ ChmInfo.prototype = {
         if (!startChm) {//binary search
             var low = 1, high = this.hg19.length-1, i;
             while (low <= high) {
-                i = Math.floor((low + high) / 2);
-                if (this.perc[i] == xPerc) {return i;}; 
-                if (this.perc[i] > xPerc)  {high = i - 1;};
-                if (this.perc[i] < xPerc)  {low = i + 1;};
+                i = Math.floor((low + high) / 2); 
+                if (this.perc[i] >= xPerc)  {high = i - 1;}
+                else  {low = i + 1;}
             }
             chm = low;
         } else {//linear search

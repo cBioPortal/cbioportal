@@ -219,7 +219,13 @@
         var ageHistDTW = new DataTableWrapper();
         ageHistDTW.setDataMap(hist,['Age','# patients']);
         var column = new google.visualization.ColumnChart(document.getElementById(divId));
-        column.draw(ageHistDTW.dataTable);
+        var options = {
+            title: 'Age distribution',
+            hAxis: {title: 'Age at diagnosis'},
+            vAxis: {title: '# of Patients'},
+            legend: {position: 'none'}
+        }
+        column.draw(ageHistDTW.dataTable,options);
     }
     
     function calcHistogram(dt,col,bins) {

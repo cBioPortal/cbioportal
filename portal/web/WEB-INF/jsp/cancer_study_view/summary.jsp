@@ -138,7 +138,13 @@
     function drawDataTable(dt,divId) {
             var tableDataView = new google.visualization.DataView(dt);
             var table = new google.visualization.Table(document.getElementById(divId));
-            table.draw(tableDataView,{allowHtml: true, showRowNumber: true});
+            var options = {
+                allowHtml: true,
+                showRowNumber: true,
+                page: 'enable',
+                pageSize: 100
+            };
+            table.draw(tableDataView,options);
     }
     
     function plotMutVsCna(dt,colCna,colMut,caseMap,vLog,divId) {

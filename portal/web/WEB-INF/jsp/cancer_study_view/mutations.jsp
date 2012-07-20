@@ -25,7 +25,13 @@
                 var json = formatMutSigJson(data);
                 var dataTable = google.visualization.arrayToDataTable(json);
                 var table = new google.visualization.Table(document.getElementById("mut-sig-div"));
-                table.draw(dataTable,{showRowNumber: true});
+                var options = {
+                    showRowNumber: true,
+                    width: 400,
+                    page: 'enable',
+                    pageSize: 100
+                };
+                table.draw(dataTable,options);
             })
     }
     

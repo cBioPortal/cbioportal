@@ -120,11 +120,12 @@
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
             
+            plotAgeHistogram(dt,headerMap['age_at_diagnosis'],'age-hist');
+            
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
             
             var tableDataView = new google.visualization.DataView(dt);
-            //tableDataView.setColumns([0,1,2]);
             var table = new google.visualization.Table(document.getElementById('clinical-data-table'));
             table.draw(tableDataView,{allowHtml: true, showRowNumber: true});
             
@@ -211,6 +212,62 @@
         }
         return ix;
     }
+    
+    function plotAgeHistogram(dt,col,divId) {
+        var bins = [20,30,40,50,60,70,80];
+        var hist = calcHistogram(dt,col,bins);
+        var ageHistDTW = new DataTableWrapper();
+        ageHistDTW.setDataMap(hist,['Age','# patients']);
+        var column = new google.visualization.ColumnChart(document.getElementById(divId));
+        column.draw(ageHistDTW.dataTable);
+    }
+    
+    function calcHistogram(dt,col,bins) {
+        var hist = {};
+        var rows = dt.getNumberOfRows();
+        var t = dt.getColumnType(col);
+        if (t=="number") {
+            if (bins==null) bins = 10;
+            if ((typeof bins)==(typeof 1)) {
+                var r = getColumnRange(col);
+                var step = (r.max-r.min)/(bins-1);
+                bins = [];
+                for (var i=0; i<bins-1; i++) {
+                    bins.push(r.min+i*step);
+                }
+            }
+            
+            var count = [];
+            for (var i=0; i<=bins.length; i++) {
+                count.push(0);
+            }
+            
+            for (var r=0; r<rows; r++) {
+                var v = dt.getValue(r,col);
+                var low = 0, high = bins.length, i;
+                while (low <= high) {
+                    i = Math.floor((low + high) / 2); 
+                    if (bins[i] >= v)  {high = i - 1;}
+                    else {low = i + 1;}
+                }
+                count[low] = count[low]+1;
+            }
+            
+            hist['<='+bins[0]] = count[0];
+            var i=1;
+            for (; i<bins.length; i++) {
+                hist[bins[i-1]+'~'+bins[i]] = count[i];
+            }
+            hist['>'+bins[bins.length-1]] = count[i];
+        } else {
+            for (var r=0; r<rows; r++) {
+                var v = dt.getValue(r,col);
+                if(v!=null)
+                    hist[v] = hist[v] ? hist[v]+1 : 1;
+            }
+        }
+        return hist;
+    }
 </script>
 
 <div>
@@ -225,7 +282,7 @@
         <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Histograms</legend>
-                <div id="histogram" style="width:500px;height:400px;display:block;">
+                <div id="age-hist" style="width:500px;height:400px;display:block;">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>

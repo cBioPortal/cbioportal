@@ -791,7 +791,7 @@ public class NetworkServlet extends HttpServlet {
         PrintWriter writer = res.getWriter();
         writer.write("<!--xdebug messages begin:\n");
         for (Object msg : xdebug.getDebugMessages()) {
-            writer.write(((org.mskcc.portal.util.XDebugMessage)msg).getMessage());
+            writer.write(((org.mskcc.cbio.portal.util.XDebugMessage)msg).getMessage());
             writer.write("\n");
         }
         writer.write("xdebug messages end-->\n");

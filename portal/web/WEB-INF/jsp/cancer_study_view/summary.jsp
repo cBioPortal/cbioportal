@@ -163,9 +163,9 @@
                 });
             });
             var options = {
-                hAxis: {title: "Copy number alteration percentage (%)", format:'#%'},
+                hAxis: {title: "Copy number alteration fraction", format:'#%'},
                 vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
-                legend: 'none'
+                legend: {position:'none'}
             };
             scatter.draw(scatterDataView,options);
     }
@@ -317,11 +317,11 @@
             <fieldset>
                 <div>
                     <form name="input" action="patient.do" method="get">
-                        <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select">select one case</option></select>
+                        <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
                         <input type="submit" value="More About This Case" />
                     </form>
                 </div>
-                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration Fraction</legend>
+                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
                 <div id="scatter-plot" style="width:500px;height:410px;display:block;">
                     <img src="images/ajax-loader.gif"/>
                 </div>

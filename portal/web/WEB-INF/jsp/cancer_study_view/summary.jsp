@@ -121,6 +121,9 @@
             var caseMap = getCaseMap(dt);
             
             plotAgeHistogram(dt,headerMap['age_at_diagnosis'],'age-hist');
+            plotPieChart(dt,headerMap['histology'],'hist-pie');
+            plotPieChart(dt,headerMap['2009stagegroup'],'stage-pie');
+            plotPieChart(dt,headerMap['tumor_grade'],'grade-pie');
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
@@ -220,12 +223,19 @@
         ageHistDTW.setDataMap(hist,['Age','# patients']);
         var column = new google.visualization.ColumnChart(document.getElementById(divId));
         var options = {
-            title: 'Age distribution',
             hAxis: {title: 'Age at diagnosis'},
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
         column.draw(ageHistDTW.dataTable,options);
+    }
+    
+    function plotPieChart(dt,col,divId) {
+        var hist = calcHistogram(dt,col);
+        var histHistDTW = new DataTableWrapper();
+        histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
+        var column = new google.visualization.PieChart(document.getElementById(divId));
+        column.draw(histHistDTW.dataTable);
     }
     
     function calcHistogram(dt,col,bins) {
@@ -287,17 +297,42 @@
     <tr>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Histograms</legend>
-                <div id="age-hist" style="width:500px;height:400px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Age Distributions</legend>
+                <div id="age-hist" style="width:300px;height:200px;display:block;">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
         </td>
-        
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Scatter plots</legend>
-                <div id="scatter-plot" style="width:500px;height:400px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Histology</legend>
+                <div id="hist-pie" style="width:300px;height:200px;display:block;">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td rowspan="2">
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration Fraction</legend>
+                <div id="scatter-plot" style="width:430px;height:430px;display:block;">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Stage</legend>
+                <div id="stage-pie" style="width:300px;height:200px;display:block;">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Grade</legend>
+                <div id="grade-pie" style="width:300px;height:200px;display:block;">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>

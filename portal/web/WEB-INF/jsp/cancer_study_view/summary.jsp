@@ -7,6 +7,7 @@
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        $('#submit-patient-btn').attr("disabled", true);
         setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
@@ -24,6 +25,8 @@
         },
         fireSelection: function(caseId,source) {
             if (caseId == this.caseId) return;
+            $('#submit-patient-btn').attr("disabled", caseId==null);
+
             this.caseId = caseId;
             for (var listener in this.funcs) {
                 if (listener==source) continue;
@@ -49,7 +52,8 @@
         });
         caseSelect.change(function(e) {
             var caseId = $('#case-select  option:selected').attr('value');
-            csObs.fireSelection(caseId,'case-select')
+            if (caseId=="") caseId=null;
+            csObs.fireSelection(caseId,'case-select');
         });
     }
     
@@ -61,8 +65,9 @@
         $.get("webservice.do",
             params,
             function(data){
-                //$('#summary').html("<table><tr><td>"+data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/[\r\n]+/g,"</td></tr><tr><td>").replace(/\t/g,"</td><td>")+"</td></tr></table>");
-                var rows = data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").match(/[^\r\n]+/g);
+                var rows = data.replace(/^#[^\r\n]+[\r\n]+/g,"")
+                        .replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1")
+                        .match(/[^\r\n]+/g);
                 var matrix = [];
                 for (var i=0; i<rows.length; i++) {
                     matrix.push(rows[i].split('\t'));
@@ -152,7 +157,9 @@
             scatterDataView.setColumns(
                 [colCna,
                  colMut,
-                 {calc:function(dt,row){return dt.getValue(row,0);},type:'string',role:'tooltip'}]);
+                 {calc:function(dt,row){
+                         return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
+                     },type:'string',role:'tooltip'}]);
             var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
             google.visualization.events.addListener(scatter, 'select', function(e){
                 var s = scatter.getSelection();
@@ -324,7 +331,7 @@
                 <div>
                     <form name="input" action="patient.do" method="get">
                         <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
-                        <input type="submit" value="More About This Case" />
+                        <input type="submit" id="submit-patient-btn" value="More About This Case" />
                     </form>
                 </div>
                 <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>

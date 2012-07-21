@@ -26,6 +26,7 @@
         fireSelection: function(caseId,source) {
             if (caseId == this.caseId) return;
             $('#submit-patient-btn').attr("disabled", caseId==null);
+            $('#case-id-div').html(formatPatientLink(caseId));
 
             this.caseId = caseId;
             for (var listener in this.funcs) {
@@ -124,23 +125,36 @@
         if (dt) {
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
-            
-            plotAgeHistogram(dt,headerMap['age_at_diagnosis'],'age-hist');
-            plotPieChart(dt,headerMap['histology'],'hist-pie');
-            plotPieChart(dt,headerMap['2009stagegroup'],'stage-pie');
-            plotPieChart(dt,headerMap['tumor_grade'],'grade-pie');
+              
+            plotAgeHistogram('age-hist',dt,headerMap['age_at_diagnosis'],[20,30,40,50,60,70,80],'Age at diagnosis');
+            plotPieChart('hist-pie',dt,headerMap['histology']);
+            plotPieChart('stage-pie',dt,headerMap['2009stagegroup']);
+            plotPieChart('grade-pie',dt,headerMap['tumor_grade']);
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
-            drawDataTable(dt,'clinical-data-table');
+            drawDataTable('clinical-data-table',dt);
             
             var colCna = headerMap['copy_number_altered_fraction'];
             var colMut = headerMap['mutation_count'];
-            plotMutVsCna(dt,colCna,colMut,caseMap,true,'scatter-plot');
+            plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,false,false);
+            
+            $('#mut-cna-config').show();
+            
+            $(".mut-cna-axis-log").change(function() {
+                mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
+            });
         }
     }
     
-    function drawDataTable(dt,divId) {
+    function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
+        var hLog = $('#mut-cna-haxis-log').is(":checked");
+        var vLog = $('#mut-cna-vaxis-log').is(":checked");
+        plotMutVsCna(dt,colCna,colMut,caseMap,hLog,vLog,'mut-cna-scatter-plot');
+        csObs.fireSelection(null, 'scatter-plot');
+    }
+    
+    function drawDataTable(divId,dt) {
             var tableDataView = new google.visualization.DataView(dt);
             var table = new google.visualization.Table(document.getElementById(divId));
             var options = {
@@ -152,7 +166,7 @@
             table.draw(tableDataView,options);
     }
     
-    function plotMutVsCna(dt,colCna,colMut,caseMap,vLog,divId) {
+    function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
             var scatterDataView = new google.visualization.DataView(dt);
             scatterDataView.setColumns(
                 [colCna,
@@ -176,15 +190,15 @@
                 });
             });
             var options = {
-                hAxis: {title: "Copy number alteration fraction", format:'#%'},
+                hAxis: {title: "Copy number alteration fraction", logScale:hLog, format:'#%'},
                 vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
                 legend: {position:'none'}
             };
             scatter.draw(scatterDataView,options);
     }
-    
+
     function formatPatientLink(caseId) {
-        return '<a href="patient.do?<%=PatientView.PATIENT_ID%>='+caseId+'">'+caseId+'</a>'
+        return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?<%=PatientView.PATIENT_ID%>='+caseId+'">'+caseId+'</a>'
     }
     
     function mergeDataTables() {
@@ -237,22 +251,22 @@
         }
         return ix;
     }
-    
-    function plotAgeHistogram(dt,col,divId) {
+ 
+    function plotHistogram(divId,dt,col,bins,hAxisTitle) {
         var bins = [20,30,40,50,60,70,80];
         var hist = calcHistogram(dt,col,bins);
         var ageHistDTW = new DataTableWrapper();
         ageHistDTW.setDataMap(hist,['Age','# patients']);
         var column = new google.visualization.ColumnChart(document.getElementById(divId));
         var options = {
-            hAxis: {title: 'Age at diagnosis'},
+            hAxis: {title: hAxisTitle},
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
         column.draw(ageHistDTW.dataTable,options);
     }
     
-    function plotPieChart(dt,col,divId) {
+    function plotPieChart(divId,dt,col) {
         var hist = calcHistogram(dt,col);
         var histHistDTW = new DataTableWrapper();
         histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
@@ -327,17 +341,29 @@
             </fieldset>
         </td>
         <td rowspan="2">
-            <fieldset>
-                <div>
+            <fieldset style="padding:0px 1px">
+                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
+                <div style="display:none">
                     <form name="input" action="patient.do" method="get">
                         <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
                         <input type="submit" id="submit-patient-btn" value="More About This Case" />
                     </form>
                 </div>
-                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
-                <div id="scatter-plot" style="width:500px;height:410px;display:block;">
+                <div id="mut-cna-scatter-plot" style="width:500px;height:400px;display:block;">
                     <img src="images/ajax-loader.gif"/>
                 </div>
+                <table style="display:none;width:100%;" id="mut-cna-config">
+                    <tr width="100%">
+                            <td>
+                                H-Axis scale: <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
+                                <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-haxis-log"/>log<br/>
+                                V-Axis scale: <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
+                                <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-vaxis-log"/>log
+                            </td>
+                            <td id="case-id-div" align="right">
+                            </td>
+                    </tr>
+                </table>
             </fieldset>
         </td>
     </tr>

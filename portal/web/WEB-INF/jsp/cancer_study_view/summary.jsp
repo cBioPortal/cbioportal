@@ -3,6 +3,20 @@
 <%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
 
+<style type="text/css">
+.small-plot-div {
+    width:285px;
+    height:200px;
+    display:block;
+}
+.large-plot-div {
+    width:570px;
+    height:400px;
+    display:block;
+}
+
+</style>
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
@@ -126,7 +140,10 @@
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
               
-            plotAgeHistogram('age-hist',dt,headerMap['age_at_diagnosis'],[20,30,40,50,60,70,80],'Age at diagnosis');
+            plotHistogram('age-hist',dt,headerMap['age_at_diagnosis'],[20,30,40,50,60,70,80],'Age at diagnosis');
+            plotHistogram('ovs-hist',dt,headerMap['overall_survival_months'],[12,24,36,48,60],'Overall survival months');
+            plotHistogram('dfs-hist',dt,headerMap['disease_free_survival_months'],[12,24,36,48,60],'Disease-free survival months');
+            plotPieChart('gender-pie',dt,headerMap['gender']);
             plotPieChart('hist-pie',dt,headerMap['histology']);
             plotPieChart('stage-pie',dt,headerMap['2009stagegroup']);
             plotPieChart('grade-pie',dt,headerMap['tumor_grade']);
@@ -253,11 +270,15 @@
     }
  
     function plotHistogram(divId,dt,col,bins,hAxisTitle) {
-        var bins = [20,30,40,50,60,70,80];
+        var div = document.getElementById(divId);
+        if (col==null) {
+            $(div).html("<font color='red'><b>No data<b></font>");
+            return;
+        }
         var hist = calcHistogram(dt,col,bins);
         var ageHistDTW = new DataTableWrapper();
         ageHistDTW.setDataMap(hist,['Age','# patients']);
-        var column = new google.visualization.ColumnChart(document.getElementById(divId));
+        var column = new google.visualization.ColumnChart(div);
         var options = {
             hAxis: {title: hAxisTitle},
             vAxis: {title: '# of Patients'},
@@ -267,10 +288,15 @@
     }
     
     function plotPieChart(divId,dt,col) {
+        var div = document.getElementById(divId);
+        if (col==null) {
+            $(div).html("<font color='red'><b>No data<b></font>");
+            return;
+        }
         var hist = calcHistogram(dt,col);
         var histHistDTW = new DataTableWrapper();
         histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
-        var column = new google.visualization.PieChart(document.getElementById(divId));
+        var column = new google.visualization.PieChart(div);
         column.draw(histHistDTW.dataTable);
     }
     
@@ -327,20 +353,20 @@
         <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Age Distributions</legend>
-                <div id="age-hist" style="width:300px;height:200px;display:block;">
+                <div id="age-hist" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
         </td>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Histology</legend>
-                <div id="hist-pie" style="width:300px;height:200px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Gender</legend>
+                <div id="gender-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
         </td>
-        <td rowspan="2">
+        <td rowspan="2" colspan="2">
             <fieldset style="padding:0px 1px">
                 <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
                 <div style="display:none">
@@ -349,7 +375,7 @@
                         <input type="submit" id="submit-patient-btn" value="More About This Case" />
                     </form>
                 </div>
-                <div id="mut-cna-scatter-plot" style="width:500px;height:400px;display:block;">
+                <div id="mut-cna-scatter-plot" class="large-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
                 <table style="display:none;width:100%;" id="mut-cna-config">
@@ -370,8 +396,26 @@
     <tr>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Stage</legend>
-                <div id="stage-pie" style="width:300px;height:200px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Overall Survival Months</legend>
+                <div id="ovs-hist" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Histology</legend>
+                <div id="hist-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Months</legend>
+                <div id="dfs-hist" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
@@ -379,10 +423,21 @@
         <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Grade</legend>
-                <div id="grade-pie" style="width:300px;height:200px;display:block;">
+                <div id="grade-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Stage</legend>
+                <div id="stage-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            
         </td>
     </tr>
     

@@ -145,6 +145,8 @@
             plotHistogram('dfs-hist',dt,headerMap['disease_free_survival_months'],[12,24,36,48,60],'Disease-free survival months');
             plotPieChart('gender-pie',dt,headerMap['gender']);
             plotPieChart('hist-pie',dt,headerMap['histology']);
+            plotPieChart('ovs-pie',dt,headerMap['overall_survival_status']);
+            plotPieChart('dfs-pie',dt,headerMap['disease_free_survival_status']);
             plotPieChart('stage-pie',dt,headerMap['2009stagegroup']);
             plotPieChart('grade-pie',dt,headerMap['tumor_grade']);
             
@@ -352,7 +354,7 @@
     <tr>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Age Distributions</legend>
+                <legend style="color:blue;font-weight:bold;">Age at Diagnosis</legend>
                 <div id="age-hist" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
@@ -404,8 +406,8 @@
         </td>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Histology</legend>
-                <div id="hist-pie" class="small-plot-div">
+                <legend style="color:blue;font-weight:bold;">Overall Survival Status</legend>
+                <div id="ovs-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
@@ -422,8 +424,8 @@
         </td>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Grade</legend>
-                <div id="grade-pie" class="small-plot-div">
+                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Status</legend>
+                <div id="dfs-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
@@ -437,7 +439,28 @@
             </fieldset>
         </td>
         <td>
-            
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Grade</legend>
+                <div id="grade-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Histology</legend>
+                <div id="hist-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+        <td>
         </td>
     </tr>
     

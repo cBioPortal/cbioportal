@@ -6,6 +6,7 @@ import org.mskcc.portal.util.SequenceCenterUtil;
 import org.mskcc.cgds.model.ExtendedMutation;
 
 import java.util.ArrayList;
+import org.mskcc.portal.util.SkinUtil;
 
 /**
  * Utility Class for Creating the Mutation Table.
@@ -49,7 +50,11 @@ public class MutationTableUtil {
         ArrayList <String> dataFieldList = new ArrayList<String>();
 
         //  Case ID.
-        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getCaseId()));
+        String caseId = HtmlUtil.getSafeWebValue(mutation.getCaseId());
+        String htmlCaseId = "<a href='"
+                + SkinUtil.getLinkToPatientView(caseId)
+                + "'>" + caseId + "</a>";
+        dataFieldList.add(htmlCaseId);
 
         //  Basic Mutation Info.
         dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationStatus(mutation)));

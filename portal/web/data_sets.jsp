@@ -9,10 +9,10 @@
 <%
    // i thought about putting these in db or CancerStudy class
    // but think its best to leave them here for now...
-   String pradMSKCCPublishedStudyLink = "<a href=\"http://www.cell.com/cancer-cell/fulltext/S1535-6108(10)00238-2\"><b>Prostate  Cancer</b> (MSKCC)</a>";
-   String sarcMSKCCPublishedStudyLink = "<a href=\"http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.619.html\"><b>Sarcoma</b> (MSKCC/Broad)</a>";
-   String gbmTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v455/n7216/full/nature07385.html\"><b>Glioblastoma</b> (TCGA)</a>";
-   String ovTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v474/n7353/full/nature10166.html\"><b>Ovarian Cancer</b> (TCGA)</a>";
+   String pradMSKCCPublishedStudyLink = "<a href=\"http://www.cell.com/cancer-cell/fulltext/S1535-6108(10)00238-2\">Ref</a>";
+   String sarcMSKCCPublishedStudyLink = "<a href=\"http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.619.html\">Ref</a>";
+   String gbmTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v455/n7216/full/nature07385.html\">Ref</a>";
+   String ovTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v474/n7353/full/nature10166.html\">Ref</a>";
 
    Config globalConfig = Config.getInstance();
    String dataSetsHtml = globalConfig.getProperty("data_sets");
@@ -72,19 +72,23 @@
 					 // cancer study name
 					 String stableID = stats.getStableID();
 					 String studyName = stats.getStudyName();
+                                         String htmlStudyName = "<a href='"
+                                                + SkinUtil.getLinkToCancerStudyView(stableID)
+                                                + "'>" + studyName + "</a>";
+                                         String reference = "";
 					 if (stableID.equals("prad_mskcc")) {
-						 studyName = pradMSKCCPublishedStudyLink;
+						 reference = pradMSKCCPublishedStudyLink;
 					 }
 					 else if (stableID.equals("sarc_mskcc")) {
-						 studyName = sarcMSKCCPublishedStudyLink;
+						 reference = sarcMSKCCPublishedStudyLink;
 					 }
 					 else if (stableID.equals("gbm_tcga")) {
-						 studyName = gbmTCGAPublishedStudyLink;
+						 reference = gbmTCGAPublishedStudyLink;
 					 }
 					 else if (stableID.equals("ov_tcga")) {
-						 studyName = ovTCGAPublishedStudyLink;
+						 reference = ovTCGAPublishedStudyLink;
 					 }
-					 out.println("<td style=\"text-align: left;\"><b>" + studyName + "</b></td>");
+					 out.println("<td style=\"text-align: left;\"><b>" + htmlStudyName + " " + reference + "</b></td>");
 					 // all
 					 out.println("<td style=\"text-align: center;\"><b>" + stats.getAll() + "</b></td>");
 					 // sequenced

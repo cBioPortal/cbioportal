@@ -157,13 +157,19 @@
             $(".mut-cna-axis-log").change(function() {
                 mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
             });
-              
+            
+            var divNum = 1;
             for (var i=1; i<dt.getNumberOfColumns(); i++) {
-                if (i!=colCna && i!=colMut)
-                    plotData(i,dt,i);
+                if (decideToPlot(dt,i))
+                    plotData(divNum++,dt,i);
             }
             
         }
+    }
+    
+    function decideToPlot(dt,col) {
+        var c = dt.getColumnLabel(col);
+        return c.toLowerCase().match(/(^age)|(survival)|(grade)|(stage)|(histology)/);
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

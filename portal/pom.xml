@@ -9,6 +9,32 @@
   <name>Maven Quick Start Archetype</name>
   <url>http://maven.apache.org</url>
 
+  <!-- profiles -->
+  <profiles>
+	<profile>
+	  <id>gdac</id>
+	  <properties>
+		<web.context.file>
+		  web-security.xml
+		</web.context.file>
+		<application.context.file>
+		  applicationContext-security.xml
+		</application.context.file>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>public</id>
+	  <properties>
+		<web.context.file>
+		  web.xml
+		</web.context.file>
+		<application.context.file>
+		  applicationContext-security-disabled.xml
+		</application.context.file>
+	  </properties>
+	</profile>
+  </profiles>
+
   <!-- properties -->
   <properties>
 	<spring.version>3.1.1.RELEASE</spring.version>
@@ -252,7 +278,7 @@
 	  <resource>
 		<directory>src/main/resources</directory>
 		<excludes>
-		  <exclude>ant/**</exclude>
+		  <exclude>build.properties.*</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
 		  <exclude>db/**</exclude>

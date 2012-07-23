@@ -84,8 +84,9 @@ MatrixDataTypeConverter.prototype = {
         return this.regex.test(str);
     },
     isBool: function (str) {
-        this.regex = new RegExp('^(true)|(false)|(y)|(n)$');
-        return this.regex.test(str.toLowerCase());
+        return false;
+        //this.regex = new RegExp('^(true)|(false)|(y)|(n)$');
+        //return this.regex.test(str.toLowerCase());
     },
     isColumnNA: function(col) {
         return this.colTypes[col] == null;

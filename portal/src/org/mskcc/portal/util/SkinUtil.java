@@ -208,4 +208,14 @@ public class SkinUtil {
         Config config = Config.getInstance();
         return config.getProperty("skin.data_sets_footer");
     }
+    
+    public static String getLinkToPatientView(String caseId) {
+        return "patient.do?" + org.mskcc.portal.servlet.PatientView.PATIENT_ID
+                + "=" + caseId;
+    }
+    
+    public static String getLinkToCancerStudyView(String cancerStudyId) {
+        return "study.do?" + org.mskcc.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+                + "=" + cancerStudyId;
+    }
 }

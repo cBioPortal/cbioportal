@@ -42,19 +42,19 @@ public class SimilarPatientsJSON extends HttpServlet {
         
         try {
             Map<String, Set<Long>> similarMutations;
-            if (strMutations==null) {
+            if (strMutations==null||strMutations.isEmpty()) {
                 similarMutations = Collections.emptyMap();
             } else {
                 similarMutations = DaoMutationEvent.getCasesWithMutations(strMutations);
                 similarMutations.remove(patient);
             }
             Map<String, Set<Long>> similarCnas;
-            if (strCna==null) {
+            if (strCna==null||strCna.isEmpty()) {
                 similarCnas = Collections.emptyMap();
             } else {
                 similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
+                similarCnas.remove(patient);
             }
-            similarCnas.remove(patient);
             
             export(table, similarMutations, similarCnas);
         } catch (DaoException ex) {
@@ -91,8 +91,13 @@ public class SimilarPatientsJSON extends HttpServlet {
         for (String patient : patients) {
             JSONArray row = new JSONArray();
             row.add(patient);
-            String cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
+            
+            String cancerStudy = "unknown";
+            try {
+                cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
                     DaoCase.getCase(patient).getCancerStudyId()).getName();
+            } catch (Exception e) {System.out.println(e);}
+            
             row.add(cancerStudy);
             int nEvents = 0;
             Map<String,Set<Long>> events = new HashMap<String,Set<Long>>(2);

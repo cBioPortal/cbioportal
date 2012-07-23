@@ -1,3 +1,4 @@
+<%@page import="org.mskcc.portal.util.SkinUtil"%>
 <%@ page import="org.mskcc.portal.model.GeneWithScore" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.mskcc.portal.util.ValueParser" %>
@@ -63,8 +64,8 @@
                     //  Output One Case per Row
                     for (String caseId : mergedCaseList) {
                         out.println("<tr>");
-                        out.println("<th bgcolor='#BBBBBB'><nobr><a href=\"patient.do?"
-                                    + org.mskcc.portal.servlet.PatientView.PATIENT_ID+"=" + caseId
+                        out.println("<th bgcolor='#BBBBBB'><nobr><a href=\""
+                                + SkinUtil.getLinkToPatientView(caseId)
                                 + "\">" + caseId + "</a>&nbsp;</nobr></th>");
                         int dataCounter=0;
                         for (GeneWithScore geneWithScore : geneWithScoreList) {

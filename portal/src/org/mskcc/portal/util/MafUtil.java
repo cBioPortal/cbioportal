@@ -144,21 +144,23 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
 	        	oncoDbSnpRsIndex = i;
-	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
-	        	tumorRefCountIndex = i;
-	        } else if(header.equalsIgnoreCase("t_alt_count")) { // TODO alternative header names?
-	        	tumorAltCountIndex = i;
-	        } else if(header.equalsIgnoreCase("i_t_ref_count")) { // TODO is it correct header name?
-	        	normalRefCountIndex= i;
-	        } else if(header.equalsIgnoreCase("i_t_alt_count")) { // TODO is it correct header name?
-	        	normalAltCountIndex = i;
 	        }
+            // TODO will be decided later...
+//	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
+//	        	tumorRefCountIndex = i;
+//	        } else if(header.equalsIgnoreCase("t_alt_count")) { // TODO alternative header names?
+//	        	tumorAltCountIndex = i;
+//	        } else if(header.equalsIgnoreCase("i_t_ref_count")) { // TODO is it correct header name?
+//	        	normalRefCountIndex= i;
+//	        } else if(header.equalsIgnoreCase("i_t_alt_count")) { // TODO is it correct header name?
+//	        	normalAltCountIndex = i;
+//	        }
         }
     }
     
     public MafRecord parseRecord(String line)
     {
-        String parts[] = line.split("\t"); // TODO line.split("\t", -1); ?
+        String parts[] = line.split("\t", -1);
         
         MafRecord record = new MafRecord();
         record.setCenter(getPartString(centerIndex, parts));

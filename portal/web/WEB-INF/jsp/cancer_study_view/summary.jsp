@@ -3,10 +3,25 @@
 <%@ page import="org.mskcc.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.portal.servlet.PatientView" %>
 
+<style type="text/css">
+.small-plot-div {
+    width:285px;
+    height:200px;
+    display:block;
+}
+.large-plot-div {
+    width:570px;
+    height:400px;
+    display:block;
+}
+
+</style>
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        $('#submit-patient-btn').attr("disabled", true);
         setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
@@ -24,6 +39,9 @@
         },
         fireSelection: function(caseId,source) {
             if (caseId == this.caseId) return;
+            $('#submit-patient-btn').attr("disabled", caseId==null);
+            $('#case-id-div').html(formatPatientLink(caseId));
+
             this.caseId = caseId;
             for (var listener in this.funcs) {
                 if (listener==source) continue;
@@ -49,7 +67,8 @@
         });
         caseSelect.change(function(e) {
             var caseId = $('#case-select  option:selected').attr('value');
-            csObs.fireSelection(caseId,'case-select')
+            if (caseId=="") caseId=null;
+            csObs.fireSelection(caseId,'case-select');
         });
     }
     
@@ -61,8 +80,9 @@
         $.get("webservice.do",
             params,
             function(data){
-                //$('#summary').html("<table><tr><td>"+data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/[\r\n]+/g,"</td></tr><tr><td>").replace(/\t/g,"</td><td>")+"</td></tr></table>");
-                var rows = data.replace(/^#[^\r\n]+[\r\n]+/g,"").replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1").match(/[^\r\n]+/g);
+                var rows = data.replace(/^#[^\r\n]+[\r\n]+/g,"")
+                        .replace(/\tNA([\t\r\n])/g,"\t$1").replace(/\tNA([\t\r\n])/g,"\t$1")
+                        .match(/[^\r\n]+/g);
                 var matrix = [];
                 for (var i=0; i<rows.length; i++) {
                     matrix.push(rows[i].split('\t'));
@@ -119,23 +139,41 @@
         if (dt) {
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
-            
-            plotAgeHistogram(dt,headerMap['age_at_diagnosis'],'age-hist');
-            plotPieChart(dt,headerMap['histology'],'hist-pie');
-            plotPieChart(dt,headerMap['2009stagegroup'],'stage-pie');
-            plotPieChart(dt,headerMap['tumor_grade'],'grade-pie');
+              
+            plotHistogram('age-hist',dt,headerMap['age_at_diagnosis'],[20,30,40,50,60,70,80],'Age at diagnosis');
+            plotHistogram('ovs-hist',dt,headerMap['overall_survival_months'],[12,24,36,48,60],'Overall survival months');
+            plotHistogram('dfs-hist',dt,headerMap['disease_free_survival_months'],[12,24,36,48,60],'Disease-free survival months');
+            plotPieChart('gender-pie',dt,headerMap['gender']);
+            plotPieChart('hist-pie',dt,headerMap['histology']);
+            plotPieChart('ovs-pie',dt,headerMap['overall_survival_status']);
+            plotPieChart('dfs-pie',dt,headerMap['disease_free_survival_status']);
+            plotPieChart('stage-pie',dt,headerMap['2009stagegroup']);
+            plotPieChart('grade-pie',dt,headerMap['tumor_grade']);
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
-            drawDataTable(dt,'clinical-data-table');
+            drawDataTable('clinical-data-table',dt);
             
             var colCna = headerMap['copy_number_altered_fraction'];
             var colMut = headerMap['mutation_count'];
-            plotMutVsCna(dt,colCna,colMut,caseMap,true,'scatter-plot');
+            plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,false,false);
+            
+            $('#mut-cna-config').show();
+            
+            $(".mut-cna-axis-log").change(function() {
+                mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
+            });
         }
     }
     
-    function drawDataTable(dt,divId) {
+    function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
+        var hLog = $('#mut-cna-haxis-log').is(":checked");
+        var vLog = $('#mut-cna-vaxis-log').is(":checked");
+        plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
+        csObs.fireSelection(null, 'scatter-plot');
+    }
+    
+    function drawDataTable(divId,dt) {
             var tableDataView = new google.visualization.DataView(dt);
             var table = new google.visualization.Table(document.getElementById(divId));
             var options = {
@@ -147,12 +185,14 @@
             table.draw(tableDataView,options);
     }
     
-    function plotMutVsCna(dt,colCna,colMut,caseMap,vLog,divId) {
+    function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
             var scatterDataView = new google.visualization.DataView(dt);
             scatterDataView.setColumns(
                 [colCna,
                  colMut,
-                 {calc:function(dt,row){return dt.getValue(row,0);},type:'string',role:'tooltip'}]);
+                 {calc:function(dt,row){
+                         return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
+                     },type:'string',role:'tooltip'}]);
             var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
             google.visualization.events.addListener(scatter, 'select', function(e){
                 var s = scatter.getSelection();
@@ -169,15 +209,15 @@
                 });
             });
             var options = {
-                hAxis: {title: "Copy number alteration fraction", format:'#%'},
+                hAxis: {title: "Copy number alteration fraction", logScale:hLog, format:'#%'},
                 vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
                 legend: {position:'none'}
             };
             scatter.draw(scatterDataView,options);
     }
-    
+
     function formatPatientLink(caseId) {
-        return '<a href="patient.do?<%=PatientView.PATIENT_ID%>='+caseId+'">'+caseId+'</a>'
+        return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?<%=PatientView.PATIENT_ID%>='+caseId+'">'+caseId+'</a>'
     }
     
     function mergeDataTables() {
@@ -230,26 +270,35 @@
         }
         return ix;
     }
-    
-    function plotAgeHistogram(dt,col,divId) {
-        var bins = [20,30,40,50,60,70,80];
+ 
+    function plotHistogram(divId,dt,col,bins,hAxisTitle) {
+        var div = document.getElementById(divId);
+        if (col==null) {
+            $(div).html("<font color='red'><b>No data<b></font>");
+            return;
+        }
         var hist = calcHistogram(dt,col,bins);
         var ageHistDTW = new DataTableWrapper();
         ageHistDTW.setDataMap(hist,['Age','# patients']);
-        var column = new google.visualization.ColumnChart(document.getElementById(divId));
+        var column = new google.visualization.ColumnChart(div);
         var options = {
-            hAxis: {title: 'Age at diagnosis'},
+            hAxis: {title: hAxisTitle},
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
         column.draw(ageHistDTW.dataTable,options);
     }
     
-    function plotPieChart(dt,col,divId) {
+    function plotPieChart(divId,dt,col) {
+        var div = document.getElementById(divId);
+        if (col==null) {
+            $(div).html("<font color='red'><b>No data<b></font>");
+            return;
+        }
         var hist = calcHistogram(dt,col);
         var histHistDTW = new DataTableWrapper();
         histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
-        var column = new google.visualization.PieChart(document.getElementById(divId));
+        var column = new google.visualization.PieChart(div);
         column.draw(histHistDTW.dataTable);
     }
     
@@ -305,30 +354,60 @@
     <tr>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Age Distributions</legend>
-                <div id="age-hist" style="width:300px;height:200px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Age at Diagnosis</legend>
+                <div id="age-hist" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
         </td>
         <td>
             <fieldset>
-                <legend style="color:blue;font-weight:bold;">Histology</legend>
-                <div id="hist-pie" style="width:300px;height:200px;display:block;">
+                <legend style="color:blue;font-weight:bold;">Gender</legend>
+                <div id="gender-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
         </td>
-        <td rowspan="2">
-            <fieldset>
-                <div>
+        <td rowspan="2" colspan="2">
+            <fieldset style="padding:0px 1px">
+                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
+                <div style="display:none">
                     <form name="input" action="patient.do" method="get">
                         <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
-                        <input type="submit" value="More About This Case" />
+                        <input type="submit" id="submit-patient-btn" value="More About This Case" />
                     </form>
                 </div>
-                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
-                <div id="scatter-plot" style="width:500px;height:410px;display:block;">
+                <div id="mut-cna-scatter-plot" class="large-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+                <table style="display:none;width:100%;" id="mut-cna-config">
+                    <tr width="100%">
+                            <td>
+                                H-Axis scale: <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
+                                <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-haxis-log"/>log<br/>
+                                V-Axis scale: <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
+                                <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-vaxis-log"/>log
+                            </td>
+                            <td id="case-id-div" align="right">
+                            </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Overall Survival Months</legend>
+                <div id="ovs-hist" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Overall Survival Status</legend>
+                <div id="ovs-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
@@ -337,8 +416,24 @@
     <tr>
         <td>
             <fieldset>
+                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Months</legend>
+                <div id="dfs-hist" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Status</legend>
+                <div id="dfs-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
                 <legend style="color:blue;font-weight:bold;">Stage</legend>
-                <div id="stage-pie" style="width:300px;height:200px;display:block;">
+                <div id="stage-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
@@ -346,10 +441,26 @@
         <td>
             <fieldset>
                 <legend style="color:blue;font-weight:bold;">Grade</legend>
-                <div id="grade-pie" style="width:300px;height:200px;display:block;">
+                <div id="grade-pie" class="small-plot-div">
                     <img src="images/ajax-loader.gif"/>
                 </div>
             </fieldset>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Histology</legend>
+                <div id="hist-pie" class="small-plot-div">
+                    <img src="images/ajax-loader.gif"/>
+                </div>
+            </fieldset>
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+        <td>
         </td>
     </tr>
     

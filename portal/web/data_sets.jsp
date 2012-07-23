@@ -9,10 +9,10 @@
 <%
    // i thought about putting these in db or CancerStudy class
    // but think its best to leave them here for now...
-   String pradMSKCCPublishedStudyLink = "<a href=\"http://www.cell.com/cancer-cell/fulltext/S1535-6108(10)00238-2\">Ref</a>";
-   String sarcMSKCCPublishedStudyLink = "<a href=\"http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.619.html\">Ref</a>";
-   String gbmTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v455/n7216/full/nature07385.html\">Ref</a>";
-   String ovTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v474/n7353/full/nature10166.html\">Ref</a>";
+   String pradMSKCCPublishedStudyLink = "<a href=\"http://www.cell.com/cancer-cell/fulltext/S1535-6108(10)00238-2\">Cancer Cell</a>";
+   String sarcMSKCCPublishedStudyLink = "<a href=\"http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.619.html\">Nature</a>";
+   String gbmTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v455/n7216/full/nature07385.html\">Nature</a>";
+   String ovTCGAPublishedStudyLink = "<a href=\"http://www.nature.com/nature/journal/v474/n7353/full/nature10166.html\">Nature</a>";
 
    Config globalConfig = Config.getInstance();
    String dataSetsHtml = globalConfig.getProperty("data_sets");
@@ -53,6 +53,7 @@
 				 out.println("<table>");
 				 out.println("<tr>");
 				 out.println("<th>CancerStudy</th>");
+				 out.println("<th>Ref.</th>");
 				 out.println("<th>All</th>");
 				 out.println("<th>Sequenced</th>");
 				 out.println("<th>aCGH</th>");
@@ -88,7 +89,8 @@
 					 else if (stableID.equals("ov_tcga")) {
 						 reference = ovTCGAPublishedStudyLink;
 					 }
-					 out.println("<td style=\"text-align: left;\"><b>" + htmlStudyName + " " + reference + "</b></td>");
+					 out.println("<td style=\"text-align: left;\"><b>" + htmlStudyName + "</b></td>");
+					 out.println("<td style=\"text-align: left;\"><b>" + reference + "</b></td>");
 					 // all
 					 out.println("<td style=\"text-align: center;\"><b>" + stats.getAll() + "</b></td>");
 					 // sequenced

@@ -140,15 +140,9 @@
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
               
-            plotHistogram('age-hist',dt,headerMap['age_at_diagnosis'],[20,30,40,50,60,70,80],'Age at diagnosis');
-            plotHistogram('ovs-hist',dt,headerMap['overall_survival_months'],[12,24,36,48,60],'Overall survival months');
-            plotHistogram('dfs-hist',dt,headerMap['disease_free_survival_months'],[12,24,36,48,60],'Disease-free survival months');
-            plotPieChart('gender-pie',dt,headerMap['gender']);
-            plotPieChart('hist-pie',dt,headerMap['histology']);
-            plotPieChart('ovs-pie',dt,headerMap['overall_survival_status']);
-            plotPieChart('dfs-pie',dt,headerMap['disease_free_survival_status']);
-            plotPieChart('stage-pie',dt,headerMap['2009stagegroup']);
-            plotPieChart('grade-pie',dt,headerMap['tumor_grade']);
+            for (var i=1; i<dt.getNumberOfColumns(); i++) {
+                plotData(i,dt,i);
+            }
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
@@ -270,31 +264,21 @@
         }
         return ix;
     }
- 
-    function plotHistogram(divId,dt,col,bins,hAxisTitle) {
-        var div = document.getElementById(divId);
-        if (col==null) {
-            $(div).html("<font color='red'><b>No data<b></font>");
-            return;
-        }
+    
+    function plotHistogram(div,dt,col,bins) {
         var hist = calcHistogram(dt,col,bins);
         var ageHistDTW = new DataTableWrapper();
-        ageHistDTW.setDataMap(hist,['Age','# patients']);
+        ageHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
         var column = new google.visualization.ColumnChart(div);
         var options = {
-            hAxis: {title: hAxisTitle},
+            hAxis: {title: dt.getColumnLabel(col)},
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
         column.draw(ageHistDTW.dataTable,options);
     }
     
-    function plotPieChart(divId,dt,col) {
-        var div = document.getElementById(divId);
-        if (col==null) {
-            $(div).html("<font color='red'><b>No data<b></font>");
-            return;
-        }
+    function plotPieChart(div,dt,col) {
         var hist = calcHistogram(dt,col);
         var histHistDTW = new DataTableWrapper();
         histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
@@ -309,10 +293,11 @@
         if (t=="number") {
             if (bins==null) bins = 10;
             if ((typeof bins)==(typeof 1)) {
-                var r = getColumnRange(col);
+                var r = dt.getColumnRange(col);
                 var step = (r.max-r.min)/(bins-1);
+                var n = bins;
                 bins = [];
-                for (var i=0; i<bins-1; i++) {
+                for (var i=0; i<n-1; i++) {
                     bins.push(r.min+i*step);
                 }
             }
@@ -348,26 +333,58 @@
         }
         return hist;
     }
+    
+    function plotData(divNum,dt,col) {
+        var c = dt.getColumnLabel(col);
+        var div = getSmallPlotDiv(divNum,c);
+        var t = dt.getColumnType(col);
+        if (t=='string') {
+            plotPieChart(div,dt,col)
+        } else if (t=='number') {
+            plotHistogram(div,dt,col,getBins(dt,col));
+        }
+    }
+    
+    function getBins(dt,col) {
+        var c = dt.getColumnLabel(col);
+        if (c=='age_at_diagnosis') {
+            return [20,30,40,50,60,70,80];
+        }
+        if (c.match(/_months$/)) {
+            return [12,24,36,48,60];
+        }
+        return null;
+    }
+    
+    function getSmallPlotDiv(divNum,legend) {
+        var div = document.getElementById('small-plot-div-'+divNum);
+        if (div!=null) return div;
+        
+        var td = $('#small-plot-td-'+divNum);
+        if (td.length==0) {
+            var irow = Math.ceil(divNum/4);
+            if (divNum%4==1) {
+                $('#summary-plot-table').append('<tr id="small-plot-tr-'+irow+'"><tr>');
+                $('#small-plot-tr-'+irow).html('<td id="small-plot-td-'+divNum+'"></td>');
+            } else {
+                $('#small-plot-tr-'+irow).append('<td id="small-plot-td-'+divNum+'"></td>');
+            }
+            td = $('#small-plot-td-'+divNum);
+        }
+        
+        td.html('<fieldset>'
+                +'<legend style="color:blue;font-weight:bold;">'+legend+'</legend>'
+                +'<div class="small-plot-div" id="small-plot-div-'+divNum+'">'
+                +'</div>'
+                + '</fieldset>');
+        return document.getElementById('small-plot-div-'+divNum);
+    }
 </script>
 
-<table>
+<table id="summary-plot-table">
     <tr>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Age at Diagnosis</legend>
-                <div id="age-hist" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Gender</legend>
-                <div id="gender-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
+        <td id="small-plot-td-1"></td>
+        <td id="small-plot-td-2"></td>
         <td rowspan="2" colspan="2">
             <fieldset style="padding:0px 1px">
                 <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
@@ -396,72 +413,8 @@
         </td>
     </tr>
     <tr>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Overall Survival Months</legend>
-                <div id="ovs-hist" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Overall Survival Status</legend>
-                <div id="ovs-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Months</legend>
-                <div id="dfs-hist" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Disease-Free Survival Status</legend>
-                <div id="dfs-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Stage</legend>
-                <div id="stage-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Grade</legend>
-                <div id="grade-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <fieldset>
-                <legend style="color:blue;font-weight:bold;">Histology</legend>
-                <div id="hist-pie" class="small-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-            </fieldset>
-        </td>
-        <td>
-        </td>
-        <td>
-        </td>
-        <td>
-        </td>
+        <td id="small-plot-td-3"></td>
+        <td id="small-plot-td-4"></td>
     </tr>
     
 </table>

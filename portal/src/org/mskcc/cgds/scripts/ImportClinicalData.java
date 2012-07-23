@@ -126,6 +126,7 @@ public class ImportClinicalData {
         caseIdNames.add("CASE_ID");
         caseIdNames.add("patient");
         caseIdNames.add("ID");
+        caseIdNames.add("tcga_id");
 
         HashSet<String> osStatusNames = new HashSet<String>();
         osStatusNames.add("VITALSTATUS");

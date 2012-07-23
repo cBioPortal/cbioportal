@@ -141,6 +141,9 @@
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
             
+            $('#clinical-data-loading-wait').hide();
+            $('#summary-plot-table').show();
+            
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
             drawDataTable('clinical-data-table',dt);
@@ -160,8 +163,6 @@
                     plotData(i,dt,i);
             }
             
-            $('#clinical-data-loading-wait').hide();
-            $('#summary-plot-table').show();
         }
     }
     

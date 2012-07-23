@@ -21,6 +21,7 @@
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        $('#summary-plot-table').hide();
         $('#submit-patient-btn').attr("disabled", true);
         setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
@@ -158,6 +159,9 @@
                 if (i!=colCna && i!=colMut)
                     plotData(i,dt,i);
             }
+            
+            $('#clinical-data-loading-wait').hide();
+            $('#summary-plot-table').show();
         }
     }
     
@@ -381,6 +385,10 @@
         return document.getElementById('small-plot-div-'+divNum);
     }
 </script>
+
+<div id="clinical-data-loading-wait">
+    <img src="images/ajax-loader.gif"/>
+</div>
 
 <table id="summary-plot-table">
     <tr>

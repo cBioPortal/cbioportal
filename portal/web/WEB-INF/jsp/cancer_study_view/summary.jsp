@@ -139,10 +139,6 @@
         if (dt) {
             var headerMap = getHeaderMap(dt);
             var caseMap = getCaseMap(dt);
-              
-            for (var i=1; i<dt.getNumberOfColumns(); i++) {
-                plotData(i,dt,i);
-            }
             
             var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
             formatter.format(dt, [0]);
@@ -157,6 +153,11 @@
             $(".mut-cna-axis-log").change(function() {
                 mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
             });
+              
+            for (var i=1; i<dt.getNumberOfColumns(); i++) {
+                if (i!=colCna && i!=colMut)
+                    plotData(i,dt,i);
+            }
         }
     }
     

@@ -14,23 +14,17 @@
 	<profile>
 	  <id>gdac</id>
 	  <properties>
-		<web.context.file>
-		  web-security.xml
-		</web.context.file>
-		<application.context.file>
-		  applicationContext-security.xml
-		</application.context.file>
+		<security-enabled>
+		  true
+		</security-enabled>
 	  </properties>
 	</profile>
 	<profile>
 	  <id>public</id>
 	  <properties>
-		<web.context.file>
-		  web.xml
-		</web.context.file>
-		<application.context.file>
-		  applicationContext-security-disabled.xml
-		</application.context.file>
+		<security-enabled>
+		  false
+		</security-enabled>
 	  </properties>
 	</profile>
   </profiles>
@@ -271,6 +265,39 @@
 		  </systemProperties>
 		</configuration>
 	  </plugin>
+
+	  <!-- exec config -->
+	  <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>exec-maven-plugin</artifactId>
+		<version>1.2.1</version>
+		<executions>
+		  <execution>
+			<id>clean</id>
+			<phase>clean</phase>
+			<goals>
+			  <goal>exec</goal>
+			</goals>
+			<configuration>
+			  <executable>src/main/config/clean-security-files.sh</executable>
+			</configuration>
+		  </execution>
+		  <execution>
+			<id>compile</id>
+			<phase>compile</phase>
+			<goals>
+			  <goal>exec</goal>
+			</goals>
+			<configuration>
+			  <executable>src/main/config/setup-security-files.sh</executable>
+			  <arguments>
+				<argument>${security-enabled}</argument>
+			  </arguments>
+			</configuration>
+		  </execution>
+		</executions>
+	  </plugin>
+
 	</plugins>
 
 	<!-- prevent some resources from getting into war -->
@@ -283,6 +310,7 @@
 		  <exclude>content/**</exclude>
 		  <exclude>db/**</exclude>
 		  <exclude>sample_data/**</exclude>
+		  <exclude>security_config/**</exclude>
 		  <exclude>tutorials/**</exclude>
 		</excludes>
 	  </resource>

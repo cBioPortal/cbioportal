@@ -169,7 +169,7 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna(dt,colCna,colMut,caseMap,hLog,vLog,'mut-cna-scatter-plot');
+        plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
         csObs.fireSelection(null, 'scatter-plot');
     }
     

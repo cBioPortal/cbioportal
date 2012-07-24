@@ -210,8 +210,6 @@
             google.visualization.events.addListener(scatter, 'ready', function(e){
                 csObs.subscribe('scatter-plot',function(caseId) {
                     var ix = caseMap[caseId];
-                    // this is not working due to a google bug
-                    // http://goo.gl/dXvDN
                     scatter.setSelection(ix==null?null:[{'row': ix}]);
                 });
             });
@@ -286,18 +284,30 @@
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
-        
-        column.draw(google.visualization.arrayToDataTable(hist),options);
+        google.visualization.events.addListener(column, 'ready', function(e){
+            csObs.subscribe(div.id,function(caseId) {
+                var ix = hist[1][caseId];
+                column.setSelection(ix==null?null:[{'row': ix}]);
+            });
+        });
+        column.draw(google.visualization.arrayToDataTable(hist[0]),options);
     }
     
     function plotPieChart(div,dt,col) {
         var hist = calcHistogram(dt,col);
         var column = new google.visualization.PieChart(div);
-        column.draw(google.visualization.arrayToDataTable(hist));
+        google.visualization.events.addListener(column, 'ready', function(e){
+            csObs.subscribe(div.id,function(caseId) {
+                var ix = hist[1][caseId];
+                column.setSelection(ix==null?null:[{'row': ix}]);
+            });
+        });
+        column.draw(google.visualization.arrayToDataTable(hist[0]));
     }
     
     function calcHistogram(dt,col,bins) {
         var hist = [[dt.getColumnLabel(col),'# patients']];
+        var caseIdHistMap = {};
         var rows = dt.getNumberOfRows();
         var t = dt.getColumnType(col);
         if (t=="number") {
@@ -326,6 +336,7 @@
                     else {low = i + 1;}
                 }
                 count[low] = count[low]+1;
+                caseIdHistMap[dt.getValue(r,0)]=low;
             }
             
             hist.push(['<='+bins[0],count[0]]);
@@ -338,14 +349,20 @@
             var count = {};
             for (var r=0; r<rows; r++) {
                 var v = dt.getValue(r,col);
-                if(v!=null)
-                    count[v] = count[v] ? count[v]+1 : 1;
+                if (v==null) continue;
+                if(count[v]==null) count[v] = [];
+                count[v].push(dt.getValue(r,0));
             }
+            var row=0;
             for (var key in count) {
-                hist.push([key,count[key]]);
+                var c = count[key];
+                hist.push([key,c.length]);
+                for (var i=0; i<c.length; i++)
+                    caseIdHistMap[c[i]]=row;
+                row++;
             }
         }
-        return hist;
+        return [hist,caseIdHistMap];
     }
     
     function plotData(divNum,dt,col) {

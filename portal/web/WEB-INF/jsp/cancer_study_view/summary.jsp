@@ -54,7 +54,7 @@
     };
     var csObs = new CaseSelectObserver();
     
-    function nrKeys(a) {
+    function nrKeysAssociativeArrays(a) {
         var i = 0;
         for (var key in a) i++;
         return i;
@@ -62,7 +62,7 @@
     function compareAssociativeArrays(a, b) {
         if (a == b) return true;
         if ((typeof a)!=(typeof {})||(typeof b)!=(typeof {})) return false;
-        if (nrKeys(a) != nrKeys(b)) return false;
+        if (nrKeysAssociativeArrays(a) != nrKeysAssociativeArrays(b)) return false;
         for (var key in a) {     
             if (a[key] != b[key]) {
                 return false;
@@ -327,6 +327,7 @@
         var histCaseIdMap = {};
         var rows = dt.getNumberOfRows();
         var t = dt.getColumnType(col);
+        var filter = caseIdsFilter!=null && nrKeysAssociativeArrays(caseIdsFilter)>0;
         if (t=="number") {
             if (bins==null) bins = 10;
             if ((typeof bins)==(typeof 1)) {
@@ -346,7 +347,7 @@
             
             for (var r=0; r<rows; r++) {
                 var caseId = dt.getValue(r,0);
-                if (caseIdsFilter!=null && !caseIdsFilter[caseId]) continue;
+                if (filter && !caseIdsFilter[caseId]) continue;
                 var v = dt.getValue(r,col);
                 if (v==null) continue;
                 var i=0;
@@ -370,7 +371,7 @@
             var count = {};
             for (var r=0; r<rows; r++) {
                 var caseId = dt.getValue(r,0);
-                if (caseIdsFilter!=null && !caseIdsFilter[caseId]) continue;
+                if (filter && !caseIdsFilter[caseId]) continue;
                 var v = dt.getValue(r,col);
                 if (v==null) continue;
                 if(count[v]==null) count[v] = [];
@@ -418,7 +419,9 @@
         });
         google.visualization.events.addListener(chart, 'ready', function(e){
             csObs.subscribe(div.id,function(caseId) {
-                if ((typeof caseId)==(typeof '')) {
+                if (caseId==null) {
+                    chart.setSelection();
+                } else if ((typeof caseId)==(typeof '')) {
                     var ix = hist[1][caseId];
                     chart.setSelection(ix==null?null:[{'row': ix}]);
                 } else if ((typeof caseId)==(typeof {})) {

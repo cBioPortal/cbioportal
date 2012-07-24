@@ -280,27 +280,24 @@
     
     function plotHistogram(div,dt,col,bins) {
         var hist = calcHistogram(dt,col,bins);
-        var ageHistDTW = new DataTableWrapper();
-        ageHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
         var column = new google.visualization.ColumnChart(div);
         var options = {
             hAxis: {title: dt.getColumnLabel(col)},
             vAxis: {title: '# of Patients'},
             legend: {position: 'none'}
         }
-        column.draw(ageHistDTW.dataTable,options);
+        
+        column.draw(google.visualization.arrayToDataTable(hist),options);
     }
     
     function plotPieChart(div,dt,col) {
         var hist = calcHistogram(dt,col);
-        var histHistDTW = new DataTableWrapper();
-        histHistDTW.setDataMap(hist,[dt.getColumnLabel(col),'# patients']);
         var column = new google.visualization.PieChart(div);
-        column.draw(histHistDTW.dataTable);
+        column.draw(google.visualization.arrayToDataTable(hist));
     }
     
     function calcHistogram(dt,col,bins) {
-        var hist = {};
+        var hist = [[dt.getColumnLabel(col),'# patients']];
         var rows = dt.getNumberOfRows();
         var t = dt.getColumnType(col);
         if (t=="number") {
@@ -331,17 +328,21 @@
                 count[low] = count[low]+1;
             }
             
-            hist['<='+bins[0]] = count[0];
+            hist.push(['<='+bins[0],count[0]]);
             var i=1;
             for (; i<bins.length; i++) {
-                hist[bins[i-1]+'~'+bins[i]] = count[i];
+                hist.push([bins[i-1]+'~'+bins[i],count[i]]);
             }
-            hist['>'+bins[bins.length-1]] = count[i];
+            hist.push(['>'+bins[bins.length-1],count[i]]);
         } else {
+            var count = {};
             for (var r=0; r<rows; r++) {
                 var v = dt.getValue(r,col);
                 if(v!=null)
-                    hist[v] = hist[v] ? hist[v]+1 : 1;
+                    count[v] = count[v] ? count[v]+1 : 1;
+            }
+            for (var key in count) {
+                hist.push([key,count[key]]);
             }
         }
         return hist;

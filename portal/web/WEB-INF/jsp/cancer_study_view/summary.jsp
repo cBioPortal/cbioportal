@@ -27,6 +27,7 @@
         loadClinicalData(caseSetId);
         loadMutationCount(mutationProfileId,caseIds);
         loadCnaFraction(caseIds);
+        csObs.fireSelection(getRefererCaseId(),null);
     });
     
     function CaseSelectObserver() {
@@ -211,7 +212,7 @@
                     var ix = caseMap[caseId];
                     // this is not working due to a google bug
                     // http://goo.gl/dXvDN
-                    scatter.setSelection(ix==null?null:[ix]);
+                    scatter.setSelection(ix==null?null:[{'row': ix}]);
                 });
             });
             var options = {

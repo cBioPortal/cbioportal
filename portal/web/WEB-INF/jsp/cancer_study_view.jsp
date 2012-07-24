@@ -1,6 +1,7 @@
 <%@page import="org.json.simple.JSONValue"%>
 <%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.portal.servlet.CancerStudyView" %>
+<%@ page import="org.mskcc.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.portal.util.SkinUtil" %>
@@ -141,6 +142,11 @@ function switchToTab(toTab) {
     $('.study-section').hide();
     $('.study-section#'+toTab).show();
     $('#study-tabs').tabs('select',$('#study-tabs ul a[href="#'+toTab+'"]').parent().index());
+}
+
+function getRefererCaseId() {
+    var match = /<%=PatientView.PATIENT_ID%>=([^&]+)/.exec(document.referrer);
+    return match ? match[1] : null;
 }
 
 </script>

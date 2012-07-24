@@ -5,12 +5,12 @@
 
 <style type="text/css">
 .small-plot-div {
-    width:285px;
+    width:270px;
     height:200px;
     display:block;
 }
 .large-plot-div {
-    width:570px;
+    width:540px;
     height:400px;
     display:block;
 }
@@ -329,14 +329,13 @@
             
             for (var r=0; r<rows; r++) {
                 var v = dt.getValue(r,col);
-                var low = 0, high = bins.length, i;
-                while (low <= high) {
-                    i = Math.floor((low + high) / 2); 
-                    if (bins[i] >= v)  {high = i - 1;}
-                    else {low = i + 1;}
+                if (v==null) continue;
+                var i=0;
+                for (; i<bins.length; i++) {
+                    if (bins[i]>=v) break;
                 }
-                count[low] = count[low]+1;
-                caseIdHistMap[dt.getValue(r,0)]=low;
+                count[i] = count[i]+1;
+                caseIdHistMap[dt.getValue(r,0)]=i;
             }
             
             hist.push(['<='+bins[0],count[0]]);
@@ -382,7 +381,7 @@
             return [20,30,40,50,60,70,80];
         }
         if (c.match(/_months$/)) {
-            return [12,24,36,48,60];
+            return [12,24,36,48,60,72,84,96];
         }
         return null;
     }

@@ -14,17 +14,25 @@
 	<profile>
 	  <id>gdac</id>
 	  <properties>
-		<security-enabled>
-		  true
-		</security-enabled>
+		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
+		<final-war-name>gdac-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>su2c</id>
+	  <properties>
+		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
+		<final-war-name>su2c-portal</final-war-name>
 	  </properties>
 	</profile>
 	<profile>
 	  <id>public</id>
 	  <properties>
-		<security-enabled>
-		  false
-		</security-enabled>
+		<web-xml-file>src/main/config/security_disabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>src/main/config/security_disabled_config</application-context-security-xml-dir>
+		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
   </profiles>
@@ -237,6 +245,9 @@
 
   <build>
 
+	<!-- final name of the app -->
+	<finalName>${final-war-name}</finalName>
+
 	<!-- plugins -->
 	<plugins>
 
@@ -255,6 +266,7 @@
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-surefire-plugin</artifactId>
+		<version>2.12</version>
 		<configuration>
 		  <testFailureIgnore>false</testFailureIgnore>
 		  <systemProperties>
@@ -266,51 +278,45 @@
 		</configuration>
 	  </plugin>
 
-	  <!-- exec config -->
-	  <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>exec-maven-plugin</artifactId>
-		<version>1.2.1</version>
-		<executions>
-		  <execution>
-			<id>clean</id>
-			<phase>clean</phase>
-			<goals>
-			  <goal>exec</goal>
-			</goals>
-			<configuration>
-			  <executable>src/main/config/clean-security-files.sh</executable>
-			</configuration>
-		  </execution>
-		  <execution>
-			<id>compile</id>
-			<phase>compile</phase>
-			<goals>
-			  <goal>exec</goal>
-			</goals>
-			<configuration>
-			  <executable>src/main/config/setup-security-files.sh</executable>
-			  <arguments>
-				<argument>${security-enabled}</argument>
-			  </arguments>
-			</configuration>
-		  </execution>
-		</executions>
+	  <!-- war plugin config -->
+	  <plugin>            
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-war-plugin</artifactId>
+		<version>2.2</version>
+		<configuration>
+		  <webXml>${web-xml-file}</webXml>
+		  <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+		  <webResources>
+			<resource>
+			  <directory>${application-context-security-xml-dir}</directory>
+			  <targetPath>WEB-INF/classes</targetPath>
+			  <filtering>true</filtering>
+			  <excludes>
+				<exclude>**/web.xml</exclude>
+			  </excludes>
+			</resource>
+		  </webResources>
+		</configuration>
 	  </plugin>
 
 	</plugins>
+
+	<!-- properties file used for filter - use build.properties -->
+	<filters>
+	  <filter>src/main/resources/build.properties</filter>
+	</filters>
 
 	<!-- prevent some resources from getting into war -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
+		<filtering>true</filtering>
 		<excludes>
 		  <exclude>build.properties.*</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
 		  <exclude>db/**</exclude>
 		  <exclude>sample_data/**</exclude>
-		  <exclude>security_config/**</exclude>
 		  <exclude>tutorials/**</exclude>
 		</excludes>
 	  </resource>

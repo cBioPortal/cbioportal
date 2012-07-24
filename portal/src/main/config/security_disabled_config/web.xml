@@ -5,61 +5,63 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
     <display-name>Cancer Genomics Portal</display-name>
+    <display-name>Apache-Axis</display-name>
 
-	<!-- SPRING SECURITY SETTINGS START -->
+    <!-- SPRING SECURITY SETTINGS START -->
 
     <!--
       - Location of the XML file that defines the root application context
-      - Applied by ContextLoaderListener.
+      - Applied by ContextLoaderListener.  We read this in to disable method security.
 	-->
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/classes/applicationContext-security.xml
-        </param-value>
+		  /WEB-INF/classes/applicationContext-security.xml
+		</param-value>
 	</context-param>
+    <servlet>
+        <display-name>Apache-Axis Servlet</display-name>
+        <servlet-name>AxisServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <display-name>Axis Admin Servlet</display-name>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>SOAPMonitorService</display-name>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <servlet-class>org.apache.axis.monitor.SOAPMonitorService</servlet-class>
+        <init-param>
+            <param-name>SOAPMonitorPort</param-name>
+            <param-value>5101</param-value>
+        </init-param>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/servlet/AxisServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>*.jws</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <url-pattern>/SOAPMonitor</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/servlet/AdminServlet</url-pattern>
+    </servlet-mapping>
 
-    <context-param>
-        <param-name>webAppRootKey</param-name>
-        <param-value>openid.root</param-value>
-    </context-param>
-
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-
-    <filter-mapping>
-      <filter-name>springSecurityFilterChain</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>FileUpload</filter-name>
-        <display-name>File Upload</display-name>
-        <description>
-            Applied to file upload requests.
-            Wraps the request, allowing it to be used as a regular request, 
-            'as if' it were parsed by the Servlet API.
-        </description>
-        <filter-class>org.mskcc.portal.util.FileUploadFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>FileUpload</filter-name>
-        <url-pattern>/oncoprint_converter.svg</url-pattern>
-    </filter-mapping>
-
-    <!--
-      - Loads the root application context of this web app at startup.
-      - The application context is then available via
-      - WebApplicationContextUtils.getWebApplicationContext(servletContext).
-	-->
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-
-	<!-- SPRING SECURITY SETTINGS END -->
+    <!-- SPRING SECURITY SETTINGS END -->
 
 	<!--
 	  - timeout after 12 hrs (default is 30 min)
@@ -67,17 +69,17 @@
 	<session-config>
 	  <session-timeout>720</session-timeout>
 	</session-config>
+    <mime-mapping>
+        <extension>wsdl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>
         <init-param>
-            <param-name>cgds_url</param-name>
-            <param-value>cgds_url_value</param-value>
-        </init-param>
-        <init-param>
             <param-name>pathway_commons_url</param-name>
-            <param-value>pathway_commons_url_value</param-value>
+            <param-value>${pathway_commons.url}</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -87,21 +89,21 @@
         <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
         <init-param>
             <param-name>db_host</param-name>
-            <param-value>db_host__value</param-value>
+            <param-value>${db.host}</param-value>
         </init-param>
          <init-param>
             <param-name>db_name</param-name>
-            <param-value>db_name__value</param-value>
+            <param-value>${db.name}</param-value>
         </init-param>
         <init-param>
             <param-name>db_user</param-name>
-            <param-value>db_user__value</param-value>
+            <param-value>${db.user}</param-value>
         </init-param>
         <init-param>
             <param-name>db_password</param-name>
-            <param-value>db_password__value</param-value>
+            <param-value>${db.password}</param-value>
         </init-param>
-        <load-on-startup/>
+        <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet>
@@ -117,21 +119,6 @@
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.PortalMetaDataJSON</servlet-class>
-    </servlet>
-    
-    <servlet>
-    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
-    </servlet>
-    
-    <servlet>
-    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.ClinicalFreeFormJSON</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>MutSigJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.MutSigJSON</servlet-class>
     </servlet>
 
     <servlet>
@@ -154,7 +141,7 @@
         <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
             <param-name>r_installed</param-name>
-            <param-value>r_installed_value</param-value>
+            <param-value>${r_installed}</param-value>
         </init-param>
     </servlet>
 
@@ -179,6 +166,16 @@
     </servlet>
 
     <servlet>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+    </servlet>
+    
+    <servlet>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.ClinicalFreeFormJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>oma_redirect</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
     </servlet>
@@ -186,7 +183,7 @@
     <servlet>
         <servlet-name>link_out</servlet-name>
         <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
-    </servlet>    
+    </servlet>
 
     <servlet>
         <servlet-name>mutation_diagram_data_json</servlet-name>
@@ -203,14 +200,19 @@
         <servlet-class>org.mskcc.portal.servlet.CrossCancerHistogramConverter</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>MutSigJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.MutSigJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>GisticJSON</servlet-name>
+        <servlet-class>org.mskcc.portal.servlet.GisticJSON</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>oma_redirect</servlet-name>
-        <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -294,41 +296,79 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>oma_redirect</servlet-name>
+        <url-pattern>/omaRedirect.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
     </servlet-mapping>
-    
-    <servlet-mapping>
-    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
-        <url-pattern>/CheckGeneSymbol.json</url-pattern>
-    </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>MutSigJSON</servlet-name>
-        <url-pattern>/MutSig.json</url-pattern>
-    </servlet-mapping>
-
-	<servlet-mapping>
-    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
-        <url-pattern>/ClinicalFreeForm.json</url-pattern>
-    </servlet-mapping>
-    
     <servlet-mapping>
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
 
      <servlet-mapping>
-        <servlet-name>histogram_converter</servlet-name>
-        <url-pattern>/histogram_converter.svg</url-pattern>
-    </servlet-mapping>   
-     
+        <servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <url-pattern>/CheckGeneSymbol.json</url-pattern>
+    </servlet-mapping>
+	
      <servlet-mapping>
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
      </servlet-mapping>   
      
+     <servlet-mapping>
+        <servlet-name>histogram_converter</servlet-name>
+        <url-pattern>/histogram_converter.svg</url-pattern>
+    </servlet-mapping>   
+
+    <servlet-mapping>
+        <servlet-name>MutSigJSON</servlet-name>
+        <url-pattern>/MutSig.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GisticJSON</servlet-name>
+        <url-pattern>/Gistic.json</url-pattern>
+    </servlet-mapping>
+    
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>
+
+    <filter>
+        <filter-name>FileUpload</filter-name>
+        <display-name>File Upload</display-name>
+        <description>
+            Applied to file upload requests.
+            Wraps the request, allowing it to be used as a regular request, 
+            'as if' it were parsed by the Servlet API.
+        </description>
+        <filter-class>org.mskcc.portal.util.FileUploadFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+    </filter-mapping>
+
+    <!-- Required by the Apache FileUpload tool. -->
+    <listener>
+        <listener-class>
+            org.apache.commons.fileupload.servlet.FileCleanerCleanup
+        </listener-class>
+    </listener>
 </web-app>

@@ -127,9 +127,9 @@
 -->
    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
      <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-     <b:property name="url" value="jdbc:mysql://db_host_value/db_name_value"/>
-     <b:property name="username" value="db_user_value"/>
-     <b:property name="password" value="db_password_value"/>
+     <b:property name="url" value="jdbc:mysql://${db.host}/${db.name}"/>
+     <b:property name="username" value="${db.user}"/>
+     <b:property name="password" value="${db.password}"/>
    </b:bean>
 
 <!-- 

@@ -176,8 +176,9 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
-        csObs.fireSelection(null, 'scatter-plot');
+        var scatter = plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
+        var ix = caseMap[csObs.caseId];
+        scatter.setSelection(ix==null?null:[{'row': ix}]);
     }
     
     function drawDataTable(divId,dt) {
@@ -219,6 +220,7 @@
                 legend: {position:'none'}
             };
             scatter.draw(scatterDataView,options);
+            return scatter;
     }
 
     function formatPatientLink(caseId) {
@@ -274,35 +276,6 @@
             ix.push(i);
         }
         return ix;
-    }
-    
-    function plotHistogram(div,dt,col,bins) {
-        var hist = calcHistogram(dt,col,bins);
-        var column = new google.visualization.ColumnChart(div);
-        var options = {
-            hAxis: {title: dt.getColumnLabel(col)},
-            vAxis: {title: '# of Patients'},
-            legend: {position: 'none'}
-        }
-        google.visualization.events.addListener(column, 'ready', function(e){
-            csObs.subscribe(div.id,function(caseId) {
-                var ix = hist[1][caseId];
-                column.setSelection(ix==null?null:[{'row': ix}]);
-            });
-        });
-        column.draw(google.visualization.arrayToDataTable(hist[0]),options);
-    }
-    
-    function plotPieChart(div,dt,col) {
-        var hist = calcHistogram(dt,col);
-        var column = new google.visualization.PieChart(div);
-        google.visualization.events.addListener(column, 'ready', function(e){
-            csObs.subscribe(div.id,function(caseId) {
-                var ix = hist[1][caseId];
-                column.setSelection(ix==null?null:[{'row': ix}]);
-            });
-        });
-        column.draw(google.visualization.arrayToDataTable(hist[0]));
     }
     
     function calcHistogram(dt,col,bins) {
@@ -368,11 +341,25 @@
         var c = dt.getColumnLabel(col);
         var div = getSmallPlotDiv(divNum,c);
         var t = dt.getColumnType(col);
-        if (t=='string') {
-            plotPieChart(div,dt,col)
-        } else if (t=='number') {
-            plotHistogram(div,dt,col,getBins(dt,col));
-        }
+        var hist = calcHistogram(dt,col,getBins(dt,col));
+        var columnChart = t=='number';
+        var chart = columnChart ? 
+            new google.visualization.ColumnChart(div) :
+            new google.visualization.PieChart(div);
+        var options = !columnChart ? {} : 
+            {
+                hAxis: {title: dt.getColumnLabel(col)},
+                vAxis: {title: '# of Patients'},
+                legend: {position: 'none'}
+            };
+        google.visualization.events.addListener(chart, 'ready', function(e){
+            csObs.subscribe(div.id,function(caseId) {
+                var ix = hist[1][caseId];
+                chart.setSelection(ix==null?null:[{'row': ix}]);
+            });
+        });
+        chart.draw(google.visualization.arrayToDataTable(hist[0]),options);
+        return chart;
     }
     
     function getBins(dt,col) {

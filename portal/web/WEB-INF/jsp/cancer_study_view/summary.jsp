@@ -40,12 +40,13 @@
             if (fire)
                 func.call(window,this.caseId);
         },
-        fireSelection: function(caseId,source) {
-            if (compareAssociativeArrays(caseId,this.caseId)) return;
+        fireSelection: function(caseId,source,targets,forceFire) {
+            if (!forceFire&&compareAssociativeArrays(caseId,this.caseId)) return;
             //$('#submit-patient-btn').attr("disabled", caseId==null);
 
             this.caseId = caseId;
             for (var listener in this.funcs) {
+                if (targets!=null&&(targets!=listener&&!targets[listener])) continue;
                 if (listener==source) continue;
                 var func = this.funcs[listener];
                 func.call(window,caseId);
@@ -55,6 +56,7 @@
     var csObs = new CaseSelectObserver();
     
     function nrKeysAssociativeArrays(a) {
+        if (a==null) return 0;
         var i = 0;
         for (var key in a) i++;
         return i;
@@ -200,9 +202,8 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        var scatter = plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
-        var ix = caseMap[csObs.caseId];
-        scatter.setSelection(ix==null?null:[{'row': ix}]);
+        plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
+        csObs.fireSelection(csObs.caseId,null,'scatter-plot',true);
     }
     
     function drawDataTable(divId,dt) {
@@ -327,7 +328,7 @@
         var histCaseIdMap = {};
         var rows = dt.getNumberOfRows();
         var t = dt.getColumnType(col);
-        var filter = caseIdsFilter!=null && nrKeysAssociativeArrays(caseIdsFilter)>0;
+        var filter = nrKeysAssociativeArrays(caseIdsFilter)>0;
         if (t=="number") {
             if (bins==null) bins = 10;
             if ((typeof bins)==(typeof 1)) {
@@ -344,15 +345,19 @@
             for (var i=0; i<=bins.length; i++) {
                 count.push([]);
             }
+            count.push([]); //unknown
             
             for (var r=0; r<rows; r++) {
                 var caseId = dt.getValue(r,0);
                 if (filter && !caseIdsFilter[caseId]) continue;
                 var v = dt.getValue(r,col);
-                if (v==null) continue;
-                var i=0;
-                for (; i<bins.length; i++) {
-                    if (bins[i]>=v) break;
+                var i;
+                if (v==null) {
+                    i = bins.length+1;
+                } else {
+                    for (i=0; i<bins.length; i++) {
+                        if (bins[i]>=v) break;
+                    }
                 }
                 count[i].push(caseId);
                 caseIdHistMap[caseId]=i;
@@ -367,13 +372,17 @@
             }
             hist.push(['>'+bins[bins.length-1],count[i].length]);
             histCaseIdMap[i]=count[i];
+            if (count[++i].length>0) { // including unknow if positive
+                hist.push(['Unknown',count[i].length]);
+                histCaseIdMap[i]=count[i];
+            }
         } else {
             var count = {};
             for (var r=0; r<rows; r++) {
                 var caseId = dt.getValue(r,0);
                 if (filter && !caseIdsFilter[caseId]) continue;
                 var v = dt.getValue(r,col);
-                if (v==null) continue;
+                if (v==null) v="Unknown";
                 if(count[v]==null) count[v] = [];
                 count[v].push(caseId);
             }
@@ -399,23 +408,20 @@
         var chart = columnChart ? 
             new google.visualization.ColumnChart(div) :
             new google.visualization.PieChart(div);
-        var options = !columnChart ? {} : 
-            {
-                hAxis: {title: dt.getColumnLabel(col)},
-                vAxis: {title: '# of Patients'},
-                legend: {position: 'none'}
-            };
         google.visualization.events.addListener(chart, 'select', function(e){
             var s = chart.getSelection();
             var caseIds = {};
+            var empty = true;
             for (var i=0; i<s.length; i++) {
                 var ids = hist[2][s[i].row];
                 for (var j=0; j<ids.length; j++) {
                     caseIds[ids[j]] = true;
+                    empty = false;
                 }
             }
             
-            csObs.fireSelection(caseIds,div.id);
+            // if empty, update all plots including myself
+            csObs.fireSelection(caseIds,empty?null:div.id);
         });
         google.visualization.events.addListener(chart, 'ready', function(e){
             csObs.subscribe(div.id,function(caseId) {
@@ -429,6 +435,15 @@
                 }
             },caseIdsFilter==null);
         });
+        var options = columnChart ?
+            {
+                hAxis: {title: dt.getColumnLabel(col)},
+                vAxis: {title: '# of Patients'},
+                legend: {position: 'none'}
+            }
+            :
+            {'pieSliceText' : 'value'}
+            ;
         chart.draw(google.visualization.arrayToDataTable(hist[0]),options);
         return chart;
     }

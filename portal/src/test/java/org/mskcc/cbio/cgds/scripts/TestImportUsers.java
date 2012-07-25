@@ -19,8 +19,8 @@ public class TestImportUsers extends TestCase {
    public void testImportUsers() throws Exception{
 
       ResetDatabase.resetDatabase();
-      
-      String args[] = {".//test-users.txt"};
+      // TBD: change this to use getResourceAsStream()
+      String args[] = {"target/test-classes/test-users.txt"};
       ImportUsers.main(args);
 
       User user = DaoUser.getUserByEmail("Dhorak@yahoo.com");

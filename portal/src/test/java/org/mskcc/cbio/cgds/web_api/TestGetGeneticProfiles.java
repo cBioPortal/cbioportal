@@ -10,6 +10,7 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.TypeOfCancer;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
  * JUnit test for GeneticProfile class.
@@ -17,6 +18,7 @@ import org.mskcc.cbio.cgds.web_api.GetGeneticProfiles;
 public class TestGetGeneticProfiles extends TestCase {
 
     public void testDaoGeneticProfile() throws DaoException {
+        ResetDatabase.resetDatabase();
         TypeOfCancer typeOfCancer = new TypeOfCancer();
         typeOfCancer.setName("GBM");
         typeOfCancer.setTypeOfCancerId("GBM");

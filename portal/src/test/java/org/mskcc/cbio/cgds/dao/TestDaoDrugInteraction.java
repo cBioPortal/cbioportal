@@ -3,6 +3,7 @@ package org.mskcc.cbio.cgds.dao;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.model.DrugInteraction;
@@ -10,7 +11,13 @@ import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoDrugInteraction extends TestCase {
     public void testDaoDrugInteraction() throws DaoException {
+
         ResetDatabase.resetDatabase();
+
+		// save bulkload setting before turning off
+		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+		MySQLbulkLoader.bulkLoadOff();
+
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
 
         String type = "TARGETS";
@@ -46,5 +53,10 @@ public class TestDaoDrugInteraction extends TestCase {
         DrugInteraction interaction2 = daoDrugInteraction.getTargets(drug2).iterator().next();
         assertEquals(drug2.getId(), interaction2.getDrug());
         assertEquals(gene.getEntrezGeneId(), interaction2.getTargetGene());
+
+		// restore bulk setting
+		if (isBulkLoad) {
+			MySQLbulkLoader.bulkLoadOn();
+		}
     }
 }

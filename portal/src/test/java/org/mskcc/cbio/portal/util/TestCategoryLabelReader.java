@@ -18,7 +18,8 @@ public class TestCategoryLabelReader extends TestCase
      */
     public void testCategoryLabelReader() throws IOException
     {
-        File file = new File("/test_readable_categories.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/test_readable_categories.txt");
         FileInputStream fin = new FileInputStream (file);
 
         Map<String, String> labelMap = CategoryLabelReader.readCategoryLabelMap(fin);

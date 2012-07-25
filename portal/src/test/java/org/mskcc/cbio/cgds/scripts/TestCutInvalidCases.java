@@ -12,8 +12,9 @@ import java.io.File;
 public class TestCutInvalidCases extends TestCase {
 
     public void testCutInvalidCases() throws Exception {
-        File casesExcludedFile = new File("/cases_excluded_test.txt");
-        File dataFile = new File("/cna_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File casesExcludedFile = new File("target/test-classes/cases_excluded_test.txt");
+        File dataFile = new File("target/test-classes/cna_test.txt");
         ProgressMonitor pMonitor = new ProgressMonitor();
         CutInvalidCases parser = new CutInvalidCases(casesExcludedFile,
                 dataFile, pMonitor);

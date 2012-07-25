@@ -20,7 +20,8 @@ public class TestGeneSetReader extends TestCase {
      * @throws java.io.IOException IO Error.
      */
     public void testGeneSetReader() throws IOException {
-        File file = new File("/gene_sets.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/gene_sets.txt");
         FileInputStream fin = new FileInputStream (file);
 
         ArrayList<GeneSet> geneSetList = GeneSetReader.readGeneSets(fin);

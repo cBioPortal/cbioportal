@@ -99,8 +99,8 @@ public class TestMutationFilter extends TestCase {
       loadGene( "BIG", 234234L  );
                  
       // create MutationFilter
-      MutationFilter myMutationFilter = new MutationFilter( 
-               "/test_germline_white_list_file.txt");
+	  // TBD: change this to use getResourceAsStream()
+      MutationFilter myMutationFilter = new MutationFilter("target/test-classes/test_germline_white_list_file.txt");
 
       alwaysRejectTheseMutations( myMutationFilter );      
       tryGermlineMutations( myMutationFilter );      

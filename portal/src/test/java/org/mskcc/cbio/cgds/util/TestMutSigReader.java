@@ -16,11 +16,13 @@ import java.io.File;
 
 public class TestMutSigReader extends TestCase {
 
-    File properties = new File("/testCancerStudy.txt");
-    File mutSigFile = new File("/test_mut_sig_data.txt");
+	// TBD: change these to use getResourceAsStream()
+    File properties = new File("target/test-classes/testCancerStudy.txt");
+    File mutSigFile = new File("target/test-classes/test_mut_sig_data.txt");
 
     ProgressMonitor pm = new ProgressMonitor();
-    File cancers =  new File("/cancers.txt");
+    // TBD: change this to use getResourceAsStream()
+    File cancers =  new File("target/test-classes/cancers.txt");
     
     public void testloadMutSig() throws Exception {
 

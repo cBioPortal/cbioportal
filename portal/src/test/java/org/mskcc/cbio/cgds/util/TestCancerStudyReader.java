@@ -20,15 +20,16 @@ public class TestCancerStudyReader extends TestCase {
    public void testCancerStudyReader() throws Exception {
       ResetDatabase.resetDatabase();
       // load cancers
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
-
-      File file = new File("/cancer_study.txt");
+	  // TBD: change this to use getResourceAsStream()
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
+	  // TBD: change this to use getResourceAsStream()
+      File file = new File("target/test-classes/cancer_study.txt");
       CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
       
       CancerStudy expectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId( "test_brca" );
       assertEquals(expectedCancerStudy, cancerStudy);
-      
-      file = new File("/cancer_study_bad.txt");
+      // TBD: change this to use getResourceAsStream()
+      file = new File("target/test-classes/cancer_study_bad.txt");
       try {
          cancerStudy = CancerStudyReader.loadCancerStudy( file );
          fail( "Should have thrown DaoException." );

@@ -19,7 +19,8 @@ public class TestGetCaseList extends TestCase {
 
       ResetDatabase.resetDatabase();
       // load cancers
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
+	  // TBD: change this to use getResourceAsStream()
+      ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
 
       // corresponds to cancer_study_identifier: gbm in
       // /case_list_test.txt
@@ -28,7 +29,8 @@ public class TestGetCaseList extends TestCase {
 
       ProgressMonitor pMonitor = new ProgressMonitor();
       pMonitor.setConsoleMode(false);
-      File file = new File("/case_list_test.txt");
+	  // TBD: change this to use getResourceAsStream()
+      File file = new File("target/test-classes/case_list_test.txt");
 
       ImportCaseList.importCaseList(file, pMonitor);
       String[] caseList = GetCaseLists.getCaseLists("GBM").split("\n");

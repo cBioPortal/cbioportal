@@ -6,6 +6,7 @@ import org.mskcc.cbio.cgds.validate.ValidateGistic;
 import org.mskcc.cbio.cgds.validate.validationException;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,14 +40,15 @@ public class DaoGistic {
             con = JdbcUtil.getDbConnection();
             // insert into SQL gistic table
             pstmt = con.prepareStatement
-                    ("INSERT INTO gistic (`CANCER_STUDY_ID`," +
-                            "`CHROMOSOME`, " +
-                            "`WIDE_PEAK_START`, " +
-                            "`WIDE_PEAK_END`, " +
-                            "`Q_VALUE`, "  +
-                            "`RES_Q_VALUE`, " +
-                            "`AMP_DEL`) "  +
-                            "VALUES (?,?,?,?,?,?,?)");
+				(("INSERT INTO gistic (`CANCER_STUDY_ID`," +
+				  "`CHROMOSOME`, " +
+				  "`WIDE_PEAK_START`, " +
+				  "`WIDE_PEAK_END`, " +
+				  "`Q_VALUE`, "  +
+				  "`RES_Q_VALUE`, " +
+				  "`AMP_DEL`) "  +
+				  "VALUES (?,?,?,?,?,?,?)"),
+				 Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setInt(1, gistic.getCancerStudyId());
             pstmt.setInt(2, gistic.getChromosome()) ;

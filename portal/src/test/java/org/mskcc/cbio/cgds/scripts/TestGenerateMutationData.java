@@ -16,10 +16,11 @@ public class TestGenerateMutationData extends TestCase {
     public void testGenerateMutationData() throws Exception {
         ResetDatabase.resetDatabase();
 
-        File allCasesFile = new File ("/all_cases.txt");
-        File sequencedGeneFile = new File ("/sequenced_genes.txt");
-        File sequencedCasesFile = new File ("/sequenced_cases.txt");
-        File mutationDataFile = new File ("/mutations.txt");
+		// TBD: change this to use getResourceAsStream()
+        File allCasesFile = new File ("target/test-classes/all_cases.txt");
+        File sequencedGeneFile = new File ("target/test-classes/sequenced_genes.txt");
+        File sequencedCasesFile = new File ("target/test-classes/sequenced_cases.txt");
+        File mutationDataFile = new File ("target/test-classes/mutations.txt");
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
         GenerateMutationData util = new GenerateMutationData (allCasesFile, sequencedGeneFile,

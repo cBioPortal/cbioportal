@@ -30,7 +30,8 @@ public class TestGetClinicalData extends TestCase {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("/clinical_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/clinical_test.txt");
         ImportClinicalData importClinicalData = new ImportClinicalData(file, pMonitor);
 		importClinicalData.importData();
 		

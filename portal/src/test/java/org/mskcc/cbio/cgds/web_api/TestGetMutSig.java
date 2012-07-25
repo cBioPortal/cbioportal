@@ -28,8 +28,8 @@ public class TestGetMutSig extends TestCase {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("/cancers.txt"));
+		// TBD: change this to use getResourceAsStream()
+        ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
         // changed GBM_portal to tcga_gbm
         CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);

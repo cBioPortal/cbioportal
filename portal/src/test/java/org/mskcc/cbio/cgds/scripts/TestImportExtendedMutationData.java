@@ -26,7 +26,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
             ProgressMonitor pMonitor = new ProgressMonitor();
             pMonitor.setConsoleMode(false);
-            File file = new File("/data_mutations_extended.txt");
+			// TBD: change this to use getResourceAsStream()
+            File file = new File("target/test-classes/data_mutations_extended.txt");
             ImportExtendedMutationData parser;
 
             try {
@@ -45,7 +46,8 @@ public class TestImportExtendedMutationData extends TestCase {
             validateMutationAminoAcid (1, "TCGA-AA-3664", 89, "S116R"); // Unknown  Somatic
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
+			// TBD: change this to use getResourceAsStream()
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             // put on: CLEC7A
             parser.importData();
             checkBasicFilteringRules();
@@ -54,7 +56,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
+			// TBD: change this to use getResourceAsStream()
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();
@@ -63,7 +66,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
 
             loadGenes();
-            parser = new ImportExtendedMutationData(file, 1, pMonitor, "/test_germline_white_list_file2.txt");
+			// TBD: change this to use getResourceAsStream()
+            parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             parser.importData();
             checkBasicFilteringRules();
             checkGermlineMutations();

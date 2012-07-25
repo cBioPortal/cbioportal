@@ -278,6 +278,37 @@
 		</configuration>
 	  </plugin>
 
+	  <!-- sql plugin - for tests -->
+      <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>sql-maven-plugin</artifactId>
+		<version>1.5</version>
+		<dependencies>
+		  <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.0.3</version>
+		  </dependency>
+		</dependencies>
+		<executions>
+		  <execution>
+            <phase>test-compile</phase>
+            <goals>
+			  <goal>execute</goal>
+            </goals>
+            <configuration>
+			  <!-- username & password gets put in .m2/settings.xml -->
+			  <settingsKey>settingsKey</settingsKey>
+			  <driver>com.mysql.jdbc.Driver</driver>
+			  <url>jdbc:mysql://localhost:3306/cgds_test</url>
+			  <srcFiles>
+				<srcFile>src/main/resources/db/cgds.sql</srcFile>
+			  </srcFiles>
+            </configuration>
+		  </execution>
+		</executions>
+	  </plugin>
+
 	  <!-- war plugin config -->
 	  <plugin>            
 		<groupId>org.apache.maven.plugins</groupId>

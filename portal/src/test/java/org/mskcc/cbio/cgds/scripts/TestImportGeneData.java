@@ -19,7 +19,8 @@ public class TestImportGeneData extends TestCase {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("/genes_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/genes_test.txt");
         ImportGeneData parser = new ImportGeneData(file, pMonitor);
         parser.importData();
 

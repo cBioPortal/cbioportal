@@ -4,6 +4,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
@@ -19,7 +20,13 @@ public class TestDaoGene extends TestCase {
      * @throws DaoException Database Error.
      */
     public void testDaoGene() throws DaoException {
+
+		// reset database
         ResetDatabase.resetDatabase();
+
+		// save bulkload setting before turning off
+		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+		MySQLbulkLoader.bulkLoadOff();
 
         //  Add BRCA1 and BRCA2 Genes
         CanonicalGene gene = new CanonicalGene(672, "BRCA1",
@@ -39,6 +46,11 @@ public class TestDaoGene extends TestCase {
         validateBrca2(gene);
         gene = daoGeneOptimized.getGene(672);
         validateBrca1(gene);
+
+		// restore bulk setting
+		if (isBulkLoad) {
+			MySQLbulkLoader.bulkLoadOn();
+		}
     }
 
     /**

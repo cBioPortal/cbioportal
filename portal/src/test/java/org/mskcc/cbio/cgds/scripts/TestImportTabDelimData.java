@@ -47,7 +47,8 @@ public class TestImportTabDelimData extends TestCase {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("/cna_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/cna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, 1, pMonitor);
         parser.importData();
 
@@ -105,7 +106,8 @@ public class TestImportTabDelimData extends TestCase {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("/cna_test2.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/cna_test2.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, null, 1, pMonitor);
         parser.importData();
 
@@ -173,7 +175,8 @@ public class TestImportTabDelimData extends TestCase {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
-        File file = new File("/mrna_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/mrna_test.txt");
         ImportTabDelimData parser = new ImportTabDelimData(file, 1, pMonitor);
         parser.importData();
         

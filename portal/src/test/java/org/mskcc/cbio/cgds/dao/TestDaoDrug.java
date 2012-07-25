@@ -5,10 +5,16 @@ import org.mskcc.cbio.cgds.dao.DaoDrug;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 
 public class TestDaoDrug extends TestCase {
     public void testDaoDrug() throws DaoException {
+
         ResetDatabase.resetDatabase();
+
+		// save bulkload setting before turning off
+		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+		MySQLbulkLoader.bulkLoadOff();
 
         DaoDrug daoDrug = DaoDrug.getInstance();
         Drug drug = new Drug("Dummy:1", "MyDrug", "description",
@@ -36,5 +42,10 @@ public class TestDaoDrug extends TestCase {
         assertNull(daoDrug.getDrug("Dummy:BLABLA"));
 
         assertEquals(2, daoDrug.getAllDrugs().size());
+
+		// restore bulk setting
+		if (isBulkLoad) {
+			MySQLbulkLoader.bulkLoadOn();
+		}
     }
 }

@@ -29,7 +29,8 @@ public class TestImportClinicalData extends TestCase {
     public void testImportClinicalData() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
-        File file = new File("/clinical_test.txt");
+		// TBD: change this to use getResourceAsStream()
+        File file = new File("target/test-classes/clinical_test.txt");
         ImportClinicalData importClinicalData = new ImportClinicalData(file, pMonitor);
         importClinicalData.importData();
 

@@ -1,6 +1,8 @@
 package org.mskcc.cbio.cgds.dao;
 
+import java.util.Arrays;
 import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
@@ -19,10 +21,16 @@ public class TestDaoGistic extends TestCase {
         DaoGistic.deleteAllRecords();
 
         // initialize dummy parameters
-        ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
-        geneList.add(new CanonicalGene((long) 1, "AAA"));
-        geneList.add(new CanonicalGene((long) 2, "BBB"));
-        geneList.add(new CanonicalGene((long) 3, "CCC"));
+		CanonicalGene brca1 = new CanonicalGene(672, "BRCA1");
+		CanonicalGene brca2 = new CanonicalGene(675, "BRCA2");
+		CanonicalGene tp53 = new CanonicalGene(7157, "TP53");
+
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        daoGene.addGene(brca1);
+        daoGene.addGene(brca2);
+        daoGene.addGene(tp53);
+        ArrayList<CanonicalGene> geneList =
+			new ArrayList<CanonicalGene>(Arrays.asList(brca1, brca2, tp53));
 
         Gistic gisticIn1;
         Gistic gisticIn2;

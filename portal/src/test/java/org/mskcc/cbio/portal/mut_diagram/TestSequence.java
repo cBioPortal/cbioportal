@@ -62,7 +62,7 @@ public class TestSequence {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         TypeFactory typeFactory = objectMapper.getTypeFactory();
-        InputStream inputStream = getClass().getResourceAsStream("O14640.json");
+        InputStream inputStream = getClass().getResourceAsStream("/O14640.json");
         List<Sequence> sequences = objectMapper.readValue(inputStream, typeFactory.constructCollectionType(List.class, Sequence.class));
         assertNotNull(sequences);
         assertEquals(1, sequences.size());
@@ -79,7 +79,7 @@ public class TestSequence {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         TypeFactory typeFactory = objectMapper.getTypeFactory();
-        InputStream inputStream = getClass().getResourceAsStream("EGFR_HUMAN.json");
+        InputStream inputStream = getClass().getResourceAsStream("/EGFR_HUMAN.json");
         List<Sequence> sequences = objectMapper.readValue(inputStream, typeFactory.constructCollectionType(List.class, Sequence.class));
         assertNotNull(sequences);
         assertEquals(1, sequences.size());

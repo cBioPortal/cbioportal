@@ -11,7 +11,7 @@
 }
 </style>
 
-<script type="text/javascript" src="js/patient-view.genomic-overview.js"></script>
+<script type="text/javascript" src="js/patient-view/genomic-overview.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();

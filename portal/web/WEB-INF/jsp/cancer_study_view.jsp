@@ -106,7 +106,7 @@ if (cancerStudyViewError!=null) {
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true" />    
 
-<script type="text/javascript" src="js/cancer-study-view/clinical-data.js"></script>
+<script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
 var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';

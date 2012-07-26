@@ -13,7 +13,7 @@ CaseSelectObserver.prototype = {
     fireSelection: function(caseId,source,targets,forceFire) {
         if (!forceFire&&compareAssociativeArrays(caseId,this.caseId)) return;
         //$('#submit-patient-btn').attr("disabled", caseId==null);
-
+        
         this.caseId = caseId;
         for (var listener in this.funcs) {
             if (targets!=null&&(targets!=listener&&!targets[listener])) continue;
@@ -54,7 +54,7 @@ function resetAllPlots(dt) {
 
     var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
     formatter.format(dt, [0]);
-    drawDataTable('clinical-data-table',dt);
+    drawDataTable('clinical-data-table',dt,caseMap);
 
     var colCna = headerMap['copy_number_altered_fraction'];
     var colMut = headerMap['mutation_count'];
@@ -84,16 +84,48 @@ function decideToPlot(dt,col) {
 }
 
 // draw datatable
-function drawDataTable(divId,dt) {
-        var tableDataView = new google.visualization.DataView(dt);
-        var table = new google.visualization.Table(document.getElementById(divId));
-        var options = {
-            allowHtml: true,
-            showRowNumber: true,
-            page: 'enable',
-            pageSize: 100
-        };
-        table.draw(tableDataView,options);
+function drawDataTable(divId,dt,caseMap) {
+    var tableDataView = new google.visualization.DataView(dt);
+    var table = new google.visualization.Table(document.getElementById(divId));
+    var options = {
+        allowHtml: true,
+        showRowNumber: true
+    };
+
+    google.visualization.events.addListener(table, 'select', function(e){
+        var s = table.getSelection();
+        var caseId;
+        if (s.length==0) caseId = null;
+        else if (s.length==1) caseId = dt.getValue(s[0].row,0);
+        else {
+            caseId = {};
+            for (var i=0; i<s.length; i++) {
+                caseId[dt.getValue(s[i].row,0)] = true;
+            }
+        }
+
+        csObs.fireSelection(caseId,divId);
+    });
+    google.visualization.events.addListener(table, 'ready', function(e){
+        csObs.subscribe(divId,function(caseId) {
+            if (caseId==null) {
+                table.setSelection();
+            } else if ((typeof caseId)==(typeof '')) {
+                var ix = caseMap[caseId];
+                table.setSelection(ix==null?null:[{'row': ix}]);
+            } else if ((typeof caseId)==(typeof {})) {
+                var rows = [];
+                for (var id in caseId) {
+                    var row = caseMap[id];
+                    if (row!=null)
+                        rows.push({'row':caseMap[id]});
+                }
+                table.setSelection(rows);
+            }
+        },false);
+    });
+
+    table.draw(tableDataView,options);
 }
 
 function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
@@ -132,7 +164,7 @@ function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
                             rows.push({'row':caseMap[id]});
                     }
                     scatter.setSelection(rows);
-                    $('#case-id-div').html("");
+                    $('#case-id-div').html(rows.length==1?formatPatientLink(id):"");
                 } 
             },true);
         });
@@ -181,7 +213,6 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
     var histCaseIdMap = {};
     var rows = dt.getNumberOfRows();
     var t = dt.getColumnType(col);
-    var filter = nrKeysAssociativeArrays(caseIdsFilter)>0;
     if (t=="number") {
         if (bins==null) bins = 10;
         if ((typeof bins)==(typeof 1)) {
@@ -202,7 +233,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
 
         for (var r=0; r<rows; r++) {
             var caseId = dt.getValue(r,0);
-            if (filter && !caseIdsFilter[caseId]) continue;
+            if (caseIdsFilter && !caseIdsFilter[caseId]) continue;
             var v = dt.getValue(r,col);
             var i;
             if (v==null) {
@@ -233,7 +264,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         var count = {};
         for (var r=0; r<rows; r++) {
             var caseId = dt.getValue(r,0);
-            if (filter && !caseIdsFilter[caseId]) continue;
+            if (caseIdsFilter && !caseIdsFilter[caseId]) continue;
             var v = dt.getValue(r,col);
             if (v==null) v="Unknown";
             if(count[v]==null) count[v] = [];
@@ -252,11 +283,12 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
     return [hist,caseIdHistMap,histCaseIdMap];
 }
 
-function plotData(divNum,dt,col,caseIdsFilter) {
+function plotData(divNum,dt,col,caseIds) {
     var c = dt.getColumnLabel(col);
     var div = getSmallPlotDiv(divNum,c);
     var t = dt.getColumnType(col);
-    var hist = calcHistogram(dt,col,getBins(dt,col),caseIdsFilter);
+    var nCases = nrKeysAssociativeArrays(caseIds);
+    var hist = calcHistogram(dt,col,getBins(dt,col),nCases>0?caseIds:null);
     var columnChart = t=='number';
     var chart = columnChart ? 
         new google.visualization.ColumnChart(div) :
@@ -286,7 +318,7 @@ function plotData(divNum,dt,col,caseIdsFilter) {
             } else if ((typeof caseId)==(typeof {})) {
                 plotData(divNum,dt,col,caseId);
             }
-        },caseIdsFilter==null);
+        },caseIds==null);
     });
     var options = columnChart ?
         {

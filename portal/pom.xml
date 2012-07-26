@@ -268,11 +268,12 @@
 		<artifactId>maven-surefire-plugin</artifactId>
 		<version>2.12</version>
 		<configuration>
+		  <filtering>true</filtering>
 		  <testFailureIgnore>false</testFailureIgnore>
 		  <systemProperties>
 			<property>
 			  <name>log4j.configuration</name>
-			  <value>file:${PORTAL_HOME}/src/test/resources/log4j.properties</value>
+			  <value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
 			</property>
 		  </systemProperties>
 		</configuration>
@@ -344,6 +345,7 @@
 		<filtering>true</filtering>
 		<excludes>
 		  <exclude>build.properties.*</exclude>
+		  <exclude>log4j.properties.*</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
 		  <exclude>db/**</exclude>

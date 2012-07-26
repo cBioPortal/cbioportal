@@ -13,9 +13,8 @@ public class Config {
 
     private Config () {
         try {
-           String props = "/build.properties";
-            InputStream in = this.getClass().getResourceAsStream( props );
-//            InputStream in = this.getClass().getClassLoader().getResourceAsStream( props );
+           String props = "build.properties";
+		   InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
 
             if( null == in ){
                System.err.println( "Properties file '" + props + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +

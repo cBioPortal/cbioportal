@@ -67,10 +67,10 @@
     function updateCnaContext(cnaContextMap, oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 4)) continue;
-            var eventId = oTable.fnGetData(row, 0);
+            if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
+            var eventId = oTable.fnGetData(row, cnaTableIndices['id']);
             var context = cnaContextMap[eventId];
-            oTable.fnUpdate(context, row, 5, false, false);
+            oTable.fnUpdate(context, row, cnaTableIndices['altrate'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -95,21 +95,17 @@
         );
     }
     
-    function updateCnaDrugs(drugMap, oTable, summaryOnly) {
+    function updateCnaDrugs(oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, 4)) continue;
-            var gene = trimHtml(oTable.fnGetData(row, 1));
-            var context = drugMap[gene];
-            if (context==null) {
-                context = "";
-            }
-            oTable.fnUpdate(context, row, 6, false, false);
+            if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
+            oTable.fnUpdate('loaded', row, cnaTableIndices['drug'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
     }
     
+    var cnaDrugs = null;
     function loadCnaDrugData(cna_table, cna_summary_table) {
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_DRUG_CMD%>',
@@ -120,14 +116,15 @@
         $.post("cna.json", 
             params,
             function(drugs){
-                var drugMap = getDrugMap(drugs);
-                updateCnaDrugs(drugMap, cna_table, false);
-                updateCnaDrugs(drugMap, cna_summary_table, true);
+                cnaDrugs = drugs;
+                updateCnaDrugs(cna_table, false);
+                updateCnaDrugs(cna_summary_table, true);
             }
             ,"json"
         );
     }
     
+    var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,overview:4,altrate:5,drug:6,note:7};
     function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -137,16 +134,22 @@
                 "aoColumnDefs":[
                     {// event id
                         "bVisible": false,
-                        "aTargets": [ 0 ]
+                        "aTargets": [ cnaTableIndices['id'] ]
                     },
                     {// gene
-                        "aTargets": [ 1 ],
-                        "fnRender": function(obj) {
-                            return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
+                        "aTargets": [ cnaTableIndices['gene'] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[cnaTableIndices["gene"]]=value;
+                            } else if (type==='display') {
+                                return "<b>"+source[cnaTableIndices["gene"]]+"</b>";
+                            } else {
+                                return source[cnaTableIndices["gene"]];
+                            }
                         }
                     },
                     {// alteration
-                        "aTargets": [ 2 ],
+                        "aTargets": [ cnaTableIndices['alteration'] ],
                         "fnRender": function(obj) {
                             return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
                         }
@@ -154,30 +157,56 @@
                     {// gistic
                         "sType": "gistic-col",
                         "bVisible": false,
-                        "aTargets": [ 3 ]
+                        "aTargets": [ cnaTableIndices['gistic'] ]
                     },
                     {// show in summary
                         "bVisible": false,
-                        "aTargets": [ 4 ]
+                        "aTargets": [ cnaTableIndices['overview'] ]
                     },
                     {// context
                         "mDataProp": null,
                         "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
-                        "aTargets": [ 5 ]
+                        "aTargets": [ cnaTableIndices['altrate'] ]
                     },
                     {// Drugs
-                        "mDataProp": null,
-                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
-                        "aTargets": [ 6 ]
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                source[cnaTableIndices["drug"]]=value;
+                            } else if (type==='display') {
+                                if (cnaDrugs==null) return "<img src=\"images/ajax-loader2.gif\">";
+                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                if (drug==null) return '';
+                                var len = drug.length;
+                                return "<a href=\"#\" onclick=\"openDrugDialog('"
+                                            +drug.join(',')+"'); return false;\">"
+                                            +len+" drug"+(len>1?"s":"")+"</a>";
+                            } else if (type==='sort') {
+                                if (cnaDrugs==null) return 0;
+                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                var n = ''+(drug ? drug.length : 0);
+                                var pad = '000000';
+                                return pad.substring(0, pad.length - n.length) + n;
+                            } else if (type==='filter') {
+                                if (cnaDrugs==null) return '';
+                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                return drug ? 'drug' : '';
+                            } else {
+                                if (cnaDrugs==null) return '';
+                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                return drug ? drug : '';
+                            }
+                        },
+                        "aTargets": [ cnaTableIndices['drug'] ]
                     },
                     {// note
                         "bVisible": placeHolder,
                         "mDataProp": null,
                         "sDefaultContent": "",
-                        "aTargets": [ 7 ]
+                        "aTargets": [ cnaTableIndices['note'] ]
                     }
                 ],
-                "aaSorting": [[3,'asc']],
+                "aaSorting": [[cnaTableIndices['gistic'],'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -211,9 +240,9 @@
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
                 
-                cnaEventIds = getEventString(cnas,0);
-                overviewCnaEventIds = getEventString(cnas,0,4);
-                overviewCnaGenes = getEventString(cnas,1,4);
+                cnaEventIds = getEventString(cnas,cnaTableIndices['id']);
+                overviewCnaEventIds = getEventString(cnas,cnaTableIndices['id'],cnaTableIndices['overview']);
+                overviewCnaGenes = getEventString(cnas,cnaTableIndices['gene'],cnaTableIndices['overview']);
                 
                 geObs.fire('cna-built');
                 
@@ -224,7 +253,7 @@
                     switchToTab('cna');
                     return false;
                 });
-                cna_summary_table.fnFilter('true', 4);
+                cna_summary_table.fnFilter('true', cnaTableIndices['overview']);
                 $('.cna-summary-table-name').html(cna_summary_table.fnSettings().fnRecordsDisplay()+' copy Number Alterations (CNAs) of Interest (out of '+cnas.length+" CNAs)");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
@@ -238,13 +267,13 @@
     
     function filterCnaTableByIds(mutIdsRegEx) {
         var n = cna_table.fnSettings().fnRecordsDisplay();
-        cna_table.fnFilter(mutIdsRegEx, 0,true);
+        cna_table.fnFilter(mutIdsRegEx, cnaTableIndices['id'],true);
         if (n!=cna_table.fnSettings().fnRecordsDisplay())
             $('#cna_id_filter_msg').show();
     }
     
     function unfilterCnaTableByIds() {
-        cna_table.fnFilter("", 0);
+        cna_table.fnFilter("", cnaTableIndices['id']);
         $('#cna_id_filter_msg').hide();
     }
 </script>

@@ -19,7 +19,7 @@ public class RTemplate {
      * @throws IOException      IO Error.
      */
     public RTemplate (String templateFileName) throws IOException {
-        InputStream in = this.getClass().getResourceAsStream(templateFileName);
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream(templateFileName);
         BufferedReader bufReader = new BufferedReader(new InputStreamReader(in));
         content = new StringBuffer();
         String line = bufReader.readLine();

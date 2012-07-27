@@ -1,5 +1,5 @@
 <%
-    org.mskcc.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
+    org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String localCaseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
@@ -31,7 +31,7 @@
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
 
-<%@ page import="org.mskcc.portal.servlet.*" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.io.IOException" %>
 <script type="text/javascript">

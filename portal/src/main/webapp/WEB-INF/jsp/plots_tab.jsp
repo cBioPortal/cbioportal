@@ -1,11 +1,11 @@
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
-<%@ page import="org.mskcc.portal.servlet.GeneratePlots" %>
-<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
+<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript">
 $(document).ready(function() {

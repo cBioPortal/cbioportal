@@ -1,10 +1,10 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.*" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 
 <%
-    org.mskcc.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
+    org.mskcc.cbio.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     Config globalConfig = Config.getInstance();
     String siteTitle = SkinUtil.getTitle();
     String popeye = globalConfig.getProperty("popeye");

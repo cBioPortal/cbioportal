@@ -1,6 +1,6 @@
-<%@ page import="org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.remote.GetProteinArrayData" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.remote.GetProteinArrayData" %>
 <%@ page import="java.util.Set" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();

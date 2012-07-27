@@ -1,5 +1,5 @@
-<%@ page import="org.mskcc.portal.stats.OddsRatio" %>
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.portal.stats.OddsRatio" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Set" %>
@@ -7,7 +7,7 @@
 <%@ page import="org.apache.commons.lang.math.DoubleRange" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
-<%@ page import="org.mskcc.portal.stats.OddsRatioTemp" %>
+<%@ page import="org.mskcc.cbio.portal.stats.OddsRatioTemp" %>
 <%
     DecimalFormat decimalFormat = new DecimalFormat("###,###.######");
     out.println("<div class=\"section\" id=\"gene_correlation\">");

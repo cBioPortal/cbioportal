@@ -32,7 +32,7 @@
  */
 
 // These bits are passed as "AlterationSettings" in DrawAlteration -
-// they corresponded to names found in org.mskcc.portal.model.GeneticEventImpl
+// they corresponded to names found in org.mskcc.cbio.portal.model.GeneticEventImpl
 // CNA bits
 var CNA_AMPLIFIED           = (1<<0);
 var CNA_GAINED              = (1<<1);
@@ -179,7 +179,7 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
  *
  * Note: headerVariables is a JSON object literal that is
  * created by:
- * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
+ * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
  *
  */
 function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummaryTab) {
@@ -203,7 +203,7 @@ function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummar
  *
  * Note: geneticAlterations is a JSON object literal that is
  * created by:
- * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
+ * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
 function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTooltip) {
@@ -298,7 +298,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
  *
  * Note: geneticAlterations is a JSON object literal that is
  * created by:
- * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintLegendGeneticAlterationVariable()
+ * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintLegendGeneticAlterationVariable()
  *
  */
 function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legendFootnote) {
@@ -480,7 +480,7 @@ function RemoveGenomicAlterationPadding(oncoprint, removeGenomicAlterationPaddin
  *
  * Note: headerVariables is a JSON object literal that is
  * created by:
- * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
+ * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
  *
  */
 function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariables) {
@@ -570,7 +570,7 @@ function drawOncoPrintHeaderForSummaryTab(oncoprint, longestLabel, headerVariabl
  *
  * Note: headerVariables is a JSON object literal that is
  * created by:
- * org.mskcc.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
+ * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintHeaderVariables()
  *
  */
 function drawOncoPrintHeaderForCrossCancerSummary(oncoprint, longestLabel, headerVariables) {

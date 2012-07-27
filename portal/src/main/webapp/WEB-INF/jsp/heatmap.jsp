@@ -1,7 +1,7 @@
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="org.mskcc.portal.util.ValueParser" %>
-<%@ page import="org.mskcc.portal.util.ZScoreUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.ValueParser" %>
+<%@ page import="org.mskcc.cbio.portal.util.ZScoreUtil" %>
 <%
     String debugStr = request.getParameter("xdebug");
     boolean debug = false;

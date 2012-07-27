@@ -1,8 +1,8 @@
 <%@ page import="java.util.TreeSet" %>
-<%@ page import="org.mskcc.portal.servlet.ShowData" %>
-<%@ page import="org.mskcc.portal.model.DownloadLink" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ShowData" %>
+<%@ page import="org.mskcc.cbio.portal.model.DownloadLink" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <!--<div class="section" id="data_download"> -->
 <h4>The following are tab-delimited data files:</h4>
 <ul>

@@ -11,7 +11,7 @@
         <div id="optional_args">
 
     <%
-       String computeLogOddsRatioLocal = request.getParameter(org.mskcc.portal.servlet.QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
+       String computeLogOddsRatioLocal = request.getParameter(org.mskcc.cbio.portal.servlet.QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
       String logOddsOptionChecked = "";
       if (computeLogOddsRatioLocal != null) {
          logOddsOptionChecked = " checked ";

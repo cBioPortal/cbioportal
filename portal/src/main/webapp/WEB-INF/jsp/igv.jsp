@@ -3,12 +3,12 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="com.google.common.base.Joiner" %>
 <%@ page import="java.io.UnsupportedEncodingException" %>
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
-<%@ page import="org.mskcc.portal.util.GlobalProperties" %>
-<%@ page import="org.mskcc.cgds.dao.DaoGeneOptimized" %>
-<%@ page import="org.mskcc.cgds.model.CanonicalGene" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneOptimized" %>
+<%@ page import="org.mskcc.cbio.cgds.model.CanonicalGene" %>
 <%
 	  // get URL to seg file used as parameter to IGV
 	  String segFileURL = GlobalProperties.getSegfileUrl();

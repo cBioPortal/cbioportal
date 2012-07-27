@@ -1,5 +1,5 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="static org.mskcc.portal.servlet.QueryBuilder.DATA_PRIORITY" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.DATA_PRIORITY" %>
 <%
     String step2ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP2_ERROR_MSG);
 %>

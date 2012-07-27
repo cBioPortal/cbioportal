@@ -23,9 +23,9 @@
     String siteTitle = SkinUtil.getTitle();
 %>
 
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.Config" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.Config" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
 <jsp:include page="WEB-INF/jsp/global/login_header.jsp" flush="true" />

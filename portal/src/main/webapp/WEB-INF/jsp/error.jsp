@@ -1,5 +1,5 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%
     request.setAttribute(QueryBuilder.HTML_TITLE, "cBio Cancer Genomics Pathway Portal::Error");
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);

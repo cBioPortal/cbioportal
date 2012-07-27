@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">

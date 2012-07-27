@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
 <div id="footer">
 <a href="http://cbio.mskcc.org">cBio@MSKCC</a> |

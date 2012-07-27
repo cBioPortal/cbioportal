@@ -1,9 +1,9 @@
-<%@ page import="org.mskcc.portal.util.XDebug" %>
-<%@ page import="org.mskcc.portal.util.XDebugParameter" %>
+<%@ page import="org.mskcc.cbio.portal.util.XDebug" %>
+<%@ page import="org.mskcc.cbio.portal.util.XDebugParameter" %>
 <%@ page import="java.util.Enumeration" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.util.XDebugMessage" %>
+<%@ page import="org.mskcc.cbio.portal.util.XDebugMessage" %>
 <%@ page import="net.sf.ehcache.CacheManager" %>
 <%@ page import="net.sf.ehcache.Cache" %>
 <%

@@ -4,9 +4,9 @@
 
 %>
 
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.util.Config" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.Config" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::What People Are Saying"); %>

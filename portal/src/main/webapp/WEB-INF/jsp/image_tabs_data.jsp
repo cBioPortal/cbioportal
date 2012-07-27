@@ -1,10 +1,10 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashSet" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.model.ProfileData" %>
-<%@ page import="org.mskcc.portal.tool.RenderImageDataType" %>
-<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.model.ProfileData" %>
+<%@ page import="org.mskcc.cbio.portal.tool.RenderImageDataType" %>
+<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <%
       String imageDataTypes[] = { "PROTEIN_LEVEL:Protein Level:protein levels:Protein levels obtained by immunohistochemical staining.",

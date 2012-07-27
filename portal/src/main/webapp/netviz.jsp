@@ -3,8 +3,8 @@
 <%@ page import="java.io.InputStream" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.util.zip.GZIPInputStream" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
-<%@ page import="org.mskcc.portal.util.FileUploadRequestWrapper" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.FileUploadRequestWrapper" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
@@ -46,7 +46,7 @@
 	</tr>
 </table>
 <script type="text/javascript">
-    //alert('< %=org.mskcc.portal.util.ResponseUtil.getResponseString(request.getInputStream())%>');
+    //alert('< %=org.mskcc.cbio.portal.util.ResponseUtil.getResponseString(request.getInputStream())%>');
 </script>
                         
 <%

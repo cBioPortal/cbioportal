@@ -1,8 +1,8 @@
-<%@ page import="org.mskcc.portal.util.Config" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
-<%@ page import="org.mskcc.portal.util.DataSetsUtil" %> 
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cgds.model.CancerStudyStats" %>
+<%@ page import="org.mskcc.cbio.portal.util.Config" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.DataSetsUtil" %> 
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.cgds.model.CancerStudyStats" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 

@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>

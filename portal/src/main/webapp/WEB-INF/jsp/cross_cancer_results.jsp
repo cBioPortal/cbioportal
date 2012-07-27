@@ -1,10 +1,10 @@
-<%@ page import="org.mskcc.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.portal.oncoPrintSpecLanguage.Utilities" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%@ page import="java.io.IOException" %>
 
 <%

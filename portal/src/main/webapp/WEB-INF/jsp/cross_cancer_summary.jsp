@@ -1,12 +1,12 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.portal.servlet.CrossCancerSummaryServlet" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.CrossCancerSummaryServlet" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="org.mskcc.portal.model.ProfileDataSummary" %>
-<%@ page import="org.mskcc.portal.util.MakeOncoPrint" %>
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cgds.model.CaseList" %>
-<%@ page import="org.mskcc.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.ProfileDataSummary" %>
+<%@ page import="org.mskcc.cbio.portal.util.MakeOncoPrint" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="java.text.DecimalFormat" %>
 
 <%

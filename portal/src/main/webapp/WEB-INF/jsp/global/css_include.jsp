@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.portal.util.Config" %><%
+<%@ page import="org.mskcc.cbio.portal.util.Config" %><%
     Config globalConfig2 = Config.getInstance();
     String global_style = globalConfig2.getProperty("global_css");
     String special_style = globalConfig2.getProperty("special_css");

@@ -1,6 +1,6 @@
-<%@ page import="org.mskcc.portal.model.GeneWithScore" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="java.text.DecimalFormat" %>
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.ArrayList" %>
 <%

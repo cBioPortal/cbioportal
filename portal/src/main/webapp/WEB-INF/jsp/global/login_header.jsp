@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 
 <!DOCTYPE HTML>
 <html>

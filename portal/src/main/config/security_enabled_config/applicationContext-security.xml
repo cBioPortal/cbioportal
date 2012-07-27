@@ -111,14 +111,14 @@
   <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
   </b:bean>
-  <b:bean id="customPermissionEvaluator" class="org.mskcc.cgds.util.CancerStudyPermissionEvaluator">
+  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.cgds.util.CancerStudyPermissionEvaluator">
      <b:constructor-arg ref="config"/>
    </b:bean>
 
 <!--
     A custom UserDetailsService which will authenticate and establish authorities based on a backend database.
 -->
-    <b:bean id="customUserService" class="org.mskcc.portal.openIDlogin.OpenIDUserDetailsService">
+    <b:bean id="customUserService" class="org.mskcc.cbio.portal.openIDlogin.OpenIDUserDetailsService">
       <b:constructor-arg ref="portalUserDAO"/>
 	</b:bean>
 
@@ -135,11 +135,11 @@
 <!-- 
      some beans to help with access control
 -->
-   <b:bean id="config" class="org.mskcc.cgds.util.Config"/>
-   <b:bean id="accessControl" class="org.mskcc.cgds.util.internal.AccessControlImpl">
+   <b:bean id="config" class="org.mskcc.cbio.cgds.util.Config"/>
+   <b:bean id="accessControl" class="org.mskcc.cbio.cgds.util.internal.AccessControlImpl">
      <b:constructor-arg ref="config"/>
    </b:bean>
-   <b:bean id="portalUserDAO" class="org.mskcc.portal.dao.internal.PortalUserJDBCDAO">
+   <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
      <b:constructor-arg ref="dataSource"/>
    </b:bean>
 

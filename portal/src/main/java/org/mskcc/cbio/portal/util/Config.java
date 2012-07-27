@@ -10,7 +10,8 @@ public class Config {
 
     private Config() {
         try {
-            InputStream in = this.getClass().getResourceAsStream("build.properties");
+			String props = "build.properties";
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
             properties = new Properties();
             if (in != null) {
                 properties.load(in);

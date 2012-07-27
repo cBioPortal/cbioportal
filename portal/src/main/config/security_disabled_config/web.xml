@@ -76,7 +76,7 @@
 
     <servlet>
         <servlet-name>query_builder</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.QueryBuilder</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>
         <init-param>
             <param-name>pathway_commons_url</param-name>
             <param-value>${pathway_commons.url}</param-value>
@@ -86,7 +86,7 @@
 
     <servlet>
         <servlet-name>webservice</servlet-name>
-        <servlet-class>org.mskcc.cgds.servlet.WebService</servlet-class>
+        <servlet-class>org.mskcc.cbio.cgds.servlet.WebService</servlet-class>
         <init-param>
             <param-name>db_host</param-name>
             <param-value>${db.host}</param-value>
@@ -108,37 +108,37 @@
 
     <servlet>
         <servlet-name>cross_cancer_query</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.CrossCancerStudyServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>cross_cancer_summary</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.CrossCancerSummaryServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerSummaryServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.PortalMetaDataJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaDataJSON</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>plot</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.PlotServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PlotServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>boxplot</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.BoxPlotServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.BoxPlotServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>scatterplot</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.ScatterPlotServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ScatterPlotServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>generatePlots</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.GeneratePlots</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneratePlots</servlet-class>
         <init-param>
             <param-name>r_installed</param-name>
             <param-value>${r_installed}</param-value>
@@ -147,67 +147,67 @@
 
     <servlet>
         <servlet-name>plot-test</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.PlotTestServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PlotTestServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>show_data</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.ShowData</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>network</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.NetworkServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
     </servlet>
 
     <servlet>
     	<servlet-name>CheckGeneSymbolJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CheckGeneSymbolJSON</servlet-class>
     </servlet>
     
     <servlet>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.ClinicalFreeFormJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalFreeFormJSON</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>oma_redirect</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.OmaRedirectServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OmaRedirectServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.LinkOut</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>mutation_diagram_data_json</servlet-name>
-        <servlet-class>org.mskcc.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>oncoprint_converter</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.OncoPrintConverter</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
     
     <servlet>
         <servlet-name>histogram_converter</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerHistogramConverter</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>MutSigJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.MutSigJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutSigJSON</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>GisticJSON</servlet-name>
-        <servlet-class>org.mskcc.portal.servlet.GisticJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GisticJSON</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -352,7 +352,7 @@
             Wraps the request, allowing it to be used as a regular request, 
             'as if' it were parsed by the Servlet API.
         </description>
-        <filter-class>org.mskcc.portal.util.FileUploadFilter</filter-class>
+        <filter-class>org.mskcc.cbio.portal.util.FileUploadFilter</filter-class>
     </filter>
 
     <filter-mapping>

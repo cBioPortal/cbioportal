@@ -89,8 +89,14 @@
                     },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
-                        "fnRender": function(obj) {
-                            return "<b><i>"+obj.aData[ obj.iDataColumn ]+"</i></b>";
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["aa"]]=value;
+                            } else if (type==='display') {
+                                return "<b><i>"+source[mutTableIndices["aa"]]+"</i></b>";
+                            } else {
+                                return source[mutTableIndices["aa"]];
+                            }
                         }
                     },
                     {// mutsig
@@ -103,8 +109,31 @@
                         "aTargets": [ mutTableIndices["overview"] ]
                     },
                     {// mutation rate
-                        "mDataProp": null,
-                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["mutrate"]]=value;
+                            } else if (type==='display') {
+                                if (!source[mutTableIndices["mutrate"]]) return "<img src=\"images/ajax-loader2.gif\">";
+                                var eventId = source[mutTableIndices["id"]];
+                                var gene = source[mutTableIndices["gene"]];
+                                var aa = source[mutTableIndices["aa"]];
+                                var mutCon = mutAAContext[eventId];
+                                var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
+                                var geneCon = mutGeneContext[gene];
+                                var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
+                                return gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/><i>"
+                                            + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
+                            } else if (type==='sort') {
+                                if (!source[mutTableIndices["mutrate"]]) return 0;
+                                var gene = source[mutTableIndices["gene"]];
+                                var geneCon = ''+mutGeneContext[gene];
+                                var pad = '000000';
+                                return pad.substring(0, pad.length - geneCon.length) + geneCon;
+                            } else {
+                                return '';
+                            }
+                        },
                         "aTargets": [ mutTableIndices["mutrate"] ]
                     },
                     {// drugs
@@ -113,7 +142,7 @@
                             if (type==='set') {
                                 source[mutTableIndices["drug"]]=value;
                             } else if (type==='display') {
-                                if (mutDrugs==null) return "<img src=\"images/ajax-loader2.gif\">";
+                                if (!source[mutTableIndices["drug"]]) return "<img src=\"images/ajax-loader2.gif\">";
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                 if (drug==null) return '';
                                 var len = drug.length;
@@ -121,17 +150,17 @@
                                             +drug.join(',')+"'); return false;\">"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
-                                if (mutDrugs==null) return 0;
+                                if (!source[mutTableIndices["drug"]]) return 0;
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                 var n = ''+(drug ? drug.length : 0);
                                 var pad = '000000';
                                 return pad.substring(0, pad.length - n.length) + n;
                             } else if (type==='filter') {
-                                if (mutDrugs==null) return '';
+                                if (!source[mutTableIndices["drug"]]) return '';
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                 return drug ? 'drug' : '';
                             } else {
-                                if (mutDrugs==null) return '';
+                                if (!source[mutTableIndices["drug"]]) return '';
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                 return drug ? drug : '';
                             }
@@ -162,38 +191,20 @@
         return oTable;
     }
     
-    numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
+    var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
     
-    function getMutationContextMap(mutationContext, geneContext, mutations) {
-        var map = {};
-        var nRows = mutations.length;
-        for (var row=0; row<nRows; row++) {
-            var eventId = mutations[row][0];
-            var gene = trimHtml(mutations[row][mutTableIndices["gene"]]);
-            var aa = trimHtml(mutations[row][mutTableIndices["aa"]]);
-            var mutCon = mutationContext[eventId];
-            var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
-            var geneCon = geneContext[gene];
-            var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
-            var context = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/><i>"
-                        + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
-            map[eventId] = context;
-        }
-        return map;
-     }
-    
-    function updateMutationContext(mutationContextMap, oTable, summaryOnly) {
+    function updateMutationContext(oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            var eventId = oTable.fnGetData(row, mutTableIndices["id"]);
-            var context = mutationContextMap[eventId];
-            oTable.fnUpdate(context, row, mutTableIndices["mutrate"], false, false);
+            oTable.fnUpdate('true', row, mutTableIndices["mutrate"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
     }
     
+    var mutGeneContext = null;
+    var mutAAContext = null;
     function loadMutationContextData(mutations, mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
@@ -204,13 +215,10 @@
         $.post("mutations.json", 
             params,
             function(context){
-                var mutationContext = context['<%=MutationsJSON.MUTATION_CONTEXT%>'];
-                var geneContext =  context['<%=MutationsJSON.GENE_CONTEXT%>'];
-                var mutationContextMap = getMutationContextMap(mutationContext,
-                            geneContext, mutations);
-                
-                updateMutationContext(mutationContextMap, mut_table, false);
-                updateMutationContext(mutationContextMap, mut_summary_table, true);
+                mutAAContext = context['<%=MutationsJSON.MUTATION_CONTEXT%>'];
+                mutGeneContext =  context['<%=MutationsJSON.GENE_CONTEXT%>'];
+                updateMutationContext(mut_table, false);
+                updateMutationContext(mut_summary_table, true);
             }
             ,"json"
         );
@@ -220,7 +228,7 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            oTable.fnUpdate('loaded', row, mutTableIndices["drug"], false, false);
+            oTable.fnUpdate('true', row, mutTableIndices["drug"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");

@@ -53,31 +53,18 @@
     
     numPatientInSameCnaProfile = <%=numPatientInSameCnaProfile%>;
     
-    function getCnaContextMap(cnaContext) {
-        var map = {};
-        for (var eventId in cnaContext) {
-            var con = cnaContext[eventId];
-            var perc = 100.0 * con / numPatientInSameCnaProfile;
-            var context = con + " (<b>" + perc.toFixed(1) + "%</b>)<br/>";
-            map[eventId] = context;
-        }
-        return map;
-    }
-    
-    function updateCnaContext(cnaContextMap, oTable, summaryOnly) {
+    function updateCnaContext(oTable, summaryOnly) {
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
-            var eventId = oTable.fnGetData(row, cnaTableIndices['id']);
-            var context = cnaContextMap[eventId];
-            oTable.fnUpdate(context, row, cnaTableIndices['altrate'], false, false);
+            oTable.fnUpdate(true, row, cnaTableIndices['altrate'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
     }
     
+    var cnaContext = null;
     function loadCnaContextData(cna_table, cna_summary_table) {
-        
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
             <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
@@ -87,9 +74,9 @@
         $.post("cna.json", 
             params,
             function(context){
-                var cnaContextMap = getCnaContextMap(context);
-                updateCnaContext(cnaContextMap, cna_table, false);
-                updateCnaContext(cnaContextMap, cna_summary_table, true);
+                cnaContext = context;
+                updateCnaContext(cna_table, false);
+                updateCnaContext(cna_summary_table, true);
             }
             ,"json"
         );
@@ -99,7 +86,7 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
-            oTable.fnUpdate('loaded', row, cnaTableIndices['drug'], false, false);
+            oTable.fnUpdate('true', row, cnaTableIndices['drug'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -164,8 +151,24 @@
                         "aTargets": [ cnaTableIndices['overview'] ]
                     },
                     {// context
-                        "mDataProp": null,
-                        "sDefaultContent": "<img src=\"images/ajax-loader2.gif\">",
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                source[cnaTableIndices["altrate"]]=value;
+                            } else if (type==='display') {
+                                if (!source[cnaTableIndices["altrate"]]) return "<img src=\"images/ajax-loader2.gif\">";
+                                var con = cnaContext[source[cnaTableIndices["id"]]];
+                                var perc = 100.0 * con / numPatientInSameCnaProfile;
+                                return con + " (<b>" + perc.toFixed(1) + "%</b>)<br/>";
+                            } else if (type==='sort') {
+                                if (!source[cnaTableIndices["altrate"]]) return 0;
+                                var con = ''+cnaContext[source[cnaTableIndices["id"]]];
+                                var pad = '000000';
+                                return pad.substring(0, pad.length - con.length) + con;
+                            } else {
+                                return '';
+                            }
+                        },
                         "aTargets": [ cnaTableIndices['altrate'] ]
                     },
                     {// Drugs
@@ -174,7 +177,7 @@
                             if (type==='set') {
                                 source[cnaTableIndices["drug"]]=value;
                             } else if (type==='display') {
-                                if (cnaDrugs==null) return "<img src=\"images/ajax-loader2.gif\">";
+                                if (!source[cnaTableIndices["drug"]]) return "<img src=\"images/ajax-loader2.gif\">";
                                 var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
                                 if (drug==null) return '';
                                 var len = drug.length;
@@ -182,17 +185,17 @@
                                             +drug.join(',')+"'); return false;\">"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
-                                if (cnaDrugs==null) return 0;
+                                if (!source[cnaTableIndices["drug"]]) return 0;
                                 var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
                                 var n = ''+(drug ? drug.length : 0);
                                 var pad = '000000';
                                 return pad.substring(0, pad.length - n.length) + n;
                             } else if (type==='filter') {
-                                if (cnaDrugs==null) return '';
+                                if (!source[cnaTableIndices["drug"]]) return '';
                                 var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
                                 return drug ? 'drug' : '';
                             } else {
-                                if (cnaDrugs==null) return '';
+                                if (!source[cnaTableIndices["drug"]]) return '';
                                 var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
                                 return drug ? drug : '';
                             }

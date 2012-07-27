@@ -11,8 +11,8 @@ log4j.category.org.mskcc=INFO
 
 log4j.appender.a = org.apache.log4j.rolling.RollingFileAppender
 log4j.appender.a.rollingPolicy = org.apache.log4j.rolling.TimeBasedRollingPolicy
-log4j.appender.a.rollingPolicy.FileNamePattern = log.file.path.%d.gz
-log4j.appender.a.File = log.file.path
+log4j.appender.a.rollingPolicy.FileNamePattern = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log.%d.gz
+log4j.appender.a.File = /srv/www/sander-tomcat/tomcat6/logs/public-portal.log
 log4j.appender.a.layout = org.apache.log4j.PatternLayout
 log4j.appender.a.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c - %m%n
 log4j.appender.a.append = true

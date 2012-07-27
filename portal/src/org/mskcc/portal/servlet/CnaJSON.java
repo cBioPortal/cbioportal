@@ -241,7 +241,7 @@ public class CnaJSON extends HttpServlet {
         row.add(cnaEvent.getAlteration().getDescription());
         
         // TODO: GISTIC
-        double gistic = Math.random();
+        double gistic = 0.0;
         row.add(gistic);
         
         // show in summary table

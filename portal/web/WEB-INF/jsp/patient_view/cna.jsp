@@ -169,6 +169,7 @@
                                 return '';
                             }
                         },
+                        "asSorting": ["desc", "asc"],
                         "aTargets": [ cnaTableIndices['altrate'] ]
                     },
                     {// Drugs
@@ -200,6 +201,7 @@
                                 return drug ? drug : '';
                             }
                         },
+                        "asSorting": ["desc", "asc"],
                         "aTargets": [ cnaTableIndices['drug'] ]
                     },
                     {// note
@@ -209,7 +211,7 @@
                         "aTargets": [ cnaTableIndices['note'] ]
                     }
                 ],
-                "aaSorting": [[cnaTableIndices['gistic'],'asc']],
+                "aaSorting": [[cnaTableIndices['gistic'],'asc'],[cnaTableIndices['altrate'],'desc'],[cnaTableIndices['drug'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

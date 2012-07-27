@@ -134,6 +134,7 @@
                                 return '';
                             }
                         },
+                        "asSorting": ["desc", "asc"],
                         "aTargets": [ mutTableIndices["mutrate"] ]
                     },
                     {// drugs
@@ -165,6 +166,7 @@
                                 return drug ? drug : '';
                             }
                         },
+                        "asSorting": ["desc", "asc"],
                         "aTargets": [ mutTableIndices["drug"] ]
                     },
                     {// note 
@@ -174,7 +176,7 @@
                         "aTargets": [ mutTableIndices["note"] ]
                     }
                 ],
-                "aaSorting": [[mutTableIndices["mutsig"],'asc']],
+                "aaSorting": [[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

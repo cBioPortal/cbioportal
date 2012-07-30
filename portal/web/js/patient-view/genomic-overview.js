@@ -247,7 +247,7 @@ genomicOverviewTip.prototype = {
                     tipObj.tipDiv.html(txt);
                     tipObj.setTipDivLoc(e.clientX+pageXOffset,e.clientY+pageYOffset);
                 }
-            },400);
+            },100);
             
         }).mouseleave(function(){
             tipObj.node = null;

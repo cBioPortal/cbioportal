@@ -21,8 +21,6 @@ public class TestSkinUtil extends TestCase {
         assertEquals(true, SkinUtil.showDataTab());
         assertEquals(true, SkinUtil.showRightNavDataSets());
         assertEquals(true, SkinUtil.showRightNavExamples());
-        assertEquals("Access to this portal is only available to authorized users.",
-                SkinUtil.getAuthorizationMessage());
     }
 
 }

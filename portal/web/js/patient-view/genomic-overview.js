@@ -152,7 +152,8 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
             r.translate(0.5, 0.5);
             var locStart = chmInfo.xpixil2loc(config,pixil);
             var locEnd = chmInfo.xpixil2loc(config,pixil+config.pixelsPerBinMut,locStart[0]);
-            var tip = '<a href="#" onclick="goTip.tipDiv.mouseleave();filterMutationsTableByIds(\''+idRegEx(arr)+'\');switchToTab(\'mutations\');return false;">'+arr.length+' mutations</a>'
+            var tip = '<a href="#" onclick="goTip.tipDiv.mouseleave();filterMutationsTableByIds(\''
+                +idRegEx(arr)+'\');switchToTab(\'mutations\');return false;">'+arr.length+' mutation'+(arr.length>1?'s':'')+'</a>'
                         +"<br/>from "+loc2string(locStart,chmInfo)+"<br/>to "+loc2string(locEnd,chmInfo);
             goTip.addTip(r.node, tip);
         }

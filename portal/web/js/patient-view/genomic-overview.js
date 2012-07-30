@@ -160,7 +160,9 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
     }
     
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
-    p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end'});
+    var t = p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end', 'font-weight': 'bold'});
+    underlineText(t,p);
+    goTip.addTip(t.node, "Number of mutation events");
 }
 
 function loc2string(loc,chmInfo) {
@@ -205,7 +207,14 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
         goTip.addTip(r.node, tip);
     }
     p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
-    p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end'});
+    var t = p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end', 'font-weight': 'bold'});
+    underlineText(t,p);
+    goTip.addTip(t.node, "Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions");
+}
+
+function underlineText(textElement,p) {
+    var textBBox = textElement.getBBox();
+    return p.path("M"+textBBox.x+" "+(textBBox.y+textBBox.height)+"L"+(textBBox.x+textBBox.width)+" "+(textBBox.y+textBBox.height));  
 }
 
 function extractLoc(data,chrCol,startCol,endCol) {

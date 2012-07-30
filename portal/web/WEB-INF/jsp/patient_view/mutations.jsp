@@ -186,9 +186,6 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        // help
-        $('.mutations_help').tipTip();
-
         $(table_id).css("width","100%");
         return oTable;
     }
@@ -280,16 +277,24 @@
                 geObs.fire('mutations-built');
                 
                 // summary table
-                mut_summary_table = buildMutationsDataTable(mutations, '#mutation_summary_table', '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 5);
-                $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "+mutations.length+" mutations</a>");
+                mut_summary_table = buildMutationsDataTable(mutations, '#mutation_summary_table',
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 10);
+                $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
+                    +mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {
                     switchToTab('mutations');
                     return false;
                 });
                 mut_summary_table.fnFilter('true', mutTableIndices["overview"]);
-                $('.mutation-summary-table-name').html(mut_summary_table.fnSettings().fnRecordsDisplay()+' mutations of Interest (out of '+mutations.length+' mutations)');
+                $('.mutation-summary-table-name').html(mut_summary_table.fnSettings().fnRecordsDisplay()
+                    +" mutations of Interest (out of "+mutations.length+" mutations)"
+                    +" <img class='mutations_help' src='images/help.png'"
+                    +" title='This table contains genes that are either recurrently mutated (MutSig Q-value<0.05) or in the Sanger Cancer Gene Census.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
+
+                // help
+                $('.mutations_help').tipTip();
                 
                 loadMutationContextData(mutations, mut_table, mut_summary_table);
                 loadMutationDrugData(mut_table, mut_summary_table);

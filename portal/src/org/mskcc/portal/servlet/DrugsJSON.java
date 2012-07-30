@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -22,6 +23,7 @@ public class DrugsJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(DrugsJSON.class);
     
     public static final String DRUG_IDS = "drug_ids";
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -37,15 +39,29 @@ public class DrugsJSON extends HttpServlet {
         String[] drugIds = strDrugIds.split("[ ,]+");
         
         List<Drug> drugs = Collections.emptyList();
+        Map<String,List<String>> drugInteractions = Collections.emptyMap();
         
         try {
-            drugs = DaoDrug.getInstance().getDrugs(Arrays.asList(drugIds));
+            DaoDrug daoDrug = DaoDrug.getInstance();
+            DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            
+            drugs = daoDrug.getDrugs(Arrays.asList(drugIds));
+            drugInteractions = new HashMap<String,List<String>>();
+            for (DrugInteraction di : daoDrugInteraction.getTargets(drugs)) {
+                List<String> dis = drugInteractions.get(di.getDrug());
+                if (dis==null) {
+                    dis = new ArrayList<String>();
+                    drugInteractions.put(di.getDrug(), dis);
+                }
+                dis.add(daoGene.getGene(di.getTargetGene()).getHugoGeneSymbolAllCaps());
+            }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         for (Drug drug : drugs) {
-            exportDrug(table, drug);
+            exportDrug(table, drug, drugInteractions.get(drug.getId()));
         }
 
         response.setContentType("application/json");
@@ -58,12 +74,13 @@ public class DrugsJSON extends HttpServlet {
         }
     }
     
-    private void exportDrug(JSONArray table, Drug drug) 
+    private void exportDrug(JSONArray table, Drug drug, List<String> targets) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(drug.getId());
+        row.add(StringUtils.join(targets,", "));
         row.add(drug.getName());
-        row.add(drug.getSynonyms());
+        row.add(drug.getSynonyms().replaceAll(";","; "));
         row.add(drug.isApprovedFDA());
         row.add(drug.getDescription());
         row.add(drug.getResource());

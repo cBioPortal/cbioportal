@@ -128,6 +128,7 @@ if (patientViewError!=null) {
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Target Genes</th>
                 <th>Name</th>
                 <th>Synonyms</th>
                 <th>FDA Approved?</th>
@@ -213,13 +214,13 @@ function openDrugDialog(drugIds) {
                 "aaData": drugs,
                 "aoColumnDefs":[
                     {// data source
-                        "aTargets": [ 3 ],
+                        "aTargets": [ 4 ],
                         "fnRender": function(obj) {
                             return obj.aData[ obj.iDataColumn ]?"Yes":"No";
                         }
                     },
                     {// data source
-                        "aTargets": [ 5 ],
+                        "aTargets": [ 6 ],
                         "fnRender": function(obj) {
                             var source = obj.aData[ obj.iDataColumn ];
                             if (source.toLowerCase()!="drugbank") return source;
@@ -236,9 +237,6 @@ function openDrugDialog(drugIds) {
                 "iDisplayLength": 25,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
             } );
-
-            // help
-            $('.mutations_help').tipTip();
 
             $('#drugs_table').css("width","100%");
             $('#drugs_table').show();

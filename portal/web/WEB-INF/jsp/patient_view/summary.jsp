@@ -21,7 +21,7 @@
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0));
+        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-50);
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);

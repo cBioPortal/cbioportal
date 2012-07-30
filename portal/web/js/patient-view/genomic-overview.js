@@ -1,7 +1,7 @@
-function GenomicOverviewConfig(nRows) {
+function GenomicOverviewConfig(nRows,width) {
     this.nRows = nRows;
-    this.GenomeWidth = 1140;
     this.xGenome = 60;
+    this.GenomeWidth = width-this.xGenome;
     this.pixelsPerBinMut = 3;
     this.rowHeight = 20;
     this.rowMargin = 5;

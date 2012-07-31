@@ -51,9 +51,7 @@ function resetAllPlots(dt) {
 
     $('#clinical-data-loading-wait').hide();
     $('#summary-plot-table').show();
-
-    var formatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
-    formatter.format(dt, [0]);
+    
     drawDataTable('clinical-data-table',dt,caseMap);
 
     var colCna = headerMap['copy_number_altered_fraction'];
@@ -86,6 +84,15 @@ function decideToPlot(dt,col) {
 // draw datatable
 function drawDataTable(divId,dt,caseMap) {
     var tableDataView = new google.visualization.DataView(dt);
+
+    var idFormatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
+    idFormatter.format(dt, [0]);
+    
+    var numFormatter = new google.visualization.NumberFormat({pattern:'#.##'});
+    for (var i=0, len=dt.getNumberOfColumns(); i<len; i++) {
+        numFormatter.format(dt, i);
+    }
+    
     var table = new google.visualization.Table(document.getElementById(divId));
     var options = {
         allowHtml: true,

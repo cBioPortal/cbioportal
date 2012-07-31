@@ -59,6 +59,13 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
+    <!-- Required by the Apache FileUpload tool. -->
+    <listener>
+        <listener-class>
+            org.apache.commons.fileupload.servlet.FileCleanerCleanup
+        </listener-class>
+    </listener>
+
 	<!-- SPRING SECURITY SETTINGS END -->
 
 	<!--

@@ -4,7 +4,7 @@ import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.servlet.WebService;
 import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.portal.util.WebFileConnect;
+import org.mskcc.cbio.io.WebFileConnect;
 
 import java.util.ArrayList;
 import java.io.IOException;

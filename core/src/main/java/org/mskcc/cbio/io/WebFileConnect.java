@@ -1,6 +1,4 @@
-package org.mskcc.cbio.portal.util;
-
-import org.mskcc.cbio.cgds.web_api.WebApiUtil;
+package org.mskcc.cbio.io;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +11,10 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class WebFileConnect {
+public class WebFileConnect
+{
+	public static final String TAB = "\t";
+	public static final String NEW_LINE = "\n";
 
     /**
      * Retrieves the Content from the Specified File.
@@ -52,7 +53,7 @@ public class WebFileConnect {
     }
 
     private static String[][] prepareMatrix(String content) {
-        String rawLines[] = content.split(WebApiUtil.NEW_LINE);
+        String rawLines[] = content.split(NEW_LINE);
 
         // Ignore all lines starting with # sign;  these are comments or warnings, not data.
         ArrayList<String> finalLines = new ArrayList<String>();
@@ -68,13 +69,13 @@ public class WebFileConnect {
         int numCols = 0;
         if (lines.length > 0) {
             String firstLine = lines[0];
-            String parts[] = firstLine.split(WebApiUtil.TAB);
+            String parts[] = firstLine.split(TAB);
             numCols = parts.length;
         }
         if (numRows > 0 && numCols > 0) {
             matrix = new String[numRows][numCols];
             for (int i = 0; i < lines.length; i++) {
-                String parts[] = lines[i].split(WebApiUtil.TAB);
+                String parts[] = lines[i].split(TAB);
                 for (int j = 0; j < parts.length; j++) {
                     matrix[i][j] = parts[j];
                 }
@@ -86,7 +87,7 @@ public class WebFileConnect {
     /**
      * Reads Content from a Buffered Reader.
      */
-    private static String readFile(BufferedReader in) throws IOException {
+    public static String readFile(BufferedReader in) throws IOException {
         StringBuffer buf = new StringBuffer();
         String str;
         while ((str = in.readLine()) != null) {

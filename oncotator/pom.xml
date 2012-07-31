@@ -4,11 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<!-- module meta data -->
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.mskcc.cbio</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.mskcc.cbio</groupId>
 	<artifactId>oncotator</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>Maven Quick Start Archetype</name>
+	<name>Oncotator Tool</name>
 	<url>http://maven.apache.org</url>
 
 	<!-- dependencies -->
@@ -32,6 +36,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.21</version>
 			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>core</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

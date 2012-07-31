@@ -1,6 +1,6 @@
 package org.mskcc.cbio.oncotator;
 
-import org.mskcc.cbio.web.WebFileConnect;
+import org.mskcc.cbio.io.WebFileConnect;
 
 import java.io.IOException;
 import java.io.BufferedReader;

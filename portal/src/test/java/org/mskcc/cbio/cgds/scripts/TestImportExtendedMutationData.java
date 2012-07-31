@@ -77,6 +77,13 @@ public class TestImportExtendedMutationData extends TestCase {
             validateMutationAminoAcid(1, "TCGA-AA-3664", 6667, "A513V");
             // Unknown  Somatic mutations on somatic whitelist2
 
+	        // additional tests for the MAF columns added after oncotator
+	        loadGenes();
+	        file = new File("target/test-classes/data_mutations_oncotated.txt");
+	        parser = new ImportExtendedMutationData(file, 1, pMonitor);
+	        parser.importData();
+	        checkOncotatedImport();
+
         } catch (DaoException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -95,6 +102,22 @@ public class TestImportExtendedMutationData extends TestCase {
         rejectSilentLOHIntronWildtype();
         acceptValidSomaticMutations();
     }
+
+	private void checkOncotatedImport() throws DaoException
+	{
+		DaoMutation daoMutation = DaoMutation.getInstance();
+		ArrayList<ExtendedMutation> mutationList = daoMutation.getAllMutations();
+
+		// assert table size; 3 silent mutations should be rejected
+		assertEquals(17, mutationList.size());
+
+		// assert data for oncotator columns
+		assertEquals("FAM90A1", mutationList.get(0).getGeneSymbol());
+		assertEquals("Missense_Mutation", mutationList.get(1).getOncotatorVariantClassification());
+		assertEquals("p.R131H", mutationList.get(4).getOncotatorProteinChange());
+		assertEquals("rs76360727;rs33980232", mutationList.get(10).getOncotatorDbSnpRs());
+		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)", mutationList.get(16).getOncotatorCosmicOverlapping());
+	}
 
     private void validateMutationAminoAcid (int geneticProfileId, String caseId, long entrezGeneId,
             String expectedAminoAcidChange) throws DaoException {
@@ -139,6 +162,8 @@ public class TestImportExtendedMutationData extends TestCase {
     private void loadGenes() throws DaoException {
         ResetDatabase.resetDatabase();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+	    // genes for "data_mutations_extended.txt"
         daoGene.addGene(new CanonicalGene(114548L, "NLRP3"));
         daoGene.addGene(new CanonicalGene(3339L, "HSPG2"));
         daoGene.addGene(new CanonicalGene(282770L, "OR10AG1"));
@@ -155,5 +180,27 @@ public class TestImportExtendedMutationData extends TestCase {
         daoGene.addGene(new CanonicalGene(6667L, "SP1"));
         daoGene.addGene(new CanonicalGene(2842L, "GPR19"));
 
+	    // additional genes for "data_mutations_oncotated.txt"
+	    daoGene.addGene(new CanonicalGene(55138L, "FAM90A1"));
+	    daoGene.addGene(new CanonicalGene(10628L, "TXNIP"));
+	    daoGene.addGene(new CanonicalGene(80343, "SEL1L2"));
+	    daoGene.addGene(new CanonicalGene(29102L, "DROSHA"));
+	    daoGene.addGene(new CanonicalGene(7204L, "TRIO"));
+	    daoGene.addGene(new CanonicalGene(57111L, "RAB25"));
+	    daoGene.addGene(new CanonicalGene(773L, "CACNA1A"));
+	    daoGene.addGene(new CanonicalGene(100132025L, "LOC100132025"));
+	    daoGene.addGene(new CanonicalGene(1769L, "DNAH8"));
+	    daoGene.addGene(new CanonicalGene(343171L, "OR2W3"));
+	    daoGene.addGene(new CanonicalGene(2901L, "GRIK5"));
+	    daoGene.addGene(new CanonicalGene(10568L, "SLC34A2"));
+	    daoGene.addGene(new CanonicalGene(140738L, "TMEM37"));
+	    daoGene.addGene(new CanonicalGene(94025L, "MUC16"));
+	    daoGene.addGene(new CanonicalGene(1915L, "EEF1A1"));
+	    daoGene.addGene(new CanonicalGene(65083L, "NOL6"));
+	    daoGene.addGene(new CanonicalGene(7094L, "TLN1"));
+	    daoGene.addGene(new CanonicalGene(51196L, "PLCE1"));
+	    daoGene.addGene(new CanonicalGene(1952L, "CELSR2"));
+	    daoGene.addGene(new CanonicalGene(2322L, "FLT3"));
+	    daoGene.addGene(new CanonicalGene(867L, "CBL"));
     }
 }

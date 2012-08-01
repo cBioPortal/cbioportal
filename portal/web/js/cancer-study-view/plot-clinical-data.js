@@ -23,7 +23,6 @@ CaseSelectObserver.prototype = {
         }
     }
 };
-var csObs = new CaseSelectObserver();
 
 function nrKeysAssociativeArrays(a) {
     if (a==null) return 0;
@@ -42,29 +41,6 @@ function compareAssociativeArrays(a, b) {
         }
     }
     return true;
-}
- 
-// replot all
-function resetAllPlots(dt) {
-    var headerMap = getHeaderMap(dt);
-    var caseMap = getCaseMap(dt);
-
-    $('#clinical-data-loading-wait').hide();
-    $('#summary-plot-table').show();
-    
-    drawDataTable('clinical-data-table',dt,caseMap);
-
-    var colCna = headerMap['copy_number_altered_fraction'];
-    var colMut = headerMap['mutation_count'];
-    plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,false,false);
-
-    $('#mut-cna-config').show();
-
-    $(".mut-cna-axis-log").change(function() {
-        mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
-    });
-
-    resetSmallPlots(dt);
 }
 
 // replot small
@@ -135,7 +111,7 @@ function drawDataTable(divId,dt,caseMap) {
     table.draw(tableDataView,options);
 }
 
-function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
+function plotMutVsCna(divId,caseIdDiv,dt,colCna,colMut,caseMap,hLog,vLog) {
         var scatterDataView = new google.visualization.DataView(dt);
         scatterDataView.setColumns(
             [colCna,
@@ -148,21 +124,21 @@ function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
             var s = scatter.getSelection();
             if (s.length>1) return;
             var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-            $('#case-id-div').html(formatPatientLink(caseId));
-            csObs.fireSelection(caseId, 'scatter-plot');
+            $('#'+caseIdDiv).html(formatPatientLink(caseId));
+            csObs.fireSelection(caseId, divId);
             resetSmallPlots(dt);
         });
 
         google.visualization.events.addListener(scatter, 'ready', function(e){
-            csObs.subscribe('scatter-plot',function(caseId) {
+            csObs.subscribe(divId,function(caseId) {
                 if (caseId==null) {
                     scatter.setSelection(null);
-                    $('#case-id-div').html("");
+                    $('#'+caseIdDiv).html("");
                 }
                 if ((typeof caseId)==(typeof "")) {
                     var ix = caseMap[caseId];
                     scatter.setSelection(ix==null?null:[{'row': ix}]);
-                    $('#case-id-div').html(formatPatientLink(caseId));
+                    $('#'+caseIdDiv).html(formatPatientLink(caseId));
                 } else if ((typeof caseId)==(typeof {})) {
                     var rows = [];
                     for (var id in caseId) {
@@ -171,7 +147,7 @@ function plotMutVsCna(divId,dt,colCna,colMut,caseMap,hLog,vLog) {
                             rows.push({'row':caseMap[id]});
                     }
                     scatter.setSelection(rows);
-                    $('#case-id-div').html(rows.length==1?formatPatientLink(id):"");
+                    $('#'+caseIdDiv).html(rows.length==1?formatPatientLink(id):"");
                 } 
             },true);
         });

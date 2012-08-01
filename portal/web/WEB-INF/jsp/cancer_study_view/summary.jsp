@@ -123,8 +123,7 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna('mut-cna-scatter-plot',dt,colCna,colMut,caseMap,hLog,vLog);
-        csObs.fireSelection(csObs.caseId,null,'scatter-plot',true);
+        plotMutVsCna('mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,hLog,vLog);
     }
     
     function mergeDataTables() {
@@ -151,7 +150,31 @@
         
         return dt;
     }
+ 
+    // replot all
+    function resetAllPlots(dt) {
+        var headerMap = getHeaderMap(dt);
+        var caseMap = getCaseMap(dt);
+
+        $('#clinical-data-loading-wait').hide();
+        $('#summary-plot-table').show();
+
+        drawDataTable('clinical-data-table',dt,caseMap);
+
+        var colCna = headerMap['copy_number_altered_fraction'];
+        var colMut = headerMap['mutation_count'];
+        plotMutVsCna('mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,false,false);
+
+        $('#mut-cna-config').show();
+
+        $(".mut-cna-axis-log").change(function() {
+            mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
+        });
+
+        resetSmallPlots(dt);
+    }
     
+    var csObs = new CaseSelectObserver();
 
 </script>
 
@@ -164,30 +187,7 @@
         <td id="small-plot-td-1"></td>
         <td id="small-plot-td-2"></td>
         <td rowspan="2" colspan="2">
-            <fieldset style="padding:0px 1px">
-                <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
-                <div style="display:none">
-                    <form name="input" action="patient.do" method="get">
-                        <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
-                        <input type="submit" id="submit-patient-btn" value="More About This Case" />
-                    </form>
-                </div>
-                <div id="mut-cna-scatter-plot" class="large-plot-div">
-                    <img src="images/ajax-loader.gif"/>
-                </div>
-                <table style="display:none;width:100%;" id="mut-cna-config">
-                    <tr width="100%">
-                            <td>
-                                H-Axis scale: <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
-                                <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-haxis-log"/>log<br/>
-                                V-Axis scale: <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>Normal &nbsp;
-                                <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-vaxis-log"/>log
-                            </td>
-                            <td id="case-id-div" align="right">
-                            </td>
-                    </tr>
-                </table>
-            </fieldset>
+            <%@ include file="mut_cna_scatter_plot.jsp" %>
         </td>
     </tr>
     <tr>
@@ -196,5 +196,3 @@
     </tr>
     
 </table>
-
-<div id="clinicalTable"></div>

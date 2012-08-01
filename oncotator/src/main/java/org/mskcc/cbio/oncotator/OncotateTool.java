@@ -254,11 +254,14 @@ public class OncotateTool {
 
     public static void main(String[] args)
     {
-        if (args.length < 2) {
-            System.out.println("command line usage:  oncotateMaf.pl <file.org.mskcc.cbio.maf> <file_output.org.mskcc.cbio.maf>");
+        if (args.length < 2)
+        {
+            System.out.println("command line usage: oncotateMaf.sh <input_maf_file> <output_maf_file");
             System.exit(1);
         }
+
         Date start = new Date();
+
         try {
             OncotateTool tool = new OncotateTool(new File(args[0]), new File(args[1]));
         } catch (Exception e) {

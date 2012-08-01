@@ -19,9 +19,10 @@
             params,
             function(data){
                 if (data==null || (typeof data) != (typeof []) || data.length==0) {
-                    $("#mut-sig-div").html("MutSig data is not available for this cancer study.");
+                    $("#mut-sig-msg").html("MutSig data is not available for this cancer study.");
                     return;
                 }
+                $("#mut-sig-msg").html(data.length+" significantly mutated genes were identified in <%=cancerStudy.getName()%> by <a href='https://confluence.broadinstitute.org/display/CGATools/MutSig'>MutSig</a>.");
                 var json = formatMutSigJson(data);
                 var dataTable = google.visualization.arrayToDataTable(json);
                 var table = new google.visualization.Table(document.getElementById("mut-sig-div"));
@@ -54,4 +55,5 @@
     }
 </script>
 
-<div id="mut-sig-div"><img src="images/ajax-loader.gif"/></div>
+<div id="mut-sig-msg"><img src="images/ajax-loader.gif"/></div><br/>
+<div id="mut-sig-div"></div>

@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>portal</artifactId>
   <packaging>war</packaging>
-  <name>Maven Quick Start Archetype</name>
+  <name>cBio Cancer Genomics Portal</name>
   <url>http://maven.apache.org</url>
 
   <!-- profiles -->

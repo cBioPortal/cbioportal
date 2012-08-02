@@ -34,7 +34,7 @@ portal/src/main/resources/build.properties
 portal/src/main/resources/log4j.properties
 portal/src/main/resources/logging.properties
 firehose-importer/reference_data/gene_info
-
+firehose-importer/firehose.properties
 # use glob syntax
 syntax: glob
 firehose-importer/*.txt

@@ -119,7 +119,7 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     return line;
 }
 
-function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
+function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna) {
     var pixelMap = [];
     for (var i=0; i<muts.length; i++) {
         var loc = extractLoc(muts[i],chrCol,startCol,endCol);
@@ -162,7 +162,8 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol) {
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     var t = p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end', 'font-weight': 'bold'});
     underlineText(t,p);
-    goTip.addTip(t.node, "Number of mutation events");
+    goTip.addTip(t.node, "Number of mutation events."
+        +(!hasCna?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
 }
 
 function loc2string(loc,chmInfo) {
@@ -179,7 +180,7 @@ function addCommas(x)
     return strX;
 }
 
-function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
+function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasMut) {
     var yRow = config.yRow(row);
     var genomeMeasured = 0;
     var genomeAltered = 0;
@@ -209,7 +210,8 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     var t = p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end', 'font-weight': 'bold'});
     underlineText(t,p);
-    goTip.addTip(t.node, "Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions");
+    goTip.addTip(t.node, "Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions."
+            +(!hasMut?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
 }
 
 function underlineText(textElement,p) {

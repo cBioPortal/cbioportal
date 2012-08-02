@@ -9,16 +9,11 @@
     height:200px;
     display:block;
 }
-.large-plot-div {
-    width:540px;
-    height:400px;
-    display:block;
-}
-
 </style>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="js/cancer-study-view/plot-clinical-data.js"></script>
+<script type="text/javascript" src="js/cancer-study-view/scatter-plot-mut-cna.js"></script>
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
@@ -26,8 +21,7 @@
         $('#submit-patient-btn').attr("disabled", true);
         //setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
-        loadMutationCount(mutationProfileId,caseIds);
-        loadCnaFraction(caseIds);
+        loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
     });
     
@@ -51,7 +45,7 @@
         });
     }
     
-    var clincialDataTableWrapper = null;
+    var clincialDataTable = null;
     function loadClinicalData(caseSetId) {
         var params = {cmd:'getClinicalData',
                     case_set_id:caseSetId,
@@ -67,52 +61,21 @@
                     matrix.push(rows[i].split('\t'));
                 }
 
-                clincialDataTableWrapper = new DataTableWrapper();
-                clincialDataTableWrapper.setDataMatrixAndFixTypes(matrix);
+                var wrapper = new DataTableWrapper();
+                wrapper.setDataMatrixAndFixTypes(matrix);
+                clincialDataTable = wrapper.dataTable;
                 mergeTablesAndVisualize();
             })
     }
-
-    var mutDataTableWrapper = null;
-    function loadMutationCount(mutationProfileId,caseIds) {
-        if (mutationProfileId==null) return;
-        var params = {
-            <%=MutationsJSON.CMD%>: '<%=MutationsJSON.COUNT_MUTATIONS_CMD%>',
-            <%=QueryBuilder.CASE_IDS%>: caseIds.join(' '),
-            <%=PatientView.MUTATION_PROFILE%>: mutationProfileId
-        };
-
-        $.post("mutations.json", 
-            params,
-            function(mutationCounts){
-                mutDataTableWrapper = new DataTableWrapper();
-                mutDataTableWrapper.setDataMap(mutationCounts,['case_id','mutation_count']);
-                mergeTablesAndVisualize();
-            }
-            ,"json"
-        );
-    }
-
-    var cnaDataTableWrapper = null;
-    function loadCnaFraction(caseIds) {
-        if (cnaProfileId==null) return;
-        var params = {
-            <%=CnaJSON.CMD%>: '<%=CnaJSON.GET_CNA_FRACTION_CMD%>',
-            <%=QueryBuilder.CASE_IDS%>: caseIds.join(' ')
-        };
-
-        $.post("cna.json", 
-            params,
-            function(cnaFracs){
-                cnaDataTableWrapper = new DataTableWrapper();
-                // TODO: what if no segment available
-                cnaDataTableWrapper.setDataMap(cnaFracs,['case_id','copy_number_altered_fraction']);
-                mergeTablesAndVisualize();
-            }
-            ,"json"
-        );
-    }
     
+    var mutCnaDataTable = null;
+    function mutCnaLoaded(mutCnaDt) {
+        mutCnaDataTable = mutCnaDt;
+        mergeTablesAndVisualize();
+        clincialDataTable = null;
+        mutCnaDataTable = null;
+    }
+
     function mergeTablesAndVisualize() {
         var dt = mergeDataTables();
         if (dt) {
@@ -120,35 +83,19 @@
         }
     }
     
-    function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
-        var hLog = $('#mut-cna-haxis-log').is(":checked");
-        var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna('mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,hLog,vLog);
-    }
-    
     function mergeDataTables() {
-        if (clincialDataTableWrapper==null ||
-            (mutationProfileId!=null && mutDataTableWrapper==null) ||
-            (cnaProfileId!=null && cnaDataTableWrapper==null)) {
+        if (clincialDataTable==null ||
+            ((mutationProfileId!=null || cnaProfileId!=null) && mutCnaDataTable==null)) {
             return null;
         }
         
-        var dt = clincialDataTableWrapper.dataTable;
+        if (mutCnaDataTable==null)
+            return clincialDataTable;
         
-        if (mutDataTableWrapper!=null) {
-            dt = google.visualization.data.join(dt, mutDataTableWrapper.dataTable,
-                    'full', [[0,0]], makeContInxArray(1,dt.getNumberOfColumns()-1),[1]);
-        }
-        
-        if (cnaDataTableWrapper!=null) {
-            dt = google.visualization.data.join(dt, cnaDataTableWrapper.dataTable,
-                    'full', [[0,0]], makeContInxArray(1,dt.getNumberOfColumns()-1),[1]);
-        }
-        
-        clincialDataTableWrapper = null;
-        mutDataTableWrapper = null;
-        
-        return dt;
+        return google.visualization.data.join(clincialDataTable, mutCnaDataTable,
+                    'full', [[0,0]],
+                    makeContInxArray(1,clincialDataTable.getNumberOfColumns()-1),
+                    makeContInxArray(1,mutCnaDataTable.getNumberOfColumns()-1));
     }
  
     // replot all
@@ -163,7 +110,7 @@
 
         var colCna = headerMap['copy_number_altered_fraction'];
         var colMut = headerMap['mutation_count'];
-        plotMutVsCna('mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,false,false);
+        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,false,false);
 
         $('#mut-cna-config').show();
 
@@ -172,6 +119,12 @@
         });
 
         resetSmallPlots(dt);
+    }
+    
+    function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
+        var hLog = $('#mut-cna-haxis-log').is(":checked");
+        var vLog = $('#mut-cna-vaxis-log').is(":checked");
+        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,hLog,vLog);
     }
     
     var csObs = new CaseSelectObserver();

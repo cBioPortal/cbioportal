@@ -302,6 +302,7 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+var caseId = '<%=patient%>';
 var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 
 </script>

@@ -16,6 +16,7 @@
 		<module>portal</module>
 		<module>core</module>
 		<module>oncotator</module>
+		<module>liftover</module>
 	</modules>
     
 </project>

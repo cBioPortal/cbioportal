@@ -89,8 +89,8 @@ public class OncotateTool {
     {
         writer.write(headerLine.trim());
         
-        // write new headers only if the org.mskcc.cbio.oncotator headers do not already exist
-        // in the current MAF file (assuming if it contains one of the org.mskcc.cbio.oncotator
+        // write new headers only if the oncotator headers do not already exist
+        // in the current MAF file (assuming if it contains one of the oncotator
         // headers, then it contains all of them)
         if (!headerLine.contains("ONCOTATOR_VARIANT_CLASSIFICATION"))
         {

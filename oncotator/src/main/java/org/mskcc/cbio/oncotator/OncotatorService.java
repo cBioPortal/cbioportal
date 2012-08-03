@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 public class OncotatorService {
     private static OncotatorService oncotatorService;
-    private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/org.mskcc.cbio.oncotator/mutation/";
+    private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
     //private static final Logger logger = Logger.getLogger(OncotatorService.class);
     private DaoOncotatorCache cache;
     private final static long SLEEP_PERIOD = 0;  // in ms

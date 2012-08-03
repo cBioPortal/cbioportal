@@ -172,7 +172,7 @@ public class PatientView extends HttpServlet {
         if (gender!=null) {
             patientInfo.append(", ").append(gender);
         }
-        Double age = clinicalData.getAgeAtDiagnosis();
+        Double age = clinicalData==null?null:clinicalData.getAgeAtDiagnosis();
         if (age!=null) {
             patientInfo.append(", ").append(age.intValue());
         }
@@ -207,10 +207,10 @@ public class PatientView extends HttpServlet {
         request.setAttribute(DISEASE_INFO, diseaseInfo.toString());
         
         // patient status
-        String oss = clinicalData.getOverallSurvivalStatus();
-        String dfss = clinicalData.getDiseaseFreeSurvivalStatus();
-        Double osm = clinicalData.getOverallSurvivalMonths();
-        Double dfsm = clinicalData.getDiseaseFreeSurvivalMonths();
+        String oss = clinicalData==null?null:clinicalData.getOverallSurvivalStatus();
+        String dfss = clinicalData==null?null:clinicalData.getDiseaseFreeSurvivalStatus();
+        Double osm = clinicalData==null?null:clinicalData.getOverallSurvivalMonths();
+        Double dfsm = clinicalData==null?null:clinicalData.getDiseaseFreeSurvivalMonths();
         StringBuilder patientStatus = new StringBuilder();
         if (oss!=null) {
             patientStatus.append("<font color='")

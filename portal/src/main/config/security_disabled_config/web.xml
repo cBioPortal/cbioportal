@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <display-name>Cancer Genomics Portal</display-name>
+    <display-name>Apache-Axis</display-name>
+
+    <!-- SPRING SECURITY SETTINGS START -->
+
+    <!--
+      - Location of the XML file that defines the root application context
+      - Applied by ContextLoaderListener.  We read this in to disable method security.
+	-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+		  /WEB-INF/classes/applicationContext-security.xml
+		</param-value>
+	</context-param>
+    <servlet>
+        <display-name>Apache-Axis Servlet</display-name>
+        <servlet-name>AxisServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <display-name>Axis Admin Servlet</display-name>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>SOAPMonitorService</display-name>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <servlet-class>org.apache.axis.monitor.SOAPMonitorService</servlet-class>
+        <init-param>
+            <param-name>SOAPMonitorPort</param-name>
+            <param-value>5101</param-value>
+        </init-param>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/servlet/AxisServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>*.jws</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SOAPMonitorService</servlet-name>
+        <url-pattern>/SOAPMonitor</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/servlet/AdminServlet</url-pattern>
+    </servlet-mapping>
+
+    <!-- SPRING SECURITY SETTINGS END -->
+
+	<!--
+	  - timeout after 12 hrs (default is 30 min)
+	-->
+	<session-config>
+	  <session-timeout>720</session-timeout>
+	</session-config>
+    <mime-mapping>
+        <extension>wsdl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
+
+    <servlet>
+        <servlet-name>query_builder</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>
+        <init-param>
+            <param-name>pathway_commons_url</param-name>
+            <param-value>${pathway_commons.url}</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>webservice</servlet-name>
+        <servlet-class>org.mskcc.cbio.cgds.servlet.WebService</servlet-class>
+        <init-param>
+            <param-name>db_host</param-name>
+            <param-value>${db.host}</param-value>
+        </init-param>
+         <init-param>
+            <param-name>db_name</param-name>
+            <param-value>${db.name}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_user</param-name>
+            <param-value>${db.user}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>db_password</param-name>
+            <param-value>${db.password}</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>cross_cancer_query</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>cross_cancer_summary</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerSummaryServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>portal_meta_data_json</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaDataJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>plot</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>boxplot</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.BoxPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>scatterplot</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ScatterPlotServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>generatePlots</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneratePlots</servlet-class>
+        <init-param>
+            <param-name>r_installed</param-name>
+            <param-value>${r_installed}</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>plot-test</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PlotTestServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>show_data</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>network</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+    	<servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CheckGeneSymbolJSON</servlet-class>
+    </servlet>
+    
+    <servlet>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalFreeFormJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>oma_redirect</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OmaRedirectServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>link_out</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>oncoprint_converter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>histogram_converter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>MutSigJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutSigJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>GisticJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GisticJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>webservice</servlet-name>
+        <url-pattern>/webservice.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>query_builder</servlet-name>
+        <url-pattern>/index.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cross_cancer_query</servlet-name>
+        <url-pattern>/cross_cancer.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cross_cancer_summary</servlet-name>
+        <url-pattern>/cross_cancer_summary.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>portal_meta_data_json</servlet-name>
+        <url-pattern>/portal_meta_data.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>mutation_diagram_data_json</servlet-name>
+        <url-pattern>/mutation_diagram_data.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>query_builder</servlet-name>
+        <url-pattern>/survival_plot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>show_data</servlet-name>
+        <url-pattern>/show_data.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot</servlet-name>
+        <url-pattern>/plot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot</servlet-name>
+        <url-pattern>/plot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>boxplot</servlet-name>
+        <url-pattern>/boxplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scatterplot</servlet-name>
+        <url-pattern>/scatterplot.pdf</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>generatePlots</servlet-name>
+        <url-pattern>/generatePlots.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>plot-test</servlet-name>
+        <url-pattern>/plot-test.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>network</servlet-name>
+        <url-pattern>/network.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oma_redirect</servlet-name>
+        <url-pattern>/omaRedirect.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
+        <url-pattern>/ProteinArraySignificanceTest.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/link.do</url-pattern>
+    </servlet-mapping>
+
+     <servlet-mapping>
+        <servlet-name>CheckGeneSymbolJSON</servlet-name>
+        <url-pattern>/CheckGeneSymbol.json</url-pattern>
+    </servlet-mapping>
+	
+     <servlet-mapping>
+        <servlet-name>oncoprint_converter</servlet-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+     </servlet-mapping>   
+     
+     <servlet-mapping>
+        <servlet-name>histogram_converter</servlet-name>
+        <url-pattern>/histogram_converter.svg</url-pattern>
+    </servlet-mapping>   
+
+    <servlet-mapping>
+        <servlet-name>MutSigJSON</servlet-name>
+        <url-pattern>/MutSig.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    	<servlet-name>ClinicalFreeFormJSON</servlet-name>
+        <url-pattern>/ClinicalFreeForm.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GisticJSON</servlet-name>
+        <url-pattern>/Gistic.json</url-pattern>
+    </servlet-mapping>
+    
+    <!-- patient view -->
+    <servlet>
+        <servlet-name>patient_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/patient.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>MutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>MutationsJSON</servlet-name>
+        <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CnaJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CnaJSON</servlet-name>
+        <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SimilarPatientsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <url-pattern>/similar_patients.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>cancer_study_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>cancer_study_view</servlet-name>
+        <url-pattern>/study.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DrugsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DrugsJSON</servlet-name>
+        <url-pattern>/drugs.json</url-pattern>
+    </servlet-mapping>
+    <!-- end patient view -->
+    
+    <welcome-file-list>
+        <welcome-file>index.do</welcome-file>
+    </welcome-file-list>
+
+    <filter>
+        <filter-name>FileUpload</filter-name>
+        <display-name>File Upload</display-name>
+        <description>
+            Applied to file upload requests.
+            Wraps the request, allowing it to be used as a regular request, 
+            'as if' it were parsed by the Servlet API.
+        </description>
+        <filter-class>org.mskcc.cbio.portal.util.FileUploadFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/netviz.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>FileUpload</filter-name>
+        <url-pattern>/oncoprint_converter.svg</url-pattern>
+    </filter-mapping>
+
+    <!-- Required by the Apache FileUpload tool. -->
+    <listener>
+        <listener-class>
+            org.apache.commons.fileupload.servlet.FileCleanerCleanup
+        </listener-class>
+    </listener>
+</web-app>

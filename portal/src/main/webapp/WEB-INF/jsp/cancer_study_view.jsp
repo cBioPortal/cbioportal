@@ -34,6 +34,15 @@ GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView
 boolean hasCNA = cnaProfile!=null;
 boolean showCNATab = showPlaceHoder && hasCNA;
 
+String mutationProfileStableId = null;
+String cnaProfileStableId = null;
+if (mutationProfile!=null) {
+    mutationProfileStableId = mutationProfile.getStableId();
+}
+if (cnaProfile!=null) {
+    cnaProfileStableId = cnaProfile.getStableId();
+}
+
 if (cancerStudyViewError!=null) {
     out.print(cancerStudyViewError);
 } else {
@@ -110,8 +119,8 @@ if (cancerStudyViewError!=null) {
 
 <script type="text/javascript">
 var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
-var mutationProfileId = <%=mutationProfile==null%>?null:'<%=mutationProfile.getStableId()%>';
-var cnaProfileId = <%=cnaProfile==null%>?null:'<%=cnaProfile.getStableId()%>';
+var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
+var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 

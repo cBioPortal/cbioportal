@@ -67,7 +67,7 @@
     function loadCnaContextData(cna_table, cna_summary_table) {
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
-            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
+            <%=PatientView.CNA_PROFILE%>:cnaProfileId,
             <%=CnaJSON.CNA_EVENT_ID%>:cnaEventIds
         };
         
@@ -96,7 +96,7 @@
     function loadCnaDrugData(cna_table, cna_summary_table) {
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_DRUG_CMD%>',
-            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>',
+            <%=PatientView.CNA_PROFILE%>:cnaProfileId,
             <%=CnaJSON.CNA_EVENT_ID%>:cnaEventIds
         };
         
@@ -231,7 +231,7 @@
         $('#cna_wrapper_table').hide();
         $('#cna_id_filter_msg').hide();
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
-            <%=PatientView.CNA_PROFILE%>:'<%=cnaProfile.getStableId()%>'
+            <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
                         
         $.post("cna.json", 

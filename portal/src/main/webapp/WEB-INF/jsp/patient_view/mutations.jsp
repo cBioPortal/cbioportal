@@ -207,7 +207,7 @@
     function loadMutationContextData(mutations, mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
-            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
+            <%=PatientView.MUTATION_PROFILE%>:mutationProfileId,
             <%=MutationsJSON.MUTATION_EVENT_ID%>:mutEventIds
         };
         
@@ -237,7 +237,7 @@
     function loadMutationDrugData(mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_DRUG_CMD%>',
-            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>',
+            <%=PatientView.MUTATION_PROFILE%>:mutationProfileId,
             <%=MutationsJSON.MUTATION_EVENT_ID%>:mutEventIds
         };
         
@@ -259,7 +259,7 @@
         $('#mutation_wrapper_table').hide();
         var params = {
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
-            <%=PatientView.MUTATION_PROFILE%>:'<%=mutationProfile.getStableId()%>'
+            <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
                         
         $.post("mutations.json", 

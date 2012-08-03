@@ -13,7 +13,7 @@ public class DatabaseUtil
     public static Connection getDbConnection()
 		    throws SQLException
     {
-    	DatabaseProperties dbProperties = new DatabaseProperties("db.properties.EXAMPLE");
+    	DatabaseProperties dbProperties = new DatabaseProperties("db.properties");
         
         String host = dbProperties.getDbHost();
         String userName = dbProperties.getDbUser();

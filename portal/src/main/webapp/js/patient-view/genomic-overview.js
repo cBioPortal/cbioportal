@@ -158,7 +158,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna)
             goTip.addTip(r.node, tip);
         }
     }
-    
+        
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     var t = p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end', 'font-weight': 'bold'});
     underlineText(t,p);
@@ -208,10 +208,15 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasM
         goTip.addTip(r.node, tip);
     }
     p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
-    var t = p.text(config.xGenome-5,yRow+config.rowHeight/2,(100*genomeAltered/genomeMeasured).toFixed(1)+'%').attr({'text-anchor': 'end', 'font-weight': 'bold'});
+    
+    var label = genomeMeasured==0 ? 'N/A' : (100*genomeAltered/genomeMeasured).toFixed(1)+'%';
+    var tip = genomeMeasured==0 ? 'Copy number segment data not available' : 
+                ("Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions."
+                    +(!hasMut?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
+    
+    var t = p.text(config.xGenome-5,yRow+config.rowHeight/2,label).attr({'text-anchor': 'end', 'font-weight': 'bold'});
     underlineText(t,p);
-    goTip.addTip(t.node, "Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions."
-            +(!hasMut?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
+    goTip.addTip(t.node, tip);
 }
 
 function underlineText(textElement,p) {

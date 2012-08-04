@@ -64,23 +64,36 @@
                 var wrapper = new DataTableWrapper();
                 wrapper.setDataMatrixAndFixTypes(matrix);
                 clincialDataTable = wrapper.dataTable;
-                mergeTablesAndVisualize();
+                $('#clinical-data-loading-wait').hide();
+                $('#summary-plot-table').show();
+                resetSmallPlots(clincialDataTable);
+                waitAndDrawTable();
             })
     }
     
     var mutCnaDataTable = null;
     function mutCnaLoaded(mutCnaDt) {
+        if (mutationProfileId&&cnaProfileId) {
+            var caseMap = getCaseMap(mutCnaDt);
+
+            $('#clinical-data-loading-wait').hide();
+            $('#summary-plot-table').show();
+
+            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,2,1,caseMap,false,false);
+
+            $('#mut-cna-config').show();
+
+            $(".mut-cna-axis-log").change(function() {
+                mutCnaAxisScaleChanged(mutCnaDt,2,1,caseMap);
+            });
+        } else {
+            $('#mut-cna-scatter-plot').html('No '+(!mutationProfileId?'mutation':'copy number segment')+" data for this cancer study.");
+        }
+        
         mutCnaDataTable = mutCnaDt;
-        mergeTablesAndVisualize();
+        waitAndDrawTable();
         clincialDataTable = null;
         mutCnaDataTable = null;
-    }
-
-    function mergeTablesAndVisualize() {
-        var dt = mergeDataTables();
-        if (dt) {
-            resetAllPlots(dt);
-        }
     }
     
     function mergeDataTables() {
@@ -97,28 +110,13 @@
                     makeContInxArray(1,clincialDataTable.getNumberOfColumns()-1),
                     makeContInxArray(1,mutCnaDataTable.getNumberOfColumns()-1));
     }
- 
-    // replot all
-    function resetAllPlots(dt) {
-        var headerMap = getHeaderMap(dt);
-        var caseMap = getCaseMap(dt);
-
-        $('#clinical-data-loading-wait').hide();
-        $('#summary-plot-table').show();
-
-        drawDataTable('clinical-data-table',dt,caseMap);
-
-        var colCna = headerMap['copy_number_altered_fraction'];
-        var colMut = headerMap['mutation_count'];
-        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,false,false);
-
-        $('#mut-cna-config').show();
-
-        $(".mut-cna-axis-log").change(function() {
-            mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap);
-        });
-
-        resetSmallPlots(dt);
+    
+    function waitAndDrawTable() {
+        var dt = mergeDataTables();
+        if (dt) {
+            var caseMap = getCaseMap(dt);
+            drawDataTable('clinical-data-table',dt,caseMap);
+        }
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

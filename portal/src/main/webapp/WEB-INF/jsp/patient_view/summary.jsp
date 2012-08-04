@@ -28,15 +28,6 @@ if (mutationProfile!=null && cnaProfile!=null) {
     jsonCaseIds = JSONValue.toJSONString(caseIds);
 }
 String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
-
-String mutationProfileStableId = null;
-String cnaProfileStableId = null;
-if (mutationProfile!=null) {
-    mutationProfileStableId = mutationProfile.getStableId();
-}
-if (cnaProfile!=null) {
-    cnaProfileStableId = cnaProfile.getStableId();
-}
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -99,12 +90,12 @@ if (cnaProfile!=null) {
     var mutCnaScatterDialogLoaded = false;
     function openMutCnaScatterDialog() {
         if (!mutCnaScatterDialogLoaded) {
-            if (<%=mutationProfileStableId==null%>) {
+            if (mutationProfileId==null) {
                 alert('no mutation data');
                 return;
             }
                 
-            if (<%=cnaProfileStableId==null%>) {
+            if (cnaProfileId==null) {
                 alert('no cna data');
                 return;
             }

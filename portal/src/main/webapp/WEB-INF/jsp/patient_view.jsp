@@ -39,6 +39,15 @@ int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;
 int numPatientInSameCnaProfile = 0;
 
+String mutationProfileStableId = null;
+String cnaProfileStableId = null;
+if (mutationProfile!=null) {
+    mutationProfileStableId = mutationProfile.getStableId();
+}
+if (cnaProfile!=null) {
+    cnaProfileStableId = cnaProfile.getStableId();
+}
+
 if (patientViewError!=null) {
     out.print(patient);
     out.print(": ");
@@ -302,6 +311,8 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
+var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var caseId = '<%=patient%>';
 var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 

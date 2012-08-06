@@ -11,7 +11,6 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>oncotator</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<name>Oncotator Tool</name>
 	<url>http://maven.apache.org</url>
 
@@ -41,7 +40,7 @@
 		<dependency>
 			<groupId>org.mskcc.cbio</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -96,6 +95,7 @@
 				<excludes>
 					<exclude>build.properties.*</exclude>
 					<exclude>db.properties.*</exclude>
+					<exclude>*.sql</exclude>
 				</excludes>
 			</resource>
 		</resources>

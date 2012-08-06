@@ -12,11 +12,11 @@ public class OncotatorParser
 {
 
 	/**
-	 * Parses the JSON returned by the org.mskcc.cbio.oncotator org.mskcc.cbio.web service, and returns
+	 * Parses the JSON returned by the oncotator web service, and returns
 	 * the information as a new OncotateRecord instance.
 	 * 
 	 * @param key			chr#_start_end_allele1_allele2
-	 * @param json			JSON object returned by the org.mskcc.cbio.web service
+	 * @param json			JSON object returned by the web service
 	 * @return				new OncotatorRecord, or null if JSON has an error
 	 * @throws java.io.IOException
 	 */

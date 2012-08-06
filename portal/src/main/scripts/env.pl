@@ -37,8 +37,8 @@ if ($cgdsDataHome eq "") {
 
 # Set up Classpath to use all JAR files in lib dir.
 # print "Using CGDS_HOME $cgdsHome\n";
-$cp="$cgdsHome/build/WEB-INF/classes";
-@jar_files = glob ("$cgdsHome/lib/*.jar");
+$cp="$cgdsHome/target/gdac-portal/WEB-INF/classes";
+@jar_files = glob ("$cgdsHome/target/gdac-portal/WEB-INF/lib/*.jar");
 foreach my $jar (@jar_files) {
   $cp="$cp$pathDelim$jar"
 }

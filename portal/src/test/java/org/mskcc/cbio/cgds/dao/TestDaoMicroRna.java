@@ -1,12 +1,8 @@
 package org.mskcc.cbio.cgds.dao;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoMicroRna;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
 import java.util.ArrayList;
+import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
  * JUnit tests for DaoMicroRna class.
@@ -18,8 +14,8 @@ public class TestDaoMicroRna extends TestCase {
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();
-        //MySQLbulkLoader.bulkLoadOn();
-        //runTheTest();
+        MySQLbulkLoader.bulkLoadOn();
+        runTheTest();
     }
 
     private void runTheTest() throws DaoException{

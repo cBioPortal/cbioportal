@@ -16,7 +16,7 @@ public class TestDaoGeneticProfile extends TestCase {
        DaoGeneticProfile daoGeneticProfile = createSmallDbms();
 
        ArrayList<GeneticProfile> list = daoGeneticProfile.getAllGeneticProfiles(1);
-        //assertEquals(2, list.size());
+        assertEquals(2, list.size());
         GeneticProfile geneticProfile = list.get(0);
 
         assertEquals(1, geneticProfile.getCancerStudyId());

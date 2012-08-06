@@ -9,40 +9,6 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-drop table IF EXISTS uniprot_id_mapping;
-drop table IF EXISTS cancer_study;
-drop table IF EXISTS users;
-drop table IF EXISTS authorities;
-drop table IF EXISTS type_of_cancer;
-drop table IF EXISTS mut_sig;
-drop table IF EXISTS _case;
-drop table IF EXISTS cancer_type;
-drop table IF EXISTS case_list;
-drop table IF EXISTS case_list_list;
-drop table IF EXISTS gene;
-drop table IF EXISTS gene_alias;
-drop table IF EXISTS gene_in_profile;
-drop table IF EXISTS genetic_alteration;
-drop table IF EXISTS genetic_profile_cases;
-drop table IF EXISTS genetic_profile;
-drop table IF EXISTS micro_rna;
-drop table IF EXISTS mutation;
-drop table IF EXISTS mutation_frequency;
-drop table IF EXISTS micro_rna_alteration;
-drop table IF EXISTS clinical;
-drop table IF EXISTS interaction;
-drop table if EXISTS sanger_cancer_census;
-drop table if EXISTS clinical_free_form;
-drop table if EXISTS text_cache;
-
-drop table IF EXISTS protein_array_info;
-drop table IF EXISTS protein_array_target;
-drop table IF EXISTS protein_array_data;
-drop table IF EXISTS protein_array_cancer_study;
-
-drop table IF EXISTS drug;
-drop table IF EXISTS drug_interaction;
-
 --
 -- Database: `cgds`
 --
@@ -52,8 +18,8 @@ drop table IF EXISTS drug_interaction;
 --
 -- Table structure for table `cancer_study`
 --
-
-CREATE TABLE IF NOT EXISTS `cancer_study` (
+drop table IF EXISTS cancer_study;
+CREATE TABLE `cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
   `CANCER_STUDY_IDENTIFIER` varchar(25),
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
@@ -69,8 +35,8 @@ CREATE TABLE IF NOT EXISTS `cancer_study` (
 --
 -- Table structure for table `users`
 --
-
-CREATE TABLE IF NOT EXISTS `users` (
+drop table IF EXISTS users;
+CREATE TABLE `users` (
   `EMAIL` varchar(128) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `ENABLED` BOOLEAN NOT NULL,
@@ -82,8 +48,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 -- Table structure for table `access_rights`
 --
-
-CREATE TABLE IF NOT EXISTS `authorities` (
+drop table IF EXISTS authorities;
+CREATE TABLE `authorities` (
   `EMAIL` varchar(128) NOT NULL,
   `AUTHORITY` varchar(50) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -93,8 +59,8 @@ CREATE TABLE IF NOT EXISTS `authorities` (
 --
 -- Table structure for table `type_of_cancer`
 --
-
-CREATE TABLE IF NOT EXISTS `type_of_cancer` (
+drop table IF EXISTS type_of_cancer;
+CREATE TABLE `type_of_cancer` (
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   PRIMARY KEY  (`TYPE_OF_CANCER_ID`)
@@ -105,8 +71,8 @@ CREATE TABLE IF NOT EXISTS `type_of_cancer` (
 --
 -- Table structure for table `case_list`
 --
-
-CREATE TABLE IF NOT EXISTS `case_list` (
+drop table IF EXISTS case_list;
+CREATE TABLE `case_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
@@ -122,8 +88,8 @@ CREATE TABLE IF NOT EXISTS `case_list` (
 --
 -- Table structure for table `case_list_list`
 --
-
-CREATE TABLE IF NOT EXISTS `case_list_list` (
+drop table IF EXISTS case_list_list;
+CREATE TABLE `case_list_list` (
   `LIST_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   PRIMARY KEY  (`LIST_ID`,`CASE_ID`)
@@ -134,8 +100,8 @@ CREATE TABLE IF NOT EXISTS `case_list_list` (
 --
 -- Table structure for table `gene`
 --
-
-CREATE TABLE IF NOT EXISTS `gene` (
+drop table IF EXISTS gene;
+CREATE TABLE `gene` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`),
@@ -147,8 +113,8 @@ CREATE TABLE IF NOT EXISTS `gene` (
 --
 -- Table structure for table `gene_alias`
 --
-
-CREATE TABLE IF NOT EXISTS `gene_alias` (
+drop table IF EXISTS gene_alias;
+CREATE TABLE `gene_alias` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `GENE_ALIAS` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`,`GENE_ALIAS`)
@@ -159,8 +125,8 @@ CREATE TABLE IF NOT EXISTS `gene_alias` (
 --
 -- Table structure for table `uniprot_id_mapping`
 --
-
-CREATE TABLE IF NOT EXISTS `uniprot_id_mapping` (
+drop table IF EXISTS uniprot_id_mapping;
+CREATE TABLE `uniprot_id_mapping` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `UNIPROT_ID` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`)
@@ -171,8 +137,8 @@ CREATE TABLE IF NOT EXISTS `uniprot_id_mapping` (
 --
 -- Table structure for table `genetic_alteration`
 --
-
-CREATE TABLE IF NOT EXISTS `genetic_alteration` (
+drop table IF EXISTS genetic_alteration;
+CREATE TABLE `genetic_alteration` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `VALUES` longtext NOT NULL,
@@ -180,7 +146,8 @@ CREATE TABLE IF NOT EXISTS `genetic_alteration` (
   KEY `QUICK_LOOK_UP2` (`ENTREZ_GENE_ID`,`GENETIC_PROFILE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `micro_rna_alteration` (
+drop table IF EXISTS micro_rna_alteration;
+CREATE TABLE `micro_rna_alteration` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `MICRO_RNA_ID` varchar(50) NOT NULL,
   `VALUES` longtext NOT NULL,
@@ -190,8 +157,8 @@ CREATE TABLE IF NOT EXISTS `micro_rna_alteration` (
 --
 -- Table structure for table `genetic_profile`
 --
-
-CREATE TABLE IF NOT EXISTS `genetic_profile` (
+drop table IF EXISTS genetic_profile;
+CREATE TABLE `genetic_profile` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
@@ -206,8 +173,8 @@ CREATE TABLE IF NOT EXISTS `genetic_profile` (
 --
 -- Table structure for table `genetic_profile_cases`
 --
-
-CREATE TABLE IF NOT EXISTS `genetic_profile_cases` (
+drop table IF EXISTS genetic_profile_cases;
+CREATE TABLE `genetic_profile_cases` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `ORDERED_CASE_LIST` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -219,8 +186,8 @@ CREATE TABLE IF NOT EXISTS `genetic_profile_cases` (
 --
 -- Table structure for table `micro_rna`
 --
-
-CREATE TABLE IF NOT EXISTS `micro_rna` (
+drop table IF EXISTS micro_rna;
+CREATE TABLE `micro_rna` (
   `ID` varchar(50) NOT NULL,
   `VARIANT_ID` varchar(50) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -230,8 +197,8 @@ CREATE TABLE IF NOT EXISTS `micro_rna` (
 --
 -- Table structure for table `mutation`
 --
-
-CREATE TABLE IF NOT EXISTS `mutation` (
+drop table IF EXISTS mutation;
+CREATE TABLE `mutation` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `ENTREZ_GENE_ID` int(255) NOT NULL,
@@ -285,8 +252,8 @@ CREATE TABLE IF NOT EXISTS `mutation` (
 --
 -- Table structure for table `mutation_frequency`
 --
-
-CREATE TABLE IF NOT EXISTS `mutation_frequency` (
+drop table IF EXISTS mutation_frequency;
+CREATE TABLE `mutation_frequency` (
   `ENTREZ_GENE_ID` int(11) NOT NULL,
   `SOMATIC_MUTATION_RATE` double NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL
@@ -298,14 +265,14 @@ CREATE TABLE IF NOT EXISTS `mutation_frequency` (
 --
 -- Table structure for table `_case`
 --
-
-CREATE TABLE IF NOT EXISTS `_case` (
+drop table IF EXISTS _case;
+CREATE TABLE `_case` (
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-
-CREATE TABLE IF NOT EXISTS `clinical` (
+drop table IF EXISTS clinical;
+CREATE TABLE `clinical` (
   `CASE_ID` varchar(255) NOT NULL,
   `OVERALL_SURVIVAL_MONTHS` double default NULL,
   `OVERALL_SURVIVAL_STATUS` varchar(50) default NULL,
@@ -315,7 +282,8 @@ CREATE TABLE IF NOT EXISTS `clinical` (
   PRIMARY KEY (`CASE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `clinical_free_form` (
+drop table IF EXISTS clinical_free_form;
+CREATE TABLE `clinical_free_form` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `CASE_ID` varchar(256) NOT NULL,
   `PARAM_NAME` varchar(256) NOT NULL,
@@ -325,7 +293,7 @@ CREATE TABLE IF NOT EXISTS `clinical_free_form` (
 --
 -- Table structure for table `interaction`
 --
-
+drop table IF EXISTS interaction;
 CREATE TABLE `interaction` (
   `GENE_A` bigint(20) NOT NULL,
   `GENE_B` bigint(20) NOT NULL,
@@ -338,8 +306,8 @@ CREATE TABLE `interaction` (
 --
 -- Table Structure for `mut_sig`
 --
-
-CREATE TABLE IF NOT EXISTS `mut_sig` (
+drop table IF EXISTS mut_sig;
+CREATE TABLE `mut_sig` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
   `RANK` int(11) NOT NULL,
@@ -349,6 +317,7 @@ CREATE TABLE IF NOT EXISTS `mut_sig` (
   `Q_VALUE` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS protein_array_info;
 CREATE TABLE `protein_array_info` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `TYPE` varchar(50) NOT NULL,
@@ -359,12 +328,14 @@ CREATE TABLE `protein_array_info` (
   PRIMARY KEY (`PROTEIN_ARRAY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS protein_array_target;
 CREATE TABLE `protein_array_target` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   PRIMARY KEY (`PROTEIN_ARRAY_ID`,`ENTREZ_GENE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS protein_array_data;
 CREATE TABLE `protein_array_data` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
@@ -372,6 +343,7 @@ CREATE TABLE `protein_array_data` (
   PRIMARY KEY (`PROTEIN_ARRAY_ID`,`CASE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS protein_array_cancer_study;
 CREATE TABLE `protein_array_cancer_study` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
@@ -381,8 +353,8 @@ CREATE TABLE `protein_array_cancer_study` (
 --
 -- Table structure for table `sanger_cancer_census`
 --
-
-CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
+drop table IF EXISTS sanger_cancer_census;
+CREATE TABLE `sanger_cancer_census` (
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
   `CANCER_SOMATIC_MUT` tinyint(1) NOT NULL,
   `CANCER_GERMLINE_MUT` tinyint(1) NOT NULL,
@@ -396,7 +368,8 @@ CREATE TABLE IF NOT EXISTS `sanger_cancer_census` (
   `OTHER_DISEASE` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Sanger Cancer Gene Census';
 
-CREATE TABLE IF NOT EXISTS `gistic` (
+drop table IF EXISTS gistic;
+CREATE TABLE `gistic` (
   `GISTIC_ROI_ID` bigint(20) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `CHROMOSOME` int(11) NOT NULL,
@@ -407,11 +380,12 @@ CREATE TABLE IF NOT EXISTS `gistic` (
   `AMP_DEL` tinyint(1) NOT NULL,
   PRIMARY KEY (`GISTIC_ROI_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Table structure for table `text_cache`
 --
-
-CREATE TABLE IF NOT EXISTS `text_cache` (
+drop table IF EXISTS text_cache;
+CREATE TABLE `text_cache` (
   `HASH_KEY` varchar(32) NOT NULL,
   `TEXT` text NOT NULL,
   `DATE_TIME_STAMP` datetime NOT NULL,
@@ -421,7 +395,7 @@ CREATE TABLE IF NOT EXISTS `text_cache` (
 --
 -- Table structure for table `drug_interaction`
 --
-
+drop table IF EXISTS drug_interaction;
 CREATE TABLE `drug_interaction` (
   `DRUG` char(30) NOT NULL,
   `TARGET` bigint(20) NOT NULL,
@@ -434,8 +408,8 @@ CREATE TABLE `drug_interaction` (
 --
 -- Table structure for table `gistic_to_gene`
 --
-
-CREATE TABLE IF NOT EXISTS `gistic_to_gene`  (
+drop table IF EXISTS gistic_to_gene;
+CREATE TABLE `gistic_to_gene`  (
   `GISTIC_ROI_ID` bigint(20) NOT NULL,
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`)
@@ -444,8 +418,8 @@ CREATE TABLE IF NOT EXISTS `gistic_to_gene`  (
 --
 -- Table structure for table `drug`
 --
-
-CREATE TABLE IF NOT EXISTS `drug` (
+drop table IF EXISTS drug;
+CREATE TABLE `drug` (
   `DRUG_ID` char(30) NOT NULL,
   `DRUG_RESOURCE` varchar(30) NOT NULL,
   `DRUG_NAME` varchar(255) NOT NULL,

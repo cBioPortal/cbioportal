@@ -38,3 +38,9 @@ firehose-importer/firehose.properties
 # use glob syntax
 syntax: glob
 firehose-importer/*.txt
+firehose-importer/*.log
+portal/target/*
+liftover/target/*
+core/target/*
+oncotator/target/*
+firehose/target/*

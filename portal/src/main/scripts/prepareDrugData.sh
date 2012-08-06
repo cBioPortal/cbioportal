@@ -8,7 +8,7 @@
 
 # Check if we have all the variables set right
 echo -ne "Checking if the variables are set...\t\t" &&
-[ ! -z "${PORTAL_HOME} " ] && bash $PORTAL_HOME/scripts/env.sh && export ENV_CHECK=1 || export ENV_CHECK=0
+[ ! -z "${PORTAL_HOME} " ] && bash $PORTAL_HOME/portal/scripts/env.sh && export ENV_CHECK=1 || export ENV_CHECK=0
 
 if [ $ENV_CHECK -lt 1 ]
 then

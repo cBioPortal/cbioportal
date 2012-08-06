@@ -328,7 +328,7 @@
 		  <systemProperties>
 			<property>
 			  <name>log4j.configuration</name>
-			  <value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
+			  <value>file:${PORTAL_HOME}/portal/src/main/resources/log4j.properties</value>
 			</property>
 		  </systemProperties>
 		</configuration>

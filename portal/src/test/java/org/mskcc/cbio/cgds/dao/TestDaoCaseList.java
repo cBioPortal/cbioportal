@@ -32,6 +32,6 @@ public class TestDaoCaseList extends TestCase {
         assertEquals("Description0", caseListFromDb.getDescription());
         assertEquals(CaseListCategory.ALL_CASES_WITH_CNA_DATA, caseListFromDb.getCaseListCategory());
         assertEquals("stable_0", caseListFromDb.getStableId());
-        //assertEquals(2, caseListFromDb.getCaseList().size());
+        assertEquals(2, caseListFromDb.getCaseList().size());
     }
 }

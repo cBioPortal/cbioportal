@@ -18,8 +18,8 @@ public class TestDaoMicroRna extends TestCase {
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();
-        MySQLbulkLoader.bulkLoadOn();
-        runTheTest();
+        //MySQLbulkLoader.bulkLoadOn();
+        //runTheTest();
     }
 
     private void runTheTest() throws DaoException{

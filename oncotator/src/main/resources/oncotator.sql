@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `oncotator_cache` (
   `PROTEIN_CHANGE` varchar(128),
   `VARIANT_CLASSIFICATION` varchar(25),
   `EXON_AFFECTED` int(11),
-  `COSMIC_OVERLAP` varchar(1024),
+  `COSMIC_OVERLAP` varchar(2048),
   `DB_SNP_RS` varchar(25),
   UNIQUE KEY `CACHE_KEY` (`CACHE_KEY`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

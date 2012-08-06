@@ -95,6 +95,7 @@
 				<excludes>
 					<exclude>build.properties.*</exclude>
 					<exclude>db.properties.*</exclude>
+					<exclude>*.sql</exclude>
 				</excludes>
 			</resource>
 		</resources>

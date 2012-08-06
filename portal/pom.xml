@@ -387,15 +387,16 @@
 		</configuration>
 	  </plugin>
           
-          <!-- tomcat plugin -->
-          <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>tomcat-maven-plugin</artifactId>
-		<configuration>
-                    <url>http://localhost:8080/manager</url>
-                    <server>localhost</server>
- 		</configuration>
-          </plugin>
+    <!-- tomcat plugin -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>tomcat-maven-plugin</artifactId>
+      <version>1.1</version>
+      <configuration>
+        <url>http://localhost:8080/manager</url>
+        <server>localhost</server>
+ 		 </configuration>
+    </plugin>
 
 	</plugins>
 

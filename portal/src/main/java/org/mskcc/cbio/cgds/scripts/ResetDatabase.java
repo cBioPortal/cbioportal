@@ -19,7 +19,7 @@ public class ResetDatabase {
      * @throws DaoException
      */
     public static void resetAnySizeDatabase() throws DaoException {
-
+        System.out.print("resetting all database.");
         DaoUser.deleteAllRecords();
         DaoUserAuthorities.deleteAllRecords();
         DaoTypeOfCancer.deleteAllRecords();
@@ -60,6 +60,7 @@ public class ResetDatabase {
         daoSangerCensus.deleteAllRecords();
         DaoTextCache daoTextCache = new DaoTextCache();
         daoTextCache.deleteAllKeys();
+        System.out.println("all database reset.");
     }
 
     public static void resetDatabase() throws DaoException {

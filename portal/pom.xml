@@ -372,6 +372,7 @@
 		<version>2.2</version>
 		<configuration>
 		  <webXml>${web-xml-file}</webXml>
+		  <webappDirectory>${project.build.directory}/portal</webappDirectory>
 		  <packagingExcludes>WEB-INF/lib/servlet-api-2.3.jar</packagingExcludes>
 		  <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
 		  <webResources>

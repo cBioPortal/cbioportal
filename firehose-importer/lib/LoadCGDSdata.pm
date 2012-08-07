@@ -130,9 +130,9 @@ sub set_up_classpath{
 		warn "\$theCGDShome not defined ";
 	}
 	my $classpath = Env::Path->CLASSPATH;
-	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target gdac-portal WEB-INF classes ) ) );
+	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF classes ) ) );
 	
-	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target gdac-portal WEB-INF lib *.jar ) ) );
+	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF lib *.jar ) ) );
 	foreach my $jar (@jar_files) {
 	    $classpath->Append( $jar );
 	}

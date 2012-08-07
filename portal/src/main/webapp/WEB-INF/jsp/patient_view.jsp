@@ -284,12 +284,21 @@ function getEventString(eventTableData,dataCol,overviewCol) {
     return s.join(",");
 }
 
+function getEventIndexMap(eventTableData,idCol) {
+    var m = {};
+    for (var i=0; i<eventTableData.length; i++) {
+        m[eventTableData[i][idCol]] = i;
+    }
+    return m;
+}
+
 var cnaEventIds = null;
 var overviewCnaEventIds = null;
 var mutEventIds = null;
 var overviewMutEventIds = null;
 var overviewCnaGenes = null;
 var overviewMutGenes = null;
+var mutEventIndexMap = null;
 
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 

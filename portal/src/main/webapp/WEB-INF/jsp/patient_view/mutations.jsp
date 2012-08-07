@@ -254,6 +254,7 @@
     
     var mut_table;
     var mut_summary_table;
+    var mutations;
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         $('#mutation_wrapper_table').hide();
@@ -264,7 +265,8 @@
                         
         $.post("mutations.json", 
             params,
-            function(mutations){
+            function(data){
+                mutations = data;
                 // mutations
                 mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
@@ -273,6 +275,7 @@
                 mutEventIds = getEventString(mutations,mutTableIndices["id"]);
                 overviewMutEventIds = getEventString(mutations,mutTableIndices["id"],mutTableIndices["overview"]);
                 overviewMutGenes = getEventString(mutations,mutTableIndices["gene"],mutTableIndices["overview"]);
+                mutEventIndexMap = getEventIndexMap(mutations,mutTableIndices["id"]);
                 
                 geObs.fire('mutations-built');
                 
@@ -302,6 +305,17 @@
             ,"json"
         );
     });
+    
+    function getMutGeneAA(mutIds) {
+        var m = [];
+        for (var i=0; i<mutIds.length; i++) {
+            var row = mutEventIndexMap[mutIds[i]];
+            var gene = mutations[row][mutTableIndices["gene"]];
+            var aa = mutations[row][mutTableIndices["aa"]];
+            m.push(gene+': '+aa);
+        }
+        return m;
+    }
     
     function filterMutationsTableByIds(mutIdsRegEx) {
         var n = mut_table.fnSettings().fnRecordsDisplay();

@@ -167,7 +167,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna)
 }
 
 function loc2string(loc,chmInfo) {
-    return "chm"+chmInfo.chmName(loc[0])+":"+addCommas(loc[1]);
+    return "chr"+chmInfo.chmName(loc[0])+":"+addCommas(loc[1]);
 }
 
 function addCommas(x)

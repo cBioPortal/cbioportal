@@ -49,4 +49,11 @@ public interface Config {
 	 * @return String
 	 */
 	public String getSTDDATADatatypes();
+
+	/**
+	 * Gets the cancer studies to download from the firehose.
+	 *
+	 * @return String
+	 */
+	public String getCancerStudiesToDownload();
 }

@@ -24,8 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 //import java.util.Arrays;
-//import java.util.ArrayList;
-//import java.util.Collection;
+import java.util.ArrayList;
 import java.io.IOException;
 
 /**
@@ -76,6 +75,11 @@ final class GDataImpl implements Config {
 	private String stddataDatatypesToDownload;
 	@Value("${stddata_datatypes_to_download}")
 	public void setSTDDATADatatypesToDownloadProperty(String property) { this.stddataDatatypesToDownload = property; }
+
+	// cancer studies information
+	private String cancerStudiesToDownload;
+	@Value("${cancer_studies_to_download}")
+	public void setCancerStudiesProperty(String property) { this.cancerStudiesToDownload = property; }
 
 	/**
 	 * Constructor.
@@ -154,6 +158,71 @@ final class GDataImpl implements Config {
 		//String datatypes = getPropertyString(stddataDatatypesToDownload);
 		//return (datatypes.length() > 0) ? Arrays.asList(datatypes.split(" ")) : new ArrayList();
 		return getPropertyString(stddataDatatypesToDownload);
+	}
+
+	/**
+	 * Gets a list of cancer studies to download.
+	 *
+	 * @return String
+	 */
+	public String getCancerStudiesToDownload() {
+
+		String toReturn = "";
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCancerStudiesToDownload()");
+		}
+
+		// parse the property argument
+		String[] properties = cancerStudiesToDownload.split(":");
+		if (properties.length != 3) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getCancerStudiesToDownload: " +
+						 cancerStudiesToDownload + ".  Should be worsheet:cancer_study_id:download_flag.");
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						String downloadFlag = entry.getCustomElements().getValue(properties[2]);
+						if (downloadFlag != null && downloadFlag.equals("yes")) {
+							String cancerStudy = entry.getCustomElements().getValue(properties[1]);
+							if (cancerStudy != null) {
+								if (LOG.isInfoEnabled()) {
+									LOG.info("Adding cancer study: " + cancerStudy + " to download list.");
+								}
+								toReturn += cancerStudy + " ";
+								continue;
+							}
+						}
+						else if (downloadFlag != null && downloadFlag.equals("no")) {
+							continue;
+						}
+						// only get here if problem, log it
+						if (LOG.isInfoEnabled()) {
+							LOG.info("Cannot find cancer study and/or download property in entry list!");
+						}
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn.trim();
 	}
 
 	/**
@@ -239,8 +308,8 @@ final class GDataImpl implements Config {
 			WorksheetEntry worksheet = getWorksheet(properties[0]);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				ListEntry entry = feed.getEntries().get(0);
-				if (entry != null && feed.getEntries().size() > 0) {
+				if (feed != null && feed.getEntries().size() > 0) {
+					ListEntry entry = feed.getEntries().get(0);
 					String propertyValue = entry.getCustomElements().getValue(properties[1]);
 					if (propertyValue == null) {
 						if (LOG.isInfoEnabled()) {

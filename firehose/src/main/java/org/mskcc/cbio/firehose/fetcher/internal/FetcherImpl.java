@@ -189,12 +189,13 @@ final class FetcherImpl implements Fetcher {
 		// download the data
 		String datatypesToDownload = (runType.equals(ANALYSIS_RUN)) ?
 			firehoseConfig.getAnalysisDatatypes() : firehoseConfig.getSTDDATADatatypes();
+		String cancerStudiesToDownload = firehoseConfig.getCancerStudiesToDownload();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
 		ProcessBuilder pb = new ProcessBuilder(firehoseGetScript, "-b",
+											   "-t " + datatypesToDownload,
 											   runType,
 											   formatter.format(runDate),
-											   "-tasks " + datatypesToDownload,
-											   "brca");
+											   cancerStudiesToDownload);
 		pb.directory(new File(downloadDirectoryName));
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + pb.command());

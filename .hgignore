@@ -30,3 +30,19 @@ my-properties-files/
 cron-job-properties-files/
 cbio-cancer-genomics-portal.ipr
 cbio-cancer-genomics-portal.iws
+portal/src/main/resources/build.properties
+portal/src/main/resources/log4j.properties
+portal/src/main/resources/logging.properties
+firehose/src/main/resources/log4j.properties
+firehose-importer/reference_data/gene_info
+firehose-importer/firehose.properties
+# use glob syntax
+syntax: glob
+firehose-importer/*.txt
+firehose-importer/*.log
+portal/target/*
+liftover/target/*
+core/target/*
+oncotator/target/*
+firehose/target/*
+

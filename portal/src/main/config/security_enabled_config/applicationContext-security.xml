@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -  Namespace-based OpenID configuration
+  -->
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+<!--
+    Required for custom signature method factory to be autowired into
+    the ProtectedResourceProcessingFilter
+-->
+  <context:annotation-config/>
+
+<!--
+        Should come from another file with value conditional based on build.properties
+-->
+  <global-method-security pre-post-annotations="enabled">
+        <expression-handler ref="expressionHandler"/>
+  </global-method-security>
+
+<!--
+	Static resources not processed by spring security filters 
+-->
+    <http pattern="/css/**" security="none"/>
+    <http pattern="/images/**" security="none"/>
+    <http pattern="/js/**" security="none"/>
+	<http pattern="/gfx/**" security="none"/>
+
+<!--
+	OpenID setup
+-->
+	<http use-expressions="true">
+	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
+      <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/faq.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/data_sets.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/about_us.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/protein_exp.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/tutorial.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
+	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
+	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot.pdf*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
+      <intercept-url pattern="/scatterplot.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/histogram_converter.svg*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+
+      <!-- everything else locked down by default -->
+	  <intercept-url pattern="/**" access="denyAll"/>
+	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
+		<attribute-exchange identifier-match="https://www.google.com/.*">
+		  <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
+		  <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true"/>
+		  <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true"/>
+		</attribute-exchange>
+		<attribute-exchange identifier-match=".*yahoo.com.*">
+		  <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+		  <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true"/>
+		</attribute-exchange>
+		<attribute-exchange identifier-match=".*myopenid.com.*">
+		  <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
+		  <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true"/>
+		</attribute-exchange>
+	  </openid-login>
+	  <logout logout-success-url="/login.jsp?logout_success=true"/>
+      <!-- to enable access from matlab, r, python, etc clients -->
+      <session-management session-fixation-protection="none"/>
+	</http>
+
+<!--
+	Use default Authentication Manager
+-->
+    <authentication-manager alias="authenticationManager"/>
+
+<!--
+        To use hasPermission() expressions, we have to configure a custom expression handler
+        with our own PermissionEvaluator.  See 15.3.2 Built-In Expression:
+        @http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html#el-permission-evaluator
+-->
+  <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
+  </b:bean>
+  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.cgds.util.CancerStudyPermissionEvaluator">
+     <b:constructor-arg ref="config"/>
+   </b:bean>
+
+<!--
+    A custom UserDetailsService which will authenticate and establish authorities based on a backend database.
+-->
+    <b:bean id="customUserService" class="org.mskcc.cbio.portal.openIDlogin.OpenIDUserDetailsService">
+      <b:constructor-arg ref="portalUserDAO"/>
+	</b:bean>
+
+<!-- 
+	 Our datasource
+-->
+   <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+     <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+     <b:property name="url" value="jdbc:mysql://${db.host}/${db.name}"/>
+     <b:property name="username" value="${db.user}"/>
+     <b:property name="password" value="${db.password}"/>
+   </b:bean>
+
+<!-- 
+     some beans to help with access control
+-->
+   <b:bean id="config" class="org.mskcc.cbio.cgds.util.Config"/>
+   <b:bean id="accessControl" class="org.mskcc.cbio.cgds.util.internal.AccessControlImpl">
+     <b:constructor-arg ref="config"/>
+   </b:bean>
+   <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
+     <b:constructor-arg ref="dataSource"/>
+   </b:bean>
+
+</b:beans>

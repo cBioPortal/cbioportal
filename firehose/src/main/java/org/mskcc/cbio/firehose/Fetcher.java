@@ -15,7 +15,7 @@ public interface Fetcher {
 	 *
 	 * @throws ParseException - improper date format
 	 * @throws IOException - reading firehose_get output
-	 * @throws InterruptedException - executing process via runtime
+	 * @throws InterruptedException - executing processes via runtime
 	 */
 	void fetch() throws ParseException, IOException, InterruptedException;
 }

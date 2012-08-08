@@ -37,6 +37,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- apache commons DB -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<!-- portal core -->
 		<dependency>
 			<groupId>org.mskcc.cbio</groupId>
 			<artifactId>core</artifactId>

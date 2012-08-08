@@ -1,5 +1,7 @@
 package org.mskcc.cbio.oncotator;
 
+import org.apache.commons.dbcp.BasicDataSource;
+
 import java.sql.*;
 
 /**
@@ -7,38 +9,51 @@ import java.sql.*;
  */
 public class DatabaseUtil
 {
+	private static BasicDataSource ds;
+
     /**
      * Gets DB connection to oncotator database
      */
     public static Connection getDbConnection()
 		    throws SQLException
     {
-    	DatabaseProperties dbProperties = new DatabaseProperties("db.properties");
-        
-        String host = dbProperties.getDbHost();
-        String userName = dbProperties.getDbUser();
-        String password = dbProperties.getDbPassword();
-        String database = dbProperties.getDbName();
-
-        String url = new String("jdbc:mysql://" + host + "/" + database
-                        + "?user=" + userName + "&password=" + password
-                        + "&zeroDateTimeBehavior=convertToNull");
-
-	    Connection conn = null;
-
-	    try
+	    if (ds == null)
 	    {
-		    Class.forName("com.mysql.jdbc.Driver").newInstance();
-	    }
-	    catch (Exception e)
-	    {
-		    e.printStackTrace();
+		    initDataSource();
 	    }
 
-	    conn = DriverManager.getConnection(url, userName, password);
-
+	    Connection conn = ds.getConnection();
 	    return conn;
     }
+
+	/**
+	 * Initializes DB via the BasicDataSource instance.
+	 */
+	public static void initDataSource()
+	{
+		DatabaseProperties dbProperties = new DatabaseProperties("db.properties");
+
+		String host = dbProperties.getDbHost();
+		String userName = dbProperties.getDbUser();
+		String password = dbProperties.getDbPassword();
+		String database = dbProperties.getDbName();
+		String driver = "com.mysql.jdbc.Driver";
+
+		String url = new String("jdbc:mysql://" + host + "/" + database
+		                        + "?user=" + userName + "&password=" + password
+		                        + "&zeroDateTimeBehavior=convertToNull");
+
+		//  Set up poolable data source
+		ds = new BasicDataSource();
+		ds.setDriverClassName(driver);
+		ds.setUsername(userName);
+		ds.setPassword(password);
+		ds.setUrl(url);
+
+		//  By pooling/reusing PreparedStatements, we get a major performance gain
+		ds.setPoolPreparedStatements(true);
+		ds.setMaxActive(75);
+	}
 
     /**
      * Frees Database Connection.
@@ -78,13 +93,14 @@ public class DatabaseUtil
             e.printStackTrace();
         }
 
-        if (ps != null) {
-            try {
-                ps.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	    // pooling, so do not close prepared statement...
+//        if (ps != null) {
+//            try {
+//                ps.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         if (rs != null) {
             try {

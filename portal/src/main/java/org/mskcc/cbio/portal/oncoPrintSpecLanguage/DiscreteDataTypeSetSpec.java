@@ -196,27 +196,62 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                         }
                     }
                 } 
+                
                 // The follow types are matched according the the mutaiton string,
                 // which may not be correct. A more accurate solution would be using
                 // the mutation_type from database directly
-//                else if (specifiedMutation.equals("MS") || specifiedMutation.equals("MISSENSE")) {
-//                    if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
-//                        return true;
-//                    }
-//                } else if (specifiedMutation.equals("NS") || specifiedMutation.equals("NONSENSE")) {
-//                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
-//                        return true;
-//                    }
-//                } else if (specifiedMutation.equals("FS") || specifiedMutation.equals("FRAMESHIFT")) {
-//                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
-//                        return true;
-//                    }
-//                } else if (specifiedMutation.equals("SP") || specifiedMutation.equals("SPLICE")) {
-//                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
-//                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
-//                        return true;
-//                    }
-//                } 
+                else if (mutationPattern.equals("MS") || mutationPattern.equals("MISSENSE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("NS") || mutationPattern.equals("NONSENSE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("NONSTART")) {
+                    if (specificMutationUpper.matches("M1[^0-9]+")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("NONSTOP")) {
+                    if (specificMutationUpper.matches(".*\\*[0-9]+.+")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("FS") || mutationPattern.equals("FRAMESHIFT")) {
+                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("IF") || mutationPattern.equals("INFRAME")) {
+                    if (specificMutationUpper.matches(".+IN_FRAME_((INS)|(DEL)).*")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("SP") || mutationPattern.equals("SPLICE")) {
+                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("TRUNC")) {
+                    //NONSENSE
+                    if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
+                        return true;
+                    }
+                    //NONSTART
+                    if (specificMutationUpper.matches("M1[^0-9]+")) {
+                        return true;
+                    }
+                    //NONSTOP
+                    if (specificMutationUpper.matches(".*\\*[0-9]+.+")) {
+                        return true;
+                    }
+                    //FRAMESHIFT
+                    if (specificMutationUpper.matches("[A-Z\\*][0-9]+FS")) {
+                        return true;
+                    }
+                    //SPLICE
+                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+                            specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
+                        return true;
+                    }
+                }
             }
         }
         return false;

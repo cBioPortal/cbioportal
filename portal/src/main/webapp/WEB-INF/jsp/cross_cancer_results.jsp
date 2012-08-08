@@ -18,7 +18,7 @@
     try {
         dataPriority
                 = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
-    } catch (NumberFormatException e) {
+    } catch (Exception e) {
         dataPriority = 0;
     }
 

@@ -24,7 +24,7 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
         <td><TT>MUT </TT> Show mutated cases<BR>
-            <TT>MUT = X</TT> Specific mutations.
+            <TT>MUT = X</TT> Specific mutations or mutation types.
         </td>
         <td>All somatic, non-synonymous mutations</td>
     </tr>
@@ -65,6 +65,20 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 <p>or mutations on specific position only:</p>
 <pre><code> BRAF: MUT = V600
 </code></pre>
+<p>or mutations of a specific type:</p>
+<pre><code> TP53: MUT = &lt;TYPE&gt;
+</code></pre>
+<p>&lt;TYPE&gt; could be</p>
+<ul>
+<li>MISSENSE</li>
+<li>NONSENSE</li>
+<li>NONSTART</li>
+<li>NONSTOP</li>
+<li>FRAMESHIFT</li>
+<li>INFRAME</li>
+<li>SPLICE</li>
+<li>TRUNC</li>
+</ul>
 <p>To view amplified and mutated cases:</p>
 <pre><code> CCNE1:  AMP MUT
 </code></pre>

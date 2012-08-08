@@ -28,7 +28,7 @@ Users can define genetic alterations for three data types:
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
         <td><TT>MUT </TT> Show mutated cases<BR>
-            <TT>MUT = X</TT> Specific mutations.
+            <TT>MUT = X</TT> Specific mutations or mutation types.
         </td>
         <td>All somatic, non-synonymous mutations</td>
     </tr>
@@ -74,6 +74,21 @@ To view cases with specific mutations:
 or mutations on specific position only:
 
      BRAF: MUT = V600
+
+or mutations of a specific type:
+
+     TP53: MUT = <TYPE>
+
+&lt;TYPE&gt; could be
+
+* MISSENSE
+* NONSENSE
+* NONSTART
+* NONSTOP
+* FRAMESHIFT
+* INFRAME
+* SPLICE
+* TRUNC
 
 To view amplified and mutated cases:
 

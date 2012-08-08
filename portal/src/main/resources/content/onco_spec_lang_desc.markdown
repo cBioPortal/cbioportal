@@ -90,6 +90,10 @@ or mutations of a specific type:
 * SPLICE
 * TRUNC
 
+e.g., to view TP53 truncating mutations and in-frame insertions/deletions:
+
+     TP53: MUT = TRUNC MUT = INFRAME
+
 To view amplified and mutated cases:
 
      CCNE1:  AMP MUT

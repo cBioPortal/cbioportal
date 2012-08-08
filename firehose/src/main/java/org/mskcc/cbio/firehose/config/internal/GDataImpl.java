@@ -7,8 +7,6 @@ import org.mskcc.cbio.firehose.Config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gdata.util.ServiceException;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.data.spreadsheet.ListFeed;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.google.gdata.data.spreadsheet.ListFeed;
@@ -44,42 +42,42 @@ final class GDataImpl implements Config {
 	// google docs user
 	private String gdataUser;
 	@Value("${username}")
-	public void setUser(String username) { this.gdataUser = username; }
+	public void setUser(final String username) { this.gdataUser = username; }
 
 	// google docs password
 	private String gdataPassword;
 	@Value("${password}")
-	public void setPassword(String password) { this.gdataPassword = password; }
+	public void setPassword(final String password) { this.gdataPassword = password; }
 
 	// google docs spreadsheet
 	private String gdataSpreadsheet;
 	@Value("${spreadsheet}")
-	public void setSpreadsheet(String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
+	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
 	// latest analysis run downloaded property
 	private String latestAnalysisRunProperty;
 	@Value("${latest_analysis_run_download}")
-	public void setLatestAnalysisRunProperty(String property) { this.latestAnalysisRunProperty = property; }
+	public void setLatestAnalysisRunProperty(final String property) { this.latestAnalysisRunProperty = property; }
 
 	// latest stddata run download property
 	private String latestSTDDATARunProperty;
 	@Value("${latest_stddata_run_download}")
-	public void setLatestSTDDATARunProperty(String property) { this.latestSTDDATARunProperty = property; }
+	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
 
 	// analysis datatypes to download
 	private String analysisDatatypesToDownload;
 	@Value("${analysis_datatypes_to_download}")
-	public void setAnalysisDatatypesToDownloadProperty(String property) { this.analysisDatatypesToDownload = property; }
+	public void setAnalysisDatatypesToDownloadProperty(final String property) { this.analysisDatatypesToDownload = property; }
 
 	// stddata datatypes to download
 	private String stddataDatatypesToDownload;
 	@Value("${stddata_datatypes_to_download}")
-	public void setSTDDATADatatypesToDownloadProperty(String property) { this.stddataDatatypesToDownload = property; }
+	public void setSTDDATADatatypesToDownloadProperty(final String property) { this.stddataDatatypesToDownload = property; }
 
 	// cancer studies information
 	private String cancerStudiesToDownload;
 	@Value("${cancer_studies_to_download}")
-	public void setCancerStudiesProperty(String property) { this.cancerStudiesToDownload = property; }
+	public void setCancerStudiesProperty(final String property) { this.cancerStudiesToDownload = property; }
 
 	/**
 	 * Constructor.
@@ -88,7 +86,7 @@ final class GDataImpl implements Config {
      *
      * @param firehoseConfig Config
 	 */
-	public GDataImpl(SpreadsheetService spreadsheetService) {
+	public GDataImpl(final SpreadsheetService spreadsheetService) {
 
 		// set members
 		this.spreadsheetService = spreadsheetService;
@@ -100,7 +98,7 @@ final class GDataImpl implements Config {
 	 * @return String
 	 */
 	@Override
-	public String getLatestAnalysisRun() {
+	public String getLatestAnalysisRunDownloaded() {
 		return getPropertyString(latestAnalysisRunProperty);
 	}
 
@@ -110,7 +108,7 @@ final class GDataImpl implements Config {
 	 * @param String
 	 */
 	@Override
-	public void setLatestAnalysisRun(String latestAnalysisRun) {
+	public void setLatestAnalysisRunDownloaded(final String latestAnalysisRun) {
 		setPropertyString(latestAnalysisRunProperty, latestAnalysisRun);
 	}
 
@@ -120,7 +118,7 @@ final class GDataImpl implements Config {
 	 * @return String
 	 */
 	@Override
-	public String getLatestSTDDATARun() {
+	public String getLatestSTDDATARunDownloaded() {
 		return getPropertyString(latestSTDDATARunProperty);
 	}
 
@@ -130,7 +128,7 @@ final class GDataImpl implements Config {
 	 * @param String
 	 */
 	@Override
-	public void setLatestSTDDATARun(String latestSTDDATARun) {
+	public void setLatestSTDDATARunDownloaded(final String latestSTDDATARun) {
 		setPropertyString(latestSTDDATARunProperty, latestSTDDATARun);
 	}
 
@@ -165,6 +163,7 @@ final class GDataImpl implements Config {
 	 *
 	 * @return String
 	 */
+	@Override
 	public String getCancerStudiesToDownload() {
 
 		String toReturn = "";
@@ -229,10 +228,9 @@ final class GDataImpl implements Config {
 	 * Gets the spreadsheet.
 	 *
 	 * @returns SpreadsheetEntry
-	 * @throws ServiceException
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	private SpreadsheetEntry getSpreadsheet() throws ServiceException, IOException {
+	private SpreadsheetEntry getSpreadsheet() throws Exception {
 
 		FeedURLFactory factory = FeedURLFactory.getDefault();
 		SpreadsheetFeed feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
@@ -250,10 +248,9 @@ final class GDataImpl implements Config {
 	 * Gets the worksheet feed.
 	 *
 	 * @returns WorksheetFeed
-	 * @throws ServiceException
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	private WorksheetEntry getWorksheet(String gdataWorksheet) throws ServiceException, IOException {
+	private WorksheetEntry getWorksheet(final String gdataWorksheet) throws Exception {
 
 		// first get the spreadsheet
 		SpreadsheetEntry spreadsheet = getSpreadsheet();
@@ -273,9 +270,9 @@ final class GDataImpl implements Config {
 	/**
 	 * authenticate with google spreadsheet client
 	 *
-	 * @throws AuthenticationException
+	 * @throws Exception
 	 */
-	private void login() throws AuthenticationException {
+	private void login() throws Exception {
 
 		spreadsheetService.setUserCredentials(gdataUser, gdataPassword);
 	}
@@ -288,7 +285,7 @@ final class GDataImpl implements Config {
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private String getPropertyString(String propertyName) {
+	private String getPropertyString(final String propertyName) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getProperty(" + propertyName + ")");
@@ -347,7 +344,7 @@ final class GDataImpl implements Config {
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private void setPropertyString(String propertyName, String propertyValue) {
+	private void setPropertyString(final String propertyName, final String propertyValue) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("setProperty(" + propertyName + " : " + propertyValue + ")");

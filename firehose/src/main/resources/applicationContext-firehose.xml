@@ -20,8 +20,10 @@
   <b:bean id="config" class="org.mskcc.cbio.firehose.config.internal.GDataImpl">
 	<b:constructor-arg ref="spreadsheetService"/>
   </b:bean>
+  <b:bean id="fileUtils" class="org.mskcc.cbio.firehose.util.internal.FileUtilsImpl"/>
   <b:bean id="fetcher" class="org.mskcc.cbio.firehose.fetcher.internal.FetcherImpl">
 	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
   </b:bean>
 
 </b:beans>

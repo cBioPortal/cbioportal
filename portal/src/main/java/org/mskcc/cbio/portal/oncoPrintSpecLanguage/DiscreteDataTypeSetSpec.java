@@ -102,11 +102,16 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
      * @return 
      */
     public static DiscreteDataTypeSetSpec discreteDataTypeSetSpecGeneratorByLevelName(String levelName){
-       GeneticTypeLevel theGeneticTypeLevel = GeneticTypeLevel.findDataTypeLevel(levelName);
+        if (levelName==null) {
+            return null;
+        }
+        
+        GeneticTypeLevel theGeneticTypeLevel = GeneticTypeLevel.findDataTypeLevel(levelName);
 
         // verify that levelName maps to a level within a discrete datatype
-        if( theGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory()
-            .equals(DataTypeCategory.Discrete) ){
+        if( theGeneticTypeLevel!=null 
+                && theGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory()
+                    .equals(DataTypeCategory.Discrete) ){
             return new DiscreteDataTypeSetSpec(theGeneticTypeLevel.getTheGeneticDataType(),
                     theGeneticTypeLevel);
         }else{

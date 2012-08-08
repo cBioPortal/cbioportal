@@ -5,9 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import junit.framework.TestCase;
-
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -15,22 +13,6 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneSet;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneWithSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticDataTypes;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTLexer;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTParser;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.completeOncoPrintSpecASTwalker;
 
 /**
  * Tests the parser version that generates and walks an AST.

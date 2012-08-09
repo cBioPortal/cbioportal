@@ -106,28 +106,14 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
                 <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>',
                 function(dt){
-                    var scatter = plotMutVsCna(null,'mut-cna-scatter-plot','case-id-div',dt,2,1,null,false,false);
-                    google.visualization.events.addListener(scatter, 'select', function(e){
-                        var s = scatter.getSelection();
-                        if (s.length>1) return;
-                        var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-                        $('#case-id-div').html(formatPatientLink(caseId));
-                    });
-                    
-                    for (var i=0, rows = dt.getNumberOfRows(); i<rows; i++) {
-                        if (dt.getValue(i,0)===caseId) {
-                            scatter.setSelection([{'row': i}]);
-                            $('#case-id-div').html(formatPatientLink(caseId));
-                            break;
-                        }
-                    }
+                    scatterPlotMutVsCna(dt,false,false);
                     
                     $('#mut-cna-config').show();
 
                     $(".mut-cna-axis-log").change(function() {
                         var hLog = $('#mut-cna-haxis-log').is(":checked");
                         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-                        plotMutVsCna(null,'mut-cna-scatter-plot','case-id-div',dt,2,1,null,hLog,vLog);
+                        scatterPlotMutVsCna(dt,hLog,vLog);
                     });
                     $('#mut_cna_more_plot_msg').show();
                 }
@@ -137,6 +123,23 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         
         $('#mut_cna_scatter_dialog').dialog('open');
 
+    }
+    
+    function scatterPlotMutVsCna(dt,hLog,vLog) {
+        var scatter = plotMutVsCna(null,'mut-cna-scatter-plot','case-id-div',dt,2,1,null,hLog,vLog);
+        google.visualization.events.addListener(scatter, 'select', function(e){
+            var s = scatter.getSelection();
+            if (s.length>1) return;
+            var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
+            $('#case-id-div').html(formatPatientLink(caseId));
+        });
+        for (var i=0, rows = dt.getNumberOfRows(); i<rows; i++) {
+            if (dt.getValue(i,0)===caseId) {
+                scatter.setSelection([{'row': i}]);
+                $('#case-id-div').html(formatPatientLink(caseId));
+                break;
+            }
+        }
     }
 </script>
 

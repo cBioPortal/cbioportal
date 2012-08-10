@@ -28,6 +28,7 @@ public class ExtendedMutationUtil
 		// but we want to make sure that the links to MA match what we show in the portal.
 
 		if (aaChange == null ||
+		    aaChange.length() == 0 ||
 		    aaChange.equals(MafRecord.NA_STRING))
 		{
 			aaChange = mutation.getAminoAcidChange();

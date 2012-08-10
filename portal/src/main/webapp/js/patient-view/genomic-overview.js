@@ -1,7 +1,9 @@
 function GenomicOverviewConfig(nRows,width) {
     this.nRows = nRows;
-    this.xGenome = 60;
-    this.GenomeWidth = width-this.xGenome;
+    this.canvasWidth = width;
+    this.wideLeftText = 25;
+    this.wideRightText = 35;
+    this.GenomeWidth = this.canvasWidth-this.wideLeftText-this.wideRightText;
     this.pixelsPerBinMut = 3;
     this.rowHeight = 20;
     this.rowMargin = 5;
@@ -21,19 +23,19 @@ GenomicOverviewConfig.prototype = {
         else
             return "rgb(255,"+c+","+c+")";
     },
-    canvasWidth: function() {
-        return this.xGenome+this.GenomeWidth+5;
-    },
     canvasHeight: function() {
         return 2*this.rowMargin+this.ticHeight+this.nRows*(this.rowHeight+this.rowMargin);
     },
     yRow: function(row) {
         return 2*this.rowMargin+this.ticHeight+row*(this.rowHeight+this.rowMargin);
+    },
+    xRightText: function() {
+        return this.wideLeftText + this.GenomeWidth+5;
     }
 };
 
 function createRaphaelCanvas(elementId, config) {
-    return Raphael(elementId, config.canvasWidth(), config.canvasHeight());
+    return Raphael(elementId, config.canvasWidth, config.canvasHeight());
 }
 
 function getChmEndsPerc(chms, total) {
@@ -57,7 +59,7 @@ ChmInfo.prototype = {
         return this.perc[chm-1] + loc/this.total;
     },
     loc2xpixil : function(chm,loc,goConfig) {
-        return this.loc2perc(chm,loc)*goConfig.GenomeWidth+goConfig.xGenome;
+        return this.loc2perc(chm,loc)*goConfig.GenomeWidth+goConfig.wideLeftText;
     },
     perc2loc : function(xPerc,startChm) {
         var chm;
@@ -80,7 +82,7 @@ ChmInfo.prototype = {
         return [chm,loc];
     },
     xpixil2loc : function(goConfig,x,startChm) {
-        var xPerc = (x-goConfig.xGenome)/goConfig.GenomeWidth;
+        var xPerc = (x-goConfig.wideLeftText)/goConfig.GenomeWidth;
         return this.perc2loc(xPerc,startChm);
     },
     middle : function(chm, goConfig) {
@@ -97,7 +99,7 @@ ChmInfo.prototype = {
 
 function plotChromosomes(p,config,chmInfo) {
     var yRuler = config.rowMargin+config.ticHeight;
-    drawLine(config.xGenome,yRuler,config.xGenome+config.GenomeWidth,yRuler,p,'#000',1);
+    drawLine(config.wideLeftText,yRuler,config.wideLeftText+config.GenomeWidth,yRuler,p,'#000',1);
     // ticks & texts
     for (var i=1; i<chmInfo.hg19.length; i++) {
         var xt = chmInfo.loc2xpixil(i,0,config);
@@ -106,7 +108,7 @@ function plotChromosomes(p,config,chmInfo) {
         var m = chmInfo.middle(i,config);
         p.text(m,yRuler-config.rowMargin,chmInfo.chmName(i));
     }
-    drawLine(config.xGenome+config.GenomeWidth,yRuler,config.xGenome+config.GenomeWidth,config.rowMargin,p,'#000',1);
+    drawLine(config.wideLeftText+config.GenomeWidth,yRuler,config.wideLeftText+config.GenomeWidth,config.rowMargin,p,'#000',1);
 }
 
 function drawLine(x1, y1, x2, y2, p, cl, width) {
@@ -164,7 +166,7 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna)
     }
         
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
-    var t = p.text(config.xGenome-5,yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'end', 'font-weight': 'bold'});
+    var t = p.text(config.xRightText(),yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
     goTip.addTip(t.node, "Number of mutation events."
         +(!hasCna?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
@@ -218,7 +220,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasM
                 ("Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions."
                     +(!hasMut?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
     
-    var t = p.text(config.xGenome-5,yRow+config.rowHeight/2,label).attr({'text-anchor': 'end', 'font-weight': 'bold'});
+    var t = p.text(config.xRightText(),yRow+config.rowHeight/2,label).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
     goTip.addTip(t.node, tip);
 }

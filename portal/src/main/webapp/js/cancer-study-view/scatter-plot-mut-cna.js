@@ -56,3 +56,72 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,colCna,colMut,caseMap,hLog,vLog) 
 function formatPatientLink(caseId) {
     return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?case_id='+caseId+'">'+caseId+'</a>'
 }
+
+function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
+
+    var mutDataTable = null;
+    if (mutationProfileId!=null) {
+        var params = {
+            cmd: 'count_mutations',
+            case_ids: caseIds.join(' '),
+            mutation_profile: mutationProfileId
+        };
+
+        $.post("mutations.json", 
+            params,
+            function(mutationCounts){
+                var wrapper = new DataTableWrapper();
+                wrapper.setDataMap(mutationCounts,['case_id','mutation_count']);
+                mutDataTable = wrapper.dataTable;
+                mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+                            mutDataTable,cnaDataTable,func);
+            }
+            ,"json"
+        );
+    }
+
+
+    var cnaDataTable = null;
+
+    if (cnaProfileId!=null) {
+        var params = {
+            cmd: 'get_cna_fraction',
+            case_ids: caseIds.join(' ')
+        };
+
+        $.post("cna.json", 
+            params,
+            function(cnaFracs){
+                var wrapper = new DataTableWrapper();
+                // TODO: what if no segment available
+                wrapper.setDataMap(cnaFracs,['case_id','copy_number_altered_fraction']);
+                cnaDataTable = wrapper.dataTable;
+                mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+                            mutDataTable,cnaDataTable,func);
+            }
+            ,"json"
+        );
+    }
+}
+
+function mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+        mutDataTable,cnaDataTable,func) {
+    if ((mutationProfileId!=null && mutDataTable==null) ||
+        (cnaProfileId!=null && cnaDataTable==null)) {
+        return;
+    }
+
+    if (func) {
+        func.call(window,mergeMutCnaTables(mutDataTable,cnaDataTable));
+    }
+}
+
+function mergeMutCnaTables(mutDataTable,cnaDataTable) {
+    if (mutDataTable==null)
+        return cnaDataTable;
+    if (cnaDataTable==null)
+        return mutDataTable;
+
+     return google.visualization.data.join(mutDataTable, cnaDataTable,
+                'full', [[0,0]], [1],[1]);
+}

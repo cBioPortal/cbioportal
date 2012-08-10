@@ -205,10 +205,21 @@ public class MafUtil
         return record;
     }
     
-    private String getPartString(int index, String[] parts) {
-        try {
-            return parts[index];
-        } catch (ArrayIndexOutOfBoundsException e) {
+    private String getPartString(int index, String[] parts)
+    {
+        try
+        {
+	        if (parts[index].length() == 0)
+	        {
+		        return MafRecord.NA_STRING;
+	        }
+	        else
+	        {
+		        return parts[index];
+	        }
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             return MafRecord.NA_STRING;
         }
     }

@@ -20,6 +20,18 @@ function drawMutationDiagram(sequences) {
   h = 220;
   c = (2 * h) / 3;
   mutationDiagram = sequences[0];
+
+  // if mutation diagram is available, then show the diagram tooltip box
+  if (mutationDiagram != null)
+  {
+      $("#mutation_diagram_details_" + mutationDiagram.metadata.hugoGeneSymbol).show();
+  }
+  // else abort drawing
+  else
+  {
+      return;
+  }
+
   l = mutationDiagram.length;
   id = mutationDiagram.metadata.hugoGeneSymbol;
   label = mutationDiagram.metadata.identifier;

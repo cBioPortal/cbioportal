@@ -1,8 +1,8 @@
 package org.mskcc.cbio.portal.html;
 
-import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
@@ -57,7 +57,7 @@ public class MutationTableUtil {
         dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getMutationType()));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
-        dataFieldList.add(HtmlUtil.getSafeWebValue(getAminoAcidChange(mutation)));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(ExtendedMutationUtil.getAminoAcidChange(mutation)));
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
@@ -108,23 +108,6 @@ public class MutationTableUtil {
             return null;
         }
     }
-
-	private String getAminoAcidChange(ExtendedMutation mutation)
-	{
-		String aaChange = mutation.getAminoAcidChange();
-
-		if (aaChange == null ||
-		    aaChange.equalsIgnoreCase("MUTATED"))
-		{
-			if (mutation.getOncotatorProteinChange() != null &&
-			    !mutation.getOncotatorProteinChange().equals(MafRecord.NA_STRING))
-			{
-				aaChange = mutation.getOncotatorProteinChange();
-			}
-		}
-
-		return aaChange;
-	}
 
     private void initHeaders() {
         headerList.add("Case ID");

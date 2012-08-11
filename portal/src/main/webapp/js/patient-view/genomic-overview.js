@@ -152,24 +152,22 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna)
             r.attr("stroke-width", 1);
             r.attr("opacity", 0.5);
             r.translate(0.5, 0.5);
-            var locStart = chmInfo.xpixil2loc(config,pixil);
-            var locEnd = chmInfo.xpixil2loc(config,pixil+config.pixelsPerBinMut,locStart[0]);
             
             var mutGeneAA = getMutGeneAA(arr.slice(0,10));
             var tip = mutGeneAA.join('<br/>')
                 +'<br/><a href="#" onclick="goTip.tipDiv.mouseleave();filterMutationsTableByIds(\''
                 +idRegEx(arr)+'\');switchToTab(\'mutations\');return false;">'
                 +(arr.length<=10?'show details':('show all '+arr.length+' mutations'))+'</a>';
-                        //+"<br/>from "+loc2string(locStart,chmInfo)+"<br/>to "+loc2string(locEnd,chmInfo);
-            goTip.addTip(r.node, tip);
+            addToolTip(r.node,tip,100);
         }
     }
         
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     var t = p.text(config.xRightText(),yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
-    goTip.addTip(t.node, "Number of mutation events."
-        +(!hasCna?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>"));
+    var tip =  "Number of mutation events."
+        +(!hasCna?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>");
+    addToolTip(t.node,tip,null,{my:'top right',at:'bottom left'});
 }
 
 function loc2string(loc,chmInfo) {
@@ -211,7 +209,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasM
         r.attr("opacity", 0.5);
         r.translate(0.5, 0.5);
         var tip = "Mean copy number log2 value: "+segMean+"<br/>from "+loc2string([chm,start],chmInfo)+"<br/>to "+loc2string([chm,end],chmInfo);
-        goTip.addTip(r.node, tip);
+        addToolTip(r.node,tip);
     }
     p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     
@@ -222,7 +220,20 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasM
     
     var t = p.text(config.xRightText(),yRow+config.rowHeight/2,label).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
-    goTip.addTip(t.node, tip);
+    addToolTip(t.node, tip,null,{my:'top right',at:'bottom left'});
+}
+
+function addToolTip(node,tip,showDelay,position) {
+    var param = {
+        content: {text:tip},
+        hide: { fixed: true, delay: 100 },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+    };
+    if (showDelay)
+        param['show'] = { delay: showDelay };
+    if (position)
+        param['position'] = position;
+    $(node).qtip(param);
 }
 
 function underlineText(textElement,p) {
@@ -237,55 +248,3 @@ function extractLoc(data,chrCol,startCol,endCol) {
     }
     return [chm,data[startCol],data[endCol]];
 }
-
-// support for tooltips
-// see: http://jsfiddle.net/QK7hw/403/
-function genomicOverviewTip() {
-    this.tipDiv = null;
-    this.node = null;
-    this.overTip = false;
-}
-genomicOverviewTip.prototype = {
-    setTipDiv: function(tipDiv) {
-        this.tipDiv = tipDiv;
-        var tipObj = this;
-        tipDiv.mouseenter(function(e){
-            tipObj.overTip = true;            
-        }).mouseleave(function(){
-            tipObj.overTip = false;
-            tipObj.tipDiv.fadeOut(200);
-        });
-    },
-    setTipDivLoc: function(x,y) {
-        var l = x<800 ? (x+10) : (x-this.tipDiv.outerWidth()-10);
-        this.tipDiv.offset({left:l,top:(y+10)});
-    },
-    addTip: function (node, txt) {
-        var tipObj = this;
-        $(node).mouseenter(function(e){
-            tipObj.node = node;
-            setTimeout(function(){
-                if (node==tipObj.node) {
-                    tipObj.tipDiv.fadeIn();
-                    tipObj.tipDiv.html(txt);
-                    tipObj.setTipDivLoc(e.clientX+pageXOffset,e.clientY+pageYOffset);
-                }
-            },100);
-            
-        }).mouseleave(function(){
-            tipObj.node = null;
-            setTimeout(function(){
-                if (!tipObj.overTip) {
-                    tipObj.tipDiv.fadeOut(200);
-                }
-            },400);
-            
-        });
-    }
-};
-
-var goTip = new genomicOverviewTip();
-
-$(document).ready(function(){
-    goTip.setTipDiv($("#genomic-overview-tip").hide());
-});

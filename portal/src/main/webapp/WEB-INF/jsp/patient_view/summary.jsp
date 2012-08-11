@@ -164,7 +164,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <%}%>
 
 <%if(showGenomicOverview){%>
-<div id="genomic-overview-tip"></div>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>

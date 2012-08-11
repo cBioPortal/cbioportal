@@ -165,7 +165,10 @@ if (patientViewError!=null) {
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />    
+<jsp:include page="global/xdebug.jsp" flush="true" />
+
+<link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
 <script type="text/javascript">

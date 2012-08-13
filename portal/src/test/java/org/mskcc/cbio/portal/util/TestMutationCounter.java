@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.ExtendedMutationMap;
-import org.mskcc.cbio.portal.util.MutationCounter;
 
 import java.util.ArrayList;
 
@@ -112,7 +111,7 @@ public class TestMutationCounter extends TestCase {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
         mutation2.setCaseId(caseId);
-        mutation2.setAminoAcidChange("C22G");
+        mutation2.setProteinChange("C22G");
         return mutation2;
     }
 }

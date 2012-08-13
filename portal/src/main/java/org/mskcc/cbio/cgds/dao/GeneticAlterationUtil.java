@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.List;
 
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
 /**
  * Utility Class for Retrieving Genetic Alteration Data.
@@ -134,12 +133,11 @@ public class GeneticAlterationUtil {
             {
                 String existingStr = mutationMap.get(caseId);
                 mutationMap.put(caseId, existingStr + "," +
-					ExtendedMutationUtil.getAminoAcidChange(mutation));
+					mutation.getProteinChange());
             }
             else
             {
-                mutationMap.put(caseId,
-					ExtendedMutationUtil.getAminoAcidChange(mutation));
+                mutationMap.put(caseId, mutation.getProteinChange());
             }
         }
         return mutationMap;

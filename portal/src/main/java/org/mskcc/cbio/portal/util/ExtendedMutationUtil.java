@@ -18,22 +18,22 @@ public class ExtendedMutationUtil
 	 * @param mutation  mutation instance with AA change info
 	 * @return          AA change info as a string
 	 */
-	public static String getAminoAcidChange(ExtendedMutation mutation)
-	{
-		String aaChange = mutation.getOncotatorProteinChange();
-
-		// TODO If we have a Mutation Assessor score for a given missense mutation,
-		// we should use the AA change provided by Mutation Assessor.
-		// MA may sometimes use a different isoform than Oncotator,
-		// but we want to make sure that the links to MA match what we show in the portal.
-
-		if (aaChange == null ||
-		    aaChange.length() == 0 ||
-		    aaChange.equals(MafRecord.NA_STRING))
-		{
-			aaChange = mutation.getAminoAcidChange();
-		}
-
-		return aaChange;
-	}
+//	public static String getAminoAcidChange(ExtendedMutation mutation)
+//	{
+//		String aaChange = mutation.getOncotatorProteinChange();
+//
+//		// TODO If we have a Mutation Assessor score for a given missense mutation,
+//		// we should use the AA change provided by Mutation Assessor.
+//		// MA may sometimes use a different isoform than Oncotator,
+//		// but we want to make sure that the links to MA match what we show in the portal.
+//
+//		if (aaChange == null ||
+//		    aaChange.length() == 0 ||
+//		    aaChange.equals(MafRecord.NA_STRING))
+//		{
+//			aaChange = mutation.getProteinChange();
+//		}
+//
+//		return aaChange;
+//	}
 }

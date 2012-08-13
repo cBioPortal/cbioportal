@@ -2,7 +2,6 @@ package org.mskcc.cbio.portal.model;
 
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 import java.util.ArrayList;
 
@@ -62,7 +61,7 @@ public class TestExtendedMutationMap extends TestCase {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
         mutation2.setCaseId(caseId);
-        mutation2.setAminoAcidChange("C22G");
+        mutation2.setProteinChange("C22G");
         return mutation2;
     }
 

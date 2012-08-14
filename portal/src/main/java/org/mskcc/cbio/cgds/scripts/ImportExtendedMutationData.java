@@ -150,8 +150,8 @@ public class ImportExtendedMutationData{
 				String validationStatus = record.getValidationStatus();
 
 				if (validationStatus == null ||
-				    validationStatus.equalsIgnoreCase("NA") ||
-				    validationStatus.equalsIgnoreCase("Wildtype")) {
+				    validationStatus.equalsIgnoreCase("Wildtype"))
+				{
 					pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;

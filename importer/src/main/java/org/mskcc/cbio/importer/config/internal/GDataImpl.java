@@ -1,8 +1,8 @@
 // package
-package org.mskcc.cbio.firehose.config.internal;
+package org.mskcc.cbio.importer.config.internal;
 
 // imports
-import org.mskcc.cbio.firehose.Config;
+import org.mskcc.cbio.importer.Config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +37,7 @@ final class GDataImpl implements Config {
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
 
-	// the following are vars set from firehose.properties 
+	// the following are vars set from importer.properties 
 
 	// google docs user
 	private String gdataUser;
@@ -82,9 +82,9 @@ final class GDataImpl implements Config {
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
+     * Takes a ref to the gdata spreadsheet service.
      *
-     * @param firehoseConfig Config
+     * @param spreadsheetService SpreadsheetService
 	 */
 	public GDataImpl(final SpreadsheetService spreadsheetService) {
 
@@ -95,6 +95,9 @@ final class GDataImpl implements Config {
 	/**
 	 * Gets the latest analysis run.
 	 *
+	 * Returns the date of the latest analysis run
+	 * processed by the importer as "MM/dd/yyyy"
+	 *
 	 * @return String
 	 */
 	@Override
@@ -103,7 +106,8 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Sets the latest analysis run.
+	 * Sets the latest analysis run processed by the importer.  Argument
+	 * should be of the form "MM/dd/yyyy".
 	 *
 	 * @param String
 	 */
@@ -115,6 +119,9 @@ final class GDataImpl implements Config {
 	/**
 	 * Gets the latest STDDATA run.
 	 *
+	 * Returns the date of the latest stddata run
+	 * downloaded by the importer as "MM/dd/yyyy"
+	 *
 	 * @return String
 	 */
 	@Override
@@ -123,7 +130,8 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Sets the latest STDDATA run.
+	 * Sets the latest stddata run processed by the importer.  Argument
+	 * should be of the form "MM/dd/yyyy".
 	 *
 	 * @param String
 	 */
@@ -133,7 +141,11 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the analysis datatypes to download from the firehose.
+	 * Gets the analysis datatypes to process.
+	 *
+	 * Returns a string, space delimited, with each type to download, like:
+	 *
+	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
 	 *
 	 * @return String
 	 */
@@ -146,7 +158,11 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the stddata datatypes to download from the firehose.
+	 * Gets the stddata datatypes to process.
+	 *
+	 * Returns a string, space delimited, with each type to download, like:
+	 *
+	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
 	 *
 	 * @return String
 	 */
@@ -159,7 +175,12 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets a list of cancer studies to download.
+	 * Gets the cancer studies to process.
+	 *
+	 * Returns a string, space delimited, with each cancer study
+	 * to process, like:
+	 *
+	 * "blca brca cesc coadread"
 	 *
 	 * @return String
 	 */

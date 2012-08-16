@@ -1,8 +1,8 @@
 // package
-package org.mskcc.cbio.firehose.util.internal;
+package org.mskcc.cbio.importer.util.internal;
 
 // imports
-import org.mskcc.cbio.firehose.FileUtils;
+import org.mskcc.cbio.importer.FileUtils;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -75,7 +75,7 @@ final class FileUtilsImpl implements FileUtils {
 	}
 
 	/**
-	 * Reads the precomputed md5 digest out of a firehose .md5 file.
+	 * Reads the precomputed md5 digest out of a .md5 file (firehose).
 	 *
 	 * @param file File
 	 * @return String

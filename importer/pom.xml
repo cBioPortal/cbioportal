@@ -9,9 +9,9 @@
 
   <!-- module metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>firehose-admin</artifactId>
-  <name>Firehose Admin</name>
-  <description>Admin Module for Firehose Tool</description>
+  <artifactId>portal-importer-admin</artifactId>
+  <name>Portal Importer Admin</name>
+  <description>Admin Module for Portal Importer</description>
   <url>http://www.pathwaycommons.org</url>
 
   <!-- repositories -->
@@ -87,7 +87,7 @@
 		  </descriptorRefs>
 		  <archive>
 			<manifest>
-			  <mainClass>org.mskcc.cbio.firehose.Admin</mainClass>
+			  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
 			</manifest>
 		  </archive>
 		</configuration>
@@ -103,12 +103,12 @@
 	  </plugin>
 	</plugins>
 
-	<!-- prevent some resources from getting into war -->
+	<!-- prevent some resources from getting into package -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
 		<excludes>
-		  <exclude>firehose.properties</exclude>
+		  <exclude>portal.properties*</exclude>
 		</excludes>
 	  </resource>
 	</resources>

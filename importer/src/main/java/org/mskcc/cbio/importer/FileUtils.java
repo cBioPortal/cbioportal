@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cbio.firehose;
+package org.mskcc.cbio.importer;
 
 // imports
 import java.io.File;

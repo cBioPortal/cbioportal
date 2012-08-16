@@ -1,10 +1,10 @@
 // package
-package org.mskcc.cbio.firehose;
+package org.mskcc.cbio.importer;
 
 // imports
 
 /**
- * Interface used to retrieve firehose data.
+ * Interface used to retrieve portal data.
  */
 public interface Fetcher {
 

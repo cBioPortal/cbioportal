@@ -1,8 +1,8 @@
 // package
-package org.mskcc.cbio.firehose;
+package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.firehose.Fetcher;
+import org.mskcc.cbio.importer.Fetcher;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -22,14 +22,13 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Classwhich provides command line admin capabilities 
- * to the firehose converter/importer tool.
+ * Class which provides command line admin capabilities 
+ * to the importer tool.
  */
 public class Admin implements Runnable {
 
-	// ref to our application context file
-	private static ApplicationContext context =
-		new ClassPathXmlApplicationContext("classpath:applicationContext-firehose.xml");
+	// our context file
+	private static final String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(Admin.class);
@@ -50,7 +49,7 @@ public class Admin implements Runnable {
 		
 		// create each option
 		Option help = new Option("help", "print this message");
-		Option fetch = new Option("fetch", "fetch new firehose data");
+		Option fetch = new Option("firehose_fetch", "fetch firehose data");
 
 		// create an options instance
 		Options toReturn = new Options();
@@ -79,7 +78,7 @@ public class Admin implements Runnable {
 	}
 
 	/**
-	 * Executes the desired firehose commmand.
+	 * Executes the desired portal commmand.
 	 */
 	@Override
 	public void run() {
@@ -95,7 +94,7 @@ public class Admin implements Runnable {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
 			// fetch
-			else if (line.hasOption("fetch")) {
+			else if (line.hasOption("firehose_fetch")) {
 				fetchFirehoseData();
 			}
 			else {
@@ -120,7 +119,8 @@ public class Admin implements Runnable {
 		}
 
 		// create an instance of fetcher
-		Fetcher fetcher = (Fetcher)context.getBean("fetcher");
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Fetcher fetcher = (Fetcher)context.getBean("firehoseFetcher");
 		fetcher.fetch();
 	}
 
@@ -151,15 +151,12 @@ public class Admin implements Runnable {
 		}
 
 		// configure logging
-		if (false) {
-			String PORTAL_HOME = "";
-			String home = System.getenv(PORTAL_HOME); // this should be defined in Config class
-			if (home == null) {
-				System.err.println("Please set " + PORTAL_HOME + " environment variable " +
-								   " (point to a directory where build.properties exists).");
-			}
-			PropertyConfigurator.configure(home + File.separator + "log4j.properties");
+		String home = System.getenv("PORTAL_HOME");
+		if (home == null) {
+			System.err.println("Please set PORTAL_HOME environment variable " +
+							   " (point to a directory where portal.properties exists).");
 		}
+		PropertyConfigurator.configure(home + File.separator + "log4j.properties");
 
 		// process
 		Admin admin = new Admin();

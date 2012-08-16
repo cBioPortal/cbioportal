@@ -9,7 +9,7 @@
  
 
   <context:annotation-config />
-  <context:property-placeholder location="file:${FIREHOSE_HOME}/firehose.properties"/>
+  <context:property-placeholder location="file:${PORTAL_HOME}/portal.properties"/>
 
   <!--
 	  some beans to help with firehose
@@ -17,11 +17,11 @@
   <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
 	<b:constructor-arg index="0"><b:value>${spreadsheet_service_appname}</b:value></b:constructor-arg>
   </b:bean>
-  <b:bean id="config" class="org.mskcc.cbio.firehose.config.internal.GDataImpl">
+  <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
 	<b:constructor-arg ref="spreadsheetService"/>
   </b:bean>
-  <b:bean id="fileUtils" class="org.mskcc.cbio.firehose.util.internal.FileUtilsImpl"/>
-  <b:bean id="fetcher" class="org.mskcc.cbio.firehose.fetcher.internal.FetcherImpl">
+  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.util.internal.FileUtilsImpl"/>
+  <b:bean id="firehoseFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
   </b:bean>

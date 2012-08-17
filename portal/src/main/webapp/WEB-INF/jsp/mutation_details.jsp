@@ -154,11 +154,16 @@
                       {"sType": 'aa-change-col',
                               "aTargets": [ 5 ]},
                       {"sType": 'predicted-impact-col',
-                              "aTargets": [ 6 ]}
+                              "aTargets": [ 13 ]}
                   ]
               } );
             <% } %>
         <% } %>
+
+	    $('a.mutation_table_cosmic').click(function(event){
+		    //alert(event.target.hasClass("mutation_table_cosmic"));
+		    alert(this.name);
+	    });
     });
     
     //  Set up Mutation Diagrams

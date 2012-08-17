@@ -91,6 +91,13 @@ public class MutationTableUtil
         dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getProteinChange()));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getNcbiBuild()));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(getChrPosition(mutation)));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getReferenceAllele()));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(getVariantAllele(mutation)));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(getCosmicCount(mutation)));
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
@@ -191,6 +198,52 @@ public class MutationTableUtil
 		}
 	}
 
+	private String getCosmicCount(ExtendedMutation mutation)
+	{
+		if (mutation.getOncotatorCosmicOverlapping() == null ||
+		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
+		{
+			return mutation.getOncotatorCosmicOverlapping();
+		}
+
+		String[] parts = mutation.getOncotatorCosmicOverlapping().split("\\|");
+		Integer total = 0;
+
+		for (String cosmic : parts)
+		{
+			int beginIdx = cosmic.indexOf('(') + 1;
+			int endIdx = cosmic.indexOf(")");
+			String count = cosmic.substring(beginIdx, endIdx);
+
+			if (count.matches("[0-9]+"))
+			{
+				total += Integer.parseInt(count);
+			}
+		}
+
+		return "<a class='mutation_table_cosmic' name='" +
+		       mutation.getOncotatorCosmicOverlapping() + "'>" +
+		       total.toString() +
+		       "</a>";
+	}
+
+	private String getVariantAllele(ExtendedMutation mutation)
+	{
+		String varAllele = mutation.getTumorSeqAllele1();
+
+		if (mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
+		{
+			varAllele = mutation.getTumorSeqAllele2();
+		}
+
+		return varAllele;
+	}
+
+	private String getChrPosition(ExtendedMutation mutation)
+	{
+		return mutation.getChr() + ":" + mutation.getStartPosition();
+	}
+
     private void initHeaders()
     {
         headerList.add("Case ID");
@@ -199,6 +252,13 @@ public class MutationTableUtil
         headerList.add("Validation Status");
         headerList.add("Sequencing Center");
         headerList.add("AA Change");
+	    headerList.add("Build");
+	    headerList.add("Position");
+	    headerList.add("Ref Allele");
+	    headerList.add("Var Allele");
+	    headerList.add("Variant Frequency");
+	    headerList.add("Normal Frequency");
+	    headerList.add("COSMIC");
         headerList.add("Predicted Impact**");
         headerList.add("Alignment");
         headerList.add("Structure");

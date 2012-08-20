@@ -24,9 +24,16 @@ public class MutationTableUtil
 	private HashMap<String, String[]> mutationTypeMap;
 
     // Validation Status Constants
-    private static final String DISPLAY_VALID = "valid";
+    private static final String DISPLAY_VALID = "V";
 	private static final String CSS_VALID = "valid";
 	private static final String VALID = "valid";
+	private static final String DISPLAY_UNKNOWN = "U";
+	private static final String CSS_UNKNOWN = "unknown";
+	private static final String UNKNOWN = "unknown";
+	private static final String DISPLAY_WILDTYPE = "W";
+	private static final String CSS_WILDTYPE = "wildtype";
+	private static final String WILDTYPE = "wildtype";
+
 
 	// Mutation Status Constants
     private static final String CSS_SOMATIC = "somatic";
@@ -137,7 +144,9 @@ public class MutationTableUtil
 	    // use those values
 	    if (values != null)
 	    {
-		    return HtmlUtil.createTextWithinSpan(values[0], values[1]);
+		    return HtmlUtil.createTextWithinSpan(values[0],
+				values[1],
+				mutation.getValidationStatus());
 	    }
 	    // else, directly use the validation status value itself
 	    else
@@ -162,7 +171,9 @@ public class MutationTableUtil
 	    // use those values
         if (values != null)
         {
-	        return HtmlUtil.createTextWithinSpan(values[0], values[1]);
+	        return HtmlUtil.createTextWithinSpan(values[0],
+				values[1],
+				mutation.getMutationStatus());
         }
         // else, directly use the mutation status value itself
         else
@@ -221,7 +232,7 @@ public class MutationTableUtil
 			}
 		}
 
-		return "<a class='mutation_table_cosmic' name='" +
+		return "<a class='mutation_table_cosmic' id='" +
 		       mutation.getOncotatorCosmicOverlapping() + "'>" +
 		       total.toString() +
 		       "</a>";
@@ -303,8 +314,12 @@ public class MutationTableUtil
 		HashMap<String, String[]> map = new HashMap<String, String[]>();
 
 		String[] valid = {DISPLAY_VALID, CSS_VALID};
+		String[] unknown = {DISPLAY_UNKNOWN, CSS_UNKNOWN};
+		String[] wildtype = {DISPLAY_WILDTYPE, CSS_WILDTYPE};
 
 		map.put(VALID, valid);
+		map.put(UNKNOWN, unknown);
+		map.put(WILDTYPE, wildtype);
 
 		return map;
 	}

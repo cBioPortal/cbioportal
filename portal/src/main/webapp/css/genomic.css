@@ -41,3 +41,7 @@
   font-size:90%;
   color:black;
 }
+
+.mutation_details_table a{
+	cursor: pointer;
+}

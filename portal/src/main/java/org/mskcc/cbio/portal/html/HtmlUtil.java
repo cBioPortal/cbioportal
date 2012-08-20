@@ -43,6 +43,16 @@ public class HtmlUtil {
         return ("<span class='" + cssClass + "'>" + text + "</span>");
     }
 
+	public static String createTextWithinSpan(String text, String cssClass, String title)
+	{
+		if (text == null || cssClass == null)
+		{
+			return EMPTY_STRING;
+		}
+
+		return ("<span class='" + cssClass + "' title='" + title + "'>" + text + "</span>");
+	}
+
     public static String createLinkWithinSpan(String text, String cssClass) {
         if (text == null || cssClass == null) {
             return EMPTY_STRING;

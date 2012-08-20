@@ -18,9 +18,10 @@
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
+%>
+<div class='section' id='mutation_details'>
 
-    out.println("<div class='section' id='mutation_details'>");
-
+<%
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
@@ -28,8 +29,13 @@
     } else {
         outputNoMutationDetails(out);
     }
-    out.println("</div>");
 %>
+	<div id="cosmic_details_dialog" title="Cosmic Details">
+		<table id="cosmic_details_table"></table>
+	</div>
+
+</div>
+
 
 <style type="text/css" title="currentStyle"> 
         .mutation_datatables_filter {
@@ -150,6 +156,10 @@
                   "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
                   "bPaginate": false,
                   "bFilter": true,
+                  "sScrollX": "800px",
+                  //"sScrollXInner": "800px",
+                  //"bScrollCollapse": true,
+	              //"bScrollAutoCss": false,
                   "aoColumnDefs":[
                       {"sType": 'aa-change-col',
                               "aTargets": [ 5 ]},
@@ -160,9 +170,36 @@
             <% } %>
         <% } %>
 
+	    $("#cosmic_details_dialog").dialog({autoOpen: false,
+			resizable: false,
+			width: 300});
+
+	    $('a.mutation_table_cosmic').unbind(); // TODO temporary work-around, should fix the listener in MakeOncoPrint
+
 	    $('a.mutation_table_cosmic').click(function(event){
-		    //alert(event.target.hasClass("mutation_table_cosmic"));
-		    alert(this.name);
+		    var cosmic = this.id;
+
+		    var parts = cosmic.split("|");
+
+		    $("#cosmic_details_table").empty();
+
+		    // headers
+		    $("#cosmic_details_table").append(
+				"<tr><th>Overlapping COSMIC AA Change</th>" +
+				"<th>Frequency</th></tr>");
+
+		    // COSMIC data
+		    for (var i=0; i < parts.length; i++)
+		    {
+			    var values = parts[i].split(/\(|\)/, 2);
+
+			    $("#cosmic_details_table").append(
+					"<tr><td>" + values[0] + "</td>" +
+					"<td>" + values[1] + "</td></tr>");
+		    }
+
+		    //$("#cosmic_details_table").dataTable();
+		    $("#cosmic_details_dialog").dialog("open").height("auto");
 	    });
     });
     

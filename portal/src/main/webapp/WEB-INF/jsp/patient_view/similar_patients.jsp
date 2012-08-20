@@ -18,6 +18,19 @@ A genomic overview with events aligned across patients goes here...
         return s.join("<br/>");
     }
     
+    function countSharedEvents(events) {
+        var mut = events['<%=SimilarPatientsJSON.MUTATION%>'];
+        var cna = events['<%=SimilarPatientsJSON.CNA%>'];
+        var n = 0;
+        if (mut != null) {
+            n += mut.length;
+        }
+        if (cna != null) {
+            n += cna.length;
+        }
+        return n;
+    }
+    
     function buildSimilarPatientsDataTable(aDataSet, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -27,25 +40,52 @@ A genomic overview with events aligned across patients goes here...
                 "aoColumnDefs":[
                     {// patient
                         "aTargets": [ 0 ],
-                        "fnRender": function(obj) {
-                            var patientId = obj.aData[ obj.iDataColumn ];
-                            return "<a href='patient.do?<%=PatientView.PATIENT_ID%>="+patientId
-                                + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+patientId+"</b></a>";
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[0]=value;
+                            } else if (type==='display') {
+                                var patientId = source[ 0 ];
+                                return "<a href='patient.do?<%=PatientView.PATIENT_ID%>="+patientId
+                                    + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+patientId+"</b></a>";
+                            } else {
+                                return source[0];
+                            }
+                        }
+                    },
+                    {// study
+                        "aTargets": [ 1 ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[1]=value;
+                            } else if (type==='display') {
+                                var study = source[ 1 ];
+                                return "<a href='study.do?cancer_study_id="+study[0]
+                                    + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+study[1]+"</b></a>";
+                            } else if (type==='sort') {
+                                return source[1][1];
+                            } else {
+                                return source[1];
+                            }
                         }
                     },
                     {// Shared events
                         "aTargets": [ 2 ],
-                        "iDataSort": 3,
-                        "fnRender": function(obj) {
-                            return renderSharedEvents(obj.aData[ obj.iDataColumn ]);
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[2]=value;
+                            } else if (type==='display') {
+                                return renderSharedEvents(source[2]);
+                            } else if (type==='sort') {
+                                return countSharedEvents(source[2]);
+                            } else if (type==='filter') {
+                                return renderSharedEvents(source[2]);
+                            } else {
+                                return source[2];
+                            }
                         }
-                    },
-                    {// # Shared events
-                        "bVisible": false,
-                        "aTargets": [ 3 ]
                     }
                 ],
-                "aaSorting": [[3,'desc']],
+                "aaSorting": [[2,'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -101,7 +141,6 @@ A genomic overview with events aligned across patients goes here...
                         <th>Patient</th>
                         <th>Cancer Study</th>
                         <th>Shared Events of Interest</th>
-                        <th># Shared Events</th>
                     </tr>
                 </thead>
             </table>

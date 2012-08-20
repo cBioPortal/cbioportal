@@ -61,10 +61,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         if (geObs.hasCna) {
             plotCopyNumberOverview(paper,config,chmInfo,geObs.hasMut);
         }
-        
-        if (geObs.hasMut && geObs.hasCna) {
-            //plotMutCnaScatterIcon(paper,config,0);
-        }
     }
     
     function plotCopyNumberOverview(paper,config,chmInfo,hasMut) {

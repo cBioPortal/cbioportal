@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 
 /**
  *
@@ -92,30 +93,30 @@ public class SimilarPatientsJSON extends HttpServlet {
             JSONArray row = new JSONArray();
             row.add(patient);
             
-            String cancerStudy = "unknown";
+            String[] cancerStudy = {"unknown","unknown"};
             try {
-                cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(
-                    DaoCase.getCase(patient).getCancerStudyId()).getName();
-            } catch (Exception e) {System.out.println(e);}
-            
-            row.add(cancerStudy);
-            int nEvents = 0;
+                CancerStudy study = DaoCancerStudy.getCancerStudyByInternalId(
+                    DaoCase.getCase(patient).getCancerStudyId());
+                cancerStudy[0] = study.getCancerStudyStableId();
+                cancerStudy[1] = study.getName();
+            } catch (Exception e) {
+                logger.error(e.getStackTrace());
+            }
+
+            row.add(Arrays.asList(cancerStudy));
             Map<String,Set<Long>> events = new HashMap<String,Set<Long>>(2);
             
             Set<Long> mutations = similarMutations.get(patient);
             if (mutations != null) {
-                nEvents += mutations.size();
                 events.put(MUTATION, mutations);
             }
             
             Set<Long> cna = similarCnas.get(patient);
             if (cna != null) {
-                nEvents += cna.size();
                 events.put(CNA, cna);
             }
             
             row.add(events);
-            row.add(nEvents);
             table.add(row);
         }
     }

@@ -39,14 +39,15 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
+        if (!geObs.hasMut||!geObs.hasCna) $('#mut-cna-scatter').hide();
         initGenomicsOverview();
         initMutCnaScatterDialog();
-        loadMutCnaAndPlot("mut-cna-scatter");
+        if (geObs.hasMut&&geObs.hasCna) loadMutCnaAndPlot("mut-cna-scatter");
     });
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-150);
+        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-(geObs.hasMut&&geObs.hasCna?150:0));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);

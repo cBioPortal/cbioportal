@@ -46,7 +46,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-130);
+        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-150);
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
@@ -121,7 +121,10 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>',
             function(dt){
-                scatterPlotMutVsCna(dt,false,false,scatterPlotDiv,caseIdDiv);
+                var maxMut = dt.getColumnRange(1).max;
+                var vLog = maxMut>1000;
+                $('#mut-cna-haxis-log').attr('checked',true);
+                scatterPlotMutVsCna(dt,false,vLog,scatterPlotDiv,caseIdDiv);
 
                 $('#mut-cna-config').show();
 

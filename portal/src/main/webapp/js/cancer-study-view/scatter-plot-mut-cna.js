@@ -42,6 +42,14 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,colCna,colMut,caseMap,hLog,vLog) 
                     } 
                 },true);
             });
+        } else {
+            google.visualization.events.addListener(scatter, 'select', function(e){
+                var s = scatter.getSelection();
+                if (s.length==0) return;
+                var id = dt.getValue(s[0].row,0);
+                if (caseId && caseId==id) return;
+                window.location.href = 'patient.do?case_id='+id;
+            });
         }
         
         var options = {

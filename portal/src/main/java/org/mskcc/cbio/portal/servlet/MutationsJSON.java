@@ -240,7 +240,7 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getEndPosition());
         String symbol = mutation.getGeneSymbol();
         row.add(symbol);
-        row.add(mutation.getAminoAcidChange());
+        row.add(mutation.getProteinChange());
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
         

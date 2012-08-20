@@ -1,12 +1,8 @@
 package org.mskcc.cbio.cgds.dao;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoMicroRna;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
 import java.util.ArrayList;
+import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
  * JUnit tests for DaoMicroRna class.

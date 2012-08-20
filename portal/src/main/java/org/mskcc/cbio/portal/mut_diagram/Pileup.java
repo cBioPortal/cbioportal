@@ -76,7 +76,7 @@ public final class Pileup {
         SetMultimap<Integer, String> labels = HashMultimap.create();
         ListMultimap<Integer, ExtendedMutation> mutationsByLocation = ArrayListMultimap.create();
         for (ExtendedMutation mutation : mutations) {
-            String label = mutation.getAminoAcidChange();
+            String label = mutation.getProteinChange();
             if (label != null) {
                 try {
                     int location = Integer.valueOf(label.replaceAll("[A-Za-z\\.*]+", ""));
@@ -93,7 +93,7 @@ public final class Pileup {
             String label = Joiner.on("/").join(labels.get(location));
             Set<String> caseIds = Sets.newHashSet();
             for (ExtendedMutation mutation : entry.getValue()) {
-                caseIds.add(mutation.getCaseId() + ":" + mutation.getAminoAcidChange());
+                caseIds.add(mutation.getCaseId() + ":" + mutation.getProteinChange());
             }
             pileups.add(new Pileup(label, location, caseIds.size()));
         }

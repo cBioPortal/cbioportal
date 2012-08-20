@@ -71,7 +71,7 @@ sub run{
 		$drugTargetFile,   # full filename of drug target file
         $nameOfPerCancerGermlineWhitelist,  # base filename of per cancer germline whitelist file, if any
         $nameOfPerCancerSomaticWhitelist,   # base filename of per cancer somatic whitelist file, if any
-		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cgds.scripts.ImportProfileData
+		$loadMutationArguments,   # global mutation loading arguments, passed without modification to org.mskcc.cbio.cgds.scripts.ImportProfileData
 		                          # includes optional --acceptRemainingMutations and 
 		                          # --somaticWhiteList <full filename of universal somatic whitelist file> if supplied
 		) = @_;
@@ -84,33 +84,33 @@ sub run{
 	
 	# Clear the Database
 	# database parameters found in build.properties
-	my $c = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ResetDatabase";
+	my $c = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ResetDatabase";
 	print "Running: $c\n";
 	system ($c);
 
 	$fileUtil = File::Util->new();
 
     # Load up cancers
-    system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportTypesOfCancers " . $Cancers ); 
+    system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers " . $Cancers ); 
 
 	# TODO: control or surpress progress messages
 	# Load up Entrez Genes
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportGeneData " . $GeneFile ); 
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportGeneData " . $GeneFile ); 
 	
 	# Load up all microRNA IDs
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMicroRNAIDs " . $miRNAfile );  
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMicroRNAIDs " . $miRNAfile );  
 
 	# Load up RPPA -Antibodies
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinArrayInfo " . $rppafile );  
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProteinArrayInfo " . $rppafile );  
 
 	# Load up Sanger Data
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportSangerCensusData " . $sangerfile );  
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportSangerCensusData " . $sangerfile );  
 
 	# Load up UniProt ID Mapping (for Mutation Diagrams)
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
 
 	# Load up Drug Data (for drug-network view)
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.drug.ImportDrugBank " . $drugDataFile . " " . $drugTargetFile );
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.drug.ImportDrugBank " . $drugDataFile . " " . $drugTargetFile );
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );
@@ -130,9 +130,9 @@ sub set_up_classpath{
 		warn "\$theCGDShome not defined ";
 	}
 	my $classpath = Env::Path->CLASSPATH;
-	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  build WEB-INF classes ) ) );
+	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF classes ) ) );
 	
-	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  lib *.jar ) ) );
+	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF lib *.jar ) ) );
 	foreach my $jar (@jar_files) {
 	    $classpath->Append( $jar );
 	}
@@ -167,7 +167,7 @@ sub load_cancer_data{
 	  my $fullCanonicalClinicalDataFile = File::Spec->catfile( @pathToDataFile, $clinicalDataFile );
 	  if ( $fileUtil->existent($fullCanonicalClinicalDataFile) ) {
 		print "importingClinicalData: $fullCanonicalClinicalDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportClinicalData " . $cancerDataDir . ' ' . $fullCanonicalClinicalDataFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportClinicalData " . $cancerDataDir . ' ' . $fullCanonicalClinicalDataFile ); 
 	  }
 	        
 	  # import a cancer's data
@@ -179,7 +179,7 @@ sub load_cancer_data{
 	  my $fullCanonicalRPPADataFile = File::Spec->catfile( @pathToDataFile, 'data_rppa.txt' );
 	  if ( $fileUtil->existent($fullCanonicalRPPADataFile) ) {
 		print "importingRPPAData: $fullCanonicalRPPADataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProteinArrayData " . $fullCanonicalRPPADataFile . ' ' . $cancerDataDir ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProteinArrayData " . $fullCanonicalRPPADataFile . ' ' . $cancerDataDir ); 
 	  }
 			
 	  # import mutsig
@@ -187,7 +187,7 @@ sub load_cancer_data{
 	  my $fullCanonicalMutSigMetaFile = File::Spec->catfile( @pathToDataFile, 'meta_mutsig.txt' );
 	  if ( $fileUtil->existent($fullCanonicalMutSigDataFile) && $fileUtil->existent($fullCanonicalMutSigMetaFile)) {
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
 	  }
 
 	  # import hg19 seg file
@@ -247,7 +247,7 @@ sub loadCGDScancerMutationDataFile{
     # remove: append no longer supported
     
     # todo: check existence of files
-    my $cmd = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportProfileData " .
+    my $cmd = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProfileData " .
         " --data $dataFile --meta $metaFile --loadMode bulkLoad " . 
         ( defined( $loadMutationArguments ) ? $loadMutationArguments : '');
     if( defined( $nameOfPerCancerGermlineWhitelist ) && -r File::Spec->catfile( $directory, $nameOfPerCancerGermlineWhitelist ) ){
@@ -277,7 +277,7 @@ sub loadCGDScancerProfileDataFile{
       
     # todo: check existence of files
     my $cmd = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' " . 
-        " org.mskcc.cgds.scripts.ImportProfileData --data $dataFile --meta $metaFile --loadMode bulkLoad ";
+        " org.mskcc.cbio.cgds.scripts.ImportProfileData --data $dataFile --meta $metaFile --loadMode bulkLoad ";
     system( $cmd );
 }
 
@@ -288,7 +288,7 @@ sub importCancerStudy{
     my $cancerTypeFile = File::Spec->catfile( $theCGDSinputFiles, $cancer, $cancer . '.txt' );
     if( -r $cancerTypeFile ){
 	    print "\$cancerTypeFile $cancerTypeFile\n";
-	    system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportCancerStudy " . $cancerTypeFile );
+	    system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCancerStudy " . $cancerTypeFile );
 	    return 1;
     }
     return 0;
@@ -299,7 +299,7 @@ sub importCaseLists{
     my( $cgdsHome, $theCGDSinputFiles, $cancer, $cmdLineCP ) = @_;
 
     my $cancerCaseListsDir = File::Spec->catfile( $theCGDSinputFiles, $cancer, 'case_lists' );
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportCaseList " . $cancerCaseListsDir );
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCaseList " . $cancerCaseListsDir );
 	
 }
 

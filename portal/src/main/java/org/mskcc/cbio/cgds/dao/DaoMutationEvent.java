@@ -54,7 +54,7 @@ public final class DaoMutationEvent {
 		("SELECT `MUTATION_EVENT_ID` FROM mutation_event WHERE `ENTREZ_GENE_ID`=? "
                     + "AND `AMINO_ACID_CHANGE`=? AND `MUTATION_STATUS`=?");
             pstmt.setLong(1, mutation.getEntrezGeneId());
-            pstmt.setString(2, mutation.getAminoAcidChange());
+            pstmt.setString(2, mutation.getProteinChange());
             pstmt.setString(3, mutation.getMutationStatus());
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -67,7 +67,7 @@ public final class DaoMutationEvent {
                     + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
                     + "`END_POSITION`) VALUES(?,?,?,?,?,?,?)");
             pstmt.setLong(1, mutation.getEntrezGeneId());
-            pstmt.setString(2, mutation.getAminoAcidChange());
+            pstmt.setString(2, mutation.getProteinChange());
             pstmt.setString(3, mutation.getMutationStatus());
             pstmt.setString(4, mutation.getMutationType());
             pstmt.setString(5, mutation.getChr());
@@ -133,7 +133,7 @@ public final class DaoMutationEvent {
                     rs.getString("MUTATION_TYPE"));
             event.setCaseId(rs.getString("CASE_ID"));
             event.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
-            event.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
+            event.setProteinChange(rs.getString("AMINO_ACID_CHANGE"));
             event.setChr(rs.getString("CHR"));
             event.setStartPosition(rs.getLong("START_POSITION"));
             event.setEndPosition(rs.getLong("END_POSITION"));

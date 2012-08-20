@@ -23,8 +23,8 @@ public class ExtendedMutation
 	private String chr;
 	private long startPosition;
 	private long endPosition;
-	private String aminoAcidChange;
-	private String mutationType;
+	private String proteinChange; // amino acid change
+	private String mutationType; // variant classification
 	private String functionalImpactScore;
 	private String linkXVar;
 	private String linkPdb;
@@ -59,8 +59,6 @@ public class ExtendedMutation
 	private int normalAltCount;
 	private int normalRefCount;
 
-	private String oncotatorProteinChange;
-	private String oncotatorVariantClassification;
 	private String oncotatorCosmicOverlapping;
 	private String oncotatorDbSnpRs;
 
@@ -192,12 +190,12 @@ public class ExtendedMutation
 		this.endPosition = endPosition;
 	}
 
-	public String getAminoAcidChange() {
-		return aminoAcidChange;
+	public String getProteinChange() {
+		return proteinChange;
 	}
 
-	public void setAminoAcidChange(String aminoAcidChange) {
-		this.aminoAcidChange = aminoAcidChange;
+	public void setProteinChange(String proteinChange) {
+		this.proteinChange = proteinChange;
 	}
 
 	public String getFunctionalImpactScore() {
@@ -438,23 +436,6 @@ public class ExtendedMutation
 
 	public void setNormalRefCount(int normalRefCount) {
 		this.normalRefCount = normalRefCount;
-	}
-
-	public String getOncotatorProteinChange() {
-		return oncotatorProteinChange;
-	}
-
-	public void setOncotatorProteinChange(String oncotatorProteinChange) {
-		this.oncotatorProteinChange = oncotatorProteinChange;
-	}
-
-	public String getOncotatorVariantClassification() {
-		return oncotatorVariantClassification;
-	}
-
-	public void setOncotatorVariantClassification(
-			String oncotatorVariantClassification) {
-		this.oncotatorVariantClassification = oncotatorVariantClassification;
 	}
 
 	public String getOncotatorCosmicOverlapping() {

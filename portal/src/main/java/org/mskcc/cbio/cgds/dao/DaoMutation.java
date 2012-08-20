@@ -72,7 +72,7 @@ public class DaoMutation {
 						mutation.getChr(),
 						Long.toString( mutation.getStartPosition() ),
 						Long.toString( mutation.getEndPosition() ),
-						mutation.getAminoAcidChange(),
+						mutation.getProteinChange(),
 						mutation.getMutationType(),
 						mutation.getFunctionalImpactScore(),
 						mutation.getLinkXVar(),
@@ -103,8 +103,6 @@ public class DaoMutation {
 						Integer.toString(mutation.getTumorRefCount()),
 						Integer.toString(mutation.getNormalAltCount()),
 						Integer.toString(mutation.getNormalRefCount()),
-						mutation.getOncotatorProteinChange(),
-						mutation.getOncotatorVariantClassification(),
 						mutation.getOncotatorDbSnpRs(),
 						mutation.getOncotatorCosmicOverlapping()
 				                              );
@@ -119,7 +117,7 @@ public class DaoMutation {
 						("INSERT INTO mutation (`GENETIC_PROFILE_ID`, `CASE_ID`,"
 						 + " `ENTREZ_GENE_ID`,"
 						 + " `CENTER`, `SEQUENCER`, `MUTATION_STATUS`, `VALIDATION_STATUS`, `CHR`,"
-						 + " `START_POSITION`, `END_POSITION`, `AMINO_ACID_CHANGE`, "
+						 + " `START_POSITION`, `END_POSITION`, `PROTEIN_CHANGE`, "
 						 + " `MUTATION_TYPE`, `FUNCTIONAL_IMPACT_SCORE`, `LINK_XVAR`, `LINK_PDB`,"
 						 + " `LINK_MSA`, `NCBI_BUILD`, `STRAND`, `VARIANT_TYPE`, `REFERENCE_ALLELE`,"
 						 + " `TUMOR_SEQ_ALLELE1`, `TUMOR_SEQ_ALLELE2`, `DB_SNP_RS`, `DB_SNP_VAL_STATUS`,"
@@ -128,9 +126,8 @@ public class DaoMutation {
 						 + " `MATCH_NORM_VALIDATION_ALLELE1`, `MATCH_NORM_VALIDATION_ALLELE2`,"
 						 + " `VERIFICATION_STATUS`, `SEQUENCING_PHASE`, `SEQUENCE_SOURCE`, `VALIDATION_METHOD`,"
 						 + " `SCORE`, `BAM_FILE`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`,"
-						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_PROTEIN_CHANGE`, `ONCOTATOR_VARIANT_CLASSIFICATION`,"
-						 + " `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`)"
-						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`)"
+						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 				pstmt.setInt(1, mutation.getGeneticProfileId());
 				pstmt.setString(2, mutation.getCaseId());
@@ -142,7 +139,7 @@ public class DaoMutation {
 				pstmt.setString(8, mutation.getChr());
 				pstmt.setLong(9, mutation.getStartPosition());
 				pstmt.setLong(10, mutation.getEndPosition());
-				pstmt.setString(11, mutation.getAminoAcidChange());
+				pstmt.setString(11, mutation.getProteinChange());
 				pstmt.setString(12, mutation.getMutationType());
 				pstmt.setString(13, mutation.getFunctionalImpactScore());
 				pstmt.setString(14, mutation.getLinkXVar());
@@ -173,10 +170,8 @@ public class DaoMutation {
 				pstmt.setInt(39, mutation.getTumorRefCount());
 				pstmt.setInt(40, mutation.getNormalAltCount());
 				pstmt.setInt(41, mutation.getNormalRefCount());
-				pstmt.setString(42, mutation.getOncotatorProteinChange());
-				pstmt.setString(43, mutation.getOncotatorVariantClassification());
-				pstmt.setString(44, mutation.getOncotatorDbSnpRs());
-				pstmt.setString(45, mutation.getOncotatorCosmicOverlapping());
+				pstmt.setString(42, mutation.getOncotatorDbSnpRs());
+				pstmt.setString(43, mutation.getOncotatorCosmicOverlapping());
 
 				return pstmt.executeUpdate();
 			}
@@ -451,7 +446,7 @@ public class DaoMutation {
 		mutation.setChr(rs.getString("CHR"));
 		mutation.setStartPosition(rs.getLong("START_POSITION"));
 		mutation.setEndPosition(rs.getLong("END_POSITION"));
-		mutation.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
+		mutation.setProteinChange(rs.getString("PROTEIN_CHANGE"));
 		mutation.setMutationType(rs.getString("MUTATION_TYPE"));
 		mutation.setFunctionalImpactScore(rs.getString("FUNCTIONAL_IMPACT_SCORE"));
 		mutation.setLinkXVar(rs.getString("LINK_XVAR"));
@@ -482,8 +477,6 @@ public class DaoMutation {
 		mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
 		mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
 		mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
-		mutation.setOncotatorProteinChange(rs.getString("ONCOTATOR_PROTEIN_CHANGE"));
-		mutation.setOncotatorVariantClassification(rs.getString("ONCOTATOR_VARIANT_CLASSIFICATION"));
 		mutation.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
 		mutation.setOncotatorCosmicOverlapping(rs.getString("ONCOTATOR_COSMIC_OVERLAPPING"));
 

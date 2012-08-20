@@ -73,7 +73,7 @@ public class GetMutationData {
                     buf.append(mutation.getMutationStatus()).append(TAB);
                     buf.append(mutation.getMutationType()).append(TAB);
                     buf.append(mutation.getValidationStatus()).append(TAB);
-                    buf.append(mutation.getAminoAcidChange()).append(TAB);
+                    buf.append(mutation.getProteinChange()).append(TAB);
                     buf.append(mutation.getFunctionalImpactScore()).append(TAB);
                     buf.append(mutation.getLinkXVar()).append(TAB);
                     buf.append(mutation.getLinkPdb()).append(TAB);

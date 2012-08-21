@@ -92,7 +92,7 @@
     jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
         var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
         var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-        
+
         if (ares) {
             if (bres) {
                 var ia = parseInt(ares[1]);
@@ -109,7 +109,7 @@
             }
         }
     };
-    
+
     function assignValueToPredictedImpact(str) {
         if (str=="Low") {
             return 1;
@@ -198,7 +198,7 @@
 	    $("#cosmic_details_table").dataTable({
 		    "aaSorting" : [ ], // do not sort by default
 			"sDom": 't', // show only the table
-			"aoColumnDefs": [{ "sType": "string", "aTargets": [0]},
+			"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
 				{ "sType": "numeric", "aTargets": [1]}],
 			"bPaginate": false,
 			"bFilter": false});

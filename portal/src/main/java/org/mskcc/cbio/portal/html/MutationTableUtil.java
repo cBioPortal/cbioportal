@@ -12,6 +12,7 @@ import java.util.HashMap;
  * Utility Class for Creating the Mutation Table.
  *
  * @author Ethan Cerami
+ * @author Selcuk Onur Sumer
  */
 public class MutationTableUtil
 {
@@ -98,7 +99,7 @@ public class MutationTableUtil
         dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getProteinChange()));
-	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getNcbiBuild()));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(getNcbiBuild(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getChrPosition(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getReferenceAllele()));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getVariantAllele(mutation)));
@@ -209,6 +210,15 @@ public class MutationTableUtil
 		}
 	}
 
+	/**
+	 * Creates an html "a" element for the cosmic overlapping value
+	 * of the given mutation. The text of the element will be the sum
+	 * of all cosmic values, and the id of the element will be the
+	 * (non-parsed) cosmic overlapping string.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          string representing an "a" element for the cosmic value
+	 */
 	private String getCosmicCount(ExtendedMutation mutation)
 	{
 		if (mutation.getOncotatorCosmicOverlapping() == null ||
@@ -238,6 +248,13 @@ public class MutationTableUtil
 			total.toString() + "</a>";
 	}
 
+	/**
+	 * Returns one of the tumor sequence alleles which is different from
+	 * the reference allele.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          tumor sequence allele different from the reference allele
+	 */
 	private String getVariantAllele(ExtendedMutation mutation)
 	{
 		String varAllele = mutation.getTumorSeqAllele1();
@@ -248,6 +265,31 @@ public class MutationTableUtil
 		}
 
 		return varAllele;
+	}
+
+	/**
+	 * Returns the corresponding NCBI build number (hg18 or hg19).
+	 *
+	 * @param mutation  mutation instance
+	 * @return          corresponding NCBI build number
+	 */
+	private String getNcbiBuild(ExtendedMutation mutation)
+	{
+		String build = mutation.getNcbiBuild();
+
+		if (build.equals("36") ||
+		    build.equals("36.1"))
+		{
+			return "hg18";
+		}
+		else if (build.equals("37"))
+		{
+			return "hg19";
+		}
+		else
+		{
+			return build;
+		}
 	}
 
 	private String getChrPosition(ExtendedMutation mutation)

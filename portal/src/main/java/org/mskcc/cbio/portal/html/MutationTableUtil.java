@@ -232,10 +232,10 @@ public class MutationTableUtil
 			}
 		}
 
-		return "<a class='mutation_table_cosmic' id='" +
-		       mutation.getOncotatorCosmicOverlapping() + "'>" +
-		       total.toString() +
-		       "</a>";
+		return "<a class='mutation_table_cosmic' " +
+			"title='Click to see details' " +
+			"id='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
+			total.toString() + "</a>";
 	}
 
 	private String getVariantAllele(ExtendedMutation mutation)

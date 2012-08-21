@@ -30,8 +30,21 @@
         outputNoMutationDetails(out);
     }
 %>
-	<div id="cosmic_details_dialog" title="Cosmic Details">
-		<table id="cosmic_details_table"></table>
+	<div id="cosmic_details_dialog" title="Cosmic Details" class="dataTables_wrapper">
+		<table id="cosmic_details_table" class="display">
+			<thead>
+				<tr>
+					<th>Overlapping COSMIC AA change</th>
+					<th>Frequency</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>Overlapping COSMIC AA change</th>
+					<th>Frequency</th>
+				</tr>
+			</tfoot>
+		</table>
 	</div>
 
 </div>
@@ -156,8 +169,9 @@
                   "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
                   "bPaginate": false,
                   "bFilter": true,
-                  "sScrollX": "800px",
-                  //"sScrollXInner": "800px",
+	              // TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
+                  //"sScrollX": "100%",
+                  //"sScrollXInner": "105%",
                   //"bScrollCollapse": true,
 	              //"bScrollAutoCss": false,
                   "aoColumnDefs":[
@@ -170,35 +184,51 @@
             <% } %>
         <% } %>
 
+	    // wrap the table contents with a div to enable scrolling, this is a workaround for
+	    // DataTable's own scrolling, seems like there is a problem with its settings
+	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
+
 	    $("#cosmic_details_dialog").dialog({autoOpen: false,
 			resizable: false,
 			width: 300});
 
 	    $('a.mutation_table_cosmic').unbind(); // TODO temporary work-around, should fix the listener in MakeOncoPrint
 
+	    // initialize mutation details table
+	    $("#cosmic_details_table").dataTable({
+		    "aaSorting" : [ ], // do not sort by default
+			"sDom": 't', // show only the table
+			"aoColumnDefs": [{ "sType": "string", "aTargets": [0]},
+				{ "sType": "numeric", "aTargets": [1]}],
+			"bPaginate": false,
+			"bFilter": false});
+
 	    $('a.mutation_table_cosmic').click(function(event){
 		    var cosmic = this.id;
 
 		    var parts = cosmic.split("|");
 
-		    $("#cosmic_details_table").empty();
+		    //$("#cosmic_details_table").empty();
+		    $("#cosmic_details_table").dataTable().fnClearTable();
 
 		    // headers
-		    $("#cosmic_details_table").append(
-				"<tr><th>Overlapping COSMIC AA Change</th>" +
-				"<th>Frequency</th></tr>");
+//		    $("#cosmic_details_table").append(
+//				"<tr><th>Overlapping COSMIC AA Change</th>" +
+//				"<th>Frequency</th></tr>");
 
 		    // COSMIC data
 		    for (var i=0; i < parts.length; i++)
 		    {
 			    var values = parts[i].split(/\(|\)/, 2);
 
-			    $("#cosmic_details_table").append(
-					"<tr><td>" + values[0] + "</td>" +
-					"<td>" + values[1] + "</td></tr>");
+//			    $("#cosmic_details_table").append(
+//					"<tr><td>" + values[0] + "</td>" +
+//					"<td>" + values[1] + "</td></tr>");
+
+			    $("#cosmic_details_table").dataTable().fnAddData(values);
 		    }
 
-		    //$("#cosmic_details_table").dataTable();
+
 		    $("#cosmic_details_dialog").dialog("open").height("auto");
 	    });
     });

@@ -42,6 +42,25 @@
   color:black;
 }
 
-.mutation_details_table a{
+.mutation_details_table_wrapper .mutation_table_cosmic
+{
 	cursor: pointer;
+	color: #1974B8;
+}
+
+.dataTables_wrapper .fg-toolbar
+{
+	width: 800px;
+	white-space: nowrap;
+}
+
+.mutation_details_table_wrapper
+{
+	width: 800px;
+	overflow-x: scroll;
+}
+
+#cosmic_details_table th
+{
+	font-size: 70%;
 }

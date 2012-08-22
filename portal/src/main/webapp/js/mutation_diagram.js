@@ -8,18 +8,19 @@ window.log = function() {
   }
 };
 
-function drawMutationDiagram(sequences) {
-  MAX_OFFSET = 4;
-  sequenceColor = "rgb(186, 189, 182)";
-  scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
-  mutationColors = [ "rgb(251, 154, 153)", "rgb(227, 26, 28)", "rgb(253, 191, 111)", "rgb(255, 127, 0)" ];
+function drawMutationDiagram(sequences)
+{
+  var MAX_OFFSET = 4;
+  var sequenceColor = "rgb(186, 189, 182)";
+  var scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
+  var mutationColors = [ "rgb(251, 154, 153)", "rgb(227, 26, 28)", "rgb(253, 191, 111)", "rgb(255, 127, 0)" ];
 
-  x = 40;
-  y = 0;
-  w = 700 - (2 * x);
-  h = 220;
-  c = (2 * h) / 3;
-  mutationDiagram = sequences[0];
+  var x = 45; // starting x-coordinate (for the origin)
+  var y = 0; // starting y-coordinate  (for the origin)
+  var w = 700 - (2 * x); // width of the diagram
+  var h = 220; // height of the diagram
+  var c = (2 * h) / 3;
+  var mutationDiagram = sequences[0];
 
   // if mutation diagram is available, then show the diagram tooltip box
   if (mutationDiagram != null)
@@ -32,26 +33,27 @@ function drawMutationDiagram(sequences) {
       return;
   }
 
-  l = mutationDiagram.length;
-  id = mutationDiagram.metadata.hugoGeneSymbol;
-  label = mutationDiagram.metadata.identifier;
-  title = mutationDiagram.metadata.identifier + ", " + mutationDiagram.metadata.description + " (" + l + "aa)";
+  var l = mutationDiagram.length;
+  var id = mutationDiagram.metadata.hugoGeneSymbol;
+  var label = mutationDiagram.metadata.identifier; // main label text on top of the diagram
+  var title = mutationDiagram.metadata.identifier + ", " +
+              mutationDiagram.metadata.description + " (" + l + "aa)";
 
   var paper = Raphael("mutation_diagram_" + id, 700, 220);
 
-  // label
+  // main label on the top
   paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
   // label for y-axis
-  yaxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+  var yaxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
   yaxis.rotate(270);
 
-  // sequence
+  // sequence (as a rectangle on x-axis)
   paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
     .attr({"fill": sequenceColor, "stroke": "none", "title": title});
 
   // sequence scale
-  sequenceScaleY = c + 20;
+  var sequenceScaleY = c + 20;
 
   paper.path("M" + x + " " + (sequenceScaleY + 6) +
              "L" + x + " " + sequenceScaleY +
@@ -86,7 +88,7 @@ function drawMutationDiagram(sequences) {
   paper.text(x + scaleHoriz(l, w, l), sequenceScaleY + 16, l + " aa")
    .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
 
-  // regions
+  // regions (as rectangles on the sequence rectangle)
   for (i = 0, size = mutationDiagram.regions.length; i < size; i++) {
     regionX = x + scaleHoriz(mutationDiagram.regions[i].start, w, l);
     regionY = c - 10;
@@ -126,7 +128,8 @@ function drawMutationDiagram(sequences) {
   }
 
   // mutation scale
-  maxCount = 0;
+  var maxCount = 0;
+
   for (i = 0, size = mutationDiagram.markups.length; i < size; i++) {
     if ((mutationDiagram.markups[i].type == "mutation") && (parseInt(mutationDiagram.markups[i].metadata.count) >= maxCount)) {
       maxCount = mutationDiagram.markups[i].metadata.count;
@@ -134,11 +137,12 @@ function drawMutationDiagram(sequences) {
   }
   maxCount = maxCount + MAX_OFFSET;
 
-  scaleX = x - 15;
-  scaleY = c - 8;
-  per = (h / 3) / maxCount;
-  scaleH = maxCount * per;
-  scaleW = scaleHoriz(8, w, l);
+  var scaleX = x - 15;
+  var scaleY = c - 8;
+  var per = (h / 3) / maxCount;
+  var scaleH = maxCount * per;
+  //scaleW = scaleHoriz(8, w, l);
+  var scaleW = 10; // no need to scale width, set a fixed value
 
   paper.path("M" + scaleX + " " + scaleY +
              "L" + (scaleX + scaleW) + " " + scaleY +
@@ -168,16 +172,17 @@ function drawMutationDiagram(sequences) {
     .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"})
 
   // mutation lollipops
-  labelShown = false;
+  var labelShown = false;
+
   for (i = 0, size = mutationDiagram.markups.length; i < size; i++) {
     if (mutationDiagram.markups[i].type == "mutation") {
-      x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
-      y1 = c - 12;
-      x2 = x1;
-      y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
-      lollipopFillColor = mutationDiagram.markups[i].colour[0];
-      lollipopStrokeColor = darken(lollipopFillColor);
-      markupLineColor = mutationDiagram.markups[i].lineColour;
+      var x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
+      var y1 = c - 12;
+      var x2 = x1;
+      var y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
+      var lollipopFillColor = mutationDiagram.markups[i].colour[0];
+      var lollipopStrokeColor = darken(lollipopFillColor);
+      var markupLineColor = mutationDiagram.markups[i].lineColour;
 
       if (mutationDiagram.markups[i].metadata.count == 1) {
         countText = "(" + mutationDiagram.markups[i].metadata.count + " mutation)";
@@ -185,28 +190,57 @@ function drawMutationDiagram(sequences) {
       else {
         countText = "(" + mutationDiagram.markups[i].metadata.count + " mutations)";
       }
-      mutationTitle = "Amino Acid Change:  " + mutationDiagram.markups[i].metadata.label + " " + countText;
 
-        p = paper.path("M" + x1 + " " + (c - 7) + "L" + x2 + " " + y2)
+      var mutationTitle = "Amino Acid Change:  " +
+        mutationDiagram.markups[i].metadata.label + " " +
+        countText;
+
+      var p = paper.path("M" + x1 + " " + (c - 7) + "L" + x2 + " " + y2)
         .toBack()
         .attr({"stroke": markupLineColor, "stroke-width": 1});
 
       addMouseOver(p.node, mutationTitle, id);
 
-      lollipop = paper.circle(x2, y2, 3, 3)
+      var lollipop = paper.circle(x2, y2, 3, 3)
         .attr({"fill": lollipopFillColor, "stroke": lollipopStrokeColor, "stroke-width": 0.5});
 
       addMouseOver(lollipop.node, mutationTitle, id);
 
       // draws the label for the max count
-      if (mutationDiagram.markups[i].metadata.label && (maxCount == mutationDiagram.markups[i].metadata.count + MAX_OFFSET) && !labelShown) {
-        paper.text(x1, y2 - 12, mutationDiagram.markups[i].metadata.label)
+      if (mutationDiagram.markups[i].metadata.label &&
+          (maxCount == mutationDiagram.markups[i].metadata.count + MAX_OFFSET) &&
+          !labelShown)
+      {
+        var maxCountLabel = paper.text(x1, y2 - 12, mutationDiagram.markups[i].metadata.label)
           .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
+
+        // adjust the label if it overlaps the y-axis
+        adjustMaxCountLabel(maxCountLabel, x);
 
         labelShown = true;
       }
     }
   }
+}
+
+/**
+ * Adjusts the label on the lollipop if it overlaps y-axis.
+ *
+ * @param maxCountLabel label (raphael text object) to be adjusted
+ * @param axisX         x coordinate of the y-axis
+ */
+function adjustMaxCountLabel(maxCountLabel, axisX)
+{
+    var topLeftX = maxCountLabel.getBBox().x;
+
+    // check if the label is overlapping the y-axis
+    if (topLeftX < axisX)
+    {
+        var shiftX = axisX - topLeftX; // required shift for x-coordinate
+        var shiftY = 0; // no shift required for y-coordinate
+
+        maxCountLabel.transform("t" + shiftX + "," + shiftY);
+    }
 }
 
 function scaleHoriz(x, w, l) {

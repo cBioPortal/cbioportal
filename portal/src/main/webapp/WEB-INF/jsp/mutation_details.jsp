@@ -38,12 +38,6 @@
 					<th>Frequency</th>
 				</tr>
 			</thead>
-			<tfoot>
-				<tr>
-					<th>Overlapping COSMIC AA change</th>
-					<th>Frequency</th>
-				</tr>
-			</tfoot>
 		</table>
 	</div>
 
@@ -205,29 +199,17 @@
 
 	    $('a.mutation_table_cosmic').click(function(event){
 		    var cosmic = this.id;
-
 		    var parts = cosmic.split("|");
 
-		    //$("#cosmic_details_table").empty();
 		    $("#cosmic_details_table").dataTable().fnClearTable();
 
-		    // headers
-//		    $("#cosmic_details_table").append(
-//				"<tr><th>Overlapping COSMIC AA Change</th>" +
-//				"<th>Frequency</th></tr>");
-
-		    // COSMIC data
+		    // COSMIC data (as AA change & frequency pairs)
 		    for (var i=0; i < parts.length; i++)
 		    {
 			    var values = parts[i].split(/\(|\)/, 2);
 
-//			    $("#cosmic_details_table").append(
-//					"<tr><td>" + values[0] + "</td>" +
-//					"<td>" + values[1] + "</td></tr>");
-
 			    $("#cosmic_details_table").dataTable().fnAddData(values);
 		    }
-
 
 		    $("#cosmic_details_dialog").dialog("open").height("auto");
 	    });

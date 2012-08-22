@@ -11,14 +11,16 @@ window.log = function() {
 function drawMutationDiagram(sequences)
 {
   var MAX_OFFSET = 4;
+  var PAPER_WIDTH = 740; // width of the raphael box
+  var PAPER_HEIGHT = 220; // height of the raphael box
   var sequenceColor = "rgb(186, 189, 182)";
   var scaleColors = [ "rgb(85, 87, 83)", "rgb(46, 52, 54)" ];
   var mutationColors = [ "rgb(251, 154, 153)", "rgb(227, 26, 28)", "rgb(253, 191, 111)", "rgb(255, 127, 0)" ];
 
   var x = 45; // starting x-coordinate (for the origin)
   var y = 0; // starting y-coordinate  (for the origin)
-  var w = 700 - (2 * x); // width of the diagram
-  var h = 220; // height of the diagram
+  var w = PAPER_WIDTH - (2 * x); // width of the diagram
+  var h = PAPER_HEIGHT; // height of the diagram
   var c = (2 * h) / 3;
   var mutationDiagram = sequences[0];
 
@@ -39,7 +41,7 @@ function drawMutationDiagram(sequences)
   var title = mutationDiagram.metadata.identifier + ", " +
               mutationDiagram.metadata.description + " (" + l + "aa)";
 
-  var paper = Raphael("mutation_diagram_" + id, 700, 220);
+  var paper = Raphael("mutation_diagram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
 
   // main label on the top
   paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});

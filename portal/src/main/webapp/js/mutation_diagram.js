@@ -34,12 +34,12 @@ function drawMutationDiagram(sequences)
     // if mutation diagram is available, then show the diagram tooltip box
     if (mutationDiagram != null)
     {
-      $("#mutation_diagram_details_" + mutationDiagram.metadata.hugoGeneSymbol).show();
+        $("#mutation_diagram_details_" + mutationDiagram.metadata.hugoGeneSymbol).show();
     }
     // else abort drawing
     else
     {
-      return;
+        return;
     }
 
     var l = mutationDiagram.length;
@@ -52,26 +52,24 @@ function drawMutationDiagram(sequences)
     var paper = Raphael("mutation_diagram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
 
     var histogram = Raphael("mutation_histogram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
-    $("#mutation_histogram_" + id).hide();
 
-    // TODO draw the histogram!
-
-    // main label on the top
-    paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
-
-    // label for y-axis
-    var yaxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
-    yaxis.rotate(270);
+    _drawDiagramLabels(paper, label);
+    _drawDiagramLabels(histogram, label);
 
     // sequence (as a rectangle on x-axis)
     paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
         .attr({"fill": sequenceColor, "stroke": "none", "title": title});
 
+    histogram.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
+        .attr({"fill": sequenceColor, "stroke": "none", "title": title});
+
     // sequence scale
     _drawSequenceScale(paper, x, l, w, c, scaleColors);
+    _drawSequenceScale(histogram, x, l, w, c, scaleColors);
 
     // regions
     _drawRegions(paper, mutationDiagram, id, x, l, w, c);
+    _drawRegions(histogram, mutationDiagram, id, x, l, w, c);
 
     // calculate max count & per
     var maxCount = _calculateMaxCount(mutationDiagram, MAX_OFFSET);
@@ -79,15 +77,21 @@ function drawMutationDiagram(sequences)
 
     // mutation scale
     _drawMutationScale(paper, maxCount, x, per, c, scaleColors);
+    _drawMutationScale(histogram, maxCount, x, per, c, scaleColors);
 
     // mutation lollipops
     _drawMutationLollipops(paper, mutationDiagram, maxCount, MAX_OFFSET, id, x, l, w, c, per, scaleColors);
+
+    // mutation histogram
+    // TODO draw the histogram!
+
+    $("#mutation_histogram_" + id).hide();
 }
 
 /**
  * Draws the lollipops on the diagram.
  *
- * @param paper             target raphael paper to draw the scale
+ * @param paper             target raphael paper to draw the lollipops
  * @param mutationDiagram   instance containing mutation information
  * @param maxCount
  * @param maxOffset
@@ -207,7 +211,7 @@ function _drawMutationScale(paper, maxCount, x, per, c, scaleColors)
 /**
  * Draws the regions on the sequence (x-axis).
  *
- * @param paper             target raphael paper to draw the scale
+ * @param paper             target raphael paper to draw the regions
  * @param mutationDiagram   instance containing mutation information
  * @param id                gene id for the mutation
  * @param x                 starting x coordinate (for the origin)
@@ -318,6 +322,23 @@ function _drawSequenceScale(paper, x, l, w, c, scaleColors)
     paper.text(x + scaleHoriz(l, w, l), sequenceScaleY + 16, l + " aa")
         .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
 
+}
+
+/**
+ * Draws the label on the top of the diagram,
+ * and the vertical label for the y-axis.
+ *
+ * @param paper target Raphael paper to draw the labels
+ * @param label main label (on the top)
+ */
+function _drawDiagramLabels(paper, label)
+{
+    // main label on the top
+    paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+
+    // label for y-axis
+    var yAxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+    yAxis.rotate(270);
 }
 
 /**

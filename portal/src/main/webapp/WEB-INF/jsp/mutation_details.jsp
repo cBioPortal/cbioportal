@@ -182,6 +182,9 @@
 	    // DataTable's own scrolling, seems like there is a problem with its settings
 	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
 
+	    // to fit mutation table initially
+	    fitMutationTableToWidth();
+
 	    $("#cosmic_details_dialog").dialog({autoOpen: false,
 			resizable: false,
 			width: 300});
@@ -219,6 +222,16 @@
     $(document).ready(function(){
 	    // initially hide all tooltip boxes
 	    $("div.mutation_diagram_details").hide();
+
+	    // enable refitting of the mutation table on each click on mutation details tab
+	    $("a.result-tab").click(function(event){
+		    var tab = $(this).attr("href");
+
+		    if (tab == "#mutation_details")
+		    {
+			    fitMutationTableToWidth();
+		    }
+	    });
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
@@ -250,6 +263,15 @@
 			$("#mutation_diagram_" + geneId).hide();
 			$("#mutation_histogram_" + geneId).show();
 		}
+	}
+
+    // TODO this will only fit the table wrapper initially, it won't refit when page is resized!
+	function fitMutationTableToWidth()
+	{
+		// fit the table wrapper and the filter bar to the width of page
+		var fitWidth = $('#page_wrapper').width() - 60; // 60 is an approximation for total margins
+		$('.mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
+		$('.dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
 	}
 
 </script>

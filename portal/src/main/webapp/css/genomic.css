@@ -50,14 +50,18 @@
 
 .dataTables_wrapper .fg-toolbar
 {
-	width: 800px;
+	min-width: 680px;
+	max-width: 1200px;
+	width: 100%;
 	white-space: nowrap;
 }
 
 .mutation_details_table_wrapper
 {
-	width: 800px;
-	overflow-x: scroll;
+	min-width: 680px;
+	max-width: 1200px;
+	width: 100%;
+	overflow-x: auto;
 }
 
 #cosmic_details_table th

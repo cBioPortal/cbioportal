@@ -50,8 +50,8 @@ function getChmEndsPerc(chms, total) {
  * storing chromesome length info
  */
 function ChmInfo() {
-    this.hg19 = [0,249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560];
-    this.total = 3036303846;
+    this.hg19 = [0,249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566];
+    this.total = 3095677412;
     this.perc = getChmEndsPerc(this.hg19,this.total);
 }
 ChmInfo.prototype = {
@@ -90,9 +90,8 @@ ChmInfo.prototype = {
         return this.loc2xpixil(chm,loc,goConfig);
     },
     chmName : function(chm) {
-        if (chm == 23) {
-            return "X/Y";
-        }
+        if (chm == 23) return "X";
+        if (chm == 24) return "Y";
         return chm;
     }
 };
@@ -241,9 +240,9 @@ function underlineText(textElement,p) {
 }
 
 function extractLoc(data,chrCol,startCol,endCol) {
-    var chm = (data[chrCol]=='X'||data[chrCol]=='Y'||data[chrCol]=='x'||data[chrCol]=='y') ? 23 : parseInt(data[1]);
-    if (isNaN(chm) || chm < 1 || chm > 23) {
-        return null;
-    }
+    var chm = data[chrCol];
+    if (chm=='X'||chm=='x') chm = 23;
+    if (chm=='Y'||chm=='y') chm = 24;
+    if (isNaN(chm) || chm < 1 || chm > 24) return null;
     return [chm,data[startCol],data[endCol]];
 }

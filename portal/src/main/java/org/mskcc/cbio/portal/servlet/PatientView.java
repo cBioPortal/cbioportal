@@ -262,9 +262,9 @@ public class PatientView extends HttpServlet {
             return "FEMALE";
         }
         
-        if (typeOfCancerId.equals("prad")) {
-            return "MALE";
-        }
+//        if (typeOfCancerId.equals("prad")) {
+//            return "MALE";
+//        }
         
         return null;
     }

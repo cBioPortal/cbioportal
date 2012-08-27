@@ -1,5 +1,7 @@
 package org.mskcc.cbio.oncotator;
 
+import org.mskcc.cbio.dbcache.DatabaseUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,14 +31,13 @@ public class DaoOncotatorCache
         return daoOncotatorCache;
     }
 
-    /*
+    /**
      * Adds a new Cache Record to the Database.
      *
-     * @param mutSig Mut Sig Object.
+     * @param record Oncotator Record.
      * @return number of records successfully added.
-     * @throws DaoException Database Error.
+     * @throws SQLException Database Error.
      */
-
     public int put(OncotatorRecord record) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -66,8 +67,13 @@ public class DaoOncotatorCache
         }
     }
 
-    //getMutSig from a hugoGeneSymbol
-
+	/**
+	 * Gets an oncotator record for the provided key.
+	 *
+	 * @param key
+	 * @return
+	 * @throws SQLException
+	 */
     public OncotatorRecord get(String key) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;

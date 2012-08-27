@@ -49,7 +49,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         $('#cna_summary_wrapper_table').hide();
         if (!geObs.hasMut||!geObs.hasCna) $('#mut-cna-scatter').hide();
         initGenomicsOverview();
-        //initMutCnaScatterDialog();
         if (geObs.hasMut&&geObs.hasCna) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
@@ -89,17 +88,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             ,"json"
         );
     }
-    
-    function initMutCnaScatterDialog() {
-        $('#mut_cna_scatter_dialog').dialog({autoOpen: false,
-            modal: true,
-            minHeight: 200,
-            maxHeight: 600,
-            height: 550,
-            minWidth: 300,
-            width: 600
-            });
-    }
 
     var mutCnaScatterDialogLoaded = false;
     function openMutCnaScatterDialog() {
@@ -120,8 +108,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             
             mutCnaScatterDialogLoaded = true;
         }
-        
-        //$('#mut_cna_scatter_dialog').dialog('open');
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {

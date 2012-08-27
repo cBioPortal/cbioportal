@@ -56,15 +56,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
                     } 
                 },true);
             });
-        } 
-//        else {
-//            google.visualization.events.addListener(scatter, 'select', function(e){
-//                var s = scatter.getSelection();
-//                if (s.length==0) return;
-//                var id = dt.getValue(s[0].row,0);
-//                window.location.href = 'patient.do?case_id='+id;
-//            });
-//        }
+        }
         
         var options = {
             hAxis: {title: "Copy number alteration fraction", logScale:hLog, format:'#%'},

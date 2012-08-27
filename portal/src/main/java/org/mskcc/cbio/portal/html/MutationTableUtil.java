@@ -232,6 +232,8 @@ public class MutationTableUtil
 
 		for (String cosmic : parts)
 		{
+			// TODO do not count data starting with p.? (p.?...)
+
 			int beginIdx = cosmic.indexOf('(') + 1;
 			int endIdx = cosmic.indexOf(")");
 			String count = cosmic.substring(beginIdx, endIdx);

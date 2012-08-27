@@ -211,6 +211,8 @@
 		    {
 			    var values = parts[i].split(/\(|\)/, 2);
 
+			    // TODO skip data starting with p.? (p.?...)
+
 			    $("#cosmic_details_table").dataTable().fnAddData(values);
 		    }
 

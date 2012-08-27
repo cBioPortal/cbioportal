@@ -88,6 +88,21 @@ function drawMutationDiagram(sequences)
     $("#mutation_histogram_" + id).hide();
 }
 
+function _drawHistogram(paper, mutationDiagram)
+{
+    // loop variables
+    var i = 0;
+    var size = 0;
+
+    for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
+    {
+        if (mutationDiagram.markups[i].type == "mutation")
+        {
+
+        }
+    }
+}
+
 /**
  * Draws the lollipops on the diagram.
  *

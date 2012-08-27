@@ -1,5 +1,7 @@
+brca_tcga
 coadread_tcga
 gbm_tcga
+lusc_tcga
 ov_tcga
 prad_mskcc
 sarc_mskcc

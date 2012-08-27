@@ -1,0 +1,1280 @@
+/* CSS THAT APPLIES TO ALLLLLL PORTALS */
+
+body {
+  font-family: verdana, arial, sans-serif;
+  table-layout:fixed;
+  text-align: center;
+  margin-top:10px;
+  margin-bottom:10px;
+  color:#666666;
+  background-color: #E0E0E0;
+}
+
+#page_wrapper {
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 780px;
+  max-width: 1260px;
+  text-align: left;
+  background: #FFFFFF;
+  border: 8px solid #FFFFFF;
+}
+
+#header_wrapper {
+  background: #fff ;
+  margin:0px; padding:0px;
+}
+
+#login_header_wrapper {
+  background: #fff ;
+  margin:0px; padding:0px;
+  height:50px;
+}
+
+#header_site_name{
+  font-size:24px;
+  font-weight:bold;
+  color:#1974b8;
+}
+
+#header h1 {
+  margin:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 28px;
+  color:#1974b8;
+  letter-spacing: -1px;
+  text-align: left;
+}
+
+#header h2 {
+  margin:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  color:#B1C6EB;
+  letter-spacing: 1px;
+  text-align: left;
+}
+
+#content {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
+img {
+  border: 0px;
+}
+
+A:link {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:visited {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:active {
+  COLOR: #0000FF; text-decoration: none;
+}
+A:hover {
+  COLOR: #FF0000; text-decoration: underline;
+}
+
+#instructions {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  background: #FFFFFF;
+  border: 8px solid #FFFFFF;
+}
+
+.error {
+    color:red;
+    font-weight:bold;
+    font-family: verdana, arial, sans-serif;
+    font-size:12px;
+    background-image: url('../images/warning.gif');
+    background-repeat: no-repeat;
+    padding-left:25px;
+    padding-bottom:5px;
+}
+
+.user_message {
+    color:red;
+    font-weight:bold;
+    font-family: verdana, arial, sans-serif;
+    font-size:13px;
+    padding-left:0px;
+    padding-bottom:25px;
+    padding-top:5px;
+}
+
+.gray {
+    color:#666666;
+}
+
+
+#results_container {
+    padding: 0px;
+    margin: 0px;
+}
+.section {
+    border: 1px solid #cccccc;
+    margin: 0px;
+    padding: 0px;
+    background: #ffffff;
+    font-size: 12px;
+}
+
+#network {
+    height: 750px;
+}
+
+.map table {
+  border: 1px solid #03476F;
+  color: #363636;
+  background: #CCCCFF;
+}
+
+.map caption {
+  text-align: center;
+  font: bold 18px arial, helvetica, sans-serif;
+  background: transparent;
+  padding:6px 4px 8px 0px;
+  color: #03476F;
+  text-transform: uppercase;
+}
+
+.map th {
+  padding: .4em;
+  color: #363636;
+  border-bottom: 1px solid #AEAEFF;
+  vertical-align: top;
+  text-align: left;
+  font-size:12px;
+}
+
+.map thead td{
+  color: #000;
+  font-weight: bold !important;
+  border-bottom: 1px solid #AEAEFF;
+}
+
+.map td {
+  padding: .4em;
+  color: #363636;
+  vertical-align: top;
+  text-align: left;
+  font-size:100%;
+}
+
+.map .amp_1 {
+    background: #DD8F8F;
+}
+
+.map .amp_2 {
+    background: red;
+    color: #FFFFFF;
+    font-weight:bold;
+}
+
+.map .del_1 {
+    background:  #C6D2F7;
+}
+
+.map .del_2 {
+    color: #FFFFFF;
+    background:  blue;
+    font-weight:bold;
+}
+
+.map .hetloss_2 {
+    color: #000;
+    background:  lightblue;
+    font-weight:bold;
+}
+
+.map .gained_2 {
+    color: #000;
+    background:  lightpink;
+    font-weight:bold;
+}
+
+.map .no_change {
+    background:  #FFFFFF;
+    color:  black;
+}
+
+.map .no_cna {
+    background:  #CCCCCC;
+    color:  black;
+}
+
+.nowrap {white-space: nowrap}
+
+.map .significant {
+    border: 2px solid red;
+}
+
+.last_mut {
+    border-bottom: 1px solid #AEAEFF;
+}
+
+.gene_set_summary {
+    font-family: verdana, arial, sans-serif;
+    color: green;
+    font-size:125%;
+    font-weight:bold;
+}
+
+.warning h4{
+    color:red !important;
+}
+
+.warning li{
+    color:red !important;
+}
+
+.tab_active, .tab_inactive {
+    padding-left:10px;
+    padding-top:5px;
+    padding-right:10px;
+    padding-bottom:5px;
+    font-family: verdana, arial, sans-serif;
+    font-size:150%;
+    font-weight:bold;
+    color:#222222;
+    border-radius:          8px 8px 0px 0;
+    -moz-border-radius:     8px 8px 0px 0;
+    -webkit-border-radius:  8px 8px 0px 0;
+}
+
+.tab_active {
+   background: #DDDDDD;
+   border: 2px solid #DDDDDD;
+   color:#444444;
+}
+
+.tab_inactive{
+   background: #FFFFFF;
+   border: 2px solid #DDDDDD;
+}
+
+h1 {
+  margin:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 28px;
+  color:gray;
+  letter-spacing: -1px;
+  text-align: left;
+  padding-bottom:7px;
+}
+
+.map h5 {
+  margin-left:2px;
+  margin-top:4px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 13px !important;
+  color:black;
+  letter-spacing: -1px;
+  text-align: left;
+  padding-bottom:9px;
+  font-weight:bold !important;
+}
+
+#caseList {
+    display:none;
+}
+
+table td {
+  font-size:12px;
+}
+
+.somatic {
+  background: #CCFFFF;
+  color:black;
+  padding-left:5px;
+  padding-right:5px;
+  font-weight:bold;
+}
+
+.germline {
+  background: #FFFFCC;
+  color:black;
+  padding:1px;
+  padding-left:3px;
+  padding-right:3px;
+  font-weight:bold;
+}
+
+.valid {
+    background: #CCFFCC;
+    color:black;
+    padding-left:5px;
+    padding-right:5px;
+    font-weight:bold;
+}
+
+.map A:link {text-decoration: underline !important;}
+.map A:visited {text-decoration: underline !important;}
+.map A:active {text-decoration: underline !important;}
+
+.markdown {
+    word-wrap:break-word;
+    margin: 5px;
+    overflow:hidden;
+}
+
+.markdown h1 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 16px;
+  color:#555555;
+  background: #DDDDDD;
+  padding-left:5px;
+  padding-top:4px;
+  margin:0px;
+  padding-bottom:5px;
+}
+
+.markdown h2 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color:#555555;
+  background: #EEEEEE;
+  padding-left:5px;
+  padding-top:4px;
+  padding-bottom:4px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown h3 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px !important;
+  padding-left:5px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown h4 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px !important;
+  padding-left:5px;
+  margin:0px;
+  margin-top:5px;
+}
+
+.markdown p {
+  padding-left:5px;
+  font-size:14px !important;
+  text-align:left !important;
+}
+
+.markdown li {
+  padding-left:5px;
+  font-size:14px !important;
+}
+
+.markdown code {
+  background:  #FFFFCC;
+  font-size:14px;
+  padding-bottom: 5px;
+  border :1px;
+  padding: 10px 10px 10px 20px;
+  display: block;
+  color:black;
+}
+
+.oncoprint_accordion_panel {
+    background-color: #FFFFFF;
+}
+
+.oncoprint_accordion_panel h1 {
+	margin-top:0px;margin-bottom:0px;
+	font-family: verdana, arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 12px;
+	letter-spacing: -1px;
+	color: #2153AA;
+	text-align:justify;
+    cursor: default;
+}
+
+.oncoprint_accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.oncoprint_accordion_content {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.oncoprint_accordion_panel table {
+	padding-left:15px;
+}
+
+.oncoprint_accordion_panel td {
+    font-size:12px;
+    color:#666666;
+}
+
+.oncoprint {
+    font-family: verdana, arial, sans-serif;
+    font-size:13px !important;
+    text-align: left;
+    background: white;
+    border: none;
+}
+
+.oncoprint td {
+    font-size:12px;
+}
+
+.oncoprint th{
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    color:#666666;
+}
+
+.oncoprint_section {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+.oncoprint_indicator {
+	font-size: 10px;
+    color: #FF0000;
+	display: none;
+    padding-left:25px;
+}
+
+#frequency_plot {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+#gene_info {
+    font-family: verdana, arial, sans-serif;
+    font-size:12px !important;
+    text-align: left;
+    border:  gray 1px solid;
+    margin-top:6px;
+    border: 1px solid #cccccc;
+    overflow-y:hidden;
+    overflow-x:auto;
+    padding-left:10px;
+}
+
+
+.oncoprint TH{
+    font: 11px verdana, arial, helvetica, sans-serif;
+    border: none;
+}
+
+.oncoprint p{
+    font-size: 90% !important;
+}
+
+td.op_data_cell{
+    width: 8px
+}
+
+#video {
+    font: 14px verdana, arial, helvetica, sans-serif;
+    border: solid gray 1px;
+    padding:4px;
+    background: #FFFFCC;
+}
+
+#video td {
+    font: 14px verdana, arial, helvetica, sans-serif;
+}
+
+#genomic_profiles input {
+   margin-left: 40px;
+}
+
+#mRNAcheckbox input {
+   margin-left: 40px;
+}
+
+
+/*#threshold {
+    height: 35px;
+    display: none;
+    margin:0px;
+    padding-top: 1px;
+    margin-left:77px;
+}  */
+
+#tabs {
+    display: none;
+    margin-top:10px;
+}
+
+#tabs li {
+    font-size:90%;
+}
+
+#tabs li a:link{
+    text-decoration:none;
+}
+#tabs li a:hover{
+    text-decoration:none;
+}
+#tabs li a:active{
+    text-decoration:none;
+}
+#tabs li a:visited{
+    text-decoration:none;
+}
+
+#tabs li a { outline: none }
+
+.markdown table {
+  border: 1px solid #03476F;
+  font: normal 11px verdana, arial, helvetica, sans-serif;
+  color: #363636;
+}
+
+.markdown td, th {
+  border:none;
+  padding: .2em;
+  color: #363636;
+  vertical-align: top;
+  text_align: left;
+}
+
+.markdown td {
+  font-size:93%;
+}
+
+.markdown th {
+  font-size:97%;
+}
+
+#left_side p, #right_side p {
+  margin:10px;margin-top:15px;margin-bottom:15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color:black;
+}
+
+#right_side table {
+  margin:10px;
+}
+
+#right_side td {
+  font-size:125%;
+}
+
+#left_side, #right_side li {
+  margin-left:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color:black;
+}
+
+#content A:link {
+        COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:visited {
+	COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:active {
+	COLOR: #1974b8; text-decoration: none; !important;
+}
+#content A:hover {
+	COLOR: #1974b8; text-decoration: none; !important;
+}
+
+.tip {
+	color: white;
+	width: 250px;
+    background:black;
+	z-index: 13000;
+}
+
+.tip-title {
+	font-size: 12px;
+    font-weight:bold;
+	margin: 0;
+	color: white;
+	padding: 8px 8px 4px;
+        text-align:left;
+}
+
+.tip-text {
+	font-size: 11px;
+	padding: 4px 8px 8px;
+}
+
+#optional_args {
+  margin:5px;
+  padding:3px;
+  font-size:12px;
+}
+
+#step5 .step_header{
+  cursor:pointer;
+}
+
+.tiny {
+  font-size:12px;
+}
+
+#load {
+  display: none;
+  position: relative;
+  background: url(../images/ajax-loader.gif);
+  background-repeat: no-repeat;
+  background-position:center;
+  width: 100%;
+  height: 500px;
+}
+
+#plots table {
+    min-height: 500px;
+}
+
+#plot_images {
+    margin-left: -10px;
+}
+
+#results {
+    display:none;
+}
+
+.url_warning {
+    margin: 10px;
+    border: solid 1px red;
+    padding: 10px;
+    background: #dddddd;
+}
+
+html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px; }
+
+/*html { overflow: -moz-scrollbars-vertical !important; } */
+
+
+#content p {
+  margin-top:15px; margin-bottom: 15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+}
+
+#content ul {
+  margin-top:5px; margin-bottom: 5px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+  list-style-type:disc;
+}
+
+#content ol {
+  margin-top:15px; margin-bottom: 15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+}
+
+
+#content h3 {
+  margin-top:5px; margin-bottom: 10px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 18px;
+  color: #2153AA;
+}
+
+#content h4 {
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 12px;
+  letter-spacing: -1px;
+  color: #2153AA;
+  text-align:justify;
+}
+
+#content h5 {
+  margin-top:0px;margin-bottom:0px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 12px;
+  color: #000000;
+  text-align:left;
+}
+
+.rowcolor { background: #DDDDDD; }
+
+
+#content h4 A:link {
+	COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:visited {
+	COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:active {
+	COLOR: #2153AA; text-decoration: underline;
+}
+#content h4 A:hover {
+	COLOR: #2153AA; text-decoration: underline;
+}
+
+.float_left {
+  float: left;
+  margin-right: 10px;
+}
+
+.float_right {
+  float: right;
+  margin-left: 10px;
+}
+
+.featurebox_center {
+  background-color: #dff1ff;
+  margin:0px;
+  padding:10px;
+  border: 1px solid #DFE8F7;
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 20px;
+  color: #333333;
+  vertical-align: center;
+}
+
+.featurebox_side {
+  background-color: #fffff6;
+  margin:0px;margin-left:10px;margin-right:10px;margin-bottom:15px;
+  padding:10px;
+  border: 1px solid #DFE8F7;
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  color: #333333;
+}
+
+.center {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color: #333333;
+  text-align: center;
+}
+
+.left {
+  font-family: verdana, arial, sans-serif;
+  font-size: 12px;
+  color: #333333;
+  text-align: left;
+}
+
+
+.center_small {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  color: #333333;
+  text-align: center;
+}
+
+.align_right{
+   text-align: right;
+}
+
+#header {
+  padding:5px 0px 0px 0px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  margin:0px;
+}
+
+#login_header_top {
+  padding:5px 0px 0px 0px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  margin:0px;
+  height:70px;
+}
+
+#header td.navigation {
+    position:relative;
+    font: 14px verdana, arial, helvetica, sans-serif;
+    margin:0px;
+    padding:0px;
+    background:#1974b8;
+    /*border-right: 1px solid #0f3974; */
+    color:#ffffff;
+    width:100%;
+    background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+}
+
+#header td.navigation ul {
+    padding:0px;
+    margin:0px;
+}
+
+#header td.navigation ul li {
+    height: 2.2em;
+    line-height:2.2em;
+    float:left;
+    list-style-type:none;
+    border-right:1px solid #0f3974; /*#bbb;*/
+    white-space:nowrap;
+    border-bottom: 1px solid #0f3974;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ffffff;
+
+}
+
+#header td.navigation li a {
+    float: left;
+    display:block;
+    padding:0 10px;
+    font-size:0.8em;
+    font-weight:normal;
+    text-transform:uppercase;
+    text-decoration:none;
+    background-color:inherit;
+    color: #ffffff;
+}
+
+#header td.navigation li.selected, #header td.navigation li a:hover {
+    float:left;
+    height:31px;
+    background:#8cbadc;
+    color:#ffffff;
+    text-decoration:none;
+    /*border-bottom:#6F88AC;*/
+    /*border-bottom: 1px solid #999;*/
+    /*border-top: 1px solid #ccc;*/
+    background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #8CBADC 100%); /* firefox */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#8CBADC)); /* webkit */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#8CBADC',GradientType=0 ); /* ie */
+}
+
+.welcome {
+    padding: 3px;
+    height: 200px;
+
+}
+
+#right_side {
+  margin-top: 10px;
+  background: #F1F6FE url(../images/side_bg.gif) bottom left repeat-x;
+  text-align: left;
+  margin-left:60px;
+  font-size:80%;
+}
+
+/* section of right column containing user testimonials,
+aka, "what people are saying" */
+#rotating_testimonials #testimonials {
+    height: 350px;
+}
+
+/* float link to "view all" on right */
+#rotating_testimonials a {
+    float: right;
+}
+
+/* individual testimonials */
+#testimonials blockquote {
+    width: 80%;
+    margin-left: 13px;
+    padding-top: 0px;
+    /*background-image: url("../images/openquote.png");
+    background-position: 0px 10px;
+    background-repeat: no-repeat;*/
+    border: 1px dashed testimonials; /*setting transparent border prevents scroll bar from 'jumping'
+                                      between fade in/fade out of each quote */ 
+}
+
+/* actual quote from user */
+/*#testimonials blockquote p {
+    background-image: url("../images/closequote.png");
+    background-repeat: no-repeat;
+    background-position: right bottom;
+}*/
+
+/* name and institution of user */
+
+cite { font-style: italic; display: block; text-align: left; text-transform: none; margin-left: 10px; }
+
+#rotating_testimonials blockquote cite { font-size: 11px; }
+
+
+#login_header {
+  height: 50px;
+  background-color: #1974b8;
+  clear: both;
+  text-align: center;
+  padding-top:12px;
+  /*color: #B6CEF9;*/
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  border-right: 1px solid #ffffff;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #0f3974;
+  border-left:1px solid #0f3974; /*#bbb;*/
+  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+}
+
+#footer {
+  height: 50px;
+  background-color: #1974b8;
+  clear: both;
+  text-align: center;
+  padding-top:12px;
+  color: #FFFFFF;
+  font-family: verdana, arial, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  border-right:1px solid #0f3974; /*#bbb;*/
+  border-bottom: 1px solid #0f3974;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ffffff;
+  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+}
+
+#footer A:link {
+	COLOR: #FFFFFF; text-decoration: underline;
+}
+#footer A:visited {
+	COLOR: #FFFFFF; text-decoration: underline;
+}
+#footer A:active {
+	COLOR: #FFFFFF; text-decoration: underline;
+}
+#footer A:hover {
+	COLOR: #FFFFFF; text-decoration: underline;
+}
+
+#right_side h3 {
+  margin-top:5px; margin-bottom:10px; margin-left:5px; margin-right:5px;
+  padding:4px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 14px;
+  color: #FFFFFF;
+  border-right:1px solid #0f3974;
+  border-bottom: 1px solid #0f3974;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ffffff;
+  background-color: #1974b8;
+
+  background: -moz-linear-gradient(top, #c5deea 0%, #8abbd7 16%, #1974B8 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c5deea), color-stop(16%,#8abbd7), color-stop(100%,#1974B8)); /* webkit */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c5deea', endColorstr='#1974B8',GradientType=0 ); /* ie */
+}
+
+#left_side h3{
+  margin-top:5px; margin-bottom:10px; margin-left:2.5px; margin-right:2.5px;
+  padding:0.5px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: center;
+  line-height: 14px;
+  color: #FFFFFF;
+  border:1px solid #0F3974;
+  background-color: #1974b8;
+}
+
+#right_side A:link {
+	color: #1974b8;
+}
+#right_side A:visited {
+	color: #1974b8;
+}
+#right_side A:active {
+	color: #1974b8;
+}
+
+#content A:link {
+	COLOR: #1974b8; text-decoration: none;
+}
+#content A:visited {
+	COLOR: #1974b8; text-decoration: none;
+}
+#content A:active {
+	COLOR: #1974b8; text-decoration: none;
+}
+#content A:hover {
+	COLOR: #1974b8; text-decoration: underline;
+}
+
+/* The Cytoscape Web container must have its dimensions set. */
+#cytoscapeweb {
+    width: 100%;
+    height: 100%;
+}
+#note { width: 100%; text-align: center; padding-top: 1em; }
+/*.link { text-decoration: underline; color: #0b94b1; cursor: pointer; } */
+
+.scroll {
+background-color:#FFFFFF;
+width:100%;
+height:215px;
+overflow:auto;
+}
+
+.hide_details {
+background-color:#eeeeee;
+border: 1px solid #aaaaaa;
+padding:1px;
+text-decoration:none !important;
+cursor: default;
+}
+
+/*********************************************************************
+* New Styles Required for Accordion Functionality
+**********************************************************************/
+
+/* Accordion Panel, with rounded corners*/
+.accordion_panel {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    width: 900px;
+}
+
+/* Divider in the accordion page */
+.crosscancer-hr {
+    width: 920px;
+    margin-bottom: 20px;
+}
+
+/* Accordion Panel H1 */
+.accordion_panel h1 {
+    font-size: 105%;
+    padding-bottom: 5px;
+    padding-top: 10px;
+    color: #444444;
+    cursor: default;
+}
+
+/* Required to Show Mouse Hand Point when User Mouses Over an H1 Element in an Accordion */
+.accordion_panel h1:hover{
+    cursor:pointer;
+}
+
+/* Accordion AJAX Panel with appropriate padding */
+.accordion_ajax {
+    padding-top:5px;
+    padding-left:15px;
+}
+
+/*********************************************************************
+* Styles Required for Dynamic Query Sections
+*/
+
+/* Main Query Panel */
+.main_query_panel {
+    border-top: 3px solid #DDDDDD;
+    border-left: 1px solid #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
+    padding:10px;
+    margin-top:6px;
+    padding-top:10px;
+}
+
+/* Main Query Form */
+#main_query_form {
+    display:none; /* hide until window is loaded */
+}
+
+/* Step Section */
+.query_step_section {
+    padding:10px;
+    margin-left:0px;
+    margin-top:5px;
+    background-color: #FFFFFF;
+    border:1px solid #aaaaaa;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Step Header */
+.step_header {
+  font-size:14px;
+  font-weight:bold;
+  margin-right:5px;
+  color:#1974b8;
+}
+
+/* Cancer Study Description */
+#cancer_study_desc p{
+    font-size: 11px !important;
+    margin-left: 25px;
+    margin-right: 20px;
+    color:black;
+}
+
+/* Genomic Profiles Div */
+#genomic_profiles {
+  padding-top:10px;
+  padding-bottom:5px;
+  font-size: 11px !important;
+  color:black;
+}
+
+/*  Genomic Profiles Input Box */
+#genomic_profiles input{
+    margin-left: 25px;
+}
+
+/* This is the gene_list input text area */
+#gene_list {
+  background-color:#eeeeee;
+  width:75%;
+  font-weight:bold;
+  font-size:15px;
+  font-family: verdana, arial, sans-serif;
+}
+
+/* This refers to a subgroup of profiles that all share the same alteration type,
+   e.g. a group of expression profiles. */
+.genomic_profiles_subgroup{
+   margin-left:20px;
+   margin-top:2px;
+   margin-bottom:5px;
+   font-size:90%;
+}
+
+/* Z-score threshold input (hidden until appropriate radio button selected) */
+.score_threshold {
+   display: none;
+   margin-left: 64px;
+   font-size: 90%;
+}
+
+/* Do not allow user to resize the text area */
+textarea {
+    resize: none;
+    width: 98%;
+}
+
+#query_form_on_results_page{
+  background-color:#CCCCFF;
+}
+
+.profile_help {
+vertical-align:middle;
+padding:4px;
+}
+
+.ui-state-error{
+  padding:5px !important;
+  margin-top:10px !important;
+  font-size:125%;
+}
+
+.percent_altered {
+    color:green;
+}
+
+#netmsg {
+  padding-bottom:10px;
+  padding-left:5px;
+}
+
+#mutation_details td {
+  font-size:100%;
+}
+
+h2.cross_cancer_header {
+    text-align: left;
+    padding-left:  5px;
+    font-size:125%;
+}
+
+.section ul {
+  padding-top:10px;
+  font-size:16px !important;
+}
+
+.section h4 {
+  padding-bottom:5px;
+}
+
+.exp_error_box {
+    margin-bottom: .5em;
+}
+
+.exp_error_button {
+    float: left;
+    margin-right: .3em;
+}
+
+.exp_error_text {
+    font-weight:bold;
+    font-size: 90%;
+}
+
+.mutation_diagram_details {
+    font-size: 90%;
+    font-family:arial;
+    background-color:#eeeeee;
+    width:50%;
+    padding:10px;
+    margin-left:25px;
+}
+
+.crosscancer-info {
+    float: left;
+    padding: 4px;
+}
+
+.crosscancer-info span {
+    cursor: default;
+}
+
+#crosscancer_summary_loading {
+    font-weight: bold;
+}
+
+/* IE 8 specific warning message on the cross-cancer query page */
+cc-ie-message {
+    padding: 15px;
+    background: #d3d3d3;
+    border-color: #1974B8;
+}

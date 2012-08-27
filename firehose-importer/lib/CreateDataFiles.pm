@@ -473,10 +473,7 @@ sub create_data_mutations_extended{
 	}
 	
     # subselect and reorder columns 
-    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  
-        Verification_Status Validation_Status Mutation_Status 
-         Sequencer Chromosome Start_position End_position Variant_Classification
-        MA:variant MA:FImpact MA:link.var MA:link.MSA MA:link.PDB  ) ] );
+    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center NCBI_Build Chromosome Start_position End_position Strand Variant_Classification Variant_Type Reference_Allele Tumor_Seq_Allele1 Tumor_Seq_Allele2 dbSNP_RS dbSNP_Val_Status Tumor_Sample_Barcode Matched_Norm_Sample_Barcode Match_Norm_Seq_Allele1 Match_Norm_Seq_Allele2 Tumor_Validation_Allele1 Tumor_Validation_Allele2 Match_Norm_Validation_Allele1 Match_Norm_Validation_Allele2 Verification_Status Validation_Status Mutation_Status Sequencing_Phase Sequence_Source Validation_Method Score BAM_file Sequencer chromosome_name_WU start_WU stop_WU reference_WU variant_WU type_WU gene_name_WU transcript_name_WU transcript_species_WU transcript_source_WU transcript_version_WU strand_WU transcript_status_WU trv_type_WU c_position_WU amino_acid_change_WU ucsc_cons_WU domain_WU all_domains_WU deletion_substructures_WU annotation_errors_WU MA:variant MA:GE.rank MA:CNA MA:OV.variant.samples MA:OV.gene.samples MA:mapping.issue MA:FImpact MA:FI.score MA:Func.region MA:bindsite.protein MA:bindsite.DNA/RNA MA:bindsite.sm.mol MA:CancerGenes MA:TS MA:OG MA:COSMIC.mutations MA:COSMIC.cancers MA:Uniprot.regions MA:TS.interacts MA:OG.interacts MA:Pfam.domain MA:link.var MA:link.MSA MA:link.PDB ONCOTATOR_VARIANT_CLASSIFICATION ONCOTATOR_PROTEIN_CHANGE ONCOTATOR_COSMIC_OVERLAPPING ONCOTATOR_DBSNP_RS ONCOTATOR_GENE_SYMBOL ) ] );
 
     my $ffm = FirehoseFileMetadata->new( '<CANCER>.maf.annotated', $firehoseFile, $data );    
 #    print $ffm->numCases(), " unique case(s) in $firehoseFile:\n";
@@ -870,7 +867,7 @@ sub create_data_mRNA_median_Zscores{
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels " . $files );
 
 	File::Remove->remove($tmpFirehoseGistic_File);
 	File::Remove->remove($tmpFirehoseMRNA_File);
@@ -921,7 +918,7 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 	}
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels " . $files );
 
 	File::Remove->remove($tmpFirehoseGistic_File);
 	File::Remove->remove($tmpFirehoseMRNA_File);
@@ -934,18 +931,30 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 # None.  Simply rename the file
 sub create_mut_sig {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+
 	$data->write($CGDSfile);
 }
 
-# create <CANCER>_tcga.seg
-# source tarball: gdac.broadinstitute.org_<CANCER>.CopyNumber_Preprocess.Level_4.<date><version>
-# source file: <CANCER>.Use_Me_Level_3__segmented_cna__seg.tsv
+# create <CANCER>_tcga_scna_cnv_hg18.seg
+# source tarball: gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.Level_3.<date><version>
+# source file: <CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.seg.txt
 # data transformation:
 # None.  Simply rename the file
-sub create_igv_seg {
+sub create_hg18_seg {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
 	$data->write($CGDSfile);
 }
+
+# create <CANCER>_tcga_scna_cnv_hg19.seg
+# source tarball: gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.Level_3.<date><version>
+# source file: <CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.seg.txt
+# data transformation:
+# None.  Simply rename the file
+sub create_hg19_seg {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+	$data->write($CGDSfile);
+}
+
 
 # Given a Gene symbol column, and a gene ID column (which might contain data), 
 # obtain GeneID for all entries in a column in a CTable.

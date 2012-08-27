@@ -133,7 +133,7 @@ sub generate_case_lists{
 						   "data_miRNA.txt", "data_microRNA_ZbyNorm.txt",
 						   "data_microRNA.txt", "data_microRNA_outliers.txt",
 						   "data_CNA_consensus.txt", "data_CNA_RAE.txt",
-						   "data_brca1_binary_methylation.txt", "",
+						   "data_brca1_binary_methylation.txt", "data_expression.txt",
 						   "data_protein.txt", "data_miRNA.txt", "data_expression_Zscores.txt",
 						   "data_mRNA_DBCG.txt", "data_mRNA_DBCG_Z.txt", "data_mRNA_FW_MDG.txt",
 						   "data_mRNA_MicMa.txt", "data_data_mRNA_ULL.txt",
@@ -407,6 +407,7 @@ sub createMetaFile{
             'profile_name'                 => 'mRNA expression (microarray)'
         },
         'mutsig' => {
+			'profile_description'          => 'Mutation Significance data as provided by the Broad Firehose system.',
             'stable_id'                    => '<cancer>_tcga_mutsig', 
         },
     };
@@ -709,7 +710,7 @@ sub create_case_lists{
 		$cancerCenter,
         # todo: make these table/config file driven
         [ $cghSource, $sequencedSource ],
-        'union',
+        'intersection',
         {
             cancer_study_identifier =>  '<cancer>_<cancer_center>',
             stable_id => '<cancer>_<cancer_center>_cnaseq',
@@ -967,8 +968,11 @@ sub createCancerTypeNameFile{
     my $fileContent = "type_of_cancer: " . $cancer . "\n"; 
     $fileContent .= "cancer_study_identifier: " . $cancer . "_tcga" . "\n";
     $fileContent .= 'name: ';
-    if( defined( $name ) ){
-        $fileContent .= $name . " (TCGA, Provisional)"  . "\n"; 
+    if ( defined( $name ) ){
+	  $fileContent .= $name . " (TCGA, Provisional)" . "\n";
+	  if ($cancer eq 'brca' || $cancer eq 'lusc') {
+		$fileContent =~ s/, Provisional//;
+	  }
         
         # TCGA<full cancer name here>.<# of samples>   samples.
 		# remove methylation data from array before getting union
@@ -983,7 +987,15 @@ sub createCancerTypeNameFile{
         my @cases = FirehoseFileMetadata::union_of_case_lists(@{$methylationlessMetadata_objects});
         my $cases = scalar( @cases );
         my $url = "\"https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=" . uc( $cancer ) . "&diseaseName=$name\""; 
+	  if ($cancer eq 'brca') {
+		$fileContent .= "description: <a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Cancer project. $cases cases.<br><i>Nature in press.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.";
+	  }
+	  elsif ($cancer eq 'lusc') {
+		$fileContent .= "description: <a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Lung Squamous Cell Carcinoma project. $cases cases.<br><i>Nature in press.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.";
+	  }
+	  else {
         $fileContent .= "description: TCGA $name, containing $cases samples; raw data at the <A HREF=$url>NCI</A>.\n";
+	  }
     }else{
         $fileContent .= 'TBD' . "\n"; 
         $fileContent .= "description: TBD\n";

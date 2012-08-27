@@ -1,13 +1,27 @@
 
 
-function plotMutVsCna(csObs,divId,caseIdDiv,dt,colCna,colMut,caseMap,hLog,vLog) {
+function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,caseMap,hLog,vLog) {
         var scatterDataView = new google.visualization.DataView(dt);
-        scatterDataView.setColumns(
-            [colCna,
-                colMut,
-                {calc:function(dt,row){
-                        return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
-                    },type:'string',role:'tooltip'}]);
+        var params = [
+            colCna,
+            colMut,
+            {
+                calc:function(dt,row){
+                    return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
+                },
+                type:'string',
+                role:'tooltip'
+            }
+        ];
+        if (emphasisCaseId)
+            params.push({
+                calc:function(dt,row){
+                    return dt.getValue(row,0)===emphasisCaseId;
+                },
+                type:'boolean',
+                role:'emphasis'
+            });
+        scatterDataView.setColumns(params);
         var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
         
         if (csObs) {
@@ -42,15 +56,15 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,colCna,colMut,caseMap,hLog,vLog) 
                     } 
                 },true);
             });
-        } else {
-            google.visualization.events.addListener(scatter, 'select', function(e){
-                var s = scatter.getSelection();
-                if (s.length==0) return;
-                var id = dt.getValue(s[0].row,0);
-                if (caseId && caseId==id) return;
-                window.location.href = 'patient.do?case_id='+id;
-            });
-        }
+        } 
+//        else {
+//            google.visualization.events.addListener(scatter, 'select', function(e){
+//                var s = scatter.getSelection();
+//                if (s.length==0) return;
+//                var id = dt.getValue(s[0].row,0);
+//                window.location.href = 'patient.do?case_id='+id;
+//            });
+//        }
         
         var options = {
             hAxis: {title: "Copy number alteration fraction", logScale:hLog, format:'#%'},

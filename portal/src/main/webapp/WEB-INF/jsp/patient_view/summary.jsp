@@ -15,6 +15,14 @@
     z-index : 1000;
     max-width : 300px;
 }
+.ui-tooltip, .qtip{
+	position: absolute;
+	left: -10000em;
+	top: -10000em;
+ 
+	max-width: 600px; /* Change this? */
+	min-width: 50px; /* ...and this! */
+}
 </style>
 
 <%
@@ -41,8 +49,12 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         $('#cna_summary_wrapper_table').hide();
         if (!geObs.hasMut||!geObs.hasCna) $('#mut-cna-scatter').hide();
         initGenomicsOverview();
-        initMutCnaScatterDialog();
-        if (geObs.hasMut&&geObs.hasCna) loadMutCnaAndPlot("mut-cna-scatter");
+        //initMutCnaScatterDialog();
+        if (geObs.hasMut&&geObs.hasCna) {
+            loadMutCnaAndPlot("mut-cna-scatter");
+            addMutCnaPlotTooltip("mut-cna-scatter");
+        }
+            
     });
 
     function initGenomicsOverview() {
@@ -109,8 +121,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             mutCnaScatterDialogLoaded = true;
         }
         
-        $('#mut_cna_scatter_dialog').dialog('open');
-
+        //$('#mut_cna_scatter_dialog').dialog('open');
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
@@ -135,8 +146,24 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         );
     }
     
+    function addMutCnaPlotTooltip(scatterPlotDiv) {
+        var params = {
+            content: $('#mut_cna_scatter_dialog').remove(),
+            hide: { fixed: true, delay: 100 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top right',at:'top right'},
+            events: {
+                render: function(event, api) {
+                    $('.ui-tooltip').css('max-width',800);
+                    openMutCnaScatterDialog();
+                }
+            }
+        }
+        $('#'+scatterPlotDiv).qtip(params);
+    }
+    
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
-        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,dt,2,1,null,hLog,vLog);
+        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,dt,caseId,2,1,null,hLog,vLog);
         google.visualization.events.addListener(scatter, 'select', function(e){
             var s = scatter.getSelection();
             if (s.length>1) return;
@@ -171,7 +198,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     </tr>
 </table>
 
-<div id="mut_cna_scatter_dialog" title="Drugs" style="font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
+<div id="mut_cna_scatter_dialog" title="Drugs" style="width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
     <%@ include file="../cancer_study_view/mut_cna_scatter_plot.jsp" %>
     <p id='mut_cna_more_plot_msg'><sup>*</sup>One dot in this plot represents a case/patient in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>

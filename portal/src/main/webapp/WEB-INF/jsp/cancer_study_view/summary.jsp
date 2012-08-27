@@ -79,7 +79,7 @@
             $('#clinical-data-loading-wait').hide();
             $('#summary-plot-table').show();
 
-            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,2,1,caseMap,false,false);
+            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,null,2,1,caseMap,false,false);
 
             $('#mut-cna-config').show();
 
@@ -122,7 +122,7 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,colCna,colMut,caseMap,hLog,vLog);
+        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,null,colCna,colMut,caseMap,hLog,vLog);
     }
     
     var csObs = new CaseSelectObserver();

@@ -23,6 +23,7 @@
 		<module>core</module>
 		<module>oncotator</module>
 		<module>liftover</module>
+		<module>mutation-assessor</module>
 	</modules>
     
 </project>

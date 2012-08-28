@@ -5,6 +5,8 @@ package org.mskcc.cbio.mutassessor;
  */
 public class MutationAssessorRecord
 {
+	public static final String NA_STRING = "NA";
+
 	private String key;
 	private String impact;
 	private String proteinChange;

@@ -1,12 +1,16 @@
 package org.mskcc.cbio.mutassessor;
 
+import java.io.File;
+
 /**
  * Adds or replaces Mutation Assessor columns to MAFs.
  */
 public class MafProcessor
 {
-	// TODO read an entire MAF file, generate the key (use oncotator's key generator if possible),
-	// access the mutation assessor cache table to add MA values
+	public void addAssessorInfo(File input, File output)
+	{
+		// TODO use DB (dao) to get MA values (by key), and update given MAF
 
-	// TODO also purge old/unused MA columns from the oncotated MAF.
+		// TODO also purge old/unused MA columns from the oncotated MAF.
+	}
 }

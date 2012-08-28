@@ -48,7 +48,7 @@ public class DaoMutAssessorCache
 			con = DatabaseUtil.getDbConnection();
 			pstmt = con.prepareStatement
 					("INSERT INTO mutation_assessor_cache (`CACHE_KEY`, `PREDICTED_IMPACT`, `PROTEIN_CHANGE`," +
-					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) + VALUES (?,?,?,?,?)");
+					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?)");
 
 			pstmt.setString(1, record.getKey());
 			pstmt.setString(2, record.getImpact());
@@ -106,5 +106,24 @@ public class DaoMutAssessorCache
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);
 		}
+	}
+
+	public String getInsertSql(MutationAssessorRecord record)
+	{
+		String sql = "INSERT INTO mutation_assessor_cache (`CACHE_KEY`, " +
+			"`PREDICTED_IMPACT`, `PROTEIN_CHANGE`, " +
+			"`STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES " +
+			"(" + getInsertValues(record) + ");";
+
+		return sql;
+	}
+
+	public String getInsertValues(MutationAssessorRecord record)
+	{
+		return "'" + record.getKey() + "', " +
+			"'" + record.getImpact() + "', " +
+			"'" + record.getProteinChange() + "', " +
+			"'" + record.getStructureLink() + "', " +
+			"'" + record.getAlignmentLink() + "'";
 	}
 }

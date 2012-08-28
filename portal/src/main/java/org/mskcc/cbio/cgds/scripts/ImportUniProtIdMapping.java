@@ -1,24 +1,20 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-
-import java.net.URL;
-
+import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
-
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoUniProtIdMapping;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
@@ -46,16 +42,39 @@ public final class ImportUniProtIdMapping {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(uniProtIdMapping));
+            Map<Integer,Set<String>> mapEntrezSwissProt = new HashMap<Integer,Set<String>>();
+            Map<Integer,Set<String>> mapEntrezUniprot = new HashMap<Integer,Set<String>>();
             while (reader.ready()) {
                 String line = reader.readLine();
                 String[] tokens = line.split("\t");
+                int entrezGeneId = Integer.parseInt(tokens[0]);
                 String uniProtId = tokens[1];
                 if (swissProtAccs.contains(uniProtId)) {
-                    int entrezGeneId = Integer.parseInt(tokens[0]);
-                    rows += DaoUniProtIdMapping.addUniProtIdMapping(entrezGeneId, uniProtId);
+                    Set<String> swiss = mapEntrezSwissProt.get(entrezGeneId);
+                    if (swiss==null) {
+                        swiss = new HashSet<String>();
+                        mapEntrezSwissProt.put(entrezGeneId, swiss);
+                    }
+                    swiss.add(uniProtId);
+                } else {
+                    Set<String> uniprot = mapEntrezUniprot.get(entrezGeneId);
+                    if (uniprot==null) {
+                        uniprot = new HashSet<String>();
+                        mapEntrezUniprot.put(entrezGeneId, uniprot);
+                    }
+                    uniprot.add(uniProtId);
                 }
                 progressMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(progressMonitor);
+            }
+            mapEntrezUniprot.keySet().removeAll(mapEntrezSwissProt.entrySet());
+            mapEntrezUniprot.putAll(mapEntrezSwissProt);
+            for (Map.Entry<Integer,Set<String>> entry : mapEntrezUniprot.entrySet()) {
+                int entrezGeneId = entry.getKey();
+                String uniprot = pickOneUniprot(entry.getValue());
+                if (uniprot != null) {
+                    rows += DaoUniProtIdMapping.addUniProtIdMapping(entrezGeneId, uniprot);
+                }
             }
             System.out.println("Total number of uniprot id mappings saved: " + rows);
         }
@@ -66,6 +85,57 @@ public final class ImportUniProtIdMapping {
             catch (Exception e) {
                 // ignore
             }
+        }
+    }
+    
+    private String pickOneUniprot(Set<String> uniprotIds) throws IOException {
+        if (uniprotIds.size()==1) {
+            return uniprotIds.iterator().next();
+        }
+        
+        int maxLength = 0;
+        String ret = null;
+        for (String id : uniprotIds) {
+            int len = getLengthOfUniprotEntry(id);
+            if (len > maxLength) {
+                ret = id;
+                maxLength = len;
+            }
+        }
+        
+        return ret;
+    }
+    
+    private int getLengthOfUniprotEntry(String uniprotId) throws IOException {
+        String strURL = "http://www.uniprot.org/uniprot/"+uniprotId+".fasta";
+        MultiThreadedHttpConnectionManager connectionManager =
+                ConnectionManager.getConnectionManager();
+        HttpClient client = new HttpClient(connectionManager);
+        GetMethod method = new GetMethod(strURL);
+        
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode == HttpStatus.SC_OK) {
+                BufferedReader bufReader = new BufferedReader(
+                        new InputStreamReader(method.getResponseBodyAsStream()));
+                String line = bufReader.readLine();
+                if (!line.startsWith(">")) {
+                    return 0;
+                }
+                
+                int len = 0;
+                for (line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
+                    len += line.length();
+                }
+                return len;
+            } else {
+                //  Otherwise, throw HTTP Exception Object
+                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                        + " Base URL:  " + strURL);
+            }
+        } finally {
+            //  Must release connection back to Apache Commons Connection Pool
+            method.releaseConnection();
         }
     }
     

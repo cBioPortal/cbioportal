@@ -359,10 +359,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:206:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )* )
-            // ../completeOncoPrintSpecAST.g:206:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )*
             {
-            if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
+            if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
 
             }
@@ -371,13 +369,12 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // ../completeOncoPrintSpecAST.g:206:31: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )*
             loop2:
             do {
                 int alt2=2;
                 int LA2_0 = input.LA(1);
 
-                if ( (LA2_0=='*'||LA2_0=='-'||LA2_0=='/'||(LA2_0>='0' && LA2_0<='9')||(LA2_0>='A' && LA2_0<='Z')||LA2_0=='_'||(LA2_0>='a' && LA2_0<='z')) ) {
+                if ( (LA2_0=='*'||(LA2_0>='-' && LA2_0<='9')||(LA2_0>='@' && LA2_0<='Z')||LA2_0=='_'||(LA2_0>='a' && LA2_0<='z')) ) {
                     alt2=1;
                 }
 
@@ -386,7 +383,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             	case 1 :
             	    // ../completeOncoPrintSpecAST.g:
             	    {
-            	    if ( input.LA(1)=='*'||input.LA(1)=='-'||input.LA(1)=='/'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
+            	    if ( input.LA(1)=='*'||(input.LA(1)>='-' && input.LA(1)<='9')||(input.LA(1)>='@' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
             	        input.consume();
 
             	    }

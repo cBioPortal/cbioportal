@@ -264,7 +264,7 @@ CREATE TABLE `mutation_frequency` (
 -- Table structure for table `case_profile`
 --
 drop table IF EXISTS case_profile;
-CREATE TABLE IF NOT EXISTS `case_profile` (
+CREATE TABLE `case_profile` (
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -431,14 +431,14 @@ CREATE TABLE `drug` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS _case;
-CREATE TABLE IF NOT EXISTS `_case` (
+CREATE TABLE `_case` (
   `CASE_ID` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   PRIMARY KEY (`CASE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS case_cna_event;
-CREATE TABLE IF NOT EXISTS `case_cna_event` (
+CREATE TABLE `case_cna_event` (
   `CNA_EVENT_ID` int(255) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
@@ -446,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `case_cna_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS cna_event;
-CREATE TABLE IF NOT EXISTS `cna_event` (
+CREATE TABLE `cna_event` (
   `CNA_EVENT_ID` int(255) NOT NULL auto_increment,
   `ENTREZ_GENE_ID` bigint(20) NOT NULL,
   `ALTERATION` tinyint NOT NULL,
@@ -455,7 +455,7 @@ CREATE TABLE IF NOT EXISTS `cna_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 drop table IF EXISTS case_mutation_event;
-CREATE TABLE IF NOT EXISTS `case_mutation_event` (
+CREATE TABLE `case_mutation_event` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `MUTATION_EVENT_ID` int(255) NOT NULL,
@@ -464,7 +464,7 @@ CREATE TABLE IF NOT EXISTS `case_mutation_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data for patient view';
 
 drop table IF EXISTS mutation_event;
-CREATE TABLE IF NOT EXISTS `mutation_event` (
+CREATE TABLE `mutation_event` (
   `MUTATION_EVENT_ID` int(255) NOT NULL auto_increment,
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `MUTATION_STATUS` varchar(25) NOT NULL COMMENT 'Germline, Somatic or LOH.',
@@ -478,7 +478,7 @@ CREATE TABLE IF NOT EXISTS `mutation_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
 
 drop table IF EXISTS copy_number_seg;
-CREATE TABLE IF NOT EXISTS `copy_number_seg` (
+CREATE TABLE `copy_number_seg` (
   `SEG_ID` int(255) NOT NULL auto_increment,
   `CASE_ID` varchar(255) NOT NULL,
   `CHR` varchar(5) NOT NULL,
@@ -488,3 +488,20 @@ CREATE TABLE IF NOT EXISTS `copy_number_seg` (
   `SEGMENT_MEAN` double NOT NULL,
   PRIMARY KEY (`SEG_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+drop table IF EXISTS cosmic_mutation;
+CREATE TABLE `cosmic_mutation` (
+  `COSMIC_MUTATION_ID` int(255) NOT NULL auto_increment COMMENT 'this is not a real COSMIC ID but an internal one', 
+  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `AMINO_ACID_CHANGE` varchar(255) NOT NULL,
+  `COUNT` int(11) NOT NULL,
+  PRIMARY KEY (`COSMIC_MUTATION_ID`),
+  UNIQUE (`ENTREZ_GENE_ID`,`AMINO_ACID_CHANGE`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+drop table IF EXISTS mutation_event_cosmic_mapping;
+CREATE TABLE `mutation_event_cosmic_mapping` (
+  `MUTATION_EVENT_ID` int(255) NOT NULL,
+  `COSMIC_MUTATION_ID` int(255) NOT NULL,
+  PRIMARY KEY (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

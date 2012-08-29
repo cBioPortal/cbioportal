@@ -125,11 +125,11 @@ public class ImportExtendedMutationData{
 				pMonitor.incrementCurValue();
 				ConsoleUtil.showProgress(pMonitor);
 			}
-
+                        
 			if( !line.startsWith("#") && line.trim().length() > 0)
 			{
 				String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
-				MafRecord record = mafUtil.parseRecord(line);
+                                MafRecord record = mafUtil.parseRecord(line);
 
 				// process case id
 				// an example bar code looks like this:  TCGA-13-1479-01A-01W

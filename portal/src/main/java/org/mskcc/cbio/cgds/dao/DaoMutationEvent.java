@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.*;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 /**
@@ -38,7 +40,15 @@ public final class DaoMutationEvent {
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setInt(3, mutation.getGeneticProfileId());
             pstmt.setString(4, mutation.getValidationStatus());
-            return pstmt.executeUpdate();
+            int n = pstmt.executeUpdate();
+            
+            // add cosmic
+            for (CosmicMutationFrequency cosmic :
+                    parseCosmic(mutation.getEntrezGeneId(), mutation.getOncotatorCosmicOverlapping())) {
+                n += importCosmic(eventId, cosmic, con);
+            }
+            
+            return n;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -347,5 +357,154 @@ public final class DaoMutationEvent {
             throw new DaoException(e);
         }
     }
+    
+    private static List<CosmicMutationFrequency> parseCosmic(long entrez, String strCosmic) {
+        if (strCosmic==null || strCosmic.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        String[] parts = strCosmic.split("\\|");
+        List<CosmicMutationFrequency> list = new ArrayList<CosmicMutationFrequency>(parts.length);
+        Pattern p = Pattern.compile("p.(.+)\\(([0-9]+)\\)");
+        for (String part : parts) {
+            Matcher m = p.matcher(part);
+            if (m.matches()) {
+                String aa = m.group(1);
+                int count = Integer.parseInt(m.group(2));
+                list.add(new CosmicMutationFrequency(entrez, aa, count));
+            } else {
+                System.err.println("wrong cosmic string: "+part);
+            }
+        }
+        
+        return list;
+    }
+    
+    private static int importCosmic(long eventId, CosmicMutationFrequency cosmic,
+            Connection con) throws DaoException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            int n = importCosmic(cosmic, con);
+            CosmicMutationFrequency cmf = getCosmicMutationFrequency(cosmic.getEntrezGeneId(),
+                    cosmic.getAminoAcidChange(), con);
+            
+            pstmt = con.prepareStatement("SELECT COUNT(*) FROM mutation_event_cosmic_mapping"
+                    + " WHERE `MUTATION_EVENT_ID`=? and `COSMIC_MUTATION_ID`=?");
+            pstmt.setLong(1, eventId);
+            pstmt.setInt(2, cmf.getId());
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt(1)>0) {
+                    return 0;
+                }
+            }
+            
+            
+            pstmt = con.prepareStatement("INSERT INTO mutation_event_cosmic_mapping"
+                    + " (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`) VALUES(?,?)");
+            pstmt.setLong(1, eventId);
+            pstmt.setInt(2, cmf.getId());
+            n += pstmt.executeUpdate();
+            return n;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        
+    }
+    
+    private static int importCosmic(CosmicMutationFrequency cosmic, Connection con) throws DaoException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            if (null != getCosmicMutationFrequency(
+                    cosmic.getEntrezGeneId(), cosmic.getAminoAcidChange(),con)) {
+                return 0;
+            }
+            
+            pstmt = con.prepareStatement("INSERT INTO cosmic_mutation (`ENTREZ_GENE_ID`,"
+                    + "`AMINO_ACID_CHANGE`,`COUNT`) VALUES(?,?,?)");
+            pstmt.setLong(1, cosmic.getEntrezGeneId());
+            pstmt.setString(2, cosmic.getAminoAcidChange());
+            pstmt.setInt(3, cosmic.getFrequency());
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    public static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
+            String aaChange) throws DaoException {
+        return getCosmicMutationFrequency(entrez, aaChange, null);
+    }
+    
+    private static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
+            String aaChange, Connection con) throws DaoException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            if (con==null) {
+                con = JdbcUtil.getDbConnection();
+            }
+            
+            String sql = "SELECT * FROM cosmic_mutation "
+                    + "WHERE `ENTREZ_GENE_ID`=? AND `AMINO_ACID_CHANGE`=?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, entrez);
+            pstmt.setString(2, aaChange);
+            
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new CosmicMutationFrequency(rs.getInt("COSMIC_MUTATION_ID"),
+                        entrez, aaChange, rs.getInt("COUNT"));
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        
+    }
 
+    /**
+     * get cosmic data for a mutation event
+     * @param strMutationEventIds
+     * @return Map &lt; mutation event id &gt; , list of cosmic &gt; &gt;
+     * @throws DaoException 
+     */
+    public static Map<Long, List<CosmicMutationFrequency>> getCosmicMutationFrequency(
+            String strMutationEventIds) throws DaoException {
+        if (strMutationEventIds==null || strMutationEventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT MUTATION_EVENT_ID, cosmic_mutation.COSMIC_MUTATION_ID,"
+                    + " `ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, `COUNT`"
+                    + " FROM cosmic_mutation, mutation_event_cosmic_mapping"
+                    + " WHERE `MUTATION_EVENT_ID` IN ("+ strMutationEventIds +")"
+                    + " AND cosmic_mutation.COSMIC_MUTATION_ID=mutation_event_cosmic_mapping.COSMIC_MUTATION_ID";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            Map<Long,List<CosmicMutationFrequency>> map = new HashMap<Long,List<CosmicMutationFrequency>>();
+            while (rs.next()) {
+                long eventId = rs.getLong(1);
+                List<CosmicMutationFrequency> list = map.get(eventId);
+                if (list==null) {
+                    list = new ArrayList<CosmicMutationFrequency>();
+                    map.put(eventId, list);
+                }
+                list.add(new CosmicMutationFrequency(rs.getInt(2),rs.getLong(3),rs.getString(4),rs.getInt(5)));
+            }
+            
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 }

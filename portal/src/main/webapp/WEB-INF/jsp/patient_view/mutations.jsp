@@ -51,9 +51,10 @@
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
-    var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,mutsig:8,overview:9,mutrate:10,drug:11,note:12};
+    var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
+        mutsig:8,cosmic:9,overview:10,mutrate:11,drug:12,note:13};
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
-        var oTable = $(table_id).dataTable( {
+        var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
                 "bDestroy": true,
@@ -104,6 +105,38 @@
                         "bVisible": false,
                         "aTargets": [ mutTableIndices["mutsig"] ]
                     },
+                    {// cosmic
+                        "aTargets": [ mutTableIndices["cosmic"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["cosmic"]]=value;
+                            } else if (type==='display') {
+                                var cosmic = source[mutTableIndices["cosmic"]];
+                                if (!cosmic) return "";
+                                var arr = [];
+                                var n = 0;
+                                for(var aa in cosmic) {
+                                    var c = cosmic[aa];
+                                    arr.push(aa+": "+c);
+                                    n += c;
+                                }
+                                if (n==0) return "";
+                                return "<a class='"+table_id+"-cosmic' href='#' alt='"+arr.join("<br/>")+"'>"+n+" COSMIC entr"+(n==1?"y":"ies");
+                            } else if (type==='sort') {
+                                var cosmic = source[mutTableIndices["cosmic"]];
+                                var n = 0;
+                                if (cosmic)
+                                    for(var aa in cosmic)
+                                        n += cosmic[aa];
+                                var ret = '000000000'+n;
+                                return ret.substring(ret.length-10,ret.length);
+                            }  else if (type==='filter') {
+                                return "cosmic";
+                            } else {
+                                return source[mutTableIndices["cosmic"]];
+                            }
+                        }
+                    },
                     {// in overview
                         "bVisible": false,
                         "aTargets": [ mutTableIndices["overview"] ]
@@ -127,9 +160,8 @@
                             } else if (type==='sort') {
                                 if (!source[mutTableIndices["mutrate"]]) return 0;
                                 var gene = source[mutTableIndices["gene"]];
-                                var geneCon = ''+mutGeneContext[gene];
-                                var pad = '000000';
-                                return pad.substring(0, pad.length - geneCon.length) + geneCon;
+                                var geneCon = '000000000'+mutGeneContext[gene];
+                                return geneCon.substring(geneCon.length-10,geneCon.length);
                             } else {
                                 return '';
                             }
@@ -186,7 +218,12 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        $(table_id).css("width","100%");
+        $("#"+table_id).css("width","100%");
+        $("."+table_id+"-cosmic").qtip({
+            content: {attr: 'alt'},
+            hide: { fixed: true, delay: 100 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+        });
         return oTable;
     }
     
@@ -268,7 +305,7 @@
             function(data){
                 mutations = data;
                 // mutations
-                mut_table = buildMutationsDataTable(mutations, '#mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                mut_table = buildMutationsDataTable(mutations, 'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
                 
@@ -280,7 +317,7 @@
                 geObs.fire('mutations-built');
                 
                 // summary table
-                mut_summary_table = buildMutationsDataTable(mutations, '#mutation_summary_table',
+                mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table',
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 10);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
                     +mutations.length+" mutations</a>");

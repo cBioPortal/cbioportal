@@ -365,7 +365,7 @@ public final class DaoMutationEvent {
         
         String[] parts = strCosmic.split("\\|");
         List<CosmicMutationFrequency> list = new ArrayList<CosmicMutationFrequency>(parts.length);
-        Pattern p = Pattern.compile("p.(.+)\\(([0-9]+)\\)");
+        Pattern p = Pattern.compile("(p\\..+)\\(([0-9]+)\\)");
         for (String part : parts) {
             Matcher m = p.matcher(part);
             if (m.matches()) {
@@ -463,6 +463,11 @@ public final class DaoMutationEvent {
             throw new DaoException(e);
         }
         
+    }
+    
+    public static Map<Long, List<CosmicMutationFrequency>> getCosmicMutationFrequency(
+            Collection<Long> mutationEventIds)  throws DaoException {
+        return getCosmicMutationFrequency(StringUtils.join(mutationEventIds,","));
     }
 
     /**

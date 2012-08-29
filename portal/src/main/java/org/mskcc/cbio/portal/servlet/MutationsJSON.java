@@ -73,11 +73,11 @@ public class MutationsJSON extends HttpServlet {
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         
         String mutSigQvalue = request.getParameter(MUT_SIG_QVALUE);
-        double qvalue;
+        double qvalueThrehold;
         try {
-            qvalue = Double.parseDouble(mutSigQvalue);
+            qvalueThrehold = Double.parseDouble(mutSigQvalue);
         } catch (Exception e) {
-            qvalue = DEFAULT_MUT_SIG_QVALUE_THRESHOLD;
+            qvalueThrehold = DEFAULT_MUT_SIG_QVALUE_THRESHOLD;
         }
         
         
@@ -85,6 +85,7 @@ public class MutationsJSON extends HttpServlet {
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
+        Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
         
         try {
             _case = DaoCase.getCase(patient);
@@ -93,13 +94,14 @@ public class MutationsJSON extends HttpServlet {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
                 mutations = DaoMutationEvent.getMutationEvents(patient,
                         mutationProfile.getGeneticProfileId());
+                cosmic = getCosmic(mutations);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(table, mutation, cancerStudy, qvalue);
+            exportMutation(table, mutation, cancerStudy, qvalueThrehold, cosmic.get(mutation.getMutationEventId()));
         }
 
         response.setContentType("application/json");
@@ -231,7 +233,7 @@ public class MutationsJSON extends HttpServlet {
     }
     
     private void exportMutation(JSONArray table, ExtendedMutation mutation, CancerStudy 
-            cancerStudy, double qvalueThreshold) 
+            cancerStudy, double qvalueThreshold, Map<String,Integer> cosmic) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
@@ -253,6 +255,9 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         row.add(mutSigQvalue);
+        
+        // cosmic
+        row.add(cosmic);
         
         // show in summary table
         boolean isSangerGene = false;
@@ -286,6 +291,34 @@ public class MutationsJSON extends HttpServlet {
         }
         Double qvalue = mapGeneQvalue.get(gene);
         return qvalue!=null ? qvalue : Double.NaN;
+    }
+    
+    /**
+     * 
+     * @param mutations
+     * @return Map of event id to map of aa change to count
+     * @throws DaoException 
+     */
+    private Map<Long, Map<String,Integer>> getCosmic(
+            List<ExtendedMutation> mutations) throws DaoException {
+        Set<Long> mutIds = new HashSet<Long>(mutations.size());
+        for (ExtendedMutation mut : mutations) {
+            mutIds.add(mut.getMutationEventId());
+        }
+        
+        Map<Long, List<CosmicMutationFrequency>> map = 
+                DaoMutationEvent.getCosmicMutationFrequency(mutIds);
+        Map<Long, Map<String,Integer>> ret
+                = new HashMap<Long, Map<String,Integer>>(map.size());
+        for (Map.Entry<Long, List<CosmicMutationFrequency>> entry : map.entrySet()) {
+            Long id = entry.getKey();
+            Map<String,Integer> mapSI = new HashMap<String,Integer>();
+            for (CosmicMutationFrequency cmf : entry.getValue()) {
+                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
+            }
+            ret.put(id, mapSI);
+        }
+        return ret;
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

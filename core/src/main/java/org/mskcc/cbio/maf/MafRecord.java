@@ -46,7 +46,13 @@ public class MafRecord {
     private int tumorRefCount;
     private int normalAltCount;
     private int normalRefCount;
-    
+
+	private String maFuncImpact;
+	private String maLinkVar;
+	private String maLinkMsa;
+	private String maLinkPdb;
+	private String maProteinChange;
+
     private String oncotatorProteinChange;
     private String oncotatorVariantClassification;
     private String oncotatorCosmicOverlapping;
@@ -372,6 +378,44 @@ public class MafRecord {
 	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
 		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
 	}
-	
-	
+
+	public String getMaFuncImpact() {
+		return maFuncImpact;
+	}
+
+	public void setMaFuncImpact(String maFuncImpact) {
+		this.maFuncImpact = maFuncImpact;
+	}
+
+	public String getMaLinkVar() {
+		return maLinkVar;
+	}
+
+	public void setMaLinkVar(String maLinkVar) {
+		this.maLinkVar = maLinkVar;
+	}
+
+	public String getMaLinkMsa() {
+		return maLinkMsa;
+	}
+
+	public void setMaLinkMsa(String maLinkMsa) {
+		this.maLinkMsa = maLinkMsa;
+	}
+
+	public String getMaLinkPdb() {
+		return maLinkPdb;
+	}
+
+	public void setMaLinkPdb(String maLinkPdb) {
+		this.maLinkPdb = maLinkPdb;
+	}
+
+	public String getMaProteinChange() {
+		return maProteinChange;
+	}
+
+	public void setMaProteinChange(String maProteinChange) {
+		this.maProteinChange = maProteinChange;
+	}
 }

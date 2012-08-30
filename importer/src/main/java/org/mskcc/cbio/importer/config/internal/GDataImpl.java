@@ -1,14 +1,12 @@
 // package
-package org.mskcc.cbio.firehose.config.internal;
+package org.mskcc.cbio.importer.config.internal;
 
 // imports
-import org.mskcc.cbio.firehose.Config;
+import org.mskcc.cbio.importer.Config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gdata.util.ServiceException;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.data.spreadsheet.ListFeed;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.google.gdata.data.spreadsheet.ListFeed;
@@ -24,8 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 //import java.util.Arrays;
-//import java.util.ArrayList;
-//import java.util.Collection;
+import java.util.ArrayList;
 import java.io.IOException;
 
 /**
@@ -40,51 +37,56 @@ final class GDataImpl implements Config {
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
 
-	// the following are vars set from firehose.properties 
+	// the following are vars set from importer.properties 
 
 	// google docs user
 	private String gdataUser;
 	@Value("${username}")
-	public void setUser(String username) { this.gdataUser = username; }
+	public void setUser(final String username) { this.gdataUser = username; }
 
 	// google docs password
 	private String gdataPassword;
 	@Value("${password}")
-	public void setPassword(String password) { this.gdataPassword = password; }
+	public void setPassword(final String password) { this.gdataPassword = password; }
 
 	// google docs spreadsheet
 	private String gdataSpreadsheet;
 	@Value("${spreadsheet}")
-	public void setSpreadsheet(String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
+	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
 	// latest analysis run downloaded property
 	private String latestAnalysisRunProperty;
 	@Value("${latest_analysis_run_download}")
-	public void setLatestAnalysisRunProperty(String property) { this.latestAnalysisRunProperty = property; }
+	public void setLatestAnalysisRunProperty(final String property) { this.latestAnalysisRunProperty = property; }
 
 	// latest stddata run download property
 	private String latestSTDDATARunProperty;
 	@Value("${latest_stddata_run_download}")
-	public void setLatestSTDDATARunProperty(String property) { this.latestSTDDATARunProperty = property; }
+	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
 
 	// analysis datatypes to download
 	private String analysisDatatypesToDownload;
 	@Value("${analysis_datatypes_to_download}")
-	public void setAnalysisDatatypesToDownloadProperty(String property) { this.analysisDatatypesToDownload = property; }
+	public void setAnalysisDatatypesToDownloadProperty(final String property) { this.analysisDatatypesToDownload = property; }
 
 	// stddata datatypes to download
 	private String stddataDatatypesToDownload;
 	@Value("${stddata_datatypes_to_download}")
-	public void setSTDDATADatatypesToDownloadProperty(String property) { this.stddataDatatypesToDownload = property; }
+	public void setSTDDATADatatypesToDownloadProperty(final String property) { this.stddataDatatypesToDownload = property; }
+
+	// cancer studies information
+	private String cancerStudiesToDownload;
+	@Value("${cancer_studies_to_download}")
+	public void setCancerStudiesProperty(final String property) { this.cancerStudiesToDownload = property; }
 
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
+     * Takes a ref to the gdata spreadsheet service.
      *
-     * @param firehoseConfig Config
+     * @param spreadsheetService SpreadsheetService
 	 */
-	public GDataImpl(SpreadsheetService spreadsheetService) {
+	public GDataImpl(final SpreadsheetService spreadsheetService) {
 
 		// set members
 		this.spreadsheetService = spreadsheetService;
@@ -93,45 +95,57 @@ final class GDataImpl implements Config {
 	/**
 	 * Gets the latest analysis run.
 	 *
+	 * Returns the date of the latest analysis run
+	 * processed by the importer as "MM/dd/yyyy"
+	 *
 	 * @return String
 	 */
 	@Override
-	public String getLatestAnalysisRun() {
+	public String getLatestAnalysisRunDownloaded() {
 		return getPropertyString(latestAnalysisRunProperty);
 	}
 
 	/**
-	 * Sets the latest analysis run.
+	 * Sets the latest analysis run processed by the importer.  Argument
+	 * should be of the form "MM/dd/yyyy".
 	 *
 	 * @param String
 	 */
 	@Override
-	public void setLatestAnalysisRun(String latestAnalysisRun) {
+	public void setLatestAnalysisRunDownloaded(final String latestAnalysisRun) {
 		setPropertyString(latestAnalysisRunProperty, latestAnalysisRun);
 	}
 
 	/**
 	 * Gets the latest STDDATA run.
 	 *
+	 * Returns the date of the latest stddata run
+	 * downloaded by the importer as "MM/dd/yyyy"
+	 *
 	 * @return String
 	 */
 	@Override
-	public String getLatestSTDDATARun() {
+	public String getLatestSTDDATARunDownloaded() {
 		return getPropertyString(latestSTDDATARunProperty);
 	}
 
 	/**
-	 * Sets the latest STDDATA run.
+	 * Sets the latest stddata run processed by the importer.  Argument
+	 * should be of the form "MM/dd/yyyy".
 	 *
 	 * @param String
 	 */
 	@Override
-	public void setLatestSTDDATARun(String latestSTDDATARun) {
+	public void setLatestSTDDATARunDownloaded(final String latestSTDDATARun) {
 		setPropertyString(latestSTDDATARunProperty, latestSTDDATARun);
 	}
 
 	/**
-	 * Gets the analysis datatypes to download from the firehose.
+	 * Gets the analysis datatypes to process.
+	 *
+	 * Returns a string, space delimited, with each type to download, like:
+	 *
+	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
 	 *
 	 * @return String
 	 */
@@ -144,7 +158,11 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the stddata datatypes to download from the firehose.
+	 * Gets the stddata datatypes to process.
+	 *
+	 * Returns a string, space delimited, with each type to download, like:
+	 *
+	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
 	 *
 	 * @return String
 	 */
@@ -157,13 +175,83 @@ final class GDataImpl implements Config {
 	}
 
 	/**
+	 * Gets the cancer studies to process.
+	 *
+	 * Returns a string, space delimited, with each cancer study
+	 * to process, like:
+	 *
+	 * "blca brca cesc coadread"
+	 *
+	 * @return String
+	 */
+	@Override
+	public String getCancerStudiesToDownload() {
+
+		String toReturn = "";
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCancerStudiesToDownload()");
+		}
+
+		// parse the property argument
+		String[] properties = cancerStudiesToDownload.split(":");
+		if (properties.length != 3) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getCancerStudiesToDownload: " +
+						 cancerStudiesToDownload + ".  Should be worsheet:cancer_study_id:download_flag.");
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						String downloadFlag = entry.getCustomElements().getValue(properties[2]);
+						if (downloadFlag != null && downloadFlag.equals("yes")) {
+							String cancerStudy = entry.getCustomElements().getValue(properties[1]);
+							if (cancerStudy != null) {
+								if (LOG.isInfoEnabled()) {
+									LOG.info("Adding cancer study: " + cancerStudy + " to download list.");
+								}
+								toReturn += cancerStudy + " ";
+								continue;
+							}
+						}
+						else if (downloadFlag != null && downloadFlag.equals("no")) {
+							continue;
+						}
+						// only get here if problem, log it
+						if (LOG.isInfoEnabled()) {
+							LOG.info("Cannot find cancer study and/or download property in entry list!");
+						}
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn.trim();
+	}
+
+	/**
 	 * Gets the spreadsheet.
 	 *
 	 * @returns SpreadsheetEntry
-	 * @throws ServiceException
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	private SpreadsheetEntry getSpreadsheet() throws ServiceException, IOException {
+	private SpreadsheetEntry getSpreadsheet() throws Exception {
 
 		FeedURLFactory factory = FeedURLFactory.getDefault();
 		SpreadsheetFeed feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
@@ -181,10 +269,9 @@ final class GDataImpl implements Config {
 	 * Gets the worksheet feed.
 	 *
 	 * @returns WorksheetFeed
-	 * @throws ServiceException
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	private WorksheetEntry getWorksheet(String gdataWorksheet) throws ServiceException, IOException {
+	private WorksheetEntry getWorksheet(final String gdataWorksheet) throws Exception {
 
 		// first get the spreadsheet
 		SpreadsheetEntry spreadsheet = getSpreadsheet();
@@ -204,9 +291,9 @@ final class GDataImpl implements Config {
 	/**
 	 * authenticate with google spreadsheet client
 	 *
-	 * @throws AuthenticationException
+	 * @throws Exception
 	 */
-	private void login() throws AuthenticationException {
+	private void login() throws Exception {
 
 		spreadsheetService.setUserCredentials(gdataUser, gdataPassword);
 	}
@@ -219,7 +306,7 @@ final class GDataImpl implements Config {
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private String getPropertyString(String propertyName) {
+	private String getPropertyString(final String propertyName) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getProperty(" + propertyName + ")");
@@ -239,8 +326,8 @@ final class GDataImpl implements Config {
 			WorksheetEntry worksheet = getWorksheet(properties[0]);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				ListEntry entry = feed.getEntries().get(0);
-				if (entry != null && feed.getEntries().size() > 0) {
+				if (feed != null && feed.getEntries().size() > 0) {
+					ListEntry entry = feed.getEntries().get(0);
 					String propertyValue = entry.getCustomElements().getValue(properties[1]);
 					if (propertyValue == null) {
 						if (LOG.isInfoEnabled()) {
@@ -278,7 +365,7 @@ final class GDataImpl implements Config {
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private void setPropertyString(String propertyName, String propertyValue) {
+	private void setPropertyString(final String propertyName, final String propertyValue) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("setProperty(" + propertyName + " : " + propertyValue + ")");

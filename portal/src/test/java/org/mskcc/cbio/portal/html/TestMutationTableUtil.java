@@ -3,8 +3,6 @@ package org.mskcc.cbio.portal.html;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.portal.html.MutationAssessorHtmlUtil;
-import org.mskcc.cbio.portal.html.MutationTableUtil;
 
 import java.util.ArrayList;
 
@@ -55,7 +53,7 @@ public class TestMutationTableUtil extends TestCase {
     public void test5() {
         MutationTableUtil mutationHtml = new MutationTableUtil("BRCA1");
         ExtendedMutation mutation = new ExtendedMutation();
-        mutation.setAminoAcidChange("A22C");
+        mutation.setProteinChange("A22C");
         mutation.setEndPosition(38462606);
         mutation.setSequencingCenter("broad.mit.edu");
         mutation.setMutationType("Frameshift");

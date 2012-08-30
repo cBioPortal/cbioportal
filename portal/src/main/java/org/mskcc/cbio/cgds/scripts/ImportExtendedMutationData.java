@@ -150,8 +150,8 @@ public class ImportExtendedMutationData{
 				String validationStatus = record.getValidationStatus();
 
 				if (validationStatus == null ||
-				    validationStatus.equalsIgnoreCase("NA") ||
-				    validationStatus.equalsIgnoreCase("Wildtype")) {
+				    validationStatus.equalsIgnoreCase("Wildtype"))
+				{
 					pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;
@@ -190,6 +190,9 @@ public class ImportExtendedMutationData{
 					linkPdb = getField(parts, "MA:link.PDB" );
 				}
 
+				String proteinChange = getProteinChange(aminoAcidChange, record);
+				String mutationType = getMutationType(record);
+
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = getField(parts, "Hugo_Symbol" );
 				String entrezGeneIdStr = getField(parts, "Entrez_Gene_Id");
@@ -218,8 +221,8 @@ public class ImportExtendedMutationData{
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
 					mutation.setSequencer(record.getSequencer());
-					mutation.setAminoAcidChange(aminoAcidChange);
-					mutation.setMutationType(record.getVariantClassification());
+					mutation.setProteinChange(proteinChange);
+					mutation.setMutationType(mutationType);
 					mutation.setChr(record.getChr());
 					mutation.setStartPosition(record.getStartPosition());
 					mutation.setEndPosition(record.getEndPosition());
@@ -254,8 +257,6 @@ public class ImportExtendedMutationData{
 					mutation.setTumorRefCount(record.getTumorRefCount());
 					mutation.setNormalAltCount(record.getNormalAltCount());
 					mutation.setNormalRefCount(record.getNormalRefCount());
-					mutation.setOncotatorProteinChange(record.getOncotatorProteinChange());
-					mutation.setOncotatorVariantClassification(record.getOncotatorVariantClassification());
 					mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 
@@ -344,6 +345,41 @@ public class ImportExtendedMutationData{
 		} catch( IllegalArgumentException e) {
 			return NOT_AVAILABLE;
 		}
+	}
+
+	private String getProteinChange(String aminoAcidChange, MafRecord record)
+	{
+		String proteinChange = record.getOncotatorProteinChange();
+
+		// TODO If we have a Mutation Assessor score for a given missense mutation,
+		// we should use the AA change provided by Mutation Assessor.
+		// MA may sometimes use a different isoform than Oncotator,
+		// but we want to make sure that the links to MA match what we show in the portal.
+
+		if (proteinChange == null ||
+		    proteinChange.length() == 0 ||
+		    proteinChange.equals("NULL") ||
+		    proteinChange.equals(MafRecord.NA_STRING))
+		{
+			proteinChange = aminoAcidChange;
+		}
+
+		return proteinChange;
+	}
+
+	private String getMutationType(MafRecord record)
+	{
+		String mutationType = record.getOncotatorVariantClassification();
+
+		if (mutationType == null ||
+		    mutationType.length() == 0 ||
+		    mutationType.equals("NULL") ||
+		    mutationType.equals(MafRecord.NA_STRING))
+		{
+			mutationType = record.getVariantClassification();
+		}
+
+		return mutationType;
 	}
 
 	@Override

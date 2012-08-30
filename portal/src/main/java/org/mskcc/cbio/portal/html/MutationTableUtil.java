@@ -56,7 +56,7 @@ public class MutationTableUtil {
         dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getMutationType()));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
-        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getAminoAcidChange()));
+        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getProteinChange()));
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);

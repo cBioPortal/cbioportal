@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.portal.mut_diagram.Pileup;
 
 import com.google.common.collect.ImmutableList;
 
@@ -56,7 +55,7 @@ public final class TestPileup {
     @Test
     public void testPileupSingleMutation() {
         ExtendedMutation mutation = new ExtendedMutation();
-        mutation.setAminoAcidChange("A123K");
+        mutation.setProteinChange("A123K");
         mutation.setCaseId("caseId");
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation));
@@ -74,9 +73,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("A123K");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("A123K");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId("caseId1");
         mutation2.setCaseId("caseId2");
@@ -96,9 +95,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("A123K");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("A123K");
         mutation0.setCaseId("caseId");
         mutation1.setCaseId("caseId");
         mutation2.setCaseId("caseId");
@@ -118,9 +117,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("A123K");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("A123K");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId(null);
         mutation2.setCaseId("caseId2");
@@ -140,9 +139,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("A123G");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("A123G");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId("caseId1");
         mutation2.setCaseId("caseId2");
@@ -163,9 +162,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("A123G");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("A123G");
         mutation0.setCaseId("caseId");
         mutation1.setCaseId("caseId");
         mutation2.setCaseId("caseId");
@@ -185,9 +184,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("A123K");
-        mutation2.setAminoAcidChange("K234G");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("A123K");
+        mutation2.setProteinChange("K234G");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId("caseId1");
         mutation2.setCaseId("caseId2");
@@ -214,9 +213,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange("missense");
-        mutation2.setAminoAcidChange("A123K");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange("missense");
+        mutation2.setProteinChange("A123K");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId("caseId1");
         mutation2.setCaseId("caseId2");
@@ -236,9 +235,9 @@ public final class TestPileup {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
-        mutation0.setAminoAcidChange("A123K");
-        mutation1.setAminoAcidChange(null);
-        mutation2.setAminoAcidChange("A123K");
+        mutation0.setProteinChange("A123K");
+        mutation1.setProteinChange(null);
+        mutation2.setProteinChange("A123K");
         mutation0.setCaseId("caseId0");
         mutation1.setCaseId("caseId1");
         mutation2.setCaseId("caseId2");
@@ -256,7 +255,7 @@ public final class TestPileup {
     @Test
     public void testPileupsLowercasePDotSAnimoAcidPosition() {
         ExtendedMutation mutation = new ExtendedMutation();
-        mutation.setAminoAcidChange("p.S310F");
+        mutation.setProteinChange("p.S310F");
         mutation.setCaseId("caseId");
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation));

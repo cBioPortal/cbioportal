@@ -163,6 +163,8 @@
     
     //  Set up Mutation Diagrams
     $(document).ready(function(){
+	    // initially hide all tooltip boxes
+	    $("div.mutation_diagram_details").hide();
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>

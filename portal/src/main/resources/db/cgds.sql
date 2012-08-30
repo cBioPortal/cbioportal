@@ -209,7 +209,7 @@ CREATE TABLE `mutation` (
   `CHR` varchar(5) NOT NULL,
   `START_POSITION` bigint(20) NOT NULL,
   `END_POSITION` bigint(20) NOT NULL,
-  `AMINO_ACID_CHANGE` varchar(255) NOT NULL,
+  `PROTEIN_CHANGE` varchar(255) NOT NULL,
   `MUTATION_TYPE` varchar(255) NOT NULL COMMENT 'e.g. Missense, Nonsence, etc.',
   `FUNCTIONAL_IMPACT_SCORE` varchar(5) NOT NULL COMMENT 'Result from OMA/XVAR.',
   `LINK_XVAR` varchar(500) NOT NULL COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
@@ -240,8 +240,6 @@ CREATE TABLE `mutation` (
   `TUMOR_REF_COUNT` int(11),
   `NORMAL_ALT_COUNT` int(11),
   `NORMAL_REF_COUNT` int(11),
-  `ONCOTATOR_PROTEIN_CHANGE` varchar(128),
-  `ONCOTATOR_VARIANT_CLASSIFICATION` varchar(25),
   `ONCOTATOR_DBSNP_RS` varchar(128),
   `ONCOTATOR_COSMIC_OVERLAPPING` varchar(2048),
   KEY `QUICK_LOOK_UP2` (`GENETIC_PROFILE_ID`,`ENTREZ_GENE_ID`)

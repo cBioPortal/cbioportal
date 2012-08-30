@@ -1,9 +1,10 @@
 // package
-package org.mskcc.cbio.firehose.fetcher.internal;
+package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
-import org.mskcc.cbio.firehose.Config;
-import org.mskcc.cbio.firehose.Fetcher;
+import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.Fetcher;
+import org.mskcc.cbio.importer.FileUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.text.ParseException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,19 +20,18 @@ import java.util.regex.Pattern;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.IOException;
 
 /**
  * Class which implements the fetcher interface.
  */
-final class FetcherImpl implements Fetcher {
+final class FirehoseFetcherImpl implements Fetcher {
 
 	// conts for run types
 	private static final String ANALYSIS_RUN = "analyses";
 	private static final String STDDATA_RUN = "stddata";
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(FetcherImpl.class);
+	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
 
 	// regex used when getting firehose run dates from the broad
     private static final Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
@@ -42,7 +41,10 @@ final class FetcherImpl implements Fetcher {
 		Pattern.compile("^(\\w*)__(\\w*)");
 
 	// ref to configuration
-	private Config firehoseConfig;
+	private Config config;
+
+	// ref to file utils
+	private FileUtils fileUtils;
 
 	// location of firehose get
 	private String firehoseGetScript;
@@ -51,36 +53,37 @@ final class FetcherImpl implements Fetcher {
 
 	// location of analysis download
 	private String analysisDownloadDir;
-	@Value("${firehose_analysis_download_dir}")
+	@Value("${analysis_download_dir}")
 	public void setAnalysisDownloadDir(String property) { this.analysisDownloadDir = property; }
 
 	// location of stddata download
 	private String stddataDownloadDir;
-	@Value("${firehose_stddata_download_dir}")
+	@Value("${stddata_download_dir}")
 	public void setSTDDATADownloadDir(String property) { this.stddataDownloadDir = property; }
 
 	/**
 	 * Constructor.
      *
      * Takes a Config reference.
+	 * Takes a FileUtils reference.
      *
-     * @param firehoseConfig Config
+     * @param config Config
+	 * @param fileUtils FileUtils
 	 */
-	public FetcherImpl(Config firehoseConfig) {
+	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils) {
 
 		// set members
-		this.firehoseConfig = firehoseConfig;
+		this.config = config;
+		this.fileUtils = fileUtils;
 	}
 
 	/**
 	 * Fetchers data from the Broad.
 	 *
-	 * @throws ParseException - improper date format
-	 * @throws IOException - reading firehose_get output
-	 * @throws InterruptedException - executing process via runtime
+	 * @throws Exception
 	 */
 	@Override
-	public void fetch() throws ParseException, IOException, InterruptedException {
+	public void fetch() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch()");
@@ -88,12 +91,12 @@ final class FetcherImpl implements Fetcher {
 
 		// get latest runs
 		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-		Date ourLatestAnalysisRun = formatter.parse(firehoseConfig.getLatestAnalysisRun());
-		Date ourLatestSTDDATARun = formatter.parse(firehoseConfig.getLatestSTDDATARun()); 
+		Date ourLatestAnalysisRunDownloaded = formatter.parse(config.getLatestAnalysisRunDownloaded());
+		Date ourLatestSTDDATARunDownloaded = formatter.parse(config.getLatestSTDDATARunDownloaded()); 
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("our latest analysis run: " + formatter.format(ourLatestAnalysisRun));
-			LOG.info("our latest stddata run: " + formatter.format(ourLatestSTDDATARun));
+			LOG.info("our latest analysis run: " + formatter.format(ourLatestAnalysisRunDownloaded));
+			LOG.info("our latest stddata run: " + formatter.format(ourLatestSTDDATARunDownloaded));
 		}
 
 		// get broads latest run
@@ -101,12 +104,12 @@ final class FetcherImpl implements Fetcher {
 		Date latestBroadSTDDATARun = getLatestBroadRun(STDDATA_RUN);
 
 		// do we need to grab a new analysis run?
-		if (latestBroadAnalysisRun.after(ourLatestAnalysisRun)) {
+		if (latestBroadAnalysisRun.after(ourLatestAnalysisRunDownloaded)) {
 			//fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
 		}
 
 		// do we need to grab a new analysis run?
-		if (latestBroadSTDDATARun.after(ourLatestSTDDATARun)) {
+		if (latestBroadSTDDATARun.after(ourLatestSTDDATARunDownloaded)) {
 			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
 		}
 
@@ -119,8 +122,9 @@ final class FetcherImpl implements Fetcher {
 	 *
 	 * @param runType String
 	 * @return Date
+	 * @throws Exception
 	 */
-	private Date getLatestBroadRun(String runType) throws ParseException, IOException, InterruptedException {
+	private Date getLatestBroadRun(final String runType) throws Exception {
 
 		// steup a default date for comparision
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
@@ -161,8 +165,9 @@ final class FetcherImpl implements Fetcher {
 	 * @param runType String
 	 * @param runDate Date
 	 * @return void
+	 * @throws Exception
 	 */
-	private void fetchLatestRun(String runType, Date runDate) throws ParseException, IOException, InterruptedException {
+	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
 
 		// vars used below
 		Process process;
@@ -188,13 +193,15 @@ final class FetcherImpl implements Fetcher {
 
 		// download the data
 		String datatypesToDownload = (runType.equals(ANALYSIS_RUN)) ?
-			firehoseConfig.getAnalysisDatatypes() : firehoseConfig.getSTDDATADatatypes();
+			config.getAnalysisDatatypes() : config.getSTDDATADatatypes();
+		String cancerStudiesToDownload = config.getCancerStudiesToDownload();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
 		ProcessBuilder pb = new ProcessBuilder(firehoseGetScript, "-b",
+											   "-tasks",
+											   datatypesToDownload,
 											   runType,
 											   formatter.format(runDate),
-											   "-tasks " + datatypesToDownload,
-											   "brca");
+											   cancerStudiesToDownload);
 		pb.directory(new File(downloadDirectoryName));
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + pb.command());
@@ -202,6 +209,12 @@ final class FetcherImpl implements Fetcher {
 		}
 		process = pb.start();
 		process.waitFor();
+
+		// check md5sums
+		if (LOG.isInfoEnabled()) {
+			LOG.info("download complete, checking md5 digests.");
+		}
+		checkMD5Digest(downloadDirectory);
 	}
 
 	/**
@@ -209,7 +222,7 @@ final class FetcherImpl implements Fetcher {
 	 *
 	 * @param node File
 	 */
-	private void clobber(File node) {
+	private void clobber(final File node) {
 
 		if(node.isDirectory()){
 			String[] subNode = node.list();
@@ -220,6 +233,48 @@ final class FetcherImpl implements Fetcher {
 		}
 		else {
 			node.delete();
+		}
+	}
+
+	/**
+	 * Helper method to check md5 digests for each downloaded file
+	 *
+	 * @param node File
+	 * @throws Exception
+	 */
+	private void checkMD5Digest(final File node) throws Exception {
+
+		if (node.isDirectory()){
+			String[] subNode = node.list();
+			for(String filename : subNode){
+				checkMD5Digest(new File(node, filename));
+			}
+		}
+		else {
+			if (node.getName().endsWith(".md5")) {
+				// get precomputed digest (from .md5)
+				String precomputedDigest = fileUtils.getPrecomputedMD5Digest(node);
+				// compute md5 digest from respective data file
+				File dataFile = new File(node.getCanonicalPath().replace(".md5", ""));
+				String computedDigest = fileUtils.getMD5Digest(dataFile);
+				if (LOG.isInfoEnabled()) {
+					LOG.info("checkMD5Digest(), file: " + node.getCanonicalPath());
+					LOG.info("checkMD5Digest(), precomputed digest: " + precomputedDigest);
+					LOG.info("checkMD5Digest(), computed digest: " + computedDigest);
+				}
+				// remove the data file if its corrupt
+				if (!computedDigest.equalsIgnoreCase(precomputedDigest)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("!!!!! Error, md5 digest not correct, removing file " + dataFile.getCanonicalPath() + "!!!!!");
+						dataFile.delete();
+					}		
+				}
+				// remove .md5 file
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Removing md5 digest file: " + node.getCanonicalPath());
+				}
+				node.delete();
+			}
 		}
 	}
 }

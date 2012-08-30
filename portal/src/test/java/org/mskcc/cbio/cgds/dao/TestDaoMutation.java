@@ -1,7 +1,6 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
@@ -44,7 +43,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setEndPosition(20000);
 		mutation.setSequencingCenter("Broad");
 		mutation.setSequencer("SOLiD");
-		mutation.setAminoAcidChange("BRCA1_123");
+		mutation.setProteinChange("BRCA1_123");
 		mutation.setFunctionalImpactScore("H");
 		mutation.setLinkXVar("link1");
 		mutation.setLinkPdb("link2");
@@ -74,8 +73,6 @@ public class TestDaoMutation extends TestCase {
 		mutation.setTumorRefCount(16);
 		mutation.setNormalAltCount(8);
 		mutation.setNormalRefCount(18);
-		mutation.setOncotatorProteinChange("p.R285*");
-		mutation.setOncotatorVariantClassification("Missense_Mutation");
 		mutation.setOncotatorCosmicOverlapping(
 				"p.R505C(36)|p.R505L(6)|p.R505G(4)|p.R425C(2)|p.R425G(2)|p.R266G(2)|p.R505H(2)|p.R505S(1)|p.R505P(1)|p.R266C(1)");
 		mutation.setOncotatorDbSnpRs("rs149680468");
@@ -112,7 +109,7 @@ public class TestDaoMutation extends TestCase {
 		assertEquals (20000, mutation.getEndPosition());
 		assertEquals ("Broad", mutation.getSequencingCenter());
 		assertEquals ("SOLiD", mutation.getSequencer());
-		assertEquals ("BRCA1_123", mutation.getAminoAcidChange());
+		assertEquals ("BRCA1_123", mutation.getProteinChange());
 		assertEquals ("H", mutation.getFunctionalImpactScore());
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
@@ -142,8 +139,6 @@ public class TestDaoMutation extends TestCase {
 		assertEquals (16, mutation.getTumorRefCount());
 		assertEquals (8, mutation.getNormalAltCount());
 		assertEquals (18, mutation.getNormalRefCount());
-		assertEquals ("p.R285*", mutation.getOncotatorProteinChange());
-		assertEquals ("Missense_Mutation", mutation.getOncotatorVariantClassification());
 		assertEquals ("p.R505C(36)|p.R505L(6)|p.R505G(4)|p.R425C(2)|p.R425G(2)|p.R266G(2)|p.R505H(2)|p.R505S(1)|p.R505P(1)|p.R266C(1)",
 		              mutation.getOncotatorCosmicOverlapping());
 		assertEquals ("rs149680468", mutation.getOncotatorDbSnpRs());

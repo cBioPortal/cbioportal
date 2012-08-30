@@ -47,7 +47,7 @@
             return y==null ? 0 : 1;
         }
         if (y==null)
-            return -1;
+            return 1;
 	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
@@ -102,8 +102,18 @@
                     },
                     {// mutsig
                         "sType": "mutsig-col",
-                        "bVisible": false,
-                        "aTargets": [ mutTableIndices["mutsig"] ]
+                        "aTargets": [ mutTableIndices["mutsig"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["mutsig"]]=value;
+                            } else if (type==='display') {
+                                var mutsig = source[mutTableIndices["mutsig"]];
+                                if (!mutsig) return "";
+                                return mutsig.toPrecision(2);
+                            } else {
+                                return source[mutTableIndices["mutsig"]];
+                            }
+                        }
                     },
                     {// cosmic
                         "aTargets": [ mutTableIndices["cosmic"] ],

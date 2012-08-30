@@ -9,7 +9,7 @@
                         <th>Amino Acid Change</th>
                         <th>Mutation Type</th>
                         <th>Mutation Status</th>
-                        <th>MutSig</th>
+                        <th>MutSig Q-value</th>
                         <th>COSMIC Frequency</th>
                         <th>Show in summary</th>
                         <th>Study Mutation Rate

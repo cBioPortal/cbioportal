@@ -24,6 +24,9 @@ public class MutationsJSON extends HttpServlet {
     public static final String MUT_SIG_QVALUE = "mut_sig_qvalue";
     private static final double DEFAULT_MUT_SIG_QVALUE_THRESHOLD = 0.05;
     
+    public static final String COSMIC_THRESHOLD = "cosmic_threshold";
+    private static final int DEFAULT_COSMIC_THRESHOLD = 5;
+    
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
@@ -80,6 +83,14 @@ public class MutationsJSON extends HttpServlet {
             qvalueThrehold = DEFAULT_MUT_SIG_QVALUE_THRESHOLD;
         }
         
+        String strCosmicThreshold = request.getParameter(COSMIC_THRESHOLD);
+        int cosmicThreshold;
+        try {
+            cosmicThreshold = Integer.parseInt(strCosmicThreshold);
+        } catch (Exception e) {
+            cosmicThreshold = DEFAULT_COSMIC_THRESHOLD;
+        }
+        
         
         GeneticProfile mutationProfile;
         Case _case;
@@ -101,7 +112,8 @@ public class MutationsJSON extends HttpServlet {
         }
         
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(table, mutation, cancerStudy, qvalueThrehold, cosmic.get(mutation.getMutationEventId()));
+            exportMutation(table, mutation, cancerStudy, qvalueThrehold,
+                    cosmic.get(mutation.getMutationEventId()),cosmicThreshold);
         }
 
         response.setContentType("application/json");
@@ -233,7 +245,7 @@ public class MutationsJSON extends HttpServlet {
     }
     
     private void exportMutation(JSONArray table, ExtendedMutation mutation, CancerStudy 
-            cancerStudy, double qvalueThreshold, Map<String,Integer> cosmic) 
+            cancerStudy, double qvalueThreshold, Map<String,Integer> cosmic, int cosmicThreshold) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
@@ -266,9 +278,23 @@ public class MutationsJSON extends HttpServlet {
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
-        row.add(isSangerGene || !Double.isNaN(mutSigQvalue));
+        row.add(isSangerGene || !Double.isNaN(mutSigQvalue) || passCosmicThreshold(cosmic,cosmicThreshold));
         
         table.add(row);
+    }
+    
+    private boolean passCosmicThreshold(Map<String,Integer> cosmic, int cosmicThreshold) {
+        if (cosmic==null) {
+            return false;
+        }
+        int n = 0;
+        for (int count : cosmic.values()) {
+            n += count;
+            if (n >= cosmicThreshold) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id

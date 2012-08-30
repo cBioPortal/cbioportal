@@ -49,6 +49,11 @@ public class MafUtil
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
+	private int maFImpactIndex = -1; // MA:FImpact
+	private int maLinkVarIndex = -1; // MA:link.var
+	private int maLinkMsaIndex = -1; // MA:link.MSA
+	private int maLinkPdbIndex = -1; // MA:link.PDB
+	private int maProteinChangeIndex = -1; // MA:protein.change
     
     private int headerCount; // number of headers in the header line
 
@@ -142,7 +147,17 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
 	        	oncoDbSnpRsIndex = i;
-	        }
+            } else if(header.equalsIgnoreCase("MA:FImpact")) {
+				maFImpactIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.var")) {
+	            maLinkVarIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.MSA")) {
+	            maLinkMsaIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.PDB")) {
+	            maLinkPdbIndex = i;
+            } else if(header.equalsIgnoreCase("MA:protein.change")) {
+	            maProteinChangeIndex = i;
+            }
             // TODO will be decided later...
 //	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
 //	        	tumorRefCountIndex = i;
@@ -406,7 +421,32 @@ public class MafUtil
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
 	}
-	
+
+	public int getMaFImpactIndex()
+	{
+		return maFImpactIndex;
+	}
+
+	public int getMaLinkVarIndex()
+	{
+		return maLinkVarIndex;
+	}
+
+	public int getMaLinkMsaIndex()
+	{
+		return maLinkMsaIndex;
+	}
+
+	public int getMaLinkPdbIndex()
+	{
+		return maLinkPdbIndex;
+	}
+
+	public int getMaProteinChangeIndex()
+	{
+		return maProteinChangeIndex;
+	}
+
     public int getHeaderCount() {
 		return headerCount;
 	}

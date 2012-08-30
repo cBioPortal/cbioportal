@@ -1,4 +1,4 @@
-package org.mskcc.cbio.oncotator;
+package org.mskcc.cbio.dbcache;
 
 import java.io.FileInputStream;
 import java.io.IOException;

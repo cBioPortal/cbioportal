@@ -104,15 +104,23 @@ public class OncotateTool {
         writer.write("\n");
     }
 
-    private void conditionallyOncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException, SQLException {
+    private void conditionallyOncotateRecord(MafRecord mafRecord,
+		    FileWriter writer) throws IOException, SQLException
+    {
         String ncbiBuild = mafRecord.getNcbiBuild();
-        if (!ncbiBuild.equals("37")) {
+
+	    if (!ncbiBuild.equals("37") &&
+	        !ncbiBuild.equalsIgnoreCase("hg19"))
+	    {
             outputBuildNumErrorMessage(ncbiBuild);
             buildNumErrors++;
+
             if (buildNumErrors > 10) {
                 abortDueToBuildNumErrors();
             }
-        } else {
+        }
+	    else
+	    {
             oncotateRecord(mafRecord, writer);
         }
     }

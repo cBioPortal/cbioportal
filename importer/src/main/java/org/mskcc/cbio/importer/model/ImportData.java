@@ -25,13 +25,13 @@ public final class ImportData {
 	// bean properties
 	@Column(nullable=false)
 	private String cancerType;
+	@Id
 	@Column(nullable=false)
 	private String datatype;
 	@Column(nullable=false)
 	private String runDate;
 	@Column(nullable=false)
 	private String urlToData;
-	@Id
 	@Column(length=32)
 	private String digest;
 

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * Class which implements the fetcher interface.
@@ -121,7 +122,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// do we need to grab a new analysis run?
 		if (latestBroadAnalysisRun.after(ourLatestAnalysisRunDownloaded)) {
-			//fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
+			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
 		}
 
 		// do we need to grab a new analysis run?
@@ -129,7 +130,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
 		}
 
-		// outta here
+		// outta here - update latest download table
 	}
 
 	/**
@@ -328,14 +329,16 @@ final class FirehoseFetcherImpl implements Fetcher {
 				// determine cancer type
 				Matcher cancerTypeMatcher = FIREHOSE_FILENAME_CANCER_NAME_REGEX.matcher(dataFile.getName());
 				String cancerType = (cancerTypeMatcher.find()) ? cancerTypeMatcher.group(1) : "";
-				// determine data type
-				String datatype = getFileDatatype(dataFile.getName(), datatypeMetadata);
+				// determine data type(s) - may be multiple, ie CNA, LOG2CNA
+				Collection<DatatypeMetadata> datatypes = getFileDatatype(dataFile.getName(), datatypeMetadata);
 				// url
 				String urlToData = dataFile.toURI().toURL().toString();
 				// create an store a new ImportData object
-				ImportData importData = new ImportData(cancerType, datatype,
-													   PORTAL_DATE_FORMAT.format(runDate), urlToData, computedDigest);
-				importDataDAO.importData(importData);
+				for (DatatypeMetadata datatype : datatypes) {
+					ImportData importData = new ImportData(cancerType, datatype.getDatatype().toString(),
+														   PORTAL_DATE_FORMAT.format(runDate), urlToData, computedDigest);
+					importDataDAO.importData(importData);
+				}
 				// remove files?
 				if (LOG.isInfoEnabled()) {
 					LOG.info("Removing md5 digest file: " + node.getCanonicalPath());
@@ -350,15 +353,14 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 *
 	 * @param filename String
 	 * @param datatypeMetadata Collection<DatatypeMetadata>
-	 * @return String
+	 * @return Collection<DatatypeMetadata>
 	 */
-	private String getFileDatatype(final String filename, final Collection<DatatypeMetadata> datatypeMetadata) {
+	private Collection<DatatypeMetadata> getFileDatatype(final String filename, final Collection<DatatypeMetadata> datatypeMetadata) {
 
-		String toReturn = "";
+		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
 			if (filename.contains(dtMetadata.getPackageFilename())) {
-				toReturn = dtMetadata.getDatatype().toString();
-				break;
+				toReturn.add(dtMetadata);
 			}
 		}
 

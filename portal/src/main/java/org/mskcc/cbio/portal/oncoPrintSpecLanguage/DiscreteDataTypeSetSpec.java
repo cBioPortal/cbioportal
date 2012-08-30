@@ -170,6 +170,10 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
     private boolean satisfySpecificMutation( String specificMutations ) {
         String specificMutationsUpper = specificMutations.toUpperCase(); 
         for (String specificMutationUpper : specificMutationsUpper.split(",")) {
+            if (specificMutationUpper.startsWith("P.")) {
+                specificMutationUpper = specificMutationUpper.substring(2);
+            }
+            
             if (mutationPatterns.contains(specificMutationUpper)) {
                 // complete match, including specific mutation to an amino acid such V600E, D200fs
                 return true;

@@ -11,7 +11,6 @@ public class MutationAssessorImporter
 {
 	public static void main(String[] args)
 	{
-		// TODO more options: single file, directory, process only ma, process only maf...
 		CacheBuilder builder = new CacheBuilder();
 		MafProcessor mafProcessor = new MafProcessor();
 
@@ -40,7 +39,7 @@ public class MutationAssessorImporter
 			}
 			else
 			{
-				 mafProcessor.addAssessorInfo(new File(input), new File(output));
+				mafProcessor.addAssessorInfo(new File(input), new File(output));
 			}
 
 		}

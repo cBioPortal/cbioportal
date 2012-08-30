@@ -18,11 +18,6 @@ public class CacheBuilder
 
 	protected HashMap<String, Integer> headerIndices;
 
-	public CacheBuilder()
-	{
-
-	}
-
 	/**
 	 * Processes all files in a given directory (assuming that all files are MA files).
 	 *
@@ -32,13 +27,21 @@ public class CacheBuilder
 	 */
 	public void processDirectory(File inputDirectory) throws IOException, SQLException
 	{
+		File[] list;
+
 		if (inputDirectory.isDirectory())
 		{
-			for (File file : inputDirectory.listFiles())
+			list = inputDirectory.listFiles();
+
+			if (list != null)
 			{
-				if (!file.isDirectory())
+				for (File file : list)
 				{
-					this.processFile(file, new File(file.getName() + ".sql"));
+					if (!file.isDirectory())
+					{
+						this.processFile(file,
+							new File(file.getName() + ".sql"));
+					}
 				}
 			}
 		}
@@ -74,10 +77,12 @@ public class CacheBuilder
 
 			MutationAssessorRecord record = this.parseDataLine(line);
 
-			if (record != null)
+			if (record != null &&
+			    !record.hasNoInfo())
 			{
 				//dao.put(record);
 				// creating an SQL script file, instead of using slower JDBC...
+				// TODO use JDBC in any case (even if it is really slow)?
 				writer.write(dao.getInsertSql(record));
 				writer.newLine();
 			}
@@ -150,8 +155,13 @@ public class CacheBuilder
 	{
 		String[] parts = mutation.split(",");
 
-		String key = parts[1] + "_" + parts[2] + "_" + parts[2] + "_" +
-			parts[3] + "_" + parts[4];
+		String key = null;
+
+		if (parts.length >= 5)
+		{
+			key = parts[1] + "_" + parts[2] + "_" + parts[2] + "_" +
+			      parts[3] + "_" + parts[4];
+		}
 
 		return key;
 	}

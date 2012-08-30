@@ -62,4 +62,25 @@ public class MutationAssessorRecord
 	{
 		this.alignmentLink = alignmentLink;
 	}
+
+	/**
+	 * If all fields of the record are null, then returns true. Otherwise
+	 * returns false.
+	 *
+	 * @return  true if all fields are null, false otherwise
+	 */
+	public boolean hasNoInfo()
+	{
+		boolean noInfo = false;
+
+		if (this.impact == null &&
+			this.proteinChange == null &&
+			this.alignmentLink == null &&
+			this.structureLink == null)
+		{
+			noInfo = true;
+		}
+
+		return noInfo;
+	}
 }

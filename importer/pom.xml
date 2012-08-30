@@ -25,7 +25,9 @@
 
   <!-- properties -->
   <properties>
-	<spring.version>3.0.6.RELEASE</spring.version>
+	<spring.version>3.0.5.RELEASE</spring.version>
+	<hibernate.version>3.6.9.Final</hibernate.version>
+	<slf4j.version>1.5.8</slf4j.version>
   </properties>
 
   <dependencies>
@@ -37,6 +39,13 @@
 	  <version>1.1</version>
 	</dependency>
 
+	<!-- apache commons basic data source -->
+	<dependency>
+	  <groupId>commons-dbcp</groupId>
+	  <artifactId>commons-dbcp</artifactId>
+	  <version>1.2.2</version>
+	</dependency>
+            
 	<!-- apache commons logging -->
 	<dependency>
 	  <groupId>log4j</groupId>
@@ -51,6 +60,13 @@
 	  <version>1.46.0</version>
 	</dependency>
 
+	<!-- hibernate -->
+	<dependency>
+	  <groupId>org.hibernate</groupId>
+	  <artifactId>hibernate-entitymanager</artifactId>
+	  <version>${hibernate.version}</version>
+	</dependency>
+
 	<!-- log4j -->
 	<dependency>
 	  <groupId>log4j</groupId>
@@ -58,7 +74,15 @@
 	  <version>1.2.16</version>
 	</dependency>
 
-	<!-- spring 3 -->
+	<!-- mysql -->
+	<dependency>
+	  <groupId>mysql</groupId>
+	  <artifactId>mysql-connector-java</artifactId>
+	  <version>5.1.10</version>
+	  <scope>runtime</scope>
+	</dependency>
+
+	<!-- spring -->
 	<dependency>
 	  <groupId>org.springframework</groupId>
 	  <artifactId>spring-core</artifactId>
@@ -66,16 +90,69 @@
 	</dependency>
 	<dependency>
 	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-expression</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-beans</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-aop</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
 	  <artifactId>spring-context</artifactId>
 	  <version>${spring.version}</version>
 	</dependency>
-	
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-tx</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-orm</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+
+	<!-- slf4j -->
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-log4j12</artifactId>
+	  <version>${slf4j.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-api</artifactId>
+	  <version>${slf4j.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>jcl-over-slf4j</artifactId>
+	  <version>${slf4j.version}</version>
+	</dependency>
+
   </dependencies>
 
   <build>
 
 	<!-- plugins -->
 	<plugins>
+
+	  <!-- java 1.6 support -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.0.2</version>
+		<configuration>
+		  <source>1.6</source>
+		  <target>1.6</target>
+		</configuration>
+	  </plugin>
 
 	  <!-- assembly -->
 	  <plugin>
@@ -103,10 +180,16 @@
 	  </plugin>
 	</plugins>
 
+	<!-- properties file used for filter - use build.properties -->
+	<filters>
+	  <filter>${PORTAL_HOME}/portal.properties</filter>
+	</filters>
+
 	<!-- prevent some resources from getting into package -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
+		<filtering>true</filtering>
 		<excludes>
 		  <exclude>portal.properties*</exclude>
 		</excludes>

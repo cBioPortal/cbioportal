@@ -22,10 +22,12 @@ public class CacheBuilder
 	 * Processes all files in a given directory (assuming that all files are MA files).
 	 *
 	 * @param inputDirectory    target directory containing input files
+	 * @param outputSql         output SQL script to be created
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void processDirectory(File inputDirectory) throws IOException, SQLException
+	public void processDirectory(File inputDirectory,
+			File outputSql) throws IOException, SQLException
 	{
 		File[] list;
 
@@ -146,7 +148,13 @@ public class CacheBuilder
 	}
 
 	/**
-	 * Assuming the format : [build],[chr],[startPos],[refAllele],[tumAllele]
+	 * Assuming the input string format :
+	 *    [build],[chr],[startPos],[refAllele],[tumAllele]
+	 *
+	 * Generated key format:
+	 *   [chromosome]_[startPosition]_[endPosition]_[referenceAllele]_[tumorAllele]
+	 *
+	 * See also MafProcessor.generateKey format.
 	 *
 	 * @param mutation
 	 * @return
@@ -194,6 +202,22 @@ public class CacheBuilder
 		catch (ArrayIndexOutOfBoundsException e)
 		{
 			return MutationAssessorRecord.NA_STRING;
+		}
+	}
+
+	public void buildCache(String input,
+			String output) throws IOException, SQLException
+	{
+		File inFile = new File(input);
+		File outFile = new File(output);
+
+		if (inFile.isDirectory())
+		{
+			this.processDirectory(inFile, outFile);
+		}
+		else
+		{
+			this.processFile(inFile, outFile);
 		}
 	}
 }

@@ -24,7 +24,7 @@ public class MutationAssessorImporter
 			input = args[1];
 			output = args[2];
 		}
-		// else process MAF files and extend with MA information
+		// else process a single MAF file and extend with MA information
 		else
 		{
 			input = args[0];
@@ -35,11 +35,11 @@ public class MutationAssessorImporter
 		{
 			if (db)
 			{
-				builder.processFile(new File(input), new File(output));
+				builder.buildCache(input, output);
 			}
 			else
 			{
-				mafProcessor.addAssessorInfo(new File(input), new File(output));
+				mafProcessor.addMutAssessorInfo(new File(input), new File(output));
 			}
 
 		}

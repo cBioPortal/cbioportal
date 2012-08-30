@@ -176,6 +176,7 @@ public class MafUtil
         String parts[] = line.split("\t", -1);
         
         MafRecord record = new MafRecord();
+
         record.setCenter(getPartString(centerIndex, parts));
         record.setChr(getPartString(chrIndex, parts));
         record.setStartPosition(getPartLong(startPositionIndex, parts));
@@ -208,11 +209,19 @@ public class MafUtil
         record.setValidationMethod(getPartString(validationMethodIndex, parts));
         record.setScore(getPartString(scoreIndex, parts));
         record.setBamFile(getPartString(bamFileIndex, parts));
-        record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
+
+	    record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
         record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
         record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
         record.setNormalRefCount(getPartInt(normalRefCountIndex, parts));
-        record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
+
+	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
+	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
+	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
+	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
+	    record.setMaProteinChange(getPartString(maProteinChangeIndex, parts));
+
+	    record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
         record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));

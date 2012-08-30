@@ -166,7 +166,7 @@ public class OncotateTool {
         String tumorAllel1 = mafRecord.getTumorSeqAllele1();
         String tumorAllel2 = mafRecord.getTumorSeqAllele2();
         String tumorAllele = null;
-        if (!refAllele.equals(tumorAllel1)) {
+        if (!refAllele.equalsIgnoreCase(tumorAllel1)) {
             tumorAllele = tumorAllel1;
         } else if(!refAllele.equalsIgnoreCase(tumorAllel2)) {
             tumorAllele = tumorAllel2;

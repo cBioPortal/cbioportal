@@ -56,19 +56,8 @@ final class FileUtilsImpl implements FileUtils {
 			LOG.info("getMD5Digest(): " + file.getCanonicalPath());
 		}
 
-		// compute the size of the file
-		Resource resource = LOADER.getResource(file.toURI().toURL().toString());
-		long size = 0;
-		if (resource.isReadable()) {
-			size = resource.contentLength();
-			if (LOG.isInfoEnabled()) {
-				LOG.info("file length: " + size);
-			}
-		}
-		// read the file content into a bytebuffer
-		ReadableByteChannel source = Channels.newChannel(resource.getInputStream());
-		ByteBuffer byteBuffer = ByteBuffer.allocate((int)size);
-		source.read(byteBuffer);
+		// get file contents
+		ByteBuffer byteBuffer = getFileContents(file);
 		
 		// outta here
 		return computeMD5Digest(byteBuffer.array());
@@ -104,6 +93,38 @@ final class FileUtilsImpl implements FileUtils {
 		// outta here
 		return toReturn;
     }
+
+	/**
+	 * Returns the given file contents.
+	 *
+	 * @param file File
+	 * @return ByteBuffer
+	 * @throws Exception
+	 */
+	@Override
+	public ByteBuffer getFileContents(File file) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getFileContents(): " + file.getCanonicalPath());
+		}
+
+		// compute the size of the file
+		Resource resource = LOADER.getResource(file.toURI().toURL().toString());
+		long size = 0;
+		if (resource.isReadable()) {
+			size = resource.contentLength();
+			if (LOG.isInfoEnabled()) {
+				LOG.info("file length: " + size);
+			}
+		}
+		// read the file content into a bytebuffer
+		ReadableByteChannel source = Channels.newChannel(resource.getInputStream());
+		ByteBuffer byteBuffer = ByteBuffer.allocate((int)size);
+		source.read(byteBuffer);
+		
+		// outta here
+		return byteBuffer;
+	}
 
 	/**
 	 * Given the following string, computes an MD5 digest.

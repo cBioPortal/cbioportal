@@ -2,6 +2,10 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+
+import java.util.Collection;
 
 /**
  * Interface used to get/set configuration properties.
@@ -24,7 +28,7 @@ public interface Config {
 	 *
 	 * @param String
 	 */
-	void setLatestAnalysisRunDownloaded(String latestAnalysisRun);
+	void setLatestAnalysisRunDownloaded(final String latestAnalysisRun);
 
 	/**
 	 * Gets the latest STDDATA run.
@@ -42,39 +46,19 @@ public interface Config {
 	 *
 	 * @param String
 	 */
-	void setLatestSTDDATARunDownloaded(String latestSTDDataRun);
+	void setLatestSTDDATARunDownloaded(final String latestSTDDataRun);
 
 	/**
-	 * Gets the analysis datatypes to process.
+	 * Gets a collection of CancerStudyMetadata.
 	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
-	 *
-	 * @return String
+	 * @return Collection<CancerStudyMetadata>
 	 */
-	String getAnalysisDatatypes();
+	Collection<CancerStudyMetadata> getCancerStudyMetadata();
 
 	/**
-	 * Gets the stddata datatypes to process.
+	 * Gets a collection of DatatypeMetadata.
 	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
-	 *
-	 * @return String
+	 * @return Collection<DatatypeMetadata>
 	 */
-	String getSTDDATADatatypes();
-
-	/**
-	 * Gets the cancer studies to process.
-	 *
-	 * Returns a string, space delimited, with each cancer study
-	 * to process, like:
-	 *
-	 * "blca brca cesc coadread"
-	 *
-	 * @return String
-	 */
-	String getCancerStudiesToDownload();
+	Collection<DatatypeMetadata> getDatatypeMetadata();
 }

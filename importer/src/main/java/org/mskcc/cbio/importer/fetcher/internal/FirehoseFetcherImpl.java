@@ -5,6 +5,10 @@ package org.mskcc.cbio.importer.fetcher.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +24,7 @@ import java.util.regex.Pattern;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Collection;
 
 /**
  * Class which implements the fetcher interface.
@@ -40,11 +45,21 @@ final class FirehoseFetcherImpl implements Fetcher {
     private static final Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
 		Pattern.compile("^(\\w*)__(\\w*)");
 
+    private static final Pattern FIREHOSE_FILENAME_CANCER_NAME_REGEX =
+		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
+
+	// date formats
+	private static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
+	private static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+
 	// ref to configuration
 	private Config config;
 
 	// ref to file utils
 	private FileUtils fileUtils;
+
+	// ref to import data
+	private ImportDataDAO importDataDAO;
 
 	// location of firehose get
 	private String firehoseGetScript;
@@ -69,12 +84,14 @@ final class FirehoseFetcherImpl implements Fetcher {
      *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param importDataDAO ImportDataDAO;
 	 */
-	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils) {
+	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils, final ImportDataDAO importDataDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
+		this.importDataDAO = importDataDAO;
 	}
 
 	/**
@@ -90,13 +107,12 @@ final class FirehoseFetcherImpl implements Fetcher {
 		}
 
 		// get latest runs
-		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-		Date ourLatestAnalysisRunDownloaded = formatter.parse(config.getLatestAnalysisRunDownloaded());
-		Date ourLatestSTDDATARunDownloaded = formatter.parse(config.getLatestSTDDATARunDownloaded()); 
+		Date ourLatestAnalysisRunDownloaded = PORTAL_DATE_FORMAT.parse(config.getLatestAnalysisRunDownloaded());
+		Date ourLatestSTDDATARunDownloaded = PORTAL_DATE_FORMAT.parse(config.getLatestSTDDATARunDownloaded()); 
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("our latest analysis run: " + formatter.format(ourLatestAnalysisRunDownloaded));
-			LOG.info("our latest stddata run: " + formatter.format(ourLatestSTDDATARunDownloaded));
+			LOG.info("our latest analysis run: " + PORTAL_DATE_FORMAT.format(ourLatestAnalysisRunDownloaded));
+			LOG.info("our latest stddata run: " + PORTAL_DATE_FORMAT.format(ourLatestSTDDATARunDownloaded));
 		}
 
 		// get broads latest run
@@ -127,8 +143,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private Date getLatestBroadRun(final String runType) throws Exception {
 
 		// steup a default date for comparision
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
-		Date latestRun = formatter.parse("1918_05_11");
+		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
 
 		// execute firehose get to determine available runs
 		Process process = Runtime.getRuntime().exec(firehoseGetScript + " -r");
@@ -145,7 +160,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 						Matcher columnMatcher = FIREHOSE_GET_RUNS_COL_REGEX.matcher(lineMatcher.group(1));
 						// parse date out of column one and compare to the current latestRun
 						if (columnMatcher.find()) {
-							Date thisRunDate = formatter.parse(columnMatcher.group(2));
+							Date thisRunDate = BROAD_DATE_FORMAT.parse(columnMatcher.group(2));
 							if (thisRunDate.after(latestRun)) {
 								latestRun = thisRunDate;
 							}
@@ -191,16 +206,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 		process = rt.exec("mkdir -p " + downloadDirectoryName);
 		process.waitFor();
 
-		// download the data
-		String datatypesToDownload = (runType.equals(ANALYSIS_RUN)) ?
-			config.getAnalysisDatatypes() : config.getSTDDATADatatypes();
-		String cancerStudiesToDownload = config.getCancerStudiesToDownload();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd");
+		// download the daat
+		Collection<CancerStudyMetadata> cancerStudyMetadata = config.getCancerStudyMetadata();
+		String cancerStudiesToDownload = getCancerStudiesToDownload(cancerStudyMetadata);
+		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
+		String datatypesToDownload = getDatatypesToDownload(datatypeMetadata);
+
 		ProcessBuilder pb = new ProcessBuilder(firehoseGetScript, "-b",
 											   "-tasks",
 											   datatypesToDownload,
 											   runType,
-											   formatter.format(runDate),
+											   BROAD_DATE_FORMAT.format(runDate),
 											   cancerStudiesToDownload);
 		pb.directory(new File(downloadDirectoryName));
 		if (LOG.isInfoEnabled()) {
@@ -210,11 +226,11 @@ final class FirehoseFetcherImpl implements Fetcher {
 		process = pb.start();
 		process.waitFor();
 
-		// check md5sums
+		// importing data
 		if (LOG.isInfoEnabled()) {
-			LOG.info("download complete, checking md5 digests.");
+			LOG.info("download complete, storing in database.");
 		}
-		checkMD5Digest(downloadDirectory);
+		storeData(downloadDirectory, datatypeMetadata, runDate);
 	}
 
 	/**
@@ -237,20 +253,60 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Helper method to check md5 digests for each downloaded file
+	 * Helper function to get cancer studies to download.
+	 *
+	 * @param cancerStudyMetadata Collection<CancerStudyMetadata>
+	 * @return String
+	 */
+	private String getCancerStudiesToDownload(final Collection<CancerStudyMetadata> cancerStudyMetadata) {
+
+		String toReturn = "";
+		for (CancerStudyMetadata csMetadata : cancerStudyMetadata) {
+			if (csMetadata.getDownload()) {
+				toReturn += csMetadata.getCancerStudyID() + " ";
+			}
+		}
+
+		// outta here
+		return toReturn.trim();
+	}
+
+	/**
+	 * Helper function to get datatypes to download.
+	 *
+	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @return String
+	 */
+	private String getDatatypesToDownload(final Collection<DatatypeMetadata> datatypeMetadata) {
+
+		String toReturn = "";
+		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
+			toReturn += dtMetadata.getPackageFilename() + " ";
+		}
+
+		// outta here
+		return toReturn.trim();
+	}
+
+	/**
+	 * Helper method to store downloaded data.  If md5 digest is correct,
+	 * import data, else skip it
 	 *
 	 * @param node File
+	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void checkMD5Digest(final File node) throws Exception {
+	private void storeData(final File node, final Collection<DatatypeMetadata> datatypeMetadata, final Date runDate) throws Exception {
 
 		if (node.isDirectory()){
 			String[] subNode = node.list();
-			for(String filename : subNode){
-				checkMD5Digest(new File(node, filename));
+			for (String filename : subNode){
+				storeData(new File(node, filename), datatypeMetadata, runDate);
 			}
 		}
 		else {
+			// we are only going to store data with md5 sum
 			if (node.getName().endsWith(".md5")) {
 				// get precomputed digest (from .md5)
 				String precomputedDigest = fileUtils.getPrecomputedMD5Digest(node);
@@ -269,12 +325,44 @@ final class FirehoseFetcherImpl implements Fetcher {
 						dataFile.delete();
 					}		
 				}
-				// remove .md5 file
+				// determine cancer type
+				Matcher cancerTypeMatcher = FIREHOSE_FILENAME_CANCER_NAME_REGEX.matcher(dataFile.getName());
+				String cancerType = (cancerTypeMatcher.find()) ? cancerTypeMatcher.group(1) : "";
+				// determine data type
+				String datatype = getFileDatatype(dataFile.getName(), datatypeMetadata);
+				// url
+				String urlToData = dataFile.toURI().toURL().toString();
+				// create an store a new ImportData object
+				ImportData importData = new ImportData(cancerType, datatype,
+													   PORTAL_DATE_FORMAT.format(runDate), urlToData, computedDigest);
+				importDataDAO.importData(importData);
+				// remove files?
 				if (LOG.isInfoEnabled()) {
 					LOG.info("Removing md5 digest file: " + node.getCanonicalPath());
 				}
 				node.delete();
 			}
 		}
+	}
+
+	/**
+	 * Helper function to get datatypes to download.
+	 *
+	 * @param filename String
+	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @return String
+	 */
+	private String getFileDatatype(final String filename, final Collection<DatatypeMetadata> datatypeMetadata) {
+
+		String toReturn = "";
+		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
+			if (filename.contains(dtMetadata.getPackageFilename())) {
+				toReturn = dtMetadata.getDatatype().toString();
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
 	}
 }

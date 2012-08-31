@@ -10,24 +10,51 @@ import java.util.HashMap;
  */
 public class CacheBuilder
 {
+	// Column header names in an MA file
 	public static final String MA_VARIANT = "mutation";
 	public static final String MA_FIMPACT = "func. impact";
 	public static final String MA_PROTEIN_CHANGE = "uniprot variant";
 	public static final String MA_LINK_MSA = "msa"; // TODO no header in the files yet
 	public static final String MA_LINK_PDB = "pdb"; // TODO no header in the files yet
 
+	/**
+	 * Map for column header indices (to have flexibility for column positions in the file)
+	 */
 	protected HashMap<String, Integer> headerIndices;
+
+	/**
+	 * Optional output SQL script filename
+	 */
+	protected String sqlFilename;
+
+	/**
+	 * Default constructor with no sql script option.
+	 */
+	public CacheBuilder()
+	{
+		this.sqlFilename = null;
+	}
+
+	/**
+	 * Constructor to allow SQL script creation instead of
+	 * direct insertion into the DB.
+	 *
+	 * @param sqlFilename   output SQL script filename
+	 */
+	public CacheBuilder(String sqlFilename)
+	{
+		this.sqlFilename = sqlFilename;
+	}
 
 	/**
 	 * Processes all files in a given directory (assuming that all files are MA files).
 	 *
 	 * @param inputDirectory    target directory containing input files
-	 * @param outputSql         output SQL script to be created
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void processDirectory(File inputDirectory,
-			File outputSql) throws IOException, SQLException
+	public void processDirectory(File inputDirectory)
+			throws IOException, SQLException
 	{
 		File[] list;
 
@@ -41,8 +68,7 @@ public class CacheBuilder
 				{
 					if (!file.isDirectory())
 					{
-						this.processFile(file,
-							new File(file.getName() + ".sql"));
+						this.processFile(file);
 					}
 				}
 			}
@@ -50,19 +76,25 @@ public class CacheBuilder
 	}
 
 	/**
-	 * Processes a single MA file, and inserts a row to DB for each line.
+	 * Processes a single MA file, and inserts a row into DB for each line.
 	 *
 	 * @param inputMA       input MA file to process
-	 * @param outputSql     output SQL file to create
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void processFile(File inputMA, File outputSql) throws IOException, SQLException
+	public void processFile(File inputMA) throws IOException, SQLException
 	{
 		DaoMutAssessorCache dao = DaoMutAssessorCache.getInstance();
 
 		BufferedReader reader = new BufferedReader(new FileReader(inputMA));
-		BufferedWriter writer = new BufferedWriter(new FileWriter(outputSql));
+		BufferedWriter writer = null;
+
+		// conditionally init writer
+		if (this.sqlFilename != null)
+		{
+			// TODO append instead of overwriting
+			writer = new BufferedWriter(new FileWriter(this.sqlFilename));
+		}
 
 		// process header line
 		String line = reader.readLine();
@@ -79,21 +111,41 @@ public class CacheBuilder
 
 			MutationAssessorRecord record = this.parseDataLine(line);
 
-			if (record != null &&
-			    !record.hasNoInfo())
+			if (!record.hasNoInfo())
 			{
-				//dao.put(record);
-				// creating an SQL script file, instead of using slower JDBC...
-				// TODO use JDBC in any case (even if it is really slow)?
-				writer.write(dao.getInsertSql(record));
-				writer.newLine();
+				// sql script filename is provided, output contents to the script
+				if (writer != null)
+				{
+					// creating an SQL script file, instead of using slower JDBC
+					writer.write(dao.getInsertSql(record));
+					writer.newLine();
+				}
+				// use slower JDBC option if no output filename provided
+				else
+				{
+					dao.put(record);
+				}
+			}
+			else
+			{
+				System.out.println("[warning] no MA information for " + record.getKey());
 			}
 		}
 
 		reader.close();
-		writer.close();
+
+		if (writer != null)
+		{
+			writer.close();
+		}
 	}
 
+	/**
+	 * Creates a map of indices for the MA column names.
+	 *
+	 * @param headerLine    header line containing column names.
+	 * @return              a map keyed on column names
+	 */
 	protected HashMap<String, Integer> buildIndexMap(String headerLine)
 	{
 		HashMap<String, Integer> headerIndices = new HashMap<String, Integer>();
@@ -127,6 +179,12 @@ public class CacheBuilder
 		return headerIndices;
 	}
 
+	/**
+	 * Parses a data line and creates a MutationAssessorRecord
+	 *
+	 * @param dataLine data line containing MA values
+	 * @return      a MutationAssessorRecord instance
+	 */
 	protected MutationAssessorRecord parseDataLine(String dataLine)
 	{
 		String[] parts = dataLine.split("\t", -1);
@@ -205,19 +263,17 @@ public class CacheBuilder
 		}
 	}
 
-	public void buildCache(String input,
-			String output) throws IOException, SQLException
+	public void buildCache(String input) throws IOException, SQLException
 	{
 		File inFile = new File(input);
-		File outFile = new File(output);
 
 		if (inFile.isDirectory())
 		{
-			this.processDirectory(inFile, outFile);
+			this.processDirectory(inFile);
 		}
 		else
 		{
-			this.processFile(inFile, outFile);
+			this.processFile(inFile);
 		}
 	}
 }

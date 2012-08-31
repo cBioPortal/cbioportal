@@ -122,16 +122,7 @@
                                 source[mutTableIndices["cosmic"]]=value;
                             } else if (type==='display') {
                                 var cosmic = source[mutTableIndices["cosmic"]];
-                                if (!cosmic) return "";
-                                var arr = [];
-                                var n = 0;
-                                for(var aa in cosmic) {
-                                    var c = cosmic[aa];
-                                    arr.push(aa+": "+c);
-                                    n += c;
-                                }
-                                if (n==0) return "";
-                                return "<a class='"+table_id+"-cosmic' href='#' alt='"+arr.join("<br/>")+"'>"+n+" COSMIC entr"+(n==1?"y":"ies");
+                                return formatCosmic(cosmic,table_id);
                             } else if (type==='sort') {
                                 var cosmic = source[mutTableIndices["cosmic"]];
                                 var n = 0;
@@ -189,8 +180,9 @@
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                 if (drug==null) return '';
                                 var len = drug.length;
-                                return "<a href=\"#\" onclick=\"openDrugDialog('"
-                                            +drug.join(',')+"'); return false;\">"
+                                return "<a href='#' onclick='return false;' id='"
+                                            +table_id+'_'+source[mutTableIndices["id"]]
+                                            +"-drug-tip' class='"+table_id+"-drug-tip' alt='"+drug.join(',')+"'>"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
                                 if (!source[mutTableIndices["drug"]]) return 0;
@@ -212,10 +204,32 @@
                         "aTargets": [ mutTableIndices["drug"] ]
                     },
                     {// note 
-                       "bVisible": placeHolder,
-                        "mDataProp": null,
-                        "sDefaultContent": "",
-                        "aTargets": [ mutTableIndices["note"] ]
+                        "aTargets": [ mutTableIndices["note"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["note"]]=value;
+                            } else if (type==='display') {
+                                var notes = [];
+                                if (source[mutTableIndices["status"]]==="Germline")
+                                    notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
+                                if (source[mutTableIndices["mutsig"]])
+                                    notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
+                                                +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
+                                if (source[mutTableIndices["cosmic"]])
+                                    notes.push(formatCosmic(source[mutTableIndices["cosmic"]],table_id,true));
+                                if (source[mutTableIndices["drug"]]) {
+                                    var drug = mutDrugs[source[mutTableIndices["gene"]]];
+                                    if (drug)
+                                        notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
+                                                    +source[mutTableIndices["id"]]+"-drug-note-tip' class='"
+                                                    +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
+                                }
+                                return notes.join("&nbsp;");
+                            } else {
+                                if (!source[mutTableIndices["note"]]) return '';
+                                return source[mutTableIndices["note"]];
+                            }
+                        }
                     }
                 ],
                 "aaSorting": [[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
@@ -229,12 +243,35 @@
         } );
 
         $("#"+table_id).css("width","100%");
-        $("."+table_id+"-cosmic").qtip({
+        addNoteTooltip("."+table_id+"-tip");
+        
+        return oTable;
+    }
+    
+    function addNoteTooltip(elem) {
+        $(elem).qtip({
             content: {attr: 'alt'},
             hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top right',at:'bottom left'}
         });
-        return oTable;
+    }
+    
+    function formatCosmic(cosmic,table_id,img) {
+        if (!cosmic) return "";
+        var arr = [];
+        var n = 0;
+        for(var aa in cosmic) {
+            var c = cosmic[aa];
+            arr.push("<td>"+aa+":</td><td>"+c+"</td>");
+            n += c;
+        }
+        if (n==0) return "";
+        var alt = '<table><tr><td colspan=2><b>COSMIC</b></td></tr><tr>'+arr.join('</tr><tr>')+'</tr></table>'
+        if (img)
+            return "<img src='images/cosmic.gif' width=15 height=15 class='"+table_id+"-tip' alt='"+alt+"'/>"
+        else
+            return "<a class='"+table_id+"-tip' onclick='return false;' href='#' alt='"+alt+"'>"+n+" entr"+(n==1?"y":"ies")+"</a>"
     }
     
     var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
@@ -243,11 +280,15 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            oTable.fnUpdate('true', row, mutTableIndices["mutrate"], false, false);
+            oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
         }
         oTable.fnDraw();
+        addNoteTooltip("."+oTable.attr('id')+"-tip");
+        addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }
+    
+    
     
     var mutGeneContext = null;
     var mutAAContext = null;
@@ -274,9 +315,12 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            oTable.fnUpdate('true', row, mutTableIndices["drug"], false, false);
+            oTable.fnUpdate(true, row, mutTableIndices["drug"], false, false);
+            oTable.fnUpdate('', row, mutTableIndices["note"], false, false);
         }
         oTable.fnDraw();
+        addNoteTooltip("."+oTable.attr('id')+"-tip");
+        addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }
     

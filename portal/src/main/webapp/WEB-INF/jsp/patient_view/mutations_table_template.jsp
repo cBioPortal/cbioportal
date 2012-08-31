@@ -10,7 +10,7 @@
                         <th>Mutation Type</th>
                         <th>Mutation Status</th>
                         <th>MutSig Q-value</th>
-                        <th>COSMIC Frequency</th>
+                        <th>COSMIC</th>
                         <th>Show in summary</th>
                         <th>Study Mutation Rate
                             <img class="mutations_help" src="images/help.png" title="Number and percentage of 

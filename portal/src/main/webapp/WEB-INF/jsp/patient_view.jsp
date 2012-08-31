@@ -132,7 +132,6 @@ if (patientViewError!=null) {
 </div>
     
 <div id="drugs_dialog" title="Drugs" style="font-size: 11px; .ui-dialog {padding: 0em;};">
-    <img id='drugs-loader-img' src="images/ajax-loader.gif"/>
     <table id="drugs_table">
         <thead>
             <tr>
@@ -210,7 +209,6 @@ function initDrugDialog() {
 
 function openDrugDialog(drugIds) {
     $('#drugs_dialog').dialog('open');
-    $('#drugs-loader-img').show();
     $('drugs_table').hide();
     var params = {
         <%=DrugsJSON.DRUG_IDS%>: drugIds
@@ -252,7 +250,6 @@ function openDrugDialog(drugIds) {
 
             $('#drugs_table').css("width","100%");
             $('#drugs_table').show();
-            $('#drugs-loader-img').remove();
         }
         ,"json"
     );
@@ -313,6 +310,62 @@ function getDrugMap(drugs) {
         map[gene] = "<a href=\"#\" onclick=\"openDrugDialog('"+strDrugs+"'); return false;\">"+d.length+" drug"+(d.length>1?"s":"")+"</a>";
     }
     return map;
+}
+
+function addDrugsTooltip(elem) {
+    $(elem).each(function(){
+        var tableId = 'drug_table_'+$(this).attr('id');
+        $(this).qtip({
+            content: {
+                text: '<div style="overflow:auto"><table id="'+tableId+'"><thead><tr><th>ID</th><th>Target Genes</th><th>Name</th><th>Synonyms</th><th>FDA Approved?</th><th>Description</th><th>Data Source</th></tr></thead><tbody></tbody></table></div>',
+                ajax: {
+                    url: 'drugs.json',
+                    type: 'POST',
+                    data: {<%=DrugsJSON.DRUG_IDS%>: $(this).attr('alt')},
+                    success: function(drugs,status) {
+                        $('#'+tableId).dataTable( {
+                            "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>',
+                            "bJQueryUI": true,
+                            "bDestroy": true,
+                            "aaData": drugs,
+                            "aoColumnDefs":[
+                                {// data source
+                                    "aTargets": [ 4 ],
+                                    "fnRender": function(obj) {
+                                        return obj.aData[ obj.iDataColumn ]?"Yes":"No";
+                                    }
+                                },
+                                {// data source
+                                    "aTargets": [ 6 ],
+                                    "fnRender": function(obj) {
+                                        var source = obj.aData[ obj.iDataColumn ];
+                                        if (source.toLowerCase()!="drugbank") return source;
+                                        var drugId = obj.aData[ 0 ];
+                                        return "<a href=\"http://www.drugbank.ca/drugs/"+drugId+"\" target=\"_blank\">"+ source + "</a>";
+                                    }
+                                }
+                            ],
+                            "oLanguage": {
+                                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                                "sInfoFiltered": "",
+                                "sLengthMenu": "Show _MENU_ per page"
+                            },
+                            "iDisplayLength": 10,
+                            "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+                        } );
+                    }
+                }
+            },
+            hide: { fixed: true, delay: 100 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top right',at:'bottom left'},
+            events: {
+                render: function(event, api) {
+                    $('.ui-tooltip').css('max-width',800);
+                }
+            }
+        });
+    });
 }
 
 function trimHtml(html) {

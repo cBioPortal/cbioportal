@@ -52,7 +52,7 @@
     };
     
     var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
-        mutsig:8,cosmic:9,overview:10,mutrate:11,drug:12,note:13};
+        mutsig:8,cosmic:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -140,6 +140,10 @@
                     },
                     {// in overview
                         "bVisible": false,
+                        "aTargets": [ mutTableIndices["sanger"] ]
+                    },
+                    {// in overview
+                        "bVisible": false,
                         "aTargets": [ mutTableIndices["overview"] ]
                     },
                     {// mutation rate
@@ -215,6 +219,9 @@
                                 if (source[mutTableIndices["mutsig"]])
                                     notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
+                                if (source[mutTableIndices["sanger"]])
+                                    notes.push("<img src='images/sanger.jpeg' width=15 height=15 class='"+table_id
+                                                +"-tip' alt='In Sanger Cancer Gene Consensus'/>");
                                 if (source[mutTableIndices["cosmic"]])
                                     notes.push(formatCosmic(source[mutTableIndices["cosmic"]],table_id,true));
                                 if (source[mutTableIndices["drug"]]) {

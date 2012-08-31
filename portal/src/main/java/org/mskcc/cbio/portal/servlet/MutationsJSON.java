@@ -271,13 +271,16 @@ public class MutationsJSON extends HttpServlet {
         // cosmic
         row.add(cosmic);
         
-        // show in summary table
+        // sanger
         boolean isSangerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
+        row.add(isSangerGene);
+        
+        // show in summary table
         row.add(isSangerGene || !Double.isNaN(mutSigQvalue) || passCosmicThreshold(cosmic,cosmicThreshold));
         
         table.add(row);

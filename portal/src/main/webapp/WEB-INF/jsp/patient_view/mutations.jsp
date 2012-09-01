@@ -32,25 +32,6 @@
 </style>
 
 <script type="text/javascript">
-    
-    jQuery.fn.dataTableExt.oSort['mutsig-col-asc']  = function(x,y) {
-        if (x==null) {
-            return y==null ? 0 : 1;
-        }
-        if (y==null)
-            return -1;
-	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
-    };
-
-    jQuery.fn.dataTableExt.oSort['mutsig-col-desc'] = function(x,y) {
-        if (isNaN(x)) {
-            return y==null ? 0 : 1;
-        }
-        if (y==null)
-            return 1;
-	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
-    };
-    
     var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
         mutsig:8,cosmic:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
@@ -101,15 +82,19 @@
                         }
                     },
                     {// mutsig
-                        "sType": "mutsig-col",
+                        //"sType": "mutsig-col",
                         "aTargets": [ mutTableIndices["mutsig"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 source[mutTableIndices["mutsig"]]=value;
                             } else if (type==='display') {
                                 var mutsig = source[mutTableIndices["mutsig"]];
-                                if (!mutsig) return "";
+                                if (mutsig==null) return "";
                                 return mutsig.toPrecision(2);
+                            } else if (type==='sort') {
+                                var mutsig = source[mutTableIndices["mutsig"]];
+                                if (mutsig==null) return 1.0;
+                                return mutsig;
                             } else {
                                 return source[mutTableIndices["mutsig"]];
                             }
@@ -117,6 +102,7 @@
                     },
                     {// cosmic
                         "aTargets": [ mutTableIndices["cosmic"] ],
+                        "asSorting": ["desc", "asc"],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 source[mutTableIndices["cosmic"]]=value;
@@ -216,7 +202,7 @@
                                 var notes = [];
                                 if (source[mutTableIndices["status"]]==="Germline")
                                     notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
-                                if (source[mutTableIndices["mutsig"]])
+                                if (source[mutTableIndices["mutsig"]]!=null)
                                     notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
                                 if (source[mutTableIndices["sanger"]])
@@ -232,14 +218,17 @@
                                                     +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
                                 }
                                 return notes.join("&nbsp;");
+                            } else if (type==='sort') {
+                                return "";
                             } else {
                                 if (!source[mutTableIndices["note"]]) return '';
                                 return source[mutTableIndices["note"]];
                             }
-                        }
+                        },
+                        "bSortable" : false
                     }
                 ],
-                "aaSorting": [[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
+                "aaSorting": [[mutTableIndices["mutsig"],'asc'],[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -252,7 +241,29 @@
         $("#"+table_id).css("width","100%");
         addNoteTooltip("."+table_id+"-tip");
         
+        addMutNoteSortingMenu(table_id);
+        
         return oTable;
+    }
+    
+    function addMutNoteSortingMenu(table_id) {
+        $("#"+table_id+" th:last-child").qtip({
+            content: {
+                text: "<a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"cosmic\",\"desc\");return false;'>Sort by COSMIC frequency</a><br/>\n\
+                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"mutsig\",\"asc\");return false;'>Sort by MutSig Q-value</a><br/>\n\
+                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"drug\",\"desc\");return false;'>Sort by available potential Drugs</a><br/>\n\
+                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"sanger\",\"desc\");return false;'>Sort by Sanger Cancer Gene Consensus</a>"
+            },
+            hide: { fixed: true, delay: 200 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top middle',at:'bottom middle'}
+        });
+        
+    }
+    
+    function sortNoteMutTable(table_id,colLabel,direction) {
+        $("#"+table_id).dataTable().fnSort([[mutTableIndices[colLabel],direction]]);
+        $("#"+table_id+" th:last-child").qtip("hide");
     }
     
     function addNoteTooltip(elem) {
@@ -390,7 +401,10 @@
                 $('.mutation-summary-table-name').html(mut_summary_table.fnSettings().fnRecordsDisplay()
                     +" mutations of Interest (out of "+mutations.length+" mutations)"
                     +" <img class='mutations_help' src='images/help.png'"
-                    +" title='This table contains genes that are either recurrently mutated (MutSig Q-value<0.05) or in the Sanger Cancer Gene Census.'/>");
+                    +" title='This table contains genes that are either"
+                    +" recurrently mutated (MutSig Q-value<0.05)"
+                    +" or with 5 or more COSMIC overlapping mutations"
+                    +" or in the Sanger Cancer Gene Census.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
 

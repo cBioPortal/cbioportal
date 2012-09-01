@@ -33,7 +33,7 @@
 
 <script type="text/javascript">
     var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
-        mutsig:8,cosmic:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
+        cosmic:8,mutsig:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
     function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -95,6 +95,8 @@
                                 var mutsig = source[mutTableIndices["mutsig"]];
                                 if (mutsig==null) return 1.0;
                                 return mutsig;
+                            }  else if (type==='filter') {
+                                return "mutsig";
                             } else {
                                 return source[mutTableIndices["mutsig"]];
                             }
@@ -183,7 +185,7 @@
                             } else if (type==='filter') {
                                 if (!source[mutTableIndices["drug"]]) return '';
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
-                                return drug ? 'drug' : '';
+                                return drug ? 'drugs' : '';
                             } else {
                                 if (!source[mutTableIndices["drug"]]) return '';
                                 var drug = mutDrugs[source[mutTableIndices["gene"]]];
@@ -200,16 +202,14 @@
                                 source[mutTableIndices["note"]]=value;
                             } else if (type==='display') {
                                 var notes = [];
-                                if (source[mutTableIndices["status"]]==="Germline")
-                                    notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
+                                if (source[mutTableIndices["cosmic"]])
+                                    notes.push(formatCosmic(source[mutTableIndices["cosmic"]],table_id,true));
                                 if (source[mutTableIndices["mutsig"]]!=null)
                                     notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
                                 if (source[mutTableIndices["sanger"]])
                                     notes.push("<img src='images/sanger.jpeg' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='In Sanger Cancer Gene Consensus'/>");
-                                if (source[mutTableIndices["cosmic"]])
-                                    notes.push(formatCosmic(source[mutTableIndices["cosmic"]],table_id,true));
                                 if (source[mutTableIndices["drug"]]) {
                                     var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                     if (drug)
@@ -217,6 +217,8 @@
                                                     +source[mutTableIndices["id"]]+"-drug-note-tip' class='"
                                                     +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
                                 }
+                                if (source[mutTableIndices["status"]]==="Germline")
+                                    notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
                                 return notes.join("&nbsp;");
                             } else if (type==='sort') {
                                 return "";
@@ -228,7 +230,7 @@
                         "bSortable" : false
                     }
                 ],
-                "aaSorting": [[mutTableIndices["mutsig"],'asc'],[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

@@ -258,6 +258,9 @@ public class MutationsJSON extends HttpServlet {
         row.add(mutation.getMutationType());
         row.add(mutation.getMutationStatus());
         
+        // cosmic
+        row.add(cosmic);
+        
         // mut sig
         double mutSigQvalue;
         try {
@@ -267,9 +270,6 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         row.add(mutSigQvalue);
-        
-        // cosmic
-        row.add(cosmic);
         
         // sanger
         boolean isSangerGene = false;

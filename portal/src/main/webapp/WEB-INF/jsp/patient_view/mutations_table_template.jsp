@@ -9,8 +9,8 @@
                         <th>Amino Acid Change</th>
                         <th>Mutation Type</th>
                         <th>Mutation Status</th>
-                        <th>MutSig Q-value</th>
                         <th>COSMIC</th>
+                        <th>MutSig Q-value</th>
                         <th>Sanger Cancer Consensus Gene</th>
                         <th>Show in summary</th>
                         <th>Study Mutation Rate

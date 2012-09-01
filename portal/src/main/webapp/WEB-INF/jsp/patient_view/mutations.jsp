@@ -219,7 +219,7 @@
                                     notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
                                 if (source[mutTableIndices["sanger"]])
-                                    notes.push("<img src='images/sanger.jpeg' width=15 height=15 class='"+table_id
+                                    notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='In Sanger Cancer Gene Consensus'/>");
                                 if (source[mutTableIndices["drug"]]) {
                                     var drug = mutDrugs[source[mutTableIndices["gene"]]];

@@ -34,7 +34,7 @@
 <script type="text/javascript">
     var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
         cosmic:8,mutsig:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
-    function buildMutationsDataTable(mutations, table_id, sDom, iDisplayLength) {
+    function buildMutationsDataTable(mutations, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
@@ -81,28 +81,16 @@
                             }
                         }
                     },
-                    {// mutsig
-                        //"sType": "mutsig-col",
-                        "aTargets": [ mutTableIndices["mutsig"] ],
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                source[mutTableIndices["mutsig"]]=value;
-                            } else if (type==='display') {
-                                var mutsig = source[mutTableIndices["mutsig"]];
-                                if (mutsig==null) return "";
-                                return mutsig.toPrecision(2);
-                            } else if (type==='sort') {
-                                var mutsig = source[mutTableIndices["mutsig"]];
-                                if (mutsig==null) return 1.0;
-                                return mutsig;
-                            }  else if (type==='filter') {
-                                return "mutsig";
-                            } else {
-                                return source[mutTableIndices["mutsig"]];
-                            }
-                        }
+                    {// end
+                        "bVisible": true,
+                        "aTargets": [ mutTableIndices["type"] ]
+                    },
+                    {// end
+                        "bVisible": !isSummary,
+                        "aTargets": [ mutTableIndices["status"] ]
                     },
                     {// cosmic
+                        "bVisible": !isSummary,
                         "aTargets": [ mutTableIndices["cosmic"] ],
                         "asSorting": ["desc", "asc"],
                         "mDataProp": function(source,type,value) {
@@ -126,7 +114,28 @@
                             }
                         }
                     },
-                    {// in overview
+                    {// mutsig
+                        "bVisible": !isSummary,
+                        "aTargets": [ mutTableIndices["mutsig"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["mutsig"]]=value;
+                            } else if (type==='display') {
+                                var mutsig = source[mutTableIndices["mutsig"]];
+                                if (mutsig==null) return "";
+                                return mutsig.toPrecision(2);
+                            } else if (type==='sort') {
+                                var mutsig = source[mutTableIndices["mutsig"]];
+                                if (mutsig==null) return 1.0;
+                                return mutsig;
+                            }  else if (type==='filter') {
+                                return "mutsig";
+                            } else {
+                                return source[mutTableIndices["mutsig"]];
+                            }
+                        }
+                    },
+                    {// sanger
                         "bVisible": false,
                         "aTargets": [ mutTableIndices["sanger"] ]
                     },
@@ -163,6 +172,7 @@
                         "aTargets": [ mutTableIndices["mutrate"] ]
                     },
                     {// drugs
+                        "bVisible": !isSummary,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -196,6 +206,7 @@
                         "aTargets": [ mutTableIndices["drug"] ]
                     },
                     {// note 
+                        "bVisible": isSummary,
                         "aTargets": [ mutTableIndices["note"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -379,7 +390,7 @@
             function(data){
                 mutations = data;
                 // mutations
-                mut_table = buildMutationsDataTable(mutations, 'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                mut_table = buildMutationsDataTable(mutations, 'mutation_table', false, '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
                 
@@ -391,7 +402,7 @@
                 geObs.fire('mutations-built');
                 
                 // summary table
-                mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table',
+                mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table', true,
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 10);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
                     +mutations.length+" mutations</a>");

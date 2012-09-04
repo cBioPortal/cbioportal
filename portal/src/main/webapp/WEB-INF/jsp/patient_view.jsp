@@ -67,6 +67,29 @@ if (patientViewError!=null) {
 
 <jsp:include page="global/header.jsp" flush="true" />
 
+
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .dataTables_length {
+                width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                clear: none;
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
+        }
+</style>
+
 <table width="100%">
     <tr>
         <td ncol="2"><b><u><%=patientInfo%></u></b></td>

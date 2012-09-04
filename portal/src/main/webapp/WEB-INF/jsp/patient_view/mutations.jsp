@@ -2,13 +2,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
-<style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        .ColVis {
-                float: left;
-                margin-bottom: 0
-        }
+<style type="text/css" title="currentStyle">
         .mutation-summary-table-name {
                 float: left;
                 font-weight: bold;
@@ -16,18 +10,6 @@
         }
         .mutation-show-more {
             float: left;
-        }
-        .dataTables_length {
-                width: auto;
-                float: right;
-        }
-        .dataTables_info {
-                width: auto;
-                float: right;
-        }
-        .div.datatable-paging {
-                width: auto;
-                float: right;
         }
 </style>
 

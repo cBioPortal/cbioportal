@@ -64,19 +64,19 @@ public class MutationAssessorRecord
 	}
 
 	/**
-	 * If all fields of the record are null, then returns true. Otherwise
+	 * If all fields of the record are null or NA, then returns true. Otherwise
 	 * returns false.
 	 *
-	 * @return  true if all fields are null, false otherwise
+	 * @return  true if all fields are null or NA, false otherwise
 	 */
 	public boolean hasNoInfo()
 	{
 		boolean noInfo = false;
 
-		if (this.impact == null &&
-			this.proteinChange == null &&
-			this.alignmentLink == null &&
-			this.structureLink == null)
+		if ((this.impact == null || this.impact.equals(NA_STRING)) &&
+			(this.proteinChange == null || this.proteinChange.equals(NA_STRING)) &&
+			(this.alignmentLink == null || this.alignmentLink.equals(NA_STRING)) &&
+			(this.structureLink == null || this.structureLink.equals(NA_STRING)))
 		{
 			noInfo = true;
 		}

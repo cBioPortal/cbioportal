@@ -2,7 +2,9 @@ package org.mskcc.cbio.mutassessor;
 
 import java.io.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Utility class to process MA files and create cache build on the same key structure
@@ -44,6 +46,20 @@ public class CacheBuilder
 	public CacheBuilder(String sqlFilename)
 	{
 		this.sqlFilename = sqlFilename;
+
+		// also try to clean previous content
+		try
+		{
+			FileWriter writer = new FileWriter(sqlFilename);
+			writer.write("");
+			writer.flush();
+			writer.close();
+		}
+		catch (IOException e)
+		{
+			System.out.println("[warning] failed to initialize SQL script file: " +
+			                   sqlFilename);
+		}
 	}
 
 	/**
@@ -89,11 +105,18 @@ public class CacheBuilder
 		BufferedReader reader = new BufferedReader(new FileReader(inputMA));
 		BufferedWriter writer = null;
 
+		int bufferSize = 10000;
+		List<String> valueBuffer = null;
+
 		// conditionally init writer
 		if (this.sqlFilename != null)
 		{
-			// TODO append instead of overwriting
-			writer = new BufferedWriter(new FileWriter(this.sqlFilename));
+			// initialize the writer in append mode
+			writer = new BufferedWriter(
+					new FileWriter(this.sqlFilename, true));
+
+			// init value buffer
+			valueBuffer = new ArrayList<String>(bufferSize);
 		}
 
 		// process header line
@@ -117,8 +140,23 @@ public class CacheBuilder
 				if (writer != null)
 				{
 					// creating an SQL script file, instead of using slower JDBC
-					writer.write(dao.getInsertSql(record));
-					writer.newLine();
+					// (using extended insert method to make insertion even faster)
+					if (valueBuffer.size() < bufferSize)
+					{
+						// if buffer is not full just add values to the buffer
+						valueBuffer.add(dao.getInsertValues(record));
+					}
+					else
+					{
+						// write an extended insert SQL line to the output
+						writer.write(dao.getInsertHead());
+
+						// add all values in the buffer
+						this.writeBufferContent(writer, valueBuffer);
+
+						// also clear the buffer
+						valueBuffer.clear();
+					}
 				}
 				// use slower JDBC option if no output filename provided
 				else
@@ -136,8 +174,40 @@ public class CacheBuilder
 
 		if (writer != null)
 		{
+			// make sure latest content of value buffer is written
+			if (!valueBuffer.isEmpty())
+			{
+				writer.write(dao.getInsertHead());
+				this.writeBufferContent(writer, valueBuffer);
+			}
+
+			// finally close the writer
 			writer.close();
 		}
+	}
+
+	/**
+	 * Creates an SQL line for extended insert (insertion of multiple values).
+	 *
+	 * @param writer        output file writer
+	 * @param valueBuffer   buffer containing multiple values of MA info
+	 * @throws IOException
+	 */
+	private void writeBufferContent(BufferedWriter writer,
+			List<String> valueBuffer) throws IOException
+	{
+		for (int i = 0; i < valueBuffer.size() ; i++)
+		{
+			writer.write("(" + valueBuffer.get(i) + ")");
+
+			if (i < valueBuffer.size() - 1)
+			{
+				writer.write(",");
+			}
+		}
+
+		writer.write(";");
+		writer.newLine();
 	}
 
 	/**
@@ -214,8 +284,8 @@ public class CacheBuilder
 	 *
 	 * See also MafProcessor.generateKey format.
 	 *
-	 * @param mutation
-	 * @return
+	 * @param mutation  mutation string with necessary info
+	 * @return          key generated for the given string
 	 */
 	protected String generateKey(String mutation)
 	{

@@ -151,11 +151,7 @@ public final class DaoMutationEvent {
             Pattern p = Pattern.compile("(0-9)+_(0-9)+");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-                int s = Integer.parseInt(m.group(1));
-                int t = Integer.parseInt(m.group(2));
-                for (int i=s; i<=t; i++) {
-                    keywords.add(Integer.toBinaryString(i) + " In_Frame_Ins");
-                }
+                keywords.add(m.group(1) + "ins");
             }
         } else if (type.equals("in_frame_del")) {
             String aa = mutation.getProteinChange();
@@ -165,13 +161,13 @@ public final class DaoMutationEvent {
                 int s = Integer.parseInt(m.group(1));
                 int t = Integer.parseInt(m.group(2));
                 for (int i=s; i<=t; i++) {
-                    keywords.add(Integer.toBinaryString(i) + " In_Frame_Del");
+                    keywords.add(Integer.toBinaryString(i) + "del");
                 }
             } else {
                 p = Pattern.compile("([0-9]+)");
                 m = p.matcher(aa);
                 if (m.find()) {
-                    keywords.add(m.group(1) + " In_Frame_Del");
+                    keywords.add(m.group(1) + "del");
                 }
             }
         }

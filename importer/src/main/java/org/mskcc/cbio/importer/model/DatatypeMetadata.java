@@ -36,6 +36,7 @@ public final class DatatypeMetadata {
 	private String packageFilename;
 	private String dataFilename;
 	private String overrideFilename;
+	private Boolean download; // download?
 
     /**
      * Create a DatatypeMetadata instance with specified properties.
@@ -44,9 +45,10 @@ public final class DatatypeMetadata {
 	 * @param packageFilename String
 	 * @param dataFilename String
 	 * @param overrideFilename String
+	 * @param download Boolean
      */
-    public DatatypeMetadata(final DATATYPE datatype, final String packageFilename,
-							final String dataFilename, final String overrideFilename) {
+    public DatatypeMetadata(final DATATYPE datatype, final Boolean download,
+							final String packageFilename, final String dataFilename, final String overrideFilename) {
 
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
@@ -69,10 +71,16 @@ public final class DatatypeMetadata {
 		else {
 			this.overrideFilename = overrideFilename;
 		}
+
+		if (download == null) {
+            throw new IllegalArgumentException("download must not be null");
+		}
+		this.download = download;
 	}
 
 	public DATATYPE getDatatype() { return datatype; }
 	public String getPackageFilename() { return packageFilename; }
 	public String getDataFilename() { return dataFilename; }
 	public String getOverrideFilename() { return overrideFilename; }
+	public Boolean getDownload() { return download; }
 }

@@ -82,6 +82,7 @@ final class FirehoseFetcherImpl implements Fetcher {
      *
      * Takes a Config reference.
 	 * Takes a FileUtils reference.
+	 * Takes a ImportDataDAO reference.
      *
      * @param config Config
 	 * @param fileUtils FileUtils
@@ -122,15 +123,33 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// do we need to grab a new analysis run?
 		if (latestBroadAnalysisRun.after(ourLatestAnalysisRunDownloaded)) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fresh analysis data to download." + PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
+			}
 			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
+			config.setLatestAnalysisRunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
+		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("we have the latest analysis data.");
+			}
 		}
 
 		// do we need to grab a new analysis run?
 		if (latestBroadSTDDATARun.after(ourLatestSTDDATARunDownloaded)) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fresh STDDATA data to download." + PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
+			}
 			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
+			config.setLatestSTDDATARunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
+		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("we have the latest STDDATA data.");
+			}
 		}
 
-		// outta here - update latest download table
+		// outta here
 	}
 
 	/**
@@ -282,7 +301,9 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		String toReturn = "";
 		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			toReturn += dtMetadata.getPackageFilename() + " ";
+			if (dtMetadata.getDownload()) {
+				toReturn += dtMetadata.getPackageFilename() + " ";
+			}
 		}
 
 		// outta here

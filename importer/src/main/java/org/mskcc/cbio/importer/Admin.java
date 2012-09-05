@@ -52,6 +52,7 @@ public class Admin implements Runnable {
 		Option help = new Option("help", "print this message");
 		Option fetch = new Option("firehose_fetch", "fetch firehose data");
 		Option createTables = new Option("create_tables", true, "create db tables to store data");
+		Option importData = new Option("import_data", true, "import data into the given db");
 
 		// create an options instance
 		Options toReturn = new Options();
@@ -60,6 +61,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(help);
 		toReturn.addOption(fetch);
 		toReturn.addOption(createTables);
+		toReturn.addOption(importData);
 
 		// outta here
 		return toReturn;
@@ -109,6 +111,10 @@ public class Admin implements Runnable {
 			else if (line.hasOption("create_tables")) {
 				createTables(line.getOptionValue("create_tables"));
 			}
+			// create tables
+			else if (line.hasOption("import_data")) {
+				importData(line.getOptionValue("import_data"));
+			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
@@ -138,8 +144,6 @@ public class Admin implements Runnable {
 
 	/**
 	 * Helper function to create database tables.
-	 *
-	 *  @throws Exception
 	 */
 	private void createTables(String databaseName) {
 
@@ -151,6 +155,23 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
 		databaseUtils.createSchema(databaseName);
+	}
+
+	/**
+	 * Helper function to import data.
+	 *
+	 *  @throws Exception
+	 */
+	private void importData(String databaseName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), database: " + databaseName);
+		}
+
+		// create an instance of Importer
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Importer importer = (Importer)context.getBean("importer");
+		importer.importData(databaseName);
 	}
 
 	/**

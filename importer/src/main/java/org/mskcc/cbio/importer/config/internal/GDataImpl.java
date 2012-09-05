@@ -152,11 +152,11 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = cancerStudiesMetadataProperty.split(":");
-		if (properties.length != 5) {
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getCancerStudyMetadata: " +
 						 cancerStudiesMetadataProperty +
-						 ".  Should be worsheet:cancerstudyid:cancerstudydescription:download:portals.");
+						 ".  Should be worsheet:cancerstudyid:cancerstudydescription:download.");
 			}
 			return toReturn;
 		}
@@ -170,8 +170,7 @@ final class GDataImpl implements Config {
 					for (ListEntry entry : feed.getEntries()) {
 						toReturn.add(new CancerStudyMetadata(entry.getCustomElements().getValue(properties[1]),
 															 entry.getCustomElements().getValue(properties[2]),
-															 new Boolean(entry.getCustomElements().getValue(properties[3])),
-															 entry.getCustomElements().getValue(properties[4])));
+															 new Boolean(entry.getCustomElements().getValue(properties[3]))));
 					}
 				}
 				else {
@@ -205,7 +204,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 5) {
+		if (properties.length != 6) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " +
 						 datatypesMetadataProperty +
@@ -224,9 +223,10 @@ final class GDataImpl implements Config {
 						DatatypeMetadata.DATATYPE datatype =
 							DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[1]));
 						toReturn.add(new DatatypeMetadata(datatype,
-														  entry.getCustomElements().getValue(properties[2]),
+														  new Boolean(entry.getCustomElements().getValue(properties[2])),
 														  entry.getCustomElements().getValue(properties[3]),
-														  entry.getCustomElements().getValue(properties[4])));
+														  entry.getCustomElements().getValue(properties[4]),
+														  entry.getCustomElements().getValue(properties[5])));
 					}
 				}
 				else {

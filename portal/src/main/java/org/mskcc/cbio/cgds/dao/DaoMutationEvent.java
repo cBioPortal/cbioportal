@@ -40,15 +40,7 @@ public final class DaoMutationEvent {
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setInt(3, mutation.getGeneticProfileId());
             pstmt.setString(4, mutation.getValidationStatus());
-            int n = pstmt.executeUpdate();
-            
-            // add cosmic
-            for (CosmicMutationFrequency cosmic :
-                    parseCosmic(mutation.getEntrezGeneId(), mutation.getOncotatorCosmicOverlapping())) {
-                n += importCosmic(eventId, cosmic, con);
-            }
-            
-            return n;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -57,6 +49,42 @@ public final class DaoMutationEvent {
     }
     
     private static long addMutationEvent(ExtendedMutation mutation, Connection con) throws DaoException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            long eventId = getMutationEventId(mutation, con);
+            if (eventId==-1) {
+                // no existing, create new
+                pstmt = con.prepareStatement
+                    ("INSERT INTO mutation_event (`ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, "
+                        + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
+                        + "`END_POSITION`) VALUES(?,?,?,?,?,?,?)");
+                pstmt.setLong(1, mutation.getEntrezGeneId());
+                pstmt.setString(2, mutation.getProteinChange());
+                pstmt.setString(3, mutation.getMutationStatus());
+                pstmt.setString(4, mutation.getMutationType());
+                pstmt.setString(5, mutation.getChr());
+                pstmt.setLong(6, mutation.getStartPosition());
+                pstmt.setLong(7, mutation.getEndPosition());
+                pstmt.executeUpdate();
+                eventId = getMutationEventId(mutation, con);
+                
+                // add cosmic
+                for (CosmicMutationFrequency cosmic :
+                        parseCosmic(mutation.getEntrezGeneId(), mutation.getOncotatorCosmicOverlapping())) {
+                    importCosmic(eventId, cosmic, con);
+                }
+                
+                addMutationKeywords(mutation, eventId, con);
+            }
+            
+            return eventId;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    private static long getMutationEventId(ExtendedMutation mutation, Connection con) throws DaoException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
@@ -69,25 +97,88 @@ public final class DaoMutationEvent {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getLong(1);
+            } else {
+                return -1;
             }
-            
-            // no existing, create new
-            pstmt = con.prepareStatement
-		("INSERT INTO mutation_event (`ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, "
-                    + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
-                    + "`END_POSITION`) VALUES(?,?,?,?,?,?,?)");
-            pstmt.setLong(1, mutation.getEntrezGeneId());
-            pstmt.setString(2, mutation.getProteinChange());
-            pstmt.setString(3, mutation.getMutationStatus());
-            pstmt.setString(4, mutation.getMutationType());
-            pstmt.setString(5, mutation.getChr());
-            pstmt.setLong(6, mutation.getStartPosition());
-            pstmt.setLong(7, mutation.getEndPosition());
-            pstmt.executeUpdate();
-            return addMutationEvent(mutation, con);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+    }
+    
+    private static int addMutationKeywords(ExtendedMutation mutation,
+            long mutationEventId, Connection con) throws DaoException {
+        Set<String> keywords = extractMutationKeywords(mutation);
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            int ret = 0;
+            for (String keyword : keywords) {
+                pstmt = con.prepareStatement("INSERT INTO mutation_event_keyword"
+                        + " (`MUTATION_EVENT_ID`,`KEYWORD`) VALUES(?,?)");
+                pstmt.setLong(1, mutationEventId);
+                pstmt.setString(2, keyword);
+                ret += pstmt.executeUpdate();
+            }
+            return ret;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    private static Set<String> extractMutationKeywords(ExtendedMutation mutation) {
+        Set<String> keywords = new HashSet<String>();
+        
+        String type = mutation.getMutationType().toLowerCase();
+        if (type.equals("Nonsense_Mutation") ||
+            type.equals("Splice_Site") || 
+            type.startsWith("Frame_Shift_") || 
+            type.equals("Nonstop_Mutation")) {
+            keywords.add("Truncating");
+        } else if (type.equals("missense_mutation")) {
+            String aa = mutation.getProteinChange();
+            if (aa.equals("M1*")) {
+                // non-start
+                keywords.add("Truncating");
+            } else {
+                Pattern p = Pattern.compile("([A-Z][0-9]+)");
+                Matcher m = p.matcher(aa);
+                if (m.find()) {
+                    keywords.add(m.group(1)+" Missense");
+                }
+            }
+        } else if (type.equals("in_frame_ins")) {
+            String aa = mutation.getProteinChange();
+            Pattern p = Pattern.compile("(0-9)+_(0-9)+");
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+                int s = Integer.parseInt(m.group(1));
+                int t = Integer.parseInt(m.group(2));
+                for (int i=s; i<=t; i++) {
+                    keywords.add(Integer.toBinaryString(i) + " In_Frame_Ins");
+                }
+            }
+        } else if (type.equals("in_frame_del")) {
+            String aa = mutation.getProteinChange();
+            Pattern p = Pattern.compile("(0-9)+_(0-9)+");
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+                int s = Integer.parseInt(m.group(1));
+                int t = Integer.parseInt(m.group(2));
+                for (int i=s; i<=t; i++) {
+                    keywords.add(Integer.toBinaryString(i) + " In_Frame_Del");
+                }
+            } else {
+                p = Pattern.compile("([0-9]+)");
+                m = p.matcher(aa);
+                if (m.find()) {
+                    keywords.add(m.group(1) + " In_Frame_Del");
+                }
+            }
+        }
+            
+        // TODO: how about Translation_Start_Site
+        
+        return keywords;
     }
     
     private static boolean eventExists(long eventId, String caseId, Connection con) throws DaoException {
@@ -388,18 +479,6 @@ public final class DaoMutationEvent {
             int n = importCosmic(cosmic, con);
             CosmicMutationFrequency cmf = getCosmicMutationFrequency(cosmic.getEntrezGeneId(),
                     cosmic.getAminoAcidChange(), con);
-            
-            pstmt = con.prepareStatement("SELECT COUNT(*) FROM mutation_event_cosmic_mapping"
-                    + " WHERE `MUTATION_EVENT_ID`=? and `COSMIC_MUTATION_ID`=?");
-            pstmt.setLong(1, eventId);
-            pstmt.setInt(2, cmf.getId());
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                if (rs.getInt(1)>0) {
-                    return 0;
-                }
-            }
-            
             
             pstmt = con.prepareStatement("INSERT INTO mutation_event_cosmic_mapping"
                     + " (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`) VALUES(?,?)");

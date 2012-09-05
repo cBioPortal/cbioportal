@@ -109,9 +109,14 @@ public class MutationTableUtil
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
-        dataFieldList.add(omaUtil.getFunctionalImpactLink());
-        dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
-        dataFieldList.add(omaUtil.getPdbStructureLink());
+//        dataFieldList.add(omaUtil.getFunctionalImpactLink() +
+//                          omaUtil.getMultipleSequenceAlignmentLink() +
+//                          omaUtil.getPdbStructureLink());
+        //dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
+        //dataFieldList.add(omaUtil.getPdbStructureLink());
+	    dataFieldList.add(getMutationStatus(mutation) +
+	                      getValidationStatus(mutation) +
+	                      getCosmicCount(mutation));
 
         //  Fields for "Special" Genes
         if (specialGene != null) {
@@ -315,8 +320,8 @@ public class MutationTableUtil
 	    headerList.add("Normal Frequency");
 	    headerList.add("COSMIC");
         headerList.add("Predicted Impact**");
-        headerList.add("Alignment");
-        headerList.add("Structure");
+        //headerList.add("Alignment");
+        //headerList.add("Structure");
 
         //  Add Any Gene-Specfic Headers
         if (specialGene != null) {

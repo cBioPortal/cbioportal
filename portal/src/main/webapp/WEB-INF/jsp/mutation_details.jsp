@@ -31,7 +31,8 @@
     }
 %>
 	<div id="cosmic_details_dialog" title="Cosmic Details" class="dataTables_wrapper">
-		<table id="cosmic_details_table" class="display">
+		<table id="cosmic_details_table" class="display"
+		       cellpadding='0' cellspacing='0' border='0'>
 			<thead>
 				<tr>
 					<th>Overlapping COSMIC AA change</th>
@@ -187,11 +188,22 @@
 
 	    $("#cosmic_details_dialog").dialog({autoOpen: false,
 			resizable: false,
+		    height: 350,
 			width: 300});
 
 	    $('a.mutation_table_cosmic').unbind(); // TODO temporary work-around, should fix the listener in MakeOncoPrint
 
-	    // initialize mutation details table
+	    // initialize table column filtering
+	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
+		    icon: {placement: 'left'}, // sets the position of the arrow
+		    width: 268,
+		    emptyText: '(none selected)', // text to be displayed when no item is selected
+		    onItemClick: toggleMutationTableColumns}; // callback function for the action
+
+	    // initialize the dropdown box
+	    $(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
+
+	    // initialize cosmic details table
 	    $("#cosmic_details_table").dataTable({
 		    "aaSorting" : [ ], // do not sort by default
 			"sDom": 't', // show only the table
@@ -201,6 +213,8 @@
 			"bFilter": false});
 
 	    $('a.mutation_table_cosmic').click(function(event){
+		    $("#cosmic_details_dialog").dialog("close");
+
 		    var cosmic = this.id;
 		    var parts = cosmic.split("|");
 
@@ -216,7 +230,7 @@
 			    $("#cosmic_details_table").dataTable().fnAddData(values);
 		    }
 
-		    $("#cosmic_details_dialog").dialog("open").height("auto");
+		    $("#cosmic_details_dialog").dialog("open");
 	    });
     });
     
@@ -245,6 +259,17 @@
         <% } %>
     <% } %>
     });
+
+    /**
+     * Updates the table columns according to the new user selection.
+     *
+     * @param checkbox	target check box selected by the user
+     * @param selector	target selection box modified by the user
+     */
+    function toggleMutationTableColumns(checkbox, selector)
+    {
+
+    }
 
     /**
      * Toggles the diagram between lollipop view and histogram view.
@@ -280,8 +305,33 @@
 
 
 <%!
+	private void outputColumnFilter(JspWriter out,
+			GeneWithScore geneWithScore,
+			ArrayList<String> headers) throws IOException
+	{
+		String geneId = geneWithScore.getGene().toUpperCase();
 
-    private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+		out.println("<select multiple class='toggle_mutation_table_col' " +
+		            "id='column_select_" + geneId + "'>");
+
+		out.println("<option selected id='" + geneId + "_column_selectAll " +
+				"value='" + geneId + "_column_selectAll'>" +
+				"<label>(select all)</label>" +
+				"</option>");
+
+		for (String header : headers)
+		{
+			//out.println("<option id='" + geneId + "_" + header + "'" +
+			out.println("<option " +
+			            "value='" + header + "'>" +
+			            "<label>" + header + "</label>" +
+			            "</option>");
+		}
+
+		out.println("</select>");
+	}
+
+	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
         ObjectMapper objectMapper = new ObjectMapper();
         StringWriter stringWriter = new StringWriter();
         List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
@@ -304,6 +354,7 @@
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
             outputHeader(out, geneWithScore, mutationCounter);
             outputOmaHeader(out);
+	        outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +
                     "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
@@ -362,7 +413,7 @@
     private void outputOmaHeader(JspWriter out) throws IOException {
         out.println("<br>** Predicted functional impact (via " +
                 "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
-                " is provided for missense mutations only.  ");
+                " is provided for missense mutations only.");
         out.println("<br>");
     }
 %>

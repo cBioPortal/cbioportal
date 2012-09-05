@@ -64,13 +64,19 @@
 	overflow-x: auto;
 }
 
-#cosmic_details_table th
+#cosmic_details_table_wrapper th
 {
 	font-size: 70%;
+	color: black;
 }
 
 .mutation_diagram_toggle
 {
 	margin-left: 567px;
 	margin-top: -15px;
+}
+
+#mutation_details .ui-dropdownchecklist-text
+{
+	font-size: 12px;
 }

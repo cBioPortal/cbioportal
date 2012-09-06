@@ -4,7 +4,8 @@ package org.mskcc.cbio.importer.config.internal;
 // imports
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.DirectoryMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,14 +67,19 @@ final class GDataImpl implements Config {
 	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
 
 	// cancer studies metadata
-	private String cancerStudiesMetadataProperty;
-	@Value("${cancer_studies_metadata}")
-	public void setCancerStudiesMetadataProperty(final String property) { this.cancerStudiesMetadataProperty = property; }
+	private String tumorTypesMetadataProperty;
+	@Value("${tumor_types_metadata}")
+	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesMetadataProperty = property; }
 
 	// datatypes metadata
 	private String datatypesMetadataProperty;
 	@Value("${datatypes_metadata}")
 	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
+
+	// directories metadata
+	private String directoriesMetadataProperty;
+	@Value("${directories_metadata}")
+	public void setDirectoriesMetadataProperty(final String property) { this.directoriesMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -137,26 +143,24 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets a collection of CancerStudyMetadata.
+	 * Gets a collection of TumorTypeMetadata.
 	 *
-	 * @return Collection<CancerStudyMetadata>
+	 * @return Collection<TumorTypeMetadata>
 	 */
 	@Override
-	public Collection<CancerStudyMetadata> getCancerStudyMetadata() {
+	public Collection<TumorTypeMetadata> getTumorTypeMetadata() {
 
-		Collection<CancerStudyMetadata> toReturn = new ArrayList<CancerStudyMetadata>();
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getCancerStudyMetadata()");
+			LOG.info("getTumorTypeMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = cancerStudiesMetadataProperty.split(":");
+		String[] properties = tumorTypesMetadataProperty.split(":");
 		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCancerStudyMetadata: " +
-						 cancerStudiesMetadataProperty +
-						 ".  Should be worsheet:cancerstudyid:cancerstudydescription:download.");
+				LOG.info("Invalid property passed to getTumorTypeMetadata: " + tumorTypesMetadataProperty);
 			}
 			return toReturn;
 		}
@@ -168,9 +172,9 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-						toReturn.add(new CancerStudyMetadata(entry.getCustomElements().getValue(properties[1]),
-															 entry.getCustomElements().getValue(properties[2]),
-															 new Boolean(entry.getCustomElements().getValue(properties[3]))));
+						toReturn.add(new TumorTypeMetadata(entry.getCustomElements().getValue(properties[2]),
+															 entry.getCustomElements().getValue(properties[3]),
+															 new Boolean(entry.getCustomElements().getValue(properties[1]))));
 					}
 				}
 				else {
@@ -206,9 +210,7 @@ final class GDataImpl implements Config {
 		String[] properties = datatypesMetadataProperty.split(":");
 		if (properties.length != 6) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDatatypeMetadata: " +
-						 datatypesMetadataProperty +
-						 ".  Should be worsheet:datatype:packagefilename:datafilename:overridefilename.");
+				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
 			return toReturn;
 		}
@@ -221,9 +223,9 @@ final class GDataImpl implements Config {
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
 						DatatypeMetadata.DATATYPE datatype =
-							DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[1]));
+							DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[2]));
 						toReturn.add(new DatatypeMetadata(datatype,
-														  new Boolean(entry.getCustomElements().getValue(properties[2])),
+														  new Boolean(entry.getCustomElements().getValue(properties[1])),
 														  entry.getCustomElements().getValue(properties[3]),
 														  entry.getCustomElements().getValue(properties[4]),
 														  entry.getCustomElements().getValue(properties[5])));
@@ -243,6 +245,38 @@ final class GDataImpl implements Config {
 		// outta here
 		return toReturn;
 
+	}
+
+	/**
+	 * Gets a DirectoryMetadata object.
+	 *
+	 * @return DirectoryMetadata
+	 */
+	@Override
+	public DirectoryMetadata getDirectoryMetadata() {
+
+		DirectoryMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDirectoryMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = directoriesMetadataProperty.split(":");
+		if (properties.length != 7) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getDirectoryMetadata: " + directoriesMetadataProperty);
+			}
+			return toReturn;
+		}
+
+        // outta here
+        return new DirectoryMetadata(getPropertyString(properties[0] + ":" + properties[1]),
+                                     getPropertyString(properties[0] + ":" + properties[2]),
+                                     getPropertyString(properties[0] + ":" + properties[3]),
+                                     getPropertyString(properties[0] + ":" + properties[4]),
+                                     getPropertyString(properties[0] + ":" + properties[5]),
+                                     getPropertyString(properties[0] + ":" + properties[6]));
 	}
 
 	/**

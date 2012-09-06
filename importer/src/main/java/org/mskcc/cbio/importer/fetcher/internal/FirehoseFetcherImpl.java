@@ -7,7 +7,8 @@ import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DirectoryMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
 import org.apache.commons.logging.Log;
@@ -62,20 +63,13 @@ final class FirehoseFetcherImpl implements Fetcher {
 	// ref to import data
 	private ImportDataDAO importDataDAO;
 
+	// dowload directories
+	private DirectoryMetadata directoryMetadata;
+
 	// location of firehose get
 	private String firehoseGetScript;
 	@Value("${firehose_get_script}")
 	public void setFirehoseGetScript(String property) { this.firehoseGetScript = property; }
-
-	// location of analysis download
-	private String analysisDownloadDir;
-	@Value("${analysis_download_dir}")
-	public void setAnalysisDownloadDir(String property) { this.analysisDownloadDir = property; }
-
-	// location of stddata download
-	private String stddataDownloadDir;
-	@Value("${stddata_download_dir}")
-	public void setSTDDATADownloadDir(String property) { this.stddataDownloadDir = property; }
 
 	/**
 	 * Constructor.
@@ -94,6 +88,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.importDataDAO = importDataDAO;
+        this.directoryMetadata = config.getDirectoryMetadata();
 	}
 
 	/**
@@ -211,7 +206,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// determine download directory
 		String downloadDirectoryName = (runType.equals(ANALYSIS_RUN)) ?
-			analysisDownloadDir : stddataDownloadDir;
+			directoryMetadata.getAnalysisDownloadDirectory() : directoryMetadata.getSTDDATADownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
 		// clobber the directory
@@ -227,8 +222,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 		process.waitFor();
 
 		// download the daat
-		Collection<CancerStudyMetadata> cancerStudyMetadata = config.getCancerStudyMetadata();
-		String cancerStudiesToDownload = getCancerStudiesToDownload(cancerStudyMetadata);
+		Collection<TumorTypeMetadata> tumorTypeMetadata = config.getTumorTypeMetadata();
+		String tumorTypesToDownload = getTumorTypesToDownload(tumorTypeMetadata);
 		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
 		String datatypesToDownload = getDatatypesToDownload(datatypeMetadata);
 
@@ -237,7 +232,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 											   datatypesToDownload,
 											   runType,
 											   BROAD_DATE_FORMAT.format(runDate),
-											   cancerStudiesToDownload);
+											   tumorTypesToDownload);
 		pb.directory(new File(downloadDirectoryName));
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + pb.command());
@@ -275,15 +270,15 @@ final class FirehoseFetcherImpl implements Fetcher {
 	/**
 	 * Helper function to get cancer studies to download.
 	 *
-	 * @param cancerStudyMetadata Collection<CancerStudyMetadata>
+	 * @param tumorTypeMetadata Collection<TumorTypeMetadata>
 	 * @return String
 	 */
-	private String getCancerStudiesToDownload(final Collection<CancerStudyMetadata> cancerStudyMetadata) {
+	private String getTumorTypesToDownload(final Collection<TumorTypeMetadata> tumorTypeMetadata) {
 
 		String toReturn = "";
-		for (CancerStudyMetadata csMetadata : cancerStudyMetadata) {
-			if (csMetadata.getDownload()) {
-				toReturn += csMetadata.getCancerStudyID() + " ";
+		for (TumorTypeMetadata ttMetadata : tumorTypeMetadata) {
+			if (ttMetadata.getDownload()) {
+				toReturn += ttMetadata.getTumorTypeID() + " ";
 			}
 		}
 

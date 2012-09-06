@@ -3,7 +3,8 @@ package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DirectoryMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 
 import java.util.Collection;
 
@@ -49,11 +50,11 @@ public interface Config {
 	void setLatestSTDDATARunDownloaded(final String latestSTDDataRun);
 
 	/**
-	 * Gets a collection of CancerStudyMetadata.
+	 * Gets a collection of TumorTypeMetadata.
 	 *
-	 * @return Collection<CancerStudyMetadata>
+	 * @return Collection<TumorTypeMetadata>
 	 */
-	Collection<CancerStudyMetadata> getCancerStudyMetadata();
+	Collection<TumorTypeMetadata> getTumorTypeMetadata();
 
 	/**
 	 * Gets a collection of DatatypeMetadata.
@@ -61,4 +62,11 @@ public interface Config {
 	 * @return Collection<DatatypeMetadata>
 	 */
 	Collection<DatatypeMetadata> getDatatypeMetadata();
+
+	/**
+	 * Gets a collection of DirectoryMetadata.
+	 *
+	 * @return DirectoryMetadata
+	 */
+	DirectoryMetadata getDirectoryMetadata();
 }

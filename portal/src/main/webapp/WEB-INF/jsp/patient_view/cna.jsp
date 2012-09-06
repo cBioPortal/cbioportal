@@ -93,7 +93,7 @@
         );
     }
     
-    var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,overview:4,altrate:5,drug:6,note:7};
+    var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,sanger:4,overview:5,altrate:6,drug:7,note:8};
     function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -127,6 +127,26 @@
                         "sType": "gistic-col",
                         "bVisible": false,
                         "aTargets": [ cnaTableIndices['gistic'] ]
+                    },
+                    {// sanger
+                        "bVisible": true,
+                        "aTargets": [ cnaTableIndices['sanger'] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[cnaTableIndices["sanger"]]=value;
+                            } else if (type==='display') {
+                                var sanger = source[cnaTableIndices["sanger"]];
+                                return sanger?'Y':'';
+                            } else if (type==='sort') {
+                                var sanger = source[cnaTableIndices["sanger"]];
+                                return sanger?'Y':'N';
+                            }  else if (type==='filter') {
+                                var sanger = source[cnaTableIndices["sanger"]];
+                                return sanger?'sanger':'';
+                            } else {
+                                return source[cnaTableIndices["sanger"]];
+                            }
+                        }
                     },
                     {// show in summary
                         "bVisible": false,

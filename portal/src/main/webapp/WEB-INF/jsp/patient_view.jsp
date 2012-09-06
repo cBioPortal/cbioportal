@@ -88,6 +88,13 @@ if (patientViewError!=null) {
                 width: auto;
                 float: right;
         }
+        .altered_percent_div {
+                display: block;
+                float: right;
+                float: right;
+                background-color: green;
+                width: 10px;
+        }
 </style>
 
 <table width="100%">

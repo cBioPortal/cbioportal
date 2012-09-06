@@ -12,7 +12,9 @@
                         <th>Mutation Status</th>
                         <th>COSMIC</th>
                         <th>MutSig Q-value</th>
-                        <th>Sanger Cancer Consensus Gene</th>
+                        <th>Sanger
+                            <img class="mutations_help" src="images/help.png" title="In Sanger Cancer Gene Census?"/>
+                        </th>
                         <th>Show in summary</th>
                         <th>Study Mutation Rate
                             <img class="mutations_help" src="images/help.png" title="Number and percentage of 

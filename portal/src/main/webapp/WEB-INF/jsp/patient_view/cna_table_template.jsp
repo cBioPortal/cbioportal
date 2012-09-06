@@ -5,6 +5,9 @@
                         <th>Gene</th>
                         <th>Copy Number Alteration</th>
                         <th>Gistic</th>
+                        <th>Sanger
+                            <img class="mutations_help" src="images/help.png" title="In Sanger Cancer Gene Census?"/>
+                        </th>
                         <th>Show in summary</th>
                         <th>Study Alteration Rate
                             <img class="cna_help" src="images/help.png" title="Number and percentage of 

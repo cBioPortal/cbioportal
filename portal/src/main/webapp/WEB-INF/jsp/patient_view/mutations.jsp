@@ -49,7 +49,15 @@
                             if (type==='set') {
                                 source[mutTableIndices["gene"]]=value;
                             } else if (type==='display') {
-                                return "<b>"+source[mutTableIndices["gene"]]+"</b>";
+                                var gene = source[mutTableIndices["gene"]];
+                                var ret = "<b>"+gene+"</b>";
+                                if (source[mutTableIndices["mutrate"]]) {
+                                    var frac = mutGeneContext[gene]/numPatientInSameMutationProfile;
+                                    var height = Math.ceil(20 * Math.log(frac+1) * Math.LOG2E);
+                                    ret += "&nbsp<div class='altered_percent_div' style='height:"+height+";'><div>"
+                                }
+                                
+                                return ret;
                             } else {
                                 return source[mutTableIndices["gene"]];
                             }
@@ -122,8 +130,24 @@
                         }
                     },
                     {// sanger
-                        "bVisible": false,
-                        "aTargets": [ mutTableIndices["sanger"] ]
+                        "bVisible": !isSummary,
+                        "aTargets": [ mutTableIndices["sanger"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["sanger"]]=value;
+                            } else if (type==='display') {
+                                var sanger = source[mutTableIndices["sanger"]];
+                                return sanger?'Y':'';
+                            } else if (type==='sort') {
+                                var sanger = source[mutTableIndices["sanger"]];
+                                return sanger?'Y':'N';
+                            }  else if (type==='filter') {
+                                var sanger = source[mutTableIndices["sanger"]];
+                                return sanger?'sanger':'';
+                            } else {
+                                return source[mutTableIndices["sanger"]];
+                            }
+                        }
                     },
                     {// in overview
                         "bVisible": false,
@@ -217,7 +241,7 @@
                                                 +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mutTableIndices["mutsig"]].toPrecision(2)+"'/>");
                                 if (source[mutTableIndices["sanger"]])
                                     notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
-                                                +"-tip' alt='In Sanger Cancer Gene Consensus'/>");
+                                                +"-tip' alt='In Sanger Cancer Gene Census'/>");
                                 if (source[mutTableIndices["drug"]]) {
                                     var drug = mutDrugs[source[mutTableIndices["gene"]]];
                                     if (drug)
@@ -262,7 +286,7 @@
                 text: "<a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"cosmic\",\"desc\");return false;'>Sort by COSMIC frequency</a><br/>\n\
                        <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"mutsig\",\"asc\");return false;'>Sort by MutSig Q-value</a><br/>\n\
                        <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"drug\",\"desc\");return false;'>Sort by available potential Drugs</a><br/>\n\
-                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"sanger\",\"desc\");return false;'>Sort by Sanger Cancer Gene Consensus</a>"
+                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"sanger\",\"desc\");return false;'>Sort by Sanger Cancer Gene Census</a>"
             },
             hide: { fixed: true, delay: 200 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },

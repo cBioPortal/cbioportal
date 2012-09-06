@@ -244,13 +244,15 @@ public class CnaJSON extends HttpServlet {
         double gistic = 0.0;
         row.add(gistic);
         
-        // show in summary table
         boolean isSangerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
+        row.add(isSangerGene);
+        
+        // show in summary table
         boolean includeInSummary = isSangerGene;
         row.add(includeInSummary);
         

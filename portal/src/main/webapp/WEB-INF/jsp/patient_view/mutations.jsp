@@ -14,8 +14,8 @@
 </style>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,chr:1,start:2,end:3,gene:4,aa:5,type:6,status:7,
-        cosmic:8,mutsig:9,sanger:10,overview:11,mutrate:12,drug:13,note:14};
+    var mutTableIndices = {id:0,key:1,chr:2,start:3,end:4,gene:5,aa:6,type:7,status:8,
+        cosmic:9,mutsig:10,sanger:11,overview:12,mutrate:13,drug:14,note:15};
     function buildMutationsDataTable(mutations, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -26,6 +26,10 @@
                     {// event id
                         "bVisible": false,
                         "aTargets": [ mutTableIndices["id"] ]
+                    },
+                    {// chr
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["key"] ]
                     },
                     {// chr
                         "bVisible": false,
@@ -132,15 +136,25 @@
                                 source[mutTableIndices["mutrate"]]=value;
                             } else if (type==='display') {
                                 if (!source[mutTableIndices["mutrate"]]) return "<img src=\"images/ajax-loader2.gif\">";
-                                var eventId = source[mutTableIndices["id"]];
                                 var gene = source[mutTableIndices["gene"]];
+                                var geneCon = mutGeneContext[gene];
+                                var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
+                                var ret = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)";
+                                
+                                var eventId = source[mutTableIndices["id"]];
                                 var aa = source[mutTableIndices["aa"]];
                                 var mutCon = mutAAContext[eventId];
                                 var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
-                                var geneCon = mutGeneContext[gene];
-                                var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
-                                return gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)<br/><i>"
-                                            + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)<br/>";
+                                ret += "<br/>" + gene + " <i>" + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)";
+                                
+                                var key = source[mutTableIndices["key"]];
+                                if (key) {
+                                    var keyCon = mutKeyContext[key];
+                                    var keyPerc = 100.0 * keyCon / numPatientInSameMutationProfile;
+                                    ret += "<br/>" + key + ": " + keyCon + " (<b>" + keyPerc.toFixed(1) + "%</b>)";
+                                }
+                                
+                                return ret;
                             } else if (type==='sort') {
                                 if (!source[mutTableIndices["mutrate"]]) return 0;
                                 var gene = source[mutTableIndices["gene"]];
@@ -284,7 +298,7 @@
         if (img)
             return "<img src='images/cosmic.gif' width=15 height=15 class='"+table_id+"-tip' alt='"+alt+"'/>"
         else
-            return "<a class='"+table_id+"-tip' onclick='return false;' href='#' alt='"+alt+"'>"+n+" entr"+(n==1?"y":"ies")+"</a>"
+            return "<a class='"+table_id+"-tip' onclick='return false;' href='#' alt='"+alt+"'>"+n+" occurrence"+(n==1?"":"s")+"</a>"
     }
     
     var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
@@ -305,6 +319,7 @@
     
     var mutGeneContext = null;
     var mutAAContext = null;
+    var mutKeyContext = null;
     function loadMutationContextData(mutations, mut_table, mut_summary_table) {
         var params = {
             <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
@@ -317,6 +332,7 @@
             function(context){
                 mutAAContext = context['<%=MutationsJSON.MUTATION_CONTEXT%>'];
                 mutGeneContext =  context['<%=MutationsJSON.GENE_CONTEXT%>'];
+                mutKeyContext =  context['<%=MutationsJSON.KEYWORD_CONTEXT%>'];
                 updateMutationContext(mut_table, false);
                 updateMutationContext(mut_summary_table, true);
             }

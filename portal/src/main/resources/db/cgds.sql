@@ -473,16 +473,10 @@ CREATE TABLE `mutation_event` (
   `CHR` varchar(5) NOT NULL,
   `START_POSITION` bigint(20) NOT NULL,
   `END_POSITION` bigint(20) NOT NULL,
+  `KEYWORD` varchar(50) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   PRIMARY KEY  (`MUTATION_EVENT_ID`),
   UNIQUE (`ENTREZ_GENE_ID`, `MUTATION_STATUS`, `AMINO_ACID_CHANGE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data for patient view';
-
-drop table IF EXISTS mutation_event_keyword;
-CREATE TABLE `mutation_event_keyword` (
-  `MUTATION_EVENT_ID` int(255) NOT NULL,
-  `KEYWORD` varchar(20) NOT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
-  PRIMARY KEY  (`MUTATION_EVENT_ID`,`KEYWORD`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data for patient view';
 
 drop table IF EXISTS copy_number_seg;
 CREATE TABLE `copy_number_seg` (

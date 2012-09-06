@@ -33,6 +33,7 @@ public class MutationsJSON extends HttpServlet {
     public static final String COUNT_MUTATIONS_CMD = "count_mutations";
     public static final String MUTATION_EVENT_ID = "mutation_id";
     public static final String GENE_CONTEXT = "gene_context";
+    public static final String KEYWORD_CONTEXT = "keyword_context";
     public static final String MUTATION_CONTEXT = "mutation_context";
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -134,12 +135,14 @@ public class MutationsJSON extends HttpServlet {
         
         GeneticProfile mutationProfile;
         Map<String, Integer> geneContextMap = Collections.emptyMap();
+        Map<String, Integer> keywordContextMap = Collections.emptyMap();
         Map<Long, Integer> mutationContextMap = Collections.emptyMap();
         
         try {
             mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 geneContextMap = getGeneContextMap(eventIds, mutationProfile.getGeneticProfileId());
+                keywordContextMap = getKeywordContextMap(eventIds, mutationProfile.getGeneticProfileId());
                 mutationContextMap = DaoMutationEvent.countSamplesWithMutationEvents(
                         eventIds, mutationProfile.getGeneticProfileId());
             }
@@ -149,6 +152,7 @@ public class MutationsJSON extends HttpServlet {
         
         Map<String, Map<?, Integer>> map = new HashMap<String, Map<?, Integer>>();
         map.put(GENE_CONTEXT, geneContextMap);
+        map.put(KEYWORD_CONTEXT, keywordContextMap);
         map.put(MUTATION_CONTEXT, mutationContextMap);
 
         response.setContentType("application/json");
@@ -244,11 +248,18 @@ public class MutationsJSON extends HttpServlet {
         return ret;
     }
     
+    private Map<String, Integer> getKeywordContextMap(String eventIds, int profileId)
+            throws DaoException {
+        Set<String> genes = DaoMutationEvent.getKeywordsOfMutations(eventIds, profileId);
+        return DaoMutationEvent.countSamplesWithKeywords(genes, profileId);
+    }
+    
     private void exportMutation(JSONArray table, ExtendedMutation mutation, CancerStudy 
             cancerStudy, double qvalueThreshold, Map<String,Integer> cosmic, int cosmicThreshold) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
+        row.add(mutation.getKeyword());
         row.add(mutation.getChr());
         row.add(mutation.getStartPosition());
         row.add(mutation.getEndPosition());

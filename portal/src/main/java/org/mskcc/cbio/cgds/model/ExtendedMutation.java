@@ -1,5 +1,7 @@
 package org.mskcc.cbio.cgds.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -31,6 +33,7 @@ public class ExtendedMutation
 	private String linkMsa;
         
         private long mutationEventId;
+        private String keyword;
 
 	private String ncbiBuild;
 	private String strand;
@@ -483,23 +486,13 @@ public class ExtendedMutation
         public void setMutationEventId(long mutationEventId) {
             this.mutationEventId = mutationEventId;
         }
-        
-        public boolean isTruncating() {
-            String type = mutationType.toLowerCase();
-            if (type.equals("Nonsense_Mutation") ||
-                type.equals("Splice_Site") || 
-                type.startsWith("Frame_Shift_") || 
-                type.equals("Nonstop_Mutation")) {
-                return true;
-            }
-            
-            if (type.equals("missense_mutation")) {
-                return proteinChange.equals("M1*"); // non-start
-            }
-            
-            // TODO: how about Translation_Start_Site
-            
-            return false;
+
+        public String getKeyword() {
+            return keyword;
+        }
+
+        public void setKeyword(String keyword) {
+            this.keyword = keyword;
         }
 
 	@Override

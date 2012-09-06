@@ -2,6 +2,7 @@
                 <thead>
                     <tr valign="bottom">
                         <th>Mutation Event ID</th>
+                        <th>Mutation Keyword</th>
                         <th>Chromosome</th>
                         <th>Start Position</th>
                         <th>End Position</th>

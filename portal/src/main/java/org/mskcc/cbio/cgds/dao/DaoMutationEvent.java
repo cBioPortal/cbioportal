@@ -58,7 +58,7 @@ public final class DaoMutationEvent {
                 pstmt = con.prepareStatement
                     ("INSERT INTO mutation_event (`ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, "
                         + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
-                        + "`END_POSITION`) VALUES(?,?,?,?,?,?,?)");
+                        + "`END_POSITION`, `KEYWORD`) VALUES(?,?,?,?,?,?,?,?)");
                 pstmt.setLong(1, mutation.getEntrezGeneId());
                 pstmt.setString(2, mutation.getProteinChange());
                 pstmt.setString(3, mutation.getMutationStatus());
@@ -66,6 +66,7 @@ public final class DaoMutationEvent {
                 pstmt.setString(5, mutation.getChr());
                 pstmt.setLong(6, mutation.getStartPosition());
                 pstmt.setLong(7, mutation.getEndPosition());
+                pstmt.setString(8, extractMutationKeyword(mutation));
                 pstmt.executeUpdate();
                 eventId = getMutationEventId(mutation, con);
                 
@@ -74,8 +75,6 @@ public final class DaoMutationEvent {
                         parseCosmic(mutation.getEntrezGeneId(), mutation.getOncotatorCosmicOverlapping())) {
                     importCosmic(eventId, cosmic, con);
                 }
-                
-                addMutationKeywords(mutation, eventId, con);
             }
             
             return eventId;
@@ -105,76 +104,51 @@ public final class DaoMutationEvent {
         }
     }
     
-    private static int addMutationKeywords(ExtendedMutation mutation,
-            long mutationEventId, Connection con) throws DaoException {
-        Set<String> keywords = extractMutationKeywords(mutation);
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            int ret = 0;
-            for (String keyword : keywords) {
-                pstmt = con.prepareStatement("INSERT INTO mutation_event_keyword"
-                        + " (`MUTATION_EVENT_ID`,`KEYWORD`) VALUES(?,?)");
-                pstmt.setLong(1, mutationEventId);
-                pstmt.setString(2, keyword);
-                ret += pstmt.executeUpdate();
-            }
-            return ret;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-    
-    private static Set<String> extractMutationKeywords(ExtendedMutation mutation) {
-        Set<String> keywords = new HashSet<String>();
-        
-        String type = mutation.getMutationType().toLowerCase();
+    private static String extractMutationKeyword(ExtendedMutation mutation) {
+        String type = mutation.getMutationType();
         if (type.equals("Nonsense_Mutation") ||
             type.equals("Splice_Site") || 
             type.startsWith("Frame_Shift_") || 
             type.equals("Nonstop_Mutation")) {
-            keywords.add("Truncating");
-        } else if (type.equals("missense_mutation")) {
+            return mutation.getGeneSymbol() + " Truncating";
+        }
+        
+        if (type.equals("Missense_Mutation")) {
             String aa = mutation.getProteinChange();
             if (aa.equals("M1*")) {
                 // non-start
-                keywords.add("Truncating");
-            } else {
-                Pattern p = Pattern.compile("([A-Z][0-9]+)");
-                Matcher m = p.matcher(aa);
-                if (m.find()) {
-                    keywords.add(m.group(1)+" Missense");
-                }
+                return mutation.getGeneSymbol() + " Truncating";
             }
-        } else if (type.equals("in_frame_ins")) {
-            String aa = mutation.getProteinChange();
-            Pattern p = Pattern.compile("(0-9)+_(0-9)+");
+            
+            Pattern p = Pattern.compile("([A-Z][0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-                keywords.add(m.group(1) + "ins");
+                return mutation.getGeneSymbol() + " " + m.group(1) + " Missense";
             }
-        } else if (type.equals("in_frame_del")) {
+        }
+        
+        if (type.equals("In_Frame_Ins")) {
             String aa = mutation.getProteinChange();
-            Pattern p = Pattern.compile("(0-9)+_(0-9)+");
+            Pattern p = Pattern.compile("(0-9)+");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-                int s = Integer.parseInt(m.group(1));
-                int t = Integer.parseInt(m.group(2));
-                for (int i=s; i<=t; i++) {
-                    keywords.add(Integer.toBinaryString(i) + "del");
-                }
-            } else {
-                p = Pattern.compile("([0-9]+)");
-                m = p.matcher(aa);
-                if (m.find()) {
-                    keywords.add(m.group(1) + "del");
-                }
+               return mutation.getGeneSymbol() + " " + m.group(1) + "ins";
+            }
+        }
+        
+        if (type.equals("In_Frame_Del")) {
+            String aa = mutation.getProteinChange();
+            // only the first deleted residue was considered
+            Pattern p = Pattern.compile("(0-9)+");
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+               return mutation.getGeneSymbol() + " " + m.group(1) + "del";
             }
         }
             
         // TODO: how about Translation_Start_Site
         
-        return keywords;
+        return null;
     }
     
     private static boolean eventExists(long eventId, String caseId, Connection con) throws DaoException {
@@ -204,7 +178,7 @@ public final class DaoMutationEvent {
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
                     + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
-                    + " CHR, START_POSITION, END_POSITION"
+                    + " CHR, START_POSITION, END_POSITION, KEYWORD"
                     + " FROM case_mutation_event, mutation_event"
                     + " WHERE `CASE_ID`=? AND `GENETIC_PROFILE_ID`=? AND"
                     + " case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
@@ -235,6 +209,7 @@ public final class DaoMutationEvent {
             event.setStartPosition(rs.getLong("START_POSITION"));
             event.setEndPosition(rs.getLong("END_POSITION"));
             event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
+            event.setKeyword(rs.getString("KEYWORD"));
             events.add(event);
         }
         return events;
@@ -406,6 +381,35 @@ public final class DaoMutationEvent {
         }
     }
     
+    public static Map<String, Integer> countSamplesWithKeywords(Collection<String> keywords, int profileId) throws DaoException {
+        if (keywords.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT KEYWORD, count(DISTINCT CASE_ID)"
+                    + " FROM case_mutation_event, mutation_event"
+                    + " WHERE GENETIC_PROFILE_ID=" + profileId
+                    + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " AND KEYWORD IN ('"
+                    + StringUtils.join(keywords,"','")
+                    + "') GROUP BY `KEYWORD`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
     public static Set<Long> getGenesOfMutations(
             Collection<Long> eventIds, int profileId) throws DaoException {
         return getGenesOfMutations(StringUtils.join(eventIds, ","), profileId);
@@ -438,6 +442,40 @@ public final class DaoMutationEvent {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 set.add(rs.getLong(1));
+            }
+            return set;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
+    /**
+     * return keywords of the mutations specified by their mutaiton event ids.
+     * @param concatEventIds
+     * @param profileId
+     * @return
+     * @throws DaoException 
+     */
+    public static Set<String> getKeywordsOfMutations(String concatEventIds, int profileId)
+            throws DaoException {
+        if (concatEventIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT DISTINCT KEYWORD FROM mutation_event "
+                    + "WHERE MUTATION_EVENT_ID in ("
+                    +       concatEventIds
+                    + ")";
+            pstmt = con.prepareStatement(sql);
+            
+            Set<String> set = new HashSet<String>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                set.add(rs.getString(1));
             }
             return set;
         } catch (SQLException e) {

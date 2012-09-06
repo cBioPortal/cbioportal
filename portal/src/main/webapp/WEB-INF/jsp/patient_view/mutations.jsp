@@ -205,6 +205,7 @@
                         "bVisible": isSummary,
                         "aTargets": [ mutTableIndices["note"] ],
                         "mDataProp": function(source,type,value) {
+                            if (!isSummary) return "";
                             if (type==='set') {
                                 source[mutTableIndices["note"]]=value;
                             } else if (type==='display') {
@@ -310,7 +311,6 @@
             oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
         }
         oTable.fnDraw();
-        addNoteTooltip("."+oTable.attr('id')+"-tip");
         addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }
@@ -345,10 +345,12 @@
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
             oTable.fnUpdate(true, row, mutTableIndices["drug"], false, false);
-            oTable.fnUpdate('', row, mutTableIndices["note"], false, false);
+            if (summaryOnly)
+                oTable.fnUpdate('', row, mutTableIndices["note"], false, false);
         }
         oTable.fnDraw();
-        addNoteTooltip("."+oTable.attr('id')+"-tip");
+        if (summaryOnly)
+            addNoteTooltip("."+oTable.attr('id')+"-tip");
         addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }

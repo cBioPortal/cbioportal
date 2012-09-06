@@ -96,6 +96,8 @@ public class MafProcessor
 				// overwrite existing MA columns if MA data available
 				else if (maRecord != null)
 				{
+					// TODO keep the old value if the data is "NA" or overwrite in any case?
+
 					if (i == util.getMaFImpactIndex())
 					{
 						line += maRecord.getImpact();
@@ -113,12 +115,14 @@ public class MafProcessor
 						line += maRecord.getStructureLink();
 					}
 					// skip MA columns that are not needed anymore
+					// (do not add if the column starts with "MA:")
 					else if (maIndices.get(i) == null)
 					{
 						line += parts[i];
 					}
 				}
 				// skip MA columns that are not needed anymore
+				// (do not add if the column starts with "MA:")
 				else if (maIndices.get(i) == null)
 				{
 					line += parts[i];

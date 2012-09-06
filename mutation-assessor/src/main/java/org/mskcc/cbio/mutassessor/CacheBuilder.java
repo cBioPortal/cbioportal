@@ -16,8 +16,8 @@ public class CacheBuilder
 	public static final String MA_VARIANT = "mutation";
 	public static final String MA_FIMPACT = "func. impact";
 	public static final String MA_PROTEIN_CHANGE = "uniprot variant";
-	public static final String MA_LINK_MSA = "msa"; // TODO no header in the files yet
-	public static final String MA_LINK_PDB = "pdb"; // TODO no header in the files yet
+	public static final String MA_LINK_MSA = "msa";
+	public static final String MA_LINK_PDB = "pdb";
 
 	/**
 	 * Map for column header indices (to have flexibility for column positions in the file)

@@ -9,3 +9,6 @@
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/prad_mich/data_CNA.txt --meta $GDAC_CGDS_STAGING_HOME/prad_mich/meta_CNA.txt --dbmsAction clobber
+
+# Copy number segment
+./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/prad_mich/prad_mich.seg

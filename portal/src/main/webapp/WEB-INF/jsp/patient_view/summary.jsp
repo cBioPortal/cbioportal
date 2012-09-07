@@ -117,7 +117,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             function(dt){
                 var maxMut = dt.getColumnRange(1).max;
                 var vLog = maxMut>1000;
-                $('#mut-cna-haxis-log').attr('checked',vLog);
+                if (vLog) $('#mut-cna-haxis-log').attr('checked',true);
                 scatterPlotMutVsCna(dt,false,vLog,scatterPlotDiv,caseIdDiv);
 
                 $('#mut-cna-config').show();

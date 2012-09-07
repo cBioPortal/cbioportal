@@ -76,7 +76,19 @@
 	margin-top: -15px;
 }
 
+.toggle_mut_table_col_td_label
+{
+	width: 100%;
+	text-align: right;
+}
+
+.toggle_mutation_table_col_table
+{
+	margin-bottom: -15px;
+}
+
 #mutation_details .ui-dropdownchecklist-text
 {
 	font-size: 12px;
 }
+

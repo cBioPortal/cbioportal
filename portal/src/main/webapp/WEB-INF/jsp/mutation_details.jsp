@@ -196,8 +196,8 @@
 	    // initialize table column filtering
 	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
 		    icon: {placement: 'left'}, // sets the position of the arrow
-		    width: 268,
-		    emptyText: '(none selected)', // text to be displayed when no item is selected
+		    width: 182,
+		    emptyText: '(no columns selected)', // text to be displayed when no item is selected
 		    onItemClick: toggleMutationTableColumns}; // callback function for the action
 
 	    // initialize the dropdown box
@@ -268,7 +268,31 @@
      */
     function toggleMutationTableColumns(checkbox, selector)
     {
+	    // extract geneId from the selector id
+	    var lastDashIdx = selector.id.lastIndexOf("_");
+	    var geneId = selector.id.substring(lastDashIdx + 1);
 
+	    var colIdx = checkbox.val();
+	    var checked = checkbox.prop("checked"); // checked or unchecked
+
+	    // get the corresponding table for that gene
+	    var targetTable = $('#mutation_details_table_' + geneId).dataTable();
+
+	    // if colIdx is a number, then hide that column
+	    if(!isNaN(colIdx))
+	    {
+		    targetTable.fnSetColumnVis(colIdx, checked);
+	    }
+	    // if it is not a number, then it is "show all columns"
+	    else
+	    {
+		    for (var i=0;
+		         i < selector.options.length - 1; // excluding "show all" option
+		         i++)
+		    {
+			    targetTable.fnSetColumnVis(i, checked);
+		    }
+	    }
     }
 
     /**
@@ -311,24 +335,32 @@
 	{
 		String geneId = geneWithScore.getGene().toUpperCase();
 
+		out.println("<table class='toggle_mutation_table_col_table'>" +
+		            "<tr><td class='toggle_mut_table_col_td_label'>");
+		out.println("Toggle Columns: ");
+		out.println("</td><td class='toggle_mut_table_col_td_select'>");
+
 		out.println("<select multiple class='toggle_mutation_table_col' " +
 		            "id='column_select_" + geneId + "'>");
 
 		out.println("<option selected id='" + geneId + "_column_selectAll " +
-				"value='" + geneId + "_column_selectAll'>" +
-				"<label>(select all)</label>" +
+				"value='NA'>" +
+				"<label>(show all columns)</label>" +
 				"</option>");
 
-		for (String header : headers)
+		for (int i = 0; i < headers.size(); i++)
 		{
+			String header = headers.get(i);
 			//out.println("<option id='" + geneId + "_" + header + "'" +
 			out.println("<option " +
-			            "value='" + header + "'>" +
+			            "value='" + i + "'>" +
 			            "<label>" + header + "</label>" +
 			            "</option>");
 		}
 
 		out.println("</select>");
+
+		out.println("</td></tr></table>");
 	}
 
 	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
@@ -351,10 +383,12 @@
         MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
                 mutationMap);
 
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
+        {
             outputHeader(out, geneWithScore, mutationCounter);
-            outputOmaHeader(out);
+	        outputOmaHeader(out);
 	        outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
+
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +
                     "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
@@ -414,6 +448,5 @@
         out.println("<br>** Predicted functional impact (via " +
                 "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
                 " is provided for missense mutations only.");
-        out.println("<br>");
     }
 %>

@@ -109,14 +109,11 @@ public class MutationTableUtil
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
-//        dataFieldList.add(omaUtil.getFunctionalImpactLink() +
-//                          omaUtil.getMultipleSequenceAlignmentLink() +
-//                          omaUtil.getPdbStructureLink());
+        dataFieldList.add(omaUtil.getFunctionalImpactLink() +
+                          omaUtil.getMultipleSequenceAlignmentLink() +
+                          omaUtil.getPdbStructureLink());
         //dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
         //dataFieldList.add(omaUtil.getPdbStructureLink());
-	    dataFieldList.add(getMutationStatus(mutation) +
-	                      getValidationStatus(mutation) +
-	                      getCosmicCount(mutation));
 
         //  Fields for "Special" Genes
         if (specialGene != null) {
@@ -403,6 +400,4 @@ public class MutationTableUtil
 
 		return map;
 	}
-
-
 }

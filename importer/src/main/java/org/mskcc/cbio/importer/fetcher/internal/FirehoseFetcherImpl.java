@@ -7,8 +7,8 @@ import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DirectoryMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +37,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private static final String ANALYSIS_RUN = "analyses";
 	private static final String STDDATA_RUN = "stddata";
 
+	// date formats
+	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
+	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+
 	// our logger
 	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
 
@@ -50,10 +54,6 @@ final class FirehoseFetcherImpl implements Fetcher {
     private static final Pattern FIREHOSE_FILENAME_CANCER_NAME_REGEX =
 		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
 
-	// date formats
-	private static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
-	private static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
-
 	// ref to configuration
 	private Config config;
 
@@ -64,7 +64,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private ImportDataDAO importDataDAO;
 
 	// dowload directories
-	private DirectoryMetadata directoryMetadata;
+	private FirehoseDownloadMetadata firehoseDownloadMetadata;
 
 	// location of firehose get
 	private String firehoseGetScript;
@@ -88,7 +88,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.importDataDAO = importDataDAO;
-        this.directoryMetadata = config.getDirectoryMetadata();
+        this.firehoseDownloadMetadata = config.getFirehoseDownloadMetadata();
 	}
 
 	/**
@@ -104,8 +104,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 		}
 
 		// get latest runs
-		Date ourLatestAnalysisRunDownloaded = PORTAL_DATE_FORMAT.parse(config.getLatestAnalysisRunDownloaded());
-		Date ourLatestSTDDATARunDownloaded = PORTAL_DATE_FORMAT.parse(config.getLatestSTDDATARunDownloaded()); 
+		Date ourLatestAnalysisRunDownloaded = PORTAL_DATE_FORMAT.parse(firehoseDownloadMetadata.getLatestAnalysisRunDownloaded());
+		Date ourLatestSTDDATARunDownloaded = PORTAL_DATE_FORMAT.parse(firehoseDownloadMetadata.getLatestSTDDATARunDownloaded()); 
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("our latest analysis run: " + PORTAL_DATE_FORMAT.format(ourLatestAnalysisRunDownloaded));
@@ -122,7 +122,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 				LOG.info("fresh analysis data to download." + PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
 			}
 			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
-			config.setLatestAnalysisRunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
+            firehoseDownloadMetadata.setLatestAnalysisRunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
+			config.setFirehoseDownloadMetadata(firehoseDownloadMetadata);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -136,7 +137,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 				LOG.info("fresh STDDATA data to download." + PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
 			}
 			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
-			config.setLatestSTDDATARunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
+            firehoseDownloadMetadata.setLatestSTDDATARunDownloaded(PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
+			config.setFirehoseDownloadMetadata(firehoseDownloadMetadata);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -206,7 +208,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// determine download directory
 		String downloadDirectoryName = (runType.equals(ANALYSIS_RUN)) ?
-			directoryMetadata.getAnalysisDownloadDirectory() : directoryMetadata.getSTDDATADownloadDirectory();
+			firehoseDownloadMetadata.getAnalysisDownloadDirectory() :
+            firehoseDownloadMetadata.getSTDDATADownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
 		// clobber the directory

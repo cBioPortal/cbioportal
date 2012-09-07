@@ -1,2 +1,4 @@
-./init.sh
-./all-prostate-tcga-su2c.sh
+#./init.sh
+./all-prostate-tcga.sh
+./all-prostate-broad.sh
+./all-prostate-mich.sh

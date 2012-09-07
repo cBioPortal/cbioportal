@@ -138,7 +138,7 @@ public class PatientView extends HttpServlet {
                             daoCaseProfile.countCasesInProfile(profile.getGeneticProfileId()));
                 }
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType
-                    .COPY_NUMBER_ALTERATION && profile.getStableId().endsWith("_gistic")) {
+                    .COPY_NUMBER_ALTERATION && profile.showProfileInAnalysisTab()) {
                 if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), 
                         profile.getGeneticProfileId())) {
                     request.setAttribute(CNA_PROFILE, profile);

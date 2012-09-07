@@ -140,7 +140,7 @@ public class CancerStudyView extends HttpServlet {
             if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
                 request.setAttribute(MUTATION_PROFILE, profile);
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType
-                    .COPY_NUMBER_ALTERATION && profile.getStableId().endsWith("_gistic")) {
+                    .COPY_NUMBER_ALTERATION && profile.showProfileInAnalysisTab()) {
                 request.setAttribute(CNA_PROFILE, profile);
             }
         }

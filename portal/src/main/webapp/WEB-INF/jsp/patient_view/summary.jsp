@@ -117,7 +117,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             function(dt){
                 var maxMut = dt.getColumnRange(1).max;
                 var vLog = maxMut>1000;
-                $('#mut-cna-haxis-log').attr('checked',true);
+                $('#mut-cna-haxis-log').attr('checked',vLog);
                 scatterPlotMutVsCna(dt,false,vLog,scatterPlotDiv,caseIdDiv);
 
                 $('#mut-cna-config').show();
@@ -184,7 +184,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     </tr>
 </table>
 
-<div id="mut_cna_scatter_dialog" title="Drugs" style="width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
+<div id="mut_cna_scatter_dialog" title="Mutation VS Copy Number Alteration" style="display:none; width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
     <%@ include file="../cancer_study_view/mut_cna_scatter_plot.jsp" %>
     <p id='mut_cna_more_plot_msg'><sup>*</sup>One dot in this plot represents a case/patient in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>

@@ -47,14 +47,15 @@
                         "aTargets": [ mutTableIndices["gene"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
-                                source[mutTableIndices["gene"]]=value;
+                                if (value!=null)
+                                    source[mutTableIndices["gene"]]=value;
                             } else if (type==='display') {
                                 var gene = source[mutTableIndices["gene"]];
                                 var ret = "<b>"+gene+"</b>";
                                 if (source[mutTableIndices["mutrate"]]) {
                                     var frac = mutGeneContext[gene]/numPatientInSameMutationProfile;
                                     var height = Math.ceil(20 * Math.log(frac+1) * Math.LOG2E);
-                                    ret += "&nbsp<div class='altered_percent_div' style='height:"+height+";'><div>"
+                                    ret += "&nbsp<div class='altered_percent_div' style='height:"+height+"px;'></div>"
                                 }
                                 
                                 return ret;
@@ -262,6 +263,11 @@
                         "bSortable" : false
                     }
                 ],
+                "fnDrawCallback": function( oSettings ) {
+                    addNoteTooltip("."+table_id+"-tip");
+                    addDrugsTooltip("."+table_id+"-drug-tip");
+                
+                },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -273,9 +279,8 @@
         } );
 
         $("#"+table_id).css("width","100%");
-        addNoteTooltip("."+table_id+"-tip");
         
-        addMutNoteSortingMenu(table_id);
+        if (isSummary) addMutNoteSortingMenu(table_id);
         
         return oTable;
     }
@@ -333,9 +338,9 @@
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
             oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
+            //oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
         }
         oTable.fnDraw();
-        addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }
     
@@ -373,9 +378,6 @@
                 oTable.fnUpdate('', row, mutTableIndices["note"], false, false);
         }
         oTable.fnDraw();
-        if (summaryOnly)
-            addNoteTooltip("."+oTable.attr('id')+"-tip");
-        addDrugsTooltip("."+oTable.attr('id')+"-drug-tip");
         oTable.css("width","100%");
     }
     

@@ -94,7 +94,7 @@
     }
     
     var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,sanger:4,overview:5,altrate:6,drug:7,note:8};
-    function buildCnaDataTable(cnas, table_id, sDom, iDisplayLength) {
+    function buildCnaDataTable(cnas, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
@@ -129,7 +129,7 @@
                         "aTargets": [ cnaTableIndices['gistic'] ]
                     },
                     {// sanger
-                        "bVisible": true,
+                        "bVisible": !isSummary,
                         "aTargets": [ cnaTableIndices['sanger'] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -240,7 +240,7 @@
             params,
             function(cnas){
                 // cna
-                cna_table = buildCnaDataTable(cnas, '#cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                cna_table = buildCnaDataTable(cnas, '#cna_table', false, '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
                 
@@ -251,7 +251,7 @@
                 geObs.fire('cna-built');
                 
                 // summary table
-                cna_summary_table = buildCnaDataTable(cnas, '#cna_summary_table', '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 10);
+                cna_summary_table = buildCnaDataTable(cnas, '#cna_summary_table', true, '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 10);
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');

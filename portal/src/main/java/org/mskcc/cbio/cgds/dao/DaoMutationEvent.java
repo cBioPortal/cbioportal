@@ -58,7 +58,8 @@ public final class DaoMutationEvent {
                 pstmt = con.prepareStatement
                     ("INSERT INTO mutation_event (`ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, "
                         + "`MUTATION_STATUS`, `MUTATION_TYPE`,`CHR`,`START_POSITION`,"
-                        + "`END_POSITION`, `KEYWORD`) VALUES(?,?,?,?,?,?,?,?)");
+                        + "`END_POSITION`, `FUNCTIONAL_IMPACT_SCORE`, `LINK_XVAR`, `LINK_PDB`,"
+                        + "`LINK_MSA`, `KEYWORD`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
                 pstmt.setLong(1, mutation.getEntrezGeneId());
                 pstmt.setString(2, mutation.getProteinChange());
                 pstmt.setString(3, mutation.getMutationStatus());
@@ -66,13 +67,17 @@ public final class DaoMutationEvent {
                 pstmt.setString(5, mutation.getChr());
                 pstmt.setLong(6, mutation.getStartPosition());
                 pstmt.setLong(7, mutation.getEndPosition());
-                pstmt.setString(8, extractMutationKeyword(mutation));
+                pstmt.setString(8, mutation.getFunctionalImpactScore());
+                pstmt.setString(9, mutation.getLinkXVar());
+                pstmt.setString(10, mutation.getLinkPdb());
+                pstmt.setString(11, mutation.getLinkMsa());
+                pstmt.setString(12, extractMutationKeyword(mutation));
                 pstmt.executeUpdate();
                 eventId = getMutationEventId(mutation, con);
                 
                 // add cosmic
                 for (CosmicMutationFrequency cosmic :
-                        parseCosmic(mutation.getEntrezGeneId(), mutation.getOncotatorCosmicOverlapping())) {
+                        parseCosmic(mutation, mutation.getOncotatorCosmicOverlapping())) {
                     importCosmic(eventId, cosmic, con);
                 }
             }
@@ -483,7 +488,7 @@ public final class DaoMutationEvent {
         }
     }
     
-    private static List<CosmicMutationFrequency> parseCosmic(long entrez, String strCosmic) {
+    private static List<CosmicMutationFrequency> parseCosmic(ExtendedMutation mutation, String strCosmic) {
         if (strCosmic==null || strCosmic.isEmpty()) {
             return Collections.emptyList();
         }
@@ -495,14 +500,41 @@ public final class DaoMutationEvent {
             Matcher m = p.matcher(part);
             if (m.matches()) {
                 String aa = m.group(1);
-                int count = Integer.parseInt(m.group(2));
-                list.add(new CosmicMutationFrequency(entrez, aa, count));
-            } else {
-                System.err.println("wrong cosmic string: "+part);
-            }
+                if (matchCosmic(mutation, aa)) {
+                    int count = Integer.parseInt(m.group(2));
+                    list.add(new CosmicMutationFrequency(mutation.getEntrezGeneId(), aa, count));
+                }
+            } 
+//            else if (!part.equals("NA")) {
+//                System.err.println("wrong cosmic string: "+part);
+//            }
         }
         
         return list;
+    }
+    
+    private static boolean matchCosmic(ExtendedMutation mutation, String cosmicAAChange) {
+        if (cosmicAAChange.endsWith("p.?")||cosmicAAChange.endsWith("p.0?")) {
+            return false;
+        }
+        
+        String type = mutation.getMutationType();
+        if (cosmicAAChange.matches(
+                "(p\\.[A-Z]?[0-9]+_[A-Z]?[0-9]+((>)|(ins))[A-Z]+)|(p\\.[A-Z][0-9]+>[A-Z][A-Z]+)|(p\\.[A-Z]?[0-9]+.+del[A-Z]*)")) {
+            // in frame del or ins
+            return type.startsWith("In_Frame_");
+        }
+        
+        if (cosmicAAChange.matches("p\\.[A-Z][0-9]+>?[A-Z]")) {
+            return type.equals("Missense_Mutation");
+        }
+        
+        return type.equals("Nonsense_Mutation") ||
+            type.equals("Splice_Site") || 
+            type.startsWith("Frame_Shift_") || 
+            type.equals("Nonstop_Mutation");
+        
+        // TODO: how about Translation_Start_Site
     }
     
     private static int importCosmic(long eventId, CosmicMutationFrequency cosmic,

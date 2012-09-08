@@ -473,6 +473,10 @@ CREATE TABLE `mutation_event` (
   `CHR` varchar(5) NOT NULL,
   `START_POSITION` bigint(20) NOT NULL,
   `END_POSITION` bigint(20) NOT NULL,
+  `FUNCTIONAL_IMPACT_SCORE` varchar(5) NOT NULL COMMENT 'Result from OMA/XVAR.',
+  `LINK_XVAR` varchar(500) NOT NULL COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
+  `LINK_PDB` varchar(500) NOT NULL,
+  `LINK_MSA` varchar(500) NOT NULL,
   `KEYWORD` varchar(50) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   PRIMARY KEY  (`MUTATION_EVENT_ID`),
   UNIQUE (`ENTREZ_GENE_ID`, `MUTATION_STATUS`, `AMINO_ACID_CHANGE`)

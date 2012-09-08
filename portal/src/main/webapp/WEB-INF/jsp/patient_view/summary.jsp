@@ -137,7 +137,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             content: $('#mut_cna_scatter_dialog').remove(),
             hide: { fixed: true, delay: 100 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-            position: {my:'top right',at:'top right'},
+            position: {my:'top right',at:'top left'},
             events: {
                 render: function(event, api) {
                     $('.ui-tooltip').css('max-width',800);

@@ -12,3 +12,6 @@
 
 # Copy number segment
 ./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/prad_mich/prad_mich.seg
+
+# Imports MRNA Expression Data
+./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/prad_mich/data_expression_median.txt --meta $GDAC_CGDS_STAGING_HOME/prad_mich/meta_expression_median.txt --dbmsAction clobber

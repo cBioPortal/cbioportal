@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     var mutTableIndices = {id:0,key:1,chr:2,start:3,end:4,gene:5,aa:6,type:7,status:8,
-        cosmic:9,mutsig:10,sanger:11,overview:12,mutrate:13,drug:14,note:15};
+        cosmic:9,mutsig:10,sanger:11,drug:12,overview:13,mutrate:14,note:15};
     function buildMutationsDataTable(mutations, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -199,27 +199,24 @@
                             if (type==='set') {
                                 source[mutTableIndices["drug"]]=value;
                             } else if (type==='display') {
-                                if (!source[mutTableIndices["drug"]]) return "<img src=\"images/ajax-loader2.gif\">";
-                                var drug = mutDrugs[source[mutTableIndices["gene"]]];
-                                if (drug==null) return '';
+                                var drug = source[mutTableIndices["drug"]];
+                                if (!drug) return '';
                                 var len = drug.length;
+                                if (len==0) return '';
                                 return "<a href='#' onclick='return false;' id='"
                                             +table_id+'_'+source[mutTableIndices["id"]]
                                             +"-drug-tip' class='"+table_id+"-drug-tip' alt='"+drug.join(',')+"'>"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
-                                if (!source[mutTableIndices["drug"]]) return 0;
-                                var drug = mutDrugs[source[mutTableIndices["gene"]]];
+                                var drug = source[mutTableIndices["drug"]];
                                 var n = ''+(drug ? drug.length : 0);
                                 var pad = '000000';
                                 return pad.substring(0, pad.length - n.length) + n;
                             } else if (type==='filter') {
-                                if (!source[mutTableIndices["drug"]]) return '';
-                                var drug = mutDrugs[source[mutTableIndices["gene"]]];
-                                return drug ? 'drugs' : '';
+                                var drug = source[mutTableIndices["drug"]];
+                                return drug&&drug.length ? 'drugs' : '';
                             } else {
-                                if (!source[mutTableIndices["drug"]]) return '';
-                                var drug = mutDrugs[source[mutTableIndices["gene"]]];
+                                var drug = source[mutTableIndices["drug"]];
                                 return drug ? drug : '';
                             }
                         },
@@ -243,12 +240,11 @@
                                 if (source[mutTableIndices["sanger"]])
                                     notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
                                                 +"-tip' alt='In Sanger Cancer Gene Census'/>");
-                                if (source[mutTableIndices["drug"]]) {
-                                    var drug = mutDrugs[source[mutTableIndices["gene"]]];
-                                    if (drug)
-                                        notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
-                                                    +source[mutTableIndices["id"]]+"-drug-note-tip' class='"
-                                                    +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
+                                var drug = source[mutTableIndices["drug"]];
+                                if (drug && drug.length) {
+                                    notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
+                                                +source[mutTableIndices["id"]]+"-drug-note-tip' class='"
+                                                +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
                                 }
                                 if (source[mutTableIndices["status"]]==="Germline")
                                     notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
@@ -369,37 +365,6 @@
         );
     }
     
-    function updateMutationDrugs(oTable, summaryOnly) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
-        for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            oTable.fnUpdate(true, row, mutTableIndices["drug"], false, false);
-            if (summaryOnly)
-                oTable.fnUpdate('', row, mutTableIndices["note"], false, false);
-        }
-        oTable.fnDraw();
-        oTable.css("width","100%");
-    }
-    
-    var mutDrugs = null;
-    function loadMutationDrugData(mut_table, mut_summary_table) {
-        var params = {
-            <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_DRUG_CMD%>',
-            <%=PatientView.MUTATION_PROFILE%>:mutationProfileId,
-            <%=MutationsJSON.MUTATION_EVENT_ID%>:mutEventIds
-        };
-        
-        $.post("mutations.json", 
-            params,
-            function(drugs){
-                mutDrugs = drugs;
-                updateMutationDrugs(mut_table, false);
-                updateMutationDrugs(mut_summary_table, true);
-            }
-            ,"json"
-        );
-    }
-    
     var mut_table;
     var mut_summary_table;
     var mutations;
@@ -451,7 +416,6 @@
                 $('.mutations_help').tipTip();
                 
                 loadMutationContextData(mutations, mut_table, mut_summary_table);
-                loadMutationDrugData(mut_table, mut_summary_table);
             }
             ,"json"
         );

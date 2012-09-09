@@ -37,7 +37,7 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
                 
                 $("#network-resubmit-query").remove();
                 $("#slider_area").remove();
-                $('select#drop_down_select>option:eq(2)').attr('selected', true);
+                $('select#drop_down_select>option:eq(1)').attr('selected', true);
             }
         );
     }

@@ -79,19 +79,21 @@ public class CnaJSON extends HttpServlet {
         GeneticProfile cnaProfile;
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
+        Map<String, List<String>> drugs = Collections.emptyMap();
 
         try {
             _case = DaoCase.getCase(patient);
             cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             if (_case!=null && cnaProfile!=null) {
                 cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
+                drugs = getDrugs(cnaEvents, cnaProfile.getGeneticProfileId());
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         for (CnaEvent cnaEvent : cnaEvents) {
-            exportCnaEvent(table, cnaEvent);
+            exportCnaEvent(table, cnaEvent, drugs.get(cnaEvent.getGeneSymbol()));
         }
 
         response.setContentType("application/json");
@@ -213,10 +215,23 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
+    private Map<String, List<String>> getDrugs(List<CnaEvent> cnaEvents, int profileId)
+            throws DaoException {
+        if (cnaEvents.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        StringBuilder sb = new StringBuilder();
+        for (CnaEvent cna : cnaEvents) {
+            sb.append(cna.getEventId()).append(',');
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return getDrugs(sb.toString(), profileId);
+    }
+    
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
             throws DaoException {
         Set<Long> genes = DaoCnaEvent.getAlteredGenes(eventIds, profileId);
-        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,true);
         Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
@@ -226,7 +241,7 @@ public class CnaJSON extends HttpServlet {
         return ret;
     }
     
-    private void exportCnaEvent(JSONArray table, CnaEvent cnaEvent) 
+    private void exportCnaEvent(JSONArray table, CnaEvent cnaEvent, List<String> drugs) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(cnaEvent.getEventId());
@@ -252,8 +267,11 @@ public class CnaJSON extends HttpServlet {
         }
         row.add(isSangerGene);
         
+        // drug
+        row.add(drugs);
+        
         // show in summary table
-        boolean includeInSummary = isSangerGene;
+        boolean includeInSummary = isSangerGene || (drugs!=null && !drugs.isEmpty());
         row.add(includeInSummary);
         
         table.add(row);

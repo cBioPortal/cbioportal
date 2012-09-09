@@ -4,6 +4,9 @@ package org.mskcc.cbio.cgds.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoException;
+
 /**
  *
  * @author jgao
@@ -89,6 +92,15 @@ public class CnaEvent {
 
     public long getEntrezGeneId() {
         return entrezGeneId;
+    }
+    
+    public String getGeneSymbol() {
+        try {
+            return DaoGeneOptimized.getInstance().getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
+        } catch (DaoException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     public void setEntrezGeneId(long entrezGeneId) {

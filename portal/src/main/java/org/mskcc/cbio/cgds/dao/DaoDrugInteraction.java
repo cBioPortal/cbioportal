@@ -135,7 +135,7 @@ public class DaoDrugInteraction {
         }
     }
     
-    public Map<Long, List<String>> getDrugs(Set<Long> entrezGeneIds) throws DaoException {
+    public Map<Long, List<String>> getDrugs(Set<Long> entrezGeneIds, boolean fdaOnly) throws DaoException {
         if (entrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -147,9 +147,16 @@ public class DaoDrugInteraction {
         try {
             con = JdbcUtil.getDbConnection();
             
-            String sql = "SELECT * FROM drug_interaction"
+            String sql;
+            if (fdaOnly) {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction, drug"
+                    + " WHERE TARGET IN (" + StringUtils.join(entrezGeneIds, ",") + ")"
+                    + " AND drug_interaction.DRUG=drug.DRUG_ID AND DRUG_APPROVED=1";
+            } else {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction"
                     + " WHERE TARGET IN (" 
                     + StringUtils.join(entrezGeneIds, ",") + ")";
+            }
 
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();

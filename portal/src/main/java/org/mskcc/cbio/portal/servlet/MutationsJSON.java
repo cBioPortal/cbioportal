@@ -92,12 +92,12 @@ public class MutationsJSON extends HttpServlet {
             cosmicThreshold = DEFAULT_COSMIC_THRESHOLD;
         }
         
-        
         GeneticProfile mutationProfile;
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
         Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
+        Map<String, List<String>> drugs = Collections.emptyMap();
         
         try {
             _case = DaoCase.getCase(patient);
@@ -107,13 +107,14 @@ public class MutationsJSON extends HttpServlet {
                 mutations = DaoMutationEvent.getMutationEvents(patient,
                         mutationProfile.getGeneticProfileId());
                 cosmic = getCosmic(mutations);
+                drugs = getDrugs(mutations, mutationProfile.getGeneticProfileId());
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(table, mutation, cancerStudy, qvalueThrehold,
+            exportMutation(table, mutation, cancerStudy, qvalueThrehold, drugs.get(mutation.getGeneSymbol()),
                     cosmic.get(mutation.getMutationEventId()),cosmicThreshold);
         }
 
@@ -222,10 +223,23 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
+    private Map<String, List<String>> getDrugs(List<ExtendedMutation> mutations, int profileId)
+            throws DaoException {
+        if (mutations.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        StringBuilder sb = new StringBuilder();
+        for (ExtendedMutation mut : mutations) {
+            sb.append(mut.getMutationEventId()).append(',');
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return getDrugs(sb.toString(), profileId);
+    }
+    
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
             throws DaoException {
         Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
-        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,true);
         Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
@@ -255,7 +269,7 @@ public class MutationsJSON extends HttpServlet {
     }
     
     private void exportMutation(JSONArray table, ExtendedMutation mutation, CancerStudy 
-            cancerStudy, double qvalueThreshold, Map<String,Integer> cosmic, int cosmicThreshold) 
+            cancerStudy, double qvalueThreshold, List<String> drugs, Map<String,Integer> cosmic, int cosmicThreshold) 
             throws ServletException {
         JSONArray row = new JSONArray();
         row.add(mutation.getMutationEventId());
@@ -291,8 +305,14 @@ public class MutationsJSON extends HttpServlet {
         }
         row.add(isSangerGene);
         
+        // drug
+        row.add(drugs);
+        
         // show in summary table
-        row.add(isSangerGene || !Double.isNaN(mutSigQvalue) || passCosmicThreshold(cosmic,cosmicThreshold));
+        row.add(isSangerGene || 
+                !Double.isNaN(mutSigQvalue) || 
+                passCosmicThreshold(cosmic,cosmicThreshold) ||
+                (drugs!=null && !drugs.isEmpty()));
         
         table.add(row);
     }

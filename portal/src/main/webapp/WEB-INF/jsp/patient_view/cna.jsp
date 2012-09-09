@@ -64,36 +64,7 @@
         );
     }
     
-    function updateCnaDrugs(oTable, summaryOnly) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
-        for (var row=0; row<nRows; row++) {
-            if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
-            oTable.fnUpdate('true', row, cnaTableIndices['drug'], false, false);
-        }
-        oTable.fnDraw();
-        oTable.css("width","100%");
-    }
-    
-    var cnaDrugs = null;
-    function loadCnaDrugData(cna_table, cna_summary_table) {
-        var params = {
-            <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_DRUG_CMD%>',
-            <%=PatientView.CNA_PROFILE%>:cnaProfileId,
-            <%=CnaJSON.CNA_EVENT_ID%>:cnaEventIds
-        };
-        
-        $.post("cna.json", 
-            params,
-            function(drugs){
-                cnaDrugs = drugs;
-                updateCnaDrugs(cna_table, false);
-                updateCnaDrugs(cna_summary_table, true);
-            }
-            ,"json"
-        );
-    }
-    
-    var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,sanger:4,overview:5,altrate:6,drug:7,note:8};
+    var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,sanger:4,drug:5,overview:6,altrate:7,note:8};
     function buildCnaDataTable(cnas, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $(table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -180,26 +151,23 @@
                             if (type==='set') {
                                 source[cnaTableIndices["drug"]]=value;
                             } else if (type==='display') {
-                                if (!source[cnaTableIndices["drug"]]) return "<img src=\"images/ajax-loader2.gif\">";
-                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
-                                if (drug==null) return '';
+                                var drug = source[cnaTableIndices["drug"]];
+                                if (!drug) return '';
                                 var len = drug.length;
+                                if (len==0) return '';
                                 return "<a href=\"#\" onclick=\"openDrugDialog('"
                                             +drug.join(',')+"'); return false;\">"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
-                                if (!source[cnaTableIndices["drug"]]) return 0;
-                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                var drug = source[cnaTableIndices["drug"]];
                                 var n = ''+(drug ? drug.length : 0);
                                 var pad = '000000';
                                 return pad.substring(0, pad.length - n.length) + n;
                             } else if (type==='filter') {
-                                if (!source[cnaTableIndices["drug"]]) return '';
-                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                var drug = source[cnaTableIndices["drug"]];
                                 return drug ? 'drug' : '';
                             } else {
-                                if (!source[cnaTableIndices["drug"]]) return '';
-                                var drug = cnaDrugs[source[cnaTableIndices["gene"]]];
+                                var drug = source[cnaTableIndices["drug"]];
                                 return drug ? drug : '';
                             }
                         },
@@ -269,7 +237,6 @@
                 $('.cna_help').tipTip();
                 
                 loadCnaContextData(cna_table, cna_summary_table);
-                loadCnaDrugData(cna_table, cna_summary_table);
             }
             ,"json"
         );

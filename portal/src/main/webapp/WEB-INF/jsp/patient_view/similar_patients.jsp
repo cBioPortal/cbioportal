@@ -32,7 +32,7 @@ A genomic overview with events aligned across patients goes here...
     }
     
     function buildSimilarPatientsDataTable(aDataSet, table_id, sDom, iDisplayLength) {
-        var oTable = $(table_id).dataTable( {
+        var oTable = $('#'+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
                 "bDestroy": true,
@@ -76,7 +76,9 @@ A genomic overview with events aligned across patients goes here...
                             } else if (type==='display') {
                                 return renderSharedEvents(source[2]);
                             } else if (type==='sort') {
-                                return countSharedEvents(source[2]);
+                                var n = '' + countSharedEvents(source[2]);
+                                var pad = '000000';
+                                return pad.substring(0, pad.length - n.length) + n;
                             } else if (type==='filter') {
                                 return renderSharedEvents(source[2]);
                             } else {
@@ -98,7 +100,7 @@ A genomic overview with events aligned across patients goes here...
         // help
         //$('.mutations_help').tipTip();
 
-        $(table_id).css("width","100%");
+        oTable.css("width","100%");
         return oTable;
     }
     
@@ -115,7 +117,7 @@ A genomic overview with events aligned across patients goes here...
         $.post("similar_patients.json",
             params,
             function (simPatient) {
-                buildSimilarPatientsDataTable(simPatient, '#similar_patients_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                buildSimilarPatientsDataTable(simPatient, 'similar_patients_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#similar_patients_wrapper_table').show();
                 $('#similar_patients_wait').remove();
             }

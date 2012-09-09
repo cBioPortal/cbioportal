@@ -308,6 +308,57 @@ public final class DaoMutationEvent {
         }
     }
     
+    /**
+     * @param concatEventIds
+     * @return Map &lt; case id, list of event ids &gt;
+     * @throws DaoException 
+     */
+    public static Map<String, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+            Collection<Long> eventIds) throws DaoException {
+        return getSimilarCasesWithMutationsByKeywords(StringUtils.join(eventIds, ","));
+    }
+    
+    
+    /**
+     * @param concatEventIds event ids concatenated by comma (,)
+     * @return Map &lt; case id, list of event ids &gt;
+     * @throws DaoException 
+     */
+    public static Map<String, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+            String concatEventIds) throws DaoException {
+        if (concatEventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT `CASE_ID`, me1.`MUTATION_EVENT_ID`"
+                    + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
+                    + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
+                    + " AND me1.`KEYWORD`=me2.`KEYWORD`"
+                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String caseId = rs.getString("CASE_ID");
+                long eventId = rs.getLong("MUTATION_EVENT_ID");
+                Set<Long> events = map.get(caseId);
+                if (events == null) {
+                    events = new HashSet<Long>();
+                    map.put(caseId, events);
+                }
+                events.add(eventId);
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    
     public static Map<Long, Integer> countSamplesWithMutationEvents(Collection<Long> eventIds, int profileId) throws DaoException {
         return countSamplesWithMutationEvents(StringUtils.join(eventIds, ","), profileId);
     }

@@ -262,7 +262,6 @@
                 "fnDrawCallback": function( oSettings ) {
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip");
-                
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
@@ -274,7 +273,7 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        $("#"+table_id).css("width","100%");
+        oTable.css("width","100%");
         
         if (isSummary) addMutNoteSortingMenu(table_id);
         
@@ -299,15 +298,6 @@
     function sortNoteMutTable(table_id,colLabel,direction) {
         $("#"+table_id).dataTable().fnSort([[mutTableIndices[colLabel],direction]]);
         $("#"+table_id+" th:last-child").qtip("hide");
-    }
-    
-    function addNoteTooltip(elem) {
-        $(elem).qtip({
-            content: {attr: 'alt'},
-            hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-            position: {my:'top right',at:'bottom left'}
-        });
     }
     
     function formatCosmic(cosmic,table_id,img) {

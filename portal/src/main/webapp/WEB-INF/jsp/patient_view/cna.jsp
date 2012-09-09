@@ -66,7 +66,7 @@
     
     var cnaTableIndices = {id:0,gene:1,alteration:2,gistic:3,sanger:4,drug:5,overview:6,altrate:7,note:8};
     function buildCnaDataTable(cnas, table_id, isSummary, sDom, iDisplayLength) {
-        var oTable = $(table_id).dataTable( {
+        var oTable = $('#'+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
                 "bDestroy": true,
@@ -146,6 +146,7 @@
                         "aTargets": [ cnaTableIndices['altrate'] ]
                     },
                     {// Drugs
+                        "bVisible": !isSummary,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -175,12 +176,38 @@
                         "aTargets": [ cnaTableIndices['drug'] ]
                     },
                     {// note
-                        "bVisible": placeHolder,
-                        "mDataProp": null,
-                        "sDefaultContent": "",
-                        "aTargets": [ cnaTableIndices['note'] ]
+                        "bVisible": isSummary,
+                        "aTargets": [ cnaTableIndices['note'] ],
+                        "mDataProp": function(source,type,value) {
+                            if (!isSummary) return "";
+                            if (type==='set') {
+                                source[cnaTableIndices["note"]]=value;
+                            } else if (type==='display') {
+                                var notes = [];
+                                if (source[cnaTableIndices["sanger"]])
+                                    notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
+                                                +"-tip' alt='In Sanger Cancer Gene Census'/>");
+                                var drug = source[cnaTableIndices["drug"]];
+                                if (drug && drug.length) {
+                                    notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
+                                                +source[cnaTableIndices["id"]]+"-drug-note-tip' class='"
+                                                +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
+                                }
+                                return notes.join("&nbsp;");
+                            } else if (type==='sort') {
+                                return "";
+                            } else {
+                                if (!source[cnaTableIndices["note"]]) return '';
+                                return source[cnaTableIndices["note"]];
+                            }
+                        },
+                        "bSortable" : false
                     }
                 ],
+                "fnDrawCallback": function( oSettings ) {
+                    addNoteTooltip("."+table_id+"-tip");
+                    addDrugsTooltip("."+table_id+"-drug-tip");
+                },
                 "aaSorting": [[cnaTableIndices['gistic'],'asc'],[cnaTableIndices['altrate'],'desc'],[cnaTableIndices['drug'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -191,7 +218,7 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        $(table_id).css("width","100%");
+        oTable.css("width","100%");
         return oTable;
     }
     
@@ -208,7 +235,7 @@
             params,
             function(cnas){
                 // cna
-                cna_table = buildCnaDataTable(cnas, '#cna_table', false, '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                cna_table = buildCnaDataTable(cnas, 'cna_table', false, '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
                 
@@ -219,7 +246,7 @@
                 geObs.fire('cna-built');
                 
                 // summary table
-                cna_summary_table = buildCnaDataTable(cnas, '#cna_summary_table', true, '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 10);
+                cna_summary_table = buildCnaDataTable(cnas, 'cna_summary_table', true, '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 10);
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');

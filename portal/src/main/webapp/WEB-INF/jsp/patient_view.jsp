@@ -341,6 +341,15 @@ function getDrugMap(drugs) {
     }
     return map;
 }
+    
+function addNoteTooltip(elem) {
+    $(elem).qtip({
+        content: {attr: 'alt'},
+        hide: { fixed: true, delay: 100 },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+        position: {my:'top right',at:'bottom left'}
+    });
+}
 
 function addDrugsTooltip(elem) {
     $(elem).each(function(){

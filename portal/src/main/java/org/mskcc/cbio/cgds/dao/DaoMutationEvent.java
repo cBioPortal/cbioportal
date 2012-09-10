@@ -183,7 +183,8 @@ public final class DaoMutationEvent {
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
                     + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
-                    + " CHR, START_POSITION, END_POSITION, KEYWORD"
+                    + " CHR, START_POSITION, END_POSITION, FUNCTIONAL_IMPACT_SCORE, LINK_XVAR, LINK_PDB,"
+                    + " LINK_MSA, KEYWORD"
                     + " FROM case_mutation_event, mutation_event"
                     + " WHERE `CASE_ID`=? AND `GENETIC_PROFILE_ID`=? AND"
                     + " case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
@@ -214,6 +215,10 @@ public final class DaoMutationEvent {
             event.setStartPosition(rs.getLong("START_POSITION"));
             event.setEndPosition(rs.getLong("END_POSITION"));
             event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
+            event.setFunctionalImpactScore(rs.getString("FUNCTIONAL_IMPACT_SCORE"));
+            event.setLinkXVar(rs.getString("LINK_XVAR"));
+            event.setLinkPdb(rs.getString("LINK_PDB"));
+            event.setLinkMsa(rs.getString("LINK_MSA"));
             event.setKeyword(rs.getString("KEYWORD"));
             events.add(event);
         }

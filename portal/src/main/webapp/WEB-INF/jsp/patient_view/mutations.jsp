@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     var mutTableIndices = {id:0,key:1,chr:2,start:3,end:4,gene:5,aa:6,type:7,status:8,
-        cosmic:9,mutsig:10,sanger:11,drug:12,overview:13,mutrate:14,note:15};
+        cosmic:9,mutsig:10,sanger:11,drug:12,ma:13,overview:14,mutrate:15,note:16};
     function buildMutationsDataTable(mutations, table_id, isSummary, sDom, iDisplayLength) {
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -178,6 +178,40 @@
                                 return source[mutTableIndices["sanger"]];
                             }
                         }
+                    },
+                    {
+                        "aTargets": [ mutTableIndices["ma"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["ma"]]=value;
+                            } else if (type==='display') {
+                                var ma = source[mutTableIndices["ma"]];
+                                var score = ma['score'];
+                                var bgColor,impact;
+                                if (score==='N') {bgColor="#EBEBEB"; impact='Neutral';}
+                                else if (score==='L') {bgColor="#FFD6AD"; impact='Low';}
+                                else if (score==='M') {bgColor="#FF8533"; impact='Medium';}
+                                else if (score==='H') {bgColor="red"; impact='High';}
+                                else return '';
+                                var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>"+score+"</a>";
+                                var msa = ma['msa'];
+                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"'><img src='images/msa.png'></a>";
+                                var pdb = ma['pdb'];
+                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"'><img src='images/pdb.png'></a>";
+                                return ret;
+                                return;
+                            } else if (type==='sort') {
+                                var ma = source[mutTableIndices["ma"]];
+                                var score = ma['score'];
+                                if (score==='L') return '1';
+                                else if (score==='M') return '2';
+                                else if (score==='H') return '3';
+                                else return '0';
+                            } else {
+                                return source[mutTableIndices["ma"]];
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
                     },
                     {// in overview
                         "bVisible": false,

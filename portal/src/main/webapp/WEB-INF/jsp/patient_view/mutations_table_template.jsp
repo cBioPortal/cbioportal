@@ -16,6 +16,9 @@
                             <img class="mutations_help" src="images/help.png" title="In Sanger Cancer Gene Census?"/>
                         </th>
                         <th>Potential Drugs</th>
+                        <th>Predicted Impact
+                            <img class="mutations_help" src="images/help.png" title="Functional impact predicted by MutationAssessor"/>
+                        </th>
                         <th>Show in summary</th>
                         <th>Study Mutation Rate
                             <img class="mutations_help" src="images/help.png" title="Number and percentage of 

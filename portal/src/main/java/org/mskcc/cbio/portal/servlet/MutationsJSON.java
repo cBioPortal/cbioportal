@@ -308,6 +308,14 @@ public class MutationsJSON extends HttpServlet {
         // drug
         row.add(drugs);
         
+        // mutation assessor
+        Map<String,String> ma = new HashMap<String,String>();
+        ma.put("score", mutation.getFunctionalImpactScore());
+        ma.put("xvia", mutation.getLinkXVar());
+        ma.put("pdb", mutation.getLinkPdb());
+        ma.put("msa", mutation.getLinkMsa());
+        row.add(ma);
+        
         // show in summary table
         row.add(isSangerGene || 
                 !Double.isNaN(mutSigQvalue) || 

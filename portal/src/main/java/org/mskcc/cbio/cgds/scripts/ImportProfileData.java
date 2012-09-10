@@ -44,12 +44,6 @@ public class ImportProfileData{
    }
 
    public static void main(String[] args) throws Exception {
-       args = new String[]{"--data"
-               , "/Users/jj/projects/GDAC-staging/prad_mich/data_CNA.txt"
-               , "--meta"
-               , "/Users/jj/projects/GDAC-staging/prad_mich/meta_CNA.txt"
-               , "--dbmsAction"
-               , "clobber"};
        Date start = new Date();
 
        // use a real options parser, help avoid bugs

@@ -56,18 +56,17 @@ public class GisticJSON extends HttpServlet {
         Map map = new HashMap();
 
         map.put("chromosome", gistic.getChromosome());
+        map.put("cytoband", gistic.getCytoband());
         map.put("peakStart", gistic.getPeakStart());
         map.put("peakEnd", gistic.getPeakEnd());
 
-        map.put("genes_in_ROI", gistic.getGenes_in_ROI());
-        
-//        ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
-//
-//        Map genes_map = new HashMap();
-//
-//        for (CanonicalGene gene : genes) {
-//            genes_map.put(gene.getStandardSymbol());
-//        }
+        // convert CanonicalGenes in ROI to strings
+        ArrayList<String> genes = new ArrayList<String>();
+        for (CanonicalGene g : gistic.getGenes_in_ROI()) {
+            genes.add(g.getHugoGeneSymbolAllCaps());
+        }
+
+        map.put("genes_in_ROI", genes);
 
         map.put("qval", gistic.getqValue());
         map.put("res_qval", gistic.getRes_qValue());

@@ -1,5 +1,6 @@
 package org.mskcc.cbio.cgds.dao;
 
+import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
 import org.mskcc.cbio.cgds.validate.ValidateGistic;
@@ -23,11 +24,9 @@ public class DaoGistic {
      * Adds a ROI with Gistic info to the database
      *
      * @param  gistic            Gistic object
-     * @throws SQLException
      * @throws DaoException
      */
-
-    public static void addGistic(Gistic gistic) throws SQLException, DaoException {
+    public static void addGistic(Gistic gistic) throws DaoException {
         if (gistic == null) {
             throw new DaoException("Given a null gistic object");
         }
@@ -40,23 +39,25 @@ public class DaoGistic {
             con = JdbcUtil.getDbConnection();
             // insert into SQL gistic table
             pstmt = con.prepareStatement
-				(("INSERT INTO gistic (`CANCER_STUDY_ID`," +
+				("INSERT INTO gistic (`CANCER_STUDY_ID`," +
 				  "`CHROMOSOME`, " +
+                  "`CYTOBAND`, " +
 				  "`WIDE_PEAK_START`, " +
 				  "`WIDE_PEAK_END`, " +
 				  "`Q_VALUE`, "  +
 				  "`RES_Q_VALUE`, " +
 				  "`AMP_DEL`) "  +
-				  "VALUES (?,?,?,?,?,?,?)"),
+				  "VALUES (?,?,?,?,?,?,?,?)",
 				 Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setInt(1, gistic.getCancerStudyId());
             pstmt.setInt(2, gistic.getChromosome()) ;
-            pstmt.setInt(3, gistic.getPeakStart());
-            pstmt.setInt(4, gistic.getPeakEnd());
-            pstmt.setDouble(5, gistic.getqValue());
-            pstmt.setDouble(6, gistic.getRes_qValue());
-            pstmt.setBoolean(7, gistic.getAmpDel());
+            pstmt.setString(3, gistic.getCytoband()); ;
+            pstmt.setInt(4, gistic.getPeakStart());
+            pstmt.setInt(5, gistic.getPeakEnd());
+            pstmt.setDouble(6, gistic.getqValue());
+            pstmt.setDouble(7, gistic.getRes_qValue());
+            pstmt.setBoolean(8, gistic.getAmpDel());
             pstmt.executeUpdate();
 
             // insert into SQL gistic_to_gene table
@@ -89,6 +90,10 @@ public class DaoGistic {
             con = JdbcUtil.getDbConnection();
             if (!genes.isEmpty()) {
                 for (CanonicalGene g : genes) {
+
+                    // EntrezId = -1 if it does not exist in the gene table
+                    // if this is the case, we are going to simply skip over this gene
+                    if (g.getEntrezGeneId() != -1) {
                     pstmt = con.prepareStatement
                             ("INSERT INTO gistic_to_gene (`GISTIC_ROI_ID`," +
                                     "`ENTREZ_GENE_ID`)" +
@@ -98,13 +103,27 @@ public class DaoGistic {
                     pstmt.setLong(2, g.getEntrezGeneId());
 
                     pstmt.executeUpdate();
+                    }
+
+                    else {
+                        throw new DaoException("gene not found, skipping: " + g);
+                    }
                 }
             } else {
                 throw new DaoException("No genes associated with given gistic");
             }
 
         } catch (SQLException e) {
-            throw new DaoException(e);
+
+            System.out.println(genes);
+            System.out.println(e);
+//            System.out.println("gene mappings for hsa-mir-617");
+//            System.out.println(DaoGeneOptimized.getInstance().getNonAmbiguousGene("hsa-mir-617"));
+//            System.out.println(DaoGeneOptimized.getInstance().getGene("hsa-mir-617"));
+
+            System.exit(1);
+
+//            throw new DaoException(e);
         }
     }
 
@@ -116,7 +135,7 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static Gistic extractGistic(ResultSet rs) throws SQLException, DaoException, validationException {
+    private static Gistic extractGistic(ResultSet rs) throws DaoException, validationException {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
@@ -125,9 +144,11 @@ public class DaoGistic {
         ResultSet _rs = null;
         Gistic gistic;
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
-        int id = rs.getInt("GISTIC_ROI_ID");
 
         try {
+
+            int id = rs.getInt("GISTIC_ROI_ID");
+
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement("SELECT * FROM gistic_to_gene WHERE GISTIC_ROI_ID = ?");
             pstmt.setInt(1, id);
@@ -147,10 +168,11 @@ public class DaoGistic {
             // create gistic return object
             gistic = new Gistic(rs.getInt("CANCER_STUDY_ID"),
                     rs.getInt("CHROMOSOME") ,
+                    rs.getString("CYTOBAND") ,
                     rs.getInt("WIDE_PEAK_START"),
                     rs.getInt("WIDE_PEAK_END"),
-                    rs.getDouble("Q_VALUE"),
-                    rs.getDouble("RES_Q_VALUE") ,
+                    rs.getFloat("Q_VALUE") ,
+                    rs.getFloat("RES_Q_VALUE") ,
                     genes,
                     rs.getBoolean("AMP_DEL"));
 
@@ -209,7 +231,6 @@ public class DaoGistic {
      * @param cancerStudyId         CancerStudyId (of a database record)
      * @return
      */
-
     public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException, validationException {
 
         Connection con = null;
@@ -229,6 +250,37 @@ public class DaoGistic {
                 list.add(gistic);
             }
             return list;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Returns the number of rows in the gistic database table
+     * @param cancerStudy cancerStudyId
+     * @return no. of gistics
+     * @throws DaoException
+     */
+    public static int countGistic(int cancerStudy) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT count(*) FROM gistic WHERE CANCER_STUDY_ID = ?");
+            pstmt.setInt(1, cancerStudy);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+            return 0;
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -285,6 +337,47 @@ public class DaoGistic {
             pstmt = con.prepareStatement("DELETE from gistic WHERE GISTIC_ROI_ID=?");
             pstmt.setInt(1, gisticInternalId);
             pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Asks whether the gistic database table is empty.
+     * @param cancerStudy
+     * @return True is there are gistics for cancerStudy, false if there are not.
+     * @throws DaoException
+     */
+    public static boolean hasGistic(CancerStudy cancerStudy) throws DaoException {
+        return !(countGistic(cancerStudy.getInternalId()) == 0);
+    }
+
+    /**
+     * Returns all gistics in the database
+     * @return ArrayList of gistics
+     * @throws DaoException
+     * @throws validationException
+     */
+    public static ArrayList<Gistic> getAllGistic() throws DaoException, validationException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("SELECT * FROM gistic");
+
+            rs = pstmt.executeQuery();
+            ArrayList<Gistic> list = new ArrayList<Gistic>();
+
+            while( rs.next() ) {
+                Gistic gistic = extractGistic(rs);
+                list.add(gistic);
+            }
+            return list;
 
         } catch (SQLException e) {
             throw new DaoException(e);

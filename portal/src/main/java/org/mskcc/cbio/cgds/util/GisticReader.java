@@ -1,19 +1,16 @@
 package org.mskcc.cbio.cgds.util;
 
-import org.junit.experimental.theories.internal.ParameterizedAssertionError;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
 import org.mskcc.cbio.cgds.validate.ValidateGistic;
 import org.mskcc.cbio.cgds.validate.validationException;
-import sun.security.validator.ValidatorException;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
+import java.lang.System;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -61,7 +58,8 @@ public class GisticReader {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public ArrayList<Gistic> parse_Table(File gisticFile) throws FileNotFoundException, IOException, DaoException, validationException {
+    public ArrayList<Gistic> parse_Table(File gisticFile)
+            throws FileNotFoundException, IOException, DaoException, validationException {
         ArrayList<Gistic> gistics = new ArrayList<Gistic>();
 
         MySQLbulkLoader.bulkLoadOff();
@@ -131,10 +129,21 @@ public class GisticReader {
             ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             for (String gene : _genes) {
+
+                // TODO: when gene mapping has implemented, map miRNA appropriately, for now miRNA is silently ignored
+                if (gene.contains("hsa")) {
+
+                    //System.out.println("ignoring miRNA : " + gene);
+                    continue;
+                }
+
                 CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
                 if (canonicalGene == null) {
-                    throw new DaoException(gene);
+                    canonicalGene = new CanonicalGene(gene);
+
+//                    System.out.println("gene not found, skipping: " + gene);
+//                    throw new DaoException("gene not found: " + gene);
                 }
 
                 genes.add(canonicalGene);
@@ -146,6 +155,26 @@ public class GisticReader {
             line = buf.readLine();
         }
         return gistics;
+    }
+
+    /**
+     * rounds the qvalue to 2 significant figures
+     * Chris says that these q-values are, after all, just rules of thumb from the gistic algorithm
+     * @param value_str A string of digits with a decimal point
+     * @return those digits rounded to 2 SFs
+     */
+    private double round_2SF(String value_str) {
+
+        double n = Double.valueOf(value_str);
+
+        if (n == 0) {
+            return n;
+        }
+
+        // round
+        value_str = String.format("%1.0e", n);
+
+        return Double.valueOf(value_str);
     }
 
     /**
@@ -181,6 +210,7 @@ public class GisticReader {
         }
 
         String[] split;
+
         while (line != null) {
             split = line.split("\t");
 
@@ -188,17 +218,17 @@ public class GisticReader {
 
             if (split[0].equals("q value")) {
                 for (int i = 0; i < example_no - 1; i += 1) {       // i = 0 is the name of the feature
-                    gistics.get(i).setqValue(Double.valueOf(split[i + 1]));
+                    gistics.get(i).setqValue(round_2SF(split[i+1]));
                 }
-            }
-
-            else if (split[0].equals("residual q value")) {
+            } else if (split[0].equals("cytoband")) {
                 for (int i = 0; i < example_no - 1; i += 1) {
-                    gistics.get(i).setRes_qValue(Double.valueOf(split[i + 1]));
+                    gistics.get(i).setCytoband(split[i+1]);
                 }
-            }
-
-            else if (split[0].equals("genes in wide peak") || split[0].equals("")) {
+            } else if (split[0].equals("residual q value")) {
+                for (int i = 0; i < example_no - 1; i += 1) {
+                    gistics.get(i).setRes_qValue(round_2SF(split[i+1]));
+                }
+            }  else if (split[0].equals("genes in wide peak") || split[0].equals("")) {
 
             // genes are stuck on at the ends of the file
             // so the number of fields of a gene line may vary
@@ -214,11 +244,24 @@ public class GisticReader {
                     // parse out '[' and ']'
                     gene_str = gene_str.replace("[", "").replace("]","");
 
+                    // TODO: when gene mapping has implemented, map miRNA appropriately, for now miRNA is silently ignored
+                    if (gene_str.contains("hsa")) {
+                        //System.out.println("ignoring miRNA : " + gene_str);
+
+                        //System.out.println(gene_str
+                        //        + " -> "
+                        //        + DaoGeneOptimized.getInstance().getNonAmbiguousGene(gene_str));
+                        continue;
+                    }
+
                     // get the Canonical Gene
                     CanonicalGene gene = DaoGeneOptimized.getInstance().getNonAmbiguousGene(gene_str);
 
                     if (gene == null) {
-                        throw new DaoException(gene.toString());
+
+                        gene = new CanonicalGene(gene_str);
+//                        System.out.println("gene not found, skipping: " + gene);
+//                        throw new DaoException("gene not found: " + gene);
                     }
 
                     gistics.get(i).addGene(gene);
@@ -283,6 +326,13 @@ public class GisticReader {
 
                 assert(g2.getPeakEnd() != dummyGistic.getPeakEnd());
                 g1.setPeakEnd(g2.getPeakEnd());
+            }
+
+            // merge cytoband in g1
+            if (g1.getCytoband() == dummyGistic.getCytoband()) {
+
+                assert(g2.getCytoband() != dummyGistic.getCytoband());
+                g1.setCytoband(g2.getCytoband());
             }
 
         return g1;
@@ -356,8 +406,9 @@ public class GisticReader {
         return amp ? Gistic.AMPLIFIED : Gistic.DELETED;
     }
 
-    public void loadGistic(int cancerStudyInternalId, File table_file, File nontable_file, boolean ampdel) throws IOException, DaoException, SQLException, validationException {
-        
+    public ArrayList<Gistic> mergeAll(int cancerStudyInternalId, File table_file, File nontable_file, boolean ampdel)
+            throws IOException, DaoException, SQLException, validationException {
+
         ArrayList<Gistic> gistics;
 
         if (ampdel == Gistic.AMPLIFIED) {     // table_ampdel == nontable_ampdel
@@ -376,13 +427,13 @@ public class GisticReader {
             throw new validationException("");
         }
 
-        // set the Cancer Study internal ID
-        // and add to CGDS database
-        for (Gistic g : gistics) {
-            g.setCancerStudyId(cancerStudyInternalId);
-
-//            System.out.println(g);
-            DaoGistic.addGistic(g);
+        // set the cancerStudyId for all the gistics
+        // todo: this goes through the list of gistics one more time than is necessary.
+        // todo: Should be refactored to pass cancerStudyId to parseTable an parse_nonTablular
+        for (Gistic gistic : gistics) {
+            gistic.setCancerStudyId(cancerStudyInternalId);
         }
+
+        return gistics;
     }
 }

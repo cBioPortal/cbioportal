@@ -25,7 +25,7 @@ public class TestGisticJSON extends TestCase {
         genes.add(jj);
         genes.add(tp53);
 
-        Gistic gistic = new Gistic(1, 7, 10000, 10001, 0.05d, 0.05d, genes, Gistic.AMPLIFIED);
+        Gistic gistic = new Gistic(1, 7, "1q11.1", 10000, 10001, 0.05f, 0.05f, genes, Gistic.AMPLIFIED);
 
         Map map = GisticJSON.Gistic_toMap(gistic);
         

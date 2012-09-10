@@ -40,11 +40,11 @@ public class ValidateGistic {
         }
 
         if (qValue < 0 || qValue > 1) {
-            throw new validationException(qValue);
+            throw new validationException("qValue=" + qValue);
         }
 
         if (res_qValue < 0 || res_qValue > 1) {
-            throw new validationException(res_qValue);
+            throw new validationException("res_qValue=" + res_qValue);
         }
         
         if (genes_in_ROI.isEmpty()){

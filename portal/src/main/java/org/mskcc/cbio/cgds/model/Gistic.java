@@ -17,6 +17,7 @@ public class Gistic {
     private int gisticID;
     private int cancerStudyId;
     private int chromosome;
+    private String cytoband;
     private int peakStart;
     private int peakEnd;
     private ArrayList<CanonicalGene> genes_in_ROI;
@@ -35,12 +36,13 @@ public class Gistic {
      * @param genes_in_ROI      genes in the ROI
      * @param amp_del           region is amplified or deleted. To set use Gistic.AMPLIFIED or Gistic.DELETED
      */
-    public Gistic(int cancerStudyId, int chromosome, int peakStart, int peakEnd,
+    public Gistic(int cancerStudyId, int chromosome, String cytoband, int peakStart, int peakEnd,
                   double qValue, double res_qValue, ArrayList<CanonicalGene> genes_in_ROI, boolean amp_del) {
 
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = cancerStudyId;
         this.chromosome = chromosome;
+        this.cytoband = cytoband;
         this.peakStart = peakStart;
         this.peakEnd = peakEnd;
         this.qValue = qValue;
@@ -58,6 +60,7 @@ public class Gistic {
         this.gisticID = NO_SUCH_GISTIC;
         this.cancerStudyId = -1;
         this.chromosome = -1;
+        this.cytoband = "";
         this.peakStart = -1;
         this.peakEnd = -1;
         this.qValue = -1f;
@@ -70,7 +73,6 @@ public class Gistic {
      * Calculates the size of the ROI
      * @return size of the peak in ROI
      */
-
     public int peakSize() {
         return this.peakEnd - this.peakStart;
     }
@@ -88,19 +90,21 @@ public class Gistic {
 
         return String.format("cancerStudyId=%d, " +
                 "chromosome: %d, " +
+                "cytoband: %s, " +
                 "peakStart: %d, " +
                 "peakEnd: %d, " +
-                "qValue: %f, " +
-                "res_qValue: %f, " +
+                "qValue: %s, " +
+                "res_qValue: %s, " +
                 "genes_in_ROI: %s, " +
                 "ampDel: %s", this.cancerStudyId,
                 this.chromosome,
+                this.cytoband,
                 this.peakStart,
                 this.peakEnd,
-                this.qValue,
-                this.res_qValue,
+                Double.toString(this.qValue),
+                Double.toString(this.res_qValue),
                 this.genes_in_ROI,
-                ampdel);
+                this.ampDel);
     }
 
     /**
@@ -126,6 +130,14 @@ public class Gistic {
      */
     public void setChromosome(int chromosome) {
         this.chromosome = chromosome;
+    }
+
+    /**
+     * Sets the cytoband of a gistic
+     * @param cytoband
+     */
+    public void setCytoband (String cytoband) {
+        this.cytoband = cytoband;
     }
 
     /**
@@ -193,16 +205,22 @@ public class Gistic {
      * called chromosome notation (e.g. 1q12)
      * @return chromosome locus of ROI
      */
-
     public int getChromosome() {
         return chromosome;
+    }
+
+    /**
+     * Returns the cytoband
+     * @return cytoband of the ROI
+     */
+    public String getCytoband() {
+        return cytoband;
     }
 
     /**
      * Returns the start of the peak
      * @return start of peak of ROI
      */
-
     public int getPeakStart() {
         return peakStart;
     }
@@ -211,7 +229,6 @@ public class Gistic {
      * Returns the end of the peak
      * @return end of peak of ROI
      */
-
     public int getPeakEnd() {
         return peakEnd;
     }
@@ -220,7 +237,6 @@ public class Gistic {
      * Returns a list of the genes in the ROI
      * @return List of genes in the wide peak of the ROI
      */
-
     public ArrayList<CanonicalGene> getGenes_in_ROI() {
         return genes_in_ROI;
     }
@@ -229,7 +245,6 @@ public class Gistic {
      * Returns the q-value of the wide peak
      * @return q-value of wide peak
      */
-
     public double getqValue() {
         return qValue;
     }
@@ -238,7 +253,6 @@ public class Gistic {
      * Returns the residual q-value of the wide peak.
      * @return residual q-value of wide peak
      */
-
     public double getRes_qValue() {
         return res_qValue;
     }
@@ -247,7 +261,6 @@ public class Gistic {
      * Returns the internal CancerStudy ID of the study associated with this ROI
      * @return Returns the internal CancerStudy ID of the ROI
      */
-
     public int getCancerStudyId() {
         return cancerStudyId;
     }
@@ -256,7 +269,6 @@ public class Gistic {
      * Returns the internal ID associated with this ROI
      * @return internal ID associated with this ROI
      */
-
     public int getInternalId() {
         return gisticID;
     }
@@ -265,7 +277,6 @@ public class Gistic {
      * Returns whether or not the wide peak of ROI is a region of amplification or deletion
      * @return whether or not ROI is amplified or deleted, use Gistic.AMPLIFIED or Gistic.DELETED
      */
-
     public boolean getAmpDel() {
         return ampDel;
     }

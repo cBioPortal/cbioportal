@@ -133,7 +133,7 @@ public class ImportTabDelimData {
             
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
-                parts = line.split("\t");
+                parts = line.split("\t",-1);
 
                 int startIndex = getStartIndex();
                 String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);
@@ -182,7 +182,7 @@ public class ImportTabDelimData {
                                 storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
                                 if (geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-                                        && geneticProfile.getStableId().endsWith("gistic")) {
+                                        && geneticProfile.showProfileInAnalysisTab()) {
                                     storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
                                 }
                                 
@@ -237,6 +237,8 @@ public class ImportTabDelimData {
     
     private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
         int n = values.length;
+        if (n==0)
+            System.out.println();
         int i = values[0].equals(""+entrezGeneId) ? 1:0;
         for (; i<n; i++) {
             if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 

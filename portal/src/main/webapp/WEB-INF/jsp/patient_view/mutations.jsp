@@ -90,7 +90,7 @@
                                             var frac = keyCon / numPatientInSameMutationProfile;
                                             var tip = keyCon+" sample"+(keyCon==1?"":"s")
                                                 +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
-                                                +cancerStudyName+" carried "+key+" mutations";
+                                                +cancerStudyName+(keyCon==1?" has ":" have ")+key+" mutations";
                                             var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
                                             ret += "&nbsp;<div class='altered_percent_div "+table_id
                                                         +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
@@ -188,12 +188,12 @@
                                 var ma = source[mutTableIndices["ma"]];
                                 var score = ma['score'];
                                 var bgColor,impact;
-                                if (score==='N') {bgColor="#EBEBEB"; impact='Neutral';}
-                                else if (score==='L') {bgColor="#FFD6AD"; impact='Low';}
-                                else if (score==='M') {bgColor="#FF8533"; impact='Medium';}
-                                else if (score==='H') {bgColor="red"; impact='High';}
+                                if (score==='N') {bgColor="white"; impact='Neutral';}
+                                else if (score==='L') {bgColor="#E8E894"; impact='Low';}
+                                else if (score==='M') {bgColor="#C79060"; impact='Medium';}
+                                else if (score==='H') {bgColor="#C83C3C"; impact='High';}
                                 else return '';
-                                var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>"+score+"</a>";
+                                var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
                                 var msa = ma['msa'];
                                 if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"'><img src='images/msa.png'></a>";
                                 var pdb = ma['pdb'];
@@ -390,11 +390,11 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            if (summaryOnly) {
+            if (!summaryOnly||print) {
+                oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
+            } else {
                 oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
                 oTable.fnUpdate(null, row, mutTableIndices["aa"], false, false);
-            } else {
-                oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
             }
         }
         oTable.fnDraw();
@@ -452,8 +452,8 @@
                 geObs.fire('mutations-built');
                 
                 // summary table
-                mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table', true,
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 10);
+                mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table', print?false:true,
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', print?-1:10);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
                     +mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {

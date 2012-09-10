@@ -7,6 +7,7 @@
 
 
 <%
+boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("standard_js_only", true);
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
@@ -183,6 +184,7 @@ if (patientViewError!=null) {
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
+    if (print) $('#page_wrapper_table').css('width', '900px');
     setUpPatientTabs();
     initTabs();
 });
@@ -326,6 +328,7 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+var print = <%=print%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var caseId = '<%=patient%>';

@@ -39,10 +39,10 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
-            if (summaryOnly)
-                oTable.fnUpdate(null, row, cnaTableIndices['alteration'], false, false);
-            else
+            if (!summaryOnly||print)
                 oTable.fnUpdate(true, row, cnaTableIndices['altrate'], false, false);
+            else
+                oTable.fnUpdate(null, row, cnaTableIndices['alteration'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -106,7 +106,7 @@
                                         var frac = con / numPatientInSameCnaProfile;
                                         var tip = "In "+con+" sample"+(con==1?"":"s")
                                             +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
-                                            +cancerStudyName+", "+source[cnaTableIndices["gene"]]+" was "+alter;
+                                            +cancerStudyName+", "+source[cnaTableIndices["gene"]]+" is "+alter;
                                         var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
                                         ret += "&nbsp;<div class='altered_percent_div "+table_id
                                                     +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
@@ -274,7 +274,8 @@
                 geObs.fire('cna-built');
                 
                 // summary table
-                cna_summary_table = buildCnaDataTable(cnas, 'cna_summary_table', true, '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', 10);
+                cna_summary_table = buildCnaDataTable(cnas, 'cna_summary_table', print?false:true,
+                        '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', print?-1:10);
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');

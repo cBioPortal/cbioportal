@@ -71,7 +71,13 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Regions of Interest" style="font-size: 11px; .ui-dialog {padding: 0em;};"></div>
+    <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; white-space:nowrap; text-align:left; .ui-dialog {padding:0em;};">
+        <div id="gistic_table"></div>
+		<div id="gistic_dialog_footer" style="float: right;">
+					<button id="cancel_gistic" onclick="Gistic.UI.cancel_button();"title="Cancel">Cancel</button>
+					<button id="select_gistic" onclick="Gistic.UI.select_button();" class="tabs-button" title="Use these ROI genes">Push Selected to Gene Set</button>
+		</div>
+    </div>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

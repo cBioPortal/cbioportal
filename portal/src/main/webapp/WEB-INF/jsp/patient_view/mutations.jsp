@@ -52,15 +52,19 @@
                             } else if (type==='display') {
                                 var gene = source[mutTableIndices["gene"]];
                                 var ret = "<b>"+gene+"</b>";
-                                if (source[mutTableIndices["mutrate"]]) {
-                                    var geneCon = mutGeneContext[gene];
-                                    var frac = geneCon/numPatientInSameMutationProfile;
-                                    var tip = geneCon+" sample"+(geneCon==1?"":"s")
-                                        +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
-                                        +cancerStudyName+" carried mutated "+gene;
-                                    var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
-                                    ret += "&nbsp;<div class='altered_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                if (isSummary) {
+                                    if (mutGeneContext) {
+                                        var geneCon = mutGeneContext[gene];
+                                        var frac = geneCon/numPatientInSameMutationProfile;
+                                        var tip = geneCon+" sample"+(geneCon==1?"":"s")
+                                            +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
+                                            +cancerStudyName+" carried mutated "+gene;
+                                        var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
+                                        ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                                    +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                    } else {
+                                        ret += "&nbsp;<img style='display:block;float:right;' src='images/ajax-loader2.gif'>";
+                                    }
                                 }
                                 
                                 return ret;
@@ -73,9 +77,29 @@
                         "aTargets": [ mutTableIndices["aa"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
-                                source[mutTableIndices["aa"]]=value;
+                                if (value!=null)
+                                    source[mutTableIndices["aa"]]=value;
                             } else if (type==='display') {
-                                return "<b><i>"+source[mutTableIndices["aa"]]+"</i></b>";
+                                var aa = source[mutTableIndices["aa"]];
+                                var ret = "<b><i>"+aa+"</i></b>";
+                                if (isSummary) {
+                                    if (mutKeyContext) {
+                                        var key = source[mutTableIndices["key"]];
+                                        if (key) {
+                                            var keyCon = mutKeyContext[key];
+                                            var frac = keyCon / numPatientInSameMutationProfile;
+                                            var tip = keyCon+" sample"+(keyCon==1?"":"s")
+                                                +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
+                                                +cancerStudyName+" carried "+key+" mutations";
+                                            var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
+                                            ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                                        +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                        }
+                                    } else {
+                                        ret += "&nbsp;<img style='display:block;float:right;' src='images/ajax-loader2.gif'>";
+                                    }
+                                }
+                                return ret;
                             } else {
                                 return source[mutTableIndices["aa"]];
                             }
@@ -160,8 +184,12 @@
                         "aTargets": [ mutTableIndices["overview"] ]
                     },
                     {// mutation rate
+                        "bVisible": !isSummary,
                         "mDataProp": 
                             function(source,type,value) {
+                            if (isSummary) {
+                                return '';
+                            }
                             if (type==='set') {
                                 source[mutTableIndices["mutrate"]]=value;
                             } else if (type==='display') {
@@ -171,18 +199,18 @@
                                 var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
                                 var ret = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)";
                                 
-                                var eventId = source[mutTableIndices["id"]];
-                                var aa = source[mutTableIndices["aa"]];
-                                var mutCon = mutAAContext[eventId];
-                                var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
-                                ret += "<br/>" + gene + " <i>" + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)";
-                                
                                 var key = source[mutTableIndices["key"]];
                                 if (key) {
                                     var keyCon = mutKeyContext[key];
                                     var keyPerc = 100.0 * keyCon / numPatientInSameMutationProfile;
                                     ret += "<br/>" + key + ": " + keyCon + " (<b>" + keyPerc.toFixed(1) + "%</b>)";
                                 }
+                                
+                                var eventId = source[mutTableIndices["id"]];
+                                var aa = source[mutTableIndices["aa"]];
+                                var mutCon = mutAAContext[eventId];
+                                var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
+                                ret += "<br/>" + gene + " <i>" + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)";
                                 
                                 return ret;
                             } else if (type==='sort') {
@@ -328,14 +356,16 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
-            oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
-            oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
+            if (summaryOnly) {
+                oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
+                oTable.fnUpdate(null, row, mutTableIndices["aa"], false, false);
+            } else {
+                oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
+            }
         }
         oTable.fnDraw();
         oTable.css("width","100%");
     }
-    
-    
     
     var mutGeneContext = null;
     var mutAAContext = null;

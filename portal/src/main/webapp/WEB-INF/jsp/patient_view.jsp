@@ -91,7 +91,6 @@ if (patientViewError!=null) {
         .altered_percent_div {
                 display: block;
                 float: right;
-                float: right;
                 background-color: green;
                 height: 10px;
         }

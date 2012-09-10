@@ -53,9 +53,14 @@
                                 var gene = source[mutTableIndices["gene"]];
                                 var ret = "<b>"+gene+"</b>";
                                 if (source[mutTableIndices["mutrate"]]) {
-                                    var frac = mutGeneContext[gene]/numPatientInSameMutationProfile;
-                                    var height = Math.ceil(20 * Math.log(frac+1) * Math.LOG2E);
-                                    ret += "&nbsp<div class='altered_percent_div' style='height:"+height+"px;'></div>"
+                                    var geneCon = mutGeneContext[gene];
+                                    var frac = geneCon/numPatientInSameMutationProfile;
+                                    var tip = geneCon+" sample"+(geneCon==1?"":"s")
+                                        +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
+                                        +cancerStudyName+" carried mutated "+gene;
+                                    var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
+                                    ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                                 }
                                 
                                 return ret;
@@ -324,7 +329,7 @@
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
             oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
-            //oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
+            oTable.fnUpdate(null, row, mutTableIndices["gene"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");

@@ -93,7 +93,7 @@ if (patientViewError!=null) {
                 float: right;
                 float: right;
                 background-color: green;
-                width: 10px;
+                height: 10px;
         }
 </style>
 
@@ -160,24 +160,6 @@ if (patientViewError!=null) {
     <%}%>
 
 </div>
-    
-<div id="drugs_dialog" title="Drugs" style="font-size: 11px; .ui-dialog {padding: 0em;};">
-    <table id="drugs_table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Target Genes</th>
-                <th>Name</th>
-                <th>Synonyms</th>
-                <th>FDA Approved?</th>
-                <th>Description</th>
-                <th>Data Source</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
 <%  
 }
 %>
@@ -204,7 +186,6 @@ if (patientViewError!=null) {
 $(document).ready(function(){
     setUpPatientTabs();
     initTabs();
-    initDrugDialog();
 });
 
 function setUpPatientTabs() {
@@ -224,65 +205,6 @@ function initTabs() {
             $(this).addClass('selected');
             return false;
     }).filter(':first').click();   
-}
-
-function initDrugDialog() {
-    $('#drugs_dialog').dialog({autoOpen: false,
-        modal: true,
-        minHeight: 200,
-        maxHeight: 600,
-        height: 400,
-        minWidth: 300,
-        width: 800
-        });
-}
-
-function openDrugDialog(drugIds) {
-    $('#drugs_dialog').dialog('open');
-    $('drugs_table').hide();
-    var params = {
-        <%=DrugsJSON.DRUG_IDS%>: drugIds
-    };
-
-    $.post("drugs.json", 
-        params,
-        function(drugs){
-            $('#drugs_table').dataTable( {
-                "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>',
-                "bJQueryUI": true,
-                "bDestroy": true,
-                "aaData": drugs,
-                "aoColumnDefs":[
-                    {// data source
-                        "aTargets": [ 4 ],
-                        "fnRender": function(obj) {
-                            return obj.aData[ obj.iDataColumn ]?"Yes":"No";
-                        }
-                    },
-                    {// data source
-                        "aTargets": [ 6 ],
-                        "fnRender": function(obj) {
-                            var source = obj.aData[ obj.iDataColumn ];
-                            if (source.toLowerCase()!="drugbank") return source;
-                            var drugId = obj.aData[ 0 ];
-                            return "<a href=\"http://www.drugbank.ca/drugs/"+drugId+"\" target=\"_blank\">"+ source + "</a>";
-                        }
-                    }
-                ],
-                "oLanguage": {
-                    "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                    "sInfoFiltered": "",
-                    "sLengthMenu": "Show _MENU_ per page"
-                },
-                "iDisplayLength": 25,
-                "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
-            } );
-
-            $('#drugs_table').css("width","100%");
-            $('#drugs_table').show();
-        }
-        ,"json"
-    );
 }
 
 function fixCytoscapeWebRedraw() {
@@ -331,23 +253,13 @@ var overviewMutGenes = null;
 var mutEventIndexMap = null;
 
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
-
-function getDrugMap(drugs) {
-    var map = {};
-    for (var gene in drugs) {
-        var d = drugs[gene];
-        var strDrugs = d.join(',');
-        map[gene] = "<a href=\"#\" onclick=\"openDrugDialog('"+strDrugs+"'); return false;\">"+d.length+" drug"+(d.length>1?"s":"")+"</a>";
-    }
-    return map;
-}
     
 function addNoteTooltip(elem) {
     $(elem).qtip({
         content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top right',at:'bottom left'}
+        position: {my:'top center',at:'bottom center'}
     });
 }
 
@@ -418,6 +330,7 @@ function idRegEx(ids) {
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var caseId = '<%=patient%>';
+var cancerStudyName = '<%=cancerStudy.getName()%>';
 var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 
 </script>

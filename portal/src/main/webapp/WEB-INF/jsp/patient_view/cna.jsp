@@ -156,8 +156,9 @@
                                 if (!drug) return '';
                                 var len = drug.length;
                                 if (len==0) return '';
-                                return "<a href=\"#\" onclick=\"openDrugDialog('"
-                                            +drug.join(',')+"'); return false;\">"
+                                return "<a href='#' onclick='return false;' id='"
+                                            +table_id+'_'+source[cnaTableIndices["id"]]
+                                            +"-drug-tip' class='"+table_id+"-drug-tip' alt='"+drug.join(',')+"'>"
                                             +len+" drug"+(len>1?"s":"")+"</a>";
                             } else if (type==='sort') {
                                 var drug = source[cnaTableIndices["drug"]];

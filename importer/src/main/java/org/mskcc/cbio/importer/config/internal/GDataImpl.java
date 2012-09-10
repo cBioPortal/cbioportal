@@ -5,7 +5,7 @@ package org.mskcc.cbio.importer.config.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.DirectoryMetadata;
+import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,16 +56,6 @@ final class GDataImpl implements Config {
 	@Value("${spreadsheet}")
 	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
-	// latest analysis run downloaded property
-	private String latestAnalysisRunProperty;
-	@Value("${latest_analysis_run_download}")
-	public void setLatestAnalysisRunProperty(final String property) { this.latestAnalysisRunProperty = property; }
-
-	// latest stddata run download property
-	private String latestSTDDATARunProperty;
-	@Value("${latest_stddata_run_download}")
-	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
-
 	// cancer studies metadata
 	private String tumorTypesMetadataProperty;
 	@Value("${tumor_types_metadata}")
@@ -76,10 +66,10 @@ final class GDataImpl implements Config {
 	@Value("${datatypes_metadata}")
 	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
 
-	// directories metadata
-	private String directoriesMetadataProperty;
-	@Value("${directories_metadata}")
-	public void setDirectoriesMetadataProperty(final String property) { this.directoriesMetadataProperty = property; }
+	// firehose download metadata
+	private String firehoseDownloadMetadataProperty;
+	@Value("${firehose_download_metadata}")
+	public void setFirehoseDownloadMetadataProperty(final String property) { this.firehoseDownloadMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -92,54 +82,6 @@ final class GDataImpl implements Config {
 
 		// set members
 		this.spreadsheetService = spreadsheetService;
-	}
-
-	/**
-	 * Gets the latest analysis run.
-	 *
-	 * Returns the date of the latest analysis run
-	 * processed by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getLatestAnalysisRunDownloaded() {
-		return getPropertyString(latestAnalysisRunProperty);
-	}
-
-	/**
-	 * Sets the latest analysis run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestAnalysisRunDownloaded(final String latestAnalysisRun) {
-		setPropertyString(latestAnalysisRunProperty, latestAnalysisRun);
-	}
-
-	/**
-	 * Gets the latest STDDATA run.
-	 *
-	 * Returns the date of the latest stddata run
-	 * downloaded by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getLatestSTDDATARunDownloaded() {
-		return getPropertyString(latestSTDDATARunProperty);
-	}
-
-	/**
-	 * Sets the latest stddata run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestSTDDATARunDownloaded(final String latestSTDDATARun) {
-		setPropertyString(latestSTDDATARunProperty, latestSTDDATARun);
 	}
 
 	/**
@@ -248,36 +190,61 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets a DirectoryMetadata object.
+	 * Gets FirehoseDownloadMetadata.
 	 *
-	 * @return DirectoryMetadata
+	 * @return FirehoseDownloadMetadata
 	 */
-	@Override
-	public DirectoryMetadata getDirectoryMetadata() {
+    @Override
+	public FirehoseDownloadMetadata getFirehoseDownloadMetadata() {
 
-		DirectoryMetadata toReturn = null;
+		FirehoseDownloadMetadata toReturn = null;
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getDirectoryMetadata()");
+			LOG.info("getFirehoseDownloadMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = directoriesMetadataProperty.split(":");
-		if (properties.length != 7) {
+		String[] properties = firehoseDownloadMetadataProperty.split(":");
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDirectoryMetadata: " + directoriesMetadataProperty);
+				LOG.info("Invalid property passed to getFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
 			}
 			return toReturn;
 		}
 
         // outta here
-        return new DirectoryMetadata(getPropertyString(properties[0] + ":" + properties[1]),
-                                     getPropertyString(properties[0] + ":" + properties[2]),
-                                     getPropertyString(properties[0] + ":" + properties[3]),
-                                     getPropertyString(properties[0] + ":" + properties[4]),
-                                     getPropertyString(properties[0] + ":" + properties[5]),
-                                     getPropertyString(properties[0] + ":" + properties[6]));
+        return new FirehoseDownloadMetadata(getPropertyString(properties[0] + ":" + properties[1]),
+                                            getPropertyString(properties[0] + ":" + properties[2]),
+                                            getPropertyString(properties[0] + ":" + properties[3]),
+                                            getPropertyString(properties[0] + ":" + properties[4]));
 	}
+
+	/**
+	 * Sets FirehoseDownloadMetadata.  Really only used to store
+     * stddata/analysis run dates.
+	 *
+     * @param firehoseDownloadMetadata FirehoseDownloadMetadata
+	 * @return FirehoseDownloadMetadata
+	 */
+    @Override
+	public void setFirehoseDownloadMetadata(final FirehoseDownloadMetadata firehoseDownloadMetadata) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("setFirehoseDownloadMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = firehoseDownloadMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to setFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
+			}
+			return;
+		}
+
+        setPropertyString(properties[0] + ":" + properties[2], firehoseDownloadMetadata.getLatestAnalysisRunDownloaded());
+        setPropertyString(properties[0] + ":" + properties[4], firehoseDownloadMetadata.getLatestSTDDATARunDownloaded());
+    }
 
 	/**
 	 * Gets the spreadsheet.

@@ -3,6 +3,7 @@ package org.mskcc.cbio.importer;
 
 // imports
 import java.io.File;
+import java.nio.ByteBuffer;
 
 /**
  * Interface used to access some common file utils.
@@ -27,4 +28,13 @@ public interface FileUtils {
 	 * @throws Exception 
 	 */
 	String getPrecomputedMD5Digest(File file) throws Exception;
+
+	/**
+	 * Returns the given file contents.
+	 *
+	 * @param file File
+	 * @return ByteBuffer
+	 * @throws Exception
+	 */
+	ByteBuffer getFileContents(File file) throws Exception;
 }

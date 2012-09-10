@@ -104,15 +104,23 @@ public class OncotateTool {
         writer.write("\n");
     }
 
-    private void conditionallyOncotateRecord(MafRecord mafRecord, FileWriter writer) throws IOException, SQLException {
+    private void conditionallyOncotateRecord(MafRecord mafRecord,
+		    FileWriter writer) throws IOException, SQLException
+    {
         String ncbiBuild = mafRecord.getNcbiBuild();
-        if (!ncbiBuild.equals("37")) {
+
+	    if (!ncbiBuild.equals("37") &&
+	        !ncbiBuild.equalsIgnoreCase("hg19"))
+	    {
             outputBuildNumErrorMessage(ncbiBuild);
             buildNumErrors++;
+
             if (buildNumErrors > 10) {
                 abortDueToBuildNumErrors();
             }
-        } else {
+        }
+	    else
+	    {
             oncotateRecord(mafRecord, writer);
         }
     }
@@ -158,7 +166,7 @@ public class OncotateTool {
         String tumorAllel1 = mafRecord.getTumorSeqAllele1();
         String tumorAllel2 = mafRecord.getTumorSeqAllele2();
         String tumorAllele = null;
-        if (!refAllele.equals(tumorAllel1)) {
+        if (!refAllele.equalsIgnoreCase(tumorAllel1)) {
             tumorAllele = tumorAllel1;
         } else if(!refAllele.equalsIgnoreCase(tumorAllel2)) {
             tumorAllele = tumorAllel2;

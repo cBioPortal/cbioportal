@@ -33,9 +33,9 @@ public class DaoMutAssessorCache
 	/**
 	 * Adds a new cache record to the database.
 	 *
-	 * @param record
-	 * @return number of records successfully added.
-	 * @throws SQLException Database Error.
+	 * @param record    mutation assessor record
+	 * @return          number of records successfully added.
+	 * @throws          SQLException Database Error.
 	 */
 	public int put(MutationAssessorRecord record) throws SQLException
 	{
@@ -48,7 +48,7 @@ public class DaoMutAssessorCache
 			con = DatabaseUtil.getDbConnection();
 			pstmt = con.prepareStatement
 					("INSERT INTO mutation_assessor_cache (`CACHE_KEY`, `PREDICTED_IMPACT`, `PROTEIN_CHANGE`," +
-					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) + VALUES (?,?,?,?,?)");
+					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?)");
 
 			pstmt.setString(1, record.getKey());
 			pstmt.setString(2, record.getImpact());
@@ -106,5 +106,45 @@ public class DaoMutAssessorCache
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);
 		}
+	}
+
+	/**
+	 * Generates and insert SQL query string for single element insertion.
+	 *
+	 * @param record    mutation assessor record
+	 * @return          SQL query string
+	 */
+	public String getInsertSql(MutationAssessorRecord record)
+	{
+		return this.getInsertHead() + "(" +
+		       this.getInsertValues(record) + ");";
+	}
+
+	/**
+	 * Beginning of the insert SQL string for mutation assessor cache.
+	 *
+	 * @return  beginning of the insert SQL
+	 */
+	public String getInsertHead()
+	{
+		return "INSERT INTO mutation_assessor_cache (`CACHE_KEY`, " +
+		             "`PREDICTED_IMPACT`, `PROTEIN_CHANGE`, " +
+		             "`STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES ";
+	}
+
+	/**
+	 * Generates the "values" as a part of the SQL query for the
+	 * given mutation assessor record.
+	 *
+	 * @param record    mutation assessor record
+	 * @return          part of the SQL query for values
+	 */
+	public String getInsertValues(MutationAssessorRecord record)
+	{
+		return "'" + record.getKey() + "', " +
+			"'" + record.getImpact() + "', " +
+			"'" + record.getProteinChange() + "', " +
+			"'" + record.getStructureLink() + "', " +
+			"'" + record.getAlignmentLink() + "'";
 	}
 }

@@ -122,10 +122,8 @@ public class ImportGisticData {
         }
 
         // add to CGDS database
-        System.out.println("ImportGisticData");
         for (Gistic g : gistics) {
             try {
-                System.out.println(g);
                 DaoGistic.addGistic(g);
             } catch (DaoException e) {
                 //System.out.println(e);

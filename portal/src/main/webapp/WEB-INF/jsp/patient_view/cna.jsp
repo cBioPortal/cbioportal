@@ -39,7 +39,10 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, cnaTableIndices['overview'])) continue;
-            oTable.fnUpdate(true, row, cnaTableIndices['altrate'], false, false);
+            if (summaryOnly)
+                oTable.fnUpdate(null, row, cnaTableIndices['alteration'], false, false);
+            else
+                oTable.fnUpdate(true, row, cnaTableIndices['altrate'], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -90,8 +93,31 @@
                     },
                     {// alteration
                         "aTargets": [ cnaTableIndices['alteration'] ],
-                        "fnRender": function(obj) {
-                            return "<b>"+obj.aData[ obj.iDataColumn ]+"</b>";
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                if (value!=null)
+                                    source[cnaTableIndices['alteration']]=value;
+                            } else if (type==='display') {
+                                var alter = source[cnaTableIndices["alteration"]];
+                                var ret = "<b>"+alter+"</b>";
+                                if (isSummary) {
+                                    if (cnaContext) {
+                                        var con = cnaContext[source[cnaTableIndices["id"]]];
+                                        var frac = con / numPatientInSameCnaProfile;
+                                        var tip = "In "+con+" sample"+(con==1?"":"s")
+                                            +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
+                                            +cancerStudyName+", "+source[cnaTableIndices["gene"]]+" was "+alter;
+                                        var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
+                                        ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                                    +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                    } else {
+                                        ret += "&nbsp;<img style='display:block;float:right;' src='images/ajax-loader2.gif'>";
+                                    }
+                                }
+                                return ret;
+                            } else {
+                                return source[cnaTableIndices['alteration']];
+                            }
                         }
                     },
                     {// gistic
@@ -124,6 +150,7 @@
                         "aTargets": [ cnaTableIndices['overview'] ]
                     },
                     {// context
+                        "bVisible": !isSummary,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {

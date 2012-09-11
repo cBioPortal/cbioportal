@@ -104,8 +104,8 @@ public class TempFullDataTypeSpec {
         }
         this.theDiscreteDataTypeSetSpecs.clear();
         theResultDataTypeSpec.setTheDiscreteDataTypeSetSpec(combinedDiscreteDataTypeSetSpec);
-        
-        /*
+
+        /* 
          * B) For continuous data types:
          * a) combine together redundant ContinuousDataTypeSpecs
          */

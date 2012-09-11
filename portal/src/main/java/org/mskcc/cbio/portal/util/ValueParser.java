@@ -408,8 +408,11 @@ public class ValueParser {
                   || mutationValue.equals(GeneticAlterationType.ZERO)) {
             return false;
          } else {
-            return this.theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation,
-                    GeneticTypeLevel.Mutated);
+            return theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation,
+                    GeneticTypeLevel.Mutated)
+                    ||
+                    theOncoPrintGeneDisplaySpec.satisfy(GeneticDataTypes.Mutation,
+                    mutationValue);
          }
       }
       return false;

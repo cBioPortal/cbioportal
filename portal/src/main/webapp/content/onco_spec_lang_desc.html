@@ -23,8 +23,10 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
     <tr>
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
-        <td><TT>MUT </TT> Show mutated cases</td>
-        <td>Somatic, non-synonymous mutations</td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations or mutation types.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
         <td>mRNA Expression</td>
@@ -56,6 +58,29 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 </code></pre>
 <p>which can also be written:</p>
 <pre><code> CCNE1:  GAIN AMP
+</code></pre>
+<p>To view cases with specific mutations:</p>
+<pre><code> BRAF: MUT = V600E
+</code></pre>
+<p>or mutations on specific position only:</p>
+<pre><code> BRAF: MUT = V600
+</code></pre>
+<p>or mutations of a specific type:</p>
+<pre><code> TP53: MUT = &lt;TYPE&gt;
+</code></pre>
+<p>&lt;TYPE&gt; could be</p>
+<ul>
+<li>MISSENSE</li>
+<li>NONSENSE</li>
+<li>NONSTART</li>
+<li>NONSTOP</li>
+<li>FRAMESHIFT</li>
+<li>INFRAME</li>
+<li>SPLICE</li>
+<li>TRUNC</li>
+</ul>
+<p>e.g., to view TP53 truncating mutations and in-frame insertions/deletions:</p>
+<pre><code> TP53: MUT = TRUNC MUT = INFRAME
 </code></pre>
 <p>To view amplified and mutated cases:</p>
 <pre><code> CCNE1:  AMP MUT

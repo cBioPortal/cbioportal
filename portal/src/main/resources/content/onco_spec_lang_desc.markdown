@@ -27,8 +27,10 @@ Users can define genetic alterations for three data types:
     <tr>
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
-        <td><TT>MUT </TT> Show mutated cases</td>
-        <td>Somatic, non-synonymous mutations</td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations or mutation types.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
         <td>mRNA Expression</td>
@@ -64,6 +66,33 @@ or amplified and gained cases:
 which can also be written:
 
      CCNE1:  GAIN AMP
+
+To view cases with specific mutations:
+
+     BRAF: MUT = V600E
+
+or mutations on specific position only:
+
+     BRAF: MUT = V600
+
+or mutations of a specific type:
+
+     TP53: MUT = <TYPE>
+
+&lt;TYPE&gt; could be
+
+* MISSENSE
+* NONSENSE
+* NONSTART
+* NONSTOP
+* FRAMESHIFT
+* INFRAME
+* SPLICE
+* TRUNC
+
+e.g., to view TP53 truncating mutations and in-frame insertions/deletions:
+
+     TP53: MUT = TRUNC MUT = INFRAME
 
 To view amplified and mutated cases:
 

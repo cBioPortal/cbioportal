@@ -167,10 +167,10 @@
                                 source[mutTableIndices["sanger"]]=value;
                             } else if (type==='display') {
                                 var sanger = source[mutTableIndices["sanger"]];
-                                return sanger?'Y':'';
+                                return sanger?'&#10004;':'';
                             } else if (type==='sort') {
                                 var sanger = source[mutTableIndices["sanger"]];
-                                return sanger?'Y':'N';
+                                return sanger?'&#10004;':'&#10008;';
                             }  else if (type==='filter') {
                                 var sanger = source[mutTableIndices["sanger"]];
                                 return sanger?'sanger':'';
@@ -195,9 +195,9 @@
                                 else return '';
                                 var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
                                 var msa = ma['msa'];
-                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"'><span style='width: 23px;background-image:url(images/msa.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>";
+                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"' style='background-image:url(images/msa.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"'><span style='width: 23px;background-image:url(images/pdb.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>";
+                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"' style='width: 23px;background-image:url(images/pdb.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
                                 return ret;
                             } else if (type==='sort') {
                                 var ma = source[mutTableIndices["ma"]];

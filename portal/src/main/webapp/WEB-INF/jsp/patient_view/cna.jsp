@@ -133,10 +133,10 @@
                                 source[cnaTableIndices["sanger"]]=value;
                             } else if (type==='display') {
                                 var sanger = source[cnaTableIndices["sanger"]];
-                                return sanger?'Y':'';
+                                return sanger?'&#10004;':'';
                             } else if (type==='sort') {
                                 var sanger = source[cnaTableIndices["sanger"]];
-                                return sanger?'Y':'N';
+                                return sanger?'&#10004;':'&#10008;';
                             }  else if (type==='filter') {
                                 var sanger = source[cnaTableIndices["sanger"]];
                                 return sanger?'sanger':'';

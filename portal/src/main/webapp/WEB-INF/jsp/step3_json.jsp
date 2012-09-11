@@ -71,6 +71,39 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
+
+<script type="text/javascript">
+google.setOnLoadCallback(function() {
+    // set up modal dialog box for gistic table (step 3)
+    $('#gistic_dialog').dialog({autoOpen: false,
+        resizable: false,
+        modal: true,
+//        height: 500,
+        //minWidth: 636,
+        //overflow: 'hidden',
+        open: function() {
+            // sets the scrollbar to the top of the table
+            // todo: downside -- doesn't save scroll location
+            $(this).scrollTop(0);
+        }
+        });
+
+    //var g = gistic();
+    //var cancer_study_id = 'tcga_gbm';
+    //var model = g.model(cancer_study_id);
+    //var controller = g.controller(model);
+    //var els = {
+    //    gene_list: $('#gene_list'),
+    //    open_dialog: $('#toggle_gistic_button'),
+    //    dialog: $('#gistic_dialog'),
+    //    select: $('#select_gistic'),
+    //    cancel: $('#cancel_gistic')
+
+    //};
+    //var view = g.view(model, controller, els);
+});
+</script>
+
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; white-space:nowrap; text-align:left; .ui-dialog {padding:0em;};">
         <div id="gistic_table"></div>
 		<div id="gistic_dialog_footer" style="float: right;">

@@ -17,3 +17,6 @@
 
 # gbm
 ./all-gbm-public.sh
+
+# coadread
+./all-coadread-public.sh

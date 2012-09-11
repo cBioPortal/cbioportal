@@ -115,26 +115,26 @@ public final class DaoMutationEvent {
             type.equals("Splice_Site") || 
             type.startsWith("Frame_Shift_") || 
             type.equals("Nonstop_Mutation")) {
-            return mutation.getGeneSymbol() + " Truncating";
+            return mutation.getGeneSymbol() + " truncating";
         }
         
         if (type.equals("Missense_Mutation")) {
             String aa = mutation.getProteinChange();
             if (aa.equals("M1*")) {
                 // non-start
-                return mutation.getGeneSymbol() + " Truncating";
+                return mutation.getGeneSymbol() + " truncating";
             }
             
             Pattern p = Pattern.compile("([A-Z][0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-                return mutation.getGeneSymbol() + " " + m.group(1) + " Missense";
+                return mutation.getGeneSymbol() + " " + m.group(1) + " missense";
             }
         }
         
         if (type.equals("In_Frame_Ins")) {
             String aa = mutation.getProteinChange();
-            Pattern p = Pattern.compile("(0-9)+");
+            Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
                return mutation.getGeneSymbol() + " " + m.group(1) + "ins";
@@ -144,16 +144,15 @@ public final class DaoMutationEvent {
         if (type.equals("In_Frame_Del")) {
             String aa = mutation.getProteinChange();
             // only the first deleted residue was considered
-            Pattern p = Pattern.compile("(0-9)+");
+            Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
                return mutation.getGeneSymbol() + " " + m.group(1) + "del";
             }
         }
             
-        // TODO: how about Translation_Start_Site
-        
-        return null;
+        // RNA or Translation_Start_Site
+        return "Chm"+mutation.getChr()+","+mutation.getStartPosition();
     }
     
     private static boolean eventExists(long eventId, String caseId, Connection con) throws DaoException {

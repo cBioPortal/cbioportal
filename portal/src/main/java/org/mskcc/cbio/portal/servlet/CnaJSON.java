@@ -271,7 +271,8 @@ public class CnaJSON extends HttpServlet {
         row.add(drugs);
         
         // show in summary table
-        boolean includeInSummary = isSangerGene || (drugs!=null && !drugs.isEmpty());
+        boolean includeInSummary = isSangerGene;
+                //|| (drugs!=null && !drugs.isEmpty());
         row.add(includeInSummary);
         
         table.add(row);

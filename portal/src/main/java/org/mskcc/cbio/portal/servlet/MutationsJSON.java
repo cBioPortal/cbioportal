@@ -317,10 +317,10 @@ public class MutationsJSON extends HttpServlet {
         row.add(ma);
         
         // show in summary table
-        row.add(isSangerGene || 
-                !Double.isNaN(mutSigQvalue) || 
-                passCosmicThreshold(cosmic,cosmicThreshold) ||
-                (drugs!=null && !drugs.isEmpty()));
+        row.add(isSangerGene
+                 || !Double.isNaN(mutSigQvalue)
+                 || passCosmicThreshold(cosmic,cosmicThreshold));
+                 //|| (drugs!=null && !drugs.isEmpty()));
         
         table.add(row);
     }

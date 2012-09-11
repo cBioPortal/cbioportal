@@ -9,7 +9,7 @@
 
 # Load Cases and Clinical Data
 ./importCaseList.pl $GDAC_CGDS_STAGING_HOME/gbm_tcga/case_lists
-./importClinicalData.pl $GDAC_CGDS_STAGING_HOME/gbm_tcga/gbm_tcga_clinical.txt
+./importClinicalData.pl gbm_tcga $GDAC_CGDS_STAGING_HOME/gbm_tcga/gbm_tcga_clinical.txt
 
 # Load Mutation Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/gbm_tcga/data_mutations_extended.txt --meta $GDAC_CGDS_STAGING_HOME/gbm_tcga/meta_mutations_extended.txt --dbmsAction clobber

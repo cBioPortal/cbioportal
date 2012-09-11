@@ -199,7 +199,6 @@
                                 var pdb = ma['pdb'];
                                 if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"'><img src='images/pdb.png'></a>";
                                 return ret;
-                                return;
                             } else if (type==='sort') {
                                 var ma = source[mutTableIndices["ma"]];
                                 var score = ma['score'];

@@ -81,7 +81,7 @@ or
 
      EGFR_PY992: prot > 1
 
-Note that input PHOSPHOPROTEIN in the query will allow you to select from all phopshoproteins.
+Hint: inputing PHOSPHOPROTEIN in the query will allow you to select from all phopshoproteins.
 
 In general, any combination of OQL keywords and/or categories can annotate any gene.
 

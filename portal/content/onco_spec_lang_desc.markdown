@@ -73,9 +73,15 @@ but to define over-expressed cases as those with mRNA expression greater than 3 
 
      CCNE1: EXP > 3
 
-and similarly with RPPA protein/phopshoprotein level:
+To query cases that are over expressed in RPPA protein/phopshoprotein level:
 
-     CCNE1: PROT > 1
+     EGFR: PROT > 1
+
+or
+
+     EGFR_PY992: prot > 1
+
+Note that input PHOSPHOPROTEIN in the query will allow you to select from all phopshoproteins.
 
 In general, any combination of OQL keywords and/or categories can annotate any gene.
 

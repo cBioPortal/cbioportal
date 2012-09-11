@@ -89,11 +89,23 @@ if (patientViewError!=null) {
                 width: auto;
                 float: right;
         }
-        .altered_percent_div {
+        .mutation_percent_div {
                 display: block;
                 float: right;
                 background-color: green;
-                height: 10px;
+                height: 15px;
+        }
+        .amp_percent_div {
+                display: block;
+                float: right;
+                background-color: red;
+                height: 15px;
+        }
+        .del_percent_div {
+                display: block;
+                float: right;
+                background-color: blue;
+                height: 15px;
         }
 </style>
 

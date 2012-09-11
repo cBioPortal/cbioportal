@@ -108,7 +108,8 @@
                                             +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
                                             +cancerStudyName+", "+source[cnaTableIndices["gene"]]+" is "+alter;
                                         var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
-                                        ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                        var clas = alter==="Amplified"?"amp_percent_div":"del_percent_div"
+                                        ret += "&nbsp;<div class='"+clas+" "+table_id
                                                     +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                                     } else {
                                         ret += "&nbsp;<img style='display:block;float:right;' src='images/ajax-loader2.gif'>";

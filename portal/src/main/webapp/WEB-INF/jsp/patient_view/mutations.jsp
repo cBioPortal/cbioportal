@@ -60,7 +60,7 @@
                                             +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
                                             +cancerStudyName+(geneCon==1?" has":" have")+" mutated "+gene;
                                         var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
-                                        ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                        ret += "&nbsp;<div class='mutation_percent_div "+table_id
                                                     +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                                     } else {
                                         ret += "&nbsp;<img style='display:block;float:right;' src='images/ajax-loader2.gif'>";
@@ -92,7 +92,7 @@
                                                 +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
                                                 +cancerStudyName+(keyCon==1?" has ":" have ")+key+" mutations";
                                             var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
-                                            ret += "&nbsp;<div class='altered_percent_div "+table_id
+                                            ret += "&nbsp;<div class='mutation_percent_div "+table_id
                                                         +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                                         }
                                     } else {

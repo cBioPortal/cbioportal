@@ -170,14 +170,15 @@
                                 return sanger?'&#10004;':'';
                             } else if (type==='sort') {
                                 var sanger = source[mutTableIndices["sanger"]];
-                                return sanger?'&#10004;':'&#10008;';
+                                return sanger?'1':'0';
                             }  else if (type==='filter') {
                                 var sanger = source[mutTableIndices["sanger"]];
                                 return sanger?'sanger':'';
                             } else {
                                 return source[mutTableIndices["sanger"]];
                             }
-                        }
+                        },
+                        "asSorting": ["desc", "asc"]
                     },
                     {
                         "aTargets": [ mutTableIndices["ma"] ],

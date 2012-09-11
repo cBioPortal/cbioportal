@@ -136,14 +136,15 @@
                                 return sanger?'&#10004;':'';
                             } else if (type==='sort') {
                                 var sanger = source[cnaTableIndices["sanger"]];
-                                return sanger?'&#10004;':'&#10008;';
+                                return sanger?'1':'0';
                             }  else if (type==='filter') {
                                 var sanger = source[cnaTableIndices["sanger"]];
                                 return sanger?'sanger':'';
                             } else {
                                 return source[cnaTableIndices["sanger"]];
                             }
-                        }
+                        },
+                        "asSorting": ["desc", "asc"]
                     },
                     {// show in summary
                         "bVisible": false,

@@ -195,9 +195,9 @@
                                 else return '';
                                 var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
                                 var msa = ma['msa'];
-                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"'><img src='images/msa.png'></a>";
+                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"'><span style='width: 23px;background-image:url(images/msa.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>";
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"'><img src='images/pdb.png'></a>";
+                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"'><span style='width: 23px;background-image:url(images/pdb.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>";
                                 return ret;
                             } else if (type==='sort') {
                                 var ma = source[mutTableIndices["ma"]];

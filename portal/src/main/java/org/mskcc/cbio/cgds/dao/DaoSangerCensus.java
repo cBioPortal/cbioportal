@@ -10,7 +10,7 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.SangerCancerGene;
 
 /**
- * Data access object for Sanger Cancer Gene Cenusus Table.
+ * Data access object for Sanger Cancer Gene Census Table.
  */
 public class DaoSangerCensus {
     private static DaoSangerCensus daoSangerCensus;

@@ -6,14 +6,16 @@ import org.mskcc.cbio.portal.util.EqualsUtil;
 
 enum ComparisonOpDirection{
     Bigger,
-    Smaller;
+    Smaller,
+    Equal;
 }
 
 public enum ComparisonOp {
     GreaterEqual    (">=", ComparisonOpDirection.Bigger),
     Greater         (">", ComparisonOpDirection.Bigger),
     LessEqual       ("<=", ComparisonOpDirection.Smaller),
-    Less            ("<", ComparisonOpDirection.Smaller);
+    Less            ("<", ComparisonOpDirection.Smaller),
+    Equal           ("=", ComparisonOpDirection.Equal);
 
     private final String token;
     private final ComparisonOpDirection theComparisonOpDirection;
@@ -60,6 +62,8 @@ public enum ComparisonOp {
             return Greater;
         case Less:
             return GreaterEqual;
+        case Equal:
+            return Equal; //todo: not correct
         }
         // keep compiler happy
         (new UnreachableCodeException( "")).printStackTrace();

@@ -19,6 +19,8 @@ public class OncotatorService {
     private DaoOncotatorCache cache;
     private final static long SLEEP_PERIOD = 0;  // in ms
 
+	private int errorCode = 0;
+
     private OncotatorService () {
         cache = DaoOncotatorCache.getInstance();
     }
@@ -68,6 +70,7 @@ public class OncotatorService {
                 else
                 {
                 	record = new OncotatorRecord(key);
+	                this.errorCode = 2;
                 }
                 
                 return record;
@@ -92,4 +95,9 @@ public class OncotatorService {
                                    String observedAllele) {
         return chr + "_" + start + "_" + end + "_" + referenceAllele + "_" + observedAllele;
     }
+
+	public int getErrorCode()
+	{
+		return errorCode;
+	}
 }

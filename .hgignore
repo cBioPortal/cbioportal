@@ -45,3 +45,4 @@ liftover/target/*
 core/target/*
 oncotator/target/*
 importer/target/*
+mutation-assessor/target/*

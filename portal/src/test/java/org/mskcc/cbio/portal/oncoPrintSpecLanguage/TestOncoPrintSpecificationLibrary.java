@@ -376,30 +376,30 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
           Assert.assertEquals( "10 is invalid code for levels in CopyNumberAlteration",
                   e.getMessage() );
       }
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "foo" ));
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( null ) );
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( "foo" ));
       Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
               GeneticTypeLevel.Gained ),
-            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "Gain") );
+            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( "Gain") );
       Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.Mutation,
               GeneticTypeLevel.Mutated ),
-            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "Mut") );
+            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( "Mut") );
       
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( null, null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( null, "2" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( "JUNK", "2" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( "JUNK", "CRAP" ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( "CNA", null ) );
-      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator
+      Assert.assertEquals( null, DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode
               ( "CNA", "XX" ) );
       Assert.assertEquals( new DiscreteDataTypeSetSpec( GeneticDataTypes.CopyNumberAlteration,
               GeneticTypeLevel.Amplified ),
-            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( "CNA", "2" ) );
+            DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode( "CNA", "2" ) );
     }
     
     private void findDiscreteDataTypeSetSpec( GeneticDataTypes expectedGeneticDataType,
@@ -474,9 +474,9 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
         Assert.assertEquals( new DiscreteDataTypeSpec(  GeneticDataTypes.CopyNumberAlteration,
               ComparisonOp.convertCode("<"), GeneticTypeLevel.Gained ), 
               DiscreteDataTypeSpec.discreteDataTypeSpecGenerator( "CNA", "<", "Gai") );
-        Assert.assertEquals( new DiscreteDataTypeSpec(  GeneticDataTypes.Mutation,
-              ComparisonOp.convertCode("<"), GeneticTypeLevel.Mutated ), 
-              DiscreteDataTypeSpec.discreteDataTypeSpecGenerator( "Mutation", "<", "Mutated") );
+//        Assert.assertEquals( new DiscreteDataTypeSpec(  GeneticDataTypes.Mutation,
+//              ComparisonOp.convertCode("<"), GeneticTypeLevel.Mutated ), 
+//              DiscreteDataTypeSpec.discreteDataTypeSpecGenerator( "Mutation", "<", "Mutated") );
     }
     
     @Test
@@ -846,8 +846,8 @@ public class TestOncoPrintSpecificationLibrary extends TestCase{
                 anOncoPrintSpecification.getUnionOfPossibleLevels().toString() );       
 
        theResultDataTypeSpec = new ResultDataTypeSpec( GeneticDataTypes.Mutation );
-       theResultDataTypeSpec.setTheDiscreteDataTypeSetSpec( new DiscreteDataTypeSetSpec
-               ( "Mutated") );
+       theResultDataTypeSpec.setTheDiscreteDataTypeSetSpec( 
+               DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( "Mutated") );
        theOncoPrintGeneDisplaySpec = new OncoPrintGeneDisplaySpec();
        theOncoPrintGeneDisplaySpec.setResultDataTypeSpec( GeneticDataTypes.Mutation,
                theResultDataTypeSpec );

@@ -1,18 +1,18 @@
-package org.mskcc.cbio.oncotator;
+package org.mskcc.cbio.dbcache;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.*;
 
 /**
- * Connection Utility for oncotator JDBC.
+ * Connection Utility for JDBC.
  */
 public class DatabaseUtil
 {
 	private static BasicDataSource ds;
 
     /**
-     * Gets DB connection to oncotator database
+     * Gets DB connection to the database
      */
     public static Connection getDbConnection()
 		    throws SQLException

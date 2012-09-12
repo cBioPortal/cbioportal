@@ -3,6 +3,7 @@ package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.Fetcher;
+import org.mskcc.cbio.importer.DatabaseUtils;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -50,6 +51,8 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "print this message");
 		Option fetch = new Option("firehose_fetch", "fetch firehose data");
+		Option createTables = new Option("create_tables", true, "create db tables to store data");
+		Option importData = new Option("import_data", true, "import data into the given db");
 
 		// create an options instance
 		Options toReturn = new Options();
@@ -57,6 +60,8 @@ public class Admin implements Runnable {
 		// add options
 		toReturn.addOption(help);
 		toReturn.addOption(fetch);
+		toReturn.addOption(createTables);
+		toReturn.addOption(importData);
 
 		// outta here
 		return toReturn;
@@ -66,15 +71,20 @@ public class Admin implements Runnable {
 	 * Parses the arguments.
 	 *
 	 * @param args String[]
-	 * @throws Exception
 	 */
-	public void setCommandParameters(String[] args) throws Exception {
+	public void setCommandParameters(String[] args) {
 
 		// create our parser
 		CommandLineParser parser = new PosixParser();
 
 		// parse
-		line = parser.parse(options, args);
+		try {
+			line = parser.parse(options, args);
+		}
+		catch (Exception e) {
+			Admin.usage(new PrintWriter(System.out, true));
+			System.exit(-1);
+		}
 	}
 
 	/**
@@ -96,6 +106,14 @@ public class Admin implements Runnable {
 			// fetch
 			else if (line.hasOption("firehose_fetch")) {
 				fetchFirehoseData();
+			}
+			// create tables
+			else if (line.hasOption("create_tables")) {
+				createTables(line.getOptionValue("create_tables"));
+			}
+			// create tables
+			else if (line.hasOption("import_data")) {
+				importData(line.getOptionValue("import_data"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -122,6 +140,38 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Fetcher fetcher = (Fetcher)context.getBean("firehoseFetcher");
 		fetcher.fetch();
+	}
+
+	/**
+	 * Helper function to create database tables.
+	 */
+	private void createTables(String databaseName) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createTables(), database: " + databaseName);
+		}
+
+		// create an instance of DatabaseUtils
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
+		databaseUtils.createSchema(databaseName);
+	}
+
+	/**
+	 * Helper function to import data.
+	 *
+	 *  @throws Exception
+	 */
+	private void importData(String databaseName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), database: " + databaseName);
+		}
+
+		// create an instance of Importer
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Importer importer = (Importer)context.getBean("importer");
+		importer.importData(databaseName);
 	}
 
 	/**

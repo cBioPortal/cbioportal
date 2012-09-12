@@ -10,6 +10,11 @@ $(document).ready(function() {
     Gistic.table = document.getElementById('gistic_table');       // avoid embedding this in the html
     Gistic.table = new google.visualization.Table(Gistic.table);
 
+    Gistic.table_options = {
+        'allowHtml': true,
+        'height': '430px',
+        'sortColumn': 2};
+
     Gistic.data = {};
 });
 
@@ -20,8 +25,8 @@ Gistic.initDialog = function() {
         resizable: false,
         modal: true,
 //        height: 500,
-        //minWidth: 636,
-        //overflow: 'hidden',
+        minWidth: 636,
+        overflow: 'hidden',
         open: function() {
             // sets the scrollbar to the top of the table
             // todo: downside -- doesn't save scroll location
@@ -151,7 +156,8 @@ Gistic.makeView = function(data, genes_list) {
     view.setColumns([Gistic.AMPDEL_COL,
             Gistic.CHR_COL,
             Gistic.QVAL_COL,
-            Gistic.NO_GENES_COL]);
+            Gistic.NO_GENES_COL,
+            Gistic.GENES_COL]);
             //genes_column_view ]);
             // disable boldening for now
 
@@ -190,8 +196,6 @@ Gistic.UI.get_genes_in_box = function(box) {
 
 Gistic.UI.open_gistic_dialog = function() {
 
-    var table = Gistic.table;
-
     // Q-Value rounding
     var qval_format = { pattern:'#.#E0' };
     qval_format = new google.visualization.NumberFormat(qval_format);
@@ -214,14 +218,14 @@ Gistic.UI.open_gistic_dialog = function() {
     genes = genes.getAllGenes();
 
     var view = Gistic.makeView(Gistic.data, genes);
-    var options = {'allowHtml': true,
-        'height': '430px',
-        'sortColumn': 2};
 
-    table.draw(view, options);
+    var table = Gistic.table;
+    table.draw(view, Gistic.table_options);
 
     // nothing is selected when the table first opens
     table.setSelection(null);
+
+    Gistic.table = table;
 
     return false;
 };
@@ -264,6 +268,51 @@ Gistic.UI.select_button = function() {
     $('#gistic_dialog').dialog('close');
 };
 
+Gistic.UI.filterByGene = function(genes_l) {
+
+    //todo: beware, this will reset the bolded genes...will have to think of a
+    //better way to handle this
+    var data = Gistic.data;
+    var view = Gistic.makeView(data, []);
+
+    // giving an empty list of genes means don't filter
+    if (genes_l.length !== 0) {
+        var filteredRowNs = genes_l.map(function(gene) {
+            var _i,
+            _len = data.getNumberOfRows();
+
+            // search through each row of the DataTable
+            for (_i = 0; _i < _len; _i += 1) {
+                var _match = data.getValue(_i, Gistic.GENES_COL).search(new RegExp(gene));
+
+                // return the FIRST row # that has the gene
+                // shouldn't be a problem because a gene can't show up in more than
+                // one region
+                if (_match !== -1) {
+                    return _i;
+                }
+            }
+
+            // otherwise, return -1 if there is no match
+            return -1;
+        });
+
+        // filter out the nonmatches
+        filteredRowNs.filter(function(x) {
+            return x === -1 ? false : true;
+        });
+
+        view.setRows(filteredRowNs);
+    }
+
+    var table = Gistic.table;
+    table.draw(view, Gistic.table_options);
+
+    Gistic.table = table;
+
+    return 0;
+};
+
 // action to be taken upon clicking of the cancel button
 // note : this is hard wired to the html *id* tag of the dialog
 Gistic.UI.cancel_button = function(dialog) {
@@ -271,17 +320,30 @@ Gistic.UI.cancel_button = function(dialog) {
     return;
 };
 
-//Gistic.GO = function(where, hg) {
-//// where is DOM object
-//// hg is a list of chromosome lengths in order 
-//// (chr#1, chr#2, ... , chr#X, chr#Y) with zero in front,
-//// i.e. hg[0] = 0
-//
-//    make
-//
-//};
-
 // make the gistic button a JQueryUI button
 $(document).ready(function() {
     $('#toggle_gistic_dialog_button').button();
+
+    $('#filter_roi_by_gene').keyup(function() {
+
+        var input = $(this).val();
+
+        var delim = / /;
+        if (input.search(/,/) !== -1) {
+            delim = /,/;
+        } else if (input.search(/;/) !== -1) {
+            delim = /;/;
+        }
+
+        // filter out empty strings
+        input = input.split(delim).filter(function(i) {
+            return i === ''? false : true;
+        });
+
+        input = input === '' ? input = [] : input;
+        console.log(input);
+
+        Gistic.UI.filterByGene(input);
+
+    });
 });

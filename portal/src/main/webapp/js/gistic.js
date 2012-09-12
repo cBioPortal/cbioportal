@@ -1,4 +1,4 @@
-var gistic = function() {
+var gistic = function(gistics) {
 
     // synced with the java Gistic.class
     var AMPLIFIED = true,
@@ -24,51 +24,51 @@ var gistic = function() {
             self = {};
 
             self.update = function() {
-                // server request
-                $.get('Gistic.json', data, function(gistics) {
-                    // make a new Data Table for the AJAX response
-                    dataTable = new google.visualization.DataTable();
+                // make a new Data Table for the AJAX response
+                dataTable = new google.visualization.DataTable();
 
-                    // process response
-                    // make a DataTable object and save to the Gistic object
-                    dataTable.addColumn('number', '<span style="color:red">Amp</span>' +
-                                        '<span style="color:blue">Del</span>');
-                    dataTable.addColumn('number', 'Chr');
-                    dataTable.addColumn('number', 'Peak Start');
-                    dataTable.addColumn('number', 'Peak End');
-                    dataTable.addColumn('number', 'Q-Value');
-                    dataTable.addColumn('number', 'Residual Q-Value');
-                    dataTable.addColumn('string', 'Genes');
-                    dataTable.addColumn('number', 'No Genes');
+                // process response
+                // make a DataTable object and save to the Gistic object
+                dataTable.addColumn('number', '<span style="color:red">Amp</span>' +
+                                    '<span style="color:blue">Del</span>');
+                dataTable.addColumn('number', 'Chr');
+                dataTable.addColumn('number', 'Peak Start');
+                dataTable.addColumn('number', 'Peak End');
+                dataTable.addColumn('number', 'Q-Value');
+                dataTable.addColumn('number', 'Residual Q-Value');
+                dataTable.addColumn('string', 'Genes');
+                dataTable.addColumn('number', 'No Genes');
 
-                    var i,
-                    row,
-                    len = gistics.length;
-                    for (i = 0; i < len; i+=1) {
-                        row = [gistics[i].ampdel ? 1 : 0,       // amp = true ; del = false
-                            gistics[i].chromosome,
-                            gistics[i].peakStart,
-                            gistics[i].peakEnd,
-                            gistics[i].qval,
-                            gistics[i].res_qval,
-                            gistics[i].genes_in_ROI.join(" "),
-                            gistics[i].genes_in_ROI.length ];
-                            dataTable.addRow(row);
-                    }
+                var i,
+                row,
+                len = gistics.length;
+                for (i = 0; i < len; i+=1) {
+                    row = [gistics[i].ampdel ? 1 : 0,       // amp = true ; del = false
+                        gistics[i].chromosome,
+                        gistics[i].peakStart,
+                        gistics[i].peakEnd,
+                        gistics[i].qval,
+                        gistics[i].res_qval,
+                        gistics[i].genes_in_ROI.join(" "),
+                        gistics[i].genes_in_ROI.length ];
+                        dataTable.addRow(row);
+                }
 
-                    // Q-Value rounding
-                    var qval_format = { pattern:'#.#E0' };
-                    qval_format = new google.visualization.NumberFormat(qval_format);
-                    qval_format.format(dataTable, QVAL_COL);
+                // Q-Value rounding
+                var qval_format = { pattern:'#.#E0' };
+                qval_format = new google.visualization.NumberFormat(qval_format);
+                qval_format.format(dataTable, QVAL_COL);
 
-                    // Amp del coloring
-                    var ampdel_format = new google.visualization.ColorFormat();
-                    ampdel_format.addRange(-0.5, 0.5, 'blue', 'blue');    // deleted
-                    ampdel_format.addRange(0.5, 1.5, 'red', 'red');      // amplified
-                    ampdel_format.format(dataTable, AMPDEL_COL);
-
-                });
+                // Amp del coloring
+                var ampdel_format = new google.visualization.ColorFormat();
+                ampdel_format.addRange(-0.5, 0.5, 'blue', 'blue');    // deleted
+                ampdel_format.addRange(0.5, 1.5, 'red', 'red');      // amplified
+                ampdel_format.format(dataTable, AMPDEL_COL);
             };
+
+            self.getSelectedGeneLists = function () {
+                return selectedGeneLists;
+            }
 
             self.getDataTable = function() {
                 return dataTable;
@@ -96,30 +96,51 @@ var gistic = function() {
                 return view;
             };
 
-            var _table = new google.visualization.Table();
-
             var _draw = function(table_el) {
-                _table = new google.visualization.Table(table_el);
+                var _table = new google.visualization.Table(table_el);
 
                 var options = {'allowHtml': true,
                     'height': '430px',
                     'sortColumn': 2};
-                    var view = _makeView();
 
-                    table.draw(view, options);
+                var view = _makeView();
+                console.log('123');
+                _table.draw(view, options);
 
-                    // nothing is selected when the table first opens
-                    table.setSelection(null);
+                // what happens when you select gistics in the table
+                google.visualization.events.addListener(_table, 'select', selectHandler);
+
+                var selectHandler = function() {
+                    // todo : you could do this with an easy call to map
+                    var selected = _table.getSelection(),
+                    len = selected.length,
+                    i,
+                    genes = '';
+
+                    for (i = 0 ; i < len; i+=1) {
+                        genes += data.getValue(selected[i].row, GENES_COL) + '\n';
+                    }
+
+                    model.selectedGenes.update(genes);
+                };
+
+                // nothing is selected when the table first opens
+                _table.setSelection(null);
+
             };
 
-            return {
+            self = {
 
                 makeView: _makeView,
                 draw: _draw,
 
-                open_dialog: function(dialog_el) {
+                open_dialog: function(dialog_el, table_el) {
+                    // draw a refreshed table
                     var view = _makeView();
+                    console.log('abc');
                     _draw(view, table_el);
+
+                    // open box
                     dialog_el.dialog('open');
 
                     // {{{holding off on GeneSet stuff this for now
@@ -130,23 +151,11 @@ var gistic = function() {
                     //}}}
                 },
 
-                select_gistics: function(gene_list_el, dialog_el) {
+                select_gistics: function(gene_list_el, dialog_el, table) {
                     // action to be taken upon clicking of the select button
 
-                    var catSelected = function(data, table, genes_col_no) {
-                        var selected = table.getSelection(),
-                        len = selected.length,
-                        i,
-                        genes = '';
 
-                        for (i = 0 ; i < len; i+=1) {
-                            genes += data.getValue(selected[i].row, genes_col_no) + '\n';
-                        }
-
-                        return genes;
-                    };
-
-                    var genes_str = catSelected(model.dataTable, _table, GENES_COL);
+                    var genes_str = catSelected(model.getDataTable(), table, GENES_COL);
 
                     // if nothing is selected, do nothing
                     if (genes_str === '') {
@@ -172,10 +181,6 @@ var gistic = function() {
                     return;
                 }
             };
-        },
-
-        view: function(model, controller, els) {
-            //Gistic.table = document.getElementById('gistic_table');
 
             $(document).ready(function() {
                 // init
@@ -184,7 +189,22 @@ var gistic = function() {
                 // attach listeners
                 els.select.click(controller.select_gistics(els.gene_list, els.dialog));
                 els.cancel.click(controller.cancel(els.dialog));
-                els.open_dialog.click(controller.open_dialog(els.dialog));
+                els.open_dialog.click(controller.open_dialog(els.dialog, els.table));
+                // select_cancer_type.change ...
+            });
+
+            return self;
+        },
+
+        view: function(model, controller, els) {
+            $(document).ready(function() {
+                // init
+                $('#toggle_gistic_dialog_button').button();
+
+                // attach listeners
+                els.select.click(controller.select_gistics(els.gene_list, els.dialog));
+                els.cancel.click(controller.cancel(els.dialog));
+                els.open_dialog.click(controller.open_dialog(els.dialog, els.table));
                 // select_cancer_type.change ...
             });
 
@@ -193,23 +213,35 @@ var gistic = function() {
     };
 };
 
-//google.load('visualization', '1', {packages:['table']});
-//google.setOnLoadCallback(function() {
-//    var g = gistic();
-//    var cancer_study_id = 'tcga_gbm';
-//    var model = g.model(cancer_study_id);
-//    var controller = g.controller(model);
-//    var els = {
-//        gene_list: $('#gene_list'),
-//        open_dialog: $('#toggle_gistic_button'),
-//        dialog: $('#gistic_dialog'),
-//        select: $('#select_gistic'),
-//        cancel: $('#cancel_gistic')
-//
-//    };
-//    var view = g.view(model, controller, els);
-//});
+google.load('visualization', '1', {packages:['table']});
+$(document).ready(function() {
+    var cancerStudyId = 'tcga_gbm';
+    var data = {'selected_cancer_type': cancerStudyId };
 
+    $.get('Gistic.json', data, function(gistics) {
+        var g = gistic(gistics);
+        var cancer_study_id = 'tcga_gbm';
+        var model = g.model(cancer_study_id);
+        var controller = g.controller(model);
+        var els = {
+            gene_list: $('#gene_list'),
+            open_dialog: $('#toggle_gistic_dialog_button'),
+            dialog: $('#gistic_dialog'),
+            select: $('#select_gistic'),
+            cancel: $('#cancel_gistic'),
+            table: document.getElementById('gistic_table')
+        };
+
+        // error check
+        for (el in els) {
+            if (els[el].length === 0) {
+                console.log('empty selector ' + el + '=' + els[el]);
+            }
+        }
+
+        var view = g.view(model, controller, els);
+    });
+});
 
 //{{{ old stuff
 //

@@ -15,13 +15,9 @@
 <script type="text/javascript" src="js/customCaseSet.js"></script>
 <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type="text/javascript" src="js/mutsig.js"></script>
 <script type="text/javascript" src="js/gistic.js"></script>
-<script type='text/javascript' src='https://www.google.com/jsapi'></script>
-
-<script type='text/javascript'>
-google.load('visualization', '1.0', {'packages':['table']});
-</script>
 
 <!-- Google Analytics -->
 <script type="text/javascript">

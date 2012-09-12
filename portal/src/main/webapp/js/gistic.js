@@ -66,10 +66,6 @@ var gistic = function(gistics) {
                 ampdel_format.format(dataTable, AMPDEL_COL);
             };
 
-            self.getSelectedGeneLists = function () {
-                return selectedGeneLists;
-            }
-
             self.getDataTable = function() {
                 return dataTable;
             };
@@ -84,8 +80,7 @@ var gistic = function(gistics) {
             return self;
         },
 
-
-        controller: function(model) {
+        controller: function(model, els) {
 
             var _makeView = function() {
                 var view = new google.visualization.DataView(model.getDataTable());
@@ -97,36 +92,26 @@ var gistic = function(gistics) {
             };
 
             var _draw = function(table_el) {
-                var _table = new google.visualization.Table(table_el);
+                var table = new google.visualization.Table(table_el);
 
                 var options = {'allowHtml': true,
                     'height': '430px',
                     'sortColumn': 2};
 
                 var view = _makeView();
-                console.log('123');
-                _table.draw(view, options);
+                table.draw(view, options);
 
-                // what happens when you select gistics in the table
-                google.visualization.events.addListener(_table, 'select', selectHandler);
-
-                var selectHandler = function() {
+                //todo: might be useful later
+                //when you want to listen for the number of genes selected...
+                //google.visualization.events.addListener(_table, 'select', selectHandler);
+                //ar selectHandler = function() {
                     // todo : you could do this with an easy call to map
-                    var selected = _table.getSelection(),
-                    len = selected.length,
-                    i,
-                    genes = '';
-
-                    for (i = 0 ; i < len; i+=1) {
-                        genes += data.getValue(selected[i].row, GENES_COL) + '\n';
-                    }
-
-                    model.selectedGenes.update(genes);
-                };
 
                 // nothing is selected when the table first opens
-                _table.setSelection(null);
+                table.setSelection(null);
 
+                // attach listener
+                els.select.click(self.select_gistics(table));
             };
 
             self = {
@@ -135,9 +120,11 @@ var gistic = function(gistics) {
                 draw: _draw,
 
                 open_dialog: function(dialog_el, table_el) {
+                // action to be taken upon clicking of "Select from Gistic
+                // ROIs" button
+
                     // draw a refreshed table
                     var view = _makeView();
-                    console.log('abc');
                     _draw(view, table_el);
 
                     // open box
@@ -151,9 +138,20 @@ var gistic = function(gistics) {
                     //}}}
                 },
 
-                select_gistics: function(gene_list_el, dialog_el, table) {
-                    // action to be taken upon clicking of the select button
+                select_gistics: function(table) {
+                // action to be taken upon clicking of the select button
 
+                    var catSelected = function(data, table, genes_col_no) {
+                        var selected = table.getSelection(),
+                        len = selected.length;
+                        var i,
+                        genes = '';
+                        for (i = 0 ; i < len; i+=1) {
+                            genes += data.getValue(selected[i].row, genes_col_no) + '\n';
+                        }
+
+                        return genes;
+                    };
 
                     var genes_str = catSelected(model.getDataTable(), table, GENES_COL);
 
@@ -177,52 +175,48 @@ var gistic = function(gistics) {
                 },
 
                 cancel: function(dialog_el) {
+                // action to be taken on clicking of cancel button
+                    console.log(dialog_el);
                     dialog_el.dialog('close');
                     return;
                 }
             };
 
-            $(document).ready(function() {
-                // init
-                $('#toggle_gistic_dialog_button').button();
+            // bind close button
+            els.cancel.click(function() {
+                var dialog_el = els.dialog;
+                dialog_el.dialog('close');
+                return;
+            });
 
-                // attach listeners
-                els.select.click(controller.select_gistics(els.gene_list, els.dialog));
-                els.cancel.click(controller.cancel(els.dialog));
-                els.open_dialog.click(controller.open_dialog(els.dialog, els.table));
-                // select_cancer_type.change ...
+            // make a button
+            var button_options = {autoOpen: false,
+                resizable: false,
+                modal: true};
+            els.open_dialog.button(button_options);
+
+            // give the button life
+            els.open_dialog.click(function() {
+                self.open_dialog(els.dialog, els.table);
             });
 
             return self;
-        },
-
-        view: function(model, controller, els) {
-            $(document).ready(function() {
-                // init
-                $('#toggle_gistic_dialog_button').button();
-
-                // attach listeners
-                els.select.click(controller.select_gistics(els.gene_list, els.dialog));
-                els.cancel.click(controller.cancel(els.dialog));
-                els.open_dialog.click(controller.open_dialog(els.dialog, els.table));
-                // select_cancer_type.change ...
-            });
-
-            return false;
         }
     };
 };
 
 google.load('visualization', '1', {packages:['table']});
+
 $(document).ready(function() {
     var cancerStudyId = 'tcga_gbm';
     var data = {'selected_cancer_type': cancerStudyId };
 
     $.get('Gistic.json', data, function(gistics) {
         var g = gistic(gistics);
+
         var cancer_study_id = 'tcga_gbm';
         var model = g.model(cancer_study_id);
-        var controller = g.controller(model);
+
         var els = {
             gene_list: $('#gene_list'),
             open_dialog: $('#toggle_gistic_dialog_button'),
@@ -239,10 +233,9 @@ $(document).ready(function() {
             }
         }
 
-        var view = g.view(model, controller, els);
+        var controller = g.controller(model, els);
     });
 });
-
 //{{{ old stuff
 //
 //

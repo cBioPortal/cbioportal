@@ -72,16 +72,6 @@
 		</div>
     </div>
 
-<script type="text/javascript">
-google.setOnLoadCallback(function() {
-    // set up modal dialog box for gistic table (step 3)
-    $('#gistic_dialog').dialog({autoOpen: false,
-        resizable: false,
-        modal: true
-    });
-});
-</script>
-
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; white-space:nowrap; text-align:left; .ui-dialog {padding:0em;};">
         <div id="gistic_table"></div>
 		<div id="gistic_dialog_footer" style="float: right;">

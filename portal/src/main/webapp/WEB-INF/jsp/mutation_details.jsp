@@ -196,9 +196,10 @@
 	    // initialize table column filtering
 	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
 		    icon: {placement: 'left'}, // sets the position of the arrow
-		    width: 182,
-		    emptyText: '(no columns selected)', // text to be displayed when no item is selected
-		    onItemClick: toggleMutationTableColumns}; // callback function for the action
+		    width: 220,
+		    //emptyText: '(no columns selected)', // text to be displayed when no item is selected
+		    onItemClick: toggleMutationTableColumns,
+		    textFormatFunction: mutationTableToggleText}; // callback function for the action
 
 	    // initialize the dropdown box
 	    $(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
@@ -259,6 +260,31 @@
         <% } %>
     <% } %>
     });
+
+    function mutationTableToggleText(options)
+    {
+	    var selectedOptions = options.filter(":selected");
+	    var numberOfSelected = selectedOptions.size();
+	    var text = "";
+
+	    if (0 == numberOfSelected)
+	    {
+		    text = "No column selected";
+	    }
+	    else if (options.size() == numberOfSelected)
+        {
+	        text = "All columns selected";
+        }
+	    else
+	    {
+		    text = numberOfSelected +
+		           " (out of " +
+		           (options.size() - 1) + // excluding "select all"
+		           ") columns selected";
+	    }
+
+	    return text;
+    }
 
     /**
      * Updates the table columns according to the new user selection.

@@ -7,7 +7,7 @@ Gistic.DELETED = false;
 
 // set global variables
 $(document).ready(function() {
-    Gistic.table = document.getElementById('gistic_table');       // avoid embedding this in the html
+    Gistic.table = document.getElementById('gistic_table');
     Gistic.table = new google.visualization.Table(Gistic.table);
 
     Gistic.table_options = {
@@ -31,6 +31,9 @@ Gistic.initDialog = function() {
             // sets the scrollbar to the top of the table
             // todo: downside -- doesn't save scroll location
             $(this).scrollTop(0);
+
+            // workaround to prevent auto focus
+            $(this).add('input').blur();
         }
         });
 };
@@ -275,36 +278,36 @@ Gistic.UI.filterByGene = function(genes_l) {
     var data = Gistic.data;
     var view = Gistic.makeView(data, []);
 
-    // giving an empty list of genes means don't filter
+    // only filter if given a nonempty list
     if (genes_l.length !== 0) {
         var filteredRowNs = genes_l.map(function(gene) {
             var _i,
             _len = data.getNumberOfRows();
 
             // search through each row of the DataTable
+            var rows = [];
             for (_i = 0; _i < _len; _i += 1) {
-                var _match = data.getValue(_i, Gistic.GENES_COL).search(new RegExp(gene));
+                var _match = data.getValue(_i, Gistic.GENES_COL);
+                _match = _match.search(new RegExp(gene, 'i'));
 
-                // return the FIRST row # that has the gene
-                // shouldn't be a problem because a gene can't show up in more than
-                // one region
+                // if there is a match, add it to a list of rows
                 if (_match !== -1) {
-                    return _i;
+                    rows.push(_i);
                 }
             }
 
-            // otherwise, return -1 if there is no match
-            return -1;
+            return rows;
         });
 
-        // filter out the nonmatches
-        filteredRowNs.filter(function(x) {
-            return x === -1 ? false : true;
+        // flatten the array of arrays
+        filteredRowNs = filteredRowNs.reduce(function(a, b) {
+            return a.concat(b);
         });
 
         view.setRows(filteredRowNs);
     }
 
+    // otherwise, just redraw a normal table
     var table = Gistic.table;
     table.draw(view, Gistic.table_options);
 
@@ -320,14 +323,17 @@ Gistic.UI.cancel_button = function(dialog) {
     return;
 };
 
-// make the gistic button a JQueryUI button
 $(document).ready(function() {
+    // make the gistic button a JQueryUI button
     $('#toggle_gistic_dialog_button').button();
 
-    $('#filter_roi_by_gene').keyup(function() {
+    // bind filtering event to filtering input field
+    var filter_el = $('#filter_roi_by_gene');
+    filter_el.keyup(function() {
 
         var input = $(this).val();
 
+        // will handle commas, spaces, and semicolons
         var delim = / /;
         if (input.search(/,/) !== -1) {
             delim = /,/;
@@ -341,9 +347,23 @@ $(document).ready(function() {
         });
 
         input = input === '' ? input = [] : input;
-        console.log(input);
 
         Gistic.UI.filterByGene(input);
+    });
 
+    // set default value to input field
+    var default_value = 'filter regions by gene(s)';
+    filter_el.val(default_value);
+
+    filter_el.focus(function(){
+        if(this.value === default_value) {
+            this.value = '';
+        }
+    });
+
+    filter_el.blur(function(){
+        if(this.value === '') {
+            this.value = default_value;
+        }
     });
 });

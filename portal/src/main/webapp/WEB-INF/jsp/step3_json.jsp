@@ -74,7 +74,7 @@
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; white-space:nowrap; text-align:left; .ui-dialog {padding:0em;};">
         <div id="gistic_table"></div>
         <div id="gistic_dialog_footer">
-            <input id="filter_roi_by_gene" value="filter region by gene(s)" style="width:75%">
+            <input id="filter_roi_by_gene" style="width:60%">
             <button style="float: right;" id="cancel_gistic" onclick="Gistic.UI.cancel_button();"title="Cancel">Cancel</button>
             <button style="float: right;" id="select_gistic" onclick="Gistic.UI.select_button();" class="tabs-button" title="Use these ROI genes">Push Selected to Gene Set</button>
         </div>

@@ -14,7 +14,7 @@
     }
     String localRppaScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
     if (localRppaScoreThreshold == null) {
-        localRppaScoreThreshold = "1.0";
+        localRppaScoreThreshold = "2.0";
     }
     if (localTabIndex == null) {
         localTabIndex = QueryBuilder.TAB_VISUALIZE;

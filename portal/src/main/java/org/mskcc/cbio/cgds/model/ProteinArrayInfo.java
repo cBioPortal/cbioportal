@@ -11,20 +11,16 @@ import java.util.Set;
 public class ProteinArrayInfo {
     private String id;
     private String type;
-    private String source;
     private String gene;
     private String residue;
-    private boolean validated;
     private Set<Integer> cancerStudies; 
 
-    public ProteinArrayInfo(String id, String type, String source, String gene, 
-            String residue, boolean validated, Set<Integer> cancerStudies) {
+    public ProteinArrayInfo(String id, String type, String gene, 
+            String residue, Set<Integer> cancerStudies) {
         this.id = id;
         this.type = type;
-        this.source = source;
         this.gene = gene;
         this.residue = residue;
-        this.validated = validated;
         this.cancerStudies = cancerStudies;
     }
 
@@ -52,28 +48,12 @@ public class ProteinArrayInfo {
         this.id = id;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public boolean isValidated() {
-        return validated;
-    }
-
-    public void setValidated(boolean validated) {
-        this.validated = validated;
     }
 
     public Set<Integer> getCancerStudies() {

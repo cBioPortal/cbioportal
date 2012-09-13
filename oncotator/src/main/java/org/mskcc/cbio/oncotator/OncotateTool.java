@@ -15,58 +15,67 @@ import java.util.HashMap;
 public class OncotateTool {
     private final static String TAB = "\t";
     private int buildNumErrors = 0;
-    private OncotatorService oncotatorService = OncotatorService.getInstance();
+    private OncotatorService oncotatorService;
     private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
     private static int ONCO_HEADERS_COUNT = 5;
-    private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
+    private HashMap<String, Integer> genomicCountMap;
 
-    public OncotateTool(File inputMafFile,
-		    File outputMafFile) throws IOException, SQLException
+    public OncotateTool()
     {
-        outputFileNames(inputMafFile, outputMafFile);
-        FileReader reader = new FileReader(inputMafFile);
-        BufferedReader bufReader = new BufferedReader(reader);
-        String headerLine = bufReader.readLine();
-        MafUtil mafUtil = new MafUtil(headerLine);
-        String dataLine = bufReader.readLine();
-        
-        int numRecordsProcessed = 0;
-        FileWriter writer = new FileWriter(outputMafFile);
-        
-        writeHeaders(headerLine, writer);
-        
-        while (dataLine != null)
-        {
-            MafRecord mafRecord = mafUtil.parseRecord(dataLine);
-            String variantClassification = mafRecord.getVariantClassification();
-
-            // adjust data line before writing to make sure the consistency
-            // among the lines
-            writer.write(this.adjustDataLine(dataLine, mafUtil));
-            
-            //  Skip Silent Mutations
-            if (!variantClassification.equalsIgnoreCase("Silent")) {
-                conditionallyOncotateRecord(mafRecord, writer);
-                numRecordsProcessed++;
-                conditionallyAbort(numRecordsProcessed);
-            } else {
-                writeEmptyDataFields(writer);
-            }
-            writer.write("\n");
-            dataLine = bufReader.readLine();
-        }
-        
-        System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
-        for (String coords:  genomicCountMap.keySet()) {
-            Integer count = genomicCountMap.get(coords);
-            if (count > 1) {
-                System.out.println(coords + "\t" + (count-1));
-            }
-        }
-        
-        reader.close();
-        writer.close();
+	    this.oncotatorService = OncotatorService.getInstance();
+	    this.genomicCountMap = new HashMap<String, Integer>();
     }
+
+	private int oncotateMaf(File inputMafFile,
+			File outputMafFile) throws IOException, SQLException
+	{
+		outputFileNames(inputMafFile, outputMafFile);
+
+		FileReader reader = new FileReader(inputMafFile);
+		BufferedReader bufReader = new BufferedReader(reader);
+		String headerLine = bufReader.readLine();
+		MafUtil mafUtil = new MafUtil(headerLine);
+		String dataLine = bufReader.readLine();
+
+		int numRecordsProcessed = 0;
+		FileWriter writer = new FileWriter(outputMafFile);
+
+		writeHeaders(headerLine, writer);
+
+		while (dataLine != null)
+		{
+			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
+			String variantClassification = mafRecord.getVariantClassification();
+
+			// adjust data line before writing to make sure the consistency
+			// among the lines
+			writer.write(this.adjustDataLine(dataLine, mafUtil));
+
+			//  Skip Silent Mutations
+			if (!variantClassification.equalsIgnoreCase("Silent")) {
+				conditionallyOncotateRecord(mafRecord, writer);
+				numRecordsProcessed++;
+				conditionallyAbort(numRecordsProcessed);
+			} else {
+				writeEmptyDataFields(writer);
+			}
+			writer.write("\n");
+			dataLine = bufReader.readLine();
+		}
+
+		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
+		for (String coords:  genomicCountMap.keySet()) {
+			Integer count = genomicCountMap.get(coords);
+			if (count > 1) {
+				System.out.println(coords + "\t" + (count-1));
+			}
+		}
+
+		reader.close();
+		writer.close();
+
+		return this.oncotatorService.getErrorCount();
+	}
 
     private void outputFileNames(File inputMafFile, File outputMafFile) {
         System.out.println("Reading MAF From:  " + inputMafFile.getAbsolutePath());
@@ -269,16 +278,30 @@ public class OncotateTool {
         }
 
         Date start = new Date();
+	    int oncoResult = 0;
 
         try {
-            OncotateTool tool = new OncotateTool(new File(args[0]), new File(args[1]));
-        } catch (Exception e) {
+            OncotateTool tool = new OncotateTool();
+	        oncoResult = tool.oncotateMaf(new File(args[0]), new File(args[1]));
+        }
+        catch (Exception e)
+        {
             System.out.println("Error occurred:  " + e.getMessage());
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
             Date end = new Date();
             double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
             System.out.println("Total time:  " + timeElapsed + " seconds.");
+
+	        // check errors at the end
+	        if (oncoResult != 0)
+	        {
+		        // TODO produce different error codes, for different types of errors?
+		        System.out.println("Process completed with " + oncoResult + " error(s).");
+		        System.exit(2);
+	        }
         }
     }
 }

@@ -426,7 +426,7 @@ public class MakeOncoPrint {
 			}
 		}
         
-        if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
+        if (includeMutationLegend(allPossibleAlterations)) {
 			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Mutation\",\n");
 			builder.append("\t\t\t\t 'alteration' : CNA_DIPLOID | MRNA_NOTSHOWN | MUTATED | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
@@ -443,6 +443,24 @@ public class MakeOncoPrint {
 		// outta here
 		return builder.toString();
 	}
+        
+        private static boolean includeMutationLegend(OncoPrintGeneDisplaySpec allPossibleAlterations) {
+            if (allPossibleAlterations.satisfy(GeneticDataTypes.Mutation, GeneticTypeLevel.Mutated)) {
+                return true;
+            }
+            
+            ResultDataTypeSpec theResultDataTypeSpec = allPossibleAlterations.getResultDataTypeSpec(GeneticDataTypes.Mutation);
+            if (theResultDataTypeSpec == null) {
+                return false;
+            }
+            
+            DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = theResultDataTypeSpec.getTheDiscreteDataTypeSetSpec();
+            if (aDiscreteDataTypeSetSpec == null) {
+                return false;
+            }
+            
+            return !aDiscreteDataTypeSetSpec.getMutationPatterns().isEmpty();
+        }
 
 	/**
 	 * Creates javascript which invokes (via jquery) OncoPrint drawing 

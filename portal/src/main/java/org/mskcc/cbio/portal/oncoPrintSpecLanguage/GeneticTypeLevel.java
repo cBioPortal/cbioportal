@@ -93,11 +93,11 @@ public enum GeneticTypeLevel{
                     .findUniqueEnumWithNicknameMatchingPrefix(GeneticTypeLevel.class,
                             name);
         }
-        if (aGeneticTypeLevel == null) {
-           throw new IllegalArgumentException( "Not a value for a GeneticTypeLevel: " + name );
-        }else{
+//        if (aGeneticTypeLevel == null) {
+//           throw new IllegalArgumentException( "Not a value for a GeneticTypeLevel: " + name );
+//        }else{
            return aGeneticTypeLevel;
-        }
+//        }
     }   
     
 }

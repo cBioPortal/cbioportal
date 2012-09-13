@@ -23,6 +23,7 @@ public class MutationAssessorImporter
 		if (args.length == 0)
 		{
 			// TODO invalid number of arguments, print usage
+			System.out.println("Error: Invalid number of arguments");
 			System.exit(1);
 		}
 
@@ -31,12 +32,14 @@ public class MutationAssessorImporter
 			if (args.length < 2)
 			{
 				// TODO no input file or directory
+				System.out.println("Error: Invalid number of arguments");
 				System.exit(1);
 			}
 		}
 		else if (args.length < 2)
 		{
-			// TODO no output file specified
+			// TODO output file not specified
+			System.out.println("Error: Invalid number of arguments");
 			System.exit(1);
 		}
 
@@ -86,10 +89,12 @@ public class MutationAssessorImporter
 		}
 		catch (IOException e)
 		{
+			System.out.println("IO error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		catch (SQLException e)
 		{
+			System.out.println("Database error: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

@@ -1,4 +1,4 @@
-Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:variant	MA:FImpact	MA:link.MSA	MA:link.PDB
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	MA:protein.change	MA:FImpact	MA:link.MSA	MA:link.PDB
 HSPG2	3339	broad.mit.edu	TCGA-AA-3664	Unknown	valid	Unknown	Illumina GAIIx	chr1	22078087	22078087	Missense_Mutation	D820N	neutral	mutationassessor.org/?cm=msa&ty=f&p=PGBM_HUMAN&rb=814&re=869&var=D820N	
 CSMD2	114784	broad.mit.edu	TCGA-AA-3664	Unknown	valid	Unknown	Illumina GAIIx	chr1	34085156	34085156	Missense_Mutation	V277I	low	mutationassessor.org/?cm=msa&ty=f&p=CSMD2_HUMAN&rb=202&re=303&var=V277I	mutationassessor.org/pdb.php?prot=CSMD2_HUMAN&from=202&to=303&var=V277I
 CLSPN	63967	broad.mit.edu	TCGA-AA-3664	Unknown	valid	Unknown	Illumina GAIIx	chr1	35989584	35989584	Missense_Mutation	F628L		mutationassessor.org/?cm=msa&ty=f&p=CLSPN_HUMAN&rb=601&re=800&var=F628L	

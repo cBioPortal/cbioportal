@@ -28,10 +28,10 @@ TEST_DATA=$PORTAL_HOME/src/test/resources
 ./importClinicalData.pl $SAMPLE_DATA/gbm/GBM_clinical_portal_20110210.txt
 
 # Load Mutation Data
-./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta $SAMPLE_DATA/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
+./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta ../sample_data/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
 
 # Load CNA Data
-./importProfileData.pl --data $SAMPLE_DATA/gbm/data_CNA_consensus.txt --meta $SAMPLE_DATA/gbm/meta_CNA_consensus.txt --dbmsAction clobber
+./importProfileData.pl --data $SAMPLE_DATA/gbm/data_CNA_consensus.txt --meta ../sample_data/gbm/meta_CNA_consensus.txt --dbmsAction clobber
 
 # Load network data
 ./importSif.pl $SAMPLE_DATA/network/cell-map.sif CELLMAP
@@ -39,6 +39,3 @@ TEST_DATA=$PORTAL_HOME/src/test/resources
 
 # Load MutSig data
 ./importMutSig.pl $TEST_DATA/test_mut_sig_data.txt $TEST_DATA/testCancerStudy.txt
-
-# Load Gistic data
-./importGistic.pl $TEST_DATA/testCancerStudy.txt $TEST_DATA/test-gistic-amp.txt $TEST_DATA/test-gistic-table-amp.txt 

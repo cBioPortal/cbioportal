@@ -48,7 +48,7 @@ Users can define genetic alterations for three data types:
 		<TT>PROT &gt; x </TT> Protein-level over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
 			The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
         </td>
-        <td>At least 1 RPPA score from the median.</td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
 </table>
 
@@ -104,11 +104,11 @@ but to define over-expressed cases as those with mRNA expression greater than 3 
 
 To query cases that are over expressed in RPPA protein/phopshoprotein level:
 
-     EGFR: PROT > 1
+     EGFR: PROT > 2
 
 or
 
-     EGFR_PY992: prot > 1
+     EGFR_PY992: prot > 2
 
 Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.
 

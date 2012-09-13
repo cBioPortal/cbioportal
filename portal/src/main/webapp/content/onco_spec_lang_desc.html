@@ -44,7 +44,7 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
         <TT>PROT &gt; x </TT> Protein-level over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
             The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
         </td>
-        <td>At least 1 RPPA score from the median.</td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
 </table>
 
@@ -89,10 +89,10 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 <pre><code> CCNE1: EXP &gt; 3
 </code></pre>
 <p>To query cases that are over expressed in RPPA protein/phopshoprotein level:</p>
-<pre><code> EGFR: PROT &gt; 1
+<pre><code> EGFR: PROT &gt; 2
 </code></pre>
 <p>or</p>
-<pre><code> EGFR_PY992: prot &gt; 1
+<pre><code> EGFR_PY992: prot &gt; 2
 </code></pre>
 <p>Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.</p>
 <p>In general, any combination of OQL keywords and/or categories can annotate any gene.</p>

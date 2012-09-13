@@ -109,7 +109,8 @@ public class MafProcessor
 				// overwrite existing MA columns if MA data available
 				else if (maRecord != null)
 				{
-					// TODO keep the old value if the data is "NA" or overwrite in any case?
+					// no need to keep the old value even if the data is "NA",
+					// so overwrite in any case
 
 					if (i == util.getMaFImpactIndex())
 					{
@@ -284,32 +285,32 @@ public class MafProcessor
 				maData += generateLinkVar(maRecord.getKey()) + "\t";
 			}
 		}
-		// just insert TABs
+		// just insert 'NA's
 		else
 		{
 			if (!maImpact)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 
 			if (!maProteinChange)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING +"\t";
 			}
 
 			if (!maLinkMsa)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 
 			if (!maLinkPdb)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 
 			if (!maLinkVar)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 		}
 

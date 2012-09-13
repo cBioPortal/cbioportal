@@ -1,7 +1,4 @@
 #!/usr/bin/perl
 require "../scripts/env.pl";
 
-my $cmd = join(' ', @ARGV);
-$cmd = 'mvn -f $PORTAL_HOME/pom.xml exec:java -Dexec.mainClass="org.mskcc.cbio.cgds.scripts.ImportGisticData" -Dexec.args="' . $cmd . '"';
-
-system($cmd);
+system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cp -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportGisticData @ARGV");

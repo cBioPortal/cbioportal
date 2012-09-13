@@ -74,7 +74,7 @@ public class OncotateTool {
 		reader.close();
 		writer.close();
 
-		return this.oncotatorService.getErrorCode();
+		return this.oncotatorService.getErrorCount();
 	}
 
     private void outputFileNames(File inputMafFile, File outputMafFile) {
@@ -299,8 +299,8 @@ public class OncotateTool {
 	        if (oncoResult != 0)
 	        {
 		        // TODO produce different error codes, for different types of errors?
-		        System.out.println("Process completed with errors.");
-		        System.exit(oncoResult);
+		        System.out.println("Process completed with " + oncoResult + " error(s).");
+		        System.exit(2);
 	        }
         }
     }

@@ -344,9 +344,9 @@ public class ImportExtendedMutationData{
 	/**
 	 * Determines the most accurate amino acid change value for the given mutation.
 	 *
-	 * If there is a Mutation Assessor value, returns that value.
-	 * If no MA value, then tries Oncotator value.
-	 * If no oncotator value either, then tries the amino_acid_change column
+	 * If there is an Oncotator value, returns that value.
+	 * If no Oncotator value, then tries Mutation Assessor value.
+	 * If no MA value either, then tries the amino_acid_change column
 	 * If none of the above is valid then returns "MUTATED"
 	 *
 	 * @param parts     current mutation as split parts of the line
@@ -355,22 +355,18 @@ public class ImportExtendedMutationData{
 	 */
 	private String getProteinChange(String[] parts, MafRecord record)
 	{
-		// If we have a Mutation Assessor score for a given missense mutation,
-		// we should use the AA change provided by Mutation Assessor.
-		// MA may sometimes use a different isoform than Oncotator,
-		// but we want to make sure that the links to MA match what we show in the portal.
+		// Note: MA may sometimes use a different isoform than Oncotator.
 
-		// TODO make sure MA:variant does not contain any AA change info
-		// try mutation assessor value first
-		String aminoAcidChange = getField(parts, "MA:protein.change");
+		// try oncotator value first
+		String aminoAcidChange = record.getOncotatorProteinChange();
 
-		// if no MA value, try oncotator value
+		// if no oncotator value, try mutation assessor value
 		if (!isValidProteinChange(aminoAcidChange))
 		{
-			aminoAcidChange = record.getOncotatorProteinChange();
+			aminoAcidChange = getField(parts, "MA:protein.change");
 		}
 
-		// if no oncotator value either, then try amino_acid_change column
+		// if no MA value either, then try amino_acid_change column
 		if (!isValidProteinChange(aminoAcidChange))
 		{
 			aminoAcidChange = getField(parts, "amino_acid_change" );
@@ -380,6 +376,14 @@ public class ImportExtendedMutationData{
 		if (!isValidProteinChange(aminoAcidChange))
 		{
 			aminoAcidChange = "MUTATED";
+		}
+
+		String pDot = "p.";
+
+		// also remove the starting "p." string if any
+		if (aminoAcidChange.startsWith(pDot))
+		{
+			aminoAcidChange = aminoAcidChange.substring(pDot.length());
 		}
 
 		return aminoAcidChange;

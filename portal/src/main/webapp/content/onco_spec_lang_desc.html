@@ -88,9 +88,13 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 <p>but to define over-expressed cases as those with mRNA expression greater than 3 standard deviations above the mean:</p>
 <pre><code> CCNE1: EXP &gt; 3
 </code></pre>
-<p>and similarly with RPPA protein/phopshoprotein level:</p>
-<pre><code> CCNE1: PROT &gt; 1
+<p>To query cases that are over expressed in RPPA protein/phopshoprotein level:</p>
+<pre><code> EGFR: PROT &gt; 1
 </code></pre>
+<p>or</p>
+<pre><code> EGFR_PY992: prot &gt; 1
+</code></pre>
+<p>Hint: inputing PHOSPHOPROTEIN in the query will allow you to select from all phopshoproteins.</p>
 <p>In general, any combination of OQL keywords and/or categories can annotate any gene.</p>
 <h2 id="example-rb-pathway">Example:  RB Pathway</h2>
 <h3 id="using-the-defaults">Using the Defaults</h3>

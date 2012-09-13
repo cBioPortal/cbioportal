@@ -54,8 +54,9 @@ Gistic.get = function(cancerStudyId) {
     Gistic.PEAK_END_COL = 3;
     Gistic.QVAL_COL = 4;
     Gistic.RES_QVAL_COL = 5;
-    Gistic.GENES_COL = 6;
-    Gistic.NO_GENES_COL = 7;
+    Gistic.SANGER_GENES_COL = 6;
+    Gistic.NONSANGER_GENES_COL = 7;
+    Gistic.NO_GENES_COL = 8;
 
 
     // server request
@@ -73,6 +74,7 @@ Gistic.get = function(cancerStudyId) {
         dataTable.addColumn('number', 'Q-Value');
         dataTable.addColumn('number', 'Residual Q-Value');
         dataTable.addColumn('string', 'Genes');
+        dataTable.addColumn('string', 'nonSangerGenes');
         dataTable.addColumn('number', 'No Genes');
 
         var i,
@@ -85,8 +87,9 @@ Gistic.get = function(cancerStudyId) {
                 gistics[i].peakEnd,
                 gistics[i].qval,
                 gistics[i].res_qval,
-                gistics[i].genes_in_ROI.join(" "),
-                gistics[i].genes_in_ROI.length ];
+                gistics[i].sangerGenes.join(" "),
+                gistics[i].nonSangerGenes.join(" "),
+                gistics[i].sangerGenes.length + gistics[i].nonSangerGenes.length ];
             dataTable.addRow(row);
         }
 

@@ -1,5 +1,8 @@
 package org.mskcc.cbio.cgds.model;
 
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoSangerCensus;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,6 +111,14 @@ public class CanonicalGene extends Gene {
 
     public void setSomaticMutationFrequency(double somaticMutationFrequency) {
         this.somaticMutationFrequency = somaticMutationFrequency;
+    }
+
+    public boolean isSangerGene() throws DaoException {
+        DaoSangerCensus daoSangerCensus = DaoSangerCensus.getInstance();
+
+        String hugo = this.getHugoGeneSymbolAllCaps();
+
+        return daoSangerCensus.getCancerGeneSet().containsKey(hugo);
     }
 
     @Override

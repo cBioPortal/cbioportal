@@ -320,9 +320,7 @@ CREATE TABLE `protein_array_info` (
   `PROTEIN_ARRAY_ID` varchar(50) NOT NULL,
   `TYPE` varchar(50) NOT NULL,
   `GENE_SYMBOL` varchar(50) NOT NULL,
-  `SOURCE_ORGANISM` varchar(50) DEFAULT NULL,
   `TARGET_RESIDUE` varchar(20) default NULL,
-  `VALIDATED` boolean,
   PRIMARY KEY (`PROTEIN_ARRAY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

@@ -8,7 +8,7 @@
 ./importClinicalData.pl ucec_tcga $GDAC_CGDS_STAGING_HOME/ucec_tcga/ucec_tcga_clinical.txt
 
 # Imports Mutation Data
-./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_mutations_extended.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_mutations_extended.txt --dbmsAction clobber
+./importProfileData.pl --data ~/projects/GDAC-staging/ucec_tcga/data_mutations_extended.txt --meta ~/projects/GDAC-staging/ucec_tcga/meta_mutations_extended.txt --dbmsAction clobber
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_CNA.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_CNA.txt --dbmsAction clobber
@@ -24,7 +24,7 @@
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_methylation.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_methylation.txt --dbmsAction clobber
 
 # RPPA
-./importProteinArrayData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_rppa.txt ucec_tcga
+./importProteinArrayData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/UCEC.rppa.txt ucec_tcga
 
 # MutSig
 ./importMutSig.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_mutsig.txt

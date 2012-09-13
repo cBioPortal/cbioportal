@@ -5,6 +5,8 @@ package org.mskcc.cbio.mutassessor;
  */
 public class MutationAssessorRecord
 {
+	public static final String NA_STRING = "NA";
+
 	private String key;
 	private String impact;
 	private String proteinChange;
@@ -59,5 +61,26 @@ public class MutationAssessorRecord
 	public void setAlignmentLink(String alignmentLink)
 	{
 		this.alignmentLink = alignmentLink;
+	}
+
+	/**
+	 * If all fields of the record are null or NA, then returns true. Otherwise
+	 * returns false.
+	 *
+	 * @return  true if all fields are null or NA, false otherwise
+	 */
+	public boolean hasNoInfo()
+	{
+		boolean noInfo = false;
+
+		if ((this.impact == null || this.impact.equals(NA_STRING)) &&
+			(this.proteinChange == null || this.proteinChange.equals(NA_STRING)) &&
+			(this.alignmentLink == null || this.alignmentLink.equals(NA_STRING)) &&
+			(this.structureLink == null || this.structureLink.equals(NA_STRING)))
+		{
+			noInfo = true;
+		}
+
+		return noInfo;
 	}
 }

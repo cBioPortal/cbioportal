@@ -16,9 +16,6 @@
 # Load up Sanger Cancer Gene Census
 ./importSangerCensus.pl $CGDS_DATA_HOME/reference-data/sanger_gene_census.txt
 
-# RPPA
-./importProteinArrayInfo.pl $CGDS_DATA_HOME/reference-data/RPPA_antibody_list.txt
-
 # Load UniProt Mapping Data
 # You must run:  ./prepareUniProtIdMapping.sh first.
 ./importUniProtIdMapping.pl $CGDS_DATA_HOME/reference-data/uniprot_id_mapping.txt

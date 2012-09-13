@@ -183,10 +183,9 @@ public class DaoProteinArrayInfo {
                 String arrayId = rs.getString("PROTEIN_ARRAY_ID");
                 ProteinArrayInfo pai = new ProteinArrayInfo(arrayId,
                         rs.getString("TYPE"),
-                        rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"), getCancerTypesOfArray(arrayId, con));
+                        getCancerTypesOfArray(arrayId, con));
                 pais.add(pai);
             }
         } catch (SQLException e) {
@@ -234,10 +233,9 @@ public class DaoProteinArrayInfo {
                 String arrayId = rs.getString("PROTEIN_ARRAY_ID");
                 ProteinArrayInfo pai = new ProteinArrayInfo(arrayId,
                         rs.getString("TYPE"),
-                        rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"), getCancerTypesOfArray(arrayId, con));
+                        getCancerTypesOfArray(arrayId, con));
                 list.add(pai);
             }
             return list;
@@ -269,10 +267,9 @@ public class DaoProteinArrayInfo {
                 String arrayId = rs.getString("PROTEIN_ARRAY_ID");
                 ProteinArrayInfo pai = new ProteinArrayInfo(arrayId,
                         rs.getString("TYPE"),
-                        rs.getString("SOURCE_ORGANISM"),
                         rs.getString("GENE_SYMBOL"),
                         rs.getString("TARGET_RESIDUE"),
-                        rs.getBoolean("VALIDATED"),	getCancerTypesOfArray(arrayId, con));
+                        getCancerTypesOfArray(arrayId, con));
                 list.add(pai);
             }
             return list;

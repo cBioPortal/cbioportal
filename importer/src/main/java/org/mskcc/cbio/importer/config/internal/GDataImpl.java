@@ -3,6 +3,9 @@ package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,9 +23,8 @@ import com.google.gdata.client.spreadsheet.FeedURLFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.List;
-//import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.io.IOException;
 
 /**
@@ -54,30 +56,20 @@ final class GDataImpl implements Config {
 	@Value("${spreadsheet}")
 	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
-	// latest analysis run downloaded property
-	private String latestAnalysisRunProperty;
-	@Value("${latest_analysis_run_download}")
-	public void setLatestAnalysisRunProperty(final String property) { this.latestAnalysisRunProperty = property; }
+	// cancer studies metadata
+	private String tumorTypesMetadataProperty;
+	@Value("${tumor_types_metadata}")
+	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesMetadataProperty = property; }
 
-	// latest stddata run download property
-	private String latestSTDDATARunProperty;
-	@Value("${latest_stddata_run_download}")
-	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
+	// datatypes metadata
+	private String datatypesMetadataProperty;
+	@Value("${datatypes_metadata}")
+	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
 
-	// analysis datatypes to download
-	private String analysisDatatypesToDownload;
-	@Value("${analysis_datatypes_to_download}")
-	public void setAnalysisDatatypesToDownloadProperty(final String property) { this.analysisDatatypesToDownload = property; }
-
-	// stddata datatypes to download
-	private String stddataDatatypesToDownload;
-	@Value("${stddata_datatypes_to_download}")
-	public void setSTDDATADatatypesToDownloadProperty(final String property) { this.stddataDatatypesToDownload = property; }
-
-	// cancer studies information
-	private String cancerStudiesToDownload;
-	@Value("${cancer_studies_to_download}")
-	public void setCancerStudiesProperty(final String property) { this.cancerStudiesToDownload = property; }
+	// firehose download metadata
+	private String firehoseDownloadMetadataProperty;
+	@Value("${firehose_download_metadata}")
+	public void setFirehoseDownloadMetadataProperty(final String property) { this.firehoseDownloadMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -93,112 +85,24 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the latest analysis run.
+	 * Gets a collection of TumorTypeMetadata.
 	 *
-	 * Returns the date of the latest analysis run
-	 * processed by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
+	 * @return Collection<TumorTypeMetadata>
 	 */
 	@Override
-	public String getLatestAnalysisRunDownloaded() {
-		return getPropertyString(latestAnalysisRunProperty);
-	}
+	public Collection<TumorTypeMetadata> getTumorTypeMetadata() {
 
-	/**
-	 * Sets the latest analysis run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestAnalysisRunDownloaded(final String latestAnalysisRun) {
-		setPropertyString(latestAnalysisRunProperty, latestAnalysisRun);
-	}
-
-	/**
-	 * Gets the latest STDDATA run.
-	 *
-	 * Returns the date of the latest stddata run
-	 * downloaded by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getLatestSTDDATARunDownloaded() {
-		return getPropertyString(latestSTDDATARunProperty);
-	}
-
-	/**
-	 * Sets the latest stddata run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestSTDDATARunDownloaded(final String latestSTDDATARun) {
-		setPropertyString(latestSTDDATARunProperty, latestSTDDATARun);
-	}
-
-	/**
-	 * Gets the analysis datatypes to process.
-	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getAnalysisDatatypes() {
-
-		//String datatypes = getPropertyString(analysisDatatypesToDownload);
-		//return (datatypes.length() > 0) ? Arrays.asList(datatypes.split(" ")) : new ArrayList();
-		return getPropertyString(analysisDatatypesToDownload);
-	}
-
-	/**
-	 * Gets the stddata datatypes to process.
-	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getSTDDATADatatypes() {
-
-		//String datatypes = getPropertyString(stddataDatatypesToDownload);
-		//return (datatypes.length() > 0) ? Arrays.asList(datatypes.split(" ")) : new ArrayList();
-		return getPropertyString(stddataDatatypesToDownload);
-	}
-
-	/**
-	 * Gets the cancer studies to process.
-	 *
-	 * Returns a string, space delimited, with each cancer study
-	 * to process, like:
-	 *
-	 * "blca brca cesc coadread"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getCancerStudiesToDownload() {
-
-		String toReturn = "";
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getCancerStudiesToDownload()");
+			LOG.info("getTumorTypeMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = cancerStudiesToDownload.split(":");
-		if (properties.length != 3) {
+		String[] properties = tumorTypesMetadataProperty.split(":");
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCancerStudiesToDownload: " +
-						 cancerStudiesToDownload + ".  Should be worsheet:cancer_study_id:download_flag.");
+				LOG.info("Invalid property passed to getTumorTypeMetadata: " + tumorTypesMetadataProperty);
 			}
 			return toReturn;
 		}
@@ -210,24 +114,9 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-						String downloadFlag = entry.getCustomElements().getValue(properties[2]);
-						if (downloadFlag != null && downloadFlag.equals("yes")) {
-							String cancerStudy = entry.getCustomElements().getValue(properties[1]);
-							if (cancerStudy != null) {
-								if (LOG.isInfoEnabled()) {
-									LOG.info("Adding cancer study: " + cancerStudy + " to download list.");
-								}
-								toReturn += cancerStudy + " ";
-								continue;
-							}
-						}
-						else if (downloadFlag != null && downloadFlag.equals("no")) {
-							continue;
-						}
-						// only get here if problem, log it
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Cannot find cancer study and/or download property in entry list!");
-						}
+						toReturn.add(new TumorTypeMetadata(entry.getCustomElements().getValue(properties[2]),
+															 entry.getCustomElements().getValue(properties[3]),
+															 new Boolean(entry.getCustomElements().getValue(properties[1]))));
 					}
 				}
 				else {
@@ -242,8 +131,120 @@ final class GDataImpl implements Config {
 		}
 
 		// outta here
-		return toReturn.trim();
+		return toReturn;
 	}
+
+	/**
+	 * Gets a collection of DatatypeMetadata.
+	 *
+	 * @return Collection<DatatypeMetadata>
+	 */
+	@Override
+	public Collection<DatatypeMetadata> getDatatypeMetadata() {
+
+		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDatatypeMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = datatypesMetadataProperty.split(":");
+		if (properties.length != 6) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						DatatypeMetadata.DATATYPE datatype =
+							DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[2]));
+						toReturn.add(new DatatypeMetadata(datatype,
+														  new Boolean(entry.getCustomElements().getValue(properties[1])),
+														  entry.getCustomElements().getValue(properties[3]),
+														  entry.getCustomElements().getValue(properties[4]),
+														  entry.getCustomElements().getValue(properties[5])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+
+	}
+
+	/**
+	 * Gets FirehoseDownloadMetadata.
+	 *
+	 * @return FirehoseDownloadMetadata
+	 */
+    @Override
+	public FirehoseDownloadMetadata getFirehoseDownloadMetadata() {
+
+		FirehoseDownloadMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getFirehoseDownloadMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = firehoseDownloadMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
+			}
+			return toReturn;
+		}
+
+        // outta here
+        return new FirehoseDownloadMetadata(getPropertyString(properties[0] + ":" + properties[1]),
+                                            getPropertyString(properties[0] + ":" + properties[2]),
+                                            getPropertyString(properties[0] + ":" + properties[3]),
+                                            getPropertyString(properties[0] + ":" + properties[4]));
+	}
+
+	/**
+	 * Sets FirehoseDownloadMetadata.  Really only used to store
+     * stddata/analysis run dates.
+	 *
+     * @param firehoseDownloadMetadata FirehoseDownloadMetadata
+	 * @return FirehoseDownloadMetadata
+	 */
+    @Override
+	public void setFirehoseDownloadMetadata(final FirehoseDownloadMetadata firehoseDownloadMetadata) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("setFirehoseDownloadMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = firehoseDownloadMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to setFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
+			}
+			return;
+		}
+
+        setPropertyString(properties[0] + ":" + properties[2], firehoseDownloadMetadata.getLatestAnalysisRunDownloaded());
+        setPropertyString(properties[0] + ":" + properties[4], firehoseDownloadMetadata.getLatestSTDDATARunDownloaded());
+    }
 
 	/**
 	 * Gets the spreadsheet.

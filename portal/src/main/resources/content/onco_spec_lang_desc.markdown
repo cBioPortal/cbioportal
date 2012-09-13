@@ -27,8 +27,10 @@ Users can define genetic alterations for three data types:
     <tr>
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
-        <td><TT>MUT </TT> Show mutated cases</td>
-        <td>Somatic, non-synonymous mutations</td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations or mutation types.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
         <td>mRNA Expression</td>
@@ -42,11 +44,11 @@ Users can define genetic alterations for three data types:
     <tr>
         <td>Protein/phosphoprotein level (RPPA)</td>
         <td><TT>PROT</TT></td>
-        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> RPPA score lower than the median RPPA score.<BR>
-		<TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> RPPA score higher than the median RPPA score.<BR>
+        <td><TT>PROT &lt; -x </TT> Protein-level under-expression is less than <TT>x</TT> SDs below the mean.<BR>
+		<TT>PROT &gt; x </TT> Protein-level over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
 			The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
         </td>
-        <td>At least 1 RPPA score from the median.</td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
 </table>
 
@@ -65,6 +67,33 @@ which can also be written:
 
      CCNE1:  GAIN AMP
 
+To view cases with specific mutations:
+
+     BRAF: MUT = V600E
+
+or mutations on specific position only:
+
+     BRAF: MUT = V600
+
+or mutations of a specific type:
+
+     TP53: MUT = <TYPE>
+
+&lt;TYPE&gt; could be
+
+* MISSENSE
+* NONSENSE
+* NONSTART
+* NONSTOP
+* FRAMESHIFT
+* INFRAME
+* SPLICE
+* TRUNC
+
+e.g., to view TP53 truncating mutations and in-frame insertions/deletions:
+
+     TP53: MUT = TRUNC MUT = INFRAME
+
 To view amplified and mutated cases:
 
      CCNE1:  AMP MUT
@@ -73,9 +102,15 @@ but to define over-expressed cases as those with mRNA expression greater than 3 
 
      CCNE1: EXP > 3
 
-and similarly with RPPA protein/phopshoprotein level:
+To query cases that are over expressed in RPPA protein/phopshoprotein level:
 
-     CCNE1: PROT > 1
+     EGFR: PROT > 2
+
+or
+
+     EGFR_PY992: prot > 2
+
+Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.
 
 In general, any combination of OQL keywords and/or categories can annotate any gene.
 

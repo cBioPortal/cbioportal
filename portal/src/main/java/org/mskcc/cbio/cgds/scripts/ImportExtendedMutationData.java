@@ -168,19 +168,13 @@ public class ImportExtendedMutationData{
 				if (record.getEndPosition() < 0)
 					record.setEndPosition(0);
 
-				String aminoAcidChange = "MUTATED";
 				String functionalImpactScore = "";
 				String linkXVar = "";
 				String linkMsa = "";
 				String linkPdb = "";
 
-				if( fileHasOMAData) {
-					String[] aminoAcidChangeHeaders = { "amino_acid_change", "MA:variant" };
-					aminoAcidChange = getField( parts, aminoAcidChangeHeaders );
-					if( aminoAcidChange != null && aminoAcidChange.equalsIgnoreCase( NOT_AVAILABLE )) {
-						aminoAcidChange = "MUTATED";
-					}
-
+				if (fileHasOMAData)
+				{
 					functionalImpactScore = getField(parts, "MA:FImpact" );
 					functionalImpactScore = transformOMAScore(functionalImpactScore);
 					linkXVar = getField(parts, "MA:link.var" );
@@ -189,7 +183,7 @@ public class ImportExtendedMutationData{
 					linkPdb = getField(parts, "MA:link.PDB" );
 				}
 
-				String proteinChange = getProteinChange(aminoAcidChange, record);
+				String proteinChange = getProteinChange(parts, record);
 				String mutationType = getMutationType(record);
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -347,24 +341,58 @@ public class ImportExtendedMutationData{
 		}
 	}
 
-	private String getProteinChange(String aminoAcidChange, MafRecord record)
+	/**
+	 * Determines the most accurate amino acid change value for the given mutation.
+	 *
+	 * If there is a Mutation Assessor value, returns that value.
+	 * If no MA value, then tries Oncotator value.
+	 * If no oncotator value either, then tries the amino_acid_change column
+	 * If none of the above is valid then returns "MUTATED"
+	 *
+	 * @param parts     current mutation as split parts of the line
+	 * @param record    MAF record for the current line
+	 * @return          most accurate amino acid change
+	 */
+	private String getProteinChange(String[] parts, MafRecord record)
 	{
-		String proteinChange = record.getOncotatorProteinChange();
-
-		// TODO If we have a Mutation Assessor score for a given missense mutation,
+		// If we have a Mutation Assessor score for a given missense mutation,
 		// we should use the AA change provided by Mutation Assessor.
 		// MA may sometimes use a different isoform than Oncotator,
 		// but we want to make sure that the links to MA match what we show in the portal.
 
-		if (proteinChange == null ||
-		    proteinChange.length() == 0 ||
-		    proteinChange.equals("NULL") ||
-		    proteinChange.equals(MafRecord.NA_STRING))
+		// TODO make sure MA:variant does not contain any AA change info
+		// try mutation assessor value first
+		String aminoAcidChange = getField(parts, "MA:protein.change");
+
+		// if no MA value, try oncotator value
+		if (!isValidProteinChange(aminoAcidChange))
 		{
-			proteinChange = aminoAcidChange;
+			aminoAcidChange = record.getOncotatorProteinChange();
 		}
 
-		return proteinChange;
+		// if no oncotator value either, then try amino_acid_change column
+		if (!isValidProteinChange(aminoAcidChange))
+		{
+			aminoAcidChange = getField(parts, "amino_acid_change" );
+		}
+
+		// if none is valid, then use the string "MUTATED"
+		if (!isValidProteinChange(aminoAcidChange))
+		{
+			aminoAcidChange = "MUTATED";
+		}
+
+		return aminoAcidChange;
+	}
+
+	private boolean isValidProteinChange(String proteinChange)
+	{
+		boolean invalid = proteinChange == null ||
+		                  proteinChange.length() == 0 ||
+		                  proteinChange.equalsIgnoreCase("NULL") ||
+		                  proteinChange.equalsIgnoreCase(NOT_AVAILABLE);
+
+		return !invalid;
 	}
 
 	private String getMutationType(MafRecord record)

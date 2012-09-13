@@ -9,7 +9,7 @@ package org.mskcc.cbio.importer;
 public interface Fetcher {
 
 	/**
-	 * Fetchers data from the Broad.
+	 * Fetchers data from an external datasource.
 	 *
 	 * @throws Exception
 	 */

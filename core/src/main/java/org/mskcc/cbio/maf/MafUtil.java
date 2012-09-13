@@ -49,6 +49,11 @@ public class MafUtil
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
+	private int maFImpactIndex = -1; // MA:FImpact
+	private int maLinkVarIndex = -1; // MA:link.var
+	private int maLinkMsaIndex = -1; // MA:link.MSA
+	private int maLinkPdbIndex = -1; // MA:link.PDB
+	private int maProteinChangeIndex = -1; // MA:protein.change
     
     private int headerCount; // number of headers in the header line
 
@@ -142,7 +147,17 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
 	        	oncoDbSnpRsIndex = i;
-	        }
+            } else if(header.equalsIgnoreCase("MA:FImpact")) {
+				maFImpactIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.var")) {
+	            maLinkVarIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.MSA")) {
+	            maLinkMsaIndex = i;
+            } else if(header.equalsIgnoreCase("MA:link.PDB")) {
+	            maLinkPdbIndex = i;
+            } else if(header.equalsIgnoreCase("MA:protein.change")) {
+	            maProteinChangeIndex = i;
+            }
             // TODO will be decided later...
 //	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
 //	        	tumorRefCountIndex = i;
@@ -161,6 +176,7 @@ public class MafUtil
         String parts[] = line.split("\t", -1);
         
         MafRecord record = new MafRecord();
+
         record.setCenter(getPartString(centerIndex, parts));
         record.setChr(getPartString(chrIndex, parts));
         record.setStartPosition(getPartLong(startPositionIndex, parts));
@@ -193,11 +209,19 @@ public class MafUtil
         record.setValidationMethod(getPartString(validationMethodIndex, parts));
         record.setScore(getPartString(scoreIndex, parts));
         record.setBamFile(getPartString(bamFileIndex, parts));
-        record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
+
+	    record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
         record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
         record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
         record.setNormalRefCount(getPartInt(normalRefCountIndex, parts));
-        record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
+
+	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
+	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
+	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
+	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
+	    record.setMaProteinChange(getPartString(maProteinChangeIndex, parts));
+
+	    record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
         record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
@@ -406,7 +430,32 @@ public class MafUtil
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
 	}
-	
+
+	public int getMaFImpactIndex()
+	{
+		return maFImpactIndex;
+	}
+
+	public int getMaLinkVarIndex()
+	{
+		return maLinkVarIndex;
+	}
+
+	public int getMaLinkMsaIndex()
+	{
+		return maLinkMsaIndex;
+	}
+
+	public int getMaLinkPdbIndex()
+	{
+		return maLinkPdbIndex;
+	}
+
+	public int getMaProteinChangeIndex()
+	{
+		return maProteinChangeIndex;
+	}
+
     public int getHeaderCount() {
 		return headerCount;
 	}

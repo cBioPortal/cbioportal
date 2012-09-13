@@ -77,6 +77,7 @@ Gistic.get = function(cancerStudyId) {
         dataTable.addColumn('string', 'nonSangerGenes');
         dataTable.addColumn('number', 'No Genes');
 
+
         var i,
         row,
         len = gistics.length;
@@ -156,14 +157,36 @@ Gistic.makeView = function(data, genes_list) {
         label: 'Genes',
         type: 'string'};
 
+    var displayed_genes = {
+
+        calc: function(dt, row) {
+            var genes = dt.getValue(row, Gistic.SANGER_GENES_COL)
+                + dt.getValue(row, Gistic.NONSANGER_GENES_COL);
+
+            genes = genes.split(" ");
+            var visible = genes.splice(0,5);
+            var hidden = genes.splice(5);
+
+            visible = visible.join(" ");
+            hidden = hidden.join(" ");
+
+            return genes.splice(0,5) + " <span style=\"display:hidden;\" id=" + row + ">"
+                + genes
+                + "</span>";
+
+        },
+
+        label: 'Genes',
+        type: 'string' };
+
     // omitting Residual Q-Values, Peak Start, and Peak End
     // hopefully we can display chromosome locations as a mini-IQV picture
-
     view.setColumns([Gistic.AMPDEL_COL,
             Gistic.CHR_COL,
             Gistic.QVAL_COL,
-            Gistic.NO_GENES_COL,
-            Gistic.GENES_COL]);
+            displayed_genes]);
+            //Gistic.NO_GENES_COL,
+            //Gistic.SANGER_GENES_COL]);
             //genes_column_view ]);
             // disable boldening for now
 
@@ -253,7 +276,7 @@ Gistic.UI.catSelected = function(data, table, genes_col_no) {
 // action to be taken upon clicking of the select button
 Gistic.UI.select_button = function() {
 
-    var genes_str = Gistic.UI.catSelected(Gistic.data, Gistic.table, Gistic.GENES_COL);
+    var genes_str = Gistic.UI.catSelected(Gistic.data, Gistic.table, Gistic.SANGER_GENES_COL);
 
     // if nothing is selected, do nothing
     if (genes_str === '') {
@@ -290,7 +313,9 @@ Gistic.UI.filterByGene = function(genes_l) {
             // search through each row of the DataTable
             var rows = [];
             for (_i = 0; _i < _len; _i += 1) {
-                var _match = data.getValue(_i, Gistic.GENES_COL);
+                var _match = data.getValue(_i, Gistic.SANGER_GENES_COL) +
+                data.getValue(_i, Gistic.NONSANGER_GENES_COL);
+
                 _match = _match.search(new RegExp(gene, 'i'));
 
                 // if there is a match, add it to a list of rows
@@ -298,7 +323,6 @@ Gistic.UI.filterByGene = function(genes_l) {
                     rows.push(_i);
                 }
             }
-
             return rows;
         });
 

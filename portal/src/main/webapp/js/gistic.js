@@ -22,11 +22,12 @@ Gistic.initDialog = function() {
 
     // set up modal dialog box for gistic table (step 3)
     $('#gistic_dialog').dialog({autoOpen: false,
-        resizable: false,
+        //resizable: false,
         modal: true,
-//        height: 500,
-        minWidth: 636,
-        overflow: 'hidden',
+        width: 'auto',
+        //height: 500,
+        //minWidth: 636,
+        //overflow: 'hidden',
         open: function() {
             // sets the scrollbar to the top of the table
             // todo: downside -- doesn't save scroll location
@@ -160,22 +161,24 @@ Gistic.makeView = function(data, genes_list) {
     var displayed_genes = {
 
         calc: function(dt, row) {
-            var genes = dt.getValue(row, Gistic.SANGER_GENES_COL)
-                + dt.getValue(row, Gistic.NONSANGER_GENES_COL);
+            var genes = dt.getValue(row, Gistic.SANGER_GENES_COL) + " " + dt.getValue(row, Gistic.NONSANGER_GENES_COL);
 
             genes = genes.split(" ");
-            var visible = genes.splice(0,5);
-            var hidden = genes.splice(5);
 
-            visible = visible.join(" ");
-            hidden = hidden.join(" ");
 
-            return genes.splice(0,5) + " <span style=\"display:hidden;\" id=" + row + ">"
-                + genes
-                + "</span>";
+            var plus_button = '';
+            var minus_button = "<span onclick=\"Gistic.UI.expandGenes(this);\" style=\"display:none; font-weight:bold; color:#1974B8;\">hide</span>";
 
+            if (genes.length > 5) {
+                var _len = genes.length - 5;
+                plus_button = "<span onclick=\"Gistic.UI.expandGenes(this);\" style=\"font-weight:bold; color:#1974B8;\">+"
+                    + _len + "</span>";
+            }
+
+            var gene_display = genes.splice(0,5).join(" ") + plus_button + minus_button + "<p style=\"display:none;\">" + genes.join(" ") + "<\/p>";
+
+            return gene_display;
         },
-
         label: 'Genes',
         type: 'string' };
 
@@ -348,6 +351,16 @@ Gistic.UI.filterByGene = function(genes_l) {
 Gistic.UI.cancel_button = function(dialog) {
     $('#gistic_dialog').dialog('close');
     return;
+};
+
+Gistic.UI.expandGenes = function(el) {
+
+    el = $(el).parents()[0];
+
+    var spans = $(el).children();
+    spans = $(spans).select('span');
+
+    $(spans).toggle();
 };
 
 $(document).ready(function() {

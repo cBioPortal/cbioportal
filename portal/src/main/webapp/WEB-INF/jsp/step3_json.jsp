@@ -71,7 +71,7 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; white-space:nowrap; text-align:left; .ui-dialog {padding:0em;};">
+    <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id="gistic_table"></div>
         <div id="gistic_dialog_footer">
             <input id="filter_roi_by_gene" style="width:60%">

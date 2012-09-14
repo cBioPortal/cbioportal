@@ -216,7 +216,8 @@
                                 var notes = [];
                                 if (source[cnaTableIndices["sanger"]])
                                     notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
-                                                +"-tip' alt='In Sanger Cancer Gene Census'/>");
+                                                +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                                +source[mutTableIndices["gene"]]+"\">Sanger Cancer Gene Census</a>'/>");
                                 var drug = source[cnaTableIndices["drug"]];
                                 if (drug && drug.length) {
                                     notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'

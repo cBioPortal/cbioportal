@@ -68,47 +68,6 @@ if (patientViewError!=null) {
 
 <jsp:include page="global/header.jsp" flush="true" />
 
-
-<style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        .ColVis {
-                float: left;
-                margin-bottom: 0
-        }
-        .dataTables_length {
-                width: auto;
-                float: right;
-        }
-        .dataTables_info {
-                clear: none;
-                width: auto;
-                float: right;
-        }
-        .div.datatable-paging {
-                width: auto;
-                float: right;
-        }
-        .mutation_percent_div {
-                display: block;
-                float: right;
-                background-color: green;
-                height: 15px;
-        }
-        .amp_percent_div {
-                display: block;
-                float: right;
-                background-color: red;
-                height: 15px;
-        }
-        .del_percent_div {
-                display: block;
-                float: right;
-                background-color: blue;
-                height: 15px;
-        }
-</style>
-
 <table width="100%">
     <tr>
         <td ncol="2"><b><u><%=patientInfo%></u></b></td>
@@ -191,6 +150,50 @@ if (patientViewError!=null) {
 <jsp:include page="global/xdebug.jsp" flush="true" />
 
 <link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>
+
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .dataTables_length {
+                width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                clear: none;
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
+        }
+        .mutation_percent_div {
+                display: block;
+                float: right;
+                background-color: green;
+                height: 15px;
+        }
+        .amp_percent_div {
+                display: block;
+                float: right;
+                background-color: red;
+                height: 15px;
+        }
+        .del_percent_div {
+                display: block;
+                float: right;
+                background-color: blue;
+                height: 15px;
+        }
+        .ui-tooltip {
+            max-width: 800px;
+        }
+</style>
+
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
@@ -322,12 +325,7 @@ function addDrugsTooltip(elem) {
             },
             hide: { fixed: true, delay: 100 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-            position: {my:'top right',at:'bottom left'},
-            events: {
-                render: function(event, api) {
-                    $('.ui-tooltip').css('max-width',800);
-                }
-            }
+            position: {my:'top right',at:'bottom left'}
         });
     });
 }

@@ -15,8 +15,10 @@
 
 <script type="text/javascript">
     var mutTableIndices = {id:0,key:1,chr:2,start:3,end:4,gene:5,aa:6,type:7,status:8,
-        cosmic:9,mutsig:10,sanger:11,drug:12,ma:13,overview:14,mutrate:15,note:16};
+        cosmic:9,mutsig:10,sanger:11,drug:12,ma:13,overview:14,genemutrate:15,keymutrate:16,
+        mutrate:17,note:18};
     function buildMutationsDataTable(mutations, table_id, isSummary, sDom, iDisplayLength) {
+        var iSrcCol = 0;
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "bJQueryUI": true,
@@ -25,26 +27,32 @@
                 "aoColumnDefs":[
                     {// event id
                         "bVisible": false,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["id"] ]
                     },
                     {// chr
                         "bVisible": false,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["key"] ]
                     },
                     {// chr
                         "bVisible": false,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["chr"] ]
                     },
                     {// start
                         "bVisible": false,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["start"] ]
                     },
                     {// end
                         "bVisible": false,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["end"] ]
                     },
                     {// gene
                         "aTargets": [ mutTableIndices["gene"] ],
+                        "mData" : iSrcCol++,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 if (value!=null)
@@ -71,10 +79,12 @@
                             } else {
                                 return source[mutTableIndices["gene"]];
                             }
-                        }
+                        },
+                        "bSortable" : false
                     },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
+                        "mData" : iSrcCol++,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 if (value!=null)
@@ -103,18 +113,22 @@
                             } else {
                                 return source[mutTableIndices["aa"]];
                             }
-                        }
+                        },
+                        "bSortable" : false
                     },
-                    {// end
+                    {// type
                         "bVisible": true,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["type"] ]
                     },
-                    {// end
+                    {// status
                         "bVisible": !isSummary,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["status"] ]
                     },
                     {// cosmic
                         "bVisible": !isSummary,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["cosmic"] ],
                         "asSorting": ["desc", "asc"],
                         "mDataProp": function(source,type,value) {
@@ -140,6 +154,7 @@
                     },
                     {// mutsig
                         "bVisible": !isSummary,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["mutsig"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -161,6 +176,7 @@
                     },
                     {// sanger
                         "bVisible": !isSummary,
+                        "mData" : iSrcCol++,
                         "aTargets": [ mutTableIndices["sanger"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -180,87 +196,9 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
-                    {
-                        "aTargets": [ mutTableIndices["ma"] ],
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                source[mutTableIndices["ma"]]=value;
-                            } else if (type==='display') {
-                                var ma = source[mutTableIndices["ma"]];
-                                var score = ma['score'];
-                                var bgColor,impact;
-                                if (score==='N') {bgColor="white"; impact='Neutral';}
-                                else if (score==='L') {bgColor="#E8E894"; impact='Low';}
-                                else if (score==='M') {bgColor="#C79060"; impact='Medium';}
-                                else if (score==='H') {bgColor="#C83C3C"; impact='High';}
-                                else return '';
-                                var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
-                                var msa = ma['msa'];
-                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"' style='background-image:url(images/msa.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
-                                var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"' style='width: 23px;background-image:url(images/pdb.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
-                                return ret;
-                            } else if (type==='sort') {
-                                var ma = source[mutTableIndices["ma"]];
-                                var score = ma['score'];
-                                if (score==='L') return '1';
-                                else if (score==='M') return '2';
-                                else if (score==='H') return '3';
-                                else return '0';
-                            } else {
-                                return source[mutTableIndices["ma"]];
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
-                    {// in overview
-                        "bVisible": false,
-                        "aTargets": [ mutTableIndices["overview"] ]
-                    },
-                    {// mutation rate
-                        "bVisible": !isSummary,
-                        "mDataProp": 
-                            function(source,type,value) {
-                            if (isSummary) {
-                                return '';
-                            }
-                            if (type==='set') {
-                                source[mutTableIndices["mutrate"]]=value;
-                            } else if (type==='display') {
-                                if (!source[mutTableIndices["mutrate"]]) return "<img src=\"images/ajax-loader2.gif\">";
-                                var gene = source[mutTableIndices["gene"]];
-                                var geneCon = mutGeneContext[gene];
-                                var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
-                                var ret = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)";
-                                
-                                var key = source[mutTableIndices["key"]];
-                                if (key) {
-                                    var keyCon = mutKeyContext[key];
-                                    var keyPerc = 100.0 * keyCon / numPatientInSameMutationProfile;
-                                    ret += "<br/>" + key + ": " + keyCon + " (<b>" + keyPerc.toFixed(1) + "%</b>)";
-                                }
-                                
-                                var eventId = source[mutTableIndices["id"]];
-                                var aa = source[mutTableIndices["aa"]];
-                                var mutCon = mutAAContext[eventId];
-                                var mutPerc = 100.0 * mutCon / numPatientInSameMutationProfile;
-                                ret += "<br/>" + gene + " <i>" + aa + "</i>: " + mutCon + " (<b>" + mutPerc.toFixed(1) + "%</b>)";
-                                
-                                return ret;
-                            } else if (type==='sort') {
-                                if (!source[mutTableIndices["mutrate"]]) return 0;
-                                var gene = source[mutTableIndices["gene"]];
-                                var geneCon = '000000000'+mutGeneContext[gene];
-                                return geneCon.substring(geneCon.length-10,geneCon.length);
-                            } else {
-                                return '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"],
-                        "aTargets": [ mutTableIndices["mutrate"] ]
-                    },
                     {// drugs
                         "bVisible": !isSummary,
+                        "mData" : iSrcCol++,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -289,6 +227,119 @@
                         },
                         "asSorting": ["desc", "asc"],
                         "aTargets": [ mutTableIndices["drug"] ]
+                    },
+                    {
+                        "aTargets": [ mutTableIndices["ma"] ],
+                        "mData" : iSrcCol++,
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["ma"]]=value;
+                            } else if (type==='display') {
+                                var ma = source[mutTableIndices["ma"]];
+                                var score = ma['score'];
+                                var bgColor,impact;
+                                if (score==='N') {bgColor="white"; impact='Neutral';}
+                                else if (score==='L') {bgColor="#E8E894"; impact='Low';}
+                                else if (score==='M') {bgColor="#C79060"; impact='Medium';}
+                                else if (score==='H') {bgColor="#C83C3C"; impact='High';}
+                                else return '';
+                                var ret = "<a style='background-color:"+bgColor+";' href='"+ma['xvia']+"' title='"+impact+" impact'>&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
+                                var msa = ma['msa'];
+                                if (msa&&msa!='NA') ret += "&nbsp;<a href='"+msa+"' style='background-image:url(images/msa.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
+                                var pdb = ma['pdb'];
+                                if (pdb&&pdb!='NA') ret += "&nbsp;<a href='"+pdb+"' style='width: 23px;background-image:url(images/pdb.png);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>";
+                                return ret;
+                            } else if (type==='sort') {
+                                var ma = source[mutTableIndices["ma"]];
+                                var score = ma['score'];
+                                if (score==='N') return '0';
+                                else if (score==='L') return '1';
+                                else if (score==='M') return '2';
+                                else if (score==='H') return '3';
+                                else return '-1';
+                            } else {
+                                return source[mutTableIndices["ma"]];
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {// in overview
+                        "bVisible": false,
+                        "mData" : iSrcCol++,
+                        "aTargets": [ mutTableIndices["overview"] ]
+                    },
+                    {// gene mutation rate
+                        "bVisible": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["genemutrate"]]=value;
+                            } else if (type==='display') {
+                                if (!source[mutTableIndices["genemutrate"]]) return 0;
+                                var gene = source[mutTableIndices["gene"]];
+                                return mutGeneContext[gene];
+                            } else if (type==='sort') {
+                                if (!source[mutTableIndices["genemutrate"]]) return 0;
+                                var gene = source[mutTableIndices["gene"]];
+                                return mutGeneContext[gene];
+                            } else {
+                                if (!source[mutTableIndices["genemutrate"]]) return 0;
+                                var gene = source[mutTableIndices["gene"]];
+                                return mutGeneContext[gene];
+                            }
+                        },
+                        "aTargets": [ mutTableIndices["genemutrate"] ]
+                    },
+                    {// key mutation rate
+                        "bVisible": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                source[mutTableIndices["keymutrate"]]=value;
+                            } else {
+                                if (!source[mutTableIndices["keymutrate"]]) return 0;
+                                var key = source[mutTableIndices["key"]];
+                                if (!key) return 0;
+                                return mutKeyContext[key];
+                            }
+                        },
+                        "aTargets": [ mutTableIndices["keymutrate"] ]
+                    },
+                    {// mutation rate
+                        "bVisible": !isSummary,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (isSummary) {
+                                return '';
+                            }
+                            if (type==='set') {
+                                source[mutTableIndices["mutrate"]]=value;
+                            } else if (type==='display') {
+                                if (!source[mutTableIndices["mutrate"]]) return "<img src=\"images/ajax-loader2.gif\">";
+                                var gene = source[mutTableIndices["gene"]];
+                                var geneCon = mutGeneContext[gene];
+                                var genePerc = 100.0 * geneCon / numPatientInSameMutationProfile;
+                                var ret = gene + ": " + geneCon + " (<b>" + genePerc.toFixed(1) + "%</b>)";
+                                
+                                var key = source[mutTableIndices["key"]];
+                                if (key) {
+                                    var keyCon = mutKeyContext[key];
+                                    var keyPerc = 100.0 * keyCon / numPatientInSameMutationProfile;
+                                    ret += "<br/>" + key + ": " + keyCon + " (<b>" + keyPerc.toFixed(1) + "%</b>)";
+                                }
+                                
+                                return ret;
+                            } else if (type==='sort') {
+                                if (!source[mutTableIndices["mutrate"]]) return 0;
+                                var gene = source[mutTableIndices["gene"]];
+                                var geneCon = '000000000'+mutGeneContext[gene];
+                                return geneCon.substring(geneCon.length-10,geneCon.length);
+                            } else {
+                                return '';
+                            }
+                        },
+                        "bSortable" : false,
+                        "aTargets": [ mutTableIndices["mutrate"] ]
                     },
                     {// note 
                         "bVisible": isSummary,
@@ -331,7 +382,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip");
                 },
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["mutrate"],'desc'],[mutTableIndices["drug"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -343,29 +394,55 @@
 
         oTable.css("width","100%");
         
-        if (isSummary) addMutNoteSortingMenu(table_id);
+        if (isSummary) {
+            addMutNoteSortingMenu(table_id);
+            addMutGeneSortingMenu(table_id);
+            addMutAASortingMenu(table_id);
+        } else {
+            addMutContenxtSortingMenu(table_id);
+        }
         
         return oTable;
     }
     
     function addMutNoteSortingMenu(table_id) {
-        $("#"+table_id+" th:last-child").qtip({
-            content: {
-                text: "<a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"cosmic\",\"desc\");return false;'>Sort by COSMIC frequency</a><br/>\n\
-                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"mutsig\",\"asc\");return false;'>Sort by MutSig Q-value</a><br/>\n\
-                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"drug\",\"desc\");return false;'>Sort by available potential Drugs</a><br/>\n\
-                       <a href='#' onclick='sortNoteMutTable(\""+table_id+"\",\"sanger\",\"desc\");return false;'>Sort by Sanger Cancer Gene Census</a>"
-            },
+        addMutSortingMenu(table_id,"mut-header-note",
+            "<a href='#' onclick='sortMutTable(\""+table_id+"\",\"cosmic\",\"desc\");return false;'>Sort by COSMIC frequency</a><br/>\n\
+           <a href='#' onclick='sortMutTable(\""+table_id+"\",\"mutsig\",\"asc\");return false;'>Sort by MutSig Q-value</a><br/>\n\
+           <a href='#' onclick='sortMutTable(\""+table_id+"\",\"drug\",\"desc\");return false;'>Sort by available potential Drugs</a><br/>\n\
+           <a href='#' onclick='sortMutTable(\""+table_id+"\",\"sanger\",\"desc\");return false;'>Sort by Sanger Cancer Gene Census</a>");
+    }
+    
+    function addMutGeneSortingMenu(table_id) {
+        addMutSortingMenu(table_id,"mut-header-gene",
+            "<a href='#' onclick='sortMutTable(\""+table_id+"\",\"gene\",\"asc\");return false;'>Sort by gene symbol (A-Z)</a><br/>\n\
+            <a href='#' onclick='sortMutTable(\""+table_id+"\",\"gene\",\"desc\");return false;'>Sort by gene symbol (Z-A)</a><br/>\n\
+            <a href='#' onclick='sortMutTable(\""+table_id+"\",\"genemutrate\",\"desc\");return false;'>Sort by number of samples with mutated genes in study</a>");
+    }
+    
+    function addMutAASortingMenu(table_id) {
+        addMutSortingMenu(table_id,"mut-header-aa",
+            "<a href='#' onclick='sortMutTable(\""+table_id+"\",\"keymutrate\",\"desc\");return false;'>Sort by number of samples with specific mutations in study</a>");
+    }
+    
+    function addMutContenxtSortingMenu(table_id) {
+        addMutSortingMenu(table_id,"mut-header-mutrate",
+            "<a href='#' onclick='sortMutTable(\""+table_id+"\",\"genemutrate\",\"desc\");return false;'>Sort by number of samples with mutated genes in study</a><br/>\n\
+            <a href='#' onclick='sortMutTable(\""+table_id+"\",\"keymutrate\",\"desc\");return false;'>Sort by number of samples with specific mutations in study</a>");
+    }
+    
+    function addMutSortingMenu(table_id,th_class,text) {
+        $("#"+table_id+" th."+th_class).qtip({
+            content: { text: text },
             hide: { fixed: true, delay: 200 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
             position: {my:'top middle',at:'bottom middle'}
         });
-        
     }
     
-    function sortNoteMutTable(table_id,colLabel,direction) {
+    function sortMutTable(table_id,colLabel,direction) {
         $("#"+table_id).dataTable().fnSort([[mutTableIndices[colLabel],direction]]);
-        $("#"+table_id+" th:last-child").qtip("hide");
+        //$("#"+table_id+" th:last-child").qtip("hide");
     }
     
     function formatCosmic(cosmic,table_id,img) {
@@ -391,6 +468,8 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             if (summaryOnly && !oTable.fnGetData(row, mutTableIndices["overview"])) continue;
+                oTable.fnUpdate(true, row, mutTableIndices["genemutrate"], false, false);
+                oTable.fnUpdate(true, row, mutTableIndices["keymutrate"], false, false);
             if (!summaryOnly||print) {
                 oTable.fnUpdate(true, row, mutTableIndices["mutrate"], false, false);
             } else {
@@ -454,7 +533,7 @@
                 
                 // summary table
                 mut_summary_table = buildMutationsDataTable(mutations, 'mutation_summary_table', print?false:true,
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', print?-1:10);
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', print?-1:20);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
                     +mutations.length+" mutations</a>");
                 $('#switch-to-mutations-tab').click(function () {

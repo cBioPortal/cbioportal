@@ -137,15 +137,15 @@ public class MutationsJSON extends HttpServlet {
         GeneticProfile mutationProfile;
         Map<String, Integer> geneContextMap = Collections.emptyMap();
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
-        Map<Long, Integer> mutationContextMap = Collections.emptyMap();
+//        Map<Long, Integer> mutationContextMap = Collections.emptyMap();
         
         try {
             mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 geneContextMap = getGeneContextMap(eventIds, mutationProfile.getGeneticProfileId());
                 keywordContextMap = getKeywordContextMap(eventIds, mutationProfile.getGeneticProfileId());
-                mutationContextMap = DaoMutationEvent.countSamplesWithMutationEvents(
-                        eventIds, mutationProfile.getGeneticProfileId());
+//                mutationContextMap = DaoMutationEvent.countSamplesWithMutationEvents(
+//                        eventIds, mutationProfile.getGeneticProfileId());
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -154,7 +154,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Map<?, Integer>> map = new HashMap<String, Map<?, Integer>>();
         map.put(GENE_CONTEXT, geneContextMap);
         map.put(KEYWORD_CONTEXT, keywordContextMap);
-        map.put(MUTATION_CONTEXT, mutationContextMap);
+//        map.put(MUTATION_CONTEXT, mutationContextMap);
 
         response.setContentType("application/json");
         

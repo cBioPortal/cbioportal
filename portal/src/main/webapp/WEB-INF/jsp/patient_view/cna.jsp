@@ -278,7 +278,7 @@
                 
                 // summary table
                 cna_summary_table = buildCnaDataTable(cnas, 'cna_summary_table', print?false:true,
-                        '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', print?-1:10);
+                        '<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>', print?-1:20);
                 $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "+cnas.length+" copy number alterations</a>");
                 $('#switch-to-cna-tab').click(function () {
                     switchToTab('cna');

@@ -140,7 +140,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             position: {my:'top right',at:'top left'},
             events: {
                 render: function(event, api) {
-                    $('.ui-tooltip').css('max-width',800);
                     openMutCnaScatterDialog();
                 }
             }

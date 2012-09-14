@@ -83,13 +83,15 @@ function drawMutationDiagram(sequences)
     _drawMutationLollipops(paper, mutationDiagram, maxCount, MAX_OFFSET, id, x, l, w, c, per, scaleColors);
 
     // mutation histogram
-    // TODO draw the histogram!
+    _drawHistogram(histogram, mutationDiagram, maxCount, MAX_OFFSET, x, l, w, c, per, scaleColors);
 
     $("#mutation_histogram_" + id).hide();
 }
 
-function _drawHistogram(paper, mutationDiagram)
+function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, x, l, w, c, per, scaleColors)
 {
+    var labelShown = false;
+
     // loop variables
     var i = 0;
     var size = 0;
@@ -98,7 +100,47 @@ function _drawHistogram(paper, mutationDiagram)
     {
         if (mutationDiagram.markups[i].type == "mutation")
         {
+            var x1, y1, x2, y2;
+            var missenseColor = mutationDiagram.markups[i].colour[1];
+            var nonMissenseColor = mutationDiagram.markups[i].colour[2];
 
+            x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
+            y1 = (c - 10);
+            x2 = x1;
+            y2 = c - 10 - (per *
+                           (mutationDiagram.markups[i].metadata.count -
+                            mutationDiagram.markups[i].metadata.missenseCount));
+
+            // TODO also add cosmic count into metadata?
+
+            // draw the bar components according to the missense vs all others ratio
+            // (color coding according to missense vs other)
+            // first part: non missense
+            var bar = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2)
+                .toBack()
+                .attr({"stroke": nonMissenseColor, "stroke-width": 2});
+
+            y1 = y2;
+            y2 = c - 10 - (per * mutationDiagram.markups[i].metadata.count);
+
+            // second part: missense
+            bar = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2)
+                .toBack()
+                .attr({"stroke": missenseColor, "stroke-width": 2});
+
+            // draws the label for the max count
+            if (mutationDiagram.markups[i].metadata.label &&
+                (maxCount == mutationDiagram.markups[i].metadata.count + maxOffset) &&
+                !labelShown)
+            {
+                var maxCountLabel = paper.text(x1, y2 - 14, mutationDiagram.markups[i].metadata.label)
+                    .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
+
+                // adjust the label if it overlaps the y-axis
+                _adjustMaxCountLabel(maxCountLabel, x);
+
+                labelShown = true;
+            }
         }
     }
 }

@@ -77,6 +77,38 @@ public class HtmlUtil {
         }
     }
 
+	//  Creates a row of headers with titles (used as tooltips)
+	public static String createTableHeaderRowWithTitle(ArrayList<String> headerList) {
+		HtmlWriter writer = new HtmlWriter();
+
+		if (headerList != null)
+		{
+			writer.append("<tr>");
+
+			for (String header:  headerList)
+			{
+				String[] parts = header.split("\t");
+
+				String text = parts[0];
+
+				if (parts.length > 1)
+				{
+					text = parts[1];
+				}
+
+				writer.append("<th title='" + parts[0] + "'>" +
+				              text + "</th>");
+			}
+
+			writer.append("</tr>");
+			return writer.getHtml();
+		}
+		else
+		{
+			return EMPTY_STRING;
+		}
+	}
+
     //  Creates a Row of Data within a Table
     public static String createTableRow (ArrayList<String> dataFieldList) {
         HtmlWriter writer = new HtmlWriter();

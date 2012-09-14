@@ -84,7 +84,7 @@ public class MutationTableUtil
     }
 
     public String getTableHeaderHtml() {
-        return HtmlUtil.createTableHeaderRow(headerList);
+        return HtmlUtil.createTableHeaderRowWithTitle(headerList);
     }
 
     public ArrayList<String> getDataFields(ExtendedMutation mutation) {
@@ -303,22 +303,22 @@ public class MutationTableUtil
 
     private void initHeaders()
     {
-        headerList.add("Case ID");
-        headerList.add("Mutation Status");
-        headerList.add("Mutation Type");
-        headerList.add("Validation Status");
-        headerList.add("Sequencing Center");
-        headerList.add("AA Change");
-	    headerList.add("Build");
-	    headerList.add("Position");
-	    headerList.add("Ref Allele");
-	    headerList.add("Var Allele");
-	    headerList.add("Variant Frequency");
-	    headerList.add("Normal Frequency");
-	    headerList.add("COSMIC");
-        headerList.add("Predicted Impact**");
-        //headerList.add("Alignment");
-        //headerList.add("Structure");
+		headerList.add("Case ID\tCase ID");
+		headerList.add("Mutation Status\tMS");
+		headerList.add("Mutation Type\tMT");
+		headerList.add("Validation Status\tVS");
+		headerList.add("Sequencing Center\tCenter");
+		headerList.add("Amino Acid Change\tAA Change");
+		headerList.add("Build Number\tBuild");
+		headerList.add("Position\tPosition");
+		headerList.add("Reference Allele\tRA");
+		headerList.add("Variant Allele\tVA");
+		headerList.add("Variant Frequency\tVF");
+		headerList.add("Normal Frequency\tNF");
+		headerList.add("COSMIC Frequency\tCOSMIC");
+		headerList.add("Predicted Impact\tPI**");
+		//headerList.add("Alignment");
+		//headerList.add("Structure");
 
         //  Add Any Gene-Specfic Headers
         if (specialGene != null) {

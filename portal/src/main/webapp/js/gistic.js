@@ -51,13 +51,14 @@ Gistic.get = function(cancerStudyId) {
     // global variables that match the order of the columns below
     Gistic.AMPDEL_COL = 0;
     Gistic.CHR_COL = 1;
-    Gistic.PEAK_START_COL = 2;
-    Gistic.PEAK_END_COL = 3;
-    Gistic.QVAL_COL = 4;
-    Gistic.RES_QVAL_COL = 5;
-    Gistic.SANGER_GENES_COL = 6;
-    Gistic.NONSANGER_GENES_COL = 7;
-    Gistic.NO_GENES_COL = 8;
+    Gistic.CYTOBAND_COL = 2;
+    Gistic.PEAK_START_COL = 3;
+    Gistic.PEAK_END_COL = 4;
+    Gistic.QVAL_COL = 5;
+    Gistic.RES_QVAL_COL = 6;
+    Gistic.SANGER_GENES_COL = 7;
+    Gistic.NONSANGER_GENES_COL = 8;
+    Gistic.NO_GENES_COL = 9;
 
 
     // server request
@@ -70,6 +71,7 @@ Gistic.get = function(cancerStudyId) {
         dataTable.addColumn('number', '<span style="color:red">Amp</span>' +
             '<span style="color:blue">Del</span>');
         dataTable.addColumn('number', 'Chr');
+        dataTable.addColumn('string', 'Cytoband');
         dataTable.addColumn('number', 'Peak Start');
         dataTable.addColumn('number', 'Peak End');
         dataTable.addColumn('number', 'Q-Value');
@@ -85,6 +87,7 @@ Gistic.get = function(cancerStudyId) {
         for (i = 0; i < len; i+=1) {
             row = [gistics[i].ampdel ? 1 : 0,       // amp = true ; del = false
                 gistics[i].chromosome,
+                gistics[i].cytoband,
                 gistics[i].peakStart,
                 gistics[i].peakEnd,
                 gistics[i].qval,
@@ -167,12 +170,12 @@ Gistic.makeView = function(data, genes_list) {
 
 
             var plus_button = '';
-            var minus_button = "<span onclick=\"Gistic.UI.expandGenes(this);\" style=\"display:none; font-weight:bold; color:#1974B8;\">hide</span>";
+            var minus_button = "<span onclick=\"Gistic.UI.expandGenes(this);\" style=\"display:none; font-weight:bold; color:#1974B8;\">less</span>";
 
             if (genes.length > 5) {
                 var _len = genes.length - 5;
                 plus_button = "<span onclick=\"Gistic.UI.expandGenes(this);\" style=\"font-weight:bold; color:#1974B8;\">+"
-                    + _len + "</span>";
+                    + _len + " more</span>";
             }
 
             var gene_display = genes.splice(0,5).join(" ") + plus_button + minus_button + "<p style=\"display:none;\">" + genes.join(" ") + "<\/p>";
@@ -185,9 +188,10 @@ Gistic.makeView = function(data, genes_list) {
     // omitting Residual Q-Values, Peak Start, and Peak End
     // hopefully we can display chromosome locations as a mini-IQV picture
     view.setColumns([Gistic.AMPDEL_COL,
-            Gistic.CHR_COL,
-            Gistic.QVAL_COL,
-            displayed_genes]);
+                    Gistic.CHR_COL,
+                    Gistic.CYTOBAND_COL,
+                    Gistic.QVAL_COL,
+                    displayed_genes]);
             //Gistic.NO_GENES_COL,
             //Gistic.SANGER_GENES_COL]);
             //genes_column_view ]);
@@ -256,6 +260,58 @@ Gistic.UI.open_gistic_dialog = function() {
 
     // nothing is selected when the table first opens
     table.setSelection(null);
+
+    // special sorting for cytobands
+    google.visualization.events.addListener(table, 'sort', function(e) {
+        var CYTOBAND_V_COL = 2;
+
+        var view = Gistic.makeView(Gistic.data);
+
+        var cytobands = []
+        for (var i = 0; i < Gistic.data.getNumberOfRows(); i += 1) {
+            cytobands.push(Gistic.data.getValue(i, Gistic.CYTOBAND_COL));
+        }
+
+        Gistic.sortCytobands = function(x,y) {
+            var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
+            var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
+
+            console.log(_x[1]);
+            console.log(_y[1]);
+
+            if (parseInt(_x[1]) < parseInt(_y[1])) {
+                return true;
+            } else {
+                return false;
+            }
+
+            //if (parseInt(_x[1]) < parseInt(_y[1])) {
+            //    return true;
+            //} else if (parseInt(_x[1]) > parseInt(_y[1])) {
+            //    return false;
+            //} else if (x[2] === 'p' && y[2] === 'q') {
+            //    return true;
+            //} else if (x[2] === 'q' && y[2] === 'p') {
+            //    return false;
+            //} else {
+            //    return parseInt(x[3]) - parseInt(y[3]);
+            //}
+        };
+
+        cytobands = cytobands.sort(Gistic.sortCytobands);
+
+        console.log(cytobands);
+
+       // match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/)
+        //view.setRows();
+
+        if (e.column === CYTOBAND_V_COL) {
+            console.log(e);
+        }
+
+//    Gistic.table.draw(view, Gistic.table_options);
+
+    });
 
     Gistic.table = table;
 

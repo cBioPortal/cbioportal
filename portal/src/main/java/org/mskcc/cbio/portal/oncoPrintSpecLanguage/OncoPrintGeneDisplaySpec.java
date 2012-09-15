@@ -194,23 +194,26 @@ public class OncoPrintGeneDisplaySpec
      * @return indicates whether this display spec classifies the given data types' level as an alteration
      * @throws IllegalArgumentException
      */
-    public boolean satisfy( GeneticDataTypes theGeneticDataType, GeneticTypeLevel theGeneticTypeLevel )
-        throws IllegalArgumentException{
-            if( !theGeneticDataType.getTheDataTypeCategory().equals(DataTypeCategory.Discrete)){
-                throw new IllegalArgumentException("satisfy for discrete data types only takes Discrete GeneticDataTypes");
-            }
+    public boolean satisfy( GeneticDataTypes theGeneticDataType, Object level)//GeneticTypeLevel theGeneticTypeLevel )
+                throws IllegalArgumentException {
+        if( !theGeneticDataType.getTheDataTypeCategory().equals(DataTypeCategory.Discrete)){
+            throw new IllegalArgumentException("satisfy for discrete data types only takes Discrete GeneticDataTypes");
+        }
+        
         ResultDataTypeSpec theResultDataTypeSpec = finalDataTypeSpecs.get(theGeneticDataType);
         if( null == theResultDataTypeSpec ){
            return false;
         }
+        
         if( theResultDataTypeSpec.acceptAll ) {
             return true;
         }
 
         if( theResultDataTypeSpec.theDiscreteDataTypeSetSpec != null &&
-                 theResultDataTypeSpec.theDiscreteDataTypeSetSpec.satisfy(theGeneticTypeLevel) ){
-                return true;
-            }
+                 theResultDataTypeSpec.theDiscreteDataTypeSetSpec.satisfy(level) ){
+            return true;
+        }
+        
         return false;
     }
     

@@ -19,6 +19,16 @@ public class MafProcessor
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
 
+
+	/**
+	 * Adds mutation assessor information to the given input MAF
+	 * by using the information in the mutation assessor cache.
+	 *
+	 * @param inputMaf      input MAF to process
+	 * @param outputMaf     output MAF to create
+	 * @throws IOException
+	 * @throws SQLException
+	 */
 	public void addMutAssessorInfo(File inputMaf,
 			File outputMaf) throws IOException, SQLException
 	{
@@ -36,6 +46,7 @@ public class MafProcessor
 		boolean maProteinChange = (util.getMaProteinChangeIndex() != -1);
 		boolean maLinkMsa = (util.getMaLinkMsaIndex() != -1);
 		boolean maLinkPdb = (util.getMaLinkPdbIndex() != -1);
+		boolean maLinkVar = (util.getMaLinkVarIndex() != -1);
 
 		// check if the file already oncotated
 		// (assuming if it has the first oncotator column, then it is oncotated)
@@ -50,7 +61,8 @@ public class MafProcessor
 		String newColumns = this.getNewMaColumns(maImpact,
 			maProteinChange,
 			maLinkMsa,
-			maLinkPdb);
+			maLinkPdb,
+			maLinkVar);
 
 		// add new MA columns if necessary
 		line = addNewMaColumns(line,
@@ -88,7 +100,8 @@ public class MafProcessor
 						maImpact,
 						maProteinChange,
 						maLinkMsa,
-						maLinkPdb);
+						maLinkPdb,
+						maLinkVar);
 
 					// also add the onctotator column
 					line += parts[i];
@@ -96,7 +109,8 @@ public class MafProcessor
 				// overwrite existing MA columns if MA data available
 				else if (maRecord != null)
 				{
-					// TODO keep the old value if the data is "NA" or overwrite in any case?
+					// no need to keep the old value even if the data is "NA",
+					// so overwrite in any case
 
 					if (i == util.getMaFImpactIndex())
 					{
@@ -113,6 +127,10 @@ public class MafProcessor
 					else if (i == util.getMaLinkPdbIndex())
 					{
 						line += maRecord.getStructureLink();
+					}
+					else if (i == util.getMaLinkVarIndex())
+					{
+						line += generateLinkVar(maRecord.getKey());
 					}
 					// skip MA columns that are not needed anymore
 					// (do not add if the column starts with "MA:")
@@ -144,7 +162,8 @@ public class MafProcessor
 					maImpact,
 					maProteinChange,
 					maLinkMsa,
-					maLinkPdb);
+					maLinkPdb,
+					maLinkVar);
 
 				// remove last tab, since columns will be added
 				// at the end of the line
@@ -226,13 +245,15 @@ public class MafProcessor
 	 * @param maProteinChange   indicates if protein change column already exists
 	 * @param maLinkMsa         indicates if MSA link column already exists
 	 * @param maLinkPdb         indicates if PDB link column already exists
+	 * @param maLinkVar         indicates if var link column already exists
 	 * @return                  string representation of the new Mutation Assessor data
 	 */
 	private String getNewMaData(MutationAssessorRecord maRecord,
 			boolean maImpact,
 			boolean maProteinChange,
 			boolean maLinkMsa,
-			boolean maLinkPdb)
+			boolean maLinkPdb,
+			boolean maLinkVar)
 	{
 		String maData = "";
 
@@ -258,28 +279,38 @@ public class MafProcessor
 			{
 				maData += maRecord.getStructureLink() + "\t";
 			}
+
+			if (!maLinkVar)
+			{
+				maData += generateLinkVar(maRecord.getKey()) + "\t";
+			}
 		}
-		// just insert TABs
+		// just insert 'NA's
 		else
 		{
 			if (!maImpact)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 
 			if (!maProteinChange)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING +"\t";
 			}
 
 			if (!maLinkMsa)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
 			}
 
 			if (!maLinkPdb)
 			{
-				maData += "\t";
+				maData += MafRecord.NA_STRING + "\t";
+			}
+
+			if (!maLinkVar)
+			{
+				maData += MafRecord.NA_STRING + "\t";
 			}
 		}
 
@@ -293,12 +324,14 @@ public class MafProcessor
 	 * @param maProteinChange   indicates if protein change column already exists
 	 * @param maLinkMsa         indicates if MSA link column already exists
 	 * @param maLinkPdb         indicates if PDB link column already exists
+	 * @param maLinkVar         indicates if var link column already exists
 	 * @return                  new column names separated by TABs.
 	 */
 	private String getNewMaColumns(boolean maImpact,
 			boolean maProteinChange,
 			boolean maLinkMsa,
-			boolean maLinkPdb)
+			boolean maLinkPdb,
+			boolean maLinkVar)
 	{
 		String cols = "";
 
@@ -320,6 +353,11 @@ public class MafProcessor
 		if (!maLinkPdb)
 		{
 			cols += MA_LINK_PDB + "\t";
+		}
+
+		if (!maLinkVar)
+		{
+			cols += MA_LINK_VAR + "\t";
 		}
 
 		// remove trailing tab (if any)
@@ -400,6 +438,30 @@ public class MafProcessor
 		   header.equalsIgnoreCase(MA_LINK_MSA) ||
 		   header.equalsIgnoreCase(MA_LINK_PDB) ||
 		   header.equalsIgnoreCase(MA_PROTEIN_CHANGE);
+	}
+
+	/**
+	 * Generates the link to the mutation assessor site for the given key.
+	 *
+	 * @param key   cache key for an MA record
+	 * @return      link to MA site for the given cache key
+	 */
+	public static String generateLinkVar(String key)
+	{
+		String linkHeader = "getma.org/?cm=var&var=hg19,";
+
+		String[] parts = key.split("_");
+
+		String chr = parts[0];
+		String startPos = parts[1];
+		String refAllele = parts[3];
+		String tumAllele = parts[4];
+
+		return linkHeader +
+		       chr + "," +
+		       startPos + "," +
+		       refAllele + "," + tumAllele +
+		       "&fts=all";
 	}
 
 	/**

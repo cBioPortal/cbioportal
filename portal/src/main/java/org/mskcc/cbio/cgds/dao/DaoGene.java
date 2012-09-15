@@ -94,6 +94,7 @@ class DaoGene {
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
+                int rows = 0;
                 CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection();
@@ -102,14 +103,13 @@ class DaoGene {
                                     + "VALUES (?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                    int rows = pstmt.executeUpdate();
+                    rows += pstmt.executeUpdate();
                     
-                    rows += addGeneAliases(gene);
-                    
-                    return rows;
-                } else {
-                    return 0;
                 }
+                 
+                rows += addGeneAliases(gene);
+                    
+                return rows;
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -124,7 +124,7 @@ class DaoGene {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    private int addGeneAliases(CanonicalGene gene)  throws DaoException {
+    public int addGeneAliases(CanonicalGene gene)  throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -143,13 +143,16 @@ class DaoGene {
             } else {
                     con = JdbcUtil.getDbConnection();
                     Set<String> aliases = gene.getAliases();
+                    Set<String> existingAliases = getAliases(gene.getEntrezGeneId());
                     int rows = 0;
                     for (String alias : aliases) {
-                        pstmt = con.prepareStatement("INSERT INTO gene_alias "
-                                + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
-                        pstmt.setLong(1, gene.getEntrezGeneId());
-                        pstmt.setString(2, alias);
-                        rows += pstmt.executeUpdate();
+                        if (!existingAliases.contains(alias)) {
+                            pstmt = con.prepareStatement("INSERT INTO gene_alias "
+                                    + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
+                            pstmt.setLong(1, gene.getEntrezGeneId());
+                            pstmt.setString(2, alias);
+                            rows += pstmt.executeUpdate();
+                        }
                     }
                     
                     return rows;

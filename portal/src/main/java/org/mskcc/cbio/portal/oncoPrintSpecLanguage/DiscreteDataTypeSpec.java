@@ -17,11 +17,11 @@ public class DiscreteDataTypeSpec extends DataTypeSpecInequality{
         this.theGeneticDataType = theGeneticDataType;
         this.comparisonOp = comparisonOp;
 
+        this.threshold = threshold;
         // verify that threshold is a level within theGeneticDataType
-        if( theGeneticDataType.equals( ((GeneticTypeLevel) threshold).getTheGeneticDataType() )) {
+        if( theGeneticDataType == GeneticDataTypes.CopyNumberAlteration
+                && !theGeneticDataType.equals( ((GeneticTypeLevel) threshold).getTheGeneticDataType() )) {
             // assumes that levels are organized in increasing order
-            this.threshold = threshold;
-        }else{
             throw new IllegalArgumentException( "threshold is not a level within theGeneticDataType" );
         }
     }
@@ -36,10 +36,15 @@ public class DiscreteDataTypeSpec extends DataTypeSpecInequality{
     public static DiscreteDataTypeSpec discreteDataTypeSpecGenerator( String theGeneticDataTypeString,
             String comparisonOpString, String levelString ){
        try {
-         GeneticDataTypes theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeString );
+          GeneticDataTypes theGeneticDataType = DiscreteDataTypeSpec.findDataType( theGeneticDataTypeString );
           ComparisonOp theComparisonOp = ComparisonOp.convertCode( comparisonOpString );
-          GeneticTypeLevel theGeneticTypeLevel = GeneticTypeLevel.findDataTypeLevel(levelString);
-          return new DiscreteDataTypeSpec( theGeneticDataType, theComparisonOp, theGeneticTypeLevel );
+          Object threshold;
+          if (theGeneticDataType == GeneticDataTypes.CopyNumberAlteration) {
+              threshold = GeneticTypeLevel.findDataTypeLevel(levelString);
+          } else {
+              threshold = levelString;
+          }
+          return new DiscreteDataTypeSpec( theGeneticDataType, theComparisonOp, threshold );
       } catch (IllegalArgumentException e) {
          //out.println( e.getMessage() );
          return null;
@@ -57,25 +62,38 @@ public class DiscreteDataTypeSpec extends DataTypeSpecInequality{
      * @param value
      * @return true if value satisfies this DataTypeSpec
      */
-    public boolean satisfy( GeneticTypeLevel value) {
-        if( !value.getTheGeneticDataType().equals(theGeneticDataType) ){
-            return false;
+    public boolean satisfy( Object value) {
+        if (value instanceof GeneticTypeLevel) {
+            if (!(threshold instanceof GeneticTypeLevel)) {
+                return false;
+            }
+            GeneticTypeLevel gtl = (GeneticTypeLevel)value;
+            if( !gtl.getTheGeneticDataType().equals(theGeneticDataType) ){
+                return false;
+            }
+            GeneticTypeLevel theCNAthreshold = (GeneticTypeLevel)this.threshold;
+            switch (this.comparisonOp) {
+            case GreaterEqual:
+                return( 0 <= gtl.compareTo(theCNAthreshold) );
+            case Greater:
+                return( 0 < gtl.compareTo(theCNAthreshold) );
+            case LessEqual:
+                return( gtl.compareTo(theCNAthreshold) <= 0 );
+            case Less:
+                return( gtl.compareTo(theCNAthreshold) < 0 );
+            case Equal:
+                return ( gtl.compareTo(theCNAthreshold) == 0 );
+            } 
         }
-
-        GeneticTypeLevel theCNAthreshold = (GeneticTypeLevel)this.threshold;
-        switch (this.comparisonOp) {
-        case GreaterEqual:
-            return( 0 <= value.compareTo(theCNAthreshold) );
-        case Greater:
-            return( 0 < value.compareTo(theCNAthreshold) );
-        case LessEqual:
-            return( value.compareTo(theCNAthreshold) <= 0 );
-        case Less:
-            return( value.compareTo(theCNAthreshold) < 0 );
+        else if (value instanceof String) {
+            if (!(threshold instanceof String)) {
+                return false;
+            }
+            return comparisonOp == ComparisonOp.Equal && value.equals(threshold.toString());
         }
         // keep compiler happy
         (new UnreachableCodeException( "")).printStackTrace();
-        System.exit(1);
+        //System.exit(1);
         return false; 
    }
     
@@ -85,14 +103,20 @@ public class DiscreteDataTypeSpec extends DataTypeSpecInequality{
      */
     // TODO: test
     public DiscreteDataTypeSetSpec convertToDiscreteDataTypeSetSpec( ){
-        DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = new DiscreteDataTypeSetSpec( this.theGeneticDataType);
-        for( GeneticTypeLevel aGeneticTypeLevel : GeneticTypeLevel.values()){
-            if( aGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory().equals(DataTypeCategory.Discrete) &&
-                    this.satisfy(aGeneticTypeLevel) ){
-                aDiscreteDataTypeSetSpec.addLevel(aGeneticTypeLevel);
+        if (threshold instanceof GeneticTypeLevel) {
+            DiscreteDataTypeSetSpec aDiscreteDataTypeSetSpec = new DiscreteDataTypeSetSpec( this.theGeneticDataType);
+            for( GeneticTypeLevel aGeneticTypeLevel : GeneticTypeLevel.values()){
+                if( aGeneticTypeLevel.getTheGeneticDataType().getTheDataTypeCategory().equals(DataTypeCategory.Discrete) &&
+                        this.satisfy(aGeneticTypeLevel) ){
+                    aDiscreteDataTypeSetSpec.addLevel(aGeneticTypeLevel);
+                }
             }
+            return aDiscreteDataTypeSetSpec;
+        } else if (theGeneticDataType == GeneticDataTypes.Mutation && threshold instanceof String) {
+            return DiscreteDataTypeSetSpec.specificMutationDataTypeSetSpecGenerator((String)threshold);
         }
-        return aDiscreteDataTypeSetSpec;
+        
+        return null;
     }
     
     // TODO: unit test

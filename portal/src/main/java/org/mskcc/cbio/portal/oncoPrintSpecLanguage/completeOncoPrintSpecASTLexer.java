@@ -1,4 +1,4 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 ../completeOncoPrintSpecAST.g 2010-12-14 17:00:18
+// $ANTLR 3.2 Sep 23, 2009 12:02:23 ./completeOncoPrintSpecAST.g 2012-06-01 11:59:27
 
 	package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 
@@ -44,15 +44,15 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         super(input,state);
 
     }
-    public String getGrammarFileName() { return "../completeOncoPrintSpecAST.g"; }
+    public String getGrammarFileName() { return "./completeOncoPrintSpecAST.g"; }
 
     // $ANTLR start "T__21"
     public final void mT__21() throws RecognitionException {
         try {
             int _type = T__21;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:7:7: ( '{' )
-            // ../completeOncoPrintSpecAST.g:7:9: '{'
+            // ./completeOncoPrintSpecAST.g:7:7: ( '{' )
+            // ./completeOncoPrintSpecAST.g:7:9: '{'
             {
             match('{'); 
 
@@ -71,8 +71,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = T__22;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:8:7: ( '}' )
-            // ../completeOncoPrintSpecAST.g:8:9: '}'
+            // ./completeOncoPrintSpecAST.g:8:7: ( '}' )
+            // ./completeOncoPrintSpecAST.g:8:9: '}'
             {
             match('}'); 
 
@@ -91,8 +91,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = T__23;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:9:7: ( 'DATATYPES' )
-            // ../completeOncoPrintSpecAST.g:9:9: 'DATATYPES'
+            // ./completeOncoPrintSpecAST.g:9:7: ( 'DATATYPES' )
+            // ./completeOncoPrintSpecAST.g:9:9: 'DATATYPES'
             {
             match("DATATYPES"); 
 
@@ -112,8 +112,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = T__24;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:10:7: ( ':' )
-            // ../completeOncoPrintSpecAST.g:10:9: ':'
+            // ./completeOncoPrintSpecAST.g:10:7: ( ':' )
+            // ./completeOncoPrintSpecAST.g:10:9: ':'
             {
             match(':'); 
 
@@ -132,8 +132,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = T__25;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:11:7: ( ';' )
-            // ../completeOncoPrintSpecAST.g:11:9: ';'
+            // ./completeOncoPrintSpecAST.g:11:7: ( ';' )
+            // ./completeOncoPrintSpecAST.g:11:9: ';'
             {
             match(';'); 
 
@@ -152,8 +152,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = UserGeneList;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:138:14: ( '&userGeneList' )
-            // ../completeOncoPrintSpecAST.g:138:17: '&userGeneList'
+            // ./completeOncoPrintSpecAST.g:138:14: ( '&userGeneList' )
+            // ./completeOncoPrintSpecAST.g:138:17: '&userGeneList'
             {
             match("&userGeneList"); 
 
@@ -173,8 +173,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = IndividualGene;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:155:2: ( '&individualGene' )
-            // ../completeOncoPrintSpecAST.g:155:4: '&individualGene'
+            // ./completeOncoPrintSpecAST.g:155:2: ( '&individualGene' )
+            // ./completeOncoPrintSpecAST.g:155:4: '&individualGene'
             {
             match("&individualGene"); 
 
@@ -194,8 +194,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = DefaultDataTypeSpec;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:163:2: ( '&defaultDataTypeSpec' )
-            // ../completeOncoPrintSpecAST.g:163:4: '&defaultDataTypeSpec'
+            // ./completeOncoPrintSpecAST.g:163:2: ( '&defaultDataTypeSpec' )
+            // ./completeOncoPrintSpecAST.g:163:4: '&defaultDataTypeSpec'
             {
             match("&defaultDataTypeSpec"); 
 
@@ -215,8 +215,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = DataTypeOrLevel;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:179:2: ( '&DataTypeOrLevel' )
-            // ../completeOncoPrintSpecAST.g:179:4: '&DataTypeOrLevel'
+            // ./completeOncoPrintSpecAST.g:179:2: ( '&DataTypeOrLevel' )
+            // ./completeOncoPrintSpecAST.g:179:4: '&DataTypeOrLevel'
             {
             match("&DataTypeOrLevel"); 
 
@@ -236,8 +236,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = DiscreteDataType;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:187:19: ( '&DiscreteDataType' )
-            // ../completeOncoPrintSpecAST.g:187:21: '&DiscreteDataType'
+            // ./completeOncoPrintSpecAST.g:187:19: ( '&DiscreteDataType' )
+            // ./completeOncoPrintSpecAST.g:187:21: '&DiscreteDataType'
             {
             match("&DiscreteDataType"); 
 
@@ -257,8 +257,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = ContinuousDataTypeInequality;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:200:31: ( '&ContinuousDataTypeInequality' )
-            // ../completeOncoPrintSpecAST.g:200:33: '&ContinuousDataTypeInequality'
+            // ./completeOncoPrintSpecAST.g:200:31: ( '&ContinuousDataTypeInequality' )
+            // ./completeOncoPrintSpecAST.g:200:33: '&ContinuousDataTypeInequality'
             {
             match("&ContinuousDataTypeInequality"); 
 
@@ -278,14 +278,14 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = COMPARISON_OP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:203:2: ( ( '<=' | '<' | '>' | '>=' ) )
-            // ../completeOncoPrintSpecAST.g:203:4: ( '<=' | '<' | '>' | '>=' )
+            // ./completeOncoPrintSpecAST.g:203:2: ( ( '<=' | '<' | '>' | '>=' | '=' ) )
+            // ./completeOncoPrintSpecAST.g:203:4: ( '<=' | '<' | '>' | '>=' | '=' )
             {
-            // ../completeOncoPrintSpecAST.g:203:4: ( '<=' | '<' | '>' | '>=' )
-            int alt1=4;
-            int LA1_0 = input.LA(1);
-
-            if ( (LA1_0=='<') ) {
+            // ./completeOncoPrintSpecAST.g:203:4: ( '<=' | '<' | '>' | '>=' | '=' )
+            int alt1=5;
+            switch ( input.LA(1) ) {
+            case '<':
+                {
                 int LA1_1 = input.LA(2);
 
                 if ( (LA1_1=='=') ) {
@@ -293,8 +293,10 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                 }
                 else {
                     alt1=2;}
-            }
-            else if ( (LA1_0=='>') ) {
+                }
+                break;
+            case '>':
+                {
                 int LA1_2 = input.LA(2);
 
                 if ( (LA1_2=='=') ) {
@@ -302,16 +304,23 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                 }
                 else {
                     alt1=3;}
-            }
-            else {
+                }
+                break;
+            case '=':
+                {
+                alt1=5;
+                }
+                break;
+            default:
                 NoViableAltException nvae =
                     new NoViableAltException("", 1, 0, input);
 
                 throw nvae;
             }
+
             switch (alt1) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:203:6: '<='
+                    // ./completeOncoPrintSpecAST.g:203:6: '<='
                     {
                     match("<="); 
 
@@ -319,24 +328,31 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // ../completeOncoPrintSpecAST.g:203:13: '<'
+                    // ./completeOncoPrintSpecAST.g:203:13: '<'
                     {
                     match('<'); 
 
                     }
                     break;
                 case 3 :
-                    // ../completeOncoPrintSpecAST.g:203:19: '>'
+                    // ./completeOncoPrintSpecAST.g:203:19: '>'
                     {
                     match('>'); 
 
                     }
                     break;
                 case 4 :
-                    // ../completeOncoPrintSpecAST.g:203:25: '>='
+                    // ./completeOncoPrintSpecAST.g:203:25: '>='
                     {
                     match(">="); 
 
+
+                    }
+                    break;
+                case 5 :
+                    // ./completeOncoPrintSpecAST.g:203:32: '='
+                    {
+                    match('='); 
 
                     }
                     break;
@@ -359,10 +375,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:206:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )* )
-            // ../completeOncoPrintSpecAST.g:206:7: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )*
             {
-            if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
+            if ( input.LA(1)=='*'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
 
             }
@@ -371,22 +385,21 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // ../completeOncoPrintSpecAST.g:206:31: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '-' | '*' )*
             loop2:
             do {
                 int alt2=2;
                 int LA2_0 = input.LA(1);
 
-                if ( (LA2_0=='*'||LA2_0=='-'||LA2_0=='/'||(LA2_0>='0' && LA2_0<='9')||(LA2_0>='A' && LA2_0<='Z')||LA2_0=='_'||(LA2_0>='a' && LA2_0<='z')) ) {
+                if ( (LA2_0=='*'||(LA2_0>='-' && LA2_0<='9')||(LA2_0>='@' && LA2_0<='Z')||LA2_0=='_'||(LA2_0>='a' && LA2_0<='z')) ) {
                     alt2=1;
                 }
 
 
                 switch (alt2) {
             	case 1 :
-            	    // ../completeOncoPrintSpecAST.g:
+            	    // ./completeOncoPrintSpecAST.g:
             	    {
-            	    if ( input.LA(1)=='*'||input.LA(1)=='-'||input.LA(1)=='/'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
+            	    if ( input.LA(1)=='*'||(input.LA(1)>='-' && input.LA(1)<='9')||(input.LA(1)>='@' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
             	        input.consume();
 
             	    }
@@ -420,10 +433,10 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = SIGNED_FLOAT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:210:5: ( ( '-' )? ( ( INT )+ '.' ( INT )* | '.' ( INT )+ ) )
-            // ../completeOncoPrintSpecAST.g:210:8: ( '-' )? ( ( INT )+ '.' ( INT )* | '.' ( INT )+ )
+            // ./completeOncoPrintSpecAST.g:210:5: ( ( '-' )? ( ( INT )+ '.' ( INT )* | '.' ( INT )+ ) )
+            // ./completeOncoPrintSpecAST.g:210:8: ( '-' )? ( ( INT )+ '.' ( INT )* | '.' ( INT )+ )
             {
-            // ../completeOncoPrintSpecAST.g:210:8: ( '-' )?
+            // ./completeOncoPrintSpecAST.g:210:8: ( '-' )?
             int alt3=2;
             int LA3_0 = input.LA(1);
 
@@ -432,7 +445,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             }
             switch (alt3) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:210:9: '-'
+                    // ./completeOncoPrintSpecAST.g:210:9: '-'
                     {
                     match('-'); 
 
@@ -441,7 +454,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
             }
 
-            // ../completeOncoPrintSpecAST.g:210:15: ( ( INT )+ '.' ( INT )* | '.' ( INT )+ )
+            // ./completeOncoPrintSpecAST.g:210:15: ( ( INT )+ '.' ( INT )* | '.' ( INT )+ )
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -459,9 +472,9 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             }
             switch (alt7) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:210:17: ( INT )+ '.' ( INT )*
+                    // ./completeOncoPrintSpecAST.g:210:17: ( INT )+ '.' ( INT )*
                     {
-                    // ../completeOncoPrintSpecAST.g:210:17: ( INT )+
+                    // ./completeOncoPrintSpecAST.g:210:17: ( INT )+
                     int cnt4=0;
                     loop4:
                     do {
@@ -475,7 +488,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
                         switch (alt4) {
                     	case 1 :
-                    	    // ../completeOncoPrintSpecAST.g:210:17: INT
+                    	    // ./completeOncoPrintSpecAST.g:210:17: INT
                     	    {
                     	    mINT(); 
 
@@ -492,7 +505,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     } while (true);
 
                     match('.'); 
-                    // ../completeOncoPrintSpecAST.g:210:26: ( INT )*
+                    // ./completeOncoPrintSpecAST.g:210:26: ( INT )*
                     loop5:
                     do {
                         int alt5=2;
@@ -505,7 +518,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
                         switch (alt5) {
                     	case 1 :
-                    	    // ../completeOncoPrintSpecAST.g:210:26: INT
+                    	    // ./completeOncoPrintSpecAST.g:210:26: INT
                     	    {
                     	    mINT(); 
 
@@ -521,10 +534,10 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // ../completeOncoPrintSpecAST.g:211:8: '.' ( INT )+
+                    // ./completeOncoPrintSpecAST.g:211:8: '.' ( INT )+
                     {
                     match('.'); 
-                    // ../completeOncoPrintSpecAST.g:211:12: ( INT )+
+                    // ./completeOncoPrintSpecAST.g:211:12: ( INT )+
                     int cnt6=0;
                     loop6:
                     do {
@@ -538,7 +551,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
                         switch (alt6) {
                     	case 1 :
-                    	    // ../completeOncoPrintSpecAST.g:211:12: INT
+                    	    // ./completeOncoPrintSpecAST.g:211:12: INT
                     	    {
                     	    mINT(); 
 
@@ -576,10 +589,10 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = SIGNED_INT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:214:12: ( ( '-' )? ( INT )+ )
-            // ../completeOncoPrintSpecAST.g:214:14: ( '-' )? ( INT )+
+            // ./completeOncoPrintSpecAST.g:214:12: ( ( '-' )? ( INT )+ )
+            // ./completeOncoPrintSpecAST.g:214:14: ( '-' )? ( INT )+
             {
-            // ../completeOncoPrintSpecAST.g:214:14: ( '-' )?
+            // ./completeOncoPrintSpecAST.g:214:14: ( '-' )?
             int alt8=2;
             int LA8_0 = input.LA(1);
 
@@ -588,7 +601,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             }
             switch (alt8) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:214:15: '-'
+                    // ./completeOncoPrintSpecAST.g:214:15: '-'
                     {
                     match('-'); 
 
@@ -597,7 +610,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
             }
 
-            // ../completeOncoPrintSpecAST.g:214:21: ( INT )+
+            // ./completeOncoPrintSpecAST.g:214:21: ( INT )+
             int cnt9=0;
             loop9:
             do {
@@ -611,7 +624,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
                 switch (alt9) {
             	case 1 :
-            	    // ../completeOncoPrintSpecAST.g:214:21: INT
+            	    // ./completeOncoPrintSpecAST.g:214:21: INT
             	    {
             	    mINT(); 
 
@@ -641,11 +654,11 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR start "INT"
     public final void mINT() throws RecognitionException {
         try {
-            // ../completeOncoPrintSpecAST.g:216:14: ( ( '0' .. '9' ) )
-            // ../completeOncoPrintSpecAST.g:216:16: ( '0' .. '9' )
+            // ./completeOncoPrintSpecAST.g:216:14: ( ( '0' .. '9' ) )
+            // ./completeOncoPrintSpecAST.g:216:16: ( '0' .. '9' )
             {
-            // ../completeOncoPrintSpecAST.g:216:16: ( '0' .. '9' )
-            // ../completeOncoPrintSpecAST.g:216:17: '0' .. '9'
+            // ./completeOncoPrintSpecAST.g:216:16: ( '0' .. '9' )
+            // ./completeOncoPrintSpecAST.g:216:17: '0' .. '9'
             {
             matchRange('0','9'); 
 
@@ -665,8 +678,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:218:4: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
-            // ../completeOncoPrintSpecAST.g:218:8: ( ' ' | '\\t' | '\\r' | '\\n' )
+            // ./completeOncoPrintSpecAST.g:218:4: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
+            // ./completeOncoPrintSpecAST.g:218:8: ( ' ' | '\\t' | '\\r' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||input.LA(1)=='\r'||input.LA(1)==' ' ) {
                 input.consume();
@@ -694,11 +707,11 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ../completeOncoPrintSpecAST.g:226:5: ( '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"' )
-            // ../completeOncoPrintSpecAST.g:226:8: '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"'
+            // ./completeOncoPrintSpecAST.g:226:5: ( '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"' )
+            // ./completeOncoPrintSpecAST.g:226:8: '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"'
             {
             match('\"'); 
-            // ../completeOncoPrintSpecAST.g:226:12: ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )*
+            // ./completeOncoPrintSpecAST.g:226:12: ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )*
             loop10:
             do {
                 int alt10=3;
@@ -714,14 +727,14 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
 
                 switch (alt10) {
             	case 1 :
-            	    // ../completeOncoPrintSpecAST.g:226:14: ESC_SEQ
+            	    // ./completeOncoPrintSpecAST.g:226:14: ESC_SEQ
             	    {
             	    mESC_SEQ(); 
 
             	    }
             	    break;
             	case 2 :
-            	    // ../completeOncoPrintSpecAST.g:226:24: ~ ( '\\\\' | '\"' )
+            	    // ./completeOncoPrintSpecAST.g:226:24: ~ ( '\\\\' | '\"' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='[')||(input.LA(1)>=']' && input.LA(1)<='\uFFFF') ) {
             	        input.consume();
@@ -756,7 +769,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR start "ESC_SEQ"
     public final void mESC_SEQ() throws RecognitionException {
         try {
-            // ../completeOncoPrintSpecAST.g:231:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
+            // ./completeOncoPrintSpecAST.g:231:5: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
             int alt11=3;
             int LA11_0 = input.LA(1);
 
@@ -807,7 +820,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             }
             switch (alt11) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:231:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
+                    // ./completeOncoPrintSpecAST.g:231:9: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
                     {
                     match('\\'); 
                     if ( input.LA(1)=='\"'||input.LA(1)=='\''||input.LA(1)=='\\'||input.LA(1)=='b'||input.LA(1)=='f'||input.LA(1)=='n'||input.LA(1)=='r'||input.LA(1)=='t' ) {
@@ -823,14 +836,14 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // ../completeOncoPrintSpecAST.g:232:9: UNICODE_ESC
+                    // ./completeOncoPrintSpecAST.g:232:9: UNICODE_ESC
                     {
                     mUNICODE_ESC(); 
 
                     }
                     break;
                 case 3 :
-                    // ../completeOncoPrintSpecAST.g:233:9: OCTAL_ESC
+                    // ./completeOncoPrintSpecAST.g:233:9: OCTAL_ESC
                     {
                     mOCTAL_ESC(); 
 
@@ -847,7 +860,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR start "OCTAL_ESC"
     public final void mOCTAL_ESC() throws RecognitionException {
         try {
-            // ../completeOncoPrintSpecAST.g:238:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
+            // ./completeOncoPrintSpecAST.g:238:5: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
             int alt12=3;
             int LA12_0 = input.LA(1);
 
@@ -858,9 +871,9 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     int LA12_2 = input.LA(3);
 
                     if ( ((LA12_2>='0' && LA12_2<='7')) ) {
-                        int LA12_4 = input.LA(4);
+                        int LA12_5 = input.LA(4);
 
-                        if ( ((LA12_4>='0' && LA12_4<='7')) ) {
+                        if ( ((LA12_5>='0' && LA12_5<='7')) ) {
                             alt12=1;
                         }
                         else {
@@ -893,25 +906,25 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             }
             switch (alt12) {
                 case 1 :
-                    // ../completeOncoPrintSpecAST.g:238:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:238:9: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // ../completeOncoPrintSpecAST.g:238:14: ( '0' .. '3' )
-                    // ../completeOncoPrintSpecAST.g:238:15: '0' .. '3'
+                    // ./completeOncoPrintSpecAST.g:238:14: ( '0' .. '3' )
+                    // ./completeOncoPrintSpecAST.g:238:15: '0' .. '3'
                     {
                     matchRange('0','3'); 
 
                     }
 
-                    // ../completeOncoPrintSpecAST.g:238:25: ( '0' .. '7' )
-                    // ../completeOncoPrintSpecAST.g:238:26: '0' .. '7'
+                    // ./completeOncoPrintSpecAST.g:238:25: ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:238:26: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
                     }
 
-                    // ../completeOncoPrintSpecAST.g:238:36: ( '0' .. '7' )
-                    // ../completeOncoPrintSpecAST.g:238:37: '0' .. '7'
+                    // ./completeOncoPrintSpecAST.g:238:36: ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:238:37: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -921,18 +934,18 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // ../completeOncoPrintSpecAST.g:239:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:239:9: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // ../completeOncoPrintSpecAST.g:239:14: ( '0' .. '7' )
-                    // ../completeOncoPrintSpecAST.g:239:15: '0' .. '7'
+                    // ./completeOncoPrintSpecAST.g:239:14: ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:239:15: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
                     }
 
-                    // ../completeOncoPrintSpecAST.g:239:25: ( '0' .. '7' )
-                    // ../completeOncoPrintSpecAST.g:239:26: '0' .. '7'
+                    // ./completeOncoPrintSpecAST.g:239:25: ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:239:26: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -942,11 +955,11 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // ../completeOncoPrintSpecAST.g:240:9: '\\\\' ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:240:9: '\\\\' ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // ../completeOncoPrintSpecAST.g:240:14: ( '0' .. '7' )
-                    // ../completeOncoPrintSpecAST.g:240:15: '0' .. '7'
+                    // ./completeOncoPrintSpecAST.g:240:14: ( '0' .. '7' )
+                    // ./completeOncoPrintSpecAST.g:240:15: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -966,8 +979,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR start "UNICODE_ESC"
     public final void mUNICODE_ESC() throws RecognitionException {
         try {
-            // ../completeOncoPrintSpecAST.g:245:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
-            // ../completeOncoPrintSpecAST.g:245:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+            // ./completeOncoPrintSpecAST.g:245:5: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
+            // ./completeOncoPrintSpecAST.g:245:9: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
             {
             match('\\'); 
             match('u'); 
@@ -987,8 +1000,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // ../completeOncoPrintSpecAST.g:249:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
-            // ../completeOncoPrintSpecAST.g:249:13: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )
+            // ./completeOncoPrintSpecAST.g:249:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
+            // ./completeOncoPrintSpecAST.g:249:13: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )
             {
             if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='F')||(input.LA(1)>='a' && input.LA(1)<='f') ) {
                 input.consume();
@@ -1009,124 +1022,124 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     // $ANTLR end "HEX_DIGIT"
 
     public void mTokens() throws RecognitionException {
-        // ../completeOncoPrintSpecAST.g:1:8: ( T__21 | T__22 | T__23 | T__24 | T__25 | UserGeneList | IndividualGene | DefaultDataTypeSpec | DataTypeOrLevel | DiscreteDataType | ContinuousDataTypeInequality | COMPARISON_OP | ID | SIGNED_FLOAT | SIGNED_INT | WS | STRING )
+        // ./completeOncoPrintSpecAST.g:1:8: ( T__21 | T__22 | T__23 | T__24 | T__25 | UserGeneList | IndividualGene | DefaultDataTypeSpec | DataTypeOrLevel | DiscreteDataType | ContinuousDataTypeInequality | COMPARISON_OP | ID | SIGNED_FLOAT | SIGNED_INT | WS | STRING )
         int alt13=17;
         alt13 = dfa13.predict(input);
         switch (alt13) {
             case 1 :
-                // ../completeOncoPrintSpecAST.g:1:10: T__21
+                // ./completeOncoPrintSpecAST.g:1:10: T__21
                 {
                 mT__21(); 
 
                 }
                 break;
             case 2 :
-                // ../completeOncoPrintSpecAST.g:1:16: T__22
+                // ./completeOncoPrintSpecAST.g:1:16: T__22
                 {
                 mT__22(); 
 
                 }
                 break;
             case 3 :
-                // ../completeOncoPrintSpecAST.g:1:22: T__23
+                // ./completeOncoPrintSpecAST.g:1:22: T__23
                 {
                 mT__23(); 
 
                 }
                 break;
             case 4 :
-                // ../completeOncoPrintSpecAST.g:1:28: T__24
+                // ./completeOncoPrintSpecAST.g:1:28: T__24
                 {
                 mT__24(); 
 
                 }
                 break;
             case 5 :
-                // ../completeOncoPrintSpecAST.g:1:34: T__25
+                // ./completeOncoPrintSpecAST.g:1:34: T__25
                 {
                 mT__25(); 
 
                 }
                 break;
             case 6 :
-                // ../completeOncoPrintSpecAST.g:1:40: UserGeneList
+                // ./completeOncoPrintSpecAST.g:1:40: UserGeneList
                 {
                 mUserGeneList(); 
 
                 }
                 break;
             case 7 :
-                // ../completeOncoPrintSpecAST.g:1:53: IndividualGene
+                // ./completeOncoPrintSpecAST.g:1:53: IndividualGene
                 {
                 mIndividualGene(); 
 
                 }
                 break;
             case 8 :
-                // ../completeOncoPrintSpecAST.g:1:68: DefaultDataTypeSpec
+                // ./completeOncoPrintSpecAST.g:1:68: DefaultDataTypeSpec
                 {
                 mDefaultDataTypeSpec(); 
 
                 }
                 break;
             case 9 :
-                // ../completeOncoPrintSpecAST.g:1:88: DataTypeOrLevel
+                // ./completeOncoPrintSpecAST.g:1:88: DataTypeOrLevel
                 {
                 mDataTypeOrLevel(); 
 
                 }
                 break;
             case 10 :
-                // ../completeOncoPrintSpecAST.g:1:104: DiscreteDataType
+                // ./completeOncoPrintSpecAST.g:1:104: DiscreteDataType
                 {
                 mDiscreteDataType(); 
 
                 }
                 break;
             case 11 :
-                // ../completeOncoPrintSpecAST.g:1:121: ContinuousDataTypeInequality
+                // ./completeOncoPrintSpecAST.g:1:121: ContinuousDataTypeInequality
                 {
                 mContinuousDataTypeInequality(); 
 
                 }
                 break;
             case 12 :
-                // ../completeOncoPrintSpecAST.g:1:150: COMPARISON_OP
+                // ./completeOncoPrintSpecAST.g:1:150: COMPARISON_OP
                 {
                 mCOMPARISON_OP(); 
 
                 }
                 break;
             case 13 :
-                // ../completeOncoPrintSpecAST.g:1:164: ID
+                // ./completeOncoPrintSpecAST.g:1:164: ID
                 {
                 mID(); 
 
                 }
                 break;
             case 14 :
-                // ../completeOncoPrintSpecAST.g:1:167: SIGNED_FLOAT
+                // ./completeOncoPrintSpecAST.g:1:167: SIGNED_FLOAT
                 {
                 mSIGNED_FLOAT(); 
 
                 }
                 break;
             case 15 :
-                // ../completeOncoPrintSpecAST.g:1:180: SIGNED_INT
+                // ./completeOncoPrintSpecAST.g:1:180: SIGNED_INT
                 {
                 mSIGNED_INT(); 
 
                 }
                 break;
             case 16 :
-                // ../completeOncoPrintSpecAST.g:1:191: WS
+                // ./completeOncoPrintSpecAST.g:1:191: WS
                 {
                 mWS(); 
 
                 }
                 break;
             case 17 :
-                // ../completeOncoPrintSpecAST.g:1:194: STRING
+                // ./completeOncoPrintSpecAST.g:1:194: STRING
                 {
                 mSTRING(); 
 
@@ -1159,8 +1172,8 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
     static final String DFA13_specialS =
         "\37\uffff}>";
     static final String[] DFA13_transitionS = {
-            "\2\14\2\uffff\1\14\22\uffff\1\14\1\uffff\1\15\3\uffff\1\6\6"+
-            "\uffff\1\11\1\13\1\uffff\12\12\1\4\1\5\1\7\1\uffff\1\7\2\uffff"+
+            "\2\14\2\uffff\1\14\22\uffff\1\14\1\uffff\1\15\3\uffff\1\6\3"+
+            "\uffff\1\10\2\uffff\1\11\1\13\1\uffff\12\12\1\4\1\5\3\7\2\uffff"+
             "\3\10\1\3\26\10\4\uffff\1\10\1\uffff\32\10\1\1\1\uffff\1\2",
             "",
             "",
@@ -1190,7 +1203,7 @@ public class completeOncoPrintSpecASTLexer extends Lexer {
             "\1\33",
             "\1\34",
             "\1\35",
-            "\1\10\2\uffff\1\10\2\uffff\12\10\7\uffff\32\10\4\uffff\1\10"+
+            "\1\10\2\uffff\1\10\1\uffff\13\10\7\uffff\32\10\4\uffff\1\10"+
             "\1\uffff\32\10",
             ""
     };

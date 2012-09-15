@@ -8,6 +8,8 @@ package org.mskcc.cbio.importer.model;
  */
 public final class TumorTypeMetadata {
 
+	public static final String TUMOR_TYPE_REGEX = "<CANCER>";
+
 	// bean properties
 	private String tumorTypeID;
 	private String tumorTypeDescription;

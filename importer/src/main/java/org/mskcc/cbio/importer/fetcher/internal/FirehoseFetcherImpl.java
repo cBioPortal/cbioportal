@@ -8,6 +8,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.FirehoseDatatypeMetadata;
 import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
@@ -51,7 +52,7 @@ final class FirehoseFetcherImpl implements Fetcher {
     private static final Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
 		Pattern.compile("^(\\w*)__(\\w*)");
 
-    private static final Pattern FIREHOSE_FILENAME_CANCER_NAME_REGEX =
+    private static final Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
 		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
 
 	// ref to configuration
@@ -201,11 +202,6 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 */
 	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
 
-		// vars used below
-		Process process;
-		ProcessBuilder processBuilder;
-		Runtime rt = Runtime.getRuntime();
-
 		// determine download directory
 		String downloadDirectoryName = (runType.equals(ANALYSIS_RUN)) ?
 			firehoseDownloadMetadata.getAnalysisDownloadDirectory() :
@@ -217,61 +213,42 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("clobbering directory: " + downloadDirectoryName);
 			}
-			clobber(downloadDirectory);
+            fileUtils.deleteDirectory(downloadDirectory);
 		}
 
 		// make the directory
-		process = rt.exec("mkdir -p " + downloadDirectoryName);
-		process.waitFor();
+        fileUtils.makeDirectory(downloadDirectory);
 
-		// download the daat
+		// download the data
 		Collection<TumorTypeMetadata> tumorTypeMetadata = config.getTumorTypeMetadata();
 		String tumorTypesToDownload = getTumorTypesToDownload(tumorTypeMetadata);
 		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
-		String datatypesToDownload = getDatatypesToDownload(datatypeMetadata);
+		Collection<FirehoseDatatypeMetadata> firehoseDatatypeMetadata = config.getFirehoseDatatypeMetadata();
+		String firehoseDatatypesToDownload = getFirehoseDatatypesToDownload(firehoseDatatypeMetadata);
 
-		ProcessBuilder pb = new ProcessBuilder(firehoseGetScript, "-b",
-											   "-tasks",
-											   datatypesToDownload,
-											   runType,
-											   BROAD_DATE_FORMAT.format(runDate),
-											   tumorTypesToDownload);
-		pb.directory(new File(downloadDirectoryName));
+		ProcessBuilder processBuilder = new ProcessBuilder(firehoseGetScript, "-b",
+                                                           "-tasks",
+                                                           firehoseDatatypesToDownload,
+                                                           runType,
+                                                           BROAD_DATE_FORMAT.format(runDate),
+                                                           tumorTypesToDownload);
+		processBuilder.directory(new File(downloadDirectoryName));
 		if (LOG.isInfoEnabled()) {
-			LOG.info("executing: " + pb.command());
+			LOG.info("executing: " + processBuilder.command());
 			LOG.info("this may take a while...");
 		}
-		process = pb.start();
+		Process process = processBuilder.start();
 		process.waitFor();
 
 		// importing data
 		if (LOG.isInfoEnabled()) {
 			LOG.info("download complete, storing in database.");
 		}
-		storeData(downloadDirectory, datatypeMetadata, runDate);
+		storeData(downloadDirectory, datatypeMetadata, firehoseDatatypeMetadata, runDate);
 	}
 
 	/**
-	 * Helper method to clobber directory
-	 *
-	 * @param node File
-	 */
-	private void clobber(final File node) {
-
-		if(node.isDirectory()){
-			String[] subNode = node.list();
-			for(String filename : subNode){
-				clobber(new File(node, filename));
-			}
-			node.delete();
-		}
-		else {
-			node.delete();
-		}
-	}
-
-	/**
-	 * Helper function to get cancer studies to download.
+	 * Helper function to get tumor types to download.
 	 *
 	 * @param tumorTypeMetadata Collection<TumorTypeMetadata>
 	 * @return String
@@ -290,17 +267,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Helper function to get datatypes to download.
+	 * Helper function to get firehose datatypes to download.
 	 *
-	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @param firehoseDatatypeMetadata Collection<FirehoseDatatypeMetadata>
 	 * @return String
 	 */
-	private String getDatatypesToDownload(final Collection<DatatypeMetadata> datatypeMetadata) {
+	private String getFirehoseDatatypesToDownload(final Collection<FirehoseDatatypeMetadata> firehoseDatatypeMetadata) {
 
 		String toReturn = "";
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			if (dtMetadata.getDownload()) {
-				toReturn += dtMetadata.getPackageFilename() + " ";
+		for (FirehoseDatatypeMetadata fhdtMetadata : firehoseDatatypeMetadata) {
+			if (fhdtMetadata.getDownload()) {
+				toReturn += fhdtMetadata.getArchiveFilename() + " ";
 			}
 		}
 
@@ -312,75 +289,89 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * Helper method to store downloaded data.  If md5 digest is correct,
 	 * import data, else skip it
 	 *
-	 * @param node File
+	 * @param downloadDirectory File
 	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @param firehoseDatatypeMetadata Collection<FirehoseDatatypeMetadata>
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void storeData(final File node, final Collection<DatatypeMetadata> datatypeMetadata, final Date runDate) throws Exception {
+	private void storeData(final File downloadDirectory, final Collection<DatatypeMetadata> datatypeMetadata, final Collection<FirehoseDatatypeMetadata> firehoseDatatypeMetadata, final Date runDate) throws Exception {
 
-		if (node.isDirectory()){
-			String[] subNode = node.list();
-			for (String filename : subNode){
-				storeData(new File(node, filename), datatypeMetadata, runDate);
-			}
-		}
-		else {
-			// we are only going to store data with md5 sum
-			if (node.getName().endsWith(".md5")) {
-				// get precomputed digest (from .md5)
-				String precomputedDigest = fileUtils.getPrecomputedMD5Digest(node);
-				// compute md5 digest from respective data file
-				File dataFile = new File(node.getCanonicalPath().replace(".md5", ""));
-				String computedDigest = fileUtils.getMD5Digest(dataFile);
-				if (LOG.isInfoEnabled()) {
-					LOG.info("checkMD5Digest(), file: " + node.getCanonicalPath());
-					LOG.info("checkMD5Digest(), precomputed digest: " + precomputedDigest);
-					LOG.info("checkMD5Digest(), computed digest: " + computedDigest);
-				}
-				// remove the data file if its corrupt
-				if (!computedDigest.equalsIgnoreCase(precomputedDigest)) {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("!!!!! Error, md5 digest not correct, removing file " + dataFile.getCanonicalPath() + "!!!!!");
-						dataFile.delete();
-					}		
-				}
-				// determine cancer type
-				Matcher cancerTypeMatcher = FIREHOSE_FILENAME_CANCER_NAME_REGEX.matcher(dataFile.getName());
-				String cancerType = (cancerTypeMatcher.find()) ? cancerTypeMatcher.group(1) : "";
-				// determine data type(s) - may be multiple, ie CNA, LOG2CNA
-				Collection<DatatypeMetadata> datatypes = getFileDatatype(dataFile.getName(), datatypeMetadata);
-				// url
-				String urlToData = dataFile.toURI().toURL().toString();
-				// create an store a new ImportData object
-				for (DatatypeMetadata datatype : datatypes) {
-					ImportData importData = new ImportData(cancerType, datatype.getDatatype().toString(),
-														   PORTAL_DATE_FORMAT.format(runDate), urlToData, computedDigest);
-					importDataDAO.importData(importData);
-				}
-				// remove files?
-				if (LOG.isInfoEnabled()) {
-					LOG.info("Removing md5 digest file: " + node.getCanonicalPath());
-				}
-				node.delete();
-			}
+        // we only want to process files with md5 checksums
+        String exts[] = {"md5"};
+        for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
+
+            // get precomputed digest (from .md5)
+            String precomputedDigest = fileUtils.getPrecomputedMD5Digest(md5File);
+            // compute md5 digest from respective data file
+            File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
+            String computedDigest = fileUtils.getMD5Digest(dataFile);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("checkMD5Digest(), file: " + md5File.getCanonicalPath());
+                LOG.info("checkMD5Digest(), precomputed digest: " + precomputedDigest);
+                LOG.info("checkMD5Digest(), computed digest: " + computedDigest);
+            }
+            // if file is corrupt, skip it
+            if (!computedDigest.equalsIgnoreCase(precomputedDigest)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("!!!!! Error, md5 digest not correct, file: " + dataFile.getCanonicalPath() + "!!!!!");
+                }
+                continue;
+            }
+            // determine cancer type
+            Matcher tumorTypeMatcher = FIREHOSE_FILENAME_TUMOR_TYPE_REGEX.matcher(dataFile.getName());
+            String tumorType = (tumorTypeMatcher.find()) ? tumorTypeMatcher.group(1) : "";
+            // determine data type(s) - may be multiple, ie CNA, LOG2CNA
+            Collection<FirehoseDatatypeMetadata> firehoseDatatypes = getFileDatatype(dataFile.getName(), firehoseDatatypeMetadata);
+            // url
+            String canonicalPath = dataFile.getCanonicalPath();
+            // create an store a new ImportData object
+            for (FirehoseDatatypeMetadata firehoseDatatype : firehoseDatatypes) {
+                ImportData importData = new ImportData(tumorType, firehoseDatatype.getDatatype(),
+                                                       PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
+                                                       true, firehoseDatatype.getDataFilename(),
+                                                       getDatatypeOverrideFilename(firehoseDatatype.getDatatype(), datatypeMetadata));
+                importDataDAO.importData(importData);
+            }
 		}
 	}
 
 	/**
-	 * Helper function to get datatypes to download.
+	 * Helper function to get firehose datatypes to download.
 	 *
 	 * @param filename String
-	 * @param datatypeMetadata Collection<DatatypeMetadata>
-	 * @return Collection<DatatypeMetadata>
+	 * @param firehoseDatatypeMetadata Collection<FirehoseDatatypeMetadata>
+	 * @return Collection<FirehoseDatatypeMetadata>
 	 */
-	private Collection<DatatypeMetadata> getFileDatatype(final String filename, final Collection<DatatypeMetadata> datatypeMetadata) {
+	private Collection<FirehoseDatatypeMetadata> getFileDatatype(final String filename, final Collection<FirehoseDatatypeMetadata> firehoseDatatypeMetadata) {
 
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			if (filename.contains(dtMetadata.getPackageFilename())) {
-				toReturn.add(dtMetadata);
+		Collection<FirehoseDatatypeMetadata> toReturn = new ArrayList<FirehoseDatatypeMetadata>();
+		for (FirehoseDatatypeMetadata fhdtMetadata : firehoseDatatypeMetadata) {
+			if (filename.contains(fhdtMetadata.getArchiveFilename())) {
+				toReturn.add(fhdtMetadata);
 			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Helper function to get datatype override file.
+	 *
+	 * @param datatype String
+	 * @param datatypeMetadata Collection<DatatypeMetadata>
+	 * @return String
+	 */
+	private String getDatatypeOverrideFilename(final String datatype, final Collection<DatatypeMetadata> datatypeMetadata) {
+
+        String toReturn = "";
+
+		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
+            if (dtMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
+                toReturn = dtMetadata.getOverrideFilename();
+                break;
+            }
 		}
 
 		// outta here

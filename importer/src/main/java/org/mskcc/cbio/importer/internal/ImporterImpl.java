@@ -4,6 +4,7 @@ package org.mskcc.cbio.importer.internal;
 // imports
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Importer;
+import org.mskcc.cbio.importer.FileUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,30 +20,41 @@ final class ImporterImpl implements Importer {
 	// ref to configuration
 	private Config config;
 
+	// ref to file utils
+	private FileUtils fileUtils;
+
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
+     * Takes a Config & FileUtils reference.
      *
      * @param config Config
+	 * @param fileUtils FileUtils
 	 */
-	public ImporterImpl(final Config config) {
+	public ImporterImpl(final Config config, final FileUtils fileUtils) {
 
 		// set members
 		this.config = config;
+        this.fileUtils = fileUtils;
 	}
 
 	/**
-	 * Imports data into the given database.
+	 * Imports data into the given database for use in the given portal.
 	 *
 	 * @param database String
+     * @param portal String
 	 * @throws Exception
 	 */
-	@Override
-	public void importData(final String database) throws Exception {
+    @Override
+	public void importData(final String database, final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData()");
+		}
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
 		}
 	}
 }

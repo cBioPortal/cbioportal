@@ -1,5 +1,5 @@
 // package
-package org.mskcc.cbio.importer.util.internal;
+package org.mskcc.cbio.importer.io.internal;
 
 // imports
 import org.apache.commons.logging.Log;

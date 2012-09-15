@@ -1,9 +1,9 @@
 // package
-package org.mskcc.cbio.importer.util.internal;
+package org.mskcc.cbio.importer.io.internal;
 
 // imports
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.util.internal.DataSourceFactoryBean;
+import org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

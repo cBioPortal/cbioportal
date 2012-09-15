@@ -16,6 +16,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Hibernate implementation of ImportDataDAO.
  */
@@ -44,22 +49,22 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 		Session session = getSession();
 
 		// check for existing object
-		ImportData existing = getImportDataByCancerAndDatatype(importData.getCancerType(), importData.getDatatype());
+		ImportData existing = getImportDataByTumorAndDatatype(importData.getTumorType(), importData.getDatatype());
 		if (existing != null) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importData(), ImportData object for cancer type: " + importData.getCancerType() +
+				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
 						 " and datatype: " + importData.getDatatype() + " already exists, manually merging.");
 			}
-			existing.setCancerType(importData.getCancerType());
+			existing.setTumorType(importData.getTumorType());
 			existing.setDatatype(importData.getDatatype());
 			existing.setRunDate(importData.getRunDate());
-			existing.setURLToData(importData.getURLToData());
+			existing.setCanonicalPathToData(importData.getCanonicalPathToData());
 			existing.setDigest(importData.getDigest());
 			session.update(existing);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importData(), ImportData object for cancer type: " + importData.getCancerType() +
+				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
 						 " and datatype: " + importData.getDatatype() + " does not exist, saving.");
 				session.save(importData);
 			}
@@ -73,18 +78,32 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 	}
 
     /**
-     * Functon to retrieve ImportData via cancer type and data type.
+     * Functon to retrieve all ImportData.
 	 *
-	 * @param cancerType String
+	 * @return Collection<ImportData>
+     */
+    @Transactional(propagation=Propagation.REQUIRED)
+    public Collection<ImportData> getImportData() {
+
+		Session session = getSession();
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataAll");
+        List<ImportData> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
+    }
+
+    /**
+     * Functon to retrieve ImportData via tumor type and data type.
+	 *
+	 * @param tumorType String
 	 * @param dataType String
 	 * @return ImportData
      */
     @Transactional(propagation=Propagation.REQUIRED)
-    public ImportData getImportDataByCancerAndDatatype(final String cancerType, final String datatype) {
+    public ImportData getImportDataByTumorAndDatatype(final String tumorType, final String datatype) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByCancerAndDatatype");
-		query.setParameter("cancertype", cancerType);
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatype");
+		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		return (ImportData)query.uniqueResult();
     }

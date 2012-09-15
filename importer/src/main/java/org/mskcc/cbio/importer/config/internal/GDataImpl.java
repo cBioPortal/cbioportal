@@ -3,8 +3,10 @@ package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.FirehoseDatatypeMetadata;
 import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
 
 import org.apache.commons.logging.Log;
@@ -56,15 +58,25 @@ final class GDataImpl implements Config {
 	@Value("${spreadsheet}")
 	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
-	// cancer studies metadata
+	// tumor types metadata
 	private String tumorTypesMetadataProperty;
 	@Value("${tumor_types_metadata}")
 	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesMetadataProperty = property; }
 
-	// datatypes metadata
+	// datatype metadata
 	private String datatypesMetadataProperty;
 	@Value("${datatypes_metadata}")
 	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
+
+	// portal metadata
+	private String portalsMetadataProperty;
+	@Value("${portals_metadata}")
+	public void setPortalsMetadataProperty(final String property) { this.portalsMetadataProperty = property; }
+
+	// firehose datatypes metadata
+	private String firehoseDatatypesMetadataProperty;
+	@Value("${firehose_datatypes_metadata}")
+	public void setFirehoseDatatypesMetadataProperty(final String property) { this.firehoseDatatypesMetadataProperty = property; }
 
 	// firehose download metadata
 	private String firehoseDownloadMetadataProperty;
@@ -139,7 +151,7 @@ final class GDataImpl implements Config {
 	 *
 	 * @return Collection<DatatypeMetadata>
 	 */
-	@Override
+    @Override
 	public Collection<DatatypeMetadata> getDatatypeMetadata() {
 
 		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
@@ -150,7 +162,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 6) {
+		if (properties.length != 11) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
@@ -164,13 +176,126 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-						DatatypeMetadata.DATATYPE datatype =
-							DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[2]));
-						toReturn.add(new DatatypeMetadata(datatype,
-														  new Boolean(entry.getCustomElements().getValue(properties[1])),
-														  entry.getCustomElements().getValue(properties[3]),
-														  entry.getCustomElements().getValue(properties[4]),
-														  entry.getCustomElements().getValue(properties[5])));
+						toReturn.add(new DatatypeMetadata(entry.getCustomElements().getValue(properties[1]),
+                                                          entry.getCustomElements().getValue(properties[2]),
+                                                          entry.getCustomElements().getValue(properties[3]),
+                                                          entry.getCustomElements().getValue(properties[4]),
+                                                          entry.getCustomElements().getValue(properties[5]),
+                                                          entry.getCustomElements().getValue(properties[6]),
+                                                          entry.getCustomElements().getValue(properties[7]),
+                                                          entry.getCustomElements().getValue(properties[8]),
+                                                          new Boolean(entry.getCustomElements().getValue(properties[9])),
+                                                          entry.getCustomElements().getValue(properties[10])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a PortalMetadata object given a portal name.
+	 *
+     * @param portal String
+	 * @return PortalMetadata
+	 */
+    @Override
+	public PortalMetadata getPortalMetadata(String portal) {
+
+        PortalMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getPortalMetadata(), portal: " + portal);
+		}
+
+		// parse the property argument
+		String[] properties = portalsMetadataProperty.split(":");
+		if (properties.length != 7) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getPortalMetadata: " + portalsMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+                        if (entry.getCustomElements().getValue(properties[1]).equals(portal)) {
+                                toReturn = new PortalMetadata(entry.getCustomElements().getValue(properties[1]),
+                                                              entry.getCustomElements().getValue(properties[2]),
+                                                              entry.getCustomElements().getValue(properties[3]),
+                                                              entry.getCustomElements().getValue(properties[4]),
+                                                              entry.getCustomElements().getValue(properties[5]),
+                                                              entry.getCustomElements().getValue(properties[6]));
+                                break;
+                        }
+                    }
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        // outta here
+        return toReturn;
+    }
+
+	/**
+	 * Gets a collection of FirehoseDatatypeMetadata.
+	 *
+	 * @return Collection<FirehoseDatatypeMetadata>
+	 */
+    @Override
+	public Collection<FirehoseDatatypeMetadata> getFirehoseDatatypeMetadata() {
+
+		Collection<FirehoseDatatypeMetadata> toReturn = new ArrayList<FirehoseDatatypeMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getFirehoseDatatypeMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = firehoseDatatypesMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getFirehoseDatatypeMetadata: " + firehoseDatatypesMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						//DatatypeMetadata.DATATYPE datatype =
+						//	DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[2]));
+						toReturn.add(new FirehoseDatatypeMetadata(entry.getCustomElements().getValue(properties[2]),
+                                                                  new Boolean(entry.getCustomElements().getValue(properties[1])),
+                                                                  entry.getCustomElements().getValue(properties[3]),
+                                                                  entry.getCustomElements().getValue(properties[4])));
 					}
 				}
 				else {

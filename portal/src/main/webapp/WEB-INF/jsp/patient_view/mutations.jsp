@@ -162,6 +162,8 @@
                                 return;
                             } else if (type==='display') {
                                 var aa = mutations.getValue(source[0], 'aa');
+                                if (aa.length>2&&aa.substring(0,2)=='p.')
+                                    aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;' class='"
@@ -273,10 +275,10 @@
                                 else if (score==='H') {bgColor="#C83C3C"; impact='High';}
                                 else return '';
                                 
-                                var tip = "Predicted impact by Mutation Assessor: <b>"+impact+"</b>";
+                                var tip = "Predicted impact: <b>"+impact+"</b>";
                                 var xvia = ma['xvia'];
                                 if (xvia&&xvia!='NA')
-                                    tip += "<br/><a href='>'"+xvia+"'><img height=12 width=15 src='images/ma.png'> Go to Mutation Assessor</a>";
+                                    tip += "<br/><a href='>'"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
                                 var msa = ma['msa'];
                                 if (msa&&msa!='NA')
                                     tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";

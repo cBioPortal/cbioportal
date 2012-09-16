@@ -263,58 +263,52 @@ Gistic.UI.open_gistic_dialog = function() {
 
     // special sorting for cytobands
     google.visualization.events.addListener(table, 'sort', function(e) {
-        var CYTOBAND_V_COL = 2;
 
         var view = Gistic.makeView(Gistic.data);
 
-        var cytobands = []
-        for (var i = 0; i < Gistic.data.getNumberOfRows(); i += 1) {
-            cytobands.push(Gistic.data.getValue(i, Gistic.CYTOBAND_COL));
-        }
+        // special sorting only applies to cytobands
+        if (Gistic.CYTOBAND_COL === view.getUnderlyingTableColumnIndex(e.column)) {
+            console.log(e);
 
-        Gistic.sortCytobands = function(x,y) {
-            var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
-            var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
+            // compares two cytoband strings
+            Gistic.sortCytobands = function(x,y) {
+                var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
+                var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
 
-            if (parseInt(_x[1]) - parseInt(_y[1]) !== 0) {
-                return parseInt(_x[1]) - parseInt(_y[1]);
-            } else if (_x[2] === 'p' && _y[2] === 'q') {
-                return -1;
-            } else if (_x[2] === 'q' && _y[2] === 'p') {
-                return 1;
-            } else if (_x[2] === _y[2]) {
-                return parseInt(x[3]) - parseInt(y[3]);
-            } else {
-                console.log('error: cytoband sorting logic fell through');
+                if (parseInt(_x[1]) - parseInt(_y[1]) !== 0) {
+                    return parseInt(_x[1]) - parseInt(_y[1]);
+                } else if (_x[2] === 'p' && _y[2] === 'q') {
+                    return -1;
+                } else if (_x[2] === 'q' && _y[2] === 'p') {
+                    return 1;
+                } else if (_x[2] === _y[2]) {
+                    return parseInt(x[3]) - parseInt(y[3]);
+                } else {
+                    console.log('error: cytoband sorting logic fell through');
+                }
+            };
+
+            // get all the rows
+            var rows = [];
+            for (var i = 0; i < Gistic.data.getNumberOfRows(); i += 1) {
+                rows.push(i);
             }
 
-            //if (parseInt(_x[1]) < parseInt(_y[1])) {
-            //    return 1;
-            //} else if (parseInt(_x[1]) > parseInt(_y[1])) {
-            //    return -1;
-            //} else if (x[2] === 'p' && y[2] === 'q') {
-            //    return 1;
-            //} else if (x[2] === 'q' && y[2] === 'p') {
-            //    return -1;
-            //} else {
-            //    return parseInt(x[3]) - parseInt(y[3]);
-            //}
-        };
+            var asc = e.ascending ? 1 : -1;
 
-        cytobands = cytobands.sort(Gistic.sortCytobands);
-        console.log(cytobands);
+            // sort the rows
+            rows.sort(function(x,y) {
+                return asc * Gistic.sortCytobands(
+                    Gistic.data.getValue(x, Gistic.CYTOBAND_COL),
+                    Gistic.data.getValue(y, Gistic.CYTOBAND_COL));
+            });
 
-        //view.setRows();
+            console.log(rows);
 
-        if (e.column === CYTOBAND_V_COL) {
-            console.log(e);
+            view.setRows(rows);
+            Gistic.table.draw(view, Gistic.table_options);
         }
-
-//    Gistic.table.draw(view, Gistic.table_options);
-
     });
-
-    Gistic.table = table;
 
     return false;
 };

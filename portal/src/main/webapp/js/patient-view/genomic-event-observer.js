@@ -7,6 +7,8 @@ function GenomicEventObserver(hasMut, hasCna) {
     this.hasCna = hasCna;
     this.mutBuilt = false;
     this.cnaBuilt = false;
+    this.mutations = new GenomicEventContainer;
+    this.cnas = new GenomicEventContainer;
 }
 GenomicEventObserver.prototype = {
     subscribeMutCna : function(fn) {
@@ -65,4 +67,50 @@ if (!Array.prototype.forEach) {
             }
         }
     };
+}
+
+function GenomicEventContainer() {
+    this.data = null;
+    this.numEvents = 0;
+    this.eventIdMap = {};
+    this.overviewEventIds = [];
+    this.overviewEventGenes = [];
+}
+GenomicEventContainer.prototype = {
+    setData: function(data) {
+        this.data = data;
+        var ids = data['id'];
+        var genes = data['gene'];
+        this.numEvents = ids.length;
+        for (var i=0; i<this.numEvents; i++) {
+            this.eventIdMap[ids[i]] = i;
+            if (this.data['overview'][i]) {
+                this.overviewEventIds.push(ids[i]);
+                this.overviewEventGenes.push(genes[i]);
+            }
+        }
+    },
+    addData: function(name, newData) {
+        this.data[name] = newData;
+    },
+    addDataMap: function(name, dataMap, key) {
+        var newData = [];
+        var keyColValue = this.data[key];
+        for (var i=0; i<this.numEvents; i++) {
+            newData.push(dataMap[keyColValue[i]]);
+        }
+        this.data[name] = newData;
+    },
+    getEventIds: function(overview) {
+        return overview ? this.overviewEventIds : this.data['id'];
+    },
+    getNumEvents: function(overview) {
+        return overview ? this.overviewEventIds.length : this.numEvents;
+    },
+    getValue: function(eventId,colName) {
+        return this.data[colName][this.eventIdMap[eventId]];
+    },
+    colExists: function(colName) {
+        return this.data[colName]!=null;
+    }
 }

@@ -120,16 +120,16 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     return line;
 }
 
-function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna) {
+function plotMuts(p,config,chmInfo,row,mutations) {
     var pixelMap = [];
-    for (var i=0; i<muts.length; i++) {
-        var loc = extractLoc(muts[i],chrCol,startCol,endCol);
-        if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
-        var x = Math.round(chmInfo.loc2xpixil(loc[0],(loc[1]+loc[2])/2,config));
+    for (var i=0; i<mutations.getNumEvents(false); i++) {
+        var chm = translateChm(mutations.data['chr'][i]);
+        if (chm==null||chm>=chmInfo.hg19.length) continue;
+        var x = Math.round(chmInfo.loc2xpixil(chm,(mutations.data['start'][i]+mutations.data['end'][i])/2,config));
         var xBin = x-x%config.pixelsPerBinMut;
         if (pixelMap[xBin]==null)
             pixelMap[xBin] = [];
-        pixelMap[xBin].push(muts[i][idCol]);
+        pixelMap[xBin].push(mutations.data['id'][i]);
     }
     
     var maxCount = 0;
@@ -162,10 +162,9 @@ function plotMuts(p,config,chmInfo,row,muts,chrCol,startCol,endCol,idCol,hasCna)
     }
         
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
-    var t = p.text(config.xRightText(),yRow-config.rowHeight/2,muts.length).attr({'text-anchor': 'start','font-weight': 'bold'});
+    var t = p.text(config.xRightText(),yRow-config.rowHeight/2,mutations.numEvents).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
     var tip =  "Number of mutation events.";
-        //+(!hasCna?"":" <a href='#' onclick='openMutCnaScatterDialog();return false;'>Context Plot</a>");
     addToolTip(t.node,tip,null,{my:'top right',at:'bottom left'});
 }
 
@@ -183,16 +182,15 @@ function addCommas(x)
     return strX;
 }
 
-function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,hasMut) {
+function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     var yRow = config.yRow(row);
     var genomeMeasured = 0;
     var genomeAltered = 0;
     for (var i=0; i<segs.length; i++) {
-        var loc = extractLoc(segs[i],chrCol,startCol,endCol);
-        if (loc==null||loc[0]>=chmInfo.hg19.length) continue;
-        var chm = loc[0];
-        var start = loc[1];
-        var end = loc[2];
+        var chm = translateChm(segs[i][chrCol]);
+        if (chm==null||chm[0]>=chmInfo.hg19.length) continue;
+        var start = segs[i][startCol];
+        var end = segs[i][endCol];
         var segMean = segs[i][segCol];
         genomeMeasured += end-start;
         if (Math.abs(segMean)<config.cnTh[0]) continue;
@@ -239,10 +237,9 @@ function underlineText(textElement,p) {
     return p.path("M"+textBBox.x+" "+(textBBox.y+textBBox.height)+"L"+(textBBox.x+textBBox.width)+" "+(textBBox.y+textBBox.height));  
 }
 
-function extractLoc(data,chrCol,startCol,endCol) {
-    var chm = data[chrCol];
+function translateChm(chm) {
     if (chm=='X'||chm=='x') chm = 23;
     if (chm=='Y'||chm=='y') chm = 24;
     if (isNaN(chm) || chm < 1 || chm > 24) return null;
-    return [chm,data[startCol],data[endCol]];
+    return chm;
 }

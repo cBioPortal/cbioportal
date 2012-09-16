@@ -173,19 +173,19 @@ if (patientViewError!=null) {
         }
         .mutation_percent_div {
                 display: block;
-                float: right;
+                float: left;
                 background-color: green;
                 height: 15px;
         }
         .amp_percent_div {
                 display: block;
-                float: right;
+                float: left;
                 background-color: red;
                 height: 15px;
         }
         .del_percent_div {
                 display: block;
-                float: right;
+                float: left;
                 background-color: blue;
                 height: 15px;
         }
@@ -259,16 +259,6 @@ function getEventIndexMap(eventTableData,idCol) {
     }
     return m;
 }
-
-var cnaEventIds = null;
-var overviewCnaEventIds = null;
-var mutEventIds = null;
-var overviewMutEventIds = null;
-var overviewCnaGenes = null;
-var overviewMutGenes = null;
-var mutEventIndexMap = null;
-
-var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
     
 function addNoteTooltip(elem) {
     $(elem).qtip({
@@ -339,11 +329,12 @@ function idRegEx(ids) {
 }
 
 var print = <%=print%>;
+var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
-var geObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
+var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 
 </script>
 

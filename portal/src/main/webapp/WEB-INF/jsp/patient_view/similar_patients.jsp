@@ -106,11 +106,11 @@ A genomic overview with events aligned across patients goes here...
     
     function ajaxBuildSimilarPatientsDataTable() {
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>'};
-        if (geObs.hasMut) {
-            params['<%=SimilarPatientsJSON.MUTATION%>'] = overviewMutEventIds;
+        if (genomicEventObs.hasMut) {
+            params['<%=SimilarPatientsJSON.MUTATION%>'] = genomicEventObs.mutations.getEventIds(true).join(',');
         }
-        if (geObs.hasCna) {
-            params['<%=SimilarPatientsJSON.CNA%>'] = overviewCnaEventIds;
+        if (genomicEventObs.hasCna) {
+            params['<%=SimilarPatientsJSON.CNA%>'] = genomicEventObs.cnas.getEventIds(true).join(',');
         }
         
         // similar patients
@@ -127,7 +127,7 @@ A genomic overview with events aligned across patients goes here...
     
     $(document).ready(function(){
         $('#similar_patients_wrapper_table').hide();
-        geObs.subscribeMutCna(ajaxBuildSimilarPatientsDataTable);
+        genomicEventObs.subscribeMutCna(ajaxBuildSimilarPatientsDataTable);
     }
     );
 </script>

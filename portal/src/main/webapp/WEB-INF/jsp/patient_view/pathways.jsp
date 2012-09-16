@@ -15,10 +15,8 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
 <script type="text/javascript">
     function buildCytoscapeWeb() {
         var genes = [];
-        if (overviewCnaGenes)
-            genes.push(overviewCnaGenes);
-        if (overviewMutGenes)
-            genes.push(overviewMutGenes);
+        genes.push(genomicEventObs.cnas.overviewEventGenes);
+        genes.push(genomicEventObs.mutations.overviewEventGenes);
         
         var networkParams = {<%=org.mskcc.cbio.portal.servlet.QueryBuilder.GENE_LIST%>:genes.join(','),
                 netsize:'small'
@@ -43,7 +41,7 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
     }
     
     $(document).ready(function(){
-        geObs.subscribeMutCna(buildCytoscapeWeb);
+        genomicEventObs.subscribeMutCna(buildCytoscapeWeb);
     }
     );
 </script>

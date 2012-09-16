@@ -47,9 +47,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
-        if (!geObs.hasMut||!geObs.hasCna) $('#mut-cna-scatter').hide();
+        if (!genomicEventObs.hasMut||!genomicEventObs.hasCna) $('#mut-cna-scatter').hide();
         initGenomicsOverview();
-        if (geObs.hasMut&&geObs.hasCna) {
+        if (genomicEventObs.hasMut&&genomicEventObs.hasCna) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
@@ -58,19 +58,18 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((geObs.hasMut?1:0)+(geObs.hasCna?1:0),$("#td-content").width()-(geObs.hasMut&&geObs.hasCna?150:0));
+        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasCna?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasCna?150:0));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
-        if (geObs.hasMut) {
-            geObs.subscribeMut(function(){
-                var muts = $('#mutation_table').dataTable().fnGetData();
-                plotMuts(paper,config,chmInfo,geObs.hasCna?1:0,muts,mutTableIndices['chr'],mutTableIndices['start'],mutTableIndices['end'],mutTableIndices['id'],geObs.hasCna);
+        if (genomicEventObs.hasMut) {
+            genomicEventObs.subscribeMut(function(){
+                plotMuts(paper,config,chmInfo,genomicEventObs.hasCna?1:0,genomicEventObs.mutations);
             });
         }
         
-        if (geObs.hasCna) {
-            plotCopyNumberOverview(paper,config,chmInfo,geObs.hasMut);
+        if (genomicEventObs.hasCna) {
+            plotCopyNumberOverview(paper,config,chmInfo,genomicEventObs.hasMut);
         }
     }
     
@@ -83,7 +82,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         $.post("cna.json", 
             params,
             function(segs){
-                plotCnSegs(paper,config,chmInfo,0,segs,1,2,3,5,hasMut);
+                plotCnSegs(paper,config,chmInfo,0,segs,1,2,3,5);
             }
             ,"json"
         );

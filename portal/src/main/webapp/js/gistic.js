@@ -276,33 +276,34 @@ Gistic.UI.open_gistic_dialog = function() {
             var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
             var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
 
-            console.log(_x[1]);
-            console.log(_y[1]);
-
-            if (parseInt(_x[1]) < parseInt(_y[1])) {
-                return true;
+            if (parseInt(_x[1]) - parseInt(_y[1]) !== 0) {
+                return parseInt(_x[1]) - parseInt(_y[1]);
+            } else if (_x[2] === 'p' && _y[2] === 'q') {
+                return -1;
+            } else if (_x[2] === 'q' && _y[2] === 'p') {
+                return 1;
+            } else if (_x[2] === _y[2]) {
+                return parseInt(x[3]) - parseInt(y[3]);
             } else {
-                return false;
+                console.log('error: cytoband sorting logic fell through');
             }
 
             //if (parseInt(_x[1]) < parseInt(_y[1])) {
-            //    return true;
+            //    return 1;
             //} else if (parseInt(_x[1]) > parseInt(_y[1])) {
-            //    return false;
+            //    return -1;
             //} else if (x[2] === 'p' && y[2] === 'q') {
-            //    return true;
+            //    return 1;
             //} else if (x[2] === 'q' && y[2] === 'p') {
-            //    return false;
+            //    return -1;
             //} else {
             //    return parseInt(x[3]) - parseInt(y[3]);
             //}
         };
 
         cytobands = cytobands.sort(Gistic.sortCytobands);
-
         console.log(cytobands);
 
-       // match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/)
         //view.setRows();
 
         if (e.column === CYTOBAND_V_COL) {

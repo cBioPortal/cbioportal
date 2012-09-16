@@ -4,15 +4,9 @@
                         <th>CNA Event ID</th>
                         <th>Gene</th>
                         <th>Gistic</th>
-                        <th>Sanger
-                            <img class="mutations_help" src="images/help.png" title="In Sanger Cancer Gene Census?"/>
-                        </th>
-                        <th>Potential Drugs</th>
+                        <th><img src='images/sanger.png' width=15 height=15 title="In Sanger Cancer Gene Census?"></th>
+                        <th><img src='images/drug.png' width=15 height=15 title="Potential Drugs"></th>
                         <th>Copy Number Alteration</th>
-                        <th>Study Alteration Rate
-                            <img class="cna_help" src="images/help.png" title="Number and percentage of 
-                                 copy number altered cases out of <%=numPatientInSameCnaProfile%>
-                                  patients profiled in <%=cancerStudy.getName()%>."/>
-                        </th>
+                        <th><img height="15px" width="15px" src="images/cohort.png" title="Alteration rate in cohort"></th>
                     </tr>
                 </thead>

@@ -189,7 +189,7 @@ if (patientViewError!=null) {
                 background-color: blue;
                 height: 15px;
         }
-        .ui-tooltip {
+        .wider-tooltip {
             max-width: 800px;
         }
 </style>
@@ -314,8 +314,8 @@ function addDrugsTooltip(elem) {
                 }
             },
             hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-            position: {my:'top right',at:'bottom left'}
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded wider-tooltip' },
+            position: {my:'top center',at:'bottom center'}
         });
     });
 }

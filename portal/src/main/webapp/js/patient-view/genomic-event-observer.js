@@ -112,5 +112,11 @@ GenomicEventContainer.prototype = {
     },
     colExists: function(colName) {
         return this.data[colName]!=null;
+    },
+    colAllNull: function(colName) {
+        for (var i=0; i<this.numEvents; i++) {
+            if (this.data[colName][i]!=null) return false;
+        }
+        return true;
     }
 }

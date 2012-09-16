@@ -46,14 +46,18 @@
                     },
                     {// gistic
                         "aTargets": [ cnaTableIndices['gistic'] ],
-                        "bVisible": false,
+                        "bVisible": !cnas.colAllNull('gistic'),
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var gistic = cnas.getValue(source[0], 'gistic');
                                 if (gistic==null) return "";
-                                return gistic.toPrecision(2);
+                                var tip = "<b>MutSig</b><br/>Q-value: "+gistic.toPrecision(2);
+                                var width = Math.ceil(3*Math.min(10,-Math.log(gistic)*Math.LOG10E));
+                                return  "<div class='mutation_percent_div "+table_id
+                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                if (gistic==null) return "";
                             } else if (type==='sort') {
                                 var gistic = cnas.getValue(source[0], 'gistic');
                                 if (gistic==null) return 1.0;
@@ -74,7 +78,10 @@
                                 return;
                             } else if (type==='display') {
                                 var sanger = cnas.getValue(source[0], 'sanger');
-                                return sanger?'&#10004;':'';
+                                if (!sanger) return '';
+                                return "<img src='images/sanger.png' width=15 height=15 class='"+table_id
+                                        +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                        +cnas.getValue(source[0], 'gene')+"\">Sanger Cancer Gene Census</a>'/>";
                             } else if (type==='sort') {
                                 var sanger = cnas.getValue(source[0], 'sanger');
                                 return sanger?'1':'0';
@@ -98,10 +105,9 @@
                                 if (!drug) return '';
                                 var len = drug.length;
                                 if (len==0) return '';
-                                return "<a href='#' onclick='return false;' id='"
+                                return "<img src='images/drug.png' width=15 height=15 id='"
                                             +table_id+'_'+source[0]+"-drug-tip' class='"
-                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>"
-                                            +len+" drug"+(len>1?"s":"")+"</a>";
+                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
                             } else if (type==='sort') {
                                 var drug = cnas.getValue(source[0], 'drug');
                                 return drug ? drug.length : 0;
@@ -143,20 +149,21 @@
                                 return;
                             } else if (type==='display') {
                                 if (!cnas.colExists('altrate')) return "<img src=\"images/ajax-loader2.gif\">";
+                                var con = cnas.getValue(source[0], 'altrate')-1;
+                                if (con<=0) return '';
+                                var frac = con / numPatientInSameCnaProfile;
                                 var strAlt;
                                 switch(cnas.getValue(source[0], "alter")) {
                                 case -2: strAlt='deleted'; break;
                                 case 2: strAlt='amplified'; break;
                                 }
                                 var alter = cnas.getValue(source[0], "alter");
-                                var con = cnas.getValue(source[0], 'altrate');
-                                var frac = con / numPatientInSameCnaProfile;
-                                var tip = "In "+con+" sample"+(con==1?"":"s")
-                                    +" (<b>"+(100*frac).toFixed(1) + "%</b>)"+" in "
-                                    +cancerStudyName+", "+cnas.getValue(source[0], "gene")+" is "+strAlt;
-                                var width = Math.ceil(40 * Math.log(frac+1) * Math.LOG2E)+3;
+                                var tip = "<b>"+con+" other sample"+(con==1?"":"s")
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in the cohort study ("
+                                    +cancerStudyName+") "+(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
+                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
                                 var clas = alter>0?"amp_percent_div":"del_percent_div"
-                                return "&nbsp;<div class='"+clas+" "+table_id
+                                return "<div class='"+clas+" "+table_id
                                             +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                             } else if (type==='sort') {
                                 if (!cnas.colExists('altrate')) return 0;

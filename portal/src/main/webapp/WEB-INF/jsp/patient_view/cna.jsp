@@ -137,13 +137,13 @@
                                 var strAlt;
                                 switch(alter) {
                                 case 2:
-                                    strAlt="<span style='background-color:red;' class='"
-                                           +table_id+"-drug-tip' alt='"+gene
-                                           +" is amplified (putative)'>&nbsp;&nbsp;&nbsp;&nbsp;AMP&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+                                    strAlt="<span style='color:red;' class='"
+                                           +table_id+"-tip' alt='"+gene
+                                           +" is amplified (putative)'>AMP</span>";
                                     break;
                                 case -2:
-                                    strAlt="<span style='background-color:blue;color:white;' class='"
-                                           +table_id+"-drug-tip' alt='"+gene
+                                    strAlt="<span style='color:blue;' class='"
+                                           +table_id+"-tip' alt='"+gene
                                            +" is Homozygously deleted (putative)'>HOMDEL</span>";
                                     break;
                                 default: strAlt='Unknown';

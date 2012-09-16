@@ -73,13 +73,14 @@
                     },
                     {// sanger
                         "aTargets": [ cnaTableIndices['sanger'] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var sanger = cnas.getValue(source[0], 'sanger');
                                 if (!sanger) return '';
-                                return "<img src='images/sanger.png' width=15 height=15 class='"+table_id
+                                return "<img src='images/sanger.png' width=12 height=12 class='"+table_id
                                         +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
                                         +cnas.getValue(source[0], 'gene')+"\">Sanger Cancer Gene Census</a>'/>";
                             } else if (type==='sort') {
@@ -96,6 +97,7 @@
                     },
                     {// Drugs
                         "aTargets": [ cnaTableIndices['drug'] ],
+                        "sClass": "center-align-td",
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -105,7 +107,7 @@
                                 if (!drug) return '';
                                 var len = drug.length;
                                 if (len==0) return '';
-                                return "<img src='images/drug.png' width=15 height=15 id='"
+                                return "<img src='images/drug.png' width=12 height=12 id='"
                                             +table_id+'_'+source[0]+"-drug-tip' class='"
                                             +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
                             } else if (type==='sort') {
@@ -125,15 +127,26 @@
                     },
                     {// alteration
                         "aTargets": [ cnaTableIndices['alteration'] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var alter = cnas.getValue(source[0], "alter");
+                                var gene = cnas.getValue(source[0], "gene");
                                 var strAlt;
                                 switch(alter) {
-                                case -2: strAlt='Deletion'; break;
-                                case 2: strAlt='Amplification'; break;
+                                case 2:
+                                    strAlt="<span style='background-color:red;' class='"
+                                           +table_id+"-drug-tip' alt='"+gene
+                                           +" is amplified (putative)'>&nbsp;&nbsp;&nbsp;&nbsp;AMP&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+                                    break;
+                                case -2:
+                                    strAlt="<span style='background-color:blue;color:white;' class='"
+                                           +table_id+"-drug-tip' alt='"+gene
+                                           +" is Homozygously deleted (putative)'>HOMDEL</span>";
+                                    break;
+                                default: strAlt='Unknown';
                                 }
                                 return "<b>"+strAlt+"</b>"
                             } else {
@@ -148,7 +161,7 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!cnas.colExists('altrate')) return "<img src=\"images/ajax-loader2.gif\">";
+                                if (!cnas.colExists('altrate')) return "<img height=12 width=12 src=\"images/ajax-loader2.gif\">";
                                 var con = cnas.getValue(source[0], 'altrate')-1;
                                 if (con<=0) return '';
                                 var frac = con / numPatientInSameCnaProfile;
@@ -221,6 +234,7 @@
         } );
 
         oTable.css("width","100%");
+        addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;
     }
     
@@ -271,16 +285,16 @@
                 // summary table
                 var cna_summary_table = buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
                         'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25);
-                $('.cna-show-more').html("<a href='#cna' id='switch-to-cna-tab' title='Show more copy number alterations of this patient'>Show all "
-                        +genomicEventObs.cnas.getNumEvents(false)+" copy number alterations</a>");
-                $('#switch-to-cna-tab').click(function () {
+                $('.cna-show-more').html("<a href='#cna' id='cna-show-more-link' title='Show more copy number alterations of this patient'>Show all "
+                        +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
+                $('#cna-show-more-link').click(function () {
                     switchToTab('cna');
                     return false;
                 });
-                $('.cna-summary-table-name').html(genomicEventObs.cnas.getNumEvents(true)
-                    +' copy Number Alterations (CNAs) of Interest (out of '+genomicEventObs.cnas.getNumEvents(false)+" CNAs)"
-                    +" <img class='cna_help' src='images/help.png'"
-                    +" title='This table contains genes that are either recurrently copy number altered (Gistic Q-value<0.05) or in the Sanger Cancer Gene Census.'/>");
+                $('.cna-summary-table-name').html(
+                    "Copy Number Alterations <img class='cna_help' src='images/help.png'\n\
+                     title='This table contains genes that are either recurrently copy number\n\
+                     altered (Gistic Q-value<0.05) or in the Sanger Cancer Gene Census.'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

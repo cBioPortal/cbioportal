@@ -171,23 +171,26 @@ if (patientViewError!=null) {
                 width: auto;
                 float: right;
         }
+        .center-align-td {
+                text-align: center;
+        }
         .mutation_percent_div {
                 display: block;
                 float: left;
                 background-color: green;
-                height: 15px;
+                height: 12px;
         }
         .amp_percent_div {
                 display: block;
                 float: left;
                 background-color: red;
-                height: 15px;
+                height: 12px;
         }
         .del_percent_div {
                 display: block;
                 float: left;
                 background-color: blue;
-                height: 15px;
+                height: 12px;
         }
         .wider-tooltip {
             max-width: 800px;

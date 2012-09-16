@@ -6,7 +6,8 @@
         .mutation-summary-table-name {
                 float: left;
                 font-weight: bold;
-                font-size: 120%;
+                font-size: 100%;
+                vertical-align: middle;
         }
         .mutation-show-more {
             float: left;
@@ -50,7 +51,7 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!mutations.colExists('genemutrate')) return "<img src='images/ajax-loader2.gif'>";
+                                if (!mutations.colExists('genemutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
                                 var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
                                 if (geneCon<=0) return '';
                                 var frac = geneCon/numPatientInSameMutationProfile;
@@ -76,6 +77,7 @@
                     {// mutsig
                         "aTargets": [ mutTableIndices["mutsig"] ],
                         "bVisible": !mutations.colAllNull('mutsig'),
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -101,13 +103,14 @@
                     },
                     {// sanger
                         "aTargets": [ mutTableIndices["sanger"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var sanger = mutations.getValue(source[0], 'sanger');
                                 if (!sanger) return '';
-                                return "<img src='images/sanger.png' width=15 height=15 class='"+table_id
+                                return "<img src='images/sanger.png' width=12 height=12 class='"+table_id
                                         +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
                                         +mutations.getValue(source[0], 'gene')+"\">Sanger Cancer Gene Census</a>'/>";
                             } else if (type==='sort') {
@@ -124,6 +127,7 @@
                     },
                     {// drugs
                         "aTargets": [ mutTableIndices["drug"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -133,7 +137,7 @@
                                 if (!drug) return '';
                                 var len = drug.length;
                                 if (len==0) return '';
-                                return "<img src='images/drug.png' width=15 height=15 id='"
+                                return "<img src='images/drug.png' width=12 height=12 id='"
                                             +table_id+'_'+source[0]+"-drug-tip' class='"
                                             +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
                             } else if (type==='sort') {
@@ -175,7 +179,9 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                return "<b>"+mutations.getValue(source[0], "type")+"</b>";
+                                var mutType = mutations.getValue(source[0], "type")
+                                                .replace("_Mutation","");
+                                return "<b>"+mutType+"</b>";
                             } else {
                                 return mutations.getValue(source[0], "type");
                             }
@@ -188,7 +194,7 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!mutations.colExists('keymutrate')) return "<img src='images/ajax-loader2.gif'>";
+                                if (!mutations.colExists('keymutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
                                 var key = mutations.getValue(source[0], 'key');
                                 if (key==null) return '';
                                 var keyCon = mutations.getValue(source[0], 'keymutrate')-1;
@@ -253,6 +259,7 @@
                     },
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -269,7 +276,7 @@
                                 var tip = "Predicted impact by Mutation Assessor: <b>"+impact+"</b>";
                                 var xvia = ma['xvia'];
                                 if (xvia&&xvia!='NA')
-                                    tip += "<br/><a href='>'"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+                                    tip += "<br/><a href='>'"+xvia+"'><img height=12 width=15 src='images/ma.png'> Go to Mutation Assessor</a>";
                                 var msa = ma['msa'];
                                 if (msa&&msa!='NA')
                                     tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
@@ -345,6 +352,7 @@
         } );
 
         oTable.css("width","100%");
+        addNoteTooltip("#"+table_id+" th.mut-header");
         return oTable;
     }
     
@@ -360,7 +368,7 @@
         if (n==0) return "";
         var alt = '<table><tr><td colspan=2><b>COSMIC</b></td></tr><tr>'+arr.join('</tr><tr>')+'</tr></table>'
         if (img)
-            return "<img src='images/cosmic.gif' width=15 height=15 class='"+table_id+"-tip' alt='"+alt+"'/>"
+            return "<img src='images/cosmic.gif' width=12 height=12 class='"+table_id+"-tip' alt='"+alt+"'/>"
         else
             return "<a class='"+table_id+"-tip' onclick='return false;' href='#' alt='"+alt+"'>"+n+"</a>"
     }
@@ -415,17 +423,16 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25);
                 $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
-                $('#switch-to-mutations-tab').click(function () {
+                $('#mutation-show-more-link').click(function () {
                     switchToTab('mutations');
                     return false;
                 });
-                $('.mutation-summary-table-name').html(genomicEventObs.mutations.getNumEvents(true)
-                    +" mutations of Interest (out of "+genomicEventObs.mutations.getNumEvents(false)+" mutations)"
-                    +" <img class='mutations_help' src='images/help.png'"
-                    +" title='This table contains genes that are either"
-                    +" recurrently mutated (MutSig Q-value<0.05)"
-                    +" or with 5 or more COSMIC overlapping mutations"
-                    +" or in the Sanger Cancer Gene Census.'/>");
+                $('.mutation-summary-table-name').html(
+                    "Mutations <img class='mutations_help' src='images/help.png' \n\
+                        title='This table contains genes that are either \n\
+                        recurrently mutated (MutSig Q-value<0.05) \n\
+                        or with 5 or more COSMIC overlapping mutations\n\
+                        or in the Sanger Cancer Gene Census.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

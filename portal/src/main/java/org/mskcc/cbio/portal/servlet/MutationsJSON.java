@@ -240,7 +240,7 @@ public class MutationsJSON extends HttpServlet {
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
             throws DaoException {
         Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
-        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,true,false);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,true,true);
         Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
@@ -339,8 +339,8 @@ public class MutationsJSON extends HttpServlet {
         // show in summary table
         boolean includeInSummary = isSangerGene
                  || !Double.isNaN(mutSigQvalue)
-                 || passCosmicThreshold(cosmic,cosmicThreshold);
-                 //|| (drugs!=null && !drugs.isEmpty());
+                 || passCosmicThreshold(cosmic,cosmicThreshold)
+                 || (drugs!=null && !drugs.isEmpty());
         data.get("overview").add(includeInSummary);
     }
     

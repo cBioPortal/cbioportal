@@ -13,7 +13,8 @@ $(document).ready(function() {
     Gistic.table_options = {
         'allowHtml': true,
         'height': '430px',
-        'sortColumn': 2};
+        'sort' : 'event',
+        'sortColumn': 3};
 
     Gistic.data = {};
 });
@@ -79,7 +80,6 @@ Gistic.get = function(cancerStudyId) {
         dataTable.addColumn('string', 'Genes');
         dataTable.addColumn('string', 'nonSangerGenes');
         dataTable.addColumn('number', 'No Genes');
-
 
         var i,
         row,
@@ -302,12 +302,17 @@ Gistic.UI.open_gistic_dialog = function() {
                     Gistic.data.getValue(x, Gistic.CYTOBAND_COL),
                     Gistic.data.getValue(y, Gistic.CYTOBAND_COL));
             });
-
-            console.log(rows);
-
-            view.setRows(rows);
-            Gistic.table.draw(view, Gistic.table_options);
         }
+
+        else {        // all other columns
+            rows = Gistic.data.getSortedRows(e.column);
+        }
+
+        view.setRows(rows);
+
+        var table = Gistic.table;
+        table.draw(view, Gistic.table_options);
+        Gistic.table = table;
     });
 
     return false;
@@ -446,14 +451,14 @@ $(document).ready(function() {
     var default_value = 'filter regions by gene(s)';
     filter_el.val(default_value);
 
-    filter_el.focus(function(){
-        if(this.value === default_value) {
+    filter_el.focus(function() {
+        if (this.value === default_value) {
             this.value = '';
         }
     });
 
-    filter_el.blur(function(){
-        if(this.value === '') {
+    filter_el.blur(function() {
+        if (this.value === '') {
             this.value = default_value;
         }
     });

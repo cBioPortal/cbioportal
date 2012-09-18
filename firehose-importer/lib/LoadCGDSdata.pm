@@ -129,13 +129,28 @@ sub set_up_classpath{
 	unless( defined( $theCGDShome ) ){
 		warn "\$theCGDShome not defined ";
 	}
+    # import scripts
 	my $classpath = Env::Path->CLASSPATH;
 	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF classes ) ) );
-	
 	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF lib *.jar ) ) );
 	foreach my $jar (@jar_files) {
 	    $classpath->Append( $jar );
 	}
+    # oncotator
+    my $oncotatorPath = $theCGDShome . "../oncotator";
+    $classpath->Append( File::Spec->catfile( $oncotatorPath, qw(  target classes ) ) );
+	my @oncotator_jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target *.jar ) ) );
+	foreach my $jar (@oncotator_jar_files) {
+	    $classpath->Append( $jar );
+	}
+    # oma
+    my $omaPath = $theCGDShome . "../mutation-assessor";
+    $classpath->Append( File::Spec->catfile( $omaPath, qw(  target classes ) ) );
+	my @oma_jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target *.jar ) ) );
+	foreach my $jar (@oma_jar_files) {
+	    $classpath->Append( $jar );
+	}
+
 	$classpath->Uniqify;
 	my $cmdLineCP = join( Env::Path->PathSeparator, $classpath->List );
     # print "jars and dirs:\n", join( "\n", $classpath->List), "\n";

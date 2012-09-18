@@ -290,6 +290,35 @@ sub create_data_miRNA{
 # create data_mutations_extended.txt
 # source tarball: gdac.broadinstitute.org_<cancer>.MutationAssessor.Level_4.<date>.<version>.tar.gz 
 # source file: <CANCER>.maf.annotated
+sub create_oncotated_data_mutations_extended {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    # if our file is from gdac override, its already been oncotated, skip processing
+    if ( $data->col_exists( 'ONCOTATOR_VARIANT_CLASSIFICATION' )) {
+      # write CGDS file
+      $data->write( $CGDSfile );
+    }
+    else {
+      # oncotate the file
+      my $oncotatorTmpFile = File::Spec->catfile( $tmpDir, 'oncotateMAF.txt' );
+      my $cmdLineCP = set_up_classpath( $codeForCGDS );
+      my $oncotatorInputFiles = join( ' ', ( $firehoseFile, $oncotatorTmpFile ) );
+      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.oncotator.OncotateTool " . $oncotatorInputFiles );
+      # add mutation assessor information
+      my $omaInputFiles = join( ' ', ( $oncotatorTmpFile, $CGDSfile ) );
+      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.oncotator.OncotateTool " . $omaInputFiles );
+
+      File::Remove->remove($oncotatorTmpFile);
+    }
+}
+
+# create data_mutations_extended.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.MutationAssessor.Level_4.<date>.<version>.tar.gz 
+# source file: <CANCER>.maf.annotated
 # data transformation:
 # if these are available, map them:
 # MA:FImpact <- MA_Func.Impact
@@ -924,14 +953,13 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
-# create data_mutsig.txt
-# source tarball: gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>
-# source file: <CANCER>.sig_genes.txt
+# create data_rppa.txt
+# source tarball: gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version>
+# source file: data.rppa.txt
 # data transformation:
 # None.  Simply rename the file
-sub create_mut_sig {
+sub create_rppa {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
-
 	$data->write($CGDSfile);
 }
 
@@ -952,6 +980,17 @@ sub create_hg18_seg {
 # None.  Simply rename the file
 sub create_hg19_seg {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+	$data->write($CGDSfile);
+}
+
+# create data_mutsig.txt
+# source tarball: gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>
+# source file: <CANCER>.sig_genes.txt
+# data transformation:
+# None.  Simply rename the file
+sub create_mut_sig {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+
 	$data->write($CGDSfile);
 }
 

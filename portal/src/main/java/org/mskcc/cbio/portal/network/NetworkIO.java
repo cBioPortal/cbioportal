@@ -216,11 +216,12 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes, boolean removeSelfEdge) throws DaoException {
+    public static Network readNetworkFromCGDS(Set<String> genes,
+            Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList = daoInteraction.getInteractions(seedGenes);
+        List<Interaction> interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
         Network net = new Network();
         for (Interaction interaction : interactionList) {
             long geneA = interaction.getGeneA();

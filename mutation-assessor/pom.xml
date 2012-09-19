@@ -79,7 +79,7 @@
 				<filtering>true</filtering>
 				<excludes>
 					<exclude>build.properties.*</exclude>
-					<exclude>db.properties.*</exclude>
+					<exclude>db.properties.EXAMPLE</exclude>
 					<exclude>*.sql</exclude>
 				</excludes>
 			</resource>

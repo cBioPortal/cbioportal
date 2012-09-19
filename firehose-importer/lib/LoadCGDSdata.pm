@@ -137,14 +137,14 @@ sub set_up_classpath{
 	    $classpath->Append( $jar );
 	}
     # oncotator
-    my $oncotatorPath = $theCGDShome . "../oncotator";
+    my $oncotatorPath = $theCGDShome . "/../oncotator";
     $classpath->Append( File::Spec->catfile( $oncotatorPath, qw(  target classes ) ) );
 	my @oncotator_jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target *.jar ) ) );
 	foreach my $jar (@oncotator_jar_files) {
 	    $classpath->Append( $jar );
 	}
     # oma
-    my $omaPath = $theCGDShome . "../mutation-assessor";
+    my $omaPath = $theCGDShome . "/../mutation-assessor";
     $classpath->Append( File::Spec->catfile( $omaPath, qw(  target classes ) ) );
 	my @oma_jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target *.jar ) ) );
 	foreach my $jar (@oma_jar_files) {

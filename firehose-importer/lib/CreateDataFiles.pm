@@ -291,7 +291,7 @@ sub create_data_miRNA{
 # source tarball: gdac.broadinstitute.org_<cancer>.MutationAssessor.Level_4.<date>.<version>.tar.gz 
 # source file: <CANCER>.maf.annotated
 sub create_oncotated_data_mutations_extended {
-    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );;
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile, $codeForCGDS ) = oneToOne( @_ );;
     
     unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
         return undef;
@@ -304,14 +304,20 @@ sub create_oncotated_data_mutations_extended {
     }
     else {
       # oncotate the file
-      my $oncotatorTmpFile = File::Spec->catfile( $tmpDir, 'oncotateMAF.txt' );
+      my $tmpDir = File::Spec->tmpdir();
+      my $oncotatorTmpFile = File::Spec->catfile( $tmpDir, 'oncotatedMAF.txt' );
       my $cmdLineCP = set_up_classpath( $codeForCGDS );
       my $oncotatorInputFiles = join( ' ', ( $firehoseFile, $oncotatorTmpFile ) );
       runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.oncotator.OncotateTool " . $oncotatorInputFiles );
       # add mutation assessor information
-      my $omaInputFiles = join( ' ', ( $oncotatorTmpFile, $CGDSfile ) );
-      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.oncotator.OncotateTool " . $omaInputFiles );
-
+      my $omaTmpFile = File::Spec->catfile( $tmpDir, 'omaMAF.txt' );
+      my $omaInputFiles = join( ' ', ( $oncotatorTmpFile, $omaTmpFile ) );
+      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.mutassessor.MutationAssessorImporter " . $omaInputFiles );
+      # cp omaTmpFile which is now onocated and oma riched to CGDSfile
+      my ($volume, $directories, $file) = File::Spec->splitpath($CGDSfile);
+      system ("mkdir -p $directories");
+      system ("mv $omaTmpFile $CGDSfile");
+      # clean up
       File::Remove->remove($oncotatorTmpFile);
     }
 }

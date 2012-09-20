@@ -181,9 +181,45 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var mutType = mutations.getValue(source[0], "type")
-                                                .replace("_Mutation","");
-                                return "<b>"+mutType+"</b>";
+                                var mutType = mutations.getValue(source[0], "type");
+                                var abbr, color;
+                                if (mutType==='Missense_Mutation') {
+                                    abbr = 'MS';
+                                    color = 'green';
+                                } else if (mutType==='Nonsense_Mutation') {
+                                    abbr = 'NS';
+                                    color = 'red';
+                                } else if (mutType==='Splice_Site') {
+                                    abbr = 'SP';
+                                    color = 'red';
+                                } else if (mutType==='In_Frame_Ins') {
+                                    abbr = 'IFI';
+                                    color = 'green';
+                                } else if (mutType==='In_Frame_Del') {
+                                    abbr = 'IFD';
+                                    color = 'green';
+                                } else if (mutType==='Frame_Shift_Del') {
+                                    abbr = 'FSD';
+                                    color = 'red';
+                                } else if (mutType==='Frame_Shift_Ins') {
+                                    abbr = 'FSI';
+                                    color = 'red';
+                                } else if (mutType==='RNA') {
+                                    abbr = 'RNA';
+                                    color = 'green';
+                                } else if (mutType==='Nonstop_Mutation') {
+                                    abbr = 'NST';
+                                    color = 'red';
+                                } else if (mutType==='Translation_Start_Site') {
+                                    abbr = 'TSS';
+                                    color = 'green';
+                                } else {
+                                    abbr = mutType;
+                                    color = 'gray';
+                                }
+                                return "<span style='color:"+color+";' class='"
+                                            +table_id+"-tip' alt='"+mutType+"'><b>"
+                                            +abbr+"</b></span>";
                             } else {
                                 return mutations.getValue(source[0], "type");
                             }
@@ -196,7 +232,8 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!mutations.colExists('keymutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
+                                if (!mutations.colExists('keymutrate')) 
+                                    return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
                                 var key = mutations.getValue(source[0], 'key');
                                 if (key==null) return '';
                                 var keyCon = mutations.getValue(source[0], 'keymutrate')-1;

@@ -27,11 +27,16 @@ public final class Pileup {
     private final String label;
     private final int location;
     private final int count;
+	private final int missenseCount;
 
-    public Pileup(final String label, final int location, final int count) {
+    public Pileup(final String label,
+		    final int location,
+		    final int count,
+		    final int missenseCount) {
         this.label = label;
         this.location = location;
         this.count = count;
+	    this.missenseCount = missenseCount;
     }
 
     /**
@@ -61,6 +66,14 @@ public final class Pileup {
         return count;
     }
 
+	/**
+	 * Return the count of missense mutations at this location.
+	 *
+	 * @return the count of missense mutations as this location
+	 */
+	public int getMissenseCount() {
+		return missenseCount;
+	}
 
     /**
      * Return a list of pileups for the specified list of mutations.  The list of
@@ -88,15 +101,28 @@ public final class Pileup {
                 }
             }
         }
-        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet()) {
+
+        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet())
+        {
             int location = entry.getKey();
             String label = Joiner.on("/").join(labels.get(location));
+	        int missenseCount = 0;
             Set<String> caseIds = Sets.newHashSet();
-            for (ExtendedMutation mutation : entry.getValue()) {
+
+	        for (ExtendedMutation mutation : entry.getValue())
+	        {
                 caseIds.add(mutation.getCaseId() + ":" + mutation.getProteinChange());
+
+		        if (mutation.getMutationType() != null &&
+		            mutation.getMutationType().toLowerCase().contains("missense"))
+		        {
+			        missenseCount++;
+		        }
             }
-            pileups.add(new Pileup(label, location, caseIds.size()));
+
+            pileups.add(new Pileup(label, location, caseIds.size(), missenseCount));
         }
+
         return ImmutableList.copyOf(pileups);
     }
 }

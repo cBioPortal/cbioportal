@@ -96,13 +96,17 @@ public final class MutationDiagramDataServlet extends HttpServlet {
             markup.setDisplay("true");
             markup.setStart(pileup.getLocation());
             markup.setEnd(pileup.getLocation());
-            markup.setColour(ImmutableList.of("#b40000"));
+            markup.setColour(
+		            ImmutableList.of("#b40000", // lolipop fill color
+                                     "#c00000", // missense color (histogram)
+                                     "#353535")); // other than missense (histogram)
             markup.setLineColour("#babdb6");
             markup.setHeadStyle("diamond");
             markup.setV_align("top");
             markup.setType("mutation");
             markup.setMetadata(new HashMap<String, Object>());
             markup.getMetadata().put("count", pileup.getCount());
+	        markup.getMetadata().put("missenseCount", pileup.getMissenseCount());
             markup.getMetadata().put("label", pileup.getLabel());
             markup.getMetadata().put("location", pileup.getLocation());
             markups.add(markup);

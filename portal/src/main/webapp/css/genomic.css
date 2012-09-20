@@ -1,4 +1,4 @@
-//  Styles for Online Mutation Assessor (OMA)
+/*  Styles for Online Mutation Assessor (OMA) */
 
 .oma_link {
   font-weight:bold;
@@ -41,3 +41,54 @@
   font-size:90%;
   color:black;
 }
+
+.mutation_details_table_wrapper .mutation_table_cosmic
+{
+	cursor: pointer;
+	color: #1974B8;
+}
+
+.dataTables_wrapper .fg-toolbar
+{
+	min-width: 680px;
+	max-width: 1200px;
+	width: 100%;
+	white-space: nowrap;
+}
+
+.mutation_details_table_wrapper
+{
+	min-width: 680px;
+	max-width: 1200px;
+	width: 100%;
+	overflow-x: auto;
+}
+
+#cosmic_details_table_wrapper th
+{
+	font-size: 70%;
+	color: black;
+}
+
+.mutation_diagram_toggle
+{
+	margin-left: 567px;
+	margin-top: -15px;
+}
+
+.toggle_mut_table_col_td_label
+{
+	width: 100%;
+	text-align: right;
+}
+
+.toggle_mutation_table_col_table
+{
+	margin-bottom: -15px;
+}
+
+#mutation_details .ui-dropdownchecklist-text
+{
+	font-size: 12px;
+}
+

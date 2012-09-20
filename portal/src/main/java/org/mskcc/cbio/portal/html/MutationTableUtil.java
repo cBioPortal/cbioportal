@@ -140,8 +140,13 @@ public class MutationTableUtil
 	 */
     private String getValidationStatus(ExtendedMutation mutation)
     {
-	    String[] values = this.validationStatusMap.get(
-			    mutation.getValidationStatus().toLowerCase());
+	    String[] values = null;
+
+	    if (mutation.getValidationStatus() != null)
+	    {
+		    values = this.validationStatusMap.get(
+				mutation.getValidationStatus().toLowerCase());
+	    }
 
 	    // if there is a value pair (display, css) for the current validation status,
 	    // use those values
@@ -167,8 +172,13 @@ public class MutationTableUtil
 	 */
     private String getMutationStatus(ExtendedMutation mutation)
     {
-	    String[] values = this.mutationStatusMap.get(
+	    String[] values = null;
+
+	    if (mutation.getMutationStatus() != null)
+	    {
+	        values = this.mutationStatusMap.get(
 			    mutation.getMutationStatus().toLowerCase());
+	    }
 
 	    // if there is a value pair (display, css) for the current mutation status,
 	    // use those values
@@ -194,10 +204,14 @@ public class MutationTableUtil
 	 */
 	private String getMutationType(ExtendedMutation mutation)
 	{
-		// make it lowercase and remove any under dashes to match a possible key
-		String type = mutation.getMutationType().toLowerCase().replaceAll("_", " ");
+		String[] values = null;
 
-		String[] values = this.mutationTypeMap.get(type);
+		if (mutation.getMutationType() != null)
+		{
+			// make it lowercase and remove any under dashes to match a possible key
+			String type = mutation.getMutationType().toLowerCase().replaceAll("_", " ");
+			values = this.mutationTypeMap.get(type);
+		}
 
 		// if there is a value pair (display, css) for the current mutation type,
 		// use those values
@@ -263,7 +277,8 @@ public class MutationTableUtil
 	{
 		String varAllele = mutation.getTumorSeqAllele1();
 
-		if (mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
+		if (mutation.getReferenceAllele() != null &&
+			mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
 		{
 			varAllele = mutation.getTumorSeqAllele2();
 		}
@@ -281,6 +296,10 @@ public class MutationTableUtil
 	{
 		String build = mutation.getNcbiBuild();
 
+		if (build == null)
+		{
+			return build;
+		}
 		if (build.equals("36") ||
 		    build.equals("36.1"))
 		{
@@ -298,7 +317,14 @@ public class MutationTableUtil
 
 	private String getChrPosition(ExtendedMutation mutation)
 	{
-		return mutation.getChr() + ":" + mutation.getStartPosition();
+		if (mutation.getChr() == null)
+		{
+			return null;
+		}
+		else
+		{
+			return mutation.getChr() + ":" + mutation.getStartPosition();
+		}
 	}
 
     private void initHeaders()

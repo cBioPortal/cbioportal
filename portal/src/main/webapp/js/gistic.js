@@ -16,6 +16,11 @@ var Gistic = function(gistics) {
     // store the DataTable object once it has been created
     Gistic.dt = '';
 
+    Gistic.gene_list_el = $('#gene_list');
+
+    // initialize Gistic's internal tracking of the Gene Set
+    Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
+
     // set up modal dialog box for gistic table (step 3)
     $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
@@ -61,12 +66,6 @@ var Gistic = function(gistics) {
         }
     } );
 
-    window.ioGeneSet = function(el) {
-        // synchs between selected genes and the get set on the main page
-        var val = $(el).html();
-        console.log(val);
-    };
-
     var get_aaData = function() {
         // returns the aaData for DataTables
 
@@ -78,19 +77,19 @@ var Gistic = function(gistics) {
 
                 var hidden_genes = i.nonSangerGenes.map(function(g) {
                     // bind ioGeneSet to each nonSanger gene
-                    return "<span class='gistic_gene' onClick=ioGeneSet(this);>" + g + "</span>";
+                    return "<span class='gistic_gene' onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
                 });
 
                 // set up hidden genes
-                hidden_genes = "<div id='hidden' style='display:none;'>" + hidden_genes.join(" ") + "</div>";
-                hidden_genes = '<span onClick=Gistic.UI.expandGisticGenes(this);> +' + i.nonSangerGenes.length  + ' more</span>'
-                    + '<span style="display:none;" onClick=Gistic.UI.expandGisticGenes(this);> less</span>'
+                hidden_genes = "<div style='display:none;'>" + hidden_genes.join(" ") + "</div>";
+                hidden_genes = ' <a href="javascript:void(0)" onclick=Gistic.UI.expandGisticGenes(this);>+' + i.nonSangerGenes.length  + ' more</a>'
+                    + '<a href="javascript:void(0)" style="display:none;" onclick=Gistic.UI.expandGisticGenes(this);> less</a>'
                     + hidden_genes;
             }
 
             var all_genes = i.sangerGenes.map(function(g) {
                 // bind ioGeneSet to each Sanger gene
-                return "<span onClick=ioGeneSet(this);>" + g + "</span>";
+                return "<span onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
             })
                 .join(" ");
 
@@ -165,6 +164,11 @@ Gistic.UI = {
     open_dialog : function() {
         var gistic_dialog_el = $('#gistic_dialog');
 
+        var gs = GeneSet(Gistic.gene_list_el.val());
+
+        console.log(gs);
+        console.log(gs.getAllGenes());
+
         gistic_dialog_el.dialog('open');
 
         // redraw table
@@ -187,6 +191,23 @@ Gistic.UI = {
         // and toggle them
         $(plusXmore).toggle();
         $(less).toggle();
-        $(hidden).toggle();
+        $(hidden).toggle('slow');
+    },
+
+    ioGeneSet : function(el) {
+        // synchs between selected genes and the get set on the main page
+        var val = $(el).html();
+
+        // toggle bold
+        if (val.match(/<b>/) === null) {
+            $(el).html("<b>" + val + "</b>");
+        } else {
+            $(el).html(val.replace(/<b>/, '').replace(/<\/b>/, ''));
+        }
+    },
+
+    updateGenes: function() {
+
+        console.log('hello world');
     }
 };

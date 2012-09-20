@@ -86,9 +86,9 @@ GeneSet = function(raw_genes_str) {
         all_genes,
         onco_queries;
 
+    var geneStmts;
     // {{{ parse the raw gene set string
 
-    var geneStmts;
     if (/DATATYPES:/i.test(raw_genes_str)) {
         // datatype keyword dominates everything else,
         // if it is there, then the raw string consists entirely of things

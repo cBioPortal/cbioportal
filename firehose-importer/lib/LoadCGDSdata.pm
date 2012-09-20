@@ -64,7 +64,6 @@ sub run{
 		$Cancers,            # full filename of cancers file
 		$GeneFile,            # full filename of gene file
 		$miRNAfile,           # full filename of miRNAs file
-		$rppafile,           # full filename of rppa antibodies file
 		$sangerfile,           # full filename of sanger census file
 		$uniprotMappingFile,   # full filename of uniprot mapping file
 		$drugDataFile,   # full filename of drug data file
@@ -78,7 +77,7 @@ sub run{
 
 	# check that required options are set
 	my $util = Utilities->new( "" );
-	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $rppafile, $sangerfile, $uniprotMappingFile, $drugDataFile, $drugTargetFile );
+	$util->verifyArgumentsAreDefined( $cgdsHome, $CGDSinputData, $GeneFile, $miRNAfile, $sangerfile, $uniprotMappingFile, $drugDataFile, $drugTargetFile );
 
 	my $cmdLineCP = set_up_classpath( $cgdsHome );
 	
@@ -99,9 +98,6 @@ sub run{
 	
 	# Load up all microRNA IDs
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMicroRNAIDs " . $miRNAfile );  
-
-	# Load up RPPA -Antibodies
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportProteinArrayInfo " . $rppafile );  
 
 	# Load up Sanger Data
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportSangerCensusData " . $sangerfile );  

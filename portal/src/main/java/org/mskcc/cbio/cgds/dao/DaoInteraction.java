@@ -116,15 +116,27 @@ public class DaoInteraction {
      * Gets all Interactions involving the Specified Gene and Interactions among
      * linker genes.
      * @param gene Gene
-     * @param seedGeneOnly if true, retrieve interactions among seed genes only
-     * @param includeEdgesAmongLinkerGenes if true, retrieve edges between linker genes.
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
     public ArrayList<Interaction> getInteractions (CanonicalGene gene)
         throws DaoException {
+        return getInteractions(gene, null);
+    }
+
+    /**
+     * Gets all Interactions involving the Specified Gene and Interactions among
+     * linker genes from specific data sources.
+     * @param gene Gene
+     * @param dataSources data sources, if null, retrieve all
+     * @return ArrayList of Interaction Objects.
+     * @throws DaoException Database Error.
+     */
+    public ArrayList<Interaction> getInteractions (CanonicalGene gene,
+            Collection<String> dataSources)
+        throws DaoException {
         return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-							   false, true, null);
+                false, true, dataSources, null);
     }
 
     /**
@@ -136,10 +148,11 @@ public class DaoInteraction {
      * @throws DaoException Database Error.
      */
     public ArrayList<Interaction> getInteractions (CanonicalGene gene, 
-            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes)
+            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes,
+            Collection<String> dataSources)
         throws DaoException {
         return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-							   seedGeneOnly, includeEdgesAmongLinkerGenes, null);
+                seedGeneOnly, includeEdgesAmongLinkerGenes, dataSources, null);
     }
     
     /**
@@ -149,9 +162,9 @@ public class DaoInteraction {
      * @return ArrayList of Interaction Objects.
      * @throws DaoException Database Error.
      */
-    public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds)
-        throws DaoException {
-        return getInteractions(entrezGeneIds, false, true, null);
+    public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
+            Collection<String> dataSources) throws DaoException {
+        return getInteractions(entrezGeneIds, false, true, dataSources, null);
     }
 
     /**
@@ -163,7 +176,8 @@ public class DaoInteraction {
      * @throws DaoException Database Error.
      */
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
-												   boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, Connection con)
+            boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, 
+            Collection<String> dataSources, Connection con)
         throws DaoException {
         ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         if (entrezGeneIds.isEmpty()) {
@@ -176,10 +190,12 @@ public class DaoInteraction {
 				con = JdbcUtil.getDbConnection();
 			}
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
+            String dsStr = dataSources==null?null:("('"+StringUtils.join(dataSources,"','")+"')");
             if (seedGeneOnly) {
-                pstmt = con.prepareStatement
-                    ("SELECT * FROM interaction where GENE_A IN "
-                        + idStr + " AND GENE_B IN "+idStr);
+                String sql = "SELECT * FROM interaction where GENE_A IN "
+                        + idStr + " AND GENE_B IN "+idStr
+                        + (dataSources==null?"":(" AND DATA_SOURCE IN "+dsStr));
+                pstmt = con.prepareStatement(sql);
                 rs = pstmt.executeQuery();
                 while (rs.next()) {
                     Interaction interaction = extractInteraction(rs);
@@ -187,9 +203,10 @@ public class DaoInteraction {
                 }
                 return interactionList;
             } else {
-                pstmt = con.prepareStatement
-                    ("SELECT * FROM interaction where GENE_A IN "
-                        + idStr + " OR GENE_B IN "+idStr);
+                String sql = "SELECT * FROM interaction where GENE_A IN "
+                        + idStr + " OR GENE_B IN "+idStr
+                        + (dataSources==null?"":(" AND DATA_SOURCE IN "+dsStr));
+                pstmt = con.prepareStatement(sql);
                 rs = pstmt.executeQuery();
                 
                 if (includeEdgesAmongLinkerGenes) {
@@ -198,7 +215,7 @@ public class DaoInteraction {
                         allGenes.add(rs.getLong("GENE_A"));
                         allGenes.add(rs.getLong("GENE_B"));
                     }
-                    return getInteractions(allGenes, true, true, con);
+                    return getInteractions(allGenes, true, true, dataSources, con);
                 } else {
                     while (rs.next()) {
                         Interaction interaction = extractInteraction(rs);
@@ -267,6 +284,27 @@ public class DaoInteraction {
         interaction.setExperimentTypes(rs.getString("EXPERIMENT_TYPES"));
         interaction.setPmids(rs.getString("PMIDS"));
         return interaction;
+    }
+    
+    public ArrayList<String> getDataSources() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList <String> interactionList = new ArrayList <String>();
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT DISTINCT DATA_SOURCE FROM interaction");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                interactionList.add(rs.getString(1));
+            }
+            return interactionList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
     }
 
     /**

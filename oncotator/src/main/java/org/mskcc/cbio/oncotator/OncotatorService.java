@@ -80,10 +80,15 @@ public class OncotatorService {
             {
                 return record;
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             System.out.println("Got IO Error:  " + e.getMessage());
+	        this.errorCount++;
             return new OncotatorRecord(key);
-        } finally {
+        }
+        finally
+        {
             // Must close input stream!  Otherwise, we maintain too many open connections
             // to the Broad.
             if (inputStream != null) {

@@ -116,6 +116,7 @@ if (format!=null) {
 
 if (graphml!=null&&!graphml.isEmpty()) {
     graphml = StringEscapeUtils.escapeJavaScript(graphml);
+    boolean showProfileData = "true".equalsIgnoreCase(request.getParameter("show_profile_data"));
 
     String msgs = request.getParameter("msg");
     if (msgs!=null) {
@@ -137,6 +138,15 @@ if (graphml!=null&&!graphml.isEmpty()) {
         <%}%>
         
         $("#network-resubmit-query").remove();
+        
+        if (<%=showProfileData%>) {
+            var nre = setInterval(function() {
+                if (!$("#network_menu_div").hasClass("hidden-network-ui")) {
+                    $('#show_profile_data').click();
+                    clearInterval(nre);
+                }
+            },1000);
+        }
     });
 </script>
 
@@ -1553,6 +1563,7 @@ Format:<br/>
   <option value="graphml.gz">GraphML.GZ (only for uploaded file)</option>
 </select>
 <br/>
+<input type="checkbox" name="show_profile_data" value="true" /> Show genomic profile data by default<br />
 <input type="submit" name="submit" value="Submit" />
 </form>
 </div>

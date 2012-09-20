@@ -40,7 +40,7 @@ public class GetNetwork {
         }
 
         //  Get the Network of Interest
-        NetworkOfInterest noi = new NetworkOfInterest(canonicalGeneList);
+        NetworkOfInterest noi = new NetworkOfInterest(canonicalGeneList,null);
         return noi.getTabDelim();
     }
 }

@@ -28,6 +28,17 @@ public class NetworkOfInterest {
      * @throws DaoException Database Error.
      */
     public NetworkOfInterest (ArrayList<CanonicalGene> geneList) throws DaoException {
+        this(geneList, null); 
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param geneList ArrayList of Seed Genes.
+     * @throws DaoException Database Error.
+     */
+    public NetworkOfInterest (ArrayList<CanonicalGene> geneList,
+            Collection<String> dataSources) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         ArrayList<Interaction> interactionList = new ArrayList<Interaction>();
         HashSet<String> seedSet = new HashSet<String>();
@@ -35,7 +46,8 @@ public class NetworkOfInterest {
         for (CanonicalGene gene:  geneList) {
 
             //  Get all interactions involving current gene.
-            ArrayList<Interaction> currentInteractionList = daoInteraction.getInteractions(gene);
+            ArrayList<Interaction> currentInteractionList = 
+                    daoInteraction.getInteractions(gene, dataSources);
             interactionList.addAll(currentInteractionList);
             seedSet.add(gene.getHugoGeneSymbolAllCaps());
         }

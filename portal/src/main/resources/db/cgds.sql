@@ -375,7 +375,7 @@ CREATE TABLE `gistic` (
   `WIDE_PEAK_END` int(11) NOT NULL,
   `Q_VALUE` double NOT NULL,
   `RES_Q_VALUE` double NOT NULL,
-  `AMP_DEL` tinyint(1) NOT NULL,
+  `AMP` tinyint(1) NOT NULL,
   PRIMARY KEY (`GISTIC_ROI_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

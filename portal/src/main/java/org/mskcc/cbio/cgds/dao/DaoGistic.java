@@ -46,7 +46,7 @@ public class DaoGistic {
 				  "`WIDE_PEAK_END`, " +
 				  "`Q_VALUE`, "  +
 				  "`RES_Q_VALUE`, " +
-				  "`AMP_DEL`) "  +
+				  "`AMP`) "  +
 				  "VALUES (?,?,?,?,?,?,?,?)",
 				 Statement.RETURN_GENERATED_KEYS);
 
@@ -57,7 +57,7 @@ public class DaoGistic {
             pstmt.setInt(5, gistic.getPeakEnd());
             pstmt.setDouble(6, gistic.getqValue());
             pstmt.setDouble(7, gistic.getRes_qValue());
-            pstmt.setBoolean(8, gistic.getAmpDel());
+            pstmt.setBoolean(8, gistic.getAmp());
             pstmt.executeUpdate();
 
             // insert into SQL gistic_to_gene table

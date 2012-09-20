@@ -47,6 +47,117 @@ public class GisticReader {
         return cancerStudy.getInternalId();
     }
 
+    public ArrayList<Gistic> parse(File gistic_f) throws IOException, DaoException {
+
+        ArrayList<Gistic> gistics = new ArrayList<Gistic>();
+
+        FileReader reader = new FileReader(gistic_f);
+        BufferedReader buf = new BufferedReader(reader);
+
+        String line = buf.readLine();
+
+        // -- parse field names --
+        // todo: would it be better to use <enums>?
+        int chromosomeField = -1;
+        int peakStartField = -1;
+        int peakEndField = -1;
+        int genesField = -1;
+        int qvalField = -1;
+        int ampField = -1;
+        int cytobandField = -1;
+
+        String[] fields = line.split("\t");
+        int num_fields = fields.length;
+
+        for (int i = 0 ; i < num_fields; i+=1) {
+            if (fields[i].equals("chromosome")) {
+                chromosomeField = i;
+            }
+
+            else if (fields[i].equals("peak_start")) {
+                peakStartField = i;
+            }
+
+            else if (fields[i].equals("peak_end")) {
+                peakEndField = i;
+            }
+
+            else if (fields[i].equals("genes_in_region")) {
+                genesField = i;
+            }
+
+            else if (fields[i].equals("q value")) {
+                qvalField = i;
+            }
+
+            else if (fields[i].equals("cytoband")) {
+                cytobandField = i;
+            }
+
+            else if (fields[i].equals("amp")) {
+                ampField = i;
+            }
+
+            // cancer study ID
+            else if (fields[i].equals())
+        }
+
+
+        while (line != null) {
+
+            fields = line.split("\t");
+
+            Gistic gistic = new Gistic();
+
+            gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+            gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
+            gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
+            gistic.setAmp(Boolean.parseBoolean(fields[ampField]));
+            gistic.setCytoband(fields[cytobandField]);
+
+            // -- parse genes --
+
+            // parse out '[' and ']' chars and,         ** Do these brackets have meaning? **
+            // split
+            String[] _genes = fields[genesField].replace("[","")
+                    .replace("]", "")
+                    .split(",");
+
+            // map _genes to list of CanonicalGenes
+            ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
+            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+            for (String gene : _genes) {
+
+                // TODO: when gene mapping has implemented, map miRNA appropriately, for now miRNA is silently ignored
+                if (gene.contains("hsa")) {
+
+                    //System.out.println("ignoring miRNA : " + gene);
+                    continue;
+                }
+
+                CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
+
+                if (canonicalGene == null) {
+                    canonicalGene = new CanonicalGene(gene);
+
+//                    System.out.println("gene not found, skipping: " + gene);
+//                    throw new DaoException("gene not found: " + gene);
+                }
+
+                genes.add(canonicalGene);
+            }
+            // -- end parse genes
+            gistic.setGenes_in_ROI(genes);
+
+            gistics.add(gistic);
+            line = buf.readLine();
+        }
+
+        buf.close();
+        reader.close();
+        return gistics;
+    }
+
     /**
      * Loads Gistics from a file where the first field of the filename is table,
      * e.g. table_amp.conf_99.txt

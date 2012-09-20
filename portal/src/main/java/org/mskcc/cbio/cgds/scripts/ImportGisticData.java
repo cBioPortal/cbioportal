@@ -106,30 +106,46 @@ public class ImportGisticData {
                 numLines_nontable + numLines_table);
         pMonitor.setMaxValue(numLines_nontable + numLines_table);
 
+
+
         GisticReader gisticReader = new GisticReader();
         ArrayList<Gistic> gistics = null;
         try {
             int cancerStudyInternalId = gisticReader.getCancerStudyInternalId(metadataFile);
-            gistics = gisticReader.mergeAll(cancerStudyInternalId, tableFile, nontableFile, ampdel);
-        } catch (Exception e) {     // catch all exceptions
+            gisticReader.parseFiles(tableFile, nontableFile);
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e);
         }
 
-        if (gistics == null) {
-            System.out.println("Error in parsing and merging data from 2 files");
-            System.exit(1);
-        }
 
-        // add to CGDS database
-        for (Gistic g : gistics) {
-            try {
-                DaoGistic.addGistic(g);
-            } catch (DaoException e) {
-                //System.out.println(e);
-                //logger.debug(e);
-            }
-        }
+
+
+        //GisticReader gisticReader = new GisticReader();
+        //ArrayList<Gistic> gistics = null;
+        //try {
+        //    int cancerStudyInternalId = gisticReader.getCancerStudyInternalId(metadataFile);
+        //    gisticReader.parseFiles(tableFile, nontableFile);
+        //    //gistics = gisticReader.mergeAll(cancerStudyInternalId, tableFile, nontableFile, ampdel);
+        //} catch (Exception e) {     // catch all exceptions
+        //    e.printStackTrace();
+        //    System.out.println(e);
+        //}
+
+        //if (gistics == null) {
+        //    System.out.println("Error in parsing and merging data from 2 files");
+        //    System.exit(1);
+        //}
+
+        //// add to CGDS database
+        //for (Gistic g : gistics) {
+        //    try {
+        //        DaoGistic.addGistic(g);
+        //    } catch (DaoException e) {
+        //        //System.out.println(e);
+        //        //logger.debug(e);
+        //    }
+        //}
 
         ConsoleUtil.showWarnings(pMonitor);
     }

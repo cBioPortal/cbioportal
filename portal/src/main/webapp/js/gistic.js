@@ -7,24 +7,23 @@ $.get('Gistic.json', {'selected_cancer_type': selected_cancer_type}, function(da
 
     var gistic_table_el = $('#gistic_table');
 
-    gistic.drawTable(gistic_table_el, { "sScrollY": "75%", "bPaginate": false });
+    gistic.drawTable(gistic_table_el, { "sScrollY": "200px", "bPaginate": false});
 
 });
 
 var Gistic = function(gistics) {
 
-    var dt = '';
-    // hold the DataTable object once its been rendered
+    // store the DataTable object once it has been created
+    Gistic.dt = '';
 
-    $('#gistic_dialog')
-    .dialog({autoOpen: false,
-            // set up modal dialog box for gistic table (step 3)
-            //resizable: false,
+    // set up modal dialog box for gistic table (step 3)
+    $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
-            width: 'auto',
+            overflow: 'hidden',
+            minWidth: 636,
+            //resizable: false,
             //height: 500,
-            //minWidth: 636,
-            //overflow: 'hidden',
+            // width: 'auto',
             open: function() {
                 // sets the scrollbar to the top of the table
                 $(this).scrollTop(0);
@@ -34,19 +33,9 @@ var Gistic = function(gistics) {
             }
     });
 
-    window.expandGisticGenes = function(el) {
-        // shows/hides additional genes in the genes column
-        // currently initializing to hiding all non-Sanger genes
-        el = $(el).parents()[0];
-
-        var spans = $(el).children();
-        spans = $(spans).select('span');
-
-        $(spans).toggle();
-    };
-
     var sort_by_cytoband = function(x,y) {
-        // compares two cytobands in the cytoband column
+        // sorts two cytobands,
+        // returns 1 if x < y, -1 if x > y, and 0 if x == y
         var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
         var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
 
@@ -93,9 +82,9 @@ var Gistic = function(gistics) {
                 });
 
                 // set up hidden genes
-                hidden_genes = "<div style='display:none;'>" + hidden_genes.join(" ") + "</div>";
-                hidden_genes = '<span onClick=expandGisticGenes(this);> +' + i.nonSangerGenes.length  + ' more</span>'
-                    + '<span style="display:none;" onClick=expandGisticGenes(this);> less</span>'
+                hidden_genes = "<div id='hidden' style='display:none;'>" + hidden_genes.join(" ") + "</div>";
+                hidden_genes = '<span onClick=Gistic.UI.expandGisticGenes(this);> +' + i.nonSangerGenes.length  + ' more</span>'
+                    + '<span style="display:none;" onClick=Gistic.UI.expandGisticGenes(this);> less</span>'
                     + hidden_genes;
             }
 
@@ -155,7 +144,7 @@ var Gistic = function(gistics) {
             options.aaData = aaData;
             options.aoColumns = aoColumns;
 
-            dt = table_el.dataTable(options);
+            Gistic.dt = table_el.dataTable(options);
 
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
@@ -168,4 +157,32 @@ var Gistic = function(gistics) {
     };
 
     return self;
+};
+
+Gistic.UI = {
+    // dump of all sorts of UI functions
+
+    open_dialog : function() {
+        var gistic_dialog_el = $('#gistic_dialog');
+
+        gistic_dialog_el.dialog('open');
+
+        // redraw table
+        Gistic.dt.fnDraw();
+
+    },
+
+    expandGisticGenes : function(el) {
+        // shows/hides additional genes in the genes column
+        // currently initializing to hiding all non-Sanger genes
+        el = $(el).parents()[0];
+
+        console.log($(el));
+        console.log($(el).select('#hidden'));
+
+        //var spans = $(el).children();
+        //spans = $(spans).select('span');
+
+        //$(spans).toggle();
+    }
 };

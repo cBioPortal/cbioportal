@@ -23,7 +23,7 @@ public class Gistic {
     private ArrayList<CanonicalGene> genes_in_ROI;
     private double qValue;
     private double res_qValue;
-    private boolean ampDel;
+    private boolean amp;
 
     /**
      * Constructor.
@@ -48,7 +48,7 @@ public class Gistic {
         this.qValue = qValue;
         this.res_qValue = res_qValue;
         this.genes_in_ROI = genes_in_ROI;
-        this.ampDel = amp_del;
+        this.amp = amp_del;
     }
 
     // todo: refactor this to be a method : Gistic.getDummyGistic();  What is the syntax for factory methods?
@@ -66,7 +66,7 @@ public class Gistic {
         this.qValue = -1f;
         this.res_qValue = -1f;
         this.genes_in_ROI = new ArrayList<CanonicalGene>();
-        this.ampDel = false;
+        this.amp = false;
     }
 
     /**
@@ -81,7 +81,7 @@ public class Gistic {
         
         String ampdel;
 
-        if (this.ampDel == Gistic.AMPLIFIED) {
+        if (this.amp == Gistic.AMPLIFIED) {
             ampdel = "amp";
             
         } else {
@@ -96,7 +96,7 @@ public class Gistic {
                 "qValue: %s, " +
                 "res_qValue: %s, " +
                 "genes_in_ROI: %s, " +
-                "ampDel: %s", this.cancerStudyId,
+                "amp: %s", this.cancerStudyId,
                 this.chromosome,
                 this.cytoband,
                 this.peakStart,
@@ -104,7 +104,7 @@ public class Gistic {
                 Double.toString(this.qValue),
                 Double.toString(this.res_qValue),
                 this.genes_in_ROI,
-                this.ampDel);
+                this.amp);
     }
 
     /**
@@ -194,10 +194,10 @@ public class Gistic {
     /**
      * Sets whether the ROI is a deletion or amplification
      * Use Gistic.AMPLIFIED and Gistic.DELETED
-     * @param ampDel
+     * @param amp
      */
-    public void setAmpDel(boolean ampDel) {
-        this.ampDel = ampDel;
+    public void setAmp(boolean amp) {
+        this.amp = amp;
     }
 
     /**
@@ -277,7 +277,7 @@ public class Gistic {
      * Returns whether or not the wide peak of ROI is a region of amplification or deletion
      * @return whether or not ROI is amplified or deleted, use Gistic.AMPLIFIED or Gistic.DELETED
      */
-    public boolean getAmpDel() {
-        return ampDel;
+    public boolean getAmp() {
+        return amp;
     }
 }

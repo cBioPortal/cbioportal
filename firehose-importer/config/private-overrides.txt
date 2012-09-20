@@ -1,7 +1,14 @@
 blca_mskcc
+brca_broad
+brca_sanger
 brca_scand
 ccle_broad
+coadread_genentech
 coadread_mskcc
+hnscc_broad
+kirc2_tcga
 luad_mskcc
+luad_tsp
 prad_broad
 prad_mich
+skcm_broad

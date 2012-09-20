@@ -175,14 +175,18 @@ Gistic.UI = {
     expandGisticGenes : function(el) {
         // shows/hides additional genes in the genes column
         // currently initializing to hiding all non-Sanger genes
+
         el = $(el).parents()[0];
+        el = $(el).children();
 
-        console.log($(el));
-        console.log($(el).select('#hidden'));
+        // grab all the elements
+        var plusXmore = el[1];
+        var less = el[2];
+        var hidden = el[3];
 
-        //var spans = $(el).children();
-        //spans = $(spans).select('span');
-
-        //$(spans).toggle();
+        // and toggle them
+        $(plusXmore).toggle();
+        $(less).toggle();
+        $(hidden).toggle();
     }
 };

@@ -220,6 +220,8 @@ public class ImportClinicalData {
      */
     public static void main(String[] args) throws DaoException {
         ProgressMonitor pMonitor = new ProgressMonitor();
+        
+        args = new String[]{"prad_mich","/Users/jj/projects/GDAC-staging/prad_mich/prad_mich_clinical.txt"};
 
         // check args
         if (args.length < 2) {

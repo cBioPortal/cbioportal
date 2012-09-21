@@ -31,7 +31,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
                 $('#'+caseIdDiv).html(formatPatientLink(caseId));
                 csObs.fireSelection(caseId, divId);
-                resetSmallPlots(dt);
+                resetSmallPlots();
             });
 
             google.visualization.events.addListener(scatter, 'ready', function(e){

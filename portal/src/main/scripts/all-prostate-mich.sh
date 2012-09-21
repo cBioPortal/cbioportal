@@ -4,6 +4,9 @@
 # Imports All Case Lists
 ./importCaseList.pl $GDAC_CGDS_STAGING_HOME/prad_mich/case_lists
 
+# Imports Clinical Data
+./importClinicalData.pl prad_mich $GDAC_CGDS_STAGING_HOME/prad_mich/prad_mich_clinical.txt
+
 # Imports Mutation Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/prad_mich/data_mutations_extended.txt --meta $GDAC_CGDS_STAGING_HOME/prad_mich/meta_mutations_extended.txt --dbmsAction clobber
 

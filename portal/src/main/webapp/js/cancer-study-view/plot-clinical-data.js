@@ -43,18 +43,51 @@ function compareAssociativeArrays(a, b) {
     return true;
 }
 
+var plotAllClinicalData = false;
+var smallPlotCachedDt = null;
+
 // replot small
 function resetSmallPlots(dt) {
+    if (dt) smallPlotCachedDt = dt;
+    else dt = smallPlotCachedDt;
+    
     var divNum = 1;
+    var hidden = false;
     for (var i=1; i<dt.getNumberOfColumns(); i++) {
-        if (decideToPlot(dt,i))
+        if (selectedCol(dt,i))
             plotData(divNum++,dt,i,null);
+        else
+            hidden = true;
+    }
+    
+    if (plotAllClinicalData) {
+        var start = divNum;
+        for (var i=1; i<dt.getNumberOfColumns(); i++) {
+            if (!selectedCol(dt,i))
+                plotData(divNum++,dt,i,null);
+        }
+        
+        var div = getSmallPlotDiv(divNum++);
+        $(div).removeClass("small-plot-div");
+        $(div).html("<button class='vertical-center-in-a-div' onclick='togglePlotAllOrSelect("+start+","+divNum+");'>&lt;&lt; less</button>");
+    } else if (hidden) {
+        var div = getSmallPlotDiv(divNum);
+        $(div).removeClass("small-plot-div");
+        $(div).html("<button class='vertical-center-in-a-div' onclick='togglePlotAllOrSelect("+divNum+","+(divNum+1)+");'>more &gt;&gt;</button>");
     }
 }
 
-function decideToPlot(dt,col) {
+function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
+    for (var i=divRemoveFirst; i<divRemoveLast; i++) {
+        removeSmallPlotDiv(i);
+    }
+    plotAllClinicalData = !plotAllClinicalData;
+    resetSmallPlots();
+}
+
+function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(survival)|(grade)|(stage)|(histology)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(gleason)/);
 }
 
 // draw datatable
@@ -282,18 +315,27 @@ function getSmallPlotDiv(divNum,legend) {
     if (td.length==0) {
         var irow = Math.ceil(divNum/4);
         if (divNum%4==1) {
-            $('#summary-plot-table').append('<tr id="small-plot-tr-'+irow+'"><tr>');
+            $('#summary-plot-table').append('<tr id="small-plot-tr-'+irow+'" valign="middle"><tr>');
             $('#small-plot-tr-'+irow).html('<td id="small-plot-td-'+divNum+'"></td>');
         } else {
-            $('#small-plot-tr-'+irow).append('<td id="small-plot-td-'+divNum+'"></td>');
+            $('#small-plot-tr-'+irow).append('<td id="small-plot-td-'+divNum+'" align="center"></td>');
         }
         td = $('#small-plot-td-'+divNum);
     }
 
-    td.html('<fieldset>'
-            +'<legend style="color:blue;font-weight:bold;">'+legend+'</legend>'
-            +'<div class="small-plot-div" id="small-plot-div-'+divNum+'">'
-            +'</div>'
-            + '</fieldset>');
+    var htm = '<div class="small-plot-div" id="small-plot-div-'+divNum+'">'+'</div>';
+    if (legend) {
+        htm = '<fieldset><legend style="color:blue;font-weight:bold;">'+legend+'</legend>'
+               + htm + '</fieldset>';
+    }    
+
+    td.html(htm);
     return document.getElementById('small-plot-div-'+divNum);
+}
+
+function removeSmallPlotDiv(divNum) {
+    $('#small-plot-td-'+divNum).remove();
+    if (divNum%4==1) {
+        $('#small-plot-tr-'+Math.ceil(divNum/4)).remove();
+    }
 }

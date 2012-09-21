@@ -95,7 +95,7 @@ var Gistic = function(gistics) {
 
             all_genes = all_genes + hidden_genes;
 
-            return [i.ampdel, i.chromosome, i.cytoband, i.peakStart, i.peakEnd, all_genes, i.qval, i.res_qval];
+            return [i.ampdel, i.chromosome, i.cytoband, i.peakStart, i.peakEnd, all_genes, i.qval];
         });
     };
 

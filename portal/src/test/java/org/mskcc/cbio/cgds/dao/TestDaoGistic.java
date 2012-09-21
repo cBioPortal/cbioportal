@@ -36,8 +36,8 @@ public class TestDaoGistic extends TestCase {
 
         Gistic gisticIn1;
         Gistic gisticIn2;
-        gisticIn1 = new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
-        gisticIn2 = new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
+        gisticIn1 = new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+        gisticIn2 = new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
 
         // end initialize
 

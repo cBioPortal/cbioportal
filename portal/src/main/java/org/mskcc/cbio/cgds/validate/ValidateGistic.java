@@ -19,7 +19,6 @@ public class ValidateGistic {
         int peakStart = gistic.getPeakStart();
         int peakEnd = gistic.getPeakEnd();
         double qValue = gistic.getqValue();
-        double res_qValue = gistic.getRes_qValue();
         ArrayList<CanonicalGene> genes_in_ROI = gistic.getGenes_in_ROI();
 
         if (chromosome < 1 || chromosome > 22) {
@@ -43,10 +42,6 @@ public class ValidateGistic {
             throw new validationException("qValue=" + qValue);
         }
 
-        if (res_qValue < 0 || res_qValue > 1) {
-            throw new validationException("res_qValue=" + res_qValue);
-        }
-        
         if (genes_in_ROI.isEmpty()){
             throw new validationException(genes_in_ROI);
         }

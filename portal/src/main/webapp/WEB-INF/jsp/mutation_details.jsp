@@ -226,9 +226,14 @@
 		    {
 			    var values = parts[i].split(/\(|\)/, 2);
 
-			    // TODO skip data starting with p.? (p.?...)
+			    // skip data starting with p.? or ?
+			    var unknownCosmic = values[0].indexOf("p.?") == 0 ||
+			                       values[0].indexOf("?") == 0;
 
-			    $("#cosmic_details_table").dataTable().fnAddData(values);
+			    if (!unknownCosmic)
+			    {
+				    $("#cosmic_details_table").dataTable().fnAddData(values);
+			    }
 		    }
 
 		    $("#cosmic_details_dialog").dialog("open");

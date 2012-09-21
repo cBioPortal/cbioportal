@@ -29,6 +29,7 @@ package org.mskcc.cbio.portal.html;
 
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
@@ -270,23 +271,10 @@ public class MutationTableUtil
 			return mutation.getOncotatorCosmicOverlapping();
 		}
 
-		String[] parts = mutation.getOncotatorCosmicOverlapping().split("\\|");
-		Integer total = 0;
+		// calculate total cosmic count
+		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
-		for (String cosmic : parts)
-		{
-			// TODO do not count data starting with p.? (p.?...)
-
-			int beginIdx = cosmic.indexOf('(') + 1;
-			int endIdx = cosmic.indexOf(")");
-			String count = cosmic.substring(beginIdx, endIdx);
-
-			if (count.matches("[0-9]+"))
-			{
-				total += Integer.parseInt(count);
-			}
-		}
-
+		// TODO id might be a huge string (over 2000 chars), find a better way to send the cosmic value?
 		return "<a class='mutation_table_cosmic' " +
 			"title='Click to see details' " +
 			"id='" + mutation.getOncotatorCosmicOverlapping() + "'>" +

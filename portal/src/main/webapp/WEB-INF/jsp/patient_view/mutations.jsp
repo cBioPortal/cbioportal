@@ -220,6 +220,31 @@
                                 return "<span style='color:"+color+";' class='"
                                             +table_id+"-tip' alt='"+mutType+"'><b>"
                                             +abbr+"</b></span>";
+                            } else if (type==='filter') {
+                                var mutType = mutations.getValue(source[0], "type");
+                                if (mutType==='Missense_Mutation') {
+                                    return 'MS';
+                                } else if (mutType==='Nonsense_Mutation') {
+                                    return 'NS';
+                                } else if (mutType==='Splice_Site') {
+                                    return 'SP';
+                                } else if (mutType==='In_Frame_Ins') {
+                                    return 'IFI';
+                                } else if (mutType==='In_Frame_Del') {
+                                    return 'IFD';
+                                } else if (mutType==='Frame_Shift_Del') {
+                                    return 'FSD';
+                                } else if (mutType==='Frame_Shift_Ins') {
+                                    return 'FSI';
+                                } else if (mutType==='RNA') {
+                                    return 'RNA';
+                                } else if (mutType==='Nonstop_Mutation') {
+                                    return 'NST';
+                                } else if (mutType==='Translation_Start_Site') {
+                                    return 'TSS';
+                                } else {
+                                    return mutType;
+                                }
                             } else {
                                 return mutations.getValue(source[0], "type");
                             }

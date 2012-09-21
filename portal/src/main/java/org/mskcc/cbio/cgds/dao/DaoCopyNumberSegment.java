@@ -127,8 +127,6 @@ public final class DaoCopyNumberSegment {
                     + " GROUP BY `CASE_ID`";
             }
             
-            System.out.println(sql);
-            
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             while (rs.next()) {

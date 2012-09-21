@@ -130,6 +130,7 @@
                         "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
+                                source[1]=value;
                                 return;
                             } else if (type==='display') {
                                 var alter = cnas.getValue(source[0], "alter");
@@ -149,6 +150,12 @@
                                 default: strAlt='Unknown';
                                 }
                                 return "<b>"+strAlt+"</b>"
+                            } else if (type==='filter') {
+                                switch(cnas.getValue(source[0], "alter")) {
+                                case 2: return 'AMP';
+                                case -2: return 'HOMDEL';
+                                default: return 'Unknown';
+                                }
                             } else {
                                 return cnas.getValue(source[0], "alter");
                             }

@@ -7,7 +7,8 @@ $.get('Gistic.json', {'selected_cancer_type': selected_cancer_type}, function(da
 
     var gistic_table_el = $('#gistic_table');
 
-    gistic.drawTable(gistic_table_el, { "sScrollY": "200px", "bPaginate": false});
+    gistic.drawTable(gistic_table_el, { "sScrollY": "50%", "bPaginate": false});
+    // todo: ##em?
 
 });
 
@@ -113,15 +114,20 @@ var Gistic = function(gistics) {
             var aoColumns = [
                 {"sTitle": "AD",    // todo : ampdel tiptip?
                     "sWidth": '10px',
+                    "bSearchable": false,
+                    "bSortable": false,
                     "mDataProps": function(source, type, val) {
+                        console.log(source);
+                        console.log(type);
+                        console.log(val);
                         if (type === 'set') {
                             return;
                         } else if (type === 'display') {
-                            if (val === true) {     // true means amplified
+                            if (val) {     // true means amplified
                             // mark amps/dels as reds and blues
-                                return "<div class=\"gistic_amp\"></div>"
+                                return "<div class=\"gistic_amp\"></div>";
                             } else {
-                                return "<div class=\"gistic_del\"></div>"
+                                return "<div class=\"gistic_del\"></div>";
                             }
                         }       // else if filter sort ...
                     }
@@ -137,7 +143,6 @@ var Gistic = function(gistics) {
                         return parseFloat(sReturn) .toExponential(1);   // round Q-Values
                     }
                 },
-                {"sTitle": "Res Q-Value", "bVisible": false, "bSearchable": false},
             ];
 
             options.aaSorting = [[ 6, "asc" ]];     // sort Q-Value column on load
@@ -166,15 +171,15 @@ Gistic.UI = {
     open_dialog : function() {
         var gistic_dialog_el = $('#gistic_dialog');
 
-        var gs = GeneSet(Gistic.gene_list_el.val());
+        //var gs = GeneSet(Gistic.gene_list_el.val());
 
-        console.log(gs);
-        console.log(gs.getAllGenes());
+        //console.log(gs);
+        //console.log(gs.getAllGenes());
 
         gistic_dialog_el.dialog('open');
 
         // redraw table
-        Gistic.dt.fnDraw();
+        //Gistic.dt.fnDraw();
 
     },
 

@@ -186,6 +186,27 @@ public class PatientView extends HttpServlet {
                 .append(cancerStudy.getName())
                 .append("</a>");
         
+        String state = guessClinicalData(clinicalFreeForms,
+                new String[]{"disease state"});
+        if (state!=null) {
+            String strState = state;
+            if (state.equals("Metastatic")) {
+                strState = "<font color='red'>"+state+"</font>";
+            } else if (state.equals("Primary")) {
+                strState = "<font color='green'>"+state+"</font>";
+            }
+            
+            diseaseInfo.append(", ").append(strState);
+        
+            if (state.equals("Metastatic")) {
+                String loc = guessClinicalData(clinicalFreeForms,
+                        new String[]{"tumor location"});
+                if (loc!=null) {
+                    diseaseInfo.append(", Tumor location: ").append(loc);
+                }
+            }
+        }
+        
         String histology = guessClinicalData(clinicalFreeForms,
                 new String[]{"histology", "histological_type"});
         if (histology!=null) {
@@ -193,13 +214,13 @@ public class PatientView extends HttpServlet {
         }
         
         String stage = guessClinicalData(clinicalFreeForms, 
-                new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE"});
+                new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE","Gleason score"});
         if (stage!=null) {
-            diseaseInfo.append(", ").append(stage);
-        }
+            diseaseInfo.append(", ").append(stage); 
+       }
         
         String grade = guessClinicalData(clinicalFreeForms,
-                new String[]{"tumor_grade", "TUMORGRADE"});
+                new String[]{"tumor_grade", "tumorgrade"});
         if (grade!=null) {
             diseaseInfo.append(", ").append(grade);
         }

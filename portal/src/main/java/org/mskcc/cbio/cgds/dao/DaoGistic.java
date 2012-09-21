@@ -172,7 +172,7 @@ public class DaoGistic {
                     rs.getInt("WIDE_PEAK_END"),
                     rs.getFloat("Q_VALUE") ,
                     genes,
-                    rs.getBoolean("AMP_DEL"));
+                    rs.getBoolean("AMP"));
 
         } catch (SQLException e) {
             throw new DaoException(e);

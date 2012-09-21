@@ -112,17 +112,19 @@ var Gistic = function(gistics) {
 
             var aoColumns = [
                 {"sTitle": "AD",    // todo : ampdel tiptip?
-                    "fnRender": function(obj) {
-                        var sReturn = obj.aData[obj.iDataColumn];
-
-                        if (sReturn === true) {     // true means amplified
+                    "sWidth": '10px',
+                    "mDataProps": function(source, type, val) {
+                        if (type === 'set') {
+                            return;
+                        } else if (type === 'display') {
+                            if (val === true) {     // true means amplified
                             // mark amps/dels as reds and blues
-                            return "<div class=\"gistic_amp\"></div>"
-                        } else {
-                            return "<div class=\"gistic_del\"></div>"
-                        }
-                    },
-                    "sWidth": '10px'
+                                return "<div class=\"gistic_amp\"></div>"
+                            } else {
+                                return "<div class=\"gistic_del\"></div>"
+                            }
+                        }       // else if filter sort ...
+                    }
                 },
                 {"sTitle": "Chr", "bSearchable": false},
                 {"sTitle": "Cytoband", "bSearchable": false, "sType": "cytoband"},

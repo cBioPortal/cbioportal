@@ -126,6 +126,121 @@ sub create_data_log2CNA{
     $data->write( $CGDSfile );
 }
 
+# create data_GISTIC_GENE_AMPS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_amp.conf_99.txt
+# source file: amp_genes.conf_99.txt
+# data transformation:
+# data file is table_amp.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES_AMP {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $additionalArgs ) = @_;
+	return create_data_GISTIC_GENES($self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, 1);
+  }
+
+# create data_GISTIC_GENE_DELS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_del.conf_99.txt
+# source file: del_genes.conf_99.txt
+# data transformation:
+# data file is table_del.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES_DEL {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $additionalArgs ) = @_;
+	return create_data_GISTIC_GENES($self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, 0);
+  }
+
+
+# create data_GISTIC_GENE_AMPS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_amp.conf_99.txt
+# source file: amp_genes.conf_99.txt
+# data transformation:
+# data file is table_amp.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $ampFlag ) = @_;
+
+	# check args
+    for(my $i=0; $i<2; $i++) {
+	    unless($self->_check_create_inputs( $firehoseFiles->[$i], $cTables->[$i])) {
+	        return undef;
+	    }
+    }
+
+	# iterate over cna_genes file and grab cytoband, q-value, indexed by geneset
+	my $file_util = File::Util->new();
+    my $cna_genes_file = shift @{$firehoseFiles};
+	my @cna_genes_file_records = $file_util->load_file($cna_genes_file, '--as-lines');
+	my @cytoband;
+	my @q_values;
+	my @gene_sets;
+	foreach (@cna_genes_file_records) {
+	  my @columns = split("\t", $_ );
+	  if ($columns[0] eq 'cytoband') {
+		@cytoband = @columns;
+	  }
+	  elsif ($columns[0] eq 'q value') {
+		@q_values = @columns;
+	  }
+	  elsif ($columns[0] eq 'genes in wide peak') {
+		for (my $lc=0; $lc < scalar(@columns); $lc++) {
+		  push(@gene_sets, $columns[$lc]);
+		}
+	  }
+	  elsif ($columns[0] eq '') {
+		$columns[0] = 'genes in wide peak';
+		for (my $lc= 0; $lc < scalar(@columns); $lc++) {
+		  if (defined($columns[$lc]) && length($columns[$lc]) > 0) {
+			$gene_sets[$lc] = $gene_sets[$lc] . ' ' . $columns[$lc];
+		  }
+		}
+	  }
+	}
+
+	# create a map using the information we just parsed (gene set is key, value is cytoband:q_value
+	my %cna_genes_map;
+	shift(@cytoband);
+	shift(@q_values);
+	shift(@gene_sets);
+	for (my $lc= 0; $lc < scalar(@gene_sets); $lc++) {
+	  $gene_sets[$lc] =~ s/^\s+|\s+$//g ;
+	  $cna_genes_map{$gene_sets[$lc]} = $cytoband[$lc] . ':' . $q_values[$lc];
+	}
+
+	# get ctable for table_*.conf_99.txt
+	shift @{$cTables};
+    my $table_cna_ctable = shift @{$cTables};
+
+	# add 'amp' column
+	$table_cna_ctable->col('amp');
+	$table_cna_ctable->calc(sub {
+							  package main;
+							  no strict 'vars';
+							  no strict 'refs';
+							  $amp = $ampFlag;
+							});
+
+	# add 'cytoband' & q value
+	$table_cna_ctable->col('cytoband');
+	$table_cna_ctable->col('q_value');
+	$table_cna_ctable->calc(sub {
+							  package main;
+							  no strict 'vars';
+							  no strict 'refs';
+							  my $cna_map_key = $genes_in_region;
+							  $cna_map_key =~ s/,/ /g;
+							  $cna_map_key =~ s/^\s+|\s+$//g ;
+							  if (defined($cna_genes_map{$cna_map_key})) {
+								my @cna_map_values = split(":", $cna_genes_map{$cna_map_key});
+								$cytoband = $cna_map_values[0];
+								$q_value = $cna_map_values[1];
+							  }
+							  else {
+								print "cannot find gene set: $cna_map_key\n";
+							  }
+							});
+
+	$table_cna_ctable->write($CGDSfile);
+}
+
 # sub to create data_expression_median.txt
 # only called if both mRNA and miRNA are available; these must be combined into a single file
 #

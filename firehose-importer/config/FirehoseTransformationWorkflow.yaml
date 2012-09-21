@@ -41,6 +41,20 @@
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_data_by_genes.txt
 
+# gistic gene info
+- create_data_GISTIC_GENES_AMP:
+    outfile: data_GISTIC_GENE_AMPS.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> amp_genes.conf_99.txt
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> table_amp.conf_99.txt
+
+# gistic gene info
+- create_data_GISTIC_GENES_DEL:
+    outfile: data_GISTIC_GENE_DELS.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> del_genes.conf_99.txt
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> table_del.conf_99.txt
+
 # both mRNA and miRNA expression
 # this subroutine and create_data_mRNA_median and create_data_miRNA must all produce cgds files with the same name: data_expression_median.txt
 #- create_data_both_mRNA_miRNA:

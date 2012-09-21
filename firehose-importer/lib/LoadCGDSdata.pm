@@ -200,6 +200,20 @@ sub load_cancer_data{
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
 		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
 	  }
+
+	  # import gistic gene amp file
+	  my $fullCanonicalGisticGeneAmpFile = File::Spec->catfile( @pathToDataFile, 'data_GISTIC_GENE_AMPS.txt' );
+	  if ( $fileUtil->existent($fullCanonicalGisticGeneAmpFile) ) {
+		print "importingGisticGeneAmpData: $fullCanonicalGisticGeneAmpFile\n";
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportGisticData " . $fullCanonicalGisticGeneAmpFile . ' ' . $cancerDataDir ); 
+	  }
+
+	  # import gistic gene del file
+	  my $fullCanonicalGisticGeneDelFile = File::Spec->catfile( @pathToDataFile, 'data_GISTIC_GENE_DELS.txt' );
+	  if ( $fileUtil->existent($fullCanonicalGisticGeneDelFile) ) {
+		print "importingGisticGeneDelData: $fullCanonicalGisticGeneDelFile\n";
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportGisticData " . $fullCanonicalGisticGeneDelFile . ' ' . $cancerDataDir ); 
+	  }
 		  
 	  print "timestamp: ", timing(), "Loading $cancerDataDir complete.\n";
 	}
@@ -228,6 +242,10 @@ sub importCancersData{
 		}
 		# handle mutsig separately
 		elsif ( $dataFile =~ /mutsig/i ) {
+		  next;
+		}
+		# handle gistic separately
+		elsif ( $dataFile =~ /GISTIC_GENE/i) {
 		  next;
 		}
 		else{

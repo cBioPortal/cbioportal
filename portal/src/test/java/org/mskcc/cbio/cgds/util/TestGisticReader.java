@@ -81,6 +81,5 @@ public class TestGisticReader extends TestCase {
 //
 //
 //    ArrayList<Gistic> merged = reader.mergeGisticLists(table_reads, nontable_reads, Gistic.AMPLIFIED);
-
     }
 }

@@ -83,22 +83,32 @@ public class GisticJSON extends HttpServlet {
         Map map = new HashMap();
 
         map.put("chromosome", gistic.getChromosome());
+        map.put("cytoband", gistic.getCytoband());
         map.put("peakStart", gistic.getPeakStart());
         map.put("peakEnd", gistic.getPeakEnd());
 
-        map.put("genes_in_ROI", gistic.getGenes_in_ROI());
-        
-//        ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
-//
-//        Map genes_map = new HashMap();
-//
-//        for (CanonicalGene gene : genes) {
-//            genes_map.put(gene.getStandardSymbol());
-//        }
+        // convert CanonicalGenes in ROI to strings
+        ArrayList<String> nonSangerGenes = new ArrayList<String>();
+        ArrayList<String> sangerGenes = new ArrayList<String>();
 
+        for (CanonicalGene g : gistic.getGenes_in_ROI()) {
+            try {
+                if (g.isSangerGene()) {
+                    sangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                } else {
+                    nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                }
+            } catch (DaoException e) {
+                // assume that it is not a Sanger Gene if causes an exception
+                nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                if (log.isDebugEnabled()) { log.debug(e + " :gene <" + g +">"); }
+            }
+        }
+
+        map.put("sangerGenes", sangerGenes);
+        map.put("nonSangerGenes", nonSangerGenes);
         map.put("qval", gistic.getqValue());
-        map.put("res_qval", gistic.getRes_qValue());
-        map.put("ampdel", gistic.getAmpDel());
+        map.put("ampdel", gistic.getAmp());
         
         return map;
     }
@@ -115,7 +125,6 @@ public class GisticJSON extends HttpServlet {
             throws ServletException, IOException {
 
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
-        JSONArray gisticJSONArray = new JSONArray();
 
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
@@ -131,6 +140,8 @@ public class GisticJSON extends HttpServlet {
             }
 
 //            Collections.sort(gistics, new sortMutsigByRank());
+
+            JSONArray gisticJSONArray = new JSONArray();
 
             for (Gistic gistic : gistics) {
                 Map map = Gistic_toMap(gistic);

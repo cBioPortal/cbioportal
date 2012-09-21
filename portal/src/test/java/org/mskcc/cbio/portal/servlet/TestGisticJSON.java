@@ -52,7 +52,7 @@ public class TestGisticJSON extends TestCase {
         genes.add(jj);
         genes.add(tp53);
 
-        Gistic gistic = new Gistic(1, 7, 10000, 10001, 0.05d, 0.05d, genes, Gistic.AMPLIFIED);
+        Gistic gistic = new Gistic(1, 7, "1q11.1", 10000, 10001, 0.05f, genes, Gistic.AMPLIFIED);
 
         Map map = GisticJSON.Gistic_toMap(gistic);
         
@@ -62,9 +62,7 @@ public class TestGisticJSON extends TestCase {
 //        System.out.println(map.get("genes_in_ROI"));
         assertTrue(map.get("genes_in_ROI").equals(genes));
         assertTrue(map.get("qval").equals(0.05d));
-        assertTrue(map.get("res_qval").equals(0.05d));
         assertTrue(map.get("ampdel").equals(Gistic.AMPLIFIED));
-
     }
 
 }

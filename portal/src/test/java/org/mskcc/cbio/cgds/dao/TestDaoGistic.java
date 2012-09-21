@@ -43,9 +43,11 @@ import java.util.ArrayList;
 public class TestDaoGistic extends TestCase {
 
     public void testDaoGistic() throws SQLException, DaoException, validationException {
-        
+
+        // save the database table and
+        // delete the database
+        ArrayList<Gistic> db_gistics = DaoGistic.getAllGistic();
         ResetDatabase.resetDatabase();
-        DaoGistic.deleteAllRecords();
 
         // initialize dummy parameters
 		CanonicalGene brca1 = new CanonicalGene(672, "BRCA1");
@@ -61,9 +63,9 @@ public class TestDaoGistic extends TestCase {
 
         Gistic gisticIn1;
         Gistic gisticIn2;
-        gisticIn1 = new Gistic(1, 1, 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
-        gisticIn2 = new Gistic(1, 2, 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
-        
+        gisticIn1 = new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+        gisticIn2 = new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+
         // end initialize
 
         assertEquals(Gistic.NO_SUCH_GISTIC, gisticIn1.getInternalId());
@@ -87,5 +89,11 @@ public class TestDaoGistic extends TestCase {
         assertEquals(2, gisticOut.size());
 
         DaoGistic.deleteAllRecords();
+
+        // restore the database to its pre-test state
+        for (Gistic g : db_gistics) {
+            DaoGistic.addGistic(g);
+        }
+        DaoGistic.getAllGisticByCancerStudyId(1);
     }
 }

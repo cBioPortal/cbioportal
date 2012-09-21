@@ -29,7 +29,7 @@ public class ImportGisticData {
     private File gisticTableFile;
     private File gistic_nonTableFile;
     private File metaDataFile;
-//    private static Logger logger = Logger.getLogger(ImportGisticData.class);
+    private static Logger logger = Logger.getLogger(ImportGisticData.class);
 
     public static boolean parseAmpDel(File gistic_file) throws validationException {
 
@@ -78,8 +78,7 @@ public class ImportGisticData {
             try {
                 DaoGistic.addGistic(g);
             } catch (DaoException e) {
-                System.out.println(e);
-                //logger.debug(e);
+                logger.debug(e);
             }
         }
 

@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A gistic includes a ROI and GISTIC information concerning that region.
@@ -26,6 +28,9 @@ public class DaoGistic {
      * @param  gistic            Gistic object
      * @throws DaoException
      */
+
+    private static Log log = LogFactory.getLog(DaoGistic.class);
+
     public static void addGistic(Gistic gistic) throws DaoException {
         if (gistic == null) {
             throw new DaoException("Given a null gistic object");
@@ -113,15 +118,11 @@ public class DaoGistic {
 
         } catch (SQLException e) {
 
-            System.out.println(genes);
-            System.out.println(e);
-//            System.out.println("gene mappings for hsa-mir-617");
-//            System.out.println(DaoGeneOptimized.getInstance().getNonAmbiguousGene("hsa-mir-617"));
-//            System.out.println(DaoGeneOptimized.getInstance().getGene("hsa-mir-617"));
+            if (log.isDebugEnabled()) {
+                log.debug(e + " : " + genes);
+            }
 
-            System.exit(1);
-
-//            throw new DaoException(e);
+            throw new DaoException(e);
         }
     }
 

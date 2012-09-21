@@ -45,19 +45,17 @@ public class DaoGistic {
 				  "`WIDE_PEAK_START`, " +
 				  "`WIDE_PEAK_END`, " +
 				  "`Q_VALUE`, "  +
-				  "`RES_Q_VALUE`, " +
 				  "`AMP`) "  +
-				  "VALUES (?,?,?,?,?,?,?,?)",
+				  "VALUES (?,?,?,?,?,?,?)",
 				 Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setInt(1, gistic.getCancerStudyId());
             pstmt.setInt(2, gistic.getChromosome()) ;
-            pstmt.setString(3, gistic.getCytoband()); ;
+            pstmt.setString(3, gistic.getCytoband());
             pstmt.setInt(4, gistic.getPeakStart());
             pstmt.setInt(5, gistic.getPeakEnd());
             pstmt.setDouble(6, gistic.getqValue());
-            pstmt.setDouble(7, gistic.getRes_qValue());
-            pstmt.setBoolean(8, gistic.getAmp());
+            pstmt.setBoolean(7, gistic.getAmp());
             pstmt.executeUpdate();
 
             // insert into SQL gistic_to_gene table
@@ -172,7 +170,6 @@ public class DaoGistic {
                     rs.getInt("WIDE_PEAK_START"),
                     rs.getInt("WIDE_PEAK_END"),
                     rs.getFloat("Q_VALUE") ,
-                    rs.getFloat("RES_Q_VALUE") ,
                     genes,
                     rs.getBoolean("AMP_DEL"));
 

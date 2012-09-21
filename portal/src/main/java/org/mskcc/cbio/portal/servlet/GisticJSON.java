@@ -81,7 +81,6 @@ public class GisticJSON extends HttpServlet {
         map.put("sangerGenes", sangerGenes);
         map.put("nonSangerGenes", nonSangerGenes);
         map.put("qval", gistic.getqValue());
-        map.put("res_qval", gistic.getRes_qValue());
         map.put("ampdel", gistic.getAmp());
         
         return map;

@@ -20,6 +20,8 @@ public class MutationAssessorHtmlUtil {
     private static final String NA = "NA";
     private static final String OMA_LINK_BASE_STYLE = "oma_link";
     private String functionalImpactScoreKeyword;
+	private static final String STRUCTURE_IMG = "<img border='0' src='images/mutation/pdb.png'>";
+	private static final String ALIGNMENT_IMG = "<img border='0' src='images/mutation/msa.png'>";
 
     public MutationAssessorHtmlUtil(ExtendedMutation mutation) {
         this.mutation = mutation;
@@ -41,7 +43,7 @@ public class MutationAssessorHtmlUtil {
         if (linkIsValid(mutation.getLinkPdb())) {
             try {
                 String urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-                return HtmlUtil.createLink(urlPdb, "Structure");
+                return HtmlUtil.createLink(urlPdb, STRUCTURE_IMG);
             } catch (MalformedURLException e) {
                 logger.error("Could not parse OMA URL:  " + e.getMessage());
                 return HtmlUtil.createEmptySpacer();
@@ -57,7 +59,7 @@ public class MutationAssessorHtmlUtil {
         if (linkIsValid(mutation.getLinkMsa())) {
             try {
                 String urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
-                return HtmlUtil.createLink(urlMsa, "Alignment");
+                return HtmlUtil.createLink(urlMsa, ALIGNMENT_IMG);
             } catch (MalformedURLException e) {
                 logger.error("Could not parse OMA URL:  " + e.getMessage());
                 return HtmlUtil.createEmptySpacer();
@@ -115,9 +117,9 @@ public class MutationAssessorHtmlUtil {
 
     private void initOmaImpactWordMap() {
         //  Map between OMA Keywords, and Words to Display to End-User
-        omaImpactWordMap.put("H", "High");
-        omaImpactWordMap.put("M", "Medium");
-        omaImpactWordMap.put("L", "Low");
-        omaImpactWordMap.put("N", "Neutral");
+        omaImpactWordMap.put("H", "H");
+        omaImpactWordMap.put("M", "M");
+        omaImpactWordMap.put("L", "L");
+        omaImpactWordMap.put("N", "N");
     }
 }

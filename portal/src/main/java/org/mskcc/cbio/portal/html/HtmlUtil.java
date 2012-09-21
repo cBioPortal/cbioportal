@@ -43,6 +43,16 @@ public class HtmlUtil {
         return ("<span class='" + cssClass + "'>" + text + "</span>");
     }
 
+	public static String createTextWithinSpan(String text, String cssClass, String title)
+	{
+		if (text == null || cssClass == null)
+		{
+			return EMPTY_STRING;
+		}
+
+		return ("<span class='" + cssClass + "' title='" + title + "'>" + text + "</span>");
+	}
+
     public static String createLinkWithinSpan(String text, String cssClass) {
         if (text == null || cssClass == null) {
             return EMPTY_STRING;
@@ -66,6 +76,38 @@ public class HtmlUtil {
             return EMPTY_STRING;
         }
     }
+
+	//  Creates a row of headers with titles (used as tooltips)
+	public static String createTableHeaderRowWithTitle(ArrayList<String> headerList) {
+		HtmlWriter writer = new HtmlWriter();
+
+		if (headerList != null)
+		{
+			writer.append("<tr>");
+
+			for (String header:  headerList)
+			{
+				String[] parts = header.split("\t");
+
+				String text = parts[0];
+
+				if (parts.length > 1)
+				{
+					text = parts[1];
+				}
+
+				writer.append("<th title='" + parts[0] + "'>" +
+				              text + "</th>");
+			}
+
+			writer.append("</tr>");
+			return writer.getHtml();
+		}
+		else
+		{
+			return EMPTY_STRING;
+		}
+	}
 
     //  Creates a Row of Data within a Table
     public static String createTableRow (ArrayList<String> dataFieldList) {

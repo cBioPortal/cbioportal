@@ -21,7 +21,7 @@ public final class TestPileup {
 
     @Test
     public void testConstructor() {
-        Pileup pileup = new Pileup("label", 42, 84);
+        Pileup pileup = new Pileup("label", 42, 84, 24);
         assertNotNull(pileup);
         assertEquals("label", pileup.getLabel());
         assertEquals(42, pileup.getLocation());
@@ -30,13 +30,13 @@ public final class TestPileup {
 
     @Test
     public void testConstructorEmptyLabel() {
-        Pileup pileup = new Pileup("", 42, 84);
+        Pileup pileup = new Pileup("", 42, 84, 24);
         assertEquals("", pileup.getLabel());
     }
 
     @Test
     public void testConstructorNullLabel() {
-        Pileup pileup = new Pileup(null, 42, 84);
+        Pileup pileup = new Pileup(null, 42, 84, 24);
         assertNull(pileup.getLabel());
     }
 

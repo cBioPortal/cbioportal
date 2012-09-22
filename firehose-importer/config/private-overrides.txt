@@ -12,4 +12,6 @@ luad_mskcc
 luad_tsp
 prad_broad
 prad_mich
+sclc_clcgp
+sclc_jhu
 skcm_broad

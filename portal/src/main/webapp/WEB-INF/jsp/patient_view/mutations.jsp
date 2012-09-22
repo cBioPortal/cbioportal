@@ -56,8 +56,7 @@
                                 if (geneCon<=0) return '';
                                 var frac = geneCon/numPatientInSameMutationProfile;
                                 var tip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in the cohort study ("
-                                    +cancerStudyName+") "+(geneCon==1?"has":"have")+" mutated "
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
                                     +mutations.getValue(source[0], "gene");
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
                                 return "<div class='mutation_percent_div "+table_id
@@ -199,10 +198,10 @@
                                     abbr = 'IFD';
                                     color = 'green';
                                 } else if (mutType==='Frame_Shift_Del') {
-                                    abbr = 'FSD';
+                                    abbr = 'FS';
                                     color = 'red';
                                 } else if (mutType==='Frame_Shift_Ins') {
-                                    abbr = 'FSI';
+                                    abbr = 'FS';
                                     color = 'red';
                                 } else if (mutType==='RNA') {
                                     abbr = 'RNA';
@@ -233,9 +232,9 @@
                                 } else if (mutType==='In_Frame_Del') {
                                     return 'IFD';
                                 } else if (mutType==='Frame_Shift_Del') {
-                                    return 'FSD';
+                                    return 'FS';
                                 } else if (mutType==='Frame_Shift_Ins') {
-                                    return 'FSI';
+                                    return 'FS';
                                 } else if (mutType==='RNA') {
                                     return 'RNA';
                                 } else if (mutType==='Nonstop_Mutation') {
@@ -265,8 +264,8 @@
                                 if (keyCon<=0) return '';
                                 var frac = keyCon/numPatientInSameMutationProfile;
                                 var tip = "<b>"+keyCon+" other sample"+(keyCon==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in the cohort study ("
-                                    +cancerStudyName+") "+(keyCon==1?"has ":"have ")+key+" mutations";
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
+                                    +(keyCon==1?"has ":"have ")+key+" mutations";
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
                                 return "<div class='mutation_percent_div "+table_id
                                             +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";

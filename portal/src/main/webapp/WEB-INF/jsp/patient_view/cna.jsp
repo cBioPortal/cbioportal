@@ -179,8 +179,8 @@
                                 }
                                 var alter = cnas.getValue(source[0], "alter");
                                 var tip = "<b>"+con+" other sample"+(con==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in the cohort study ("
-                                    +cancerStudyName+") "+(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
+                                    +(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
                                 var clas = alter>0?"amp_percent_div":"del_percent_div"
                                 return "<div class='"+clas+" "+table_id

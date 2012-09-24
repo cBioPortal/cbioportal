@@ -37,6 +37,7 @@ public class PatientView extends HttpServlet {
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
+    public static final String CLINICAL_DATA = "clinical_data";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -160,6 +161,8 @@ public class PatientView extends HttpServlet {
         ClinicalData clinicalData = daoClinicalData.getCase(patient);
         Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
         
+        request.setAttribute(CLINICAL_DATA, mergeClinicalData(clinicalData, clinicalFreeForms));
+        
         // patient info
         StringBuilder patientInfo = new StringBuilder();
         
@@ -273,6 +276,31 @@ public class PatientView extends HttpServlet {
         for (ClinicalFreeForm cff : list) {
             map.put(cff.getParamName().toLowerCase(), cff);
         }
+        return map;
+    }
+    
+    private Map<String,String> mergeClinicalData(ClinicalData cd, Map<String,ClinicalFreeForm> cffs) {
+        Map<String,String> map = new HashMap<String,String>();
+        if (cd.getAgeAtDiagnosis()!=null) {
+            map.put("Age",cd.getAgeAtDiagnosis().toString());
+        }
+        if (cd.getOverallSurvivalStatus()!=null) {
+            map.put("Overall survival status", cd.getOverallSurvivalStatus());
+        }
+        if (cd.getOverallSurvivalMonths()!=null) {
+            map.put("Overall survival months", Long.toString(Math.round(cd.getOverallSurvivalMonths())));
+        }
+        if (cd.getDiseaseFreeSurvivalStatus()!=null) {
+            map.put("Disease-free survival status", cd.getDiseaseFreeSurvivalStatus());
+        }
+        if (cd.getDiseaseFreeSurvivalMonths()!=null) {
+            map.put("Disease-free survival months", Long.toString(Math.round(cd.getDiseaseFreeSurvivalMonths())));
+        }
+        
+        for (ClinicalFreeForm cff : cffs.values()) {
+            map.put(cff.getParamName(), cff.getParamValue());
+        }
+        
         return map;
     }
     

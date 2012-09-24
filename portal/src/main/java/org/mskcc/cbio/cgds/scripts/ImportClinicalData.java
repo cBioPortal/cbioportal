@@ -79,8 +79,8 @@ public class ImportClinicalData {
         extractHeaders(colHeadingLine);
         String[] parts;
 
-        //  At a minimum, we must have Case ID, OS Survival and OS Status
-        if (caseIdCol > -1 && osStatusCol > -1 && osMonthsCol > -1) {
+        //  At a minimum, we must have Case ID
+        if (caseIdCol > -1){// && osStatusCol > -1 && osMonthsCol > -1) {
             // start reading data
             String line = buf.readLine();
             while (line != null) {
@@ -89,7 +89,7 @@ public class ImportClinicalData {
                     ConsoleUtil.showProgress(pMonitor);
                 }
                 if (!line.startsWith("#") && line.trim().length() > 0) {
-                    parts = line.split("\t");
+                    parts = line.split("\t",-1);
                     String caseId = parts[caseIdCol];
                     Double osMonths = getDouble(parts, osMonthsCol);
                     String osStatus = getString(parts, osStatusCol);
@@ -102,10 +102,11 @@ public class ImportClinicalData {
                     if (cancerStudy != null) {
                         for (int i : freeFormInludeColumns) {
                             String name = freeFormHeaders.get(i);
-                            String value = parts[i];
-                            
-                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
+                            String value = parts[i].trim();
+                            if (!value.isEmpty()) {
+                                daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
                                             caseId, name, value);
+                            }
                         }
                     }
                 }
@@ -221,8 +222,6 @@ public class ImportClinicalData {
     public static void main(String[] args) throws DaoException {
         ProgressMonitor pMonitor = new ProgressMonitor();
         
-        args = new String[]{"prad_mich","/Users/jj/projects/GDAC-staging/prad_mich/prad_mich_clinical.txt"};
-
         // check args
         if (args.length < 2) {
             System.out.println("command line usage:  importClinicalData.pl <cancer_study_id> <data_file.txt>");

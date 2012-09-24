@@ -87,7 +87,7 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(gleason)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)/);
 }
 
 // draw datatable
@@ -334,8 +334,5 @@ function getSmallPlotDiv(divNum,legend) {
 }
 
 function removeSmallPlotDiv(divNum) {
-    $('#small-plot-td-'+divNum).remove();
-    if (divNum%4==1) {
-        $('#small-plot-tr-'+Math.ceil(divNum/4)).remove();
-    }
+    $('#small-plot-td-'+divNum).html("");
 }

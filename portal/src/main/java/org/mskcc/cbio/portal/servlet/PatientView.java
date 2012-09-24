@@ -207,6 +207,12 @@ public class PatientView extends HttpServlet {
             }
         }
         
+        String gleason = guessClinicalData(clinicalFreeForms,
+                new String[]{"gleason score"});
+        if (gleason!=null) {
+            diseaseInfo.append(", Gleason: ").append(gleason);
+        }
+        
         String histology = guessClinicalData(clinicalFreeForms,
                 new String[]{"histology", "histological_type"});
         if (histology!=null) {

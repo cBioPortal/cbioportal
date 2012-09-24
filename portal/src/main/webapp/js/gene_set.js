@@ -6,6 +6,12 @@
 // August 2012
 GeneSet = function(raw_genes_str) {
 
+    if (typeof(raw_genes_str) !== 'string') {
+        throw "Error: GeneSet only takes strings, given type '"
+                    + typeof(raw_genes_str) + "'";
+        return -1;
+    }
+
     // {{{ helpers
     var type = function(o) {
         // thanks James Padolsey    http://james.padolsey.com/javascript/checking-types-in-javascript/
@@ -43,6 +49,7 @@ GeneSet = function(raw_genes_str) {
     //                  | gene (HUGO)
     //                  | onco query
     var GeneStmt = function(gene_str, is_onco_query) {
+
 
         var str = gene_str;
         var onco = is_onco_query;

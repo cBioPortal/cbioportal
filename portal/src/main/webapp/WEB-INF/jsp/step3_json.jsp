@@ -74,7 +74,7 @@
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="select_gistic" onclick="Gistic.UI.updateGenes(this);" class="tabs-button" title="Use these ROI genes">Close</button>
+            <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(this); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
         </div>
     </div>
 <%

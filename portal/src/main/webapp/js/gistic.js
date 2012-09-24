@@ -5,11 +5,16 @@ $.get('Gistic.json', {'selected_cancer_type': selected_cancer_type}, function(da
 
     var gistic = Gistic(data);
 
-    var gistic_table_el = $('#gistic_table');
+    Gistic.table_el = $('#gistic_table');
 
-    gistic.drawTable(gistic_table_el, { "sScrollY": "50%", "bPaginate": false});
-    // todo: ##em?
+    // todo: think more about this
+    //geneSet = GeneSet(Gistic.gene_list_el.val());
+    //Gistic.gene_list_el.blur(function() {
+    //    Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
+    //    console.log(Gistic.geneSet.getAllGenes());
+    //});
 
+    gistic.drawTable(Gistic.table_el, ["MYC", "AHR"], { "sScrollY": "50%", "bPaginate": false});
 });
 
 var Gistic = function(gistics) {
@@ -18,12 +23,13 @@ var Gistic = function(gistics) {
     Gistic.dt = '';
 
     Gistic.gene_list_el = $('#gene_list');
+    Gistic.dialog_el = $('#gistic_dialog');
 
     // initialize Gistic's internal tracking of the Gene Set
     Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
 
     // set up modal dialog box for gistic table (step 3)
-    $('#gistic_dialog').dialog( {autoOpen: false,
+    Gistic.dialog_el.dialog( {autoOpen: false,
             modal: true,
             overflow: 'hidden',
             minWidth: 636,
@@ -33,25 +39,50 @@ var Gistic = function(gistics) {
             open: function() {
                 // sets the scrollbar to the top of the table
                 $(this).scrollTop(0);
+                return;
 
                 // workaround to prevent auto focus
                 //$(this).add('input').blur();
+            },
+            close: function() {
+                Gistic.UI.updateGenes();
+                return;
             }
     });
 
+    Gistic.selected_genes = function() {
+        var genes = [];
+
+        return {
+            getGenes: function() {
+                return genes;
+            },
+            update: function(gene) {
+                // remove if clicked twice.
+                var i = genes.indexOf(gene);
+                if (i === -1) {
+                    genes.push(gene);
+                } else {
+                    genes.splice(i,1);
+                }
+            },
+            reset: function() {
+                genes = [];
+            }
+        }
+    }();
+
     var sort_by_cytoband = function(x,y) {
         // sorts two cytobands,
-        // returns 1 if x < y, -1 if x > y, and 0 if x == y
-        var _x = x.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
-        var _y = y.match(/^([1-9]{1,2})([pq])([1-9]{1,2})(?:\.?)([0-9]{0,2})$/);
+        // where a cytoband in an array of strings, e.g. [12, p, 11, 5] ~ 12p11.5
 
-        if (parseInt(_x[1]) - parseInt(_y[1]) !== 0) {
-            return parseInt(_x[1]) - parseInt(_y[1]);
-        } else if (_x[2] === 'p' && _y[2] === 'q') {
+        if (parseInt(x[1]) - parseInt(y[1]) !== 0) {
+            return parseInt(x[1]) - parseInt(y[1]);
+        } else if (x[2] === 'p' && y[2] === 'q') {
             return -1;
-        } else if (_x[2] === 'q' && _y[2] === 'p') {
+        } else if (x[2] === 'q' && y[2] === 'p') {
             return 1;
-        } else if (_x[2] === _y[2]) {
+        } else if (x[2] === y[2]) {
             return parseInt(x[3]) - parseInt(y[3]);
         } else {
             console.log('error: cytoband sorting logic fell through');
@@ -67,45 +98,10 @@ var Gistic = function(gistics) {
         }
     } );
 
-    var get_aaData = function() {
-        // returns the aaData for DataTables
-
-        return gistics.map(function(i) {
-            // map over every gistic object
-
-            var hidden_genes = '';
-            if (i.nonSangerGenes.length !== 0) {
-
-                var hidden_genes = i.nonSangerGenes.map(function(g) {
-                    // bind ioGeneSet to each nonSanger gene
-                    return "<span class='gistic_gene' onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
-                });
-
-                // set up hidden genes
-                hidden_genes = "<div style='display:none;'>" + hidden_genes.join(" ") + "</div>";
-                hidden_genes = ' <a href="javascript:void(0)" onclick=Gistic.UI.expandGisticGenes(this);>+' + i.nonSangerGenes.length  + ' more</a>'
-                    + '<a href="javascript:void(0)" style="display:none;" onclick=Gistic.UI.expandGisticGenes(this);> less</a>'
-                    + hidden_genes;
-            }
-
-            var all_genes = i.sangerGenes.map(function(g) {
-                // bind ioGeneSet to each Sanger gene
-                return "<span onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
-            })
-                .join(" ");
-
-            all_genes = all_genes + hidden_genes;
-
-            return [i.ampdel, i.chromosome, i.cytoband, i.peakStart, i.peakEnd, all_genes, i.qval];
-        });
-    };
-
     var self = {
-        get_aaData : get_aaData,
-
         getDt: function() {return dt;},
 
-        drawTable : function(table_el, options) {
+        drawTable : function(table_el, genes, options) {
             // draws a DataTable in the specific DOM element, table_el
             // with the specified DataTable options
 
@@ -113,13 +109,11 @@ var Gistic = function(gistics) {
 
             var aoColumnDefs = [
                 {"sTitle": "AD",    // todo : ampdel tiptip?
-                    "sWidth": '10px',
-                    "bSearchable": false,
                     "aTargets": [0],
-                    "mDataProps": function(source, type, val) {
+                    "mDataProp": function(source, type, val) {
                         if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
-                            // mark amps/dels as reds and blues
+                                // mark amps/dels as reds and blues
                                 return "<div class=\"gistic_amp\"></div>";
                             } else {
                                 return "<div class=\"gistic_del\"></div>";
@@ -127,24 +121,91 @@ var Gistic = function(gistics) {
                         }
                         return source.ampdel;
                     }
-                },
-                {"sTitle": "Chr", "bSearchable": false, "aTargets": [1],
-                "mDataProps": function(source, type, val) {
+            },
+            {"sTitle": "Chr", "aTargets":[1],
+                "mDataProp": function(source, type, val) {
                     if (type === 'display') {
                         return source.chromosome;
                     }
-                } },
-                {"sTitle": "Cytoband", "bSearchable": false, "sType": "cytoband", "aTargets": [2]},
-                {"sTitle": "Peak Start", "bVisible": false, "bSearchable": false, "aTargets": [3]},
-                {"sTitle": "Peak End", "bVisible": false, "bSearchable": false, "aTargets": [4]},
-                {"sTitle": "Genes", "aTargets": [5]},
-                {"sTitle": "Q-Value", "sWidth": "100px", "bSearchable": false, "aTargets": [6],
-                    "fnRender": function(obj) {
-                        var sReturn = obj.aData[obj.iDataColumn];
-                        return parseFloat(sReturn) .toExponential(1);   // round Q-Values
+                    return source.chromosome;
+                }
+            },
+            {"sTitle": "Cytoband", "aTargets":[2], "sType": "cytoband",
+                "mDataProp": function(source, type, val) {
+                    var cyto = source.cytoband;
+                    if (type === 'display') {
+                        return cyto;
                     }
-                },
+                    else if (type === 'sort') {
+                        // eg. 17p12.1
+                        var regexp = "([0-9]{1,2})" +   // match the chr
+                            "([pq])" +                  // match the arm
+                            "([0-9]{1,2})" +            // match the first coordinate
+                            "(?:\.?)" +                 // noncapturing, optional,
+                            // match the decimal point
+                            "([0-9]{0,2})";            // optional, match the 2nd coordinate
+                        regexp = "^" + regexp + "$";
+                        regexp = new RegExp(regexp);
+
+                        return cyto.match(regexp);
+                    }
+                    return source;
+                }
+            },
+            {"sTitle": "Genes", "aTargets":[3], "sType": "numeric",
+                "mDataProp": function(source, type, val) {
+
+                    var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
+                    if (type === 'display') {
+
+                        var all_genes_str = all_genes.map(function(g) {
+                            // bind ioGeneSet to each gene
+                            // highlight ones that are already in the gene list
+
+                            var highlight = '';
+
+                            if (genes.indexOf(g) !== -1) {
+                                highlight = ' highlight';
+                                Gistic.selected_genes.update(g);
+                            }
+
+                            return "<span class='gistic_gene" + highlight + "'" +
+                                "onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
+                        });
+
+                        if (all_genes_str.length > 5) {
+
+                            all_genes_str = all_genes_str.slice(0,5)    // visible genes
+                            .concat(" <a href='javascript:void(0)' id='gistic_more'" +
+                                    "onclick=Gistic.UI.expandGisticGenes(this);>+" +
+                                    (all_genes_str.length - 5)  + " more</a>")
+                            .concat("<a href='javascript:void(0)' id='gistic_less' style='display:none;' " +
+                                    "onclick=Gistic.UI.expandGisticGenes(this);> less</a>")
+                            .concat("<div id='gistic_hidden' style='display:none;'>")
+                            .concat(all_genes_str.slice(5))        // hidden genes
+                            .concat("</div>")
+                        }
+
+                        all_genes_str = all_genes_str.join(" ");
+                        return all_genes_str;
+                    }
+                    else if (type === 'sort') {
+                        return all_genes.length;
+                    }
+                    return all_genes;
+                }
+            },
+            {"sTitle": "Q Value", "aTargets":[4],
+                "mDataProp": function(source, type, val) {
+                    var rounded = parseFloat(source.qval) .toExponential(1);   // round Q-Values
+                    if (type === 'display') {
+                        return rounded;
+                    }
+                    return rounded;
+                }
+            }
             ];
+
 
             options.aaSorting = [[ 6, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
@@ -170,17 +231,14 @@ Gistic.UI = {
     // dump of all sorts of UI functions
 
     open_dialog : function() {
-        var gistic_dialog_el = $('#gistic_dialog');
-
         //var gs = GeneSet(Gistic.gene_list_el.val());
 
         //console.log(gs);
         //console.log(gs.getAllGenes());
-
-        gistic_dialog_el.dialog('open');
+        Gistic.dialog_el.dialog('open');
 
         // redraw table
-        //Gistic.dt.fnDraw();
+        Gistic.dt.fnDraw();
 
     },
 
@@ -189,33 +247,48 @@ Gistic.UI = {
         // currently initializing to hiding all non-Sanger genes
 
         el = $(el).parents()[0];
-        el = $(el).children();
+
 
         // grab all the elements
-        var plusXmore = el[1];
-        var less = el[2];
-        var hidden = el[3];
+        var more = $(el).children('#gistic_more');
+        var less = $(el).children('#gistic_less');
+        var hidden = $(el).children('#gistic_hidden');
 
         // and toggle them
-        $(plusXmore).toggle();
+        $(more).toggle();
         $(less).toggle();
         $(hidden).toggle('slow');
     },
 
     ioGeneSet : function(el) {
-        // synchs between selected genes and the get set on the main page
-        var val = $(el).html();
 
-        // toggle bold
-        if (val.match(/<b>/) === null) {
-            $(el).html("<b>" + val + "</b>");
-        } else {
-            $(el).html(val.replace(/<b>/, '').replace(/<\/b>/, ''));
-        }
+        $(el).toggleClass('highlight');
+
+        var gene = $(el).html();
+        gene.trim();        // just to be safe
+
+        Gistic.selected_genes.update(gene);
     },
 
     updateGenes: function() {
+        var geneSet = GeneSet(Gistic.gene_list_el.val());
+        var gene_list_str = geneSet.getRawGeneString();
 
-        console.log('hello world');
+        var newline = '';
+        if ( (gene_list_str.length !== 0) &&            // not the empty string
+            (gene_list_str.search(/\n$/) === -1) ) {    // there isn't a new linechar
+            newline = '\n';
+        }
+
+        var genes_toPush = Gistic.selected_genes.getGenes();
+        var gene_list = geneSet.getAllGenes();
+
+        // filter out genes that are already in the gene list
+        genes_toPush = genes_toPush.filter(function(i) {
+            return gene_list.indexOf(i) === -1;
+        });
+
+        Gistic.gene_list_el.val(gene_list_str + newline
+                                 + genes_toPush.join(" "));
     }
 };

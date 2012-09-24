@@ -292,12 +292,8 @@
                 // summary table
                 var cna_summary_table = buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
                         'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25);
-                $('.cna-show-more').html("<a href='#cna' id='cna-show-more-link' title='Show more copy number alterations of this patient'>Show all "
+                $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
-                $('#cna-show-more-link').click(function () {
-                    switchToTab('cna');
-                    return false;
-                });
                 $('.cna-summary-table-name').html(
                     "Copy Number Alterations <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either recurrently copy number\n\

@@ -484,12 +484,8 @@
                 // summary table
                 var mut_summary_table = buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25);
-                $('.mutation-show-more').html("<a href='#mutations' id='switch-to-mutations-tab' title='Show more mutations of this patient'>Show all "
+                $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
-                $('#mutation-show-more-link').click(function () {
-                    switchToTab('mutations');
-                    return false;
-                });
                 $('.mutation-summary-table-name').html(
                     "Mutations <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\

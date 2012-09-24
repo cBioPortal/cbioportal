@@ -318,11 +318,9 @@ function addMoreCinicalTooltip() {
                                 "aTargets": [ 1 ],
                                 "fnRender": function(obj) {
                                     var value = obj.aData[ obj.iDataColumn ];
-                                    var isNum = (new RegExp('^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$')).test(value);
-                                    if (!isNum) return value;
-                                    return Number(value).toPrecision(2);
+                                    return value;;
                                 },
-                                "sortable": false
+                                "bSortable": false
                             }
                         ],
                         "aaSorting": [[0,'asc']],

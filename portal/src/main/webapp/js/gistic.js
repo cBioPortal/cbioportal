@@ -109,35 +109,36 @@ var Gistic = function(gistics) {
             // draws a DataTable in the specific DOM element, table_el
             // with the specified DataTable options
 
-            var aaData = get_aaData();
+            var aaData = gistics;
 
-            var aoColumns = [
+            var aoColumnDefs = [
                 {"sTitle": "AD",    // todo : ampdel tiptip?
                     "sWidth": '10px',
                     "bSearchable": false,
-                    "bSortable": false,
+                    "aTargets": [0],
                     "mDataProps": function(source, type, val) {
-                        console.log(source);
-                        console.log(type);
-                        console.log(val);
-                        if (type === 'set') {
-                            return;
-                        } else if (type === 'display') {
-                            if (val) {     // true means amplified
+                        if (type === 'display') {
+                            if (source.ampdel) {     // true means amplified
                             // mark amps/dels as reds and blues
                                 return "<div class=\"gistic_amp\"></div>";
                             } else {
                                 return "<div class=\"gistic_del\"></div>";
                             }
-                        }       // else if filter sort ...
+                        }
+                        return source.ampdel;
                     }
                 },
-                {"sTitle": "Chr", "bSearchable": false},
-                {"sTitle": "Cytoband", "bSearchable": false, "sType": "cytoband"},
-                {"sTitle": "Peak Start", "bVisible": false, "bSearchable": false},
-                {"sTitle": "Peak End", "bVisible": false, "bSearchable": false},
-                {"sTitle": "Genes"},
-                {"sTitle": "Q-Value", "sWidth": "100px", "bSearchable": false,
+                {"sTitle": "Chr", "bSearchable": false, "aTargets": [1],
+                "mDataProps": function(source, type, val) {
+                    if (type === 'display') {
+                        return source.chromosome;
+                    }
+                } },
+                {"sTitle": "Cytoband", "bSearchable": false, "sType": "cytoband", "aTargets": [2]},
+                {"sTitle": "Peak Start", "bVisible": false, "bSearchable": false, "aTargets": [3]},
+                {"sTitle": "Peak End", "bVisible": false, "bSearchable": false, "aTargets": [4]},
+                {"sTitle": "Genes", "aTargets": [5]},
+                {"sTitle": "Q-Value", "sWidth": "100px", "bSearchable": false, "aTargets": [6],
                     "fnRender": function(obj) {
                         var sReturn = obj.aData[obj.iDataColumn];
                         return parseFloat(sReturn) .toExponential(1);   // round Q-Values
@@ -148,7 +149,7 @@ var Gistic = function(gistics) {
             options.aaSorting = [[ 6, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
             options.aaData = aaData;
-            options.aoColumns = aoColumns;
+            options.aoColumnDefs = aoColumnDefs;
 
             Gistic.dt = table_el.dataTable(options);
 

@@ -103,7 +103,7 @@ public class ImportClinicalData {
                         for (int i : freeFormInludeColumns) {
                             String name = freeFormHeaders.get(i);
                             String value = parts[i].trim();
-                            if (!value.isEmpty()) {
+                            if (!value.isEmpty() && !"NA".equals(value)) {
                                 daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
                                             caseId, name, value);
                             }

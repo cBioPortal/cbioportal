@@ -99,7 +99,10 @@ public final class DaoCopyNumberSegment {
             if (ml==null || ml==0) {
                 continue;
             }
-            long al = alteredLength.get(caseId);
+            Long al = alteredLength.get(caseId);
+            if (al==null) {
+                al = new Long(0);
+            }
             fraction.put(caseId, 1.0*al/ml);
         }
         return fraction;

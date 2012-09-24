@@ -346,18 +346,18 @@ public class MutationTableUtil
     {
 		headerList.add("Case ID\tCase ID");
 		headerList.add("Mutation Status\tMS");
-		headerList.add("Mutation Type\tMT");
+		headerList.add("Mutation Type\tType");
 		headerList.add("Validation Status\tVS");
 		headerList.add("Sequencing Center\tCenter");
-		headerList.add("Amino Acid Change\tAA Change");
-		headerList.add("Build Number\tBuild");
+		headerList.add("Protein Change\tAA Change");
+		headerList.add("NCBI Build Number\tBuild");
 		headerList.add("Position\tPosition");
 		headerList.add("Reference Allele\tRA");
 		headerList.add("Variant Allele\tVA");
 		headerList.add("Variant Frequency\tVF");
 		headerList.add("Normal Frequency\tNF");
-		headerList.add("COSMIC Frequency\tCOSMIC");
-		headerList.add("Predicted Impact\tPI**");
+		headerList.add("COSMIC Occurrences\tCOSMIC");
+		headerList.add("Functional Impact Predicted by MutationAssessor\tPredicted Impact**");
 		//headerList.add("Alignment");
 		//headerList.add("Structure");
 

@@ -186,7 +186,27 @@
 	    // to fit mutation table initially
 	    fitMutationTableToWidth();
 
-	    $("#cosmic_details_dialog").dialog({autoOpen: false,
+	    var qTipOptions = {//content: {attr: 'alt'},
+		    hide: { fixed: true, delay: 100 },
+		    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+		    position: {my:'top center',at:'bottom center'}};
+
+	    $('#mutation_details .mutation_details_table th').qtip(qTipOptions);
+	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_details_table .somatic').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .germline').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_details_table .unknown').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .valid').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .wildtype').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_table_cosmic').qtip(qTipOptions);
+
+	    // TODO changing background requires additional settings for sort icons...
+	    //$('#mutation_details .mutation_details_table th').addClass('ui-state-default');
+
+	    $('#cosmic_details_dialog').dialog({autoOpen: false,
 			resizable: false,
 		    height: 350,
 			width: 300});
@@ -382,6 +402,14 @@
 		for (int i = 0; i < headers.size(); i++)
 		{
 			String header = headers.get(i);
+
+			String[] parts = header.split("\t");
+
+			if (parts.length >= 2)
+			{
+				header = parts[1];
+			}
+
 			//out.println("<option id='" + geneId + "_" + header + "'" +
 			out.println("<option " +
 			            "value='" + i + "'>" +

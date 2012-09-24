@@ -180,11 +180,11 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         if (bins==null) bins = 10;
         if ((typeof bins)==(typeof 1)) {
             var r = dt.getColumnRange(col);
-            var step = (r.max-r.min)/(bins-1);
-            var n = bins;
+            var step = Math.pow(10,Math.floor(Math.log((r.max-r.min)/2)*Math.LOG10E));
+            var start = step*Math.floor(r.min/step);
             bins = [];
-            for (var i=0; i<n-1; i++) {
-                bins.push(r.min+i*step);
+            for (var bin=start; bin<=r.max; bin+=step) {
+                bins.push(bin);
             }
         }
 

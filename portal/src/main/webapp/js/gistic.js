@@ -6,16 +6,18 @@ var SELECTED_CANCER_TYPE_NEW = '';
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
-        console.log(SELECTED_CANCER_TYPE_NEW);
+
+        console.log(window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data);
+
+        if (window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data) {
+            $('#toggle_gistic_dialog_button').show();
+        } else {
+            $('#toggle_gistic_dialog_button').hide();
+        }
     });
 });
 
-
-//if (window.json.cancer_studies[cancerStudyId].has_gistic_data) {
-
-
 var Gistic = function(gistics) {
-
     // store the DataTable object once it has been created
     Gistic.dt = '';
 
@@ -58,7 +60,8 @@ var Gistic = function(gistics) {
             var aaData = gistics;
 
             var aoColumnDefs = [
-                {"sTitle": "AD",    // todo : ampdel tiptip?
+                // todo : ampdel tiptip?
+                {"sTitle": "<span style='color:red'>A</span><span style='color:blue'>D</span>",
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
@@ -144,7 +147,7 @@ var Gistic = function(gistics) {
                     return all_genes;
                 }
             },
-            {"sTitle": "Q Value", "aTargets":[4],
+            {"sTitle": "Q Value", "aTargets":[4], "sType": "numeric",
                 "mDataProp": function(source, type, val) {
                     var rounded = parseFloat(source.qval) .toExponential(1);   // round Q-Values
                     if (type === 'display') {
@@ -155,7 +158,7 @@ var Gistic = function(gistics) {
             }
             ];
 
-            options.aaSorting = [[ 6, "asc" ]];     // sort Q-Value column on load
+            options.aaSorting = [[ 4, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
             options.aaData = aaData;
             options.aoColumnDefs = aoColumnDefs;
@@ -274,14 +277,20 @@ Gistic.UI = ( function() {
                 return $.inArray(currently_selected[i], geneSet.getAllGenes()) === -1;
             });
 
-            // remove remove_genes from geneset
+            $.each(remove_genes, function(i,val) {
+                // remove remove_genes from geneset
+                geneSet.filterOut(val);
+            });
+
+            console.log(geneSet.toString());
+            console.log($.makeArray(new_genes).join(" "));
+
             // append new_genes
+            var out = geneSet.toString() + newline + $.makeArray(new_genes).join(" ");
+            out = out.trim();
+
             // push to gene set
-
-            var gene_list = geneSet.getAllGenes();
-
-            Gistic.gene_list_el.val(raw_str + newline
-                                    + $.makeArray(genes_toPush).join(" "));
+            Gistic.gene_list_el.val(out);
         }
     };
 })();

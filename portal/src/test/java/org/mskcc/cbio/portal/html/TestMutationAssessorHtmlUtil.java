@@ -89,11 +89,11 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
         String pdbLink = omaUtil.getPdbStructureLink();
         assertEquals("<a href='omaRedirect.do?site=mutationassessor.org/pdb.php" +
                 "&prot=AMYP_HUMAN&from=421&to=510&var=G435V'>" +
-                "<img border='0' src='images/mutation/msa.png'></a>",
+                "<img border='0' src='images/mutation/msa.png' class='msa-img'></a>",
                      msaLink);
         assertEquals("<a href='omaRedirect.do?site=mutationassessor.org/" +
                 "&cm=msa&ty=f&p=AMYP_HUMAN&rb=421&re=510&var=G435V'>" +
-                "<img border='0' src='images/mutation/pdb.png'></a>",
+                "<img border='0' src='images/mutation/pdb.png' class='pdb-img'></a>",
                     pdbLink);
     }
 

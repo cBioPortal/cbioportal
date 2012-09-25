@@ -10,6 +10,7 @@ $(document).ready(function() {
     });
 });
 
+
 //if (window.json.cancer_studies[cancerStudyId].has_gistic_data) {
 
 
@@ -20,9 +21,6 @@ var Gistic = function(gistics) {
 
     Gistic.gene_list_el = $('#gene_list');
     Gistic.dialog_el = $('#gistic_dialog');
-
-    // initialize Gistic's internal tracking of the Gene Set
-    Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
 
     var sort_by_cytoband = function(x,y) {
         // sorts two cytobands,
@@ -56,8 +54,6 @@ var Gistic = function(gistics) {
         drawTable : function(table_el, genes, options) {
             // draws a DataTable in the specific DOM element, table_el
             // with the specified DataTable options
-
-            Gistic.UI.selected_genes.set(genes);
 
             var aaData = gistics;
 
@@ -159,13 +155,20 @@ var Gistic = function(gistics) {
             }
             ];
 
-
             options.aaSorting = [[ 6, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
             options.aaData = aaData;
             options.aoColumnDefs = aoColumnDefs;
 
             Gistic.dt = table_el.dataTable(options);
+
+            // everytime you draw
+            // update the selected_genes
+            Gistic.selected_genes = $('.gistic_selected_gene').
+                map(function(i, val) {
+                return $(val).html();
+            });
+
 
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
@@ -184,7 +187,7 @@ var Gistic = function(gistics) {
 Gistic.UI = ( function() {
     // dump of all sorts of UI functions
     // the closure is to keep the private GISTIC variable
- 
+
     var GISTIC = {};
 
     return {
@@ -245,12 +248,7 @@ Gistic.UI = ( function() {
 
         ioGeneSet : function(el) {
             $(el).toggleClass('highlight');
-
-            var gene = $(el).html();
-            gene.trim();        // just to be safe
-
             $(el).toggleClass('gistic_selected_gene');
-            Gistic.UI.selected_genes.update(gene);
         },
 
         updateGenes: function() {
@@ -263,44 +261,18 @@ Gistic.UI = ( function() {
                 newline = '\n';
             }
 
-            var genes_toPush = Gistic.UI.selected_genes.getGenes();
-            var gene_list = geneSet.getAllGenes();
+            var currently_selected = $('.gistic_selected_gene').
+                map(function(i, val) { return $(val).html(); });
 
-            // filter out genes that are already in the gene list
-            genes_toPush = genes_toPush.filter(function(i) {
-                return gene_list.indexOf(i) === -1;
+            var remove_genes = Gistic.selected_genes.filter(function(i) {
+                console.log(Gistic.selected_genes[i]);
+                return $.inArray(Gistic.selected_genes[i], currently_selected) === -1;
             });
 
-            Gistic.gene_list_el.val(gene_list_str + newline
-                                    + genes_toPush.join(" "));
+            var gene_list = geneSet.getAllGenes();
+
+            Gistic.gene_list_el.val(raw_str + newline
+                                    + $.makeArray(genes_toPush).join(" "));
         }
     };
 })();
-
-Gistic.UI.selected_genes = function() {
-    var genes = [];
-
-    return {
-        getGenes: function() {
-            return genes;
-        },
-        update: function(gene) {
-            // remove if clicked twice.
-            var i = genes.indexOf(gene);
-            if (i === -1) {
-                genes.push(gene);
-            } else {
-                genes.splice(i,1);
-            }
-        },
-        set: function(genes_l) {
-            // sets genes to genes_l
-            // without asking any questions
-            genes = genes_l;
-        },
-        reset: function() {
-            genes = [];
-        }
-    }
-}();
-

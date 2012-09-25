@@ -76,7 +76,7 @@
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(this); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
+            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
         </div>
     </div>
     <script type='text/javascript'>

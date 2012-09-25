@@ -28,51 +28,47 @@
 // package
 package org.mskcc.cbio.importer.model;
 
+// imports
+
 /**
- * Class which contains firehose datatype metadata.
+ * Class which contains datasource metadata.
  */
-public final class FirehoseDatatypeMetadata {
+public final class DataSourceMetadata {
 
 	// bean properties
-	private String archive;
-	private String datatype;
-	private Boolean download;
-	private String dataFilename;
+	private String dataSource;
+    private String downloadDirectory;
+    private String latestRunDownload;
 
     /**
-     * Create a FirehoseDatatypeMetadata instance with specified properties.
+     * Create a DataSourceMetadata instance with specified properties.
      *
-	 * @param datatype String
-	 * @param download Boolean
-	 * @param archive String
-	 * @param dataFilename String
+	 * @param dataSource String
+	 * @param downloadDirectory String
+     * @param latestRunDownload String
      */
-    public FirehoseDatatypeMetadata(final String datatype, final Boolean download,
-                                    final String archive, final String dataFilename) {
+    public DataSourceMetadata(final String dataSource,
+							  final String downloadDirectory,
+							  final String latestRunDownload) {
 
-		if (datatype == null) {
-            throw new IllegalArgumentException("datatype must not be null");
+		if (dataSource == null) {
+            throw new IllegalArgumentException("dataSource must not be null");
 		}
-		this.datatype = datatype;
+		this.dataSource = dataSource;
 
-		if (archive == null) {
-            throw new IllegalArgumentException("archive must not be null");
+		if (downloadDirectory == null) {
+            throw new IllegalArgumentException("downloadDirectory must not be null");
 		}
-		this.archive = archive;
+		this.downloadDirectory = downloadDirectory;
 
-		if (dataFilename == null) {
-            throw new IllegalArgumentException("dataFilename must not be null");
+		if (latestRunDownload == null) {
+            throw new IllegalArgumentException("latestRunDownload must not be null");
 		}
-		this.dataFilename = dataFilename;
-
-		if (download == null) {
-            throw new IllegalArgumentException("download must not be null");
-		}
-		this.download = download;
+		this.latestRunDownload = latestRunDownload;
 	}
 
-	public String getDatatype() { return datatype; }
-	public String getArchiveFilename() { return archive; }
-	public String getDataFilename() { return dataFilename; }
-	public Boolean getDownload() { return download; }
+	public String getDataSource() { return dataSource; }
+	public String getDownloadDirectory() { return downloadDirectory; }
+	public String getLatestRunDownload() { return latestRunDownload; }
+	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
 }

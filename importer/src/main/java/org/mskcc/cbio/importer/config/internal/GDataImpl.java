@@ -33,8 +33,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.FirehoseDatatypeMetadata;
-import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -100,15 +99,10 @@ final class GDataImpl implements Config {
 	@Value("${portals_metadata}")
 	public void setPortalsMetadataProperty(final String property) { this.portalsMetadataProperty = property; }
 
-	// firehose datatypes metadata
-	private String firehoseDatatypesMetadataProperty;
-	@Value("${firehose_datatypes_metadata}")
-	public void setFirehoseDatatypesMetadataProperty(final String property) { this.firehoseDatatypesMetadataProperty = property; }
-
-	// firehose download metadata
-	private String firehoseDownloadMetadataProperty;
-	@Value("${firehose_download_metadata}")
-	public void setFirehoseDownloadMetadataProperty(final String property) { this.firehoseDownloadMetadataProperty = property; }
+	// data source metadata
+	private String dataSourceMetadataProperty;
+	@Value("${data_sources_metadata}")
+	public void setDataSourceMetadataProperty(final String property) { this.dataSourceMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -189,7 +183,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 11) {
+		if (properties.length != 14) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
@@ -204,15 +198,18 @@ final class GDataImpl implements Config {
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
 						toReturn.add(new DatatypeMetadata(entry.getCustomElements().getValue(properties[1]),
-                                                          entry.getCustomElements().getValue(properties[2]),
+														  new Boolean(entry.getCustomElements().getValue(properties[2])),
                                                           entry.getCustomElements().getValue(properties[3]),
                                                           entry.getCustomElements().getValue(properties[4]),
                                                           entry.getCustomElements().getValue(properties[5]),
                                                           entry.getCustomElements().getValue(properties[6]),
                                                           entry.getCustomElements().getValue(properties[7]),
                                                           entry.getCustomElements().getValue(properties[8]),
-                                                          new Boolean(entry.getCustomElements().getValue(properties[9])),
-                                                          entry.getCustomElements().getValue(properties[10])));
+                                                          entry.getCustomElements().getValue(properties[9]),
+                                                          entry.getCustomElements().getValue(properties[10]),
+                                                          entry.getCustomElements().getValue(properties[11]),
+														  new Boolean(entry.getCustomElements().getValue(properties[12])),
+                                                          entry.getCustomElements().getValue(properties[13])));
 					}
 				}
 				else {
@@ -288,24 +285,25 @@ final class GDataImpl implements Config {
     }
 
 	/**
-	 * Gets a collection of FirehoseDatatypeMetadata.
+	 * Gets DataSourceMetadata for the given datasource.
 	 *
-	 * @return Collection<FirehoseDatatypeMetadata>
+	 * @param dataSource String
+	 * @return DataSourceMetadata
 	 */
     @Override
-	public Collection<FirehoseDatatypeMetadata> getFirehoseDatatypeMetadata() {
+	public 	DataSourceMetadata getDataSourceMetadata(String dataSource) {
 
-		Collection<FirehoseDatatypeMetadata> toReturn = new ArrayList<FirehoseDatatypeMetadata>();
+		DataSourceMetadata toReturn = null;
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getFirehoseDatatypeMetadata()");
+			LOG.info("getDataSourceMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = firehoseDatatypesMetadataProperty.split(":");
-		if (properties.length != 5) {
+		String[] properties = dataSourceMetadataProperty.split(":");
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getFirehoseDatatypeMetadata: " + firehoseDatatypesMetadataProperty);
+				LOG.info("Invalid property passed to getDataSourceMetadata: " + dataSourceMetadataProperty);
 			}
 			return toReturn;
 		}
@@ -317,13 +315,13 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-						//DatatypeMetadata.DATATYPE datatype =
-						//	DatatypeMetadata.DATATYPE.valueOf(entry.getCustomElements().getValue(properties[2]));
-						toReturn.add(new FirehoseDatatypeMetadata(entry.getCustomElements().getValue(properties[2]),
-                                                                  new Boolean(entry.getCustomElements().getValue(properties[1])),
-                                                                  entry.getCustomElements().getValue(properties[3]),
-                                                                  entry.getCustomElements().getValue(properties[4])));
-					}
+                        if (entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
+                                toReturn = new DataSourceMetadata(entry.getCustomElements().getValue(properties[1]),
+																  entry.getCustomElements().getValue(properties[2]),
+																  entry.getCustomElements().getValue(properties[3]));
+                                break;
+                        }
+                    }
 				}
 				else {
 					if (LOG.isInfoEnabled()) {
@@ -336,66 +334,37 @@ final class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 
-		// outta here
-		return toReturn;
-
-	}
-
-	/**
-	 * Gets FirehoseDownloadMetadata.
-	 *
-	 * @return FirehoseDownloadMetadata
-	 */
-    @Override
-	public FirehoseDownloadMetadata getFirehoseDownloadMetadata() {
-
-		FirehoseDownloadMetadata toReturn = null;
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getFirehoseDownloadMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = firehoseDownloadMetadataProperty.split(":");
-		if (properties.length != 5) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
-			}
-			return toReturn;
+		if (toReturn == null && LOG.isInfoEnabled()) {
+			LOG.info("getDataSourceMetadata(), toReturn is null.");
 		}
 
         // outta here
-        return new FirehoseDownloadMetadata(getPropertyString(properties[0] + ":" + properties[1]),
-                                            getPropertyString(properties[0] + ":" + properties[2]),
-                                            getPropertyString(properties[0] + ":" + properties[3]),
-                                            getPropertyString(properties[0] + ":" + properties[4]));
+        return toReturn;
 	}
 
 	/**
-	 * Sets FirehoseDownloadMetadata.  Really only used to store
-     * stddata/analysis run dates.
+	 * Sets DataSourceMetadata (currently only stores latest run downloaded).
 	 *
-     * @param firehoseDownloadMetadata FirehoseDownloadMetadata
-	 * @return FirehoseDownloadMetadata
+     * @param dataSourceMetadata DataSourceMetadata
 	 */
     @Override
-	public void setFirehoseDownloadMetadata(final FirehoseDownloadMetadata firehoseDownloadMetadata) {
+	public 	void setDataSourceMetadata(final DataSourceMetadata dataSourceMetadata) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("setFirehoseDownloadMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = firehoseDownloadMetadataProperty.split(":");
-		if (properties.length != 5) {
+		String[] properties = dataSourceMetadataProperty.split(":");
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to setFirehoseDownloadMetadata: " + firehoseDownloadMetadataProperty);
+				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
 			}
 			return;
 		}
 
-        setPropertyString(properties[0] + ":" + properties[2], firehoseDownloadMetadata.getLatestAnalysisRunDownloaded());
-        setPropertyString(properties[0] + ":" + properties[4], firehoseDownloadMetadata.getLatestSTDDATARunDownloaded());
+        setPropertyString(properties[0], properties[1], dataSourceMetadata.getDataSource(),
+						  properties[3], dataSourceMetadata.getLatestRunDownload());
     }
 
 	/**
@@ -513,43 +482,37 @@ final class GDataImpl implements Config {
 	/**
 	 * Sets the property value.
 	 *
+	 * @param worksheetName String
+	 * @param key String
 	 * @param propertyName String
 	 * @param propertyValue String
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private void setPropertyString(final String propertyName, final String propertyValue) {
+	private void setPropertyString(final String worksheetName, final String keyColumn, final String key, final String propertyName, final String propertyValue) {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("setProperty(" + propertyName + " : " + propertyValue + ")");
-		}
-
-		// parse the property argument
-		String[] properties = propertyName.split(":");
-		if (properties.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getProperty: " + propertyName + ".  Should be worsheet:property_name.");
-			}
-			return;
+			LOG.info("setProperty(" + worksheetName + " : " + key + " : " + propertyName + " : " + propertyValue + ")");
 		}
 
 		try {
 			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			WorksheetEntry worksheet = getWorksheet(worksheetName);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				ListEntry entry = feed.getEntries().get(0);
-				if (entry != null) {
-					entry.getCustomElements().setValueLocal(properties[1], propertyValue);
-					entry.update();
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Property has been successfully set!");
+				for (ListEntry entry : feed.getEntries()) {
+					if (entry.getCustomElements().getValue(keyColumn).equals(key)) {
+						entry.getCustomElements().setValueLocal(propertyName, propertyValue);
+						entry.update();
+						if (LOG.isInfoEnabled()) {
+							LOG.info("Property has been successfully set!");
+						}
 					}
 				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
+			}
+			else {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Worksheet contains no entries!");
 				}
 			}
 		}

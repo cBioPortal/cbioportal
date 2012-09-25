@@ -32,8 +32,7 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.FirehoseDatatypeMetadata;
-import org.mskcc.cbio.importer.model.FirehoseDownloadMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import java.util.Collection;
 
@@ -65,25 +64,17 @@ public interface Config {
 	PortalMetadata getPortalMetadata(String portal);
 
 	/**
-	 * Gets FirehoseDownloadMetadata.
+	 * Gets DataSourceMetadata for the given datasource.
 	 *
-	 * @return FirehoseDownloadMetadata
+	 * @param dataSource String
+	 * @return DataSourceMetadata
 	 */
-	FirehoseDownloadMetadata getFirehoseDownloadMetadata();
+	DataSourceMetadata getDataSourceMetadata(String dataSource);
 
 	/**
-	 * Gets a collection of FirehoseDatatypeMetadata.
+	 * Sets DataSourceMetadata (currently only stores latest run downloaded).
 	 *
-	 * @return Collection<FirehoseDatatypeMetadata>
+     * @param dataSourceMetadata DataSourceMetadata
 	 */
-	Collection<FirehoseDatatypeMetadata> getFirehoseDatatypeMetadata();
-
-	/**
-	 * Sets FirehoseDownloadMetadata.  Really only used to store
-     * stddata/analysis run dates.
-	 *
-     * @param firehoseDownloadMetadata FirehoseDownloadMetadata
-	 * @return FirehoseDownloadMetadata
-	 */
-	void setFirehoseDownloadMetadata(final FirehoseDownloadMetadata firehoseDownloadMetadata);
+	void setDataSourceMetadata(final DataSourceMetadata dataSourceMetadata);
 }

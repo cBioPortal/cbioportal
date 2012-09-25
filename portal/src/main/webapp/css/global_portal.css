@@ -1278,3 +1278,7 @@ cc-ie-message {
     background: #d3d3d3;
     border-color: #1974B8;
 }
+
+.highlight {
+    background:yellow;
+}

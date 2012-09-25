@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
@@ -56,22 +83,32 @@ public class GisticJSON extends HttpServlet {
         Map map = new HashMap();
 
         map.put("chromosome", gistic.getChromosome());
+        map.put("cytoband", gistic.getCytoband());
         map.put("peakStart", gistic.getPeakStart());
         map.put("peakEnd", gistic.getPeakEnd());
 
-        map.put("genes_in_ROI", gistic.getGenes_in_ROI());
-        
-//        ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
-//
-//        Map genes_map = new HashMap();
-//
-//        for (CanonicalGene gene : genes) {
-//            genes_map.put(gene.getStandardSymbol());
-//        }
+        // convert CanonicalGenes in ROI to strings
+        ArrayList<String> nonSangerGenes = new ArrayList<String>();
+        ArrayList<String> sangerGenes = new ArrayList<String>();
 
+        for (CanonicalGene g : gistic.getGenes_in_ROI()) {
+            try {
+                if (g.isSangerGene()) {
+                    sangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                } else {
+                    nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                }
+            } catch (DaoException e) {
+                // assume that it is not a Sanger Gene if causes an exception
+                nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
+                if (log.isDebugEnabled()) { log.debug(e + " :gene <" + g +">"); }
+            }
+        }
+
+        map.put("sangerGenes", sangerGenes);
+        map.put("nonSangerGenes", nonSangerGenes);
         map.put("qval", gistic.getqValue());
-        map.put("res_qval", gistic.getRes_qValue());
-        map.put("ampdel", gistic.getAmpDel());
+        map.put("ampdel", gistic.getAmp());
         
         return map;
     }
@@ -88,7 +125,6 @@ public class GisticJSON extends HttpServlet {
             throws ServletException, IOException {
 
         String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
-        JSONArray gisticJSONArray = new JSONArray();
 
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
@@ -104,6 +140,8 @@ public class GisticJSON extends HttpServlet {
             }
 
 //            Collections.sort(gistics, new sortMutsigByRank());
+
+            JSONArray gisticJSONArray = new JSONArray();
 
             for (Gistic gistic : gistics) {
                 Map map = Gistic_toMap(gistic);

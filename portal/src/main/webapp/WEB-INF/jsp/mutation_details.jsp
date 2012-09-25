@@ -18,9 +18,10 @@
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
+%>
+<div class='section' id='mutation_details'>
 
-    out.println("<div class='section' id='mutation_details'>");
-
+<%
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
@@ -28,8 +29,21 @@
     } else {
         outputNoMutationDetails(out);
     }
-    out.println("</div>");
 %>
+	<div id="cosmic_details_dialog" title="Cosmic Details" class="dataTables_wrapper">
+		<table id="cosmic_details_table" class="display"
+		       cellpadding='0' cellspacing='0' border='0'>
+			<thead>
+				<tr>
+					<th>Overlapping COSMIC AA change</th>
+					<th>Frequency</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+
+</div>
+
 
 <style type="text/css" title="currentStyle"> 
         .mutation_datatables_filter {
@@ -73,7 +87,7 @@
     jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
         var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
         var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-        
+
         if (ares) {
             if (bres) {
                 var ia = parseInt(ares[1]);
@@ -90,7 +104,7 @@
             }
         }
     };
-    
+
     function assignValueToPredictedImpact(str) {
         if (str=="Low") {
             return 1;
@@ -150,21 +164,116 @@
                   "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
                   "bPaginate": false,
                   "bFilter": true,
+	              // TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
+                  //"sScrollX": "100%",
+                  //"sScrollXInner": "105%",
+                  //"bScrollCollapse": true,
+	              //"bScrollAutoCss": false,
                   "aoColumnDefs":[
                       {"sType": 'aa-change-col',
                               "aTargets": [ 5 ]},
                       {"sType": 'predicted-impact-col',
-                              "aTargets": [ 6 ]}
+                              "aTargets": [ 13 ]}
                   ]
               } );
             <% } %>
         <% } %>
+
+	    // wrap the table contents with a div to enable scrolling, this is a workaround for
+	    // DataTable's own scrolling, seems like there is a problem with its settings
+	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
+
+	    // to fit mutation table initially
+	    fitMutationTableToWidth();
+
+	    var qTipOptions = {//content: {attr: 'alt'},
+		    hide: { fixed: true, delay: 100 },
+		    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+		    position: {my:'top center',at:'bottom center'}};
+
+	    $('#mutation_details .mutation_details_table th').qtip(qTipOptions);
+	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_details_table .somatic').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .germline').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_details_table .unknown').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .valid').qtip(qTipOptions);
+	    $('#mutation_details .mutation_details_table .wildtype').qtip(qTipOptions);
+
+	    $('#mutation_details .mutation_table_cosmic').qtip(qTipOptions);
+
+	    // TODO changing background requires additional settings for sort icons...
+	    //$('#mutation_details .mutation_details_table th').addClass('ui-state-default');
+
+	    $('#cosmic_details_dialog').dialog({autoOpen: false,
+			resizable: false,
+		    height: 350,
+			width: 300});
+
+	    $('a.mutation_table_cosmic').unbind(); // TODO temporary work-around, should fix the listener in MakeOncoPrint
+
+	    // initialize table column filtering
+	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
+		    icon: {placement: 'left'}, // sets the position of the arrow
+		    width: 220,
+		    //emptyText: '(no columns selected)', // text to be displayed when no item is selected
+		    onItemClick: toggleMutationTableColumns,
+		    textFormatFunction: mutationTableToggleText}; // callback function for the action
+
+	    // initialize the dropdown box
+	    $(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
+
+	    // initialize cosmic details table
+	    $("#cosmic_details_table").dataTable({
+		    "aaSorting" : [ ], // do not sort by default
+			"sDom": 't', // show only the table
+			"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
+				{ "sType": "numeric", "aTargets": [1]}],
+			"bPaginate": false,
+			"bFilter": false});
+
+	    $('a.mutation_table_cosmic').click(function(event){
+		    $("#cosmic_details_dialog").dialog("close");
+
+		    var cosmic = this.id;
+		    var parts = cosmic.split("|");
+
+		    $("#cosmic_details_table").dataTable().fnClearTable();
+
+		    // COSMIC data (as AA change & frequency pairs)
+		    for (var i=0; i < parts.length; i++)
+		    {
+			    var values = parts[i].split(/\(|\)/, 2);
+
+			    // skip data starting with p.? or ?
+			    var unknownCosmic = values[0].indexOf("p.?") == 0 ||
+			                       values[0].indexOf("?") == 0;
+
+			    if (!unknownCosmic)
+			    {
+				    $("#cosmic_details_table").dataTable().fnAddData(values);
+			    }
+		    }
+
+		    $("#cosmic_details_dialog").dialog("open");
+	    });
     });
     
     //  Set up Mutation Diagrams
     $(document).ready(function(){
 	    // initially hide all tooltip boxes
 	    $("div.mutation_diagram_details").hide();
+
+	    // enable refitting of the mutation table on each click on mutation details tab
+	    $("a.result-tab").click(function(event){
+		    var tab = $(this).attr("href");
+
+		    if (tab == "#mutation_details")
+		    {
+			    fitMutationTableToWidth();
+		    }
+	    });
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
@@ -175,13 +284,145 @@
               type: "POST"});
         <% } %>
     <% } %>
-    });         
+    });
+
+    function mutationTableToggleText(options)
+    {
+	    var selectedOptions = options.filter(":selected");
+	    var numberOfSelected = selectedOptions.size();
+	    var text = "";
+
+	    if (0 == numberOfSelected)
+	    {
+		    text = "No column selected";
+	    }
+	    else if (options.size() == numberOfSelected)
+        {
+	        text = "All columns selected";
+        }
+	    else
+	    {
+		    text = numberOfSelected +
+		           " (out of " +
+		           (options.size() - 1) + // excluding "select all"
+		           ") columns selected";
+	    }
+
+	    return text;
+    }
+
+    /**
+     * Updates the table columns according to the new user selection.
+     *
+     * @param checkbox	target check box selected by the user
+     * @param selector	target selection box modified by the user
+     */
+    function toggleMutationTableColumns(checkbox, selector)
+    {
+	    // extract geneId from the selector id
+	    var lastDashIdx = selector.id.lastIndexOf("_");
+	    var geneId = selector.id.substring(lastDashIdx + 1);
+
+	    var colIdx = checkbox.val();
+	    var checked = checkbox.prop("checked"); // checked or unchecked
+
+	    // get the corresponding table for that gene
+	    var targetTable = $('#mutation_details_table_' + geneId).dataTable();
+
+	    // if colIdx is a number, then hide that column
+	    if(!isNaN(colIdx))
+	    {
+		    targetTable.fnSetColumnVis(colIdx, checked);
+	    }
+	    // if it is not a number, then it is "show all columns"
+	    else
+	    {
+		    for (var i=0;
+		         i < selector.options.length - 1; // excluding "show all" option
+		         i++)
+		    {
+			    targetTable.fnSetColumnVis(i, checked);
+		    }
+	    }
+    }
+
+    /**
+     * Toggles the diagram between lollipop view and histogram view.
+     *
+	 * @param geneId    id of the target diagram
+     */
+	function toggleMutationDiagram(geneId)
+	{
+		var option = $("#mutation_diagram_select_" + geneId).val();
+
+		if (option == "diagram")
+		{
+			$("#mutation_diagram_" + geneId).show();
+			$("#mutation_histogram_" + geneId).hide();
+		}
+		else if (option == "histogram")
+		{
+			$("#mutation_diagram_" + geneId).hide();
+			$("#mutation_histogram_" + geneId).show();
+		}
+	}
+
+    // TODO this will only fit the table wrapper initially, it won't refit when page is resized!
+	function fitMutationTableToWidth()
+	{
+		// fit the table wrapper and the filter bar to the width of page
+		var fitWidth = $('#page_wrapper').width() - 60; // 60 is an approximation for total margins
+		$('.mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
+		$('.dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
+	}
+
 </script>
 
 
 <%!
+	private void outputColumnFilter(JspWriter out,
+			GeneWithScore geneWithScore,
+			ArrayList<String> headers) throws IOException
+	{
+		String geneId = geneWithScore.getGene().toUpperCase();
 
-    private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
+		out.println("<table class='toggle_mutation_table_col_table'>" +
+		            "<tr><td class='toggle_mut_table_col_td_label'>");
+		out.println("Toggle Columns: ");
+		out.println("</td><td class='toggle_mut_table_col_td_select'>");
+
+		out.println("<select multiple class='toggle_mutation_table_col' " +
+		            "id='column_select_" + geneId + "'>");
+
+		out.println("<option selected id='" + geneId + "_column_selectAll " +
+				"value='NA'>" +
+				"<label>(show all columns)</label>" +
+				"</option>");
+
+		for (int i = 0; i < headers.size(); i++)
+		{
+			String header = headers.get(i);
+
+			String[] parts = header.split("\t");
+
+			if (parts.length >= 2)
+			{
+				header = parts[1];
+			}
+
+			//out.println("<option id='" + geneId + "_" + header + "'" +
+			out.println("<option " +
+			            "value='" + i + "'>" +
+			            "<label>" + header + "</label>" +
+			            "</option>");
+		}
+
+		out.println("</select>");
+
+		out.println("</td></tr></table>");
+	}
+
+	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
         ObjectMapper objectMapper = new ObjectMapper();
         StringWriter stringWriter = new StringWriter();
         List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
@@ -201,9 +442,12 @@
         MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
                 mutationMap);
 
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) {
+        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
+        {
             outputHeader(out, geneWithScore, mutationCounter);
-            outputOmaHeader(out);
+	        outputOmaHeader(out);
+	        outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
+
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +
                     "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
@@ -243,7 +487,14 @@
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
+	    out.println("<select class='mutation_diagram_toggle' " +
+	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
+	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
+	               "<option value='diagram'>Lollipop Diagram</option>" +
+	               "<option value='histogram'>Histogram</option>" +
+	               "</select>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
         out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<BR>Domain details derived from <a href='http://pfam.sanger.ac.uk/'>Pfam</a>.</div>");
     }
 
@@ -255,7 +506,6 @@
     private void outputOmaHeader(JspWriter out) throws IOException {
         out.println("<br>** Predicted functional impact (via " +
                 "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
-                " is provided for missense mutations only.  ");
-        out.println("<br>");
+                " is provided for missense mutations only.");
     }
 %>

@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.portal.mut_diagram;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,11 +54,16 @@ public final class Pileup {
     private final String label;
     private final int location;
     private final int count;
+	private final int missenseCount;
 
-    public Pileup(final String label, final int location, final int count) {
+    public Pileup(final String label,
+		    final int location,
+		    final int count,
+		    final int missenseCount) {
         this.label = label;
         this.location = location;
         this.count = count;
+	    this.missenseCount = missenseCount;
     }
 
     /**
@@ -61,6 +93,14 @@ public final class Pileup {
         return count;
     }
 
+	/**
+	 * Return the count of missense mutations at this location.
+	 *
+	 * @return the count of missense mutations as this location
+	 */
+	public int getMissenseCount() {
+		return missenseCount;
+	}
 
     /**
      * Return a list of pileups for the specified list of mutations.  The list of
@@ -88,15 +128,28 @@ public final class Pileup {
                 }
             }
         }
-        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet()) {
+
+        for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet())
+        {
             int location = entry.getKey();
             String label = Joiner.on("/").join(labels.get(location));
+	        int missenseCount = 0;
             Set<String> caseIds = Sets.newHashSet();
-            for (ExtendedMutation mutation : entry.getValue()) {
+
+	        for (ExtendedMutation mutation : entry.getValue())
+	        {
                 caseIds.add(mutation.getCaseId() + ":" + mutation.getProteinChange());
+
+		        if (mutation.getMutationType() != null &&
+		            mutation.getMutationType().toLowerCase().contains("missense"))
+		        {
+			        missenseCount++;
+		        }
             }
-            pileups.add(new Pileup(label, location, caseIds.size()));
+
+            pileups.add(new Pileup(label, location, caseIds.size(), missenseCount));
         }
+
         return ImmutableList.copyOf(pileups);
     }
 }

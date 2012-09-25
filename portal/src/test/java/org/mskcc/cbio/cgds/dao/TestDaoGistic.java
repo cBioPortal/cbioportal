@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.dao;
 
 import java.util.Arrays;
@@ -16,9 +43,11 @@ import java.util.ArrayList;
 public class TestDaoGistic extends TestCase {
 
     public void testDaoGistic() throws SQLException, DaoException, validationException {
-        
+
+        // save the database table and
+        // delete the database
+        ArrayList<Gistic> db_gistics = DaoGistic.getAllGistic();
         ResetDatabase.resetDatabase();
-        DaoGistic.deleteAllRecords();
 
         // initialize dummy parameters
 		CanonicalGene brca1 = new CanonicalGene(672, "BRCA1");
@@ -34,9 +63,9 @@ public class TestDaoGistic extends TestCase {
 
         Gistic gisticIn1;
         Gistic gisticIn2;
-        gisticIn1 = new Gistic(1, 1, 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
-        gisticIn2 = new Gistic(1, 2, 1, 2, 0.01f, 0.02f, geneList, Gistic.AMPLIFIED);
-        
+        gisticIn1 = new Gistic(1, 1, "1q11.1", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+        gisticIn2 = new Gistic(1, 2, "2q22.2", 1, 2, 0.01f, geneList, Gistic.AMPLIFIED);
+
         // end initialize
 
         assertEquals(Gistic.NO_SUCH_GISTIC, gisticIn1.getInternalId());
@@ -60,5 +89,11 @@ public class TestDaoGistic extends TestCase {
         assertEquals(2, gisticOut.size());
 
         DaoGistic.deleteAllRecords();
+
+        // restore the database to its pre-test state
+        for (Gistic g : db_gistics) {
+            DaoGistic.addGistic(g);
+        }
+        DaoGistic.getAllGisticByCancerStudyId(1);
     }
 }

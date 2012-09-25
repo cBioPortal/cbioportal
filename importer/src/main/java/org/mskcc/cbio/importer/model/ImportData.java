@@ -1,14 +1,41 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // package
 package org.mskcc.cbio.importer.model;
 
 // imports
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Entity;
 import javax.persistence.Column;
 import javax.persistence.NamedQuery;
-import javax.persistence.NamedQueries;
+import javax.persistence.NamedQueries; 
+import org.hibernate.annotations.Type;
 
 /**
  * Class which represents data to be imported by the importer - 
@@ -17,24 +44,32 @@ import javax.persistence.NamedQueries;
 @Entity
 @Table(name="importdata")
 @NamedQueries({
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByCancerAndDatatype",
-							query="from ImportData as importdata where cancertype = :cancertype and datatype = :datatype order by cancertype")
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataAll",
+                            query="from ImportData as importdata order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatype",
+							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype order by tumortype")
+
 })
 public final class ImportData {
 
 	// bean properties
 	@Column(nullable=false)
-	private String cancerType;
+	private String tumorType;
 	@Id
 	@Column(nullable=false)
 	private String datatype;
 	@Column(nullable=false)
 	private String runDate;
 	@Column(nullable=false)
-	private String urlToData;
+	private String canonicalPath;
 	@Column(length=32)
 	private String digest;
-
+    @Type(type="yes_no")
+    private Boolean isArchive;
+    @Column(nullable=true)
+    private String datafile;
+    @Column(nullable=true)
+    private String overrideFilename;
 
 	/**
 	 * Default Constructor.
@@ -44,42 +79,53 @@ public final class ImportData {
     /**
      * Create a ImportData instance with specified properties.
      *
-	 * @param cancerType String
-	 * @param runDate String
-	 * @param filename String
+	 * @param tumorType String
 	 * @param datatype String
+	 * @param runDate String
+	 * @param canonicalPath String
 	 * @param digest String
-	 * @param content ByteBuffer
+     * @param isArchive Boolean
+     * @param datafile String
+     * @param overrideFilename
      */
-    public ImportData(final String cancerType, final String datatype,
-					  final String runDate, final String urlToData, final String digest) {
+    public ImportData(final String tumorType, final String datatype,
+					  final String runDate, final String canonicalPath, final String digest,
+                      final Boolean isArchive, final String datafile, final String overrideFilename) {
+        
+        // sanity check
+        if (isArchive && (datafile == null || datafile.length() == 0)) {
+            throw new IllegalArgumentException("isArchive is true so datafile must not be null or empty");
+        }
 
-		setCancerType(cancerType);
+		setTumorType(tumorType);
 		setDatatype(datatype);
 		setRunDate(runDate);
-		setURLToData(urlToData);
+		setCanonicalPathToData(canonicalPath);
 		setDigest(digest);
+        setIsArchive(isArchive);
+        setDatafile(datafile);
+        setOverrideFilename(overrideFilename);
 	}
 
 	/**
-	 * Sets the cancer type.
+	 * Sets the tumor type.
 	 *
-	 * @param cancerType String
+	 * @param tumorType String
 	 */
-	public void setCancerType(final String cancerType) {
+	public void setTumorType(final String tumorType) {
 
-		if (cancerType == null) {
-            throw new IllegalArgumentException("cancer type must not be null");
+		if (tumorType == null) {
+            throw new IllegalArgumentException("tumor type must not be null");
 		}
-		this.cancerType = cancerType;		
+		this.tumorType = tumorType;		
 	}
 
 	/**
-	 * Gets the cancer type.
+	 * Gets the tumor type.
 	 *
 	 * @return String
 	 */
-	public String getCancerType() { return cancerType; }
+	public String getTumorType() { return tumorType; }
 
 	/**
 	 * Sets the datatype.
@@ -122,24 +168,24 @@ public final class ImportData {
 	public String getRunDate() { return runDate; }
 
 	/**
-	 * Sets the URL to data.
+	 * Sets the canonical path to data.
 	 *
-	 * @param urlToData String
+	 * @param canonicalPath String
 	 */
-	public void setURLToData(String urlToData) {
+	public void setCanonicalPathToData(String canonicalPath) {
        
-		if (urlToData == null) {
-            throw new IllegalArgumentException("URL to data must not be null");
+		if (canonicalPath == null) {
+            throw new IllegalArgumentException("canonical path to data must not be null");
         }
-        this.urlToData = urlToData;
+        this.canonicalPath = canonicalPath;
 	}
 
 	/**
-	 * Gets the URL to Data.
+	 * Gets the cononical path to Data.
 	 *
 	 * @return String
 	 */
-    public String getURLToData() { return urlToData; }
+    public String getCanonicalPathToData() { return canonicalPath; }
 
 	/**
 	 * Sets the digest.
@@ -160,4 +206,52 @@ public final class ImportData {
 	 * @return String
 	 */
 	public String getDigest() { return digest; }
+
+	/**
+	 * Sets the isArchive flag.
+	 *
+	 * @param isArchive Boolean
+	 */
+	public void setIsArchive(final Boolean isArchive) { this.isArchive = isArchive; }
+
+	/**
+	 * Gets the isArchive flag.
+	 *
+	 * @return Boolean
+	 */
+    public Boolean isArchive() { return isArchive; }
+
+	/**
+	 * Sets the datafile.
+	 *
+	 * @param datafile String
+	 */
+	public void setDatafile(final String datafile) {
+
+		this.datafile = (datafile == null) ? "" : datafile;
+	}
+
+	/**
+	 * Gets the datafile.
+	 *
+	 * @return String
+	 */
+	public String getDatafile() { return datafile; }
+
+	/**
+	 * Sets the override filename.
+	 *
+	 * @param overrideFilename String
+	 */
+	public void setOverrideFilename(final String overrideFilename) {
+
+		this.overrideFilename = (overrideFilename == null) ? "" : overrideFilename;
+	}
+
+	/**
+	 * Gets the override filename.
+	 *
+	 * @return String
+	 */
+	public String getOverrideFilename() { return overrideFilename; }
 }

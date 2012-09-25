@@ -41,6 +41,20 @@
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>  all_data_by_genes.txt
 
+# gistic gene info
+- create_data_GISTIC_GENES_AMP:
+    outfile: data_GISTIC_GENE_AMPS.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> amp_genes.conf_99.txt
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> table_amp.conf_99.txt
+
+# gistic gene info
+- create_data_GISTIC_GENES_DEL:
+    outfile: data_GISTIC_GENE_DELS.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> del_genes.conf_99.txt
+        - gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version> table_del.conf_99.txt
+
 # both mRNA and miRNA expression
 # this subroutine and create_data_mRNA_median and create_data_miRNA must all produce cgds files with the same name: data_expression_median.txt
 #- create_data_both_mRNA_miRNA:
@@ -68,7 +82,7 @@
 #        - gdac.broadinstitute.org_<CANCER>.Merge_mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.Level_3.<date><version> <CANCER>.mirna__h_mirna_8x15k<version>__unc_edu__Level_3__unc_DWD_Batch_adjusted__data.data.txt 
  
 # uses maf files
-- create_data_mutations_extended:
+- create_oncotated_data_mutations_extended:
     outfile: data_mutations_extended.txt
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version> <CANCER>.maf.annotated
@@ -110,6 +124,12 @@
     dirsAndFiles:
         - gdac.broadinstitute.org_<CANCER>.Correlate_Methylation_vs_mRNA.Level_4.<date><version> Correlate_Methylation_vs_mRNA_<CANCER>_matrix.txt
         - gdac.broadinstitute.org_<CANCER>.Merge_methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.<date><version> <CANCER>.methylation__humanmethylation27__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.data.txt
+
+# rppa
+- create_rppa:
+    outfile: data_rppa.txt
+    dirsAndFiles:
+        - gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version> data.rppa.txt
 
 # .seg file required for IGV linking (hg 18)
 - create_hg18_seg:

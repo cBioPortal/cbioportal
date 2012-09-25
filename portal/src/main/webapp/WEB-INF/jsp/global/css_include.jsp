@@ -26,3 +26,4 @@
 <link href="css/data_table.css" type="text/css" rel="stylesheet" />
 <link href="css/custom_case_set.css" type="text/css" rel="stylesheet"/>
 <link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>
+<link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>

@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.portal.mut_diagram.servlet;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -96,13 +123,17 @@ public final class MutationDiagramDataServlet extends HttpServlet {
             markup.setDisplay("true");
             markup.setStart(pileup.getLocation());
             markup.setEnd(pileup.getLocation());
-            markup.setColour(ImmutableList.of("#b40000"));
+            markup.setColour(
+		            ImmutableList.of("#b40000", // lolipop fill color
+                                     "#c00000", // missense color (histogram)
+                                     "#353535")); // other than missense (histogram)
             markup.setLineColour("#babdb6");
             markup.setHeadStyle("diamond");
             markup.setV_align("top");
             markup.setType("mutation");
             markup.setMetadata(new HashMap<String, Object>());
             markup.getMetadata().put("count", pileup.getCount());
+	        markup.getMetadata().put("missenseCount", pileup.getMissenseCount());
             markup.getMetadata().put("label", pileup.getLabel());
             markup.getMetadata().put("location", pileup.getLocation());
             markups.add(markup);

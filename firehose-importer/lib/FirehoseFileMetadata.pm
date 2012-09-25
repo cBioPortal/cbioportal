@@ -148,6 +148,34 @@ my $fileProperties = {
         geneIDcol => 'Locus ID',
         geneSymbolCol => 'Gene Symbol',
     },
+    'table_amp.conf_99.txt' => {
+        example => 'table_amp.conf_99.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => undef,
+    },
+    'table_del.conf_99.txt' => {
+        example => 'table_del.conf_99.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => undef,
+    },
+    'amp_genes.conf_99.txt' => {
+        example => 'map_genes.conf_99.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => undef,
+    },
+    'del_genes.conf_99.txt' => {
+        example => 'del_genes.conf_99.txt',
+        structure => 'profile',
+        numHeaderRows => 1,
+        geneIDcol => undef,
+        geneSymbolCol => undef,
+    },
     # the following type is used when running generate case lists on already created staging files
 	'data_log2CNA.txt' => {
         example => 'data_log2CNA.txt',

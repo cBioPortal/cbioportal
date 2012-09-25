@@ -71,7 +71,7 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Regions of Interest" style="font-size: 11px; .ui-dialog {padding: 0em;};"></div>
+    </div>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

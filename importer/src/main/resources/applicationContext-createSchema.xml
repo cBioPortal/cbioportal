@@ -30,6 +30,5 @@
   </b:bean>
 
   <!-- create schema bean -->
-  <b:bean id="createSchema" class="org.mskcc.cbio.importer.util.internal.DataSourceFactoryBean"/>
-
+  <b:bean id="createSchema" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
 </b:beans>

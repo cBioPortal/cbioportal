@@ -367,8 +367,8 @@ if (step4ErrorMsg != null) {
 }
 %>
     
-   <p id="example_gene_set"><span style="font-size:80%">Or Select from Example Gene Sets:<br>
+   <p id="example_gene_set"><span style="font-size:80%">Select from Example Gene Sets:<br>
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>
 
-    <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Or Select from Recurrently Mutated Genes</button>
+    <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select Genes from Recurrently Mutated Genes</button>
 </div>

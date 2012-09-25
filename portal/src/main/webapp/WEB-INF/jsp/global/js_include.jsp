@@ -1,5 +1,6 @@
 <!-- Include Global List of Javascript Files to Load -->
 <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/jquery.address-1.4.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
@@ -15,5 +16,6 @@
 <script type="text/javascript" src="js/customCaseSet.js"></script>
 <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
+<script type="text/javascript" src="js/gene_set.js"></script>
 <script type="text/javascript" src="js/mutsig.js"></script>
-<script type="text/javascript" src="js/gistic.js"></script>
+<script type="text/javascript" src="js/jquery.qtip.min.js"></script>

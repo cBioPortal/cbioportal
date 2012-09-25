@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // package
 package org.mskcc.cbio.importer;
 
@@ -10,6 +37,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.CommandLineParser;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +49,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Class which provides command line admin capabilities 
@@ -38,7 +68,7 @@ public class Admin implements Runnable {
 	private static Options options = initializeOptions();
 
 	// parsed command line
-	private CommandLine line;
+	private CommandLine commandLine;
 	
 
 	/**
@@ -51,8 +81,25 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "print this message");
 		Option fetch = new Option("firehose_fetch", "fetch firehose data");
-		Option createTables = new Option("create_tables", true, "create db tables to store data");
-		Option importData = new Option("import_data", true, "import data into the given db");
+
+        Option createTables = (OptionBuilder.withArgName("database")
+                               .hasArg()
+                               .withDescription("create db tables to store data")
+                               .create("create_tables"));
+
+        Option convertData = (OptionBuilder.withArgName("portal")
+                              .hasArg()
+                              .withDescription("convert data awaiting for import for the given portal")
+                              .create("convert_data"));
+
+
+        Option importData = (OptionBuilder.withArgName("database:portal")
+                             .hasArgs(2)
+                             .withValueSeparator(':')
+                             .withDescription("import data into the given db" +
+                                              "for use with the given portal" +
+                                              " (if the database is blank, a name will be generated)")
+                             .create("import_data"));
 
 		// create an options instance
 		Options toReturn = new Options();
@@ -61,6 +108,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(help);
 		toReturn.addOption(fetch);
 		toReturn.addOption(createTables);
+		toReturn.addOption(convertData);
 		toReturn.addOption(importData);
 
 		// outta here
@@ -79,7 +127,7 @@ public class Admin implements Runnable {
 
 		// parse
 		try {
-			line = parser.parse(options, args);
+			commandLine = parser.parse(options, args);
 		}
 		catch (Exception e) {
 			Admin.usage(new PrintWriter(System.out, true));
@@ -94,26 +142,31 @@ public class Admin implements Runnable {
 	public void run() {
 
 		// sanity check
-		if (line == null) {
+		if (commandLine == null) {
 			return;
 		}
 
 		try {
 			// usage
-			if (line.hasOption("help")) {
+			if (commandLine.hasOption("help")) {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
 			// fetch
-			else if (line.hasOption("firehose_fetch")) {
+			else if (commandLine.hasOption("firehose_fetch")) {
 				fetchFirehoseData();
 			}
 			// create tables
-			else if (line.hasOption("create_tables")) {
-				createTables(line.getOptionValue("create_tables"));
+			else if (commandLine.hasOption("create_tables")) {
+				createTables(commandLine.getOptionValue("create_tables"));
 			}
-			// create tables
-			else if (line.hasOption("import_data")) {
-				importData(line.getOptionValue("import_data"));
+			// convert data
+			else if (commandLine.hasOption("convert_data")) {
+				convertData(commandLine.getOptionValue("convert_data"));
+			}
+			// import data
+			else if (commandLine.hasOption("import_data")) {
+                String[] values = commandLine.getOptionValues("import_data");
+				importData(values[0], values[1]);
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -144,34 +197,59 @@ public class Admin implements Runnable {
 
 	/**
 	 * Helper function to create database tables.
+     *
+     * @param database String
 	 */
-	private void createTables(String databaseName) {
+	private void createTables(String database) {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createTables(), database: " + databaseName);
+			LOG.info("createTables(), database: " + database);
 		}
 
 		// create an instance of DatabaseUtils
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
-		databaseUtils.createSchema(databaseName);
+		databaseUtils.createSchema(database);
+	}
+
+	/**
+	 * Helper function to convert data.
+     *
+     * @param portal String
+     *
+	 * @throws Exception
+	 */
+	private void convertData(String portal) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("convertData(), portal: " + portal);
+		}
+
+		// create an instance of Converter
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Converter converter = (Converter)context.getBean("converter");
+		converter.convertData(portal);
 	}
 
 	/**
 	 * Helper function to import data.
+     *
+     * @param database String
+     * @param portal String
 	 *
-	 *  @throws Exception
+	 * @throws Exception
 	 */
-	private void importData(String databaseName) throws Exception {
+	private void importData(String database, String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), database: " + databaseName);
+			LOG.info("importData(), database: " + database);
+			LOG.info("importData(), portal: " + portal);
 		}
 
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Importer importer = (Importer)context.getBean("importer");
-		importer.importData(databaseName);
+		importer.importData(portal, database);
 	}
 
 	/**

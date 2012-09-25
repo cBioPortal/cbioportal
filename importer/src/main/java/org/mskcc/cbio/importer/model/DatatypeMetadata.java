@@ -1,69 +1,99 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // package
 package org.mskcc.cbio.importer.model;
 
-// imports
-
 /**
- * Class which contains datatype  metadata.
+ * Class which contains datatype metadata.
  */
 public final class DatatypeMetadata {
 
-	// Datatype enum
-	public static enum DATATYPE {
-		
-		// types
-		AGILENT_MRNA("AGILENT_MRNA"),
-		CNA("CNA"),
-		CNA_SEG("CNA_SEG"),
-		LOG2CNA("LOG2CNA"),
-		MUTATION("MUTATION"),
-		RNA_SEQ("RNA_SEQ"),
-		METHYLATION("METHYLATION"),
-		CORRELATE_METHYLATION_VS_MRNA("CORRELATE_METHYLATION_VS_MRNA");
-
-		//string ref for readable name
-		private String datatype;
-		
-		// constructor
-		DATATYPE(String datatype) { this.datatype = datatype; }
-
-		// method toget enum readable name
-		public String toString() { return datatype; }
-	}
-
 	// bean properties
-	private DATATYPE datatype;
-	private String packageFilename;
-	private String dataFilename;
+	private String datatype;
+	private Boolean download;
+	private String firehoseDownloadArchive;
+	private String firehoseDownloadFilename;
 	private String overrideFilename;
-	private Boolean download; // download?
+    private String stagingFilename;
+    private String converterClassname;
+    private String importerClassname;
+
+    private String metaFilename;
+    private String metaStableID;
+    private String metaGeneticAlterationType;
+    private Boolean metaShowProfileInAnalysisTab;
+    private String metaProfileName;
 
     /**
      * Create a DatatypeMetadata instance with specified properties.
      *
-	 * @param datatype DATATYPE
-	 * @param packageFilename String
-	 * @param dataFilename String
-	 * @param overrideFilename String
+     * @param datatype String
 	 * @param download Boolean
+	 * @param firehoseDownloadArchive String
+	 * @param firehoseDownloadFilename String
+     * @param overrideFilename String
+     * @param stagingFilename String
+     * @param converterClassname String
+     * @param importerClassname String
+	 *
+     * @param metaFilename String
+     * @param metaStableID String
+     * @param metaGeneticAlterationType String
+     * @param metaShowProfileInAnalyisTab Boolean
+     * @param metaProfileName String
      */
-    public DatatypeMetadata(final DATATYPE datatype, final Boolean download,
-							final String packageFilename, final String dataFilename, final String overrideFilename) {
+    public DatatypeMetadata(final String datatype, final Boolean download,
+							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
+							final String overrideFilename, final String stagingFilename, 
+							final String converterClassname, final String importerClassname, 
+                            final String metaFilename, final String metaStableID,
+							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
+							final String metaProfileName) {
 
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
 		}
 		this.datatype = datatype;
 
-		if (packageFilename == null) {
-            throw new IllegalArgumentException("packageFilename must not be null");
+		if (download == null) {
+            throw new IllegalArgumentException("download must not be null");
 		}
-		this.packageFilename = packageFilename;
+		this.download = download;
 
-		if (dataFilename == null) {
-            throw new IllegalArgumentException("dataFilename must not be null");
+		if (firehoseDownloadArchive == null) {
+            throw new IllegalArgumentException("firehoseDownloadArchive must not be null");
 		}
-		this.dataFilename = dataFilename;
+		this.firehoseDownloadArchive = firehoseDownloadArchive;
+
+		if (firehoseDownloadFilename == null) {
+            throw new IllegalArgumentException("firehoseDownloadFilename must not be null");
+		}
+		this.firehoseDownloadFilename = firehoseDownloadFilename;
 
 		if (overrideFilename == null) {
 			this.overrideFilename = "";
@@ -72,15 +102,60 @@ public final class DatatypeMetadata {
 			this.overrideFilename = overrideFilename;
 		}
 
-		if (download == null) {
-            throw new IllegalArgumentException("download must not be null");
+		if (stagingFilename == null) {
+            throw new IllegalArgumentException("stagingFilename must not be null");
 		}
-		this.download = download;
+		this.stagingFilename = stagingFilename;
+
+		if (converterClassname == null) {
+            throw new IllegalArgumentException("converterClassname must not be null");
+		}
+		this.converterClassname = converterClassname;
+
+		if (importerClassname == null) {
+            throw new IllegalArgumentException("importerClassname must not be null");
+		}
+		this.importerClassname = importerClassname;
+
+
+		if (metaFilename == null) {
+            throw new IllegalArgumentException("metaFilename must not be null");
+		}
+		this.metaFilename = metaFilename;
+
+		if (metaStableID == null) {
+            throw new IllegalArgumentException("metaStableID must not be null");
+		}
+		this.metaStableID = metaStableID;
+
+		if (metaGeneticAlterationType == null) {
+            throw new IllegalArgumentException("metaGeneticAlterationType must not be null");
+		}
+		this.metaGeneticAlterationType = metaGeneticAlterationType;
+
+		if (metaShowProfileInAnalysisTab == null) {
+            throw new IllegalArgumentException("metaShowProfileInAnalysisTab must not be null");
+		}
+		this.metaShowProfileInAnalysisTab = metaShowProfileInAnalysisTab;
+
+		if (metaProfileName == null) {
+            throw new IllegalArgumentException("metaProfileName must not be null");
+		}
+		this.metaProfileName = metaProfileName;
 	}
 
-	public DATATYPE getDatatype() { return datatype; }
-	public String getPackageFilename() { return packageFilename; }
-	public String getDataFilename() { return dataFilename; }
-	public String getOverrideFilename() { return overrideFilename; }
+	public String getDatatype() { return datatype; }
 	public Boolean getDownload() { return download; }
+	public String getFirehoseDownloadArchive() { return firehoseDownloadArchive; }
+	public String getFirehoseDownloadFilename() { return firehoseDownloadFilename; }
+	public String getOverrideFilename() { return overrideFilename; }
+	public String getStagingFilename() { return stagingFilename; }
+	public String getConverterClassname() { return converterClassname; }
+	public String getImporterClassname() { return importerClassname; }
+
+	public String getMetaFilename() { return metaFilename; }
+	public String getMetaStableID() { return metaStableID; }
+	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }
+	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
+	public String getMetaProfileName() { return metaProfileName; }
 }

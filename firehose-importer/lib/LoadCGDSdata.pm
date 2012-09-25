@@ -201,6 +201,13 @@ sub load_cancer_data{
 		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
 	  }
 
+	  # import hg19 seg file
+	  my $fullCanonicalSegDataFile = File::Spec->catfile( @pathToDataFile, $cancerDataDir . '_scna_minus_germline_cnv_hg19.seg' );
+	  if ( $fileUtil->existent($fullCanonicalSegDataFile) ) {
+		print "importingCopyNumberSegentData(hg19): $fullCanonicalSegDataFile\n";
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cgds.scripts.ImportCopyNumberSegmentData " . $fullCanonicalSegDataFile );
+	  }
+
 	  # import gistic gene amp file
 	  my $fullCanonicalGisticGeneAmpFile = File::Spec->catfile( @pathToDataFile, 'data_GISTIC_GENE_AMPS.txt' );
 	  if ( $fileUtil->existent($fullCanonicalGisticGeneAmpFile) ) {

@@ -40,8 +40,8 @@ public final class DatatypeMetadata {
 	private String firehoseDownloadFilename;
 	private String overrideFilename;
     private String stagingFilename;
-    private String converterClassname;
-    private String importerClassname;
+    private String converterClassName;
+    private String importerClassName;
 
     private String metaFilename;
     private String metaStableID;
@@ -58,8 +58,8 @@ public final class DatatypeMetadata {
 	 * @param firehoseDownloadFilename String
      * @param overrideFilename String
      * @param stagingFilename String
-     * @param converterClassname String
-     * @param importerClassname String
+     * @param converterClassName String
+     * @param importerClassName String
 	 *
      * @param metaFilename String
      * @param metaStableID String
@@ -70,7 +70,7 @@ public final class DatatypeMetadata {
     public DatatypeMetadata(final String datatype, final Boolean download,
 							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
 							final String overrideFilename, final String stagingFilename, 
-							final String converterClassname, final String importerClassname, 
+							final String converterClassName, final String importerClassName, 
                             final String metaFilename, final String metaStableID,
 							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
 							final String metaProfileName) {
@@ -107,15 +107,15 @@ public final class DatatypeMetadata {
 		}
 		this.stagingFilename = stagingFilename;
 
-		if (converterClassname == null) {
-            throw new IllegalArgumentException("converterClassname must not be null");
+		if (converterClassName == null) {
+            throw new IllegalArgumentException("converterClassName must not be null");
 		}
-		this.converterClassname = converterClassname;
+		this.converterClassName = converterClassName;
 
-		if (importerClassname == null) {
-            throw new IllegalArgumentException("importerClassname must not be null");
+		if (importerClassName == null) {
+            throw new IllegalArgumentException("importerClassName must not be null");
 		}
-		this.importerClassname = importerClassname;
+		this.importerClassName = importerClassName;
 
 
 		if (metaFilename == null) {
@@ -150,8 +150,8 @@ public final class DatatypeMetadata {
 	public String getFirehoseDownloadFilename() { return firehoseDownloadFilename; }
 	public String getOverrideFilename() { return overrideFilename; }
 	public String getStagingFilename() { return stagingFilename; }
-	public String getConverterClassname() { return converterClassname; }
-	public String getImporterClassname() { return importerClassname; }
+	public String getConverterClassName() { return converterClassName; }
+	public String getImporterClassName() { return importerClassName; }
 
 	public String getMetaFilename() { return metaFilename; }
 	public String getMetaStableID() { return metaStableID; }

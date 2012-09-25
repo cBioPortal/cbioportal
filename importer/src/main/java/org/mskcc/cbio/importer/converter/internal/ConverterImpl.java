@@ -32,15 +32,17 @@ package org.mskcc.cbio.importer.converter.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.StagingFileFactory;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.JTable;
+import java.util.Collection;
+import java.lang.reflect.Constructor;
 
 /**
  * Class which implements the Converter interface.
@@ -105,6 +107,9 @@ final class ConverterImpl implements Converter {
             return;
         }
 
+		// get datatype metadata
+		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
+
         // iterate over all import data objects
         for (ImportData importData : importDataDAO.getImportData()) {
 
@@ -126,10 +131,14 @@ final class ConverterImpl implements Converter {
             }
 
             // get data to process as JTable
-            JTable table = fileUtils.getFileContents(portalMetadata, importData);
+            JTable jtable = fileUtils.getFileContents(portalMetadata, importData);
 
-            // get converter
-            
+            // get converter and create staging file
+			Object[] args = { config, fileUtils };
+			Converter converter =
+				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata),
+												args);
+			converter.createStagingFile(portalMetadata, importData, jtable);
         }
 	}
 
@@ -146,6 +155,19 @@ final class ConverterImpl implements Converter {
 			LOG.info("generateCaseLists()");
 		}
     }
+
+	/**
+	 * Returns the given file contents in a JTable.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param importData ImportData
+	 * @param JTable
+	 * @throws Exception
+	 */
+	@Override
+	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData, final JTable jtable) throws Exception {
+		throw new UnsupportedOperationException();
+	}
 
     /**
      * Helper function - determines if the given ImportData
@@ -171,4 +193,58 @@ final class ConverterImpl implements Converter {
         // outta here
         return false;
     }
+
+	/**
+	 * Helper function to get converter className
+	 *
+	 * @param filename String
+	 * @param datatypeMetadata Collection<datatypeMetadata>
+	 * @return String
+	 */
+	private String getConverterClassName(final String datatype,
+										 final Collection<DatatypeMetadata> datatypeMetadata) {
+		
+		String toReturn = "";
+
+		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
+            if (dtMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
+                toReturn = dtMetadata.getConverterClassName();
+                break;
+            }
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Creates a new instance of a class which implements the Converter interface (via reflection).
+	 *
+	 * @param className String
+	 * @param args Object[]
+	 * @return Object
+	 */
+	private static Object getConverterInstance(final String className, Object[] args) throws Exception {
+
+		// sanity check
+		if (className == null || className.length() == 0) {
+			throw new IllegalArgumentException("className must not be null");
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getConverterInstance(), className: " + className);
+		}
+
+		try {
+			Class<?> clazz = Class.forName(className);
+			Class[] parameterTypes = { org.mskcc.cbio.importer.Config.class,
+									   org.mskcc.cbio.importer.FileUtils.class };
+			Constructor<?> c = clazz.getDeclaredConstructor(parameterTypes);
+			return c.newInstance(args);
+		}
+		catch (Exception e) {
+			LOG.error(("Failed to instantiate " + className), e) ;
+			throw e;
+		}
+	}
 }

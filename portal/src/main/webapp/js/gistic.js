@@ -119,10 +119,10 @@ var Gistic = function(gistics) {
                             var highlight = '';
 
                             if (genes.indexOf(g) !== -1) {
-                                highlight = ' highlight';
+                                highlight = ' highlight gistic_selected_gene';
                             }
 
-                            return "<span class='gistic_gene" + highlight + "'" +
+                            return "<span class='" + highlight + "'" +
                                 "onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
                         });
 
@@ -183,7 +183,8 @@ var Gistic = function(gistics) {
 
 Gistic.UI = ( function() {
     // dump of all sorts of UI functions
-
+    // the closure is to keep the private GISTIC variable
+ 
     var GISTIC = {};
 
     return {
@@ -248,16 +249,17 @@ Gistic.UI = ( function() {
             var gene = $(el).html();
             gene.trim();        // just to be safe
 
+            $(el).toggleClass('gistic_selected_gene');
             Gistic.UI.selected_genes.update(gene);
         },
 
         updateGenes: function() {
             var geneSet = GeneSet(Gistic.gene_list_el.val());
-            var gene_list_str = geneSet.getRawGeneString();
 
+            var raw_str = geneSet.getRawGeneString();
             var newline = '';
-            if ( (gene_list_str.length !== 0) &&            // not the empty string
-                (gene_list_str.search(/\n$/) === -1) ) {    // there isn't a new linechar
+            if ( (raw_str.length !== 0) &&            // not the empty string
+                (raw_str.search(/\n$/) === -1) ) {    // there isn't a new linechar
                 newline = '\n';
             }
 

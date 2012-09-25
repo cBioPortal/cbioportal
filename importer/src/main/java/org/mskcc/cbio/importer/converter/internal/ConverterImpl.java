@@ -236,10 +236,9 @@ final class ConverterImpl implements Converter {
 
 		try {
 			Class<?> clazz = Class.forName(className);
-			Class[] parameterTypes = { org.mskcc.cbio.importer.Config.class,
-									   org.mskcc.cbio.importer.FileUtils.class };
-			Constructor<?> c = clazz.getDeclaredConstructor(parameterTypes);
-			return c.newInstance(args);
+			Constructor[] constructors = clazz.getConstructors();
+			// our converters only have the one constructor
+			return constructors[0].newInstance(args);
 		}
 		catch (Exception e) {
 			LOG.error(("Failed to instantiate " + className), e) ;

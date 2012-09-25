@@ -8,6 +8,7 @@ coadread_mskcc
 hnscc_broad
 kirc2_tcga
 luad_broad
+luad_merged
 luad_mskcc
 luad_tsp
 prad_broad

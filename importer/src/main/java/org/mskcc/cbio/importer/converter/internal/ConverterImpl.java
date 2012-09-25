@@ -136,8 +136,7 @@ final class ConverterImpl implements Converter {
             // get converter and create staging file
 			Object[] args = { config, fileUtils };
 			Converter converter =
-				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata),
-												args);
+				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
 			converter.createStagingFile(portalMetadata, importData, jtable);
         }
 	}

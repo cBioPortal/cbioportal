@@ -1,21 +1,17 @@
 var selected_cancer_type = 'tcga_gbm';
 
-$.get('Gistic.json', {'selected_cancer_type': selected_cancer_type}, function(data) {
-    // get data, make gistic object, draw table
+var SELECTED_CANCER_TYPE_OLD = '';
+var SELECTED_CANCER_TYPE_NEW = '';
 
-    var gistic = Gistic(data);
+$(document).ready(function() {
+    $('#select_cancer_type').change(function() {
+        SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
 
-    Gistic.table_el = $('#gistic_table');
-
-    // todo: think more about this
-    //geneSet = GeneSet(Gistic.gene_list_el.val());
-    //Gistic.gene_list_el.blur(function() {
-    //    Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
-    //    console.log(Gistic.geneSet.getAllGenes());
-    //});
-
-    gistic.drawTable(Gistic.table_el, ["MYC", "AHR"], { "sScrollY": "50%", "bPaginate": false});
+    });
 });
+
+//if (window.json.cancer_studies[cancerStudyId].has_gistic_data) {
+
 
 var Gistic = function(gistics) {
 
@@ -27,28 +23,6 @@ var Gistic = function(gistics) {
 
     // initialize Gistic's internal tracking of the Gene Set
     Gistic.geneSet = GeneSet(Gistic.gene_list_el.val());
-
-    // set up modal dialog box for gistic table (step 3)
-    Gistic.dialog_el.dialog( {autoOpen: false,
-            modal: true,
-            overflow: 'hidden',
-            minWidth: 636,
-            //resizable: false,
-            //height: 500,
-            // width: 'auto',
-            open: function() {
-                // sets the scrollbar to the top of the table
-                $(this).scrollTop(0);
-                return;
-
-                // workaround to prevent auto focus
-                //$(this).add('input').blur();
-            },
-            close: function() {
-                Gistic.UI.updateGenes();
-                return;
-            }
-    });
 
     Gistic.selected_genes = function() {
         var genes = [];
@@ -65,6 +39,11 @@ var Gistic = function(gistics) {
                 } else {
                     genes.splice(i,1);
                 }
+            },
+            force_add: function(gene) {
+                // pushes a gene onto the list
+                // without asking any questions
+                genes.push(gene);
             },
             reset: function() {
                 genes = [];
@@ -154,7 +133,6 @@ var Gistic = function(gistics) {
             },
             {"sTitle": "Genes", "aTargets":[3], "sType": "numeric",
                 "mDataProp": function(source, type, val) {
-
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
                     if (type === 'display') {
 
@@ -166,7 +144,7 @@ var Gistic = function(gistics) {
 
                             if (genes.indexOf(g) !== -1) {
                                 highlight = ' highlight';
-                                Gistic.selected_genes.update(g);
+                                Gistic.selected_genes.force_add(g);
                             }
 
                             return "<span class='gistic_gene" + highlight + "'" +
@@ -182,7 +160,7 @@ var Gistic = function(gistics) {
                             .concat("<a href='javascript:void(0)' id='gistic_less' style='display:none;' " +
                                     "onclick=Gistic.UI.expandGisticGenes(this);> less</a>")
                             .concat("<div id='gistic_hidden' style='display:none;'>")
-                            .concat(all_genes_str.slice(5))        // hidden genes
+                            .concat(all_genes_str.slice(5))             // hidden genes
                             .concat("</div>")
                         }
 
@@ -231,15 +209,41 @@ Gistic.UI = {
     // dump of all sorts of UI functions
 
     open_dialog : function() {
-        //var gs = GeneSet(Gistic.gene_list_el.val());
+        var GISTIC = {};        // global variable
 
-        //console.log(gs);
-        //console.log(gs.getAllGenes());
-        Gistic.dialog_el.dialog('open');
+        Gistic.table_el = $('#gistic_table');
+
+        var options = { "sScrollY": "50%", "bPaginate": false, "bDestroy": true};
+
+        $('#gistic_loading').show();
+        $('#gistic_dialog').dialog('open');
+
+        var genes = GeneSet($('#gene_list').val()).getAllGenes();
+
+        // hide the Gistic button when there is no gistic data
+        // if ajax hasn't already been done...then do an ajax call
+        if (SELECTED_CANCER_TYPE_OLD !== SELECTED_CANCER_TYPE_NEW) {
+
+            SELECTED_CANCER_TYPE_OLD = SELECTED_CANCER_TYPE_NEW;
+
+            $.ajax({
+                url: 'Gistic.json',
+                data: {'selected_cancer_type': selected_cancer_type},
+                dataType: 'json',
+                success: function(data) {
+                    $('#gistic_loading').hide();
+
+                    GISTIC = Gistic(data);
+
+                    gistic.drawTable(Gistic.table_el, genes, options);
+                }
+            });
+        } else {
+            GISTIC.drawTable(Gistic.table_el, genes, options);
+        }
 
         // redraw table
-        Gistic.dt.fnDraw();
-
+        //Gistic.dt.fnDraw();
     },
 
     expandGisticGenes : function(el) {
@@ -247,7 +251,6 @@ Gistic.UI = {
         // currently initializing to hiding all non-Sanger genes
 
         el = $(el).parents()[0];
-
 
         // grab all the elements
         var more = $(el).children('#gistic_more');
@@ -261,7 +264,6 @@ Gistic.UI = {
     },
 
     ioGeneSet : function(el) {
-
         $(el).toggleClass('highlight');
 
         var gene = $(el).html();

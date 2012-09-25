@@ -112,7 +112,7 @@ public class MutationTableUtil
     }
 
     public String getTableHeaderHtml() {
-        return HtmlUtil.createTableHeaderRowWithTitle(headerList);
+        return HtmlUtil.createTableHeaderRowWithTooltip(headerList);
     }
 
     public ArrayList<String> getDataFields(ExtendedMutation mutation) {
@@ -276,7 +276,7 @@ public class MutationTableUtil
 
 		// TODO id might be a huge string (over 2000 chars), find a better way to send the cosmic value?
 		return "<a class='mutation_table_cosmic' " +
-			"title='Click to see details' " +
+			"alt='Click to see the details' " + // used as a tooltip value
 			"id='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
 			total.toString() + "</a>";
 	}
@@ -320,7 +320,8 @@ public class MutationTableUtil
 		{
 			return "hg18";
 		}
-		else if (build.equals("37"))
+		else if (build.equals("37") ||
+		         build.equalsIgnoreCase("GRCh37"))
 		{
 			return "hg19";
 		}

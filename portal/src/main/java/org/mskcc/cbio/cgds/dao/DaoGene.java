@@ -76,28 +76,16 @@ class DaoGene {
         return daoGene;
     }
     
-    public int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-                    ("SELECT MIN(ENTREZ_GENE_ID) FROM gene");
-            rs = pstmt.executeQuery();
-            int min = 0;
-            if (rs.next()) {
-                min = rs.getInt(1);
-                if (min > 0)
-                    min = 0;
-            }
-            gene.setEntrezGeneId(min-1);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+    private static int fakeEntrezId = -1;
+    private synchronized int getNextFakeEntrezId() throws DaoException {
+        while (getGene(fakeEntrezId)!=null) {
+            fakeEntrezId --;
         }
-        
+        return fakeEntrezId;
+    }
+    
+    public synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
+        gene.setEntrezGeneId(getNextFakeEntrezId());
         return addGene(gene);
     }
 
@@ -133,7 +121,7 @@ class DaoGene {
                     rows += pstmt.executeUpdate();
                     
                 }
-                 
+                    
                 rows += addGeneAliases(gene);
                     
                 return rows;

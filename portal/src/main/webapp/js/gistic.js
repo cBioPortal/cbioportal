@@ -265,9 +265,18 @@ Gistic.UI = ( function() {
                 map(function(i, val) { return $(val).html(); });
 
             var remove_genes = Gistic.selected_genes.filter(function(i) {
-                console.log(Gistic.selected_genes[i]);
+                // genes that are not selected and are in the geneset
                 return $.inArray(Gistic.selected_genes[i], currently_selected) === -1;
             });
+
+            var new_genes = currently_selected.filter(function(i) {
+                // genes that are selected and not in the gene set
+                return $.inArray(currently_selected[i], geneSet.getAllGenes()) === -1;
+            });
+
+            // remove remove_genes from geneset
+            // append new_genes
+            // push to gene set
 
             var gene_list = geneSet.getAllGenes();
 

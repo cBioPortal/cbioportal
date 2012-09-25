@@ -27,6 +27,14 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
@@ -34,17 +42,6 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Command Line Tool to Import Background Gene Data.
@@ -59,7 +56,6 @@ public class ImportMicroRNAIDs {
     }
 
     public void importData() throws IOException, DaoException {
-        boolean isBulkLoadOn = MySQLbulkLoader.isBulkLoad();
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -94,11 +90,7 @@ public class ImportMicroRNAIDs {
         
         for (CanonicalGene mirna : mirnas) {
             daoGene.addGene(mirna);
-        }
-        
-        if (isBulkLoadOn) {
-           MySQLbulkLoader.bulkLoadOff();
-        }        
+        }       
     }
     
     private void setAliases(String hsa, Set<String> aliases) {
@@ -135,7 +127,8 @@ public class ImportMicroRNAIDs {
             for (String mirnaid : mirna.getAliases()) {
                 List<CanonicalGene> pres = new ArrayList<CanonicalGene>(daoGene.guessGene(mirnaid));
                 for (CanonicalGene pre : pres) {
-                    if (!pre.getHugoGeneSymbolAllCaps().startsWith("MIR")) {
+                    String preCap = pre.getHugoGeneSymbolAllCaps();
+                    if (!preCap.startsWith("MIR")&&!preCap.startsWith("LET")) {
                         continue;
                     }
 //                    aliases.add(pre.getStandardSymbol());
@@ -156,6 +149,7 @@ public class ImportMicroRNAIDs {
     }
 
     public static void main(String[] args) throws Exception {
+        args = new String[]{"/Users/jj/projects/sander/cgds-data/reference-data/id_mapping_mirbase.txt"};
         if (args.length == 0) {
             System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
             System.exit(1);

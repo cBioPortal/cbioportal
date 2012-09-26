@@ -179,7 +179,12 @@ var Gistic = function(gistics) {
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
                 $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
-                $(i).hover(Gistic.UI.show_message("Click to highlight, double click to highlight all"));
+                $(i).qTip({
+                    content: "Click to highlight, double click to highlight all",
+                    show: 'mouseover',
+                    hide: 'mouseout'
+                });
+                //$(i).hover(Gistic.UI.show_message("Click to highlight, double click to highlight all"));
             });
 
             return;
@@ -309,7 +314,7 @@ Gistic.UI = ( function() {
 
             if (selection.length > 50) {
                 // show error message
-                Gistic.UI.show_message('Cannot Select More Than ' + max + ' Genes');
+                //Gistic.UI.show_message('Cannot Select More Than ' + max + ' Genes');
                 return;
             }
             $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');

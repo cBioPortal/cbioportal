@@ -176,6 +176,7 @@
                     },
                     {// type
                         "aTargets": [ mutTableIndices["type"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -193,10 +194,10 @@
                                     color = 'red';
                                 } else if (mutType==='In_Frame_Ins') {
                                     abbr = 'IFI';
-                                    color = 'green';
+                                    color = 'black';
                                 } else if (mutType==='In_Frame_Del') {
                                     abbr = 'IFD';
-                                    color = 'green';
+                                    color = 'black';
                                 } else if (mutType==='Frame_Shift_Del') {
                                     abbr = 'FS';
                                     color = 'red';
@@ -299,10 +300,10 @@
                                     n += c;
                                 }
                                 if (n==0) return "";
-                                var tip = '<table><tr><td colspan=2><b>'+n+' occurrences in COSMIC</b></td></tr><tr>'+arr.join('</tr><tr>')+'</tr></table>';
+                                var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id+'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'+arr.join('</tr><tr>')+'</tr></tbody></table>';
                                 var width = Math.ceil(10*Math.min(4,Math.log(n)*Math.LOG10E));
                                 return  "<div class='mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                                +"-cosmic-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                             } else if (type==='sort') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
                                 var n = 0;
@@ -363,46 +364,11 @@
                         },
                         "asSorting": ["desc", "asc"]
                     }
-//                    {// note 
-//                        "bVisible": isSummary,
-//                        "aTargets": [ mutTableIndices["note"] ],
-//                        "mDataProp": function(source,type,value) {
-//                            if (!isSummary) return "";
-//                            if (type==='set') {
-//                                source[mut_source_header_indices["note"]]=value;
-//                            } else if (type==='display') {
-//                                var notes = [];
-//                                if (source[mut_source_header_indices["cosmic"]])
-//                                    notes.push(formatCosmic(source[mut_source_header_indices["cosmic"]],table_id,true));
-//                                if (source[mut_source_header_indices["mutsig"]]!=null)
-//                                    notes.push("<img src='images/mutsig.png' width=15 height=15 class='"+table_id
-//                                                +"-tip' alt='<b>MutSig</b><br/>Q-value: "+source[mut_source_header_indices["mutsig"]].toPrecision(2)+"'/>");
-//                                if (source[mut_source_header_indices["sanger"]])
-//                                    notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
-//                                                +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-//                                                +source[mut_source_header_indices["gene"]]+"\">Sanger Cancer Gene Census</a>'/>");
-//                                var drug = source[mut_source_header_indices["drug"]];
-//                                if (drug && drug.length) {
-//                                    notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
-//                                                +source[mut_source_header_indices["id"]]+"-drug-note-tip' class='"
-//                                                +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
-//                                }
-//                                if (source[mut_source_header_indices["status"]]==="Germline")
-//                                    notes.push("<a class='"+table_id+"-tip' href='#' alt='Germline mutation'>G</a>");
-//                                return notes.join("&nbsp;");
-//                            } else if (type==='sort') {
-//                                return "";
-//                            } else {
-//                                if (!source[mut_source_header_indices["note"]]) return '';
-//                                return source[mut_source_header_indices["note"]];
-//                            }
-//                        },
-//                        "bSortable" : false
-//                    }
                 ],
                 "fnDrawCallback": function( oSettings ) {
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip");
+                    addCosmicTooltip(table_id);
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
@@ -418,22 +384,32 @@
         addNoteTooltip("#"+table_id+" th.mut-header");
         return oTable;
     }
-    
-    function formatCosmic(cosmic,table_id,img) {
-        if (!cosmic) return "";
-        var arr = [];
-        var n = 0;
-        for(var aa in cosmic) {
-            var c = cosmic[aa];
-            arr.push("<td>"+aa+":</td><td>"+c+"</td>");
-            n += c;
-        }
-        if (n==0) return "";
-        var alt = '<table><tr><td colspan=2><b>COSMIC</b></td></tr><tr>'+arr.join('</tr><tr>')+'</tr></table>'
-        if (img)
-            return "<img src='images/cosmic.gif' width=12 height=12 class='"+table_id+"-tip' alt='"+alt+"'/>"
-        else
-            return "<a class='"+table_id+"-tip' onclick='return false;' href='#' alt='"+alt+"'>"+n+"</a>"
+
+    function addCosmicTooltip(table_id) {
+        $("."+table_id+"-cosmic-tip").qtip({
+            content: {
+                attr: 'alt'
+            },
+            events: {
+                render: function(event, api) {
+                    $("."+table_id+"-cosmic-table").dataTable( {
+                        "sDom": 't',
+                        "bJQueryUI": true,
+                        "bDestroy": true,
+                        "oLanguage": {
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                            "sInfoFiltered": "",
+                            "sLengthMenu": "Show _MENU_ per page"
+                        },
+                        "aaSorting": [[1,'desc']],
+                        "iDisplayLength": -1
+                    } );
+                }
+            },
+            hide: { fixed: true, delay: 100 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top right',at:'bottom center'}
+        });
     }
     
     var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;

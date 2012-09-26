@@ -316,10 +316,6 @@ function addMoreCinicalTooltip() {
                             },
                             {
                                 "aTargets": [ 1 ],
-                                "fnRender": function(obj) {
-                                    var value = obj.aData[ obj.iDataColumn ];
-                                    return value;;
-                                },
                                 "bSortable": false
                             }
                         ],

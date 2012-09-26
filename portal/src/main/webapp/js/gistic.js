@@ -179,6 +179,7 @@ var Gistic = function(gistics) {
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
                 $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
+                $(i).hover(Gistic.UI.show_message("Click to highlight, double click to highlight all"));
             });
 
             return;
@@ -251,7 +252,7 @@ Gistic.UI = ( function() {
             // and toggle them
             $(more).toggle();
             $(less).toggle();
-            $(hidden).toggle('slow');
+            $(hidden).slideToggle('slow');
         },
 
         ioGeneSet : function(el) {
@@ -294,13 +295,22 @@ Gistic.UI = ( function() {
             Gistic.gene_list_el.val(out);
         },
 
+        show_message: function(msg) {
+            var msg_el = $('#gistic_message_box');
+            msg_el.html('');
+            msg_el.html(msg);
+            msg_el.slideToggle('fast');
+            msg_el.fadeOut(4500);
+            msg.el.hide();
+        },
+
         select_all_genes: function(el) {
             var max = 50;       // max no of genes users are allowed to select
             var selection = $(this).find('.gistic_gene');
 
             if (selection.length > 50) {
                 // show error message
-                alert('too many genes');
+                Gistic.UI.show_message('Cannot Select More Than ' + max + ' Genes');
                 return;
             }
             $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');

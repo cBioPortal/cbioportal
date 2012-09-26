@@ -73,10 +73,11 @@
     </div>
 
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
+        <span id='gistic_message_box' style='display:none; color:red; font-weight:bold; font-size:1.2em;'></span>
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
+            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Highlighted Genes With Query</button>
         </div>
     </div>
     <script type='text/javascript'>

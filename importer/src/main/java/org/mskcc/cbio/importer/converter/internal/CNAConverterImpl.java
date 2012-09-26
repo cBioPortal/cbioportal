@@ -26,18 +26,71 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.Converter;
+import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.JTable;
 
 /**
- * Interface used to convert portal data.
+ * Class which implements the Converter interface.
  */
-public interface StagingFileFactory {
+final class CNAConverterImpl implements Converter {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
+
+	// ref to configuration
+	private Config config;
+
+	// ref to file utils
+	private FileUtils fileUtils;
+
+	/**
+	 * Constructor.
+     *
+     * Takes a Config reference.
+	 * Takes a FileUtils reference.
+     *
+     * @param config Config
+	 * @param fileUtils FileUtils
+	 */
+	public CNAConverterImpl(final Config config, final FileUtils fileUtils) {
+
+		// set members
+		this.config = config;
+        this.fileUtils = fileUtils;
+	}
+
+	/**
+	 * Converts data for the given portal.
+	 *
+     * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void convertData(final String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Generates case lists for the given portal.
+	 *
+     * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void generateCaseLists(final String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Returns the given file contents in a JTable.
@@ -47,5 +100,12 @@ public interface StagingFileFactory {
 	 * @param JTable
 	 * @throws Exception
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData, final JTable jtable) throws Exception;
+	@Override
+	public void createStagingFile(final PortalMetadata portalMetadata,
+								  final ImportData importData, final JTable jtable) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile()");
+		}
+	}
 }

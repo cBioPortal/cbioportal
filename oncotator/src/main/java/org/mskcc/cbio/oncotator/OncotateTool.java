@@ -146,7 +146,8 @@ public class OncotateTool {
         String ncbiBuild = mafRecord.getNcbiBuild();
 
 	    if (!ncbiBuild.equals("37") &&
-	        !ncbiBuild.equalsIgnoreCase("hg19"))
+	        !ncbiBuild.equalsIgnoreCase("hg19") &&
+	        !ncbiBuild.equalsIgnoreCase("GRCh37"))
 	    {
             outputBuildNumErrorMessage(ncbiBuild);
             buildNumErrors++;

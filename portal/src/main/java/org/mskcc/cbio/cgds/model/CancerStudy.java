@@ -28,6 +28,7 @@
 package org.mskcc.cbio.cgds.model;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoMutSig;
 import org.mskcc.cbio.cgds.util.EqualsUtil;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
@@ -252,5 +253,9 @@ public class CancerStudy {
 
     public boolean hasMutSigData() throws DaoException {
         return !DaoMutSig.getInstance().hasMutsig(this);
+    }
+
+    public boolean hasGisticData() throws DaoException {
+        return DaoGistic.hasGistic(this);
     }
 }

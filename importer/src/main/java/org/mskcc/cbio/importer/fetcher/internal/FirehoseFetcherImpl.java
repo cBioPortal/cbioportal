@@ -116,6 +116,11 @@ final class FirehoseFetcherImpl implements Fetcher {
 		this.fileUtils = fileUtils;
 		this.importDataDAO = importDataDAO;
         this.dataSourceMetadata = config.getDataSourceMetadata("firehose");
+
+		// sanity check
+		if (this.dataSourceMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		}
 	}
 
 	/**
@@ -128,11 +133,6 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch()");
-		}
-
-		// sanity check
-		if (this.dataSourceMetadata == null) {
-			throw new Exception("dataSourceMetadata reference is null");
 		}
 
 		// get latest runs

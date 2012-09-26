@@ -200,8 +200,6 @@ if (patientViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
-
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
 <script type="text/javascript">
 

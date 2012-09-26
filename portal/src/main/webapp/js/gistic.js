@@ -301,7 +301,6 @@ Gistic.UI = ( function() {
             msg_el.html(msg);
             msg_el.slideToggle('fast');
             msg_el.fadeOut(4500);
-            msg.el.hide();
         },
 
         select_all_genes: function(el) {

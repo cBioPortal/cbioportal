@@ -105,41 +105,41 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
-            {"sTitle": "Genes", "aTargets":[3], "sType": "numeric",
+            {"sTitle": "Genes", "aTargets":[3], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 
                     if (type === 'display') {
 
-                        var all_genes_str = all_genes.map(function(g) {
+                        var all_genes = all_genes.map(function(g) {
                             // bind ioGeneSet to each gene
                             // highlight ones that are already in the gene list
 
                             var highlight = '';
 
                             if (genes.indexOf(g) !== -1) {
-                                highlight = ' highlight gistic_selected_gene';
+                                highlight = ' gistic_selected_gene';
                             }
 
-                            return "<span class='" + highlight + "'" +
+                            return "<span class='gistic_gene" + highlight + "'" +
                                 "onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
                         });
 
-                        if (all_genes_str.length > 5) {
+                        if (all_genes.length > 5) {
 
-                            all_genes_str = all_genes_str.slice(0,5)    // visible genes
-                            .concat(" <a href='javascript:void(0)' id='gistic_more'" +
+                            all_genes = all_genes.slice(0,5)    // visible genes
+                            .concat(" <a href='javascript:void(0)' style='color:blue' id='gistic_more'" +
                                     "onclick=Gistic.UI.expandGisticGenes(this);>+" +
-                                    (all_genes_str.length - 5)  + " more</a>")
-                            .concat("<a href='javascript:void(0)' id='gistic_less' style='display:none;' " +
+                                    (all_genes.length - 5)  + " more</a>")
+                            .concat("<a href='javascript:void(0)' id='gistic_less' style='color:blue; display:none;' " +
                                     "onclick=Gistic.UI.expandGisticGenes(this);> less</a>")
-                            .concat("<div id='gistic_hidden' style='display:none;'>")
-                            .concat(all_genes_str.slice(5))             // hidden genes
+
+                            .concat("<div id='gistic_hidden' style='display:none;'>") // hidden genes div
+                            .concat(all_genes.slice(5))
                             .concat("</div>")
                         }
 
-                        all_genes_str = all_genes_str.join(" ");
-                        return all_genes_str;
+                        return all_genes.join(" ");
                     }
                     else if (type === 'sort') {
                         return all_genes.length;
@@ -172,10 +172,15 @@ var Gistic = function(gistics) {
                 return $(val).html();
             });
 
-
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
             $('.gistic_del').parent().css('background-color', 'blue');
+
+            // bind double clicking
+            Gistic.dt.fnGetNodes().forEach(function(i) {
+                $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
+            });
+
             return;
         },
 
@@ -250,7 +255,6 @@ Gistic.UI = ( function() {
         },
 
         ioGeneSet : function(el) {
-            $(el).toggleClass('highlight');
             $(el).toggleClass('gistic_selected_gene');
         },
 
@@ -282,15 +286,24 @@ Gistic.UI = ( function() {
                 geneSet.filterOut(val);
             });
 
-            console.log(geneSet.toString());
-            console.log($.makeArray(new_genes).join(" "));
-
             // append new_genes
             var out = geneSet.toString() + newline + $.makeArray(new_genes).join(" ");
             out = out.trim();
 
             // push to gene set
             Gistic.gene_list_el.val(out);
+        },
+
+        select_all_genes: function(el) {
+            var max = 50;       // max no of genes users are allowed to select
+            var selection = $(this).find('.gistic_gene');
+
+            if (selection.length > 50) {
+                // show error message
+                alert('too many genes');
+                return;
+            }
+            $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');
         }
     };
 })();

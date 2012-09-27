@@ -298,6 +298,43 @@ public class MafUtil
         }
     }
 
+	public String adjustDataLine(String dataLine)
+	{
+		String line = dataLine;
+		String[] parts = line.split("\t", -1);
+
+		// diff should be zero if (# of headers == # of data cols)
+		int diff = this.getHeaderCount() - parts.length;
+
+		// number of header columns are more than number of data columns
+		if (diff > 0)
+		{
+			// append appropriate number of tabs
+			for (int i = 0; i < diff; i++)
+			{
+				line += "\t";
+			}
+		}
+		// number of data columns are more than number of header columns
+		else if (diff < 0)
+		{
+			line = "";
+
+			// just truncate the data (discard the trailing columns)
+			for (int i = 0; i < this.getHeaderCount(); i++)
+			{
+				line += parts[i];
+
+				if (i < this.getHeaderCount() - 1)
+				{
+					line += "\t";
+				}
+			}
+		}
+
+		return line;
+	}
+
     public int getChrIndex() {
         return chrIndex;
     }

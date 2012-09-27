@@ -63,46 +63,46 @@
 </style>
 
 <script type="text/javascript">
-    jQuery.fn.dataTableExt.oSort['aa-change-col-asc']  = function(a,b) {
-        var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-        var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-        
-        if (ares) {
-            if (bres) {
-                var ia = parseInt(ares[1]);
-                var ib = parseInt(bres[1]);
-                return ia==ib ? 0 : (ia<ib ? -1:1);
-            } else {
-                return -1;
-            }
-        } else {
-            if (bres) {
-                return 1;
-            } else {
-                return a==b ? 0 : (a<b ? -1:1);
-            }
-        }
+    jQuery.fn.dataTableExt.oSort['aa-change-col-asc'] = function(a,b) {
+	    var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+	    var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+	    if (ares) {
+		    if (bres) {
+			    var ia = parseInt(ares[1]);
+			    var ib = parseInt(bres[1]);
+			    return ia==ib ? 0 : (ia<ib ? -1:1);
+		    } else {
+			    return -1;
+		    }
+	    } else {
+		    if (bres) {
+			    return 1;
+		    } else {
+			    return a==b ? 0 : (a<b ? -1:1);
+		    }
+	    }
     };
 
     jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
         var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
         var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
 
-        if (ares) {
-            if (bres) {
-                var ia = parseInt(ares[1]);
-                var ib = parseInt(bres[1]);
-                return ia==ib ? 0 : (ia<ib ? 1:-1);
-            } else {
-                return -1;
-            }
-        } else {
-            if (bres) {
-                return 1;
-            } else {
-                return a==b ? 0 : (a<b ? 1:-1);
-            }
-        }
+	    if (ares) {
+		    if (bres) {
+			    var ia = parseInt(ares[1]);
+			    var ib = parseInt(bres[1]);
+			    return ia==ib ? 0 : (ia<ib ? 1:-1);
+		    } else {
+			    return -1;
+		    }
+	    } else {
+		    if (bres) {
+			    return 1;
+		    } else {
+			    return a==b ? 0 : (a<b ? 1:-1);
+		    }
+	    }
     };
 
     function assignValueToPredictedImpact(str) {
@@ -121,39 +121,63 @@
         var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
         var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
         
-        if (av>0) {
-            if (bv>0) {
-                return av==bv ? 0 : (av<bv ? -1:1);
-            } else {
-                return -1;
-            }
-        } else {
-            if (bv>0) {
-                return 1;
-            } else {
-                return a==b ? 0 : (a<b ? 1:-1);
-            }
-        }
+        return _compareSortAsc(a, b, av, bv);
     };
     
     jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
         var av = assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
         var bv = assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
-        
-        if (av>0) {
-            if (bv>0) {
-                return av==bv ? 0 : (av<bv ? 1:-1);
-            } else {
-                return -1;
-            }
-        } else {
-            if (bv>0) {
-                return 1;
-            } else {
-                return a==b ? 0 : (a<b ? -1:1);
-            }
-        }
+
+	    return _compareSortDesc(a, b, av, bv);
     };
+
+    jQuery.fn.dataTableExt.oSort['cosmic-col-asc'] = function(a,b) {
+	    var av = parseInt($(a).text());
+	    var bv = parseInt($(b).text());
+
+	    return _compareSortAsc(a, b, av, bv);
+    };
+
+    jQuery.fn.dataTableExt.oSort['cosmic-col-desc'] = function(a,b) {
+	    var av = parseInt($(a).text());
+	    var bv = parseInt($(b).text());
+
+	    return _compareSortDesc(a, b, av, bv);
+    };
+
+    function _compareSortAsc(a, b, av, bv)
+    {
+	    if (av>0) {
+		    if (bv>0) {
+			    return av==bv ? 0 : (av<bv ? -1:1);
+		    } else {
+			    return -1;
+		    }
+	    } else {
+		    if (bv>0) {
+			    return 1;
+		    } else {
+			    return a==b ? 0 : (a<b ? 1:-1);
+		    }
+	    }
+    }
+
+    function _compareSortDesc(a, b, av, bv)
+    {
+	    if (av>0) {
+		    if (bv>0) {
+			    return av==bv ? 0 : (av<bv ? 1:-1);
+		    } else {
+			    return -1;
+		    }
+	    } else {
+		    if (bv>0) {
+			    return 1;
+		    } else {
+			    return a==b ? 0 : (a<b ? -1:1);
+		    }
+	    }
+    }
 
     //  Place mutation_details_table in a JQuery DataTable
     $(document).ready(function(){
@@ -172,6 +196,8 @@
                   "aoColumnDefs":[
                       {"sType": 'aa-change-col',
                               "aTargets": [ 5 ]},
+	                  {"sType": 'cosmic-col',
+		                  "aTargets": [ 12 ]},
                       {"sType": 'predicted-impact-col',
                               "aTargets": [ 13 ]}
                   ]
@@ -186,7 +212,7 @@
 	    // to fit mutation table initially
 	    fitMutationTableToWidth();
 
-	    var qTipOptions = {//content: {attr: 'alt'},
+	    var qTipOptions = {content: {attr: 'alt'},
 		    hide: { fixed: true, delay: 100 },
 		    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
 		    position: {my:'top center',at:'bottom center'}};
@@ -201,7 +227,7 @@
 	    $('#mutation_details .mutation_details_table .valid').qtip(qTipOptions);
 	    $('#mutation_details .mutation_details_table .wildtype').qtip(qTipOptions);
 
-	    $('#mutation_details .mutation_table_cosmic').qtip(qTipOptions);
+	    $('.mutation_table_cosmic').qtip(qTipOptions);
 
 	    // TODO changing background requires additional settings for sort icons...
 	    //$('#mutation_details .mutation_details_table th').addClass('ui-state-default');

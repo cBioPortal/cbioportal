@@ -6,6 +6,12 @@
 // August 2012
 GeneSet = function(raw_genes_str) {
 
+    if (typeof(raw_genes_str) !== 'string') {
+        throw "Error: GeneSet only takes strings, given type '"
+                    + typeof(raw_genes_str) + "'";
+        return -1;
+    }
+
     // {{{ helpers
     var type = function(o) {
         // thanks James Padolsey    http://james.padolsey.com/javascript/checking-types-in-javascript/
@@ -43,6 +49,7 @@ GeneSet = function(raw_genes_str) {
     //                  | gene (HUGO)
     //                  | onco query
     var GeneStmt = function(gene_str, is_onco_query) {
+
 
         var str = gene_str;
         var onco = is_onco_query;
@@ -184,6 +191,7 @@ GeneSet = function(raw_genes_str) {
             return onco_queries.map(function(x) {
                 if (x.isDatatype()) {
                     return {
+                        isDataType: true,
                         query: x.getQuery(),
                         genes: x.getGenes() };
                 }
@@ -201,6 +209,22 @@ GeneSet = function(raw_genes_str) {
         getAllGenes: function() {
         // returns a list of all genes, including ones in an onco query
             return all_genes;
+        },
+
+        filterOut: function(gene_str) {
+            // cleans out the GeneSet of all gene statements of gene
+            // gene_str
+            onco_queries = onco_queries.filter(function(i) {
+                return !i.getStmt().match(gene_str);
+            });
+
+            genes = genes.filter(function(i) {
+                return i.getStmt() !== gene_str;
+            });
+        },
+
+        toString: function() {
+            return (this.getOncoQueries() + ' ' + this.getGenes()).trim();
         },
 
         test: function() {
@@ -230,4 +254,10 @@ $(document).ready(function() {
     //"CCNE1: AMP\n" +
     //"CCNE1:  CNA >= GAIN\n" +
     //"CCNE1: AMP MUTATED\nRB1: HOMDEL MUTATED\nCDKN2A: HOMDEL EXP < -1\n").test();
+    //
+    //GeneSet("CCNE1:  CNA >= GAIN;\n TP53\n PTEN;\n" +
+    //"CCNE1 RB1 CDKN2A\n" +
+    //"CCNE1: AMP\n" +
+    //"CCNE1:  CNA >= GAIN\n" +
+    //"CCNE1: AMP MUTATED\nRB1: HOMDEL MUTATED\nCDKN2A: HOMDEL EXP < -1\n").toString();
 });

@@ -71,7 +71,40 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
+<<<<<<< local
+=======
+
+    <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
+        <div id='gistic_loading'>loading...</div>
+        <table id="gistic_table"></table>
+        <div id="gistic_dialog_footer">
+            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
+        </div>
+>>>>>>> other
     </div>
+    <script type='text/javascript'>
+    // set up modal dialog box for gistic table
+    $('#gistic_dialog').dialog( {autoOpen: false,
+            modal: true,
+            overflow: 'hidden',
+            minWidth: 636,
+            //resizable: false,
+            //height: 500,
+            // width: 'auto',
+            open: function() { 
+                // sets the scrollbar to the top of the table
+                $(this).scrollTop(0);
+                return;
+
+                // workaround to prevent auto focus
+                //$(this).add('input').blur();
+            },
+            close: function() {
+                Gistic.UI.updateGenes();
+                return;
+            }
+    });
+    </script>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

@@ -131,6 +131,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
                 jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
                 jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
+                jsonCancerStudySubMap.put("has_gistic_data", cancerStudy.hasGisticData());
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
             }
 

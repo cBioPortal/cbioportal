@@ -109,6 +109,7 @@ public class MafProcessor
 				continue;
 			}
 
+			line = util.adjustDataLine(line);
 			MafRecord mafRecord = util.parseRecord(line);
 			String key = generateKey(mafRecord);
 
@@ -200,7 +201,10 @@ public class MafProcessor
 						maData.length() - 1);
 				}
 
-				line += "\t" + maData;
+				if (maData.length() > 0)
+				{
+					line += "\t" + maData;
+				}
 			}
 
 			writer.write(line);
@@ -213,52 +217,59 @@ public class MafProcessor
 
 	/**
 	 * Add new Mutation Assessor columns to the MAF header line.
-	 * @param headerline    MAF header line
+	 * @param headerLine    MAF header line
 	 * @param columnNames   new MA column names
 	 * @param oncotated     indicated if the MAF is already oncotated
 	 * @return              header line with new columns added
 	 */
-	private String addNewMaColumns(String headerline,
+	private String addNewMaColumns(String headerLine,
 			String columnNames,
 			boolean oncotated)
 	{
+		// check if nothing to add
+		if (columnNames == null ||
+			columnNames.length() == 0)
+		{
+			return headerLine;
+		}
+
 		// if the file is already oncotated insert new column names
 		// just before the oncotator columns
 		if (oncotated)
 		{
 			// this is required to get the correct insertion index
 			// for the new header line
-			MafUtil util = new MafUtil(headerline);
+			MafUtil util = new MafUtil(headerLine);
 			int insertionIndex = util.getOncoVariantClassificationIndex();
 
 			// split and reconstruct the line with new headers
-			String[] parts = headerline.split("\t", -1);
-			headerline = "";
+			String[] parts = headerLine.split("\t");
+			headerLine = "";
 
 			for (int i = 0; i < parts.length; i++)
 			{
 				if (i == insertionIndex)
 				{
-					headerline += columnNames + "\t" + parts[i];
+					headerLine += columnNames + "\t" + parts[i];
 				}
 				else
 				{
-					headerline += parts[i];
+					headerLine += parts[i];
 				}
 
 				if (i < parts.length - 1)
 				{
-					headerline += "\t";
+					headerLine += "\t";
 				}
 			}
 		}
 		// append columns to the end of the file
 		else
 		{
-			headerline += "\t" + columnNames;
+			headerLine = headerLine.trim() + "\t" + columnNames;
 		}
 
-		return headerline;
+		return headerLine;
 	}
 
 	/**

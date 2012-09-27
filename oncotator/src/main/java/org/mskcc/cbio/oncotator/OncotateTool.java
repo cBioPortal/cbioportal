@@ -146,7 +146,8 @@ public class OncotateTool {
         String ncbiBuild = mafRecord.getNcbiBuild();
 
 	    if (!ncbiBuild.equals("37") &&
-	        !ncbiBuild.equalsIgnoreCase("hg19"))
+	        !ncbiBuild.equalsIgnoreCase("hg19") &&
+	        !ncbiBuild.equalsIgnoreCase("GRCh37"))
 	    {
             outputBuildNumErrorMessage(ncbiBuild);
             buildNumErrors++;
@@ -255,12 +256,7 @@ public class OncotateTool {
      */
     private String adjustDataLine(String dataLine, MafUtil util)
     {
-    	//String line = dataLine.trim();
-    	String line = new String(dataLine);
-    	String[] parts = line.split(TAB, -1);
-    	
-    	// diff should be zero if (# of headers == # of data cols)
-    	int diff = util.getHeaderCount() - parts.length;
+    	String line = "";
     	
     	// check if already oncotated
     	boolean oncotated = (util.getOncoVariantClassificationIndex() != -1);
@@ -268,7 +264,7 @@ public class OncotateTool {
     	// file already oncotated
     	if (oncotated)
     	{
-        	line = new String();
+		    String[] parts = dataLine.split(TAB, -1);
         	
     		// remove last ONCO_HEADERS_COUNT data columns
     		// (to enable overwrite instead of appending new cols to the end)
@@ -283,15 +279,11 @@ public class OncotateTool {
     				
     		}
     	}
-    	// not oncotated, but header and data mismatch
-    	else if (diff > 0)
-    	{
-    		// append appropriate number of tabs
-    		for (int i = 0; i < diff; i++)
-    		{
-    			line += TAB;
-    		}
-    	}
+    	// not oncotated, adjust tabs if necessary
+    	else
+	    {
+		    line = util.adjustDataLine(dataLine);
+	    }
     	
     	return line;
     }

@@ -70,14 +70,14 @@ public class HtmlUtil {
         return ("<span class='" + cssClass + "'>" + text + "</span>");
     }
 
-	public static String createTextWithinSpan(String text, String cssClass, String title)
+	public static String createTextWithinSpan(String text, String cssClass, String tooltip)
 	{
 		if (text == null || cssClass == null)
 		{
 			return EMPTY_STRING;
 		}
 
-		return ("<span class='" + cssClass + "' title='" + title + "'>" + text + "</span>");
+		return ("<span class='" + cssClass + "' alt='" + tooltip + "'>" + text + "</span>");
 	}
 
     public static String createLinkWithinSpan(String text, String cssClass) {
@@ -104,8 +104,8 @@ public class HtmlUtil {
         }
     }
 
-	//  Creates a row of headers with titles (used as tooltips)
-	public static String createTableHeaderRowWithTitle(ArrayList<String> headerList) {
+	//  Creates a row of headers with tooltip values
+	public static String createTableHeaderRowWithTooltip(ArrayList<String> headerList) {
 		HtmlWriter writer = new HtmlWriter();
 
 		if (headerList != null)
@@ -123,7 +123,8 @@ public class HtmlUtil {
 					text = parts[1];
 				}
 
-				writer.append("<th title='" + parts[0] + "'>" +
+				// "alt" value is used as a tooltip source
+				writer.append("<th alt='" + parts[0] + "'>" +
 				              text + "</th>");
 			}
 

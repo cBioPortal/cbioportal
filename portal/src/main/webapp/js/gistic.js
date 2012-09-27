@@ -3,6 +3,8 @@ var selected_cancer_type = 'tcga_gbm';
 var SELECTED_CANCER_TYPE_OLD = '';
 var SELECTED_CANCER_TYPE_NEW = '';
 
+// todo: put all the jquery selectors in one place
+
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
@@ -58,7 +60,6 @@ var Gistic = function(gistics) {
             var aaData = gistics;
 
             var aoColumnDefs = [
-                // todo : ampdel tiptip?
                 {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
                     "<span style='color:blue'>D</span><br/><img style='width: 50%;' src='images/help.png'></div>",
                     "aTargets": [0],
@@ -187,7 +188,8 @@ var Gistic = function(gistics) {
 
             // add qtip to amp/del column
             $('#gistic_AD').qtip({
-                content: "Red means the region is amplified. Blue means the region is deleted",
+                content: "Red means the region is amplified. " +
+                    "Blue means the region is deleted",
                 position: {
                     my: 'top left',
                     at: 'bottom left',
@@ -198,7 +200,8 @@ var Gistic = function(gistics) {
 
             // add qtip to genes column
             $($('.gistic_gene_cell')[0]).qtip({
-                content: "Click a gene to select it, double click to select all genes in a region",
+                content: "Click a gene to select it, " +
+                    "double click to select all genes in a region",
                 position: {
                     my: 'top left',
                     at: 'bottom left',
@@ -209,10 +212,15 @@ var Gistic = function(gistics) {
 
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
-                $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
-                //$(i).hover(Gistic.UI.show_message("Click to highlight, double click to highlight all"));
+                $(i).find('.gistic_gene_cell').
+                    dblclick(Gistic.UI.select_all_genes);
             });
 
+            // put in a message box
+            $('#gistic_table_filter').
+                prepend('<span id="gistic_msg_box" style="display:none; ' +
+                        'font-weight:bold; text-decoration:underline; color:red; float:left; ">' +
+                        'cannot select more than 50 genes in a single query</span>');
             return;
         },
 
@@ -236,6 +244,8 @@ Gistic.UI = ( function() {
             Gistic.table_el = $('#gistic_table');
 
             var options = { "sScrollY": "350px", "bPaginate": false, "bDestroy": true};
+
+            $('#gistic_msg_box').hide();
 
             $('#gistic_loading').show();
             $('#gistic_dialog').dialog('open');
@@ -326,22 +336,21 @@ Gistic.UI = ( function() {
             Gistic.gene_list_el.val(out);
         },
 
-        show_message: function(msg) {
-            var msg_el = $('#gistic_message_box');
-            msg_el.html('');
-            msg_el.html(msg);
-            msg_el.slideToggle('fast');
-            msg_el.fadeOut(4500);
-        },
-
         select_all_genes: function(el) {
             var max = 50;       // max no of genes users are allowed to select
             var selection = $(this).find('.gistic_gene');
 
             if (selection.length > 50) {
                 // show error message
-                //Gistic.UI.show_message('Cannot Select More Than ' + max + ' Genes');
+                $('#gistic_msg_box').show();
                 return;
+            } else {
+                $('#gistic_msg_box').hide();
+            }
+
+            if (selection.length > 5) {
+                // expand the genes if there are genes to be expanded
+                $(this).find('#gistic_more').click();
             }
             $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');
         }

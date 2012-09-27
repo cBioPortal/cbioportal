@@ -260,7 +260,7 @@ Gistic.UI = ( function() {
 
                 $.ajax({
                     url: 'Gistic.json',
-                    data: {'selected_cancer_type': selected_cancer_type},
+                    data: {'selected_cancer_type': SELECTED_CANCER_TYPE_NEW},
                     dataType: 'json',
                     success: function(data) {
                         $('#gistic_loading').hide();

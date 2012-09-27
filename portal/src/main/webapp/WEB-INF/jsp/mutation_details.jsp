@@ -471,7 +471,6 @@
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
         {
             outputHeader(out, geneWithScore, mutationCounter);
-	        outputOmaHeader(out);
 	        outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
 
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
@@ -527,11 +526,5 @@
     private void outputNoMutationDetails(JspWriter out) throws IOException {
         out.println("<p>There are no mutation details available for the gene set entered.</p>");
         out.println("<br><br>");
-    }
-
-    private void outputOmaHeader(JspWriter out) throws IOException {
-        out.println("<br>** Predicted functional impact (via " +
-                "<a href='http://mutationassessor.org'>Mutation Assessor</a>)" +
-                " is provided for missense mutations only.");
     }
 %>

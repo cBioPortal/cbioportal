@@ -296,11 +296,13 @@
                                 var n = 0;
                                 for(var aa in cosmic) {
                                     var c = cosmic[aa];
-                                    arr.push("<td>"+aa+":</td><td>"+c+"</td>");
+                                    arr.push("<td>"+aa+"</td><td>"+c+"</td>");
                                     n += c;
                                 }
                                 if (n==0) return "";
-                                var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id+'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'+arr.join('</tr><tr>')+'</tr></tbody></table>';
+                                var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
+                                    +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
+                                    +arr.join('</tr><tr>')+'</tr></tbody></table>';
                                 var width = Math.ceil(10*Math.min(4,Math.log(n)*Math.LOG10E));
                                 return  "<div class='mutation_percent_div "+table_id
                                                 +"-cosmic-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";

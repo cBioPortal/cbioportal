@@ -47,6 +47,7 @@ public class OncotatorService {
     private final static long SLEEP_PERIOD = 0;  // in ms
 
 	private int errorCount = 0;
+	private boolean useCache = true;
 
     private OncotatorService () {
         cache = DaoOncotatorCache.getInstance();
@@ -72,9 +73,15 @@ public class OncotatorService {
 
         try 
         {
-            OncotatorRecord record = cache.get(key);
+            OncotatorRecord record = null;
+
+	        if (this.useCache)
+	        {
+		        record = cache.get(key);
+	        }
             
             // if record is null, then it is not cached yet
+	        // or the caching option is disabled
             if (record == null)
             {
                 try {
@@ -93,7 +100,10 @@ public class OncotatorService {
                 // if record is null, then there is an error with JSON parsing
                 if (record != null)
                 {
-                	cache.put(record);
+                	if (this.useCache)
+	                {
+		                cache.put(record);
+	                }
                 }
                 else
                 {
@@ -132,5 +142,10 @@ public class OncotatorService {
 	public int getErrorCount()
 	{
 		return errorCount;
+	}
+
+	public void setUseCache(boolean useCache)
+	{
+		this.useCache = useCache;
 	}
 }

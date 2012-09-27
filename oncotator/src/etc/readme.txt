@@ -23,6 +23,12 @@ directly by using java -jar command:
 
 	java -jar <jar_file> <input_maf_file> <output_maf_file>
 
+It is also possible to run the oncotator tool without connecting to a database. In this case,
+it will access to the Oncotator Web Service for each entry. The execution syntax without
+a database connection is:
+
+	./oncotateMaf.sh -nodb <input_maf_file> <output_maf_file>
+
 INPUT FORMAT
 
 In order to execute successfully, this tool needs the input MAF to satisfy the following conditions.

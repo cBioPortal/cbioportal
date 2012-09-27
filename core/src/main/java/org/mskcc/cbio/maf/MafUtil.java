@@ -76,6 +76,7 @@ public class MafUtil
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
+	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
 	private int maFImpactIndex = -1; // MA:FImpact
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
@@ -174,6 +175,8 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
 	        	oncoDbSnpRsIndex = i;
+            } else if(header.equalsIgnoreCase("ONCOTATOR_GENE_SYMBOL")) {
+	            oncoGeneSymbolIndex = i;
             } else if(header.equalsIgnoreCase("MA:FImpact")) {
 				maFImpactIndex = i;
             } else if(header.equalsIgnoreCase("MA:link.var")) {
@@ -252,6 +255,7 @@ public class MafUtil
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
         record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
+	    // TODO also add onco gene symbol to the record (currently we do not need the value)?
 
         return record;
     }
@@ -493,6 +497,10 @@ public class MafUtil
 
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
+	}
+
+	public int getOncoGeneSymbolIndex() {
+		return oncoGeneSymbolIndex;
 	}
 
 	public int getMaFImpactIndex()

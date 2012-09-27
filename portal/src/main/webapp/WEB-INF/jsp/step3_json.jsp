@@ -81,10 +81,16 @@
     </div>
     <style type='text/css'>
         .gistic_gene {
-            cursor:pointer
+            cursor:pointer;
+        }
+        .gistic_gene:hover {
+            border: 1px solid #1974b8;
+            padding: 1px;
+            border-radius:5px;
         }
         .gistic_selected_gene {
-            background:yellow;
+            #background:#DDD;
+            font-weight:bold;
         }
     </style>
     <script type='text/javascript'>

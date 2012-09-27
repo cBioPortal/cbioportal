@@ -3,11 +3,11 @@ var selected_cancer_type = 'tcga_gbm';
 var SELECTED_CANCER_TYPE_OLD = '';
 var SELECTED_CANCER_TYPE_NEW = '';
 
+// todo: put all the jquery selectors in one place
+
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
-
-        console.log(window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data);
 
         if (window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data) {
             $('#toggle_gistic_dialog_button').show();
@@ -60,9 +60,10 @@ var Gistic = function(gistics) {
             var aaData = gistics;
 
             var aoColumnDefs = [
-                // todo : ampdel tiptip?
-                {"sTitle": "<span style='color:red'>A</span><span style='color:blue'>D</span>",
+                {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
+                    "<span style='color:blue'>D</span><br/><img style='width: 50%;' src='images/help.png'></div>",
                     "aTargets": [0],
+                   // "sWidth": '10px',
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
@@ -105,41 +106,47 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
-            {"sTitle": "Genes", "aTargets":[3], "sType": "numeric",
+            {"sTitle": "No of <br/>Genes", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col',
+                "mDataProp": function(source, type, val) {
+                    return source.nonSangerGenes.length + source.sangerGenes.length;
+                }
+            },
+            {"sTitle": "Genes<img style='width: 4%;' src='images/help.png'>",
+                "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 
                     if (type === 'display') {
 
-                        var all_genes_str = all_genes.map(function(g) {
+                        var all_genes = all_genes.map(function(g) {
                             // bind ioGeneSet to each gene
                             // highlight ones that are already in the gene list
 
                             var highlight = '';
 
                             if (genes.indexOf(g) !== -1) {
-                                highlight = ' highlight gistic_selected_gene';
+                                highlight = ' gistic_selected_gene';
                             }
 
-                            return "<span class='" + highlight + "'" +
+                            return "<span class='gistic_gene" + highlight + "'" +
                                 "onClick=Gistic.UI.ioGeneSet(this);>" + g + "</span>";
                         });
 
-                        if (all_genes_str.length > 5) {
+                        if (all_genes.length > 5) {
 
-                            all_genes_str = all_genes_str.slice(0,5)    // visible genes
-                            .concat(" <a href='javascript:void(0)' id='gistic_more'" +
+                            all_genes = all_genes.slice(0,5)    // visible genes
+                            .concat(" <a href='javascript:void(0)' style='color:blue' id='gistic_more'" +
                                     "onclick=Gistic.UI.expandGisticGenes(this);>+" +
-                                    (all_genes_str.length - 5)  + " more</a>")
-                            .concat("<a href='javascript:void(0)' id='gistic_less' style='display:none;' " +
+                                    (all_genes.length - 5)  + " more</a>")
+                            .concat("<a href='javascript:void(0)' id='gistic_less' style='color:blue; display:none;' " +
                                     "onclick=Gistic.UI.expandGisticGenes(this);> less</a>")
-                            .concat("<div id='gistic_hidden' style='display:none;'>")
-                            .concat(all_genes_str.slice(5))             // hidden genes
+
+                            .concat("<div id='gistic_hidden' style='display:none;'>") // hidden genes div
+                            .concat(all_genes.slice(5))
                             .concat("</div>")
                         }
 
-                        all_genes_str = all_genes_str.join(" ");
-                        return all_genes_str;
+                        return all_genes.join(" ");
                     }
                     else if (type === 'sort') {
                         return all_genes.length;
@@ -147,7 +154,7 @@ var Gistic = function(gistics) {
                     return all_genes;
                 }
             },
-            {"sTitle": "Q Value", "aTargets":[4], "sType": "numeric",
+            {"sTitle": "Q Value", "aTargets":[5], "sType": "numeric", "sClass": "gistic_center_col",
                 "mDataProp": function(source, type, val) {
                     var rounded = parseFloat(source.qval) .toExponential(1);   // round Q-Values
                     if (type === 'display') {
@@ -158,7 +165,7 @@ var Gistic = function(gistics) {
             }
             ];
 
-            options.aaSorting = [[ 4, "asc" ]];     // sort Q-Value column on load
+            options.aaSorting = [[ 5, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
             options.aaData = aaData;
             options.aoColumnDefs = aoColumnDefs;
@@ -172,10 +179,48 @@ var Gistic = function(gistics) {
                 return $(val).html();
             });
 
-
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
             $('.gistic_del').parent().css('background-color', 'blue');
+
+            // center cols
+            $('.gistic_center_col').css('text-align', 'center');
+
+            // add qtip to amp/del column
+            $('#gistic_AD').qtip({
+                content: "Red means the region is amplified. " +
+                    "Blue means the region is deleted",
+                position: {
+                    my: 'top left',
+                    at: 'bottom left',
+                },
+                show: 'mouseover',
+                hide: 'mouseout'
+            });
+
+            // add qtip to genes column
+            $($('.gistic_gene_cell')[0]).qtip({
+                content: "Click a gene to select it, " +
+                    "double click to select all genes in a region",
+                position: {
+                    my: 'top left',
+                    at: 'bottom left',
+                },
+                show: 'mouseover',
+                hide: 'mouseout'
+            });
+
+            // bind double clicking
+            Gistic.dt.fnGetNodes().forEach(function(i) {
+                $(i).find('.gistic_gene_cell').
+                    dblclick(Gistic.UI.select_all_genes);
+            });
+
+            // put in a message box
+            $('#gistic_table_filter').
+                prepend('<span id="gistic_msg_box" style="display:none; ' +
+                        'font-weight:bold; text-decoration:underline; color:red; float:left; ">' +
+                        'cannot select more than 50 genes in a single query</span>');
             return;
         },
 
@@ -198,7 +243,9 @@ Gistic.UI = ( function() {
 
             Gistic.table_el = $('#gistic_table');
 
-            var options = { "sScrollY": "50%", "bPaginate": false, "bDestroy": true};
+            var options = { "sScrollY": "350px", "bPaginate": false, "bDestroy": true};
+
+            $('#gistic_msg_box').hide();
 
             $('#gistic_loading').show();
             $('#gistic_dialog').dialog('open');
@@ -246,11 +293,10 @@ Gistic.UI = ( function() {
             // and toggle them
             $(more).toggle();
             $(less).toggle();
-            $(hidden).toggle('slow');
+            $(hidden).slideToggle('slow');
         },
 
         ioGeneSet : function(el) {
-            $(el).toggleClass('highlight');
             $(el).toggleClass('gistic_selected_gene');
         },
 
@@ -282,15 +328,31 @@ Gistic.UI = ( function() {
                 geneSet.filterOut(val);
             });
 
-            console.log(geneSet.toString());
-            console.log($.makeArray(new_genes).join(" "));
-
             // append new_genes
             var out = geneSet.toString() + newline + $.makeArray(new_genes).join(" ");
             out = out.trim();
 
             // push to gene set
             Gistic.gene_list_el.val(out);
+        },
+
+        select_all_genes: function(el) {
+            var max = 50;       // max no of genes users are allowed to select
+            var selection = $(this).find('.gistic_gene');
+
+            if (selection.length > 50) {
+                // show error message
+                $('#gistic_msg_box').show();
+                return;
+            } else {
+                $('#gistic_msg_box').hide();
+            }
+
+            if (selection.length > 5) {
+                // expand the genes if there are genes to be expanded
+                $(this).find('#gistic_more').click();
+            }
+            $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');
         }
     };
 })();

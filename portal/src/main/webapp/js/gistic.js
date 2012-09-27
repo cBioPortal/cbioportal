@@ -61,7 +61,8 @@ var Gistic = function(gistics) {
 
             var aoColumnDefs = [
                 // todo : ampdel tiptip?
-                {"sTitle": "<span style='color:red'>A</span><span style='color:blue'>D</span>",
+                {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
+                    "<span style='color:blue'>D</span></div>",
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
@@ -175,11 +176,16 @@ var Gistic = function(gistics) {
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
             $('.gistic_del').parent().css('background-color', 'blue');
+            $('#gistic_AD').qtip({
+                content: "Red means the region is amplified. Blue means the region is deleted",
+                show: 'mouseover',
+                hide: 'mouseout'
+            });
 
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
                 $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
-                $(i).qTip({
+                $(i).qtip({
                     content: "Click to highlight, double click to highlight all",
                     show: 'mouseover',
                     hide: 'mouseout'

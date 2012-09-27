@@ -32,7 +32,9 @@ import org.mskcc.cbio.maf.MafUtil;
 
 import java.io.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Adds or replaces Mutation Assessor columns to MAFs.
@@ -75,9 +77,9 @@ public class MafProcessor
 		boolean maLinkPdb = (util.getMaLinkPdbIndex() != -1);
 		boolean maLinkVar = (util.getMaLinkVarIndex() != -1);
 
-		// check if the file already oncotated
-		// (assuming if it has the first oncotator column, then it is oncotated)
-		boolean oncotated = (util.getOncoVariantClassificationIndex() != -1);
+		// check if the file is already oncotated, insertion index will be
+		// a negative number if it is not oncotated
+		Integer insertionIndex = this.findInsertionIndex(util);
 
 		// identify MA columns
 		HashMap<Integer, String> maIndices = this.getMaIndices(line);
@@ -94,7 +96,7 @@ public class MafProcessor
 		// add new MA columns if necessary
 		line = addNewMaColumns(line,
 			newColumns,
-			oncotated);
+			insertionIndex);
 
 		// write new header
 		writer.write(line);
@@ -116,23 +118,20 @@ public class MafProcessor
 			MutationAssessorRecord maRecord = dao.get(key);
 
 			String[] parts = line.split("\t", -1);
-			line = "";
+			List<String> data = new ArrayList<String>();
 
 			for (int i = 0; i < parts.length; i++)
 			{
-				if (oncotated &&
-				    i == util.getOncoVariantClassificationIndex())
+				// if oncotated insert before a specific index
+				if (i == insertionIndex)
 				{
 					// add all required MA values just before the oncotator columns
-					line += this.getNewMaData(maRecord,
-						maImpact,
-						maProteinChange,
-						maLinkMsa,
-						maLinkPdb,
-						maLinkVar);
+					data.addAll(this.getNewMaData(
+							maRecord, maImpact, maProteinChange,
+							maLinkMsa, maLinkPdb, maLinkVar));
 
 					// also add the onctotator column
-					line += parts[i];
+					data.add(parts[i]);
 				}
 				// overwrite existing MA columns if MA data available
 				else if (maRecord != null)
@@ -142,72 +141,56 @@ public class MafProcessor
 
 					if (i == util.getMaFImpactIndex())
 					{
-						line += maRecord.getImpact();
+						data.add(maRecord.getImpact());
 					}
 					else if (i == util.getMaProteinChangeIndex())
 					{
-						line += maRecord.getProteinChange();
+						data.add(maRecord.getProteinChange());
 					}
 					else if (i == util.getMaLinkMsaIndex())
 					{
-						line += maRecord.getAlignmentLink();
+						data.add(maRecord.getAlignmentLink());
 					}
 					else if (i == util.getMaLinkPdbIndex())
 					{
-						line += maRecord.getStructureLink();
+						data.add(maRecord.getStructureLink());
 					}
 					else if (i == util.getMaLinkVarIndex())
 					{
-						line += generateLinkVar(maRecord.getKey());
+						data.add(generateLinkVar(maRecord.getKey()));
 					}
 					// skip MA columns that are not needed anymore
 					// (do not add if the column starts with "MA:")
 					else if (maIndices.get(i) == null)
 					{
-						line += parts[i];
+						data.add(parts[i]);
 					}
 				}
 				// skip MA columns that are not needed anymore
 				// (do not add if the column starts with "MA:")
 				else if (maIndices.get(i) == null)
 				{
-					line += parts[i];
-				}
-
-				// add a TAB as a delimiter (except last column)
-				if (maIndices.get(i) == null &&
-				    i < parts.length - 1)
-				{
-					line += "\t";
+					data.add(parts[i]);
 				}
 			}
 
 			// if the file is not oncotated,
 			// then append new MA data at the end of the row
-			if(!oncotated)
+			if(insertionIndex < 0)
 			{
-				String maData = this.getNewMaData(maRecord,
-					maImpact,
-					maProteinChange,
-					maLinkMsa,
-					maLinkPdb,
-					maLinkVar);
-
-				// remove last tab, since columns will be added
-				// at the end of the line
-				if (maData.endsWith("\t"))
-				{
-					maData = maData.substring(0,
-						maData.length() - 1);
-				}
-
-				if (maData.length() > 0)
-				{
-					line += "\t" + maData;
-				}
+				data.addAll(this.getNewMaData(maRecord, maImpact, maProteinChange, maLinkMsa, maLinkPdb, maLinkVar));
 			}
 
-			writer.write(line);
+			// reconstruct the line by using the collected data
+			line = "";
+
+			for (String col : data)
+			{
+				line += col + "\t";
+			}
+
+			// remove last tab & output the new line
+			writer.write(line.substring(0, line.length() - 1));
 			writer.newLine();
 		}
 
@@ -216,15 +199,16 @@ public class MafProcessor
 	}
 
 	/**
-	 * Add new Mutation Assessor columns to the MAF header line.
-	 * @param headerLine    MAF header line
-	 * @param columnNames   new MA column names
-	 * @param oncotated     indicated if the MAF is already oncotated
-	 * @return              header line with new columns added
+	 * Adds new Mutation Assessor columns to the MAF header line.
+	 *
+	 * @param headerLine        MAF header line
+	 * @param columnNames       new MA column names
+	 * @param insertionIndex    insertion index (<0 if not oncotated)
+	 * @return                  header line with new columns added
 	 */
 	private String addNewMaColumns(String headerLine,
 			String columnNames,
-			boolean oncotated)
+			int insertionIndex)
 	{
 		// check if nothing to add
 		if (columnNames == null ||
@@ -235,12 +219,11 @@ public class MafProcessor
 
 		// if the file is already oncotated insert new column names
 		// just before the oncotator columns
-		if (oncotated)
+		if (insertionIndex >= 0)
 		{
 			// this is required to get the correct insertion index
 			// for the new header line
 			MafUtil util = new MafUtil(headerLine);
-			int insertionIndex = util.getOncoVariantClassificationIndex();
 
 			// split and reconstruct the line with new headers
 			String[] parts = headerLine.split("\t");
@@ -286,41 +269,41 @@ public class MafProcessor
 	 * @param maLinkVar         indicates if var link column already exists
 	 * @return                  string representation of the new Mutation Assessor data
 	 */
-	private String getNewMaData(MutationAssessorRecord maRecord,
+	private List<String> getNewMaData(MutationAssessorRecord maRecord,
 			boolean maImpact,
 			boolean maProteinChange,
 			boolean maLinkMsa,
 			boolean maLinkPdb,
 			boolean maLinkVar)
 	{
-		String maData = "";
+		List<String> maData = new ArrayList<String>();
 
 		// get data from record if it is not null
 		if (maRecord != null)
 		{
 			if (!maImpact)
 			{
-				maData += maRecord.getImpact() + "\t";
+				maData.add(maRecord.getImpact());
 			}
 
 			if (!maProteinChange)
 			{
-				maData += maRecord.getProteinChange() + "\t";
+				maData.add(maRecord.getProteinChange());
 			}
 
 			if (!maLinkMsa)
 			{
-				maData += maRecord.getAlignmentLink() + "\t";
+				maData.add(maRecord.getAlignmentLink());
 			}
 
 			if (!maLinkPdb)
 			{
-				maData += maRecord.getStructureLink() + "\t";
+				maData.add(maRecord.getStructureLink());
 			}
 
 			if (!maLinkVar)
 			{
-				maData += generateLinkVar(maRecord.getKey()) + "\t";
+				maData.add(generateLinkVar(maRecord.getKey()));
 			}
 		}
 		// just insert 'NA's
@@ -328,27 +311,27 @@ public class MafProcessor
 		{
 			if (!maImpact)
 			{
-				maData += MafRecord.NA_STRING + "\t";
+				maData.add(MafRecord.NA_STRING);
 			}
 
 			if (!maProteinChange)
 			{
-				maData += MafRecord.NA_STRING +"\t";
+				maData.add(MafRecord.NA_STRING);
 			}
 
 			if (!maLinkMsa)
 			{
-				maData += MafRecord.NA_STRING + "\t";
+				maData.add(MafRecord.NA_STRING);
 			}
 
 			if (!maLinkPdb)
 			{
-				maData += MafRecord.NA_STRING + "\t";
+				maData.add(MafRecord.NA_STRING);
 			}
 
 			if (!maLinkVar)
 			{
-				maData += MafRecord.NA_STRING + "\t";
+				maData.add(MafRecord.NA_STRING);
 			}
 		}
 
@@ -476,6 +459,34 @@ public class MafProcessor
 		   header.equalsIgnoreCase(MA_LINK_MSA) ||
 		   header.equalsIgnoreCase(MA_LINK_PDB) ||
 		   header.equalsIgnoreCase(MA_PROTEIN_CHANGE);
+	}
+
+	private Integer findInsertionIndex(MafUtil util)
+	{
+		Integer min = Integer.MAX_VALUE;
+
+		List<Integer> oncoIndices = new ArrayList<Integer>();
+
+		oncoIndices.add(util.getOncoVariantClassificationIndex());
+		oncoIndices.add(util.getOncoCosmicOverlappingIndex());
+		oncoIndices.add(util.getOncoGeneSymbolIndex());
+		oncoIndices.add(util.getOncoProteinChangeIndex());
+		oncoIndices.add(util.getOncoDbSnpRsIndex());
+
+		for (int i : oncoIndices)
+		{
+			if (i != -1 && i < min)
+			{
+				min = i;
+			}
+		}
+
+		if (min == Integer.MAX_VALUE)
+		{
+			min = -1;
+		}
+
+		return min;
 	}
 
 	/**

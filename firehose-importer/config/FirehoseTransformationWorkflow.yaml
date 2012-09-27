@@ -129,7 +129,7 @@
 - create_rppa:
     outfile: data_rppa.txt
     dirsAndFiles:
-        - gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version> data.rppa.txt
+        - gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version> <CANCER>.rppa.txt
 
 # .seg file required for IGV linking (hg 18)
 - create_hg18_seg:

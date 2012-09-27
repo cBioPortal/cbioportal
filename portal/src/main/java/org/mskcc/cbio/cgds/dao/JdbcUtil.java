@@ -52,10 +52,6 @@ public class JdbcUtil {
             initDataSource();
         }
         Connection con = ds.getConnection();
-        if (ds.getNumActive()>50) {
-            System.err.println("Get a MySQL connection. Active connections: "+ds.getNumActive());
-        }
-        
         return con;
     }
 
@@ -91,16 +87,13 @@ public class JdbcUtil {
      *
      * @param con Connection Object.
      */
-    public static void closeConnection(Connection con) {
-        try {
-            if (con != null && !con.isClosed()) {
+    private static void closeConnection(Connection con) throws SQLException {
+        if (con != null && !con.isClosed()) {
+            try {
                 con.close();
-                if (ds.getNumActive()>50) {
-                    System.err.println("Close a MySQL connection. Active connections: "+ds.getNumActive());
-                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -123,7 +116,13 @@ public class JdbcUtil {
      */
     public static void closeAll(Connection con, PreparedStatement ps,
             ResultSet rs) {
-	closeConnection(con);
+        try {
+			if (con != null) {
+				closeConnection(con);
+			}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         //  Don't close PreparedStatements, as we have configured DBCP to pool/reuse
         //  PreparedStatements.
         //        if (ps != null) {

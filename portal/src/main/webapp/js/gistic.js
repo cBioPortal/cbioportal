@@ -60,8 +60,9 @@ var Gistic = function(gistics) {
             var aoColumnDefs = [
                 // todo : ampdel tiptip?
                 {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
-                    "<span style='color:blue'>D</span><img style='width: 32%;' src='images/help.png'></div>",
+                    "<span style='color:blue'>D</span><br/><img style='width: 50%;' src='images/help.png'></div>",
                     "aTargets": [0],
+                   // "sWidth": '10px',
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
@@ -104,8 +105,13 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
+            {"sTitle": "No of <br/>Genes", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col',
+                "mDataProp": function(source, type, val) {
+                    return source.nonSangerGenes.length + source.sangerGenes.length;
+                }
+            },
             {"sTitle": "Genes<img style='width: 4%;' src='images/help.png'>",
-                "aTargets":[3], "sType": "numeric", "sClass": "gistic_gene_cell",
+                "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 
@@ -147,7 +153,7 @@ var Gistic = function(gistics) {
                     return all_genes;
                 }
             },
-            {"sTitle": "Q Value", "aTargets":[4], "sType": "numeric",
+            {"sTitle": "Q Value", "aTargets":[5], "sType": "numeric", "sClass": "gistic_center_col",
                 "mDataProp": function(source, type, val) {
                     var rounded = parseFloat(source.qval) .toExponential(1);   // round Q-Values
                     if (type === 'display') {
@@ -158,7 +164,7 @@ var Gistic = function(gistics) {
             }
             ];
 
-            options.aaSorting = [[ 4, "asc" ]];     // sort Q-Value column on load
+            options.aaSorting = [[ 5, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};
             options.aaData = aaData;
             options.aoColumnDefs = aoColumnDefs;
@@ -175,6 +181,9 @@ var Gistic = function(gistics) {
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
             $('.gistic_del').parent().css('background-color', 'blue');
+
+            // center cols
+            $('.gistic_center_col').css('text-align', 'center');
 
             // add qtip to amp/del column
             $('#gistic_AD').qtip({

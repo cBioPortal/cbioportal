@@ -85,7 +85,7 @@
     $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
             overflow: 'hidden',
-            minWidth: 636,
+            minWidth: 700,
             //resizable: false,
             height: 500,
             // width: 'auto',

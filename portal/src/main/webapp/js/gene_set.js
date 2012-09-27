@@ -224,7 +224,7 @@ GeneSet = function(raw_genes_str) {
         },
 
         toString: function() {
-            return (this.getOncoQueries() + ' ' + this.getGenes()).trim();
+            return (this.getOncoQueries().join(" ") + ' ' + this.getGenes().join(" ")).trim();
         },
 
         test: function() {

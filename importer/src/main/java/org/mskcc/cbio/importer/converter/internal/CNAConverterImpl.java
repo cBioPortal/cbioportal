@@ -107,5 +107,8 @@ final class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile()");
 		}
+
+		// 
+		
 	}
 }

@@ -39,18 +39,19 @@ import java.util.HashMap;
 /**
  * Command Line Tool to Oncotate a Single MAF File.
  */
-public class OncotateTool {
+public class OncotateTool
+{
     private final static String TAB = "\t";
     private int buildNumErrors = 0;
     private OncotatorService oncotatorService;
     private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
-    private static int DEFAULT_ONCO_HEADERS_COUNT = 5;
-    private HashMap<String, Integer> genomicCountMap;
+    private static final int DEFAULT_ONCO_HEADERS_COUNT = 5;
+    //private HashMap<String, Integer> genomicCountMap;
 
     public OncotateTool()
     {
 	    this.oncotatorService = OncotatorService.getInstance();
-	    this.genomicCountMap = new HashMap<String, Integer>();
+	    //this.genomicCountMap = new HashMap<String, Integer>();
     }
 
 	private int oncotateMaf(File inputMafFile,
@@ -97,12 +98,12 @@ public class OncotateTool {
 		}
 
 		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
-		for (String coords:  genomicCountMap.keySet()) {
-			Integer count = genomicCountMap.get(coords);
-			if (count > 1) {
-				System.out.println(coords + "\t" + (count-1));
-			}
-		}
+//		for (String coords:  genomicCountMap.keySet()) {
+//			Integer count = genomicCountMap.get(coords);
+//			if (count > 1) {
+//				System.out.println(coords + "\t" + (count-1));
+//			}
+//		}
 
 		reader.close();
 		writer.close();
@@ -207,12 +208,12 @@ public class OncotateTool {
         if (tumorAllele != null) {
             String coords = createCoordinates(chr, start, end, refAllele, tumorAllele);
             System.out.println(coords);
-            if (genomicCountMap.containsKey(coords)) {
-                Integer count = genomicCountMap.get(coords);
-                genomicCountMap.put(coords, count+1);
-            } else {
-                genomicCountMap.put(coords, 1);
-            }
+//            if (genomicCountMap.containsKey(coords)) {
+//                Integer count = genomicCountMap.get(coords);
+//                genomicCountMap.put(coords, count+1);
+//            } else {
+//                genomicCountMap.put(coords, 1);
+//            }
             OncotatorRecord oncotatorRecord =
                     oncotatorService.getOncotatorRecord(chr, start, end, refAllele,tumorAllele);
             writeOncotatorResults(writer, oncotatorRecord);

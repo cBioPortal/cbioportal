@@ -79,6 +79,14 @@
             <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Highlighted Genes With Query</button>
         </div>
     </div>
+    <style type='text/css'>
+        .gistic_gene {
+            cursor:pointer
+        }
+        .gistic_selected_gene {
+            background:yellow;
+        }
+    </style>
     <script type='text/javascript'>
     // set up modal dialog box for gistic table
     $('#gistic_dialog').dialog( {autoOpen: false,

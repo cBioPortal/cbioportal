@@ -149,7 +149,7 @@ public class ImportMicroRNAIDs {
     }
 
     public static void main(String[] args) throws Exception {
-        args = new String[]{"/Users/jj/projects/sander/cgds-data/reference-data/id_mapping_mirbase.txt"};
+  
         if (args.length == 0) {
             System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
             System.exit(1);

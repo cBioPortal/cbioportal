@@ -364,7 +364,7 @@ public class NetworkServlet extends HttpServlet {
             for (Iterator<String> it = queryGenes.iterator(); it.hasNext();) {
                 String symbol = it.next();
                 CanonicalGene gene = daoGeneOptimized.getGene(symbol);
-                if (gene.isMicroRNA() || gene.isPhosphoProtein()) {
+                if (gene==null || gene.isMicroRNA() || gene.isPhosphoProtein()) {
                     it.remove();
                     n++;
                 }

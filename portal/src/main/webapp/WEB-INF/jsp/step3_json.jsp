@@ -87,7 +87,7 @@
             overflow: 'hidden',
             minWidth: 636,
             //resizable: false,
-            //height: 500,
+            height: 500,
             // width: 'auto',
             open: function() { 
                 // sets the scrollbar to the top of the table

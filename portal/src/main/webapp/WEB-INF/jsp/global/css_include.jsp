@@ -18,6 +18,7 @@
 <link href="css/popeye/jquery.popeye.css" type="text/css" rel="stylesheet" />
 <link href="css/popeye/jquery.popeye.style.css" type="text/css" rel="stylesheet" />
 <link href="css/tipTip.css" type="text/css" rel="stylesheet" />
+<link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet" />
 <link href="<%= global_style %>" type="text/css" rel="stylesheet" />
 <% if (special_style != null) { %>
     <link href="<%= special_style %>" type="text/css" rel="stylesheet" />

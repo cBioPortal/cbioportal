@@ -7,8 +7,6 @@ $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
 
-        console.log(window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data);
-
         if (window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data) {
             $('#toggle_gistic_dialog_button').show();
         } else {
@@ -62,7 +60,7 @@ var Gistic = function(gistics) {
             var aoColumnDefs = [
                 // todo : ampdel tiptip?
                 {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
-                    "<span style='color:blue'>D</span></div>",
+                    "<span style='color:blue'>D</span><img style='width: 32%;' src='images/help.png'></div>",
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
@@ -106,7 +104,8 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
-            {"sTitle": "Genes", "aTargets":[3], "sType": "numeric", "sClass": "gistic_gene_cell",
+            {"sTitle": "Genes<img style='width: 4%;' src='images/help.png'>",
+                "aTargets":[3], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 
@@ -176,8 +175,25 @@ var Gistic = function(gistics) {
             // paint regions red and blue
             $('.gistic_amp').parent().css('background-color', 'red');
             $('.gistic_del').parent().css('background-color', 'blue');
+
+            // add qtip to amp/del column
             $('#gistic_AD').qtip({
                 content: "Red means the region is amplified. Blue means the region is deleted",
+                position: {
+                    my: 'top left',
+                    at: 'bottom left',
+                },
+                show: 'mouseover',
+                hide: 'mouseout'
+            });
+
+            // add qtip to genes column
+            $($('.gistic_gene_cell')[0]).qtip({
+                content: "Click a gene to select it, double click to select all genes in a region",
+                position: {
+                    my: 'top left',
+                    at: 'bottom left',
+                },
                 show: 'mouseover',
                 hide: 'mouseout'
             });
@@ -185,11 +201,6 @@ var Gistic = function(gistics) {
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
                 $(i).find('.gistic_gene_cell').dblclick(Gistic.UI.select_all_genes);
-                $(i).qtip({
-                    content: "Click to highlight, double click to highlight all",
-                    show: 'mouseover',
-                    hide: 'mouseout'
-                });
                 //$(i).hover(Gistic.UI.show_message("Click to highlight, double click to highlight all"));
             });
 
@@ -215,7 +226,7 @@ Gistic.UI = ( function() {
 
             Gistic.table_el = $('#gistic_table');
 
-            var options = { "sScrollY": "50%", "bPaginate": false, "bDestroy": true};
+            var options = { "sScrollY": "350px", "bPaginate": false, "bDestroy": true};
 
             $('#gistic_loading').show();
             $('#gistic_dialog').dialog('open');

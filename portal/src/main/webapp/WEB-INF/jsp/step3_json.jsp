@@ -76,15 +76,21 @@
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Highlighted Genes With Query</button>
+            <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Selected Genes With Query</button>
         </div>
     </div>
     <style type='text/css'>
         .gistic_gene {
-            cursor:pointer
+            cursor:pointer;
+        }
+        .gistic_gene:hover {
+            border: 1px solid #1974b8;
+            padding: 1px;
+            border-radius:5px;
         }
         .gistic_selected_gene {
-            background:yellow;
+            #background:#DDD;
+            font-weight:bold;
         }
     </style>
     <script type='text/javascript'>
@@ -104,10 +110,6 @@
                 // workaround to prevent auto focus
                 //$(this).add('input').blur();
             },
-            close: function() {
-                Gistic.UI.updateGenes();
-                return;
-            }
     });
     </script>
 <%

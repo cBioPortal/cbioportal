@@ -362,7 +362,8 @@ public class MutationTableUtil
 		headerList.add("Variant Frequency\tVF");
 		headerList.add("Normal Frequency\tNF");
 		headerList.add("COSMIC Occurrences\tCOSMIC");
-		headerList.add("Functional Impact Predicted by MutationAssessor\tPredicted Impact**");
+		headerList.add("Predicted functional impact (via Mutation Assessor) " +
+		               "is provided for missense mutations only.\tPredicted Impact");
 		//headerList.add("Alignment");
 		//headerList.add("Structure");
 

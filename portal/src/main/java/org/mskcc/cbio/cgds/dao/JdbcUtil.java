@@ -40,6 +40,7 @@ import java.sql.*;
  */
 public class JdbcUtil {
     private static BasicDataSource ds;
+    private static int MAX_JDBC_CONNECTIONS = 100;
 
     /**
      * Gets Connection to the CPath Database.
@@ -50,11 +51,13 @@ public class JdbcUtil {
     public static Connection getDbConnection() throws SQLException {
         if (ds == null) {
             initDataSource();
+        } else if (ds.getNumActive()>MAX_JDBC_CONNECTIONS) {
+            ds.close();
+            initDataSource();
+            System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS);
         }
+        
         Connection con = ds.getConnection();
-        if (ds.getNumActive()>0) {
-            System.err.println("Get a MySQL connection. Active connections: "+ds.getNumActive());
-        }
         
         return con;
     }
@@ -73,7 +76,7 @@ public class JdbcUtil {
                 new String("jdbc:mysql://" + host + "/" + database
                         + "?user=" + userName + "&password=" + password
                         + "&zeroDateTimeBehavior=convertToNull");
-
+        
         //  Set up poolable data source
         ds = new BasicDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
@@ -83,7 +86,7 @@ public class JdbcUtil {
 
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
-        ds.setMaxActive(75);
+        ds.setMaxActive(MAX_JDBC_CONNECTIONS);
     }
 
     /**
@@ -95,9 +98,6 @@ public class JdbcUtil {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
-                if (ds.getNumActive()>0) {
-                    System.err.println("Close a MySQL connection. Active connections: "+ds.getNumActive());
-                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -111,8 +111,8 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(PreparedStatement ps, ResultSet rs) {
-		JdbcUtil.closeAll(null, ps, rs);
-	}
+                JdbcUtil.closeAll(null, ps, rs);
+        }
 
     /**
      * Frees Database Connection.
@@ -123,7 +123,7 @@ public class JdbcUtil {
      */
     public static void closeAll(Connection con, PreparedStatement ps,
             ResultSet rs) {
-	closeConnection(con);
+        closeConnection(con);
         //  Don't close PreparedStatements, as we have configured DBCP to pool/reuse
         //  PreparedStatements.
         //        if (ps != null) {

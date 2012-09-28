@@ -60,8 +60,8 @@ var Gistic = function(gistics) {
             var aaData = gistics;
 
             var aoColumnDefs = [
-                {"sTitle": "<div id='gistic_AD'><span style='color:red'>A</span>" +
-                    "<span style='color:blue'>D</span><br/><img style='width: 50%;' src='images/help.png'></div>",
+                {"sTitle": "<div><span style='color:red'>A</span>" +
+                    "<span style='color:blue'>D</span><br/><img id='gistic_AD' style='width: 50%;' src='images/help.png'></div>",
                     "aTargets": [0],
                    // "sWidth": '10px',
                     "mDataProp": function(source, type, val) {
@@ -111,7 +111,7 @@ var Gistic = function(gistics) {
                     return source.nonSangerGenes.length + source.sangerGenes.length;
                 }
             },
-            {"sTitle": "Genes<img style='width: 4%;' src='images/help.png'>",
+            {"sTitle": "Genes<img id='gistic_genes_col' style='width: 4%;' src='images/help.png'>",
                 "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
@@ -199,7 +199,7 @@ var Gistic = function(gistics) {
             });
 
             // add qtip to genes column
-            $($('.gistic_gene_cell')[0]).qtip({
+            $('#gistic_genes_col').qtip({
                 content: "Click a gene to select it, " +
                     "double click to select all genes in a region",
                 position: {
@@ -213,7 +213,7 @@ var Gistic = function(gistics) {
             // bind double clicking
             Gistic.dt.fnGetNodes().forEach(function(i) {
                 $(i).find('.gistic_gene_cell').
-                    dblclick(Gistic.UI.select_all_genes);
+                    select(Gistic.UI.select_all_genes);
             });
 
             // put in a message box
@@ -352,7 +352,7 @@ Gistic.UI = ( function() {
                 // expand the genes if there are genes to be expanded
                 $(this).find('#gistic_more').click();
             }
-            $(this).find('.gistic_gene').toggleClass('gistic_selected_gene');
+            selection.toggleClass('gistic_selected_gene');
         }
     };
 })();

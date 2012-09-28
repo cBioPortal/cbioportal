@@ -30,7 +30,8 @@
         outputNoMutationDetails(out);
     }
 %>
-	<div id="cosmic_details_dialog" title="Cosmic Details" class="dataTables_wrapper">
+	<!-- TODO move into text of qtip
+	<div id="cosmic_details_dialog" title="Cosmic Details">
 		<table id="cosmic_details_table" class="display"
 		       cellpadding='0' cellspacing='0' border='0'>
 			<thead>
@@ -41,6 +42,7 @@
 			</thead>
 		</table>
 	</div>
+	!-->
 
 </div>
 
@@ -185,22 +187,26 @@
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
               $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
-                  "sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
-                  "bPaginate": false,
-                  "bFilter": true,
-	              // TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
-                  //"sScrollX": "100%",
-                  //"sScrollXInner": "105%",
-                  //"bScrollCollapse": true,
-	              //"bScrollAutoCss": false,
-                  "aoColumnDefs":[
-                      {"sType": 'aa-change-col',
-                              "aTargets": [ 5 ]},
-	                  {"sType": 'cosmic-col',
-		                  "aTargets": [ 12 ]},
-                      {"sType": 'predicted-impact-col',
-                              "aTargets": [ 13 ]}
-                  ]
+					"sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
+					"bPaginate": false,
+					"bFilter": true,
+					// TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
+					//"sScrollX": "100%",
+					//"sScrollXInner": "105%",
+					//"bScrollCollapse": true,
+					//"bScrollAutoCss": false,
+					"aoColumnDefs":[
+					  {"sType": 'aa-change-col',
+					          "aTargets": [ 5 ]},
+					  {"sType": 'cosmic-col',
+					      "aTargets": [ 10 ]},
+					  {"sType": 'predicted-impact-col',
+					          "aTargets": [ 11 ]}
+					],
+					"fnDrawCallback": function( oSettings ) {
+						// add tooltips to the table
+						addMutationTableTooltips('<%= geneWithScore.getGene().toUpperCase() %>');
+					}
               } );
             <% } %>
         <% } %>
@@ -212,32 +218,8 @@
 	    // to fit mutation table initially
 	    fitMutationTableToWidth();
 
-	    var qTipOptions = {content: {attr: 'alt'},
-		    hide: { fixed: true, delay: 100 },
-		    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-		    position: {my:'top center',at:'bottom center'}};
-
-	    $('#mutation_details .mutation_details_table th').qtip(qTipOptions);
-	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
-
-	    $('#mutation_details .mutation_details_table .somatic').qtip(qTipOptions);
-	    $('#mutation_details .mutation_details_table .germline').qtip(qTipOptions);
-
-	    $('#mutation_details .mutation_details_table .unknown').qtip(qTipOptions);
-	    $('#mutation_details .mutation_details_table .valid').qtip(qTipOptions);
-	    $('#mutation_details .mutation_details_table .wildtype').qtip(qTipOptions);
-
-	    $('.mutation_table_cosmic').qtip(qTipOptions);
-
 	    // TODO changing background requires additional settings for sort icons...
 	    //$('#mutation_details .mutation_details_table th').addClass('ui-state-default');
-
-	    $('#cosmic_details_dialog').dialog({autoOpen: false,
-			resizable: false,
-		    height: 350,
-			width: 300});
-
-	    $('a.mutation_table_cosmic').unbind(); // TODO temporary work-around, should fix the listener in MakeOncoPrint
 
 	    // initialize table column filtering
 	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
@@ -249,41 +231,6 @@
 
 	    // initialize the dropdown box
 	    $(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
-
-	    // initialize cosmic details table
-	    $("#cosmic_details_table").dataTable({
-		    "aaSorting" : [ ], // do not sort by default
-			"sDom": 't', // show only the table
-			"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
-				{ "sType": "numeric", "aTargets": [1]}],
-			"bPaginate": false,
-			"bFilter": false});
-
-	    $('a.mutation_table_cosmic').click(function(event){
-		    $("#cosmic_details_dialog").dialog("close");
-
-		    var cosmic = this.id;
-		    var parts = cosmic.split("|");
-
-		    $("#cosmic_details_table").dataTable().fnClearTable();
-
-		    // COSMIC data (as AA change & frequency pairs)
-		    for (var i=0; i < parts.length; i++)
-		    {
-			    var values = parts[i].split(/\(|\)/, 2);
-
-			    // skip data starting with p.? or ?
-			    var unknownCosmic = values[0].indexOf("p.?") == 0 ||
-			                       values[0].indexOf("?") == 0;
-
-			    if (!unknownCosmic)
-			    {
-				    $("#cosmic_details_table").dataTable().fnAddData(values);
-			    }
-		    }
-
-		    $("#cosmic_details_dialog").dialog("open");
-	    });
     });
     
     //  Set up Mutation Diagrams
@@ -393,13 +340,86 @@
 		}
 	}
 
+    function addMutationTableTooltips(geneId)
+    {
+	    var tableId = "mutation_details_table_" + geneId;
+
+	    var qTipOptions = {content: {attr: 'alt'},
+		    hide: { fixed: true, delay: 100 },
+		    style: { classes: 'mutation-details-tooltip ui-tooltip-light ui-tooltip-rounded' },
+		    position: {my:'top center',at:'bottom center'}};
+
+	    $('#' + tableId + ' th').qtip(qTipOptions);
+	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
+
+	    $('#' + tableId + ' .somatic').qtip(qTipOptions);
+	    $('#' + tableId + ' .germline').qtip(qTipOptions);
+
+	    $('#' + tableId + ' .unknown').qtip(qTipOptions);
+	    $('#' + tableId + ' .valid').qtip(qTipOptions);
+	    $('#' + tableId + ' .wildtype').qtip(qTipOptions);
+
+	    // copy default qTip options and modify "content" to customize for cosmic
+	    var qTipOptsCosmic = new Object();
+	    jQuery.extend(true, qTipOptsCosmic, qTipOptions);
+
+	    qTipOptsCosmic.content = { text: function(api) {
+		    var cosmic = $(this).attr('alt');
+		    var parts = cosmic.split("|");
+
+		    var cosmicTable =
+				    "<table class='" + tableId + "_cosmic_table cosmic_details_table display' " +
+				    "cellpadding='0' cellspacing='0' border='0'>" +
+				    "<thead><tr><th>Mutation</th><th>Occurrence</th></tr></thead>";
+
+		    // COSMIC data (as AA change & frequency pairs)
+		    for (var i=0; i < parts.length; i++)
+		    {
+			    var values = parts[i].split(/\(|\)/, 2);
+
+			    // skip data starting with p.? or ?
+			    var unknownCosmic = values[0].indexOf("p.?") == 0 ||
+			                        values[0].indexOf("?") == 0;
+
+			    if (!unknownCosmic)
+			    {
+				    cosmicTable += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
+
+				    //$("#cosmic_details_table").dataTable().fnAddData(values);
+			    }
+		    }
+
+		    cosmicTable += "</table>";
+
+		    return cosmicTable;
+	    }};
+
+	    qTipOptsCosmic.events = {show: function(event, api)
+	    {
+		    // TODO data table doesn't initialize properly
+		    // initialize cosmic details table
+		    $('.' + tableId + '_cosmic_table').dataTable({
+				"aaSorting" : [ ], // do not sort by default
+				"sDom": 't', // show only the table
+				"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
+				 { "sType": "numeric", "aTargets": [1]}],
+				//"bJQueryUI": true,
+				//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
+				"bDestroy": true,
+				"bPaginate": false,
+				"bFilter": false});
+	    }};
+
+	    $('#' + tableId + ' .mutation_table_cosmic').qtip(qTipOptsCosmic);
+    }
+
     // TODO this will only fit the table wrapper initially, it won't refit when page is resized!
 	function fitMutationTableToWidth()
 	{
 		// fit the table wrapper and the filter bar to the width of page
 		var fitWidth = $('#page_wrapper').width() - 60; // 60 is an approximation for total margins
-		$('.mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
-		$('.dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
+		$('#mutation_details .mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
+		$('#mutation_details .dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
 	}
 
 </script>

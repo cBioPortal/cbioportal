@@ -71,25 +71,30 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-<<<<<<< local
-=======
-
     <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
+        <span id='gistic_message_box' style='display:none; color:red; font-weight:bold; font-size:1.2em;'></span>
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Close</button>
+            <button style="float: right;" id="gistic_close" onclick="Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Highlighted Genes With Query</button>
         </div>
->>>>>>> other
     </div>
+    <style type='text/css'>
+        .gistic_gene {
+            cursor:pointer
+        }
+        .gistic_selected_gene {
+            background:yellow;
+        }
+    </style>
     <script type='text/javascript'>
     // set up modal dialog box for gistic table
     $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
             overflow: 'hidden',
-            minWidth: 636,
+            minWidth: 700,
             //resizable: false,
-            //height: 500,
+            height: 500,
             // width: 'auto',
             open: function() { 
                 // sets the scrollbar to the top of the table

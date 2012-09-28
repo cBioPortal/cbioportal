@@ -76,6 +76,7 @@ public class MafUtil
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
+	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
 	private int maFImpactIndex = -1; // MA:FImpact
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
@@ -174,6 +175,8 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
 	        	oncoDbSnpRsIndex = i;
+            } else if(header.equalsIgnoreCase("ONCOTATOR_GENE_SYMBOL")) {
+	            oncoGeneSymbolIndex = i;
             } else if(header.equalsIgnoreCase("MA:FImpact")) {
 				maFImpactIndex = i;
             } else if(header.equalsIgnoreCase("MA:link.var")) {
@@ -252,6 +255,7 @@ public class MafUtil
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
         record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
+	    // TODO also add onco gene symbol to the record (currently we do not need the value)?
 
         return record;
     }
@@ -297,6 +301,43 @@ public class MafUtil
             return MafRecord.NA_INT;
         }
     }
+
+	public String adjustDataLine(String dataLine)
+	{
+		String line = dataLine;
+		String[] parts = line.split("\t", -1);
+
+		// diff should be zero if (# of headers == # of data cols)
+		int diff = this.getHeaderCount() - parts.length;
+
+		// number of header columns are more than number of data columns
+		if (diff > 0)
+		{
+			// append appropriate number of tabs
+			for (int i = 0; i < diff; i++)
+			{
+				line += "\t";
+			}
+		}
+		// number of data columns are more than number of header columns
+		else if (diff < 0)
+		{
+			line = "";
+
+			// just truncate the data (discard the trailing columns)
+			for (int i = 0; i < this.getHeaderCount(); i++)
+			{
+				line += parts[i];
+
+				if (i < this.getHeaderCount() - 1)
+				{
+					line += "\t";
+				}
+			}
+		}
+
+		return line;
+	}
 
     public int getChrIndex() {
         return chrIndex;
@@ -456,6 +497,10 @@ public class MafUtil
 
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
+	}
+
+	public int getOncoGeneSymbolIndex() {
+		return oncoGeneSymbolIndex;
 	}
 
 	public int getMaFImpactIndex()

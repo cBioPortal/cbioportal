@@ -1,3 +1,9 @@
+# September 31, 2012
+
+* All data updated to the __latest Broad Firehose run__ (July 25, 2012).
+* Users can now base queries on genomic regions of interest (from __Gistic2__ via Firehose).
+* Mutation data is now annotated with information from Oncotator & COSMIC.
+
 # July 18, 2012
 
 * Mutation data for the TCGA lung squamous cell carcinoma and breast cancer projects (manuscripts in press at Nature).

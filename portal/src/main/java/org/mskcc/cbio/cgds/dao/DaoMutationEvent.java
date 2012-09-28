@@ -85,6 +85,8 @@ public final class DaoMutationEvent {
             return eventId;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     
@@ -106,6 +108,8 @@ public final class DaoMutationEvent {
             }
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     
@@ -170,6 +174,8 @@ public final class DaoMutationEvent {
             return false;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     
@@ -609,6 +615,8 @@ public final class DaoMutationEvent {
             return n;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
         
     }
@@ -630,23 +638,32 @@ public final class DaoMutationEvent {
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     
     public static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
             String aaChange) throws DaoException {
-        return getCosmicMutationFrequency(entrez, aaChange, null);
+        Connection con = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            return getCosmicMutationFrequency(entrez, aaChange, con);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeConnection(con);
+        }
     }
     
     private static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
             String aaChange, Connection con) throws DaoException {
+        if (con == null) {
+            throw new NullPointerException("Null SQL connection");
+        }
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (con==null) {
-                con = JdbcUtil.getDbConnection();
-            }
-            
             String sql = "SELECT * FROM cosmic_mutation "
                     + "WHERE `ENTREZ_GENE_ID`=? AND `AMINO_ACID_CHANGE`=?";
             pstmt = con.prepareStatement(sql);
@@ -661,8 +678,9 @@ public final class DaoMutationEvent {
             return null;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
-        
     }
     
     public static Map<Long, List<CosmicMutationFrequency>> getCosmicMutationFrequency(

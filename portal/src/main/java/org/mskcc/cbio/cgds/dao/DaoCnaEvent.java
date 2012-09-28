@@ -74,6 +74,8 @@ public final class DaoCnaEvent {
             return addCnaEvent(cnaEvent, con);
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     
@@ -93,6 +95,8 @@ public final class DaoCnaEvent {
             return false;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(pstmt, rs);
         }
     }
     

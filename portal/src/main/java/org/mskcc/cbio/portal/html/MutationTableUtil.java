@@ -131,8 +131,8 @@ public class MutationTableUtil
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getChrPosition(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getReferenceAllele()));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getVariantAllele(mutation)));
-	    dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
-	    dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
+	    //dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
+	    //dataFieldList.add(HtmlUtil.getSafeWebValue("TODO"));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getCosmicCount(mutation)));
 
         //  OMA Links
@@ -274,11 +274,9 @@ public class MutationTableUtil
 		// calculate total cosmic count
 		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
-		// TODO id might be a huge string (over 2000 chars), find a better way to send the cosmic value?
-		return "<a class='mutation_table_cosmic' " +
-			"alt='Click to see the details' " + // used as a tooltip value
-			"id='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
-			total.toString() + "</a>";
+		return "<label class='mutation_table_cosmic' " +
+			"alt='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
+			total.toString() + "</label>";
 	}
 
 	/**
@@ -353,10 +351,10 @@ public class MutationTableUtil
 		headerList.add("Protein Change\tAA Change");
 		headerList.add("NCBI Build Number\tBuild");
 		headerList.add("Position\tPosition");
-		headerList.add("Reference Allele\tRA");
-		headerList.add("Variant Allele\tVA");
-		headerList.add("Variant Frequency\tVF");
-		headerList.add("Normal Frequency\tNF");
+		headerList.add("Reference Allele\tRef");
+		headerList.add("Variant Allele\tVar");
+		//headerList.add("Variant Frequency\tVF");
+		//headerList.add("Normal Frequency\tNF");
 		headerList.add("COSMIC Occurrences\tCOSMIC");
 		headerList.add("Predicted functional impact (via Mutation Assessor) " +
 		               "is provided for missense mutations only.\tPredicted Impact");

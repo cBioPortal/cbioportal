@@ -8,12 +8,6 @@ var SELECTED_CANCER_TYPE_NEW = '';
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
-
-        if (window.json.cancer_studies[SELECTED_CANCER_TYPE_NEW].has_gistic_data) {
-            $('#toggle_gistic_dialog_button').show();
-        } else {
-            $('#toggle_gistic_dialog_button').hide();
-        }
     });
 });
 
@@ -228,7 +222,10 @@ Gistic.UI = ( function() {
 
             Gistic.table_el = $('#gistic_table');
 
-            var options = { "sScrollY": "350px", "bPaginate": false, "bDestroy": true};
+            var options = { "sScrollY": "350px",
+                "bPaginate": false,
+                "bJQueryUI": true,
+                "bDestroy": true};
 
             $('#gistic_msg_box').hide();
 

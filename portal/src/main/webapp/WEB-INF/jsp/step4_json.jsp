@@ -15,7 +15,10 @@
     }
     </script>
     <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
-
+    <div style='padding-top:10px;'>
+        <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
+        <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
+    </div>
 <%
 // Output step 4 form validation error
 if (step4ErrorMsg != null) {
@@ -370,8 +373,6 @@ if (step4ErrorMsg != null) {
    <p id="example_gene_set"><span style="font-size:80%">Select from Example Gene Sets:<br>
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>
 
-    <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select Genes from Recurrently Mutated Genes</button>
-    <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
 </div>
 <script type='text/javascript'>
 $('#toggle_gistic_dialog_button').button();

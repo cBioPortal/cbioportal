@@ -71,7 +71,7 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Recurrent CNAs (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
+    <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table"></table>
         <div id="gistic_dialog_footer">

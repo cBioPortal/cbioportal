@@ -60,10 +60,10 @@ var Gistic = function(gistics) {
             var aaData = gistics;
 
             var aoColumnDefs = [
-                {"sTitle": "<div><span style='color:red'>A</span>" +
-                    "<span style='color:blue'>D</span><br/><img id='gistic_AD' style='width: 50%;' src='images/help.png'></div>",
+                {"sTitle": "<div style='color:red'>Amp</div>" +
+                    "<div style='color:blue'>Del</div>",
+                    //"sWidth": '.5em',
                     "aTargets": [0],
-                   // "sWidth": '10px',
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
@@ -111,7 +111,7 @@ var Gistic = function(gistics) {
                     return source.nonSangerGenes.length + source.sangerGenes.length;
                 }
             },
-            {"sTitle": "Genes<img id='gistic_genes_col' style='width: 4%;' src='images/help.png'>",
+            {"sTitle": "Genes",
                 "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
@@ -186,30 +186,6 @@ var Gistic = function(gistics) {
             // center cols
             $('.gistic_center_col').css('text-align', 'center');
 
-            // add qtip to amp/del column
-            $('#gistic_AD').qtip({
-                content: "Red means the region is amplified. " +
-                    "Blue means the region is deleted",
-                position: {
-                    my: 'top left',
-                    at: 'bottom left',
-                },
-                show: 'mouseover',
-                hide: 'mouseout'
-            });
-
-            // add qtip to genes column
-            $('#gistic_genes_col').qtip({
-                content: "Click a gene to select it, " +
-                    "double click to select all genes in a region",
-                position: {
-                    my: 'top left',
-                    at: 'bottom left',
-                },
-                show: 'mouseover',
-                hide: 'mouseout'
-            });
-
             // todo: maybe we'll want this someday
             // bind double clicking
             //Gistic.dt.fnGetNodes().forEach(function(i) {
@@ -217,11 +193,19 @@ var Gistic = function(gistics) {
             //        select(Gistic.UI.select_all_genes);
             //});
 
-            // put in a message box
+            // put in the help box
             $('#gistic_table_filter').
-                prepend('<span id="gistic_msg_box" style="display:none; ' +
-                        'font-weight:bold; text-decoration:underline; color:red; float:left; ">' +
-                        'cannot select more than 50 genes in a single query</span>');
+                prepend('<span id="gistic_msg_box" style="' +
+                        'line-height:2.5em;' +
+                        'float:left; ">' +
+                        'Click on a gene to <span style=' +
+                        '"padding: 2px; border: 2px solid #1974b8; border-radius:5px;">select</span> it</span>');
+
+            // style the bar
+            $('#gistic_table_filter').css('font-size', '12px');
+            $('#gistic_table_filter').css('font-weight', 'bold');
+            $('#gistic_table_filter').css('padding-bottom', '8px');
+
             return;
         },
 

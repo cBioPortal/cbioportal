@@ -371,7 +371,7 @@ if (step4ErrorMsg != null) {
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>
 
     <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select Genes from Recurrently Mutated Genes</button>
-    <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Gistic ROIs</button>
+    <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
 </div>
 <script type='text/javascript'>
 $('#toggle_gistic_dialog_button').button();

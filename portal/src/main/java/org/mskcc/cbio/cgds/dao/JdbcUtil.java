@@ -51,7 +51,7 @@ public class JdbcUtil {
     public static Connection getDbConnection() throws SQLException {
         if (ds == null) {
             initDataSource();
-        } else if (ds.getNumActive()>MAX_JDBC_CONNECTIONS) {
+        } else if (ds.getNumActive()>=MAX_JDBC_CONNECTIONS) {
             ds.close();
             initDataSource();
             System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS);

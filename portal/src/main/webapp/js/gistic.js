@@ -100,7 +100,7 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
-            {"sTitle": "No of <br/>Genes", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col',
+            {"sTitle": "#", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col',
                 "mDataProp": function(source, type, val) {
                     return source.nonSangerGenes.length + source.sangerGenes.length;
                 }

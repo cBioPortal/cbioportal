@@ -73,7 +73,7 @@
     </div>
     <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id='gistic_loading'>loading...</div>
-        <table id="gistic_table"></table>
+        <table id="gistic_table" class='display'></table>
         <div id="gistic_dialog_footer">
             <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
         </div>

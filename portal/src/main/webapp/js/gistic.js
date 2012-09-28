@@ -210,11 +210,12 @@ var Gistic = function(gistics) {
                 hide: 'mouseout'
             });
 
+            // todo: maybe we'll want this someday
             // bind double clicking
-            Gistic.dt.fnGetNodes().forEach(function(i) {
-                $(i).find('.gistic_gene_cell').
-                    select(Gistic.UI.select_all_genes);
-            });
+            //Gistic.dt.fnGetNodes().forEach(function(i) {
+            //    $(i).find('.gistic_gene_cell').
+            //        select(Gistic.UI.select_all_genes);
+            //});
 
             // put in a message box
             $('#gistic_table_filter').
@@ -337,6 +338,7 @@ Gistic.UI = ( function() {
         },
 
         select_all_genes: function(el) {
+            // todo: maybe we'll want this someday
             var max = 50;       // max no of genes users are allowed to select
             var selection = $(this).find('.gistic_gene');
 

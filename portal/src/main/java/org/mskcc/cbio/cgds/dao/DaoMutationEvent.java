@@ -267,6 +267,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -315,6 +317,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -366,6 +370,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -404,6 +410,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -444,6 +452,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -473,6 +483,8 @@ public final class DaoMutationEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -512,6 +524,8 @@ public final class DaoMutationEvent {
             return set;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -546,6 +560,8 @@ public final class DaoMutationEvent {
             return set;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     

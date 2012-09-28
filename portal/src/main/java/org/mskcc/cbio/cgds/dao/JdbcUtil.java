@@ -51,14 +51,14 @@ public class JdbcUtil {
     public static Connection getDbConnection() throws SQLException {
         if (ds == null) {
             initDataSource();
-        } else if (ds.getNumActive()>MAX_JDBC_CONNECTIONS) {
+        } else if (ds.getNumActive()>=MAX_JDBC_CONNECTIONS) {
             ds.close();
             initDataSource();
             System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS);
         }
         
         Connection con = ds.getConnection();
-        
+        //System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive());
         return con;
     }
 
@@ -98,6 +98,7 @@ public class JdbcUtil {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
+                //System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive());
             }
         } catch (SQLException e) {
             e.printStackTrace();

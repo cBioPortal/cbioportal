@@ -135,6 +135,8 @@ public final class DaoCnaEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -198,6 +200,8 @@ public final class DaoCnaEvent {
             return map;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
     
@@ -225,6 +229,8 @@ public final class DaoCnaEvent {
             return set;
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
 }

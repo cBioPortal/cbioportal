@@ -43,7 +43,7 @@ public class TestMutationTableUtil extends TestCase {
     public void test1() {
         MutationTableUtil mutationHtml = new MutationTableUtil("TP53");
         ArrayList<String> headerList = mutationHtml.getTableHeaders();
-        assertEquals(14, headerList.size());
+        assertEquals(12, headerList.size());
         assertEquals ("", mutationHtml.getTableFooterMessage());
     }
 
@@ -51,7 +51,7 @@ public class TestMutationTableUtil extends TestCase {
         MutationTableUtil mutationHtml = new MutationTableUtil("BRCA1");
         ArrayList<String> headerList = mutationHtml.getTableHeaders();
         String footerMessage = mutationHtml.getTableFooterMessage();
-        assertEquals(16, headerList.size());
+        assertEquals(14, headerList.size());
         assertTrue ("Checking for valid BRCA1-specific footer",
                 footerMessage.startsWith("* Known BRCA1 185/187DelAG"));
     }
@@ -60,7 +60,7 @@ public class TestMutationTableUtil extends TestCase {
         MutationTableUtil mutationHtml = new MutationTableUtil("BRCA2");
         ArrayList<String> headerList = mutationHtml.getTableHeaders();
         String footerMessage = mutationHtml.getTableFooterMessage();
-        assertEquals(16, headerList.size());
+        assertEquals(14, headerList.size());
         assertTrue ("Checking for valid BRCA2-specific footer",
                 footerMessage.startsWith("* Known BRCA2 6174delT founder"));
     }
@@ -71,7 +71,7 @@ public class TestMutationTableUtil extends TestCase {
         mutation.setGene(new CanonicalGene(1, "BRCA1"));
 
         ArrayList<String> dataFieldList = mutationHtml.getDataFields(mutation);
-        assertEquals(16, dataFieldList.size());
+        assertEquals(14, dataFieldList.size());
         for (int i=0; i<=7; i++) {
             assertEquals("&nbsp;", dataFieldList.get(i));
         }
@@ -92,7 +92,7 @@ public class TestMutationTableUtil extends TestCase {
 
         ArrayList<String> dataFieldList = mutationHtml.getDataFields(mutation);
         ArrayList<String> headerList = mutationHtml.getTableHeaders();
-        assertEquals(16, dataFieldList.size());
+        assertEquals(14, dataFieldList.size());
 
 	    // TODO too many fields, headers, and values are modified, those tests should be redefined...
 //        validateHeaderPlusValue(0, "Case ID", "TCGA-1234", headerList, dataFieldList);

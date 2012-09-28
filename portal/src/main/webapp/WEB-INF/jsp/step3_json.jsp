@@ -92,15 +92,23 @@
             #background:#DDD;
             font-weight:bold;
         }
+        .gistic_amp {
+            height: 1em;
+            background-color: red;
+        }
+        .gistic_del {
+            height: 1em;
+            background-color: blue;
+        }
     </style>
     <script type='text/javascript'>
     // set up modal dialog box for gistic table
     $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
             overflow: 'hidden',
-            minWidth: 700,
+            minWidth: 800,
             resizable: false,
-            height: 500,
+            height: 535,
             // width: 'auto',
             open: function() { 
                 // sets the scrollbar to the top of the table

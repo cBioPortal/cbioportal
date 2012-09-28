@@ -56,7 +56,7 @@ var Gistic = function(gistics) {
             var aoColumnDefs = [
                 {"sTitle": "<div style='color:red'>Amp</div>" +
                     "<div style='color:blue'>Del</div>",
-                    //"sWidth": '.5em',
+                    "sWidth": '5px',
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
@@ -174,8 +174,8 @@ var Gistic = function(gistics) {
             });
 
             // paint regions red and blue
-            $('.gistic_amp').parent().css('background-color', 'red');
-            $('.gistic_del').parent().css('background-color', 'blue');
+            //$('.gistic_amp').parent().css('background-color', 'red');
+            //$('.gistic_del').parent().css('background-color', 'blue');
 
             // center cols
             $('.gistic_center_col').css('text-align', 'center');

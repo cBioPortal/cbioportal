@@ -210,7 +210,7 @@ public class DaoInteraction {
         Connection con = null;
         try {
             con = JdbcUtil.getDbConnection();
-            return getInteractions(entrezGeneIds, true, false, dataSources, con); 
+            return getInteractions(entrezGeneIds, false, true, dataSources, con); 
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -32,9 +32,15 @@
 .oma_high A:visited {!important; text-decoration: underline !important;}
 .oma_high A:active {!important; text-decoration: underline !important;}
 
-.mutation_details_table{
+#mutation_details .mutation_details_table
+{
   font-size:90%;
   color:black;
+}
+
+th.mutation-details-qtip-style
+{
+	font-size: 115%;
 }
 
 .mutation_details_table_wrapper .mutation_table_cosmic
@@ -43,7 +49,7 @@
 	color: #1974B8;
 }
 
-.dataTables_wrapper .fg-toolbar
+#mutation_details .dataTables_wrapper .fg-toolbar
 {
 	min-width: 680px;
 	max-width: 1200px;
@@ -51,33 +57,28 @@
 	white-space: nowrap;
 }
 
-.mutation_details_table_wrapper
+#mutation_details .mutation_details_table_wrapper
 {
 	min-width: 680px;
 	max-width: 1200px;
 	width: 100%;
 	overflow-x: auto;
+	clear: both;
 }
 
-#cosmic_details_table_wrapper th
-{
-	font-size: 70%;
-	color: black;
-}
-
-.mutation_diagram_toggle
+#mutation_details .mutation_diagram_toggle
 {
 	margin-left: 567px;
 	margin-top: -15px;
 }
 
-.toggle_mut_table_col_td_label
+#mutation_details .toggle_mut_table_col_td_label
 {
 	width: 100%;
 	text-align: right;
 }
 
-.toggle_mutation_table_col_table
+#mutation_details .toggle_mutation_table_col_table
 {
 	margin-bottom: -15px;
 }
@@ -91,5 +92,10 @@
 {
 	vertical-align: bottom;
 	margin-left: 3px;
+}
+
+.mutation-details-tooltip
+{
+	font-size: 12px !important;
 }
 

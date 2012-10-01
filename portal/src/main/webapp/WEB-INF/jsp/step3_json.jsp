@@ -71,26 +71,50 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Regions of Interest" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
-        <span id='gistic_message_box' style='display:none; color:red; font-weight:bold; font-size:1.2em;'></span>
+    <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id='gistic_loading'>loading...</div>
-        <table id="gistic_table"></table>
+        <table id="gistic_table" class='display'></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Sync Selected Genes With Query</button>
+            <button style="float: right; display:none;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
         </div>
     </div>
     <style type='text/css'>
         .gistic_gene {
+            padding: 3px;
+            border-radius:5px;
             cursor:pointer;
         }
         .gistic_gene:hover {
-            border: 1px solid #1974b8;
             padding: 1px;
-            border-radius:5px;
+            border: 2px solid #1974b8;
         }
         .gistic_selected_gene {
             #background:#DDD;
             font-weight:bold;
+        }
+        .gistic_amp {
+            height: 1em;
+            background-color: red;
+        }
+        .gistic_del {
+            height: 1em;
+            background-color: blue;
+        }
+        #gistic_table_filter {
+            font-size: 12px;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+        #gistic_msg_box {
+            line-height: 2.5em;
+            float: left;
+        }
+        #gistic_msg_box span {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 1px;
+            border: 2px solid #1974b8;
+            border-radius:5px;
         }
     </style>
     <script type='text/javascript'>
@@ -98,15 +122,14 @@
     $('#gistic_dialog').dialog( {autoOpen: false,
             modal: true,
             overflow: 'hidden',
-            minWidth: 700,
-            //resizable: false,
-            height: 500,
+            minWidth: 800,
+            resizable: false,
+            height: 535,
             // width: 'auto',
             open: function() { 
                 // sets the scrollbar to the top of the table
                 $(this).scrollTop(0);
                 return;
-
                 // workaround to prevent auto focus
                 //$(this).add('input').blur();
             },

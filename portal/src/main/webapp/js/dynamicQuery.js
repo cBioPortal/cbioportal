@@ -138,6 +138,7 @@ function loadMetaData() {
             showNewContent();
         });
     }
+
     function showNewContent() {
         //show content, hide loader only after content is shown
         $('#main_query_form').fadeIn('fast',hideLoader());
@@ -350,6 +351,25 @@ function toggleThresholdPanel(profileClicked, profile, threshold_div) {
     }
 }
 
+// toggle:
+//      gistic button
+//      mutsig button
+// according to the cancer_study
+function toggleByCancerStudy(cancer_study) {
+    var mutsig = $('#toggle_mutsig_dialog');
+    var gistic = $('#toggle_gistic_dialog_button');
+    if (cancer_study.has_mutsig_data) {
+        mutsig.show();
+    } else {
+        mutsig.hide();
+    }
+    if (cancer_study.has_gistic_data) {
+        gistic.show();
+    } else {
+        gistic.hide();
+    }
+}
+
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
 function cancerStudySelected() {
@@ -364,12 +384,15 @@ function cancerStudySelected() {
         cancerStudyId = $("#select_cancer_type").val();
     }
 
+    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
+
+    // toggle every time a new cancer study is selected
+    toggleByCancerStudy(cancer_study);
+
     if (cancerStudyId=='all'){
         crossCancerStudySelected();
         return;
     }
-
-    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     //  Update Cancer Study Description
     $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
@@ -697,7 +720,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_RPPA && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
-        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA score threshold &#177: "
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
         + "</div>";

@@ -328,7 +328,7 @@ function addMoreCinicalTooltip() {
                 }
             },
             hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded wider-tooltip' },
             position: {my:'top right',at:'bottom right'}
         });
     }

@@ -30,19 +30,6 @@
         outputNoMutationDetails(out);
     }
 %>
-	<!-- TODO move into text of qtip
-	<div id="cosmic_details_dialog" title="Cosmic Details">
-		<table id="cosmic_details_table" class="display"
-		       cellpadding='0' cellspacing='0' border='0'>
-			<thead>
-				<tr>
-					<th>Overlapping COSMIC AA change</th>
-					<th>Frequency</th>
-				</tr>
-			</thead>
-		</table>
-	</div>
-	!-->
 
 </div>
 
@@ -252,7 +239,8 @@
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
           $.ajax({ url: "mutation_diagram_data.json",
               dataType: "json",
-              data: { hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>", mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>" },
+              data: {hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>",
+	              mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>"},
               success: drawMutationDiagram,
               type: "POST"});
         <% } %>
@@ -411,6 +399,36 @@
 	    }};
 
 	    $('#' + tableId + ' .mutation_table_cosmic').qtip(qTipOptsCosmic);
+
+	    // copy default qTip options and modify "content"
+	    // to customize for predicted impact score
+	    var qTipOptsOma = new Object();
+	    jQuery.extend(true, qTipOptsOma, qTipOptions);
+
+	    qTipOptsOma.content = { text: function(api) {
+		    var links = $(this).attr('alt');
+		    var parts = links.split("|");
+
+		    var impact = parts[0];
+
+		    var tip = "Predicted impact: <b>"+impact+"</b>";
+
+		    var xvia = parts[1];
+		    if (xvia&&xvia!='NA')
+			    tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+
+		    var msa = parts[2];
+		    if (msa&&msa!='NA')
+			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
+
+		    var pdb = parts[3];
+		    if (pdb&&pdb!='NA')
+			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
+
+		    return tip;
+	    }};
+
+	    $('#' + tableId + ' .oma_link').qtip(qTipOptsOma);
     }
 
     // TODO this will only fit the table wrapper initially, it won't refit when page is resized!

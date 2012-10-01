@@ -3,18 +3,18 @@
 .oma_link {
 	font-weight:bold;
 	padding-top: 1px;
-	padding-left:5px;
-	padding-right:5px;
+	padding-left:8px;
+	padding-right:8px;
 }
 
 .oma_high {
   background: #FF9999;
   font-weight:bold;
+  text-decoration: underline
 }
 
 .oma_medium {
   background: #FFCCCC;
-  color:white;
   font-weight:bold;
 }
 

@@ -166,18 +166,16 @@ public class PatientView extends HttpServlet {
         // patient info
         StringBuilder patientInfo = new StringBuilder();
         
-        patientInfo.append("Patient: ").append(patient);
-        
         String gender = guessClinicalData(clinicalFreeForms, new String[]{"gender"});
         if (gender==null) {
             gender = inferGenderFromCancerType(cancerStudy.getTypeOfCancerId());
         }
         if (gender!=null) {
-            patientInfo.append(", ").append(gender);
+            patientInfo.append(gender);
         }
         Double age = clinicalData==null?null:clinicalData.getAgeAtDiagnosis();
         if (age!=null) {
-            patientInfo.append(", ").append(age.intValue());
+            patientInfo.append(", ").append(age.intValue()).append(" years old");
         }
         
         request.setAttribute(PATIENT_INFO, patientInfo.toString());

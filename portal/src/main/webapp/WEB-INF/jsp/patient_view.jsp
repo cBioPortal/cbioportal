@@ -73,7 +73,8 @@ if (patientViewError!=null) {
 
 <table width="100%">
     <tr>
-        <td><b><u><%=patientInfo%></u></b></td><td align="right"><a href="#" id="more-clinical-a">More about this patient</a></td>
+        <td><b><u><%=patient%></u></b>&nbsp;&nbsp;<%=patientInfo%></td>
+        <td align="right"><a href="#" id="more-clinical-a">More about this patient</a></td>
     </tr>
     <tr>
         <td><%=diseaseInfo%></td>

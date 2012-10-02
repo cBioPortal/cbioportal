@@ -368,9 +368,9 @@ public class MutationTableUtil
 		headerList.add("Case ID\tCase ID");
 	    headerList.add("Protein Change\tAA Change");
 	    headerList.add("Mutation Type\tType");
-	    headerList.add("COSMIC Occurrences\tCOSMIC");
+	    headerList.add("Overlapping mutations in COSMIC\tCOSMIC");
 	    headerList.add("Predicted Functional Impact Score (via Mutation Assessor) " +
-	                   "is provided for missense mutations only.\tFIS");
+	                   "for missense mutations\tFIS");
 	    headerList.add("Mutation Status\tMS");
 		headerList.add("Validation Status\tVS");
 		headerList.add("Sequencing Center\tCenter");

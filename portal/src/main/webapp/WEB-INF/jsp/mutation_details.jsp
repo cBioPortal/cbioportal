@@ -379,7 +379,7 @@
 		    var cosmicTable =
 				    "<table class='" + tableId + "_cosmic_table cosmic_details_table display' " +
 				    "cellpadding='0' cellspacing='0' border='0'>" +
-				    "<thead><tr><th>Mutation</th><th>Occurrence</th></tr></thead>";
+				    "<thead><tr><th>Mutation</th><th>Count</th></tr></thead>";
 
 		    // COSMIC data (as AA change & frequency pairs)
 		    for (var i=0; i < parts.length; i++)

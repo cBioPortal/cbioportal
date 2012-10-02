@@ -8,23 +8,22 @@
 }
 
 .oma_high {
-  background: #FF9999;
+  background: #C83C3C;
   font-weight:bold;
-  text-decoration: underline
 }
 
 .oma_medium {
-  background: #FFCCCC;
+  background: #C79060;
   font-weight:bold;
 }
 
 .oma_low {
-  background: #EEEEEE;
+  background: #E8E894;
   font-weight:bold;
 }
 
 .oma_neutral {
-  background: #DDDDDD;
+  background: #EFEFEF;
   font-weight:bold;
 }
 

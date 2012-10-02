@@ -207,6 +207,15 @@
 						addMutationTableTooltips('<%= geneWithScore.getGene().toUpperCase() %>');
 					}
               } );
+
+	            // hide nucleotide details by default
+				var oTable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable();
+
+	            for (var i=8; i<12; i++)
+	            {
+	                oTable.fnSetColumnVis(i, false)
+	            }
+
             <% } %>
         <% } %>
 
@@ -229,7 +238,7 @@
 		    textFormatFunction: mutationTableToggleText}; // callback function for the action
 
 	    // initialize the dropdown box
-	    $(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
+	    //$(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
     });
     
     //  Set up Mutation Diagrams
@@ -527,7 +536,7 @@
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
         {
             outputHeader(out, geneWithScore, mutationCounter);
-	        outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
+	        //outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
 
             out.println("<table cellpadding='0' cellspacing='0' border='0' " +
                     "class='display mutation_details_table' " +

@@ -369,8 +369,8 @@ public class MutationTableUtil
 	    headerList.add("Protein Change\tAA Change");
 	    headerList.add("Mutation Type\tType");
 	    headerList.add("COSMIC Occurrences\tCOSMIC");
-	    headerList.add("Predicted functional impact (via Mutation Assessor) " +
-	                   "is provided for missense mutations only.\tPredicted Impact");
+	    headerList.add("Predicted Functional Impact Score (via Mutation Assessor) " +
+	                   "is provided for missense mutations only.\tFIS");
 	    headerList.add("Mutation Status\tMS");
 		headerList.add("Validation Status\tVS");
 		headerList.add("Sequencing Center\tCenter");
@@ -401,9 +401,11 @@ public class MutationTableUtil
 
 		String[] somatic = {DISPLAY_SOMATIC, CSS_SOMATIC};
 		String[] germline = {DISPLAY_GERMLINE, CSS_GERMLINE};
+		String[] unknown = {DISPLAY_UNKNOWN, CSS_UNKNOWN};
 
 		map.put(SOMATIC, somatic);
 		map.put(GERMLINE, germline);
+		map.put(UNKNOWN, unknown);
 
 		return map;
 	}

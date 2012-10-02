@@ -31,9 +31,9 @@ package org.mskcc.cbio.importer;
 // imports
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 import java.io.File;
-import javax.swing.JTable;
 import java.util.Collection;
 
 /**
@@ -85,14 +85,14 @@ public interface FileUtils {
     Collection<File> listFiles(final File directory, String[] extensions, boolean recursive) throws Exception;
 
 	/**
-	 * Returns the given file contents in a JTable.
+	 * Returns the given file contents in an ImportDataMatrix.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @return JTable
+	 * @return ImportDataMatrix
 	 * @throws Exception
 	 */
-	JTable getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
+	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
 
     /**
      * Reflexively creates a new instance of the given class.

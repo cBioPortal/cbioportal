@@ -188,18 +188,11 @@ var Gistic = function(gistics) {
             //});
 
             // put in the help box
-            $('#gistic_table_filter').
-                prepend('<span id="gistic_msg_box" style="' +
-                        'line-height:2.5em;' +
-                        'float:left; ">' +
-                        'Click on a gene to <span style=' +
-                        '"padding: 2px; border: 2px solid #1974b8; border-radius:5px;">select</span> it</span>');
+            $('#gistic_table_filter').parent().
+                prepend('<span id="gistic_msg_box">' +
+                        'Click on a gene to <span>select</span> it</span>');
 
-            // style the bar
-            $('#gistic_table_filter').css('font-size', '12px');
-            $('#gistic_table_filter').css('font-weight', 'bold');
-            $('#gistic_table_filter').css('padding-bottom', '8px');
-
+            $('#gistic_close').show();
             return;
         },
 
@@ -228,6 +221,7 @@ Gistic.UI = ( function() {
                 "bDestroy": true};
 
             $('#gistic_msg_box').hide();
+            $('#gistic_cancel').hide();
 
             $('#gistic_loading').show();
             $('#gistic_dialog').dialog('open');
@@ -285,18 +279,11 @@ Gistic.UI = ( function() {
         updateGenes: function() {
             var geneSet = GeneSet(Gistic.gene_list_el.val());
 
-            var raw_str = geneSet.getRawGeneString();
-            var newline = '';
-            if ( (raw_str.length !== 0) &&            // not the empty string
-                (raw_str.search(/\n$/) === -1) ) {    // there isn't a new linechar
-                newline = '\n';
-            }
-
             var currently_selected = $('.gistic_selected_gene').
                 map(function(i, val) { return $(val).html(); });
 
             var remove_genes = Gistic.selected_genes.filter(function(i) {
-                // genes that are not selected and are in the geneset
+                // genes that are not selected but are in the geneset
                 return $.inArray(Gistic.selected_genes[i], currently_selected) === -1;
             });
 
@@ -311,7 +298,7 @@ Gistic.UI = ( function() {
             });
 
             // append new_genes
-            var out = geneSet.toString() + newline + $.makeArray(new_genes).join(" ");
+            var out = geneSet.toString() + '\n' + $.makeArray(new_genes).join(" ");
             out = out.trim();
 
             // push to gene set

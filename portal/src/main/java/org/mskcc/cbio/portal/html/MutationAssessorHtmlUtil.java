@@ -47,8 +47,8 @@ public class MutationAssessorHtmlUtil {
     private static final String NA = "NA";
     private static final String OMA_LINK_BASE_STYLE = "oma_link";
     private String functionalImpactScoreKeyword;
-	private static final String STRUCTURE_IMG = "<img border='0' src='images/mutation/pdb.png' class='pdb-img'>";
-	private static final String ALIGNMENT_IMG = "<img border='0' src='images/mutation/msa.png' class='msa-img'>";
+	private static final String STRUCTURE_IMG = "<img border='0' src='images/pdb.png' class='pdb-img'>";
+	private static final String ALIGNMENT_IMG = "<img border='0' src='images/msa.png' class='msa-img'>";
 
     public MutationAssessorHtmlUtil(ExtendedMutation mutation) {
         this.mutation = mutation;
@@ -80,7 +80,7 @@ public class MutationAssessorHtmlUtil {
         }
     }
 
-    //  Create Link to MulitpleS Sequence Alignment.
+    //  Create Link to Multiple Sequence Alignment.
     //  A safe spacer is returned if any errors/exceptions occur.
     public String getMultipleSequenceAlignmentLink() {
         if (linkIsValid(mutation.getLinkMsa())) {
@@ -95,6 +95,68 @@ public class MutationAssessorHtmlUtil {
             return HtmlUtil.createEmptySpacer();
         }
     }
+
+	public String getFunctionalImpactScore()
+	{
+		String impactStyle = getOmaImpactCssStyle();
+		String impactWord = getOmaImpactWord();
+
+		String xVarLink = "";
+		String urlMsa = "";
+		String urlPdb = "";
+
+		if (impactStyle != null &&
+		    impactWord != null)
+		{
+			if (linkIsValid(mutation.getLinkXVar()))
+			{
+				try {
+					xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
+				} catch (MalformedURLException e) {
+					logger.error("Could not parse OMA URL:  " + e.getMessage());
+					return HtmlUtil.createEmptySpacer();
+				}
+
+				try {
+					if(mutation.getLinkMsa().length() == 0 ||
+					   mutation.getLinkMsa().equals("NA"))
+					{
+						urlMsa = "NA";
+					}
+					else
+					{
+						urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
+					}
+				} catch (MalformedURLException e) {
+					logger.error("Could not parse OMA URL:  " + e.getMessage());
+				}
+
+				try {
+					if(mutation.getLinkPdb().length() == 0 ||
+					   mutation.getLinkPdb().equals("NA"))
+					{
+						urlPdb = "NA";
+					}
+					else
+					{
+						urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+					}
+				} catch (MalformedURLException e) {
+					logger.error("Could not parse OMA URL:  " + e.getMessage());
+				}
+			}
+
+			return "<span class='" + OMA_LINK_BASE_STYLE + " " + impactStyle + "'" +
+			       "alt='" + impactWord + "|" + xVarLink + "|" + urlMsa + "|" + urlPdb + "'" + ">" +
+			       "<label>" + functionalImpactScoreKeyword + "</label></span>";
+		}
+		else
+		{
+			logger.error("Could not parse OMA Functional Impact Score Keyword:  "
+			             + functionalImpactScoreKeyword);
+			return HtmlUtil.createEmptySpacer();
+		}
+	}
 
     //  Create Link to Functional Impact Score.
     //  A safe spacer is returned if any errors/exceptions occur.
@@ -144,9 +206,9 @@ public class MutationAssessorHtmlUtil {
 
     private void initOmaImpactWordMap() {
         //  Map between OMA Keywords, and Words to Display to End-User
-        omaImpactWordMap.put("H", "H");
-        omaImpactWordMap.put("M", "M");
-        omaImpactWordMap.put("L", "L");
-        omaImpactWordMap.put("N", "N");
+        omaImpactWordMap.put("H", "High");
+        omaImpactWordMap.put("M", "Medium");
+        omaImpactWordMap.put("L", "Low");
+        omaImpactWordMap.put("N", "Neutral");
     }
 }

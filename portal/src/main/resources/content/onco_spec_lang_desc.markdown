@@ -108,7 +108,7 @@ To query cases that are over expressed in RPPA protein/phopshoprotein level:
 
 or
 
-     EGFR_PY992: prot > 2
+     EGFR_PY992: PROT > 2
 
 Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.
 

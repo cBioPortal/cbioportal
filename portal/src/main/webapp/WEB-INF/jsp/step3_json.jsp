@@ -75,7 +75,7 @@
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table" class='display'></table>
         <div id="gistic_dialog_footer">
-            <button style="float: right;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
+            <button style="float: right; display:none;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
         </div>
     </div>
     <style type='text/css'>
@@ -99,6 +99,22 @@
         .gistic_del {
             height: 1em;
             background-color: blue;
+        }
+        #gistic_table_filter {
+            font-size: 12px;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+        #gistic_msg_box {
+            line-height: 2.5em;
+            float: left;
+        }
+        #gistic_msg_box span {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 1px;
+            border: 2px solid #1974b8;
+            border-radius:5px;
         }
     </style>
     <script type='text/javascript'>

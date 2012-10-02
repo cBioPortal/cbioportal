@@ -137,11 +137,11 @@ public class MutationTableUtil
 
         //  OMA Links
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
-        dataFieldList.add(omaUtil.getFunctionalImpactLink() +
-                          omaUtil.getMultipleSequenceAlignmentLink() +
-                          omaUtil.getPdbStructureLink());
-        //dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
-        //dataFieldList.add(omaUtil.getPdbStructureLink());
+	    // TODO add links into "alt" field, remove link from the score
+	    dataFieldList.add(omaUtil.getFunctionalImpactScore());
+//        dataFieldList.add(omaUtil.getFunctionalImpactLink());
+//        dataFieldList.add(omaUtil.getMultipleSequenceAlignmentLink());
+//        dataFieldList.add(omaUtil.getPdbStructureLink());
 
         //  Fields for "Special" Genes
         if (specialGene != null) {

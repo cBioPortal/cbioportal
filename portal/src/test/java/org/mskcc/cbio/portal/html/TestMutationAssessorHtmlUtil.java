@@ -42,21 +42,21 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
     public void test1() {
         ExtendedMutation mutation = createMutation1();
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
-        assertEquals("H", omaUtil.getOmaImpactWord());
+        assertEquals("High", omaUtil.getOmaImpactWord());
         assertEquals("oma_high", omaUtil.getOmaImpactCssStyle());
         String impactLink = omaUtil.getFunctionalImpactLink();
 
         validateLinks(omaUtil);
         assertEquals("<span class='oma_link oma_high'>" +
                 "<a href='omaRedirect.do?site=mutationassessor.org" +
-                "&cm=var&var=1,103968324,G,T&fts=all'>H</a></span>", impactLink);
+                "&cm=var&var=1,103968324,G,T&fts=all'>High</a></span>", impactLink);
     }
 
     public void test2() {
         ExtendedMutation mutation = createMutation2();
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
         validateLinks(omaUtil);
-        assertEquals("M", omaUtil.getOmaImpactWord());
+        assertEquals("Medium", omaUtil.getOmaImpactWord());
         assertEquals("oma_medium", omaUtil.getOmaImpactCssStyle());
     }
 
@@ -64,7 +64,7 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
         ExtendedMutation mutation = createMutation3();
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
         validateLinks(omaUtil);
-        assertEquals("L", omaUtil.getOmaImpactWord());
+        assertEquals("Low", omaUtil.getOmaImpactWord());
         assertEquals("oma_low", omaUtil.getOmaImpactCssStyle());
     }
 
@@ -72,7 +72,7 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
         ExtendedMutation mutation = createMutation4();
         MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
         validateLinks(omaUtil);
-        assertEquals("N", omaUtil.getOmaImpactWord());
+        assertEquals("Neutral", omaUtil.getOmaImpactWord());
         assertEquals("oma_neutral", omaUtil.getOmaImpactCssStyle());
     }
 
@@ -89,11 +89,11 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
         String pdbLink = omaUtil.getPdbStructureLink();
         assertEquals("<a href='omaRedirect.do?site=mutationassessor.org/pdb.php" +
                 "&prot=AMYP_HUMAN&from=421&to=510&var=G435V'>" +
-                "<img border='0' src='images/mutation/msa.png' class='msa-img'></a>",
+                "<img border='0' src='images/msa.png' class='msa-img'></a>",
                      msaLink);
         assertEquals("<a href='omaRedirect.do?site=mutationassessor.org/" +
                 "&cm=msa&ty=f&p=AMYP_HUMAN&rb=421&re=510&var=G435V'>" +
-                "<img border='0' src='images/mutation/pdb.png' class='pdb-img'></a>",
+                "<img border='0' src='images/pdb.png' class='pdb-img'></a>",
                     pdbLink);
     }
 

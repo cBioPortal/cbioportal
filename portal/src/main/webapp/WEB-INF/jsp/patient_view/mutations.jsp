@@ -15,8 +15,7 @@
 </style>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,genemutrate:2,mutsig:3,
-        sanger:4,drug:5,aa:6,type:7,keymutrate:8,cosmic:9,ma:10};
+    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,drug:6,ma:7};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -39,120 +38,22 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                return "<b>"+mutations.getValue(source[0], "gene")+"</b>";
+                                var gene = mutations.getValue(source[0], "gene");
+                                var tip = "";
+                                var sanger = mutations.getValue(source[0], 'sanger');
+                                if (sanger) {
+                                    tip += "<a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                        +gene+"\">Sanger Cancer Gene Census</a>";
+                                }
+                                var ret = "<b>"+gene+"</b>";
+                                if (tip) {
+                                    ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
+                                }
+                                return ret;
                             } else {
                                 return mutations.getValue(source[0], "gene");
                             }
                         }
-                    },
-                    {// gene mutation rate
-                        "aTargets": [ mutTableIndices["genemutrate"] ],
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                if (!mutations.colExists('genemutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
-                                var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
-                                if (geneCon<=0) return '';
-                                var frac = geneCon/numPatientInSameMutationProfile;
-                                var tip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
-                                    +mutations.getValue(source[0], "gene");
-                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
-                                return "<div class='mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
-                            } else if (type==='sort') {
-                                if (!mutations.colExists('genemutrate')) return 0;
-                                return mutations.getValue(source[0], 'genemutrate');
-                            } else if (type==='type') {
-                                return 0.0;
-                            } else {
-                                if (mutations['genemutrate']==null) return 0;
-                                return mutations.getValue(source[0], 'genemutrate');
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
-                    {// mutsig
-                        "aTargets": [ mutTableIndices["mutsig"] ],
-                        "bVisible": !mutations.colAllNull('mutsig'),
-                        "sClass": "center-align-td",
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var mutsig = mutations.getValue(source[0], 'mutsig');
-                                if (mutsig==null) return "";
-                                var tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
-                                var width = Math.ceil(3*Math.min(10,-Math.log(mutsig)*Math.LOG10E));
-                                return  "<div class='mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
-                            } else if (type==='sort') {
-                                var mutsig = mutations.getValue(source[0], 'mutsig');
-                                if (mutsig==null) return 1.0;
-                                return mutsig;
-                            } else if (type==='filter') {
-                                return "mutsig";
-                            } else if (type==='type') {
-                                return 0.0;
-                            } else {
-                                return mutations.getValue(source[0], 'mutsig');
-                            }
-                        }
-                    },
-                    {// sanger
-                        "aTargets": [ mutTableIndices["sanger"] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var sanger = mutations.getValue(source[0], 'sanger');
-                                if (!sanger) return '';
-                                return "<img src='images/sanger.png' width=12 height=12 class='"+table_id
-                                        +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +mutations.getValue(source[0], 'gene')+"\">Sanger Cancer Gene Census</a>'/>";
-                            } else if (type==='sort') {
-                                var sanger = mutations.getValue(source[0], 'sanger');
-                                return sanger?'1':'0';
-                            }  else if (type==='filter') {
-                                var sanger = mutations.getValue(source[0], 'sanger');
-                                return sanger?'sanger':'';
-                            } else {
-                                return mutations.getValue(source[0], 'sanger');
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
-                    {// drugs
-                        "aTargets": [ mutTableIndices["drug"] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": 
-                            function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var drug = mutations.getValue(source[0], 'drug');
-                                if (!drug) return '';
-                                var len = drug.length;
-                                if (len==0) return '';
-                                return "<img src='images/drug.png' width=12 height=12 id='"
-                                            +table_id+'_'+source[0]+"-drug-tip' class='"
-                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
-                            } else if (type==='sort') {
-                                var drug = mutations.getValue(source[0], 'drug');
-                                return drug ? drug.length : 0;
-                            } else if (type==='filter') {
-                                var drug = mutations.getValue(source[0], 'drug');
-                                return drug&&drug.length ? 'drugs' : '';
-                            } else if (type==='type') {
-                                return 0;
-                            } else {
-                                var drug = mutations.getValue(source[0], 'drug');
-                                return drug ? drug : '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
                     },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
@@ -251,36 +152,39 @@
                         }
                         
                     },
-                    {// key mutation rate
-                        "aTargets": [ mutTableIndices["keymutrate"] ],
+                    {// gene mutation rate
+                        "aTargets": [ mutTableIndices["genemutrate"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!mutations.colExists('keymutrate')) 
-                                    return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
-                                var key = mutations.getValue(source[0], 'key');
-                                if (key==null) return '';
-                                var keyCon = mutations.getValue(source[0], 'keymutrate')-1;
-                                if (keyCon<=0) return '';
-                                var frac = keyCon/numPatientInSameMutationProfile;
-                                var tip = "<b>"+keyCon+" other sample"+(keyCon==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                    +(keyCon==1?"has ":"have ")+key+" mutations";
+                                if (!mutations.colExists('genemutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
+                                var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
+                                if (geneCon<=0) return '';
+                                var frac = geneCon/numPatientInSameMutationProfile;
+                                var tip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
+                                    +mutations.getValue(source[0], "gene");
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
-                                return "<div class='mutation_percent_div "+table_id
-                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                var ret = "<div class='mutation_percent_div "+table_id
+                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                var mutsig = mutations.getValue(source[0], 'mutsig');
+                                if (mutsig) {
+                                    var tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
+                                    ret += "<img class='right_float_div "+table_id+"-tip' alt='"
+                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
+                                }
+                                return ret;   
                             } else if (type==='sort') {
-                                if (!mutations.colExists('keymutrate')) return 0;
-                                return mutations.getValue(source[0], 'keymutrate');
+                                if (!mutations.colExists('genemutrate')) return 0;
+                                return mutations.getValue(source[0], 'genemutrate');
                             } else if (type==='type') {
                                 return 0.0;
                             } else {
-                                if (mutations['keymutrate']==null) return 0;
-                                return mutations.getValue(source[0], 'keymutrate');
+                                if (mutations['genemutrate']==null) return 0;
+                                return mutations.getValue(source[0], 'genemutrate');
                             }
                         },
-                        //"sWidth": "50px",
                         "asSorting": ["desc", "asc"]
                     },
                     {// cosmic
@@ -323,9 +227,38 @@
                             }
                         }
                     },
+                    {// drugs
+                        "aTargets": [ mutTableIndices["drug"] ],
+                        "sClass": "center-align-td",
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var drug = mutations.getValue(source[0], 'drug');
+                                if (!drug) return '';
+                                var len = drug.length;
+                                if (len==0) return '';
+                                return "<img src='images/drug.png' width=12 height=12 id='"
+                                            +table_id+'_'+source[0]+"-drug-tip' class='"
+                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
+                            } else if (type==='sort') {
+                                var drug = mutations.getValue(source[0], 'drug');
+                                return drug ? drug.length : 0;
+                            } else if (type==='filter') {
+                                var drug = mutations.getValue(source[0], 'drug');
+                                return drug&&drug.length ? 'drugs' : '';
+                            } else if (type==='type') {
+                                return 0;
+                            } else {
+                                var drug = mutations.getValue(source[0], 'drug');
+                                return drug ? drug : '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
-                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -346,12 +279,15 @@
                                 var msa = ma['msa'];
                                 if (msa&&msa!='NA')
                                     tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
+                                    
+                                var ret = "<span style='background-color:"+bgColor+";' class='"
+                                            +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a></span>";
+                                        
                                 var pdb = ma['pdb'];
                                 if (pdb&&pdb!='NA') 
-                                    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
-                                    
-                                return "<span style='background-color:"+bgColor+";' class='"
-                                            +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
+                                    ret += "&nbsp;<a class='right_float_div' href='"+pdb+"'>3-D</a>";
+                                
+                                return ret;
                             } else if (type==='sort') {
                                 var ma = mutations.getValue(source[0], 'ma');
                                 var score = ma['score'];
@@ -372,7 +308,7 @@
                     addDrugsTooltip("."+table_id+"-drug-tip");
                     addCosmicTooltip(table_id);
                 },
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["mutsig"],'asc'],[mutTableIndices["drug"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["drug"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -420,7 +356,6 @@
         var nRows = oTable.fnSettings().fnRecordsTotal();
         for (var row=0; row<nRows; row++) {
             oTable.fnUpdate(true, row, mutTableIndices["genemutrate"], false, false);
-            oTable.fnUpdate(true, row, mutTableIndices["keymutrate"], false, false);
         }
         oTable.fnDraw();
         oTable.css("width","100%");
@@ -437,7 +372,6 @@
             params,
             function(context){
                 genomicEventObs.mutations.addDataMap('genemutrate',context['<%=MutationsJSON.GENE_CONTEXT%>'],'gene');
-                genomicEventObs.mutations.addDataMap('keymutrate',context['<%=MutationsJSON.KEYWORD_CONTEXT%>'],'key');
                 updateMutationContext(mut_table);
                 updateMutationContext(mut_summary_table);
             }

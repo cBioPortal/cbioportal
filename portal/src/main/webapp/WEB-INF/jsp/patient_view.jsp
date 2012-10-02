@@ -196,6 +196,10 @@ if (patientViewError!=null) {
                 background-color: blue;
                 height: 12px;
         }
+        .right_float_div {
+                display: block;
+                float: right;
+        }
         .wider-tooltip {
             max-width: 800px;
         }

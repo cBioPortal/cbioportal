@@ -577,12 +577,13 @@
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
-	    out.println("<select class='mutation_diagram_toggle' " +
-	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
-	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
-	               "<option value='diagram'>Lollipop Diagram</option>" +
-	               "<option value='histogram'>Histogram</option>" +
-	               "</select>");
+	    // TODO histogram is disabled (will be enabled in the next release)
+//	    out.println("<select class='mutation_diagram_toggle' " +
+//	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
+//	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
+//	               "<option value='diagram'>Lollipop Diagram</option>" +
+//	               "<option value='histogram'>Histogram</option>" +
+//	               "</select>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
         out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<BR>Domain details derived from <a href='http://pfam.sanger.ac.uk/'>Pfam</a>.</div>");

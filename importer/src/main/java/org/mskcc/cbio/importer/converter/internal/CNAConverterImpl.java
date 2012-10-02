@@ -34,11 +34,10 @@ import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.swing.JTable;
 
 /**
  * Class which implements the Converter interface.
@@ -93,16 +92,16 @@ final class CNAConverterImpl implements Converter {
     }
 
 	/**
-	 * Returns the given file contents in a JTable.
+	 * Creates a staging file from the given data matrix.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @param JTable
+	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata,
-								  final ImportData importData, final JTable jtable) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
+								  final ImportDataMatrix importDataMatrix) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile()");

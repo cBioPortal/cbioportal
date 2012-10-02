@@ -34,13 +34,13 @@ import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.swing.JTable;
 import java.util.Collection;
 import java.lang.reflect.Constructor;
 
@@ -131,13 +131,13 @@ final class ConverterImpl implements Converter {
             }
 
             // get data to process as JTable
-            JTable jtable = fileUtils.getFileContents(portalMetadata, importData);
+            ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
 
             // get converter and create staging file
 			Object[] args = { config, fileUtils };
 			Converter converter =
 				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
-			converter.createStagingFile(portalMetadata, importData, jtable);
+			converter.createStagingFile(portalMetadata, importData, importDataMatrix);
         }
 	}
 
@@ -156,15 +156,16 @@ final class ConverterImpl implements Converter {
     }
 
 	/**
-	 * Returns the given file contents in a JTable.
+	 * Creates a staging file from the given data matrix.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @param JTable
+	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData, final JTable jtable) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
+								  final ImportDataMatrix importDataMatrix) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

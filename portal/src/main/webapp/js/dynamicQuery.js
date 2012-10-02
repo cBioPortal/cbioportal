@@ -720,7 +720,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_RPPA && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
-        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA score threshold &#177: "
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
         + "</div>";

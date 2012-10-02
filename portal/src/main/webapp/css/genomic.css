@@ -3,34 +3,49 @@
 .oma_link {
 	font-weight:bold;
 	padding-top: 1px;
-	padding-left:5px;
-	padding-right:5px;
+	padding-left:8px;
+	padding-right:8px;
 }
 
 .oma_high {
-  background: #FF9999;
+  background: #C83C3C;
   font-weight:bold;
 }
 
 .oma_medium {
-  background: #FFCCCC;
-  color:white;
+  background: #C79060;
   font-weight:bold;
 }
 
 .oma_low {
-  background: #EEEEEE;
+  background: #E8E894;
   font-weight:bold;
 }
 
 .oma_neutral {
-  background: #DDDDDD;
+  background: #EFEFEF;
   font-weight:bold;
 }
 
 .oma_high A:link {!important; text-decoration: underline !important;}
 .oma_high A:visited {!important; text-decoration: underline !important;}
 .oma_high A:active {!important; text-decoration: underline !important;}
+
+/* Styles for mutation details table */
+
+#mutation_details .unknown
+{
+	background: #E0E0E0;
+	color:black;
+	padding-left:5px;
+	padding-right:5px;
+}
+
+#mutation_details .protein_change
+{
+	font-weight: bold;
+	font-style: italic;
+}
 
 #mutation_details .mutation_details_table
 {

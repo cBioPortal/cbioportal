@@ -52,7 +52,7 @@
 			</tr>
 		</table>
 	</div>
-    <div id="mutsig_dialog" title="Recurrently Mutated Genes" style="font-size: 11px; .ui-dialog {padding: 0em;};">
+    <div id="mutsig_dialog" title="Recurrently Mutated Genes" class='display' style="font-size: 11px; .ui-dialog {padding: 0em;};">
         <img id='loader-img' src="images/ajax-loader.gif"/>
         <table class="MutSig">
             <thead>
@@ -73,7 +73,7 @@
     </div>
     <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id='gistic_loading'>loading...</div>
-        <table id="gistic_table" class='display'></table>
+        <table id="gistic_table" class='display' style='border-spacing:12px;'></table>
         <div id="gistic_dialog_footer">
             <button style="float: right; display:none;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
         </div>

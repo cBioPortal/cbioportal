@@ -4,7 +4,6 @@ var SELECTED_CANCER_TYPE_OLD = '';
 var SELECTED_CANCER_TYPE_NEW = '';
 
 // todo: put all the jquery selectors in one place
-
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
         SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
@@ -112,7 +111,7 @@ var Gistic = function(gistics) {
 
                     if (type === 'display') {
 
-                        var all_genes = all_genes.map(function(g) {
+                        var all_genes = $.map(all_genes, function(g) {
                             // bind ioGeneSet to each gene
                             // highlight ones that are already in the gene list
 
@@ -168,8 +167,8 @@ var Gistic = function(gistics) {
 
             // everytime you draw
             // update the selected_genes
-            Gistic.selected_genes = $('.gistic_selected_gene').
-                map(function(i, val) {
+            Gistic.selected_genes = $.map($('.gistic_selected_gene'), 
+                function(i, val) {
                 return $(val).html();
             });
 
@@ -279,15 +278,15 @@ Gistic.UI = ( function() {
         updateGenes: function() {
             var geneSet = GeneSet(Gistic.gene_list_el.val());
 
-            var currently_selected = $('.gistic_selected_gene').
-                map(function(i, val) { return $(val).html(); });
+            var currently_selected = $.map($('.gistic_selected_gene'), 
+                function(i, val) { return $(val).html(); });
 
-            var remove_genes = Gistic.selected_genes.filter(function(i) {
+            var remove_genes = $.grep(Gistic.selected_genes, function(i) {
                 // genes that are not selected but are in the geneset
                 return $.inArray(Gistic.selected_genes[i], currently_selected) === -1;
             });
 
-            var new_genes = currently_selected.filter(function(i) {
+            var new_genes = $.grep(currently_selected, function(i) {
                 // genes that are selected and not in the gene set
                 return $.inArray(currently_selected[i], geneSet.getAllGenes()) === -1;
             });

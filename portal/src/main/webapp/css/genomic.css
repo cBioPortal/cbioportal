@@ -32,6 +32,22 @@
 .oma_high A:visited {!important; text-decoration: underline !important;}
 .oma_high A:active {!important; text-decoration: underline !important;}
 
+/* Styles for mutation details table */
+
+#mutation_details .unknown
+{
+	background: #E0E0E0;
+	color:black;
+	padding-left:5px;
+	padding-right:5px;
+}
+
+#mutation_details .protein_change
+{
+	font-weight: bold;
+	font-style: italic;
+}
+
 #mutation_details .mutation_details_table
 {
   font-size:90%;

@@ -184,11 +184,11 @@
 					//"bScrollAutoCss": false,
 					"aoColumnDefs":[
 					  {"sType": 'aa-change-col',
-					          "aTargets": [ 5 ]},
+					          "aTargets": [ 1 ]},
 					  {"sType": 'cosmic-col',
-					      "aTargets": [ 10 ]},
+					      "aTargets": [ 3 ]},
 					  {"sType": 'predicted-impact-col',
-					          "aTargets": [ 11 ]}
+					          "aTargets": [ 4 ]}
 					],
 					"fnDrawCallback": function( oSettings ) {
 						// add tooltips to the table
@@ -365,6 +365,12 @@
 		    {
 			    var values = parts[i].split(/\(|\)/, 2);
 
+			    if (values.length < 2)
+			    {
+				    // skip values with no count information
+				    continue;
+			    }
+
 			    // skip data starting with p.? or ?
 			    var unknownCosmic = values[0].indexOf("p.?") == 0 ||
 			                        values[0].indexOf("?") == 0;
@@ -382,7 +388,7 @@
 		    return cosmicTable;
 	    }};
 
-	    qTipOptsCosmic.events = {show: function(event, api)
+	    qTipOptsCosmic.events = {render: function(event, api)
 	    {
 		    // TODO data table doesn't initialize properly
 		    // initialize cosmic details table

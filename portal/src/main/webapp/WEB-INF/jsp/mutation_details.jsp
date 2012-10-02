@@ -121,18 +121,30 @@
     };
 
     jQuery.fn.dataTableExt.oSort['cosmic-col-asc'] = function(a,b) {
-	    var av = parseInt($(a).text());
-	    var bv = parseInt($(b).text());
+	    var av = _getCosmicTextValue(a);
+	    var bv = _getCosmicTextValue(b);
 
 	    return _compareSortAsc(a, b, av, bv);
     };
 
     jQuery.fn.dataTableExt.oSort['cosmic-col-desc'] = function(a,b) {
-	    var av = parseInt($(a).text());
-	    var bv = parseInt($(b).text());
+	    var av = _getCosmicTextValue(a);
+	    var bv = _getCosmicTextValue(b);
 
 	    return _compareSortDesc(a, b, av, bv);
     };
+
+    function _getCosmicTextValue(a)
+    {
+	    if (a.indexOf("label") != -1)
+	    {
+		    return parseInt($(a).text());
+	    }
+	    else
+	    {
+		    return -1;
+	    }
+    }
 
     function _compareSortAsc(a, b, av, bv)
     {

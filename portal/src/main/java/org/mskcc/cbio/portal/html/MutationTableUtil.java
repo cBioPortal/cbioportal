@@ -283,15 +283,22 @@ public class MutationTableUtil
 		if (mutation.getOncotatorCosmicOverlapping() == null ||
 		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
 		{
-			return mutation.getOncotatorCosmicOverlapping();
+			return null;
 		}
 
 		// calculate total cosmic count
 		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
-		return "<label class='mutation_table_cosmic' " +
-			"alt='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
-			total.toString() + "</label>";
+		if (total > 0)
+		{
+			return "<label class='mutation_table_cosmic' " +
+				"alt='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
+				total.toString() + "</label>";
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**

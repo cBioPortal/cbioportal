@@ -117,7 +117,7 @@ var Gistic = function(gistics) {
 
                             var highlight = '';
 
-                            if (genes.indexOf(g) !== -1) {
+                            if ($.inArray(g, genes) !== -1) {
                                 highlight = ' gistic_selected_gene';
                             }
 

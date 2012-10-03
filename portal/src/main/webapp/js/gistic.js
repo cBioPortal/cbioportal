@@ -298,7 +298,8 @@ Gistic.UI = ( function() {
 
             // append new_genes
             var out = geneSet.toString() + '\n' + $.makeArray(new_genes).join(" ");
-            out = out.trim();
+            out = $.trim(out);
+            
 
             // push to gene set
             Gistic.gene_list_el.val(out);

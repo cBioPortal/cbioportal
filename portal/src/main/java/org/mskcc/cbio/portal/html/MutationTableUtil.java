@@ -128,6 +128,7 @@ public class MutationTableUtil
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationType(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getCosmicCount(mutation)));
 	    dataFieldList.add(omaUtil.getFunctionalImpactScore());
+	    dataFieldList.add(omaUtil.getPdbStructureLink());
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationStatus(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
@@ -195,7 +196,8 @@ public class MutationTableUtil
 	    // use those values
 	    if (values != null)
 	    {
-		    return HtmlUtil.createTextWithinSpan(values[0],
+		    return HtmlUtil.createTextWithinSpan(
+				"<label>" + values[0] + "</label>",
 				values[1],
 				mutation.getValidationStatus());
 	    }
@@ -227,7 +229,8 @@ public class MutationTableUtil
 	    // use those values
         if (values != null)
         {
-	        return HtmlUtil.createTextWithinSpan(values[0],
+	        return HtmlUtil.createTextWithinSpan(
+				"<label>" + values[0] + "</label>",
 				values[1],
 				mutation.getMutationStatus());
         }
@@ -260,7 +263,8 @@ public class MutationTableUtil
 		// use those values
 		if (values != null)
 		{
-			return HtmlUtil.createTextWithinSpan(values[0], values[1]);
+			return HtmlUtil.createTextWithinSpan(
+				"<label>" + values[0] + "</label>", values[1]);
 		}
 		// else, directly use the mutation type value itself
 		else
@@ -371,6 +375,7 @@ public class MutationTableUtil
 	    headerList.add("Overlapping mutations in COSMIC\tCOSMIC");
 	    headerList.add("Predicted Functional Impact Score (via Mutation Assessor) " +
 	                   "for missense mutations\tFIS");
+	    headerList.add("3-D Structure\t3-D");
 	    headerList.add("Mutation Status\tMS");
 		headerList.add("Validation Status\tVS");
 		headerList.add("Sequencing Center\tCenter");

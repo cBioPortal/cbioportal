@@ -103,7 +103,7 @@ public class MutationAssessorHtmlUtil {
 
 		String xVarLink = "";
 		String urlMsa = "";
-		String urlPdb = "";
+		//String urlPdb = "";
 
 		if (impactStyle != null &&
 		    impactWord != null)
@@ -131,23 +131,23 @@ public class MutationAssessorHtmlUtil {
 					logger.error("Could not parse OMA URL:  " + e.getMessage());
 				}
 
-				try {
-					if(mutation.getLinkPdb().length() == 0 ||
-					   mutation.getLinkPdb().equals("NA"))
-					{
-						urlPdb = "NA";
-					}
-					else
-					{
-						urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
-					}
-				} catch (MalformedURLException e) {
-					logger.error("Could not parse OMA URL:  " + e.getMessage());
-				}
+//				try {
+//					if(mutation.getLinkPdb().length() == 0 ||
+//					   mutation.getLinkPdb().equals("NA"))
+//					{
+//						urlPdb = "NA";
+//					}
+//					else
+//					{
+//						urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+//					}
+//				} catch (MalformedURLException e) {
+//					logger.error("Could not parse OMA URL:  " + e.getMessage());
+//				}
 			}
 
 			return "<span class='" + OMA_LINK_BASE_STYLE + " " + impactStyle + "'" +
-			       "alt='" + impactWord + "|" + xVarLink + "|" + urlMsa + "|" + urlPdb + "'" + ">" +
+			       "alt='" + impactWord + "|" + xVarLink + "|" + urlMsa + "'" + ">" +
 			       "<label>" + functionalImpactScoreKeyword + "</label></span>";
 		}
 		else

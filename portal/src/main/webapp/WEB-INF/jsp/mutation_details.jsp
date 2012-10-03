@@ -448,9 +448,9 @@
 		    if (msa&&msa!='NA')
 			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
 
-		    var pdb = parts[3];
-		    if (pdb&&pdb!='NA')
-			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
+//		    var pdb = parts[3];
+//		    if (pdb&&pdb!='NA')
+//			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
 
 		    return tip;
 	    }};

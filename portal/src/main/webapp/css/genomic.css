@@ -49,8 +49,8 @@
 
 #mutation_details .mutation_details_table
 {
-  font-size:90%;
-  color:black;
+	font-size: 90%;
+	color: black;
 }
 
 th.mutation-details-qtip-style
@@ -58,49 +58,20 @@ th.mutation-details-qtip-style
 	font-size: 115%;
 }
 
-.mutation_details_table_wrapper .mutation_table_cosmic
+#mutation_details .mutation_table_cosmic
 {
 	cursor: pointer;
 	color: #1974B8;
 }
 
-#mutation_details .dataTables_wrapper .fg-toolbar
+#mutation_details .dataTables_filter
 {
-	min-width: 680px;
-	max-width: 1200px;
-	width: 100%;
-	white-space: nowrap;
+	width: 200px;
 }
 
-#mutation_details .mutation_details_table_wrapper
+#mutation_details .dataTables_info
 {
-	min-width: 680px;
-	max-width: 1200px;
-	width: 100%;
-	overflow-x: auto;
-	clear: both;
-}
-
-#mutation_details .mutation_diagram_toggle
-{
-	margin-left: 567px;
-	margin-top: -15px;
-}
-
-#mutation_details .toggle_mut_table_col_td_label
-{
-	width: 100%;
-	text-align: right;
-}
-
-#mutation_details .toggle_mutation_table_col_table
-{
-	margin-bottom: -15px;
-}
-
-#mutation_details .ui-dropdownchecklist-text
-{
-	font-size: 12px;
+	width: 300px;
 }
 
 #mutation_details .msa-img, #mutation_details .pdb-img

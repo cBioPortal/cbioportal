@@ -34,19 +34,21 @@
 </div>
 
 
-<style type="text/css" title="currentStyle"> 
+<style type="text/css" title="currentStyle">
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        #mutation_details .ColVis {
+                float: left;
+                padding-right:25%;
+                margin-bottom: 0;
+        }
         .mutation_datatables_filter {
-                width: 40%;
                 float: right;
-                padding-top:5px;
-                padding-bottom:5px;
-                padding-right:5px;
+                padding-top:3px;
         }
         .mutation_datatables_info {
-                width: 55%;
                 float: left;
-                padding-left:5px;
-                padding-top:7px;
+                padding-top:5px;
                 font-size:90%;
         }
 </style>
@@ -185,8 +187,9 @@
         <%
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-              $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
-					"sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
+              var otable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+					"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
+                                        "bJQueryUI": true,
 					"bPaginate": false,
 					"bFilter": true,
 					// TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
@@ -202,19 +205,29 @@
 					  {"sType": 'predicted-impact-col',
 					          "aTargets": [ 4 ]}
 					],
+					"aoColumns": [
+						/* Case ID */   null,
+						/* AA Change */  null,
+						/* Type */  null,
+						/* COSMIC */  null,
+						/* FIS */  null,
+						/* 3D */  null,
+						/* MS */  null,
+						/* VS */  null,
+						/* Center */  null,
+						// hide nucleotide columns by default
+						/* Build */  { "bVisible": false },
+						/* Position */  { "bVisible": false },
+						/* Ref */  { "bVisible": false },
+						/* Var */  { "bVisible": false }
+					],
 					"fnDrawCallback": function( oSettings ) {
 						// add tooltips to the table
 						addMutationTableTooltips('<%= geneWithScore.getGene().toUpperCase() %>');
 					}
               } );
-
-	            // hide nucleotide details by default
-				var oTable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable();
-
-	            for (var i=8; i<12; i++)
-	            {
-	                oTable.fnSetColumnVis(i, false)
-	            }
+                                        
+              otable.css("width","100%");
 
             <% } %>
         <% } %>
@@ -223,38 +236,16 @@
 	    // DataTable's own scrolling, seems like there is a problem with its settings
 	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
 
-	    // to fit mutation table initially
-	    fitMutationTableToWidth();
-
-	    // TODO changing background requires additional settings for sort icons...
-	    //$('#mutation_details .mutation_details_table th').addClass('ui-state-default');
-
-	    // initialize table column filtering
-	    var dropdownOptions = {firstItemChecksAll: true, // enables "select all" button
-		    icon: {placement: 'left'}, // sets the position of the arrow
-		    width: 220,
-		    //emptyText: '(no columns selected)', // text to be displayed when no item is selected
-		    onItemClick: toggleMutationTableColumns,
-		    textFormatFunction: mutationTableToggleText}; // callback function for the action
-
-	    // initialize the dropdown box
-	    //$(".toggle_mutation_table_col").dropdownchecklist(dropdownOptions);
+	    // TODO this is a temporary workaround for missing classes for datatable toolbar
+	    // TODO we still need to figure out the reason for those missing classes...
+	    $("#mutation_details .mutation_datatables_filter").parent().addClass(
+				"fg-toolbar ui-widget-header ui-helper-clearfix ui-corner-tl ui-corner-tr");
     });
     
     //  Set up Mutation Diagrams
     $(document).ready(function(){
 	    // initially hide all tooltip boxes
 	    $("div.mutation_diagram_details").hide();
-
-	    // enable refitting of the mutation table on each click on mutation details tab
-	    $("a.result-tab").click(function(event){
-		    var tab = $(this).attr("href");
-
-		    if (tab == "#mutation_details")
-		    {
-			    fitMutationTableToWidth();
-		    }
-	    });
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
@@ -294,41 +285,6 @@
     }
 
     /**
-     * Updates the table columns according to the new user selection.
-     *
-     * @param checkbox	target check box selected by the user
-     * @param selector	target selection box modified by the user
-     */
-    function toggleMutationTableColumns(checkbox, selector)
-    {
-	    // extract geneId from the selector id
-	    var lastDashIdx = selector.id.lastIndexOf("_");
-	    var geneId = selector.id.substring(lastDashIdx + 1);
-
-	    var colIdx = checkbox.val();
-	    var checked = checkbox.prop("checked"); // checked or unchecked
-
-	    // get the corresponding table for that gene
-	    var targetTable = $('#mutation_details_table_' + geneId).dataTable();
-
-	    // if colIdx is a number, then hide that column
-	    if(!isNaN(colIdx))
-	    {
-		    targetTable.fnSetColumnVis(colIdx, checked);
-	    }
-	    // if it is not a number, then it is "show all columns"
-	    else
-	    {
-		    for (var i=0;
-		         i < selector.options.length - 1; // excluding "show all" option
-		         i++)
-		    {
-			    targetTable.fnSetColumnVis(i, checked);
-		    }
-	    }
-    }
-
-    /**
      * Toggles the diagram between lollipop view and histogram view.
      *
 	 * @param geneId    id of the target diagram
@@ -355,7 +311,7 @@
 
 	    var qTipOptions = {content: {attr: 'alt'},
 		    hide: { fixed: true, delay: 100 },
-		    style: { classes: 'mutation-details-tooltip ui-tooltip-light ui-tooltip-rounded' },
+		    style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-dark ui-tooltip-rounded' },
 		    position: {my:'top center',at:'bottom center'}};
 
 	    $('#' + tableId + ' th').qtip(qTipOptions);
@@ -442,77 +398,25 @@
 
 		    var xvia = parts[1];
 		    if (xvia&&xvia!='NA')
-			    tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+			    tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'><font color='lightblue'> Go to Mutation Assessor</font></a>";
 
 		    var msa = parts[2];
 		    if (msa&&msa!='NA')
-			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
+			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'><font color='lightblue'> View Multiple Sequence Alignment</font></a>";
 
-		    var pdb = parts[3];
-		    if (pdb&&pdb!='NA')
-			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
+//		    var pdb = parts[3];
+//		    if (pdb&&pdb!='NA')
+//			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
 
 		    return tip;
 	    }};
 
 	    $('#' + tableId + ' .oma_link').qtip(qTipOptsOma);
     }
-
-    // TODO this will only fit the table wrapper initially, it won't refit when page is resized!
-	function fitMutationTableToWidth()
-	{
-		// fit the table wrapper and the filter bar to the width of page
-		var fitWidth = $('#page_wrapper').width() - 60; // 60 is an approximation for total margins
-		$('#mutation_details .mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
-		$('#mutation_details .dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
-	}
-
 </script>
 
 
 <%!
-	private void outputColumnFilter(JspWriter out,
-			GeneWithScore geneWithScore,
-			ArrayList<String> headers) throws IOException
-	{
-		String geneId = geneWithScore.getGene().toUpperCase();
-
-		out.println("<table class='toggle_mutation_table_col_table'>" +
-		            "<tr><td class='toggle_mut_table_col_td_label'>");
-		out.println("Toggle Columns: ");
-		out.println("</td><td class='toggle_mut_table_col_td_select'>");
-
-		out.println("<select multiple class='toggle_mutation_table_col' " +
-		            "id='column_select_" + geneId + "'>");
-
-		out.println("<option selected id='" + geneId + "_column_selectAll " +
-				"value='NA'>" +
-				"<label>(show all columns)</label>" +
-				"</option>");
-
-		for (int i = 0; i < headers.size(); i++)
-		{
-			String header = headers.get(i);
-
-			String[] parts = header.split("\t");
-
-			if (parts.length >= 2)
-			{
-				header = parts[1];
-			}
-
-			//out.println("<option id='" + geneId + "_" + header + "'" +
-			out.println("<option " +
-			            "value='" + i + "'>" +
-			            "<label>" + header + "</label>" +
-			            "</option>");
-		}
-
-		out.println("</select>");
-
-		out.println("</td></tr></table>");
-	}
-
 	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
         ObjectMapper objectMapper = new ObjectMapper();
         StringWriter stringWriter = new StringWriter();

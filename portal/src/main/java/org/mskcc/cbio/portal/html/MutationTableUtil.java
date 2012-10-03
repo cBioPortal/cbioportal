@@ -121,13 +121,16 @@ public class MutationTableUtil
 	    MutationAssessorHtmlUtil omaUtil = new MutationAssessorHtmlUtil(mutation);
 
         //  Case ID.
-        dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getCaseId()));
+        String caseId = HtmlUtil.getSafeWebValue(mutation.getCaseId());
+        String htmlCaseId = "<b>" + caseId + "</b>";
+        dataFieldList.add(htmlCaseId);
 
         //  Basic Mutation Info.
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getProteinChange(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationType(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getCosmicCount(mutation)));
 	    dataFieldList.add(omaUtil.getFunctionalImpactScore());
+	    dataFieldList.add(omaUtil.getPdbStructureLink());
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getMutationStatus(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getValidationStatus(mutation)));
         dataFieldList.add(HtmlUtil.getSafeWebValue(getSequencingCenter(mutation)));
@@ -195,7 +198,8 @@ public class MutationTableUtil
 	    // use those values
 	    if (values != null)
 	    {
-		    return HtmlUtil.createTextWithinSpan(values[0],
+		    return HtmlUtil.createTextWithinSpan(
+				"<label>" + values[0] + "</label>",
 				values[1],
 				mutation.getValidationStatus());
 	    }
@@ -227,7 +231,8 @@ public class MutationTableUtil
 	    // use those values
         if (values != null)
         {
-	        return HtmlUtil.createTextWithinSpan(values[0],
+	        return HtmlUtil.createTextWithinSpan(
+				"<label>" + values[0] + "</label>",
 				values[1],
 				mutation.getMutationStatus());
         }
@@ -260,7 +265,8 @@ public class MutationTableUtil
 		// use those values
 		if (values != null)
 		{
-			return HtmlUtil.createTextWithinSpan(values[0], values[1]);
+			return HtmlUtil.createTextWithinSpan(
+				"<label><b>" + values[0] + "</b></label>", values[1]);
 		}
 		// else, directly use the mutation type value itself
 		else
@@ -292,8 +298,8 @@ public class MutationTableUtil
 		if (total > 0)
 		{
 			return "<label class='mutation_table_cosmic' " +
-				"alt='" + mutation.getOncotatorCosmicOverlapping() + "'>" +
-				total.toString() + "</label>";
+				"alt='" + mutation.getOncotatorCosmicOverlapping() + "'><b>" +
+				total.toString() + "</b></label>";
 		}
 		else
 		{
@@ -365,19 +371,20 @@ public class MutationTableUtil
 
     private void initHeaders()
     {
-		headerList.add("Case ID\tCase ID");
-	    headerList.add("Protein Change\tAA Change");
-	    headerList.add("Mutation Type\tType");
-	    headerList.add("Overlapping mutations in COSMIC\tCOSMIC");
+		headerList.add("Case ID\t<b>Case ID</b>");
+	    headerList.add("Protein Change\t<b>AA Change</b>");
+	    headerList.add("Mutation Type\t<b>Type</b>");
+	    headerList.add("Overlapping mutations in COSMIC\t<b>COSMIC</b>");
 	    headerList.add("Predicted Functional Impact Score (via Mutation Assessor) " +
-	                   "for missense mutations\tFIS");
-	    headerList.add("Mutation Status\tMS");
-		headerList.add("Validation Status\tVS");
-		headerList.add("Sequencing Center\tCenter");
-		headerList.add("NCBI Build Number\tBuild");
-		headerList.add("Position\tPosition");
-		headerList.add("Reference Allele\tRef");
-		headerList.add("Variant Allele\tVar");
+	                   "for missense mutations\t<b>FIS</b>");
+	    headerList.add("3-D Structure\t<b>3-D</b>");
+	    headerList.add("Mutation Status\t<b>MS</b>");
+		headerList.add("Validation Status\t<b>VS</b>");
+		headerList.add("Sequencing Center\t<b>Center</b>");
+		headerList.add("NCBI Build Number\t<b>Build</b>");
+		headerList.add("Position\t<b>Position</b>");
+		headerList.add("Reference Allele\t<b>Ref</b>");
+		headerList.add("Variant Allele\t<b>Var</b>");
 		//TODO headerList.add("Variant Frequency\tVar Freq");
 		//TODO headerList.add("Normal Frequency\tNorm Freq");
 

@@ -202,19 +202,27 @@
 					  {"sType": 'predicted-impact-col',
 					          "aTargets": [ 4 ]}
 					],
+					"aoColumns": [
+						/* Case ID */   null,
+						/* AA Change */  null,
+						/* Type */  null,
+						/* COSMIC */  null,
+						/* FIS */  null,
+						/* 3D */  null,
+						/* MS */  null,
+						/* VS */  null,
+						/* Center */  null,
+						// hide nucleotide columns by default
+						/* Build */  { "bVisible": false },
+						/* Position */  { "bVisible": false },
+						/* Ref */  { "bVisible": false },
+						/* Var */  { "bVisible": false }
+					],
 					"fnDrawCallback": function( oSettings ) {
 						// add tooltips to the table
 						addMutationTableTooltips('<%= geneWithScore.getGene().toUpperCase() %>');
 					}
               } );
-
-	            // hide nucleotide details by default
-				var oTable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable();
-
-	            for (var i=9; i<13; i++)
-	            {
-	                oTable.fnSetColumnVis(i, false)
-	            }
 
             <% } %>
         <% } %>
@@ -222,6 +230,11 @@
 	    // wrap the table contents with a div to enable scrolling, this is a workaround for
 	    // DataTable's own scrolling, seems like there is a problem with its settings
 	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
+
+	    // TODO this is a temporary workaround for missing classes for datatable toolbar
+	    // TODO we still need to figure out the reason for those missing classes...
+	    $("#mutation_details .mutation_datatables_filter").parent().addClass(
+				"fg-toolbar ui-widget-header ui-helper-clearfix ui-corner-tl ui-corner-tr");
 
 	    // to fit mutation table initially
 	    fitMutationTableToWidth();
@@ -464,7 +477,7 @@
 		// fit the table wrapper and the filter bar to the width of page
 		var fitWidth = $('#page_wrapper').width() - 60; // 60 is an approximation for total margins
 		$('#mutation_details .mutation_details_table_wrapper').width(fitWidth); // fit the table wrapper
-		$('#mutation_details .dataTables_wrapper .fg-toolbar').width(fitWidth); // fit the table toolbar
+		$('#mutation_details .mutation_details_toolbar').width(fitWidth); // fit the table toolbar
 	}
 
 </script>

@@ -146,9 +146,17 @@ var Gistic = function(gistics) {
                     return all_genes;
                 }
             },
-            {"sTitle": "Q Value", "aTargets":[5], "sType": "numeric", "sClass": "gistic_center_col",
+            {"sTitle": "Q Value", "aTargets":[5], "sType": "numeric", "sClass": "gistic_right_col",
                 "mDataProp": function(source, type, val) {
-                    var rounded = parseFloat(source.qval) .toExponential(1);   // round Q-Values
+
+                    // round Q-Values so that decimals that are not rounded by
+                    // toPrecision by default (more than 7 digits after the
+                    // decimal point) are rounded here
+                    var rounded = source.qval.toPrecision(2);
+                    0.000001 <= rounded && rounded < 0.001 ?
+                        rounded = parseFloat(rounded).toExponential() :
+                        rounded = rounded;
+
                     if (type === 'display') {
                         return rounded;
                     }
@@ -177,6 +185,9 @@ var Gistic = function(gistics) {
 
             // center cols
             $('.gistic_center_col').css('text-align', 'center');
+
+            // right cols
+            $('.gistic_right_col').css('text-align', 'right');
 
             // todo: maybe we'll want this someday
             // bind double clicking

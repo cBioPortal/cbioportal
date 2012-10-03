@@ -187,7 +187,7 @@
         <%
         for (GeneWithScore geneWithScore : geneWithScoreList) {
             if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-              var otable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
+              var oTable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable( {
 					"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
                                         "bJQueryUI": true,
 					"bPaginate": false,
@@ -205,29 +205,18 @@
 					  {"sType": 'predicted-impact-col',
 					          "aTargets": [ 4 ]}
 					],
-					"aoColumns": [
-						/* Case ID */   null,
-						/* AA Change */  null,
-						/* Type */  null,
-						/* COSMIC */  null,
-						/* FIS */  null,
-						/* 3D */  null,
-						/* MS */  null,
-						/* VS */  null,
-						/* Center */  null,
-						// hide nucleotide columns by default
-						/* Build */  { "bVisible": false },
-						/* Position */  { "bVisible": false },
-						/* Ref */  { "bVisible": false },
-						/* Var */  { "bVisible": false }
-					],
 					"fnDrawCallback": function( oSettings ) {
 						// add tooltips to the table
 						addMutationTableTooltips('<%= geneWithScore.getGene().toUpperCase() %>');
 					}
               } );
+              
+              var cols = oTable.fnSettings().aoColumns.length;
+              for (var col=9; col<cols; col++) {
+                 oTable.fnSetColumnVis( col, false );
+              }
                                         
-              otable.css("width","100%");
+              oTable.css("width","100%");
 
             <% } %>
         <% } %>

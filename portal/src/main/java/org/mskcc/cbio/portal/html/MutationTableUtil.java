@@ -377,7 +377,7 @@ public class MutationTableUtil
 	    headerList.add("Overlapping mutations in COSMIC\t<b>COSMIC</b>");
 	    headerList.add("Predicted Functional Impact Score (via Mutation Assessor) " +
 	                   "for missense mutations\t<b>FIS</b>");
-	    headerList.add("3-D Structure\t<b>3-D</b>");
+	    headerList.add("3-D Structure\t<b>3D</b>");
 	    headerList.add("Mutation Status\t<b>MS</b>");
 		headerList.add("Validation Status\t<b>VS</b>");
 		headerList.add("Sequencing Center\t<b>Center</b>");

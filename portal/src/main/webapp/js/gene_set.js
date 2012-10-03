@@ -20,11 +20,11 @@ GeneSet = function(raw_genes_str) {
     };
 
     var flatten_helper = function(l, flat_l) {
-        $.each(l, function(i) {
-            if (type(i) === 'Array') {
-                flatten_helper(i, flat_l);
+        $.each(l, function(i, val) {
+            if (type(val) === 'Array') {
+                flatten_helper(val, flat_l);
             } else {
-                flat_l.push(i);
+                flat_l.push(val);
             }
         });
 

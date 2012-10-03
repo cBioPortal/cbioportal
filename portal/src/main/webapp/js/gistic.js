@@ -1,12 +1,11 @@
 var selected_cancer_type = 'tcga_gbm';
 
-var SELECTED_CANCER_TYPE_OLD = '';
-var SELECTED_CANCER_TYPE_NEW = '';
+var SELECTED_CANCER_TYPE = '';
 
 // todo: put all the jquery selectors in one place
 $(document).ready(function() {
     $('#select_cancer_type').change(function() {
-        SELECTED_CANCER_TYPE_NEW = $('#select_cancer_type').val();
+        SELECTED_CANCER_TYPE = $('#select_cancer_type').val();
     });
 });
 
@@ -111,7 +110,7 @@ var Gistic = function(gistics) {
 
                     if (type === 'display') {
 
-                        var all_genes = $.map(all_genes, function(g) {
+                        var all_genes = $.map(all_genes, function(g, i) {
                             // bind ioGeneSet to each gene
                             // highlight ones that are already in the gene list
 
@@ -167,8 +166,8 @@ var Gistic = function(gistics) {
 
             // everytime you draw
             // update the selected_genes
-            Gistic.selected_genes = $.map($('.gistic_selected_gene'), 
-                function(i, val) {
+            Gistic.selected_genes = $.map($('.gistic_selected_gene'),
+                function(val, i) {
                 return $(val).html();
             });
 
@@ -229,13 +228,14 @@ Gistic.UI = ( function() {
 
             // hide the Gistic button when there is no gistic data
             // if ajax hasn't already been done...then do an ajax call
-            if (SELECTED_CANCER_TYPE_OLD !== SELECTED_CANCER_TYPE_NEW) {
+            var current_selection = $('#select_cancer_type').val();
+            if (SELECTED_CANCER_TYPE !== current_selection) {
 
-                SELECTED_CANCER_TYPE_OLD = SELECTED_CANCER_TYPE_NEW;
+                SELECTED_CANCER_TYPE = current_selection;
 
                 $.ajax({
                     url: 'Gistic.json',
-                    data: {'selected_cancer_type': SELECTED_CANCER_TYPE_NEW},
+                    data: {'selected_cancer_type': SELECTED_CANCER_TYPE},
                     dataType: 'json',
                     success: function(data) {
                         $('#gistic_loading').hide();
@@ -278,8 +278,8 @@ Gistic.UI = ( function() {
         updateGenes: function() {
             var geneSet = GeneSet(Gistic.gene_list_el.val());
 
-            var currently_selected = $.map($('.gistic_selected_gene'), 
-                function(i, val) { return $(val).html(); });
+            var currently_selected = $.map($('.gistic_selected_gene'),
+                function(val, i) { return $(val).html(); });
 
             var remove_genes = $.grep(Gistic.selected_genes, function(i) {
                 // genes that are not selected but are in the geneset
@@ -299,7 +299,6 @@ Gistic.UI = ( function() {
             // append new_genes
             var out = geneSet.toString() + '\n' + $.makeArray(new_genes).join(" ");
             out = $.trim(out);
-            
 
             // push to gene set
             Gistic.gene_list_el.val(out);

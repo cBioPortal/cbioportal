@@ -93,7 +93,7 @@ public class TestMutationAssessorHtmlUtil extends TestCase {
                      msaLink);
         assertEquals("<a href='omaRedirect.do?site=mutationassessor.org/" +
                 "&cm=msa&ty=f&p=AMYP_HUMAN&rb=421&re=510&var=G435V'>" +
-                "<img border='0' src='images/pdb.png' class='pdb-img'></a>",
+                "<span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>",
                     pdbLink);
     }
 

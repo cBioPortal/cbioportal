@@ -72,9 +72,6 @@ public class TestMutationTableUtil extends TestCase {
 
         ArrayList<String> dataFieldList = mutationHtml.getDataFields(mutation);
         assertEquals(15, dataFieldList.size());
-        for (int i=0; i<=7; i++) {
-            assertEquals("&nbsp;", dataFieldList.get(i));
-        }
     }
 
     public void test5() {

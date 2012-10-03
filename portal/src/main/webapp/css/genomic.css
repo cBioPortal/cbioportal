@@ -64,48 +64,14 @@ th.mutation-details-qtip-style
 	color: #1974B8;
 }
 
-#mutation_details .dataTables_wrapper .fg-toolbar
-{
-	min-width: 680px;
-	max-width: 1200px;
-	width: 100%;
-	white-space: nowrap;
-}
-
-#mutation_details .mutation_details_table_wrapper
-{
-	min-width: 680px;
-	max-width: 1200px;
-	width: 100%;
-	overflow-x: auto;
-	clear: both;
-}
-
 #mutation_details .dataTables_filter
 {
-	width: 75%;
+	width: 200px;
 }
 
-#mutation_details .mutation_diagram_toggle
+#mutation_details .dataTables_info
 {
-	margin-left: 567px;
-	margin-top: -15px;
-}
-
-#mutation_details .toggle_mut_table_col_td_label
-{
-	width: 100%;
-	text-align: right;
-}
-
-#mutation_details .toggle_mutation_table_col_table
-{
-	margin-bottom: -15px;
-}
-
-#mutation_details .ui-dropdownchecklist-text
-{
-	font-size: 12px;
+	width: 300px;
 }
 
 #mutation_details .msa-img, #mutation_details .pdb-img

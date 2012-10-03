@@ -211,7 +211,7 @@
 	            // hide nucleotide details by default
 				var oTable = $('#mutation_details_table_<%= geneWithScore.getGene().toUpperCase() %>').dataTable();
 
-	            for (var i=8; i<12; i++)
+	            for (var i=9; i<13; i++)
 	            {
 	                oTable.fnSetColumnVis(i, false)
 	            }

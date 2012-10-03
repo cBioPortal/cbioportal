@@ -159,21 +159,45 @@
                                 return;
                             } else if (type==='display') {
                                 if (!mutations.colExists('genemutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
+                                
+                                // gene context
                                 var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
                                 if (geneCon<=0) return '';
-                                var frac = geneCon/numPatientInSameMutationProfile;
-                                var tip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
-                                    +mutations.getValue(source[0], "gene");
-                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
-                                var ret = "<div class='mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                
+                                var ret = '';
+                                
+                                // keyword context
+                                var keyDiv = '';
+                                var keyTip = '.';
+                                var key = mutations.getValue(source[0], 'key');
+                                if (key!=null) {
+                                    var keyCon = mutations.getValue(source[0], 'keymutrate')-1;
+                                    if (keyCon>0){
+                                        var keyFrac = keyCon/numPatientInSameMutationProfile;
+                                        keyTip = ", out of which <b>"+keyCon
+                                            +"</b> ("+(100*keyFrac).toFixed(1) + "%) "
+                                            +(keyCon==1?"has ":"have ")+key+" mutations.";
+                                        var keyWidth = Math.min(40, Math.ceil(80 * Math.log(keyFrac+1) * Math.LOG2E));
+                                        keyDiv += "<div class='mutation_percent_div' style='width:"+keyWidth+"px;'></div>";
+                                    }
+                                }
+                                
+                                var geneFrac = geneCon/numPatientInSameMutationProfile;
+                                var geneTip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
+                                    +"</b> ("+(100*geneFrac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
+                                    +mutations.getValue(source[0], "gene")+keyTip;
+                                var geneWidth = Math.min(40, Math.ceil(80 * Math.log(geneFrac+1) * Math.LOG2E));
+                                ret += "<div class='gene_mutation_percent_div "+table_id
+                                                +"-tip' style='width:"+geneWidth+"px;' alt='"+geneTip+"'>"+keyDiv+"</div>";
+                                
+                                // mutsig
                                 var mutsig = mutations.getValue(source[0], 'mutsig');
                                 if (mutsig) {
                                     var tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
                                     ret += "<img class='right_float_div "+table_id+"-tip' alt='"
                                         +tip+"' src='images/mutsig.png' width=12 height=12>";
                                 }
+                                
                                 return ret;   
                             } else if (type==='sort') {
                                 if (!mutations.colExists('genemutrate')) return 0;
@@ -285,7 +309,8 @@
                                         
                                 var pdb = ma['pdb'];
                                 if (pdb&&pdb!='NA') 
-                                    ret += "&nbsp;<a class='right_float_div' href='"+pdb+"'>3-D</a>";
+                                    ret += "&nbsp;<a class='right_float_div "
+                                            +table_id+"-tip' alt='Protein 3-D structure' href='"+pdb+"'>3-D</a>";
                                 
                                 return ret;
                             } else if (type==='sort') {
@@ -372,6 +397,7 @@
             params,
             function(context){
                 genomicEventObs.mutations.addDataMap('genemutrate',context['<%=MutationsJSON.GENE_CONTEXT%>'],'gene');
+                genomicEventObs.mutations.addDataMap('keymutrate',context['<%=MutationsJSON.KEYWORD_CONTEXT%>'],'key');
                 updateMutationContext(mut_table);
                 updateMutationContext(mut_summary_table);
             }

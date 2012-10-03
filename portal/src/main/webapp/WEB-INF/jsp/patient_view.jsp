@@ -178,6 +178,12 @@ if (patientViewError!=null) {
         .center-align-td {
                 text-align: center;
         }
+        .gene_mutation_percent_div {
+                display: block;
+                float: left;
+                background-color: lightgreen;
+                height: 12px;
+        }
         .mutation_percent_div {
                 display: block;
                 float: left;

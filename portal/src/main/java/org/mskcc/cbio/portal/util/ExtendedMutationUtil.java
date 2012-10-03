@@ -36,14 +36,31 @@ public class ExtendedMutationUtil
 {
 	public static Integer calculateCosmicCount(ExtendedMutation mutation)
 	{
-		String[] parts = mutation.getOncotatorCosmicOverlapping().split("\\|");
+		String cosmicOverlap = mutation.getOncotatorCosmicOverlapping();
+
+		if (cosmicOverlap == null)
+		{
+			return -1;
+		}
+
+		String[] parts = cosmicOverlap.split("\\|");
 		Integer total = 0;
 
 		for (String cosmic : parts)
 		{
 			int beginIdx = cosmic.indexOf('(') + 1;
 			int endIdx = cosmic.indexOf(")");
-			String count = cosmic.substring(beginIdx, endIdx);
+
+			String count;
+
+			if (beginIdx == 0 || endIdx < 0)
+			{
+				count = "0";
+			}
+			else
+			{
+				count = cosmic.substring(beginIdx, endIdx);
+			}
 
 			boolean unknownCosmic = cosmic.startsWith("p.?") || cosmic.startsWith("?");
 

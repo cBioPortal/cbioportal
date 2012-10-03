@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.io.internal;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 
 import org.apache.commons.io.*;
@@ -52,7 +53,6 @@ import java.lang.reflect.Constructor;
 
 import java.util.Arrays;
 import java.util.Vector;
-import javax.swing.JTable;
 import java.util.Collection;
 
 /**
@@ -165,16 +165,16 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	/**
 	 * Returns the contents of the datafile as specified by ImportData
-     * in a JTable.  PortalMetadata is used to help determine if an "override"
+     * in an ImportDataMatrix.  PortalMetadata is used to help determine if an "override"
      * file exists.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @return JTable
+	 * @return ImportDataMatrix
 	 * @throws Exception
 	 */
     @Override
-	public JTable getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+	public ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getFileContents(): " + importData);
@@ -202,7 +202,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // outta here
-        return getJTable(fileContents);
+        return getImportDataMatrix(fileContents);
     }
 
     /**
@@ -288,12 +288,12 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
     /**
-     * Helper function to create JTable.
+     * Helper function to create ImportDataMatrix.
      *
      * @param data byte[]
-     * @return JTable
+     * @return ImportDataMatrix
      */
-    private JTable getJTable(final byte[] data) throws Exception {
+    private ImportDataMatrix getImportDataMatrix(final byte[] data) throws Exception {
 
         // iterate over all lines in byte[]
         Vector<String> columnNames = null;
@@ -320,18 +320,18 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         // problem reading from data?
         if (columnNames == null && rowData == null) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getJTable(), problem creating JTable from file");
+                LOG.info("getImportDataMatrix(), problem creating ImportDataMatrix from file");
             }
-            return new JTable();
+            return new ImportDataMatrix();
         }
 
-        // made it here, we can create JTable
+        // made it here, we can create ImportDataMatrix
         if (LOG.isInfoEnabled()) {
-            LOG.info("creating new JTable(), from file data");
+            LOG.info("creating new ImportDataMatrix(), from file data");
         }
 
         // outta here
-        return new JTable(rowData, columnNames);
+        return new ImportDataMatrix(rowData, columnNames);
     }
 
     /**

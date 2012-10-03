@@ -31,8 +31,7 @@ package org.mskcc.cbio.importer;
 // imports
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
-
-import javax.swing.JTable;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 /**
  * Interface used to convert portal data.
@@ -56,13 +55,13 @@ public interface Converter {
 	void generateCaseLists(final String portal) throws Exception;
 
 	/**
-	 * Returns the given file contents in a JTable.
+	 * Creates a staging file from the given data matrix.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @param JTable
+	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata,
-						   final ImportData importData, final JTable jtable) throws Exception;
+	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
+						   final ImportDataMatrix importDataMatrix) throws Exception;
 }

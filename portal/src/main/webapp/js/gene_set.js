@@ -4,6 +4,7 @@
 //
 // Gideon Dresdner
 // August 2012
+
 GeneSet = function(raw_genes_str) {
 
     if (typeof(raw_genes_str) !== 'string') {
@@ -19,7 +20,7 @@ GeneSet = function(raw_genes_str) {
     };
 
     var flatten_helper = function(l, flat_l) {
-        l.forEach(function(i) {
+        $.each(l, function(i) {
             if (type(i) === 'Array') {
                 flatten_helper(i, flat_l);
             } else {
@@ -38,7 +39,7 @@ GeneSet = function(raw_genes_str) {
     // restaurant slang : 86 means kill
     // todo: is this extremely slow?
     var split_86emptystr = function(str, split_str) {
-        return str.split(split_str).filter(function(i) {
+        return $.grep(str.split(split_str), function(i) {
             return i !== '';
         });
     };
@@ -73,7 +74,7 @@ GeneSet = function(raw_genes_str) {
                 query = split[0],
                 _genes = split_86emptystr(split[1], ' ');
 
-            _genes = _genes.map(function(i) {
+            _genes = $.map(_genes, function(i) {
                 return split_86emptystr(i, '\n');
             });
 
@@ -107,18 +108,18 @@ GeneSet = function(raw_genes_str) {
     else {
         geneStmts = raw_genes_str.split(';');
 
-        geneStmts = geneStmts.map(function(i) {
+        geneStmts = $.map(geneStmts, function(i) {
             return split_86emptystr(i, '\n');
         });
 
-        geneStmts = geneStmts.filter(function(i) {
+        geneStmts = $.grep(geneStmts, function(i) {
             return i.length !== 0;
         });
 
         geneStmts = flattenArray(geneStmts);
 
         // map strings to GeneStmts
-        geneStmts = geneStmts.map(function(i) {
+        geneStmts = $.map(geneStmts, function(i) {
             if ((/:/).test(i)) {
                 return OncoQuery(i, false);
             } else {
@@ -126,13 +127,13 @@ GeneSet = function(raw_genes_str) {
             }
         });
 
-        geneStmts = geneStmts.map(function(i) {
+        geneStmts = $.map(geneStmts, function(i) {
             if (i.isOncoQuery()) {
                 return i;
             } else {
                 var genes = split_86emptystr(i.getStmt(), ' ');
 
-                genes = genes.map(function(i) {
+                genes = $.map(genes, function(i) {
                     return GeneStmt(i.replace(/\s+/,''), false);
                 });
 
@@ -150,19 +151,19 @@ GeneSet = function(raw_genes_str) {
     // }}}
 
     // filter out the onco query statements
-    onco_queries = geneStmts.filter(function(x) {
+    onco_queries = $.grep(geneStmts, function(x) {
         return x.isOncoQuery();
     });
     onco_queries = uniqueElementsOfArray(onco_queries);
 
     // filter out the gene statements
-    genes = geneStmts.filter(function(x) {
+    genes = $.grep(geneStmts, function(x) {
         return !x.isOncoQuery();
     });
     genes = uniqueElementsOfArray(genes);
 
     // take all genes, parse out the gene from an onco query
-    all_genes = geneStmts.map(function(x) {
+    all_genes = $.map(geneStmts, function(x) {
         if (!x.isOncoQuery()) {     // gene, not onco query
             return x.getStmt();
         } else {                    // onco query
@@ -188,7 +189,7 @@ GeneSet = function(raw_genes_str) {
         getOncoQueries: function() {
             // don't return DATATYPES
             // perhaps return a special Onco Query Object that deals with DATATYPES functionality
-            return onco_queries.map(function(x) {
+            return $.map(onco_queries, function(x) {
                 if (x.isDatatype()) {
                     return {
                         isDataType: true,
@@ -201,7 +202,7 @@ GeneSet = function(raw_genes_str) {
 
         getGenes: function() {
         // returns a list of genes that are not in an onco query
-            return genes.map(function(x) {      // extract the statement
+            return $.map(genes, function(x) {      // extract the statement
                 return x.getStmt();
             });
         },
@@ -214,11 +215,11 @@ GeneSet = function(raw_genes_str) {
         filterOut: function(gene_str) {
             // cleans out the GeneSet of all gene statements of gene
             // gene_str
-            onco_queries = onco_queries.filter(function(i) {
+            onco_queries = $.grep(onco_queries, function(i) {
                 return !i.getStmt().match(gene_str);
             });
 
-            genes = genes.filter(function(i) {
+            genes = $.grep(genes, function(i) {
                 return i.getStmt() !== gene_str;
             });
         },

@@ -1282,3 +1282,11 @@ cc-ie-message {
 .right-align-td {
     text-align: right;
 }
+
+.center-align-td {
+    text-align: center;
+}
+
+.wider-tooltip {
+    max-width: 800px;
+}

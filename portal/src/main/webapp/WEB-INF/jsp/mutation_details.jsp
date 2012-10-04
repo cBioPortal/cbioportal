@@ -229,8 +229,6 @@
     
     //  Set up Mutation Diagrams
     $(document).ready(function(){
-	    // initially hide all tooltip boxes
-	    $("div.mutation_diagram_details").hide();
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
@@ -475,7 +473,6 @@
 //	               "</select>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-        out.println("<div class='mutation_diagram_details' id='mutation_diagram_details_" + geneWithScore.getGene().toUpperCase() + "'>The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<BR>Domain details derived from <a href='http://pfam.sanger.ac.uk/'>Pfam</a>.</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

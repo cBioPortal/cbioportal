@@ -33,12 +33,7 @@ function drawMutationDiagram(sequences)
     var mutationDiagram = sequences[0];
 
     // if mutation diagram is available, then show the diagram tooltip box
-    if (mutationDiagram != null)
-    {
-        $("#mutation_diagram_details_" + mutationDiagram.metadata.hugoGeneSymbol).show();
-    }
-    // else abort drawing
-    else
+    if (mutationDiagram == null)
     {
         return;
     }
@@ -179,15 +174,14 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
             var countText = "";
 
             if (mutationDiagram.markups[i].metadata.count == 1) {
-                countText = "(" + mutationDiagram.markups[i].metadata.count + " mutation)";
+                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutation</b>";
             }
             else {
-                countText = "(" + mutationDiagram.markups[i].metadata.count + " mutations)";
+                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutations</b>";
             }
 
-            var mutationTitle = "Amino Acid Change:  " +
-                                mutationDiagram.markups[i].metadata.label + " " +
-                                countText;
+            var mutationTitle = countText + "<br/>Amino Acid Change:  " +
+                                mutationDiagram.markups[i].metadata.label + " ";
 
             var p = paper.path("M" + x1 + " " + (c - 7) + "L" + x2 + " " + y2)
                 .toBack()
@@ -445,12 +439,10 @@ function darken(color) {
 }
 
 function addMouseOver(node, txt, id){
-  node.style.cursor = "default"
-  node.onmouseover = function () {
-    $('#mutation_diagram_details_' + id).html(txt+"<BR>&nbsp;<BR>&nbsp;")
-  };
-
-  node.onmouseout = function () {
-    $('#mutation_diagram_details_' + id).html("The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<br>&nbsp;");
-  };
+    $(node).qtip({
+        content: {text: '<font size="2">'+txt+'</font>'},
+        hide: { fixed: true, delay: 100 },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
+        position: {my:'top center',at:'bottom center'}
+    });
 }

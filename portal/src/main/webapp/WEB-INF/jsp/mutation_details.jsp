@@ -201,6 +201,7 @@
 					  {"sType": 'aa-change-col',
 					          "aTargets": [ 1 ]},
 					  {"sType": 'cosmic-col',
+                                           "sClass": "right-align-td",
 					      "aTargets": [ 3 ]},
 					  {"sType": 'predicted-impact-col',
 					          "aTargets": [ 4 ]}
@@ -224,11 +225,6 @@
 	    // wrap the table contents with a div to enable scrolling, this is a workaround for
 	    // DataTable's own scrolling, seems like there is a problem with its settings
 	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
-
-	    // TODO this is a temporary workaround for missing classes for datatable toolbar
-	    // TODO we still need to figure out the reason for those missing classes...
-	    $("#mutation_details .mutation_datatables_filter").parent().addClass(
-				"fg-toolbar ui-widget-header ui-helper-clearfix ui-corner-tl ui-corner-tr");
     });
     
     //  Set up Mutation Diagrams
@@ -300,7 +296,7 @@
 
 	    var qTipOptions = {content: {attr: 'alt'},
 		    hide: { fixed: true, delay: 100 },
-		    style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-dark ui-tooltip-rounded' },
+		    style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
 		    position: {my:'top center',at:'bottom center'}};
 
 	    $('#' + tableId + ' th').qtip(qTipOptions);
@@ -387,11 +383,11 @@
 
 		    var xvia = parts[1];
 		    if (xvia&&xvia!='NA')
-			    tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'><font color='lightblue'> Go to Mutation Assessor</font></a>";
+			    tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
 
 		    var msa = parts[2];
 		    if (msa&&msa!='NA')
-			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'><font color='lightblue'> View Multiple Sequence Alignment</font></a>";
+			    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
 
 //		    var pdb = parts[3];
 //		    if (pdb&&pdb!='NA')

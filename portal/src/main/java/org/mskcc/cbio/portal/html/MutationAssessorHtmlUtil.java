@@ -47,7 +47,7 @@ public class MutationAssessorHtmlUtil {
     private static final String NA = "NA";
     private static final String OMA_LINK_BASE_STYLE = "oma_link";
     private String functionalImpactScoreKeyword;
-	private static final String STRUCTURE_IMG = "<img border='0' src='images/pdb.png' class='pdb-img'>";
+	private static final String STRUCTURE_IMG = "<span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span>";
 	private static final String ALIGNMENT_IMG = "<img border='0' src='images/msa.png' class='msa-img'>";
 
     public MutationAssessorHtmlUtil(ExtendedMutation mutation) {

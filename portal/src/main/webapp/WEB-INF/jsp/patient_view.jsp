@@ -344,42 +344,38 @@ function addDrugsTooltip(elem) {
         var tableId = 'drug_table_'+$(this).attr('id');
         $(this).qtip({
             content: {
-                text: '<div style="overflow:auto"><table id="'+tableId+'"><thead><tr><th>ID</th><th>Target Genes</th><th>Name</th><th>Synonyms</th><th>FDA Approved?</th><th>Description</th><th>Data Source</th></tr></thead><tbody></tbody></table></div>',
+                text: '<img src="images/ajax-loader.gif"/>',
                 ajax: {
                     url: 'drugs.json',
                     type: 'POST',
                     data: {<%=DrugsJSON.DRUG_IDS%>: $(this).attr('alt')},
                     success: function(drugs,status) {
-                        $('#'+tableId).dataTable( {
-                            "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>',
-                            "bJQueryUI": true,
-                            "bDestroy": true,
-                            "aaData": drugs,
-                            "aoColumnDefs":[
-                                {// data source
-                                    "aTargets": [ 4 ],
-                                    "fnRender": function(obj) {
-                                        return obj.aData[ obj.iDataColumn ]?"Yes":"No";
-                                    }
-                                },
-                                {// data source
-                                    "aTargets": [ 6 ],
-                                    "fnRender": function(obj) {
-                                        var source = obj.aData[ obj.iDataColumn ];
-                                        if (source.toLowerCase()!="drugbank") return source;
-                                        var drugId = obj.aData[ 0 ];
-                                        return "<a href=\"http://www.drugbank.ca/drugs/"+drugId+"\" target=\"_blank\">"+ source + "</a>";
-                                    }
-                                }
-                            ],
-                            "oLanguage": {
-                                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                                "sInfoFiltered": "",
-                                "sLengthMenu": "Show _MENU_ per page"
-                            },
-                            "iDisplayLength": 10,
-                            "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
-                        } );
+                        var txt = [];
+                        for (var i=0, n=drugs.length; i<n; i++) {
+                            var drug = drugs[i];
+                            var txtDrug = [];
+                            if (drug[2]) {
+                                txtDrug.push("Drug name:</b></td><td><b>"+drug[2]+"</b>");
+                            }
+                            if (drug[3]) {
+                                txtDrug.push("Synonyms:</b></td><td>"+drug[3]);
+                            }
+                            if (drug[4]) {
+                                txtDrug.push("FDA approved?</b></td><td>"+(drug[4]?"Yes":"No"));
+                            }
+                            if (drug[5]) {
+                                txtDrug.push("Description:</b></td><td>"+drug[5]);
+                            }
+                            if (drug[6]) {
+                                if (drug[6].toLowerCase()=="drugbank")
+                                    txtDrug.push("Data source:</b></td><td><a href=\"http://www.drugbank.ca/drugs/"+drug[0]+"\">"+drug[6]+"</a>");
+                                else
+                                    txtDrug.push("Data source:</b></td><td>"+drug[6]);
+                            }
+                            txt.push("<table><tr valign='top'><td nowrap='nowrap'><b>"+txtDrug.join("</td></tr><tr valign='top'><td nowrap='nowrap'><b>")+"</td></tr>");
+                        }
+                        var html = txt.join('<hr><br/>');
+                        this.set('content.text', html);
                     }
                 }
             },

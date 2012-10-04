@@ -175,9 +175,6 @@ if (patientViewError!=null) {
                 width: auto;
                 float: right;
         }
-        .center-align-td {
-                text-align: center;
-        }
         .gene_mutation_percent_div {
                 display: block;
                 float: left;
@@ -205,9 +202,6 @@ if (patientViewError!=null) {
         .right_float_div {
                 display: block;
                 float: right;
-        }
-        .wider-tooltip {
-            max-width: 800px;
         }
 </style>
 

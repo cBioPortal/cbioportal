@@ -92,7 +92,10 @@ public class CnaJSON extends HttpServlet {
         
         Map<String,List> data = initMap();
         for (CnaEvent cnaEvent : cnaEvents) {
-            exportCnaEvent(data, cnaEvent, drugs.get(cnaEvent.getGeneSymbol()));
+            List<String> drug = 
+                    (cnaEvent.getAlteration()==CnaEvent.CNA.AMP||cnaEvent.getAlteration()==CnaEvent.CNA.GAIN)
+                    ? drugs.get(cnaEvent.getGeneSymbol()) : null;
+            exportCnaEvent(data, cnaEvent, drug);
         }
 
         response.setContentType("application/json");
@@ -270,8 +273,10 @@ public class CnaJSON extends HttpServlet {
         data.get("gistic").add(null);
         
         boolean isSangerGene = false;
+        boolean isIMPACTGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
+            isIMPACTGene = DaoGeneOptimized.getInstance().isIMPACTGene(symbol);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -281,8 +286,8 @@ public class CnaJSON extends HttpServlet {
         data.get("drug").add(drugs);
         
         // show in summary table
-        boolean includeInSummary = isSangerGene
-                || (drugs!=null && !drugs.isEmpty());
+        boolean includeInSummary = isIMPACTGene;
+                //|| (drugs!=null && !drugs.isEmpty());
         data.get("overview").add(includeInSummary);
     }
     

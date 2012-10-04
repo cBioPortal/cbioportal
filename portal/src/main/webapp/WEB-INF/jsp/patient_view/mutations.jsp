@@ -15,7 +15,7 @@
 </style>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,drug:6,ma:7};
+    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,drug:6,ma:7,'3d':8};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -288,29 +288,27 @@
                                 return;
                             } else if (type==='display') {
                                 var ma = mutations.getValue(source[0], 'ma');
+                                
                                 var score = ma['score'];
                                 var bgColor,impact;
                                 if (score==='N') {bgColor="white"; impact='Neutral';}
                                 else if (score==='L') {bgColor="#E8E894"; impact='Low';}
                                 else if (score==='M') {bgColor="#C79060"; impact='Medium';}
                                 else if (score==='H') {bgColor="#C83C3C"; impact='High';}
-                                else return '';
                                 
-                                var tip = "Predicted impact: <b>"+impact+"</b>";
-                                var xvia = ma['xvia'];
-                                if (xvia&&xvia!='NA')
-                                    tip += "<br/><a href='>'"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
-                                var msa = ma['msa'];
-                                if (msa&&msa!='NA')
-                                    tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
-                                    
-                                var ret = "<span style='background-color:"+bgColor+";' class='"
-                                            +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a></span>";
-                                        
-                                var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') 
-                                    ret += "&nbsp;<a class='right_float_div "
-                                            +table_id+"-tip' alt='Protein 3-D structure' href='"+pdb+"'>3-D</a>";
+                                var ret = "";
+                                if (impact) {
+                                    var tip = "Predicted impact: <b>"+impact+"</b>";
+                                    var xvia = ma['xvia'];
+                                    if (xvia&&xvia!='NA')
+                                        tip += "<br/><a href='>'"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+                                    var msa = ma['msa'];
+                                    if (msa&&msa!='NA')
+                                        tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
+
+                                    ret += "<span style='background-color:"+bgColor+";' class='"
+                                                +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a></span>";
+                                }
                                 
                                 return ret;
                             } else if (type==='sort') {
@@ -321,8 +319,44 @@
                                 else if (score==='M') return '2';
                                 else if (score==='H') return '3';
                                 else return '-1';
+                            } else if (type==='filter') {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var score = ma['score'];
+                                if (score==='N'||score==='L'||score==='M'||score==='H') return score;
+                                else return '';
                             } else {
                                 return mutations.getValue(source[0], 'ma');
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {
+                        "aTargets": [ mutTableIndices["3d"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                
+                                var ret = '';
+                                var pdb = ma['pdb'];
+                                if (pdb&&pdb!='NA') {
+                                    ret += "&nbsp;<a class='"
+                                            +table_id+"-tip' alt='Protein 3D structure' href='"+pdb
+                                            +"'><span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>";
+                                }
+                                
+                                return ret;
+                            } else if (type==='sort'||type==='filter') {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var pdb = ma['pdb'];
+                                if (pdb&&pdb!='NA') return '3d';
+                                else return '';
+                            } else {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var pdb = ma['pdb'];
+                                if (pdb&&pdb!='NA') return '';
+                                else return pdb;
                             }
                         },
                         "asSorting": ["desc", "asc"]

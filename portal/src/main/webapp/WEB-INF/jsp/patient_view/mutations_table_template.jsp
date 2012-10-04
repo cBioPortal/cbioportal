@@ -10,5 +10,6 @@
                         <th class="mut-header" alt="Potential Drugs"><img src='images/drug.png' width=12 height=12></th>
                         <th class="mut-header" alt="Functional impact predicted by MutationAssessor (missense mutations only)">
                             <img src="images/ma.png" width=15 height=12/></th>
+                        <th class="mut-header" alt="Protein 3D Structure">3D</th>
                     </tr>
                 </thead>

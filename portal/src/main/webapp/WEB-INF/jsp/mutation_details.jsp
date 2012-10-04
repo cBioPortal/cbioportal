@@ -51,6 +51,18 @@
                 padding-top:5px;
                 font-size:90%;
         }
+        .missense_mutation {
+                color: green;
+        }
+        .trunc_mutation {
+                color: red;
+        }
+        .inframe_mutation {
+                color: black;
+        }
+        .other_mutation {
+                color: gray;
+        }
 </style>
 
 <script type="text/javascript">

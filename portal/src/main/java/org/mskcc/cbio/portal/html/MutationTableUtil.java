@@ -75,6 +75,7 @@ public class MutationTableUtil
 	// Mutation Type Constants
 	private static final String DISPLAY_MISSENSE = "Missense";
 	private static final String DISPLAY_NONSENSE = "Nonsense";
+	private static final String DISPLAY_NONSTOP = "Nonstop";
 	private static final String DISPLAY_FS_DEL = "FS del";
 	private static final String DISPLAY_FS_INS = "FS ins";
 	private static final String DISPLAY_IF_DEL = "IF ins";
@@ -82,12 +83,15 @@ public class MutationTableUtil
 	private static final String DISPLAY_SPLICE = "Splice";
 	private static final String MISSENSE = "missense mutation";
 	private static final String NONSENSE = "nonsense mutation";
+	private static final String NONSTOP = "nonstop mutation";
 	private static final String FS_DEL = "frame shift del";
 	private static final String FS_INS = "frame shift ins";
 	private static final String IF_DEL = "in frame ins";
 	private static final String IF_INS = "in frame del";
 	private static final String SPLICE = "splice site";
 	private static final String CSS_MISSENSE = "missense_mutation";
+	private static final String CSS_TRUNC = "trunc_mutation";
+	private static final String CSS_INFRAME = "inframe_mutation";
 	private static final String CSS_OTHER_MUT = "other_mutation";
 
     public MutationTableUtil(String geneSymbol)
@@ -271,7 +275,8 @@ public class MutationTableUtil
 		// else, directly use the mutation type value itself
 		else
 		{
-			return mutation.getMutationType();
+			return HtmlUtil.createTextWithinSpan(
+				"<label><b>" + mutation.getMutationType() + "</b></label>", CSS_OTHER_MUT);
 		}
 	}
 
@@ -453,15 +458,17 @@ public class MutationTableUtil
 		HashMap<String, String[]> map = new HashMap<String, String[]>();
 
 		String[] missense = {DISPLAY_MISSENSE, CSS_MISSENSE};
-		String[] nonsense = {DISPLAY_NONSENSE, CSS_OTHER_MUT};
-		String[] fsDel = {DISPLAY_FS_DEL, CSS_OTHER_MUT};
-		String[] fsIns = {DISPLAY_FS_INS, CSS_OTHER_MUT};
-		String[] ifDel = {DISPLAY_IF_DEL, CSS_OTHER_MUT};
-		String[] ifIns = {DISPLAY_IF_INS, CSS_OTHER_MUT};
-		String[] splice = {DISPLAY_SPLICE, CSS_OTHER_MUT};
+		String[] nonsense = {DISPLAY_NONSENSE, CSS_TRUNC};
+		String[] nonstop = {DISPLAY_NONSTOP, CSS_TRUNC};
+		String[] fsDel = {DISPLAY_FS_DEL, CSS_TRUNC};
+		String[] fsIns = {DISPLAY_FS_INS, CSS_TRUNC};
+		String[] ifDel = {DISPLAY_IF_DEL, CSS_INFRAME};
+		String[] ifIns = {DISPLAY_IF_INS, CSS_INFRAME};
+		String[] splice = {DISPLAY_SPLICE, CSS_TRUNC};
 
 		map.put(MISSENSE, missense);
 		map.put(NONSENSE, nonsense);
+		map.put(NONSTOP, nonstop);
 		map.put(FS_DEL, fsDel);
 		map.put(FS_INS, fsIns);
 		map.put(IF_DEL, ifDel);

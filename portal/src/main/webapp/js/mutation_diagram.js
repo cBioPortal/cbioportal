@@ -443,6 +443,6 @@ function addMouseOver(node, txt, id){
         content: {text: '<font size="2">'+txt+'</font>'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
-        position: {my:'top center',at:'bottom center'}
+        position: {my:'bottom center',at:'top center'}
     });
 }

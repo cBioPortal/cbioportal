@@ -1,14 +1,5 @@
 var selected_cancer_type = 'tcga_gbm';
 
-var SELECTED_CANCER_TYPE = '';
-
-// todo: put all the jquery selectors in one place
-$(document).ready(function() {
-    $('#select_cancer_type').change(function() {
-        SELECTED_CANCER_TYPE = $('#select_cancer_type').val();
-    });
-});
-
 var Gistic = function(gistics) {
     // store the DataTable object once it has been created
     Gistic.dt = '';
@@ -237,16 +228,19 @@ Gistic.UI = ( function() {
 
             var genes = GeneSet($('#gene_list').val()).getAllGenes();
 
-            // hide the Gistic button when there is no gistic data
-            // if ajax hasn't already been done...then do an ajax call
             var current_selection = $('#select_cancer_type').val();
-            if (SELECTED_CANCER_TYPE !== current_selection) {
 
-                SELECTED_CANCER_TYPE = current_selection;
+            // if Gistic has never been run then Gistic.last_selection =
+            // undefined, otherwise, check to prevent multiple AJAXs of the
+            // same cancer study
+            if (Gistic.last_selection !== current_selection) {
+
+                // save this for later comparision
+                Gistic.last_selection = current_selection;
 
                 $.ajax({
                     url: 'Gistic.json',
-                    data: {'selected_cancer_type': SELECTED_CANCER_TYPE},
+                    data: {'selected_cancer_type': current_selection},
                     dataType: 'json',
                     success: function(data) {
                         $('#gistic_loading').hide();

@@ -27,14 +27,13 @@
 
 package org.mskcc.cbio.portal.html;
 
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
-import org.mskcc.cbio.portal.util.SequenceCenterUtil;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
+import org.mskcc.cbio.portal.util.SequenceCenterUtil;
 
 /**
  * Utility Class for Creating the Mutation Table.
@@ -56,9 +55,13 @@ public class MutationTableUtil
     private static final String DISPLAY_VALID = "V";
 	private static final String CSS_VALID = "valid";
 	private static final String VALID = "valid";
+	private static final String VALIDATED = "validated";
 	private static final String DISPLAY_UNKNOWN = "U";
 	private static final String CSS_UNKNOWN = "unknown";
 	private static final String UNKNOWN = "unknown";
+	private static final String NA = "na";
+	private static final String NONE = "none";
+	private static final String NOTTESTED = "not tested";
 	private static final String DISPLAY_WILDTYPE = "W";
 	private static final String CSS_WILDTYPE = "wildtype";
 	private static final String WILDTYPE = "wildtype";
@@ -418,6 +421,8 @@ public class MutationTableUtil
 		map.put(SOMATIC, somatic);
 		map.put(GERMLINE, germline);
 		map.put(UNKNOWN, unknown);
+                map.put(NA, unknown);
+                map.put(NONE, unknown);
 
 		return map;
 	}
@@ -439,8 +444,11 @@ public class MutationTableUtil
 		String[] wildtype = {DISPLAY_WILDTYPE, CSS_WILDTYPE};
 
 		map.put(VALID, valid);
+		map.put(VALIDATED, valid);
 		map.put(UNKNOWN, unknown);
+		map.put(NOTTESTED, unknown);
 		map.put(WILDTYPE, wildtype);
+                map.put(NA, unknown);
 
 		return map;
 	}

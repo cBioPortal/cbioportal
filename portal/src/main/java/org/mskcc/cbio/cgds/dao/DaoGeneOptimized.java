@@ -27,12 +27,16 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -40,10 +44,13 @@ import java.util.List;
  * @author Ethan Cerami
  */
 public class DaoGeneOptimized {
+    private static final String IMPACT_GENES_FILE = "/IMPACT_genes.txt";
+        
     private static DaoGeneOptimized daoGeneOptimized;
     private HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
+    private Set<String> impactGenes = new HashSet<String>();
 
     /**
      * Private Constructor, to enforce singleton pattern.
@@ -57,6 +64,21 @@ public class DaoGeneOptimized {
         ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
         for (CanonicalGene currentGene:  globalGeneList) {
             cacheGene(currentGene);
+        }
+        
+        try {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(getClass().getResourceAsStream(IMPACT_GENES_FILE)));
+            for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                if (geneSymbolMap.containsKey(line)) {
+                    impactGenes.add(line);
+                } else {
+                    System.err.println(line+" in the IMPACT gene list is not a HUGO gene symbol.");
+                }
+            }
+            in.close();
+        } catch(IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -213,6 +235,14 @@ public class DaoGeneOptimized {
         }
         
         return genes.get(0);
+    }
+    
+    public Set<String> getIMPACTGenes() {
+        return Collections.unmodifiableSet(impactGenes);
+    }
+    
+    public boolean isIMPACTGene(String hugoSymbolUpper) {
+        return impactGenes.contains(hugoSymbolUpper);
     }
 
     /**

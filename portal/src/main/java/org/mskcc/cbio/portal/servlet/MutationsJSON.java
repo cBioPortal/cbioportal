@@ -316,10 +316,12 @@ public class MutationsJSON extends HttpServlet {
         }
         data.get("mutsig").add(mutSigQvalue);
         
-        // sanger
+        // sanger & IMPACT
         boolean isSangerGene = false;
+        boolean isIMPACTGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
+            isIMPACTGene = DaoGeneOptimized.getInstance().isIMPACTGene(symbol);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -337,10 +339,10 @@ public class MutationsJSON extends HttpServlet {
         data.get("ma").add(ma);
         
         // show in summary table
-        boolean includeInSummary = isSangerGene
+        boolean includeInSummary = isIMPACTGene
                  || !Double.isNaN(mutSigQvalue)
-                 || passCosmicThreshold(cosmic,cosmicThreshold)
-                 || (drugs!=null && !drugs.isEmpty());
+                 || passCosmicThreshold(cosmic,cosmicThreshold);
+                 //|| (drugs!=null && !drugs.isEmpty());
         data.get("overview").add(includeInSummary);
     }
     

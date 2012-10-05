@@ -1,8 +1,10 @@
-# September 31, 2012
+# October 8, 2012
 
 * All data updated to the __latest Broad Firehose run__ (July 25, 2012).
-* Users can now base queries on genomic regions of interest (from __Gistic2__ via Firehose).
-* Mutation data is now annotated with information from __Oncotator__ & __COSMIC__.
+* __COSMIC data__ added to Mutation Details (via Oncotator)
+* All predicted functional impact scores are updated to __Mutation Assessor 2.0__
+* Users can now base queries on genes in recurrent regions of copy-number alteration (from __GISTIC__ via Firehose).
+* New studies added: Cancer Cell Line Encyclopedia (CCLE) and Lung Adenocarcinoma from the Broad Institute
 
 # July 18, 2012
 

@@ -15,7 +15,7 @@
 </style>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,ma:6,'3d':7,drug:8};
+    var mutTableIndices = {id:0,gene:1,aa:2,type:3,altrate:4,cosmic:5,ma:6,'3d':7,drug:8};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -155,7 +155,7 @@
                         
                     },
                     {// gene mutation rate
-                        "aTargets": [ mutTableIndices["genemutrate"] ],
+                        "aTargets": [ mutTableIndices["altrate"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -200,12 +200,10 @@
                                 
                                 return ret;   
                             } else if (type==='sort') {
-                                if (!mutations.colExists('genemutrate')) return 0;
                                 return mutations.getValue(source[0], 'genemutrate');
                             } else if (type==='type') {
                                 return 0.0;
                             } else {
-                                if (mutations['genemutrate']==null) return 0;
                                 return mutations.getValue(source[0], 'genemutrate');
                             }
                         },
@@ -367,7 +365,7 @@
                     addDrugsTooltip("."+table_id+"-drug-tip");
                     addCosmicTooltip(table_id);
                 },
-                "aaSorting": [[mutTableIndices["cosmic"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",

@@ -107,28 +107,36 @@
                                 var del = altrate[-2];
                                 
                                 var ret = '';
+                                var tip = null;
+                                var tw = 0;
                                 if (amp&&amp>1) {
                                     if (alter==2) amp--; //remove self
                                     var frac = amp/numPatientInSameCnaProfile;
-                                    var tip = "<b>"+amp+" other sample"+(amp==1?"":"s")
+                                    tip = "<b>"+amp+" other sample"+(amp==1?"":"s")
                                         +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                        +(amp==1?"has ":"have ")+"amplified "+cnas.getValue(source[0], "gene")+".";
+                                        +(amp==1?"has ":"have ")+"amplified "+cnas.getValue(source[0], "gene");
                                     var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                    ret += "<div class='amp_percent_div "+table_id
-                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                    tw += width;
+                                    ret += "<div class='amp_percent_div' style='width:"+width+"px;'></div>";
                                 }
                                 
                                 if (del&&del>1) {
                                     if (alter==-2) amp--; //remove self
                                     var frac = del/numPatientInSameCnaProfile;
-                                    var tip = "<b>"+del+" other sample"+(del==1?"":"s")
+                                    if (tip) {
+                                        tip += "<br/>And "
+                                    } 
+                                    tip += "<b>"+del+" other sample"+(del==1?"":"s")
                                         +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                        +(del==1?"has ":"have ")+"homozygous deleted "+cnas.getValue(source[0], "gene")+".";
+                                        +(del==1?"has ":"have ")+"homozygous deleted "
+                                        +cnas.getValue(source[0], "gene");
                                     var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                    ret += "<div class='del_percent_div "+table_id
-                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                    tw += width;
+                                    ret += "<div class='del_percent_div' style='width:"+width+"px;'></div>";
                                 }
-                                        
+                                
+                                ret = "<div style='width:"+tw+"px;height:12px' class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</div>";
+
                                 // gistic
                                 var gistic = cnas.getValue(source[0], 'gistic');
                                 if (gistic) {

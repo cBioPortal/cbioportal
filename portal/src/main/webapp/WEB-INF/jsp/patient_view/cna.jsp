@@ -236,9 +236,9 @@
                 $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
                 $('.cna-summary-table-name').html(
-                    "Copy Number Alterations <img class='cna_help' src='images/help.png'\n\
+                    "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (Gistic Q-value<0.05).'/>");
+                     or recurrently copy number altered (Gistic Q-value<0.05 or, if Gistic result is unavailable, altered in more than 3% of samples in the study).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

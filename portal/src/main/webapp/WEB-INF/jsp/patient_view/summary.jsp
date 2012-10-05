@@ -191,7 +191,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr valign="top">
 <%if(showMutations){%>
-<td>
+<td width="49%">
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%">
     <tr>
@@ -205,7 +205,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </td>
 <%}if(showCNA){%>
 <td>&nbsp;</td>
-<td>
+<td width="49%">
 <div id="cna_summary_wait"><img src="images/ajax-loader.gif"/> Loading copy number alterations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="cna_summary_wrapper_table" width="100%">
     <tr>

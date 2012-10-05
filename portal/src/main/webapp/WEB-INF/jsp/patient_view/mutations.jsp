@@ -411,34 +411,6 @@
     
     var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
     
-    function updateMutationContext(oTable) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
-        for (var row=0; row<nRows; row++) {
-            oTable.fnUpdate(true, row, mutTableIndices["genemutrate"], false, false);
-        }
-        oTable.fnDraw();
-        oTable.css("width","100%");
-    }
-    
-    function loadMutationContextData(mutations, mut_table, mut_summary_table) {
-        var params = {
-            <%=MutationsJSON.CMD%>:'<%=MutationsJSON.GET_CONTEXT_CMD%>',
-            <%=PatientView.MUTATION_PROFILE%>:mutationProfileId,
-            <%=MutationsJSON.MUTATION_EVENT_ID%>:genomicEventObs.mutations.getEventIds(false).join(',')
-        };
-        
-        $.post("mutations.json", 
-            params,
-            function(context){
-                genomicEventObs.mutations.addDataMap('genemutrate',context['<%=MutationsJSON.GENE_CONTEXT%>'],'gene');
-                genomicEventObs.mutations.addDataMap('keymutrate',context['<%=MutationsJSON.KEYWORD_CONTEXT%>'],'key');
-                updateMutationContext(mut_table);
-                updateMutationContext(mut_summary_table);
-            }
-            ,"json"
-        );
-    }
-    
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         $('#mutation_wrapper_table').hide();
@@ -450,25 +422,26 @@
         $.post("mutations.json", 
             params,
             function(data){
+                determineOverviewMutations(data);
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
                 
                 // summary table
-                var mut_summary_table = buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
+                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25);
                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
                 $('.mutation-summary-table-name').html(
-                    "Mutations <img class='mutations_help' src='images/help.png' \n\
+                    "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
                         annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q-value<0.05) \n\
+                        or recurrently mutated (MutSig Q-value<0.05 or, if MutSig result unavailable, mutated in more than 3% samples in the study) \n\
                         or with 5 or more COSMIC overlapping mutations.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
                 // mutations
-                var mut_table = buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
+                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
                     'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
@@ -476,11 +449,67 @@
                 // help
                 $('.mutations_help').tipTip();
                 
-                loadMutationContextData(genomicEventObs.mutations, mut_table, mut_summary_table);
             }
             ,"json"
         );
     });
+    
+    var patient_view_mutsig_qvalue_threhold = 0.05;
+    var patient_view_genemutrate_threhold = 0.03;
+    var patient_view_cosmic_threhold = 5;
+    function determineOverviewMutations(data) {
+        var overview = [];
+        var len = data['id'].length;
+        var impact = data['impact'];
+        var mutsig = data['mutsig'];
+        var mutrate = data['genemutrate'];
+        var cosmic = data['cosmic'];
+        
+        var noMutsig = true;
+        for (var i=0; i<len; i++) {
+            if (mutsig[i]) {
+                noMutsig = false;
+                break;
+            }
+        }
+        
+        for (var i=0; i<len; i++) {
+            if (impact[i]) {
+                overview.push(true);
+                continue;
+            }
+            
+            if (noMutsig) {
+                if (mutrate/numPatientInSameMutationProfile>0.03) {
+                    overview.push(true);
+                    continue;
+                }
+            } else {
+                if (mutsig[i]&&mutsig[i]<patient_view_mutsig_qvalue_threhold) {
+                    overview.push(true);
+                    continue;
+                }
+            }
+            
+            var ncosmic = 0;
+            if (cosmic[i]) {
+                for(var aa in cosmic) {
+                    ncosmic += cosmic[aa];
+                    if (ncosmic>=patient_view_cosmic_threhold) {
+                        break;
+                    }
+                }
+                if (ncosmic>=patient_view_cosmic_threhold) {
+                    overview.push(true);
+                    continue;
+                }
+            }
+            
+            overview.push(false);
+                
+        }
+        data['overview'] = overview;
+    }
     
     function getMutGeneAA(mutIds) {
         var m = [];

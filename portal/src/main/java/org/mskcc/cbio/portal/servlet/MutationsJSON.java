@@ -24,9 +24,6 @@ public class MutationsJSON extends HttpServlet {
     public static final String MUT_SIG_QVALUE = "mut_sig_qvalue";
     private static final double DEFAULT_MUT_SIG_QVALUE_THRESHOLD = 0.05;
     
-    public static final String COSMIC_THRESHOLD = "cosmic_threshold";
-    private static final int DEFAULT_COSMIC_THRESHOLD = 5;
-    
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
@@ -84,20 +81,14 @@ public class MutationsJSON extends HttpServlet {
             qvalueThrehold = DEFAULT_MUT_SIG_QVALUE_THRESHOLD;
         }
         
-        String strCosmicThreshold = request.getParameter(COSMIC_THRESHOLD);
-        int cosmicThreshold;
-        try {
-            cosmicThreshold = Integer.parseInt(strCosmicThreshold);
-        } catch (Exception e) {
-            cosmicThreshold = DEFAULT_COSMIC_THRESHOLD;
-        }
-        
         GeneticProfile mutationProfile;
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
         Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
         Map<String, List<String>> drugs = Collections.emptyMap();
+        Map<String, Integer> geneContextMap = Collections.emptyMap();
+        Map<String, Integer> keywordContextMap = Collections.emptyMap();
         
         try {
             _case = DaoCase.getCase(patient);
@@ -107,7 +98,12 @@ public class MutationsJSON extends HttpServlet {
                 mutations = DaoMutationEvent.getMutationEvents(patient,
                         mutationProfile.getGeneticProfileId());
                 cosmic = getCosmic(mutations);
-                drugs = getDrugs(mutations, mutationProfile.getGeneticProfileId());
+                String concatEventIds = getConcatEventIds(mutations);
+                int profileId = mutationProfile.getGeneticProfileId();
+                drugs = getDrugs(concatEventIds, profileId);
+                geneContextMap = getGeneContextMap(concatEventIds, profileId);
+                keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
+                
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -115,8 +111,10 @@ public class MutationsJSON extends HttpServlet {
         
         Map<String,List> data = initMap();
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(data, mutation, cancerStudy, qvalueThrehold, drugs.get(mutation.getGeneSymbol()),
-                    cosmic.get(mutation.getMutationEventId()),cosmicThreshold);
+            exportMutation(data, mutation, cancerStudy, qvalueThrehold,
+                    drugs.get(mutation.getGeneSymbol()), geneContextMap.get(mutation.getGeneSymbol()),
+                    keywordContextMap.get(mutation.getKeyword()),
+                    cosmic.get(mutation.getMutationEventId()));
         }
 
         response.setContentType("application/json");
@@ -224,17 +222,17 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
-    private Map<String, List<String>> getDrugs(List<ExtendedMutation> mutations, int profileId)
-            throws DaoException {
+    private String getConcatEventIds(List<ExtendedMutation> mutations) {
         if (mutations.isEmpty()) {
-            return Collections.emptyMap();
+            return "";
         }
+        
         StringBuilder sb = new StringBuilder();
         for (ExtendedMutation mut : mutations) {
             sb.append(mut.getMutationEventId()).append(',');
         }
         sb.deleteCharAt(sb.length()-1);
-        return getDrugs(sb.toString(), profileId);
+        return sb.toString();
     }
     
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
@@ -282,15 +280,19 @@ public class MutationsJSON extends HttpServlet {
         map.put("status", new ArrayList());
         map.put("cosmic", new ArrayList());
         map.put("mutsig", new ArrayList());
+        map.put("genemutrate", new ArrayList());
+        map.put("keymutrate", new ArrayList());
         map.put("sanger", new ArrayList());
+        map.put("impact", new ArrayList());
         map.put("drug", new ArrayList());
         map.put("ma", new ArrayList());
-        map.put("overview", new ArrayList());
         return map;
     }
     
     private void exportMutation(Map<String,List> data, ExtendedMutation mutation, CancerStudy 
-            cancerStudy, double qvalueThreshold, List<String> drugs, Map<String,Integer> cosmic, int cosmicThreshold) 
+            cancerStudy, double qvalueThreshold, List<String> drugs, 
+            int geneContext, int keywordContext,
+            Map<String,Integer> cosmic) 
             throws ServletException {
         data.get("id").add(mutation.getMutationEventId());
         data.get("key").add(mutation.getKeyword());
@@ -316,6 +318,10 @@ public class MutationsJSON extends HttpServlet {
         }
         data.get("mutsig").add(mutSigQvalue);
         
+        // context
+        data.get("genemutrate").add(geneContext);
+        data.get("keymutrate").add(keywordContext);
+        
         // sanger & IMPACT
         boolean isSangerGene = false;
         boolean isIMPACTGene = false;
@@ -326,6 +332,7 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
+        data.get("impact").add(isIMPACTGene);
         
         // drug
         data.get("drug").add(drugs);
@@ -337,27 +344,6 @@ public class MutationsJSON extends HttpServlet {
         ma.put("pdb", mutation.getLinkPdb());
         ma.put("msa", mutation.getLinkMsa());
         data.get("ma").add(ma);
-        
-        // show in summary table
-        boolean includeInSummary = isIMPACTGene
-                 || !Double.isNaN(mutSigQvalue)
-                 || passCosmicThreshold(cosmic,cosmicThreshold);
-                 //|| (drugs!=null && !drugs.isEmpty());
-        data.get("overview").add(includeInSummary);
-    }
-    
-    private boolean passCosmicThreshold(Map<String,Integer> cosmic, int cosmicThreshold) {
-        if (cosmic==null) {
-            return false;
-        }
-        int n = 0;
-        for (int count : cosmic.values()) {
-            n += count;
-            if (n >= cosmicThreshold) {
-                return true;
-            }
-        }
-        return false;
     }
     
     private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id

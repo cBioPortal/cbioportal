@@ -274,6 +274,7 @@ public class MutationsJSON extends HttpServlet {
         map.put("chr", new ArrayList());
         map.put("start", new ArrayList());
         map.put("end", new ArrayList());
+        map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("aa", new ArrayList());
         map.put("type", new ArrayList());
@@ -300,6 +301,7 @@ public class MutationsJSON extends HttpServlet {
         data.get("start").add(mutation.getStartPosition());
         data.get("end").add(mutation.getEndPosition());
         String symbol = mutation.getGeneSymbol();
+        data.get("entrez").add(mutation.getEntrezGeneId());
         data.get("gene").add(symbol);
         data.get("aa").add(mutation.getProteinChange());
         data.get("type").add(mutation.getMutationType());

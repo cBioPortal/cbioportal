@@ -184,6 +184,7 @@ public class CnaJSON extends HttpServlet {
     private Map<String,List> initMap() {
         Map<String,List> map = new HashMap<String,List>();
         map.put("id", new ArrayList());
+        map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("alter", new ArrayList());
         map.put("gistic", new ArrayList());
@@ -206,6 +207,7 @@ public class CnaJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         data.get("gene").add(symbol);
+        data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());
         
         // TODO: GISTIC

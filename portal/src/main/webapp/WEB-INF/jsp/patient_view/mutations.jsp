@@ -39,10 +39,12 @@
                                 return;
                             } else if (type==='display') {
                                 var gene = mutations.getValue(source[0], "gene");
-                                var tip = "";
+                                var entrez = mutations.getValue(source[0], "entrez");
+                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+                                    +entrez+"\">NCBI GenBank</a>";
                                 var sanger = mutations.getValue(source[0], 'sanger');
                                 if (sanger) {
-                                    tip += "<a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
                                         +gene+"\">Sanger Cancer Gene Census</a>";
                                 }
                                 var ret = "<b>"+gene+"</b>";
@@ -433,7 +435,7 @@
                     "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
                         annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q-value<0.05 or, if MutSig result unavailable, mutated in more than 5% samples in the study) \n\
+                        or recurrently mutated (MutSig Q-value is 0.05 or less or, if MutSig result unavailable, mutated in 5% or more samples in the study) \n\
                         or with 5 or more COSMIC overlapping mutations.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
@@ -478,12 +480,12 @@
             }
             
             if (noMutsig) {
-                if (mutrate[i]/numPatientInSameMutationProfile>patient_view_genemutrate_threhold) {
+                if (mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
                     overview.push(true);
                     continue;
                 }
             } else {
-                if (mutsig[i]&&mutsig[i]<patient_view_mutsig_qvalue_threhold) {
+                if (mutsig[i]&&mutsig[i]<=patient_view_mutsig_qvalue_threhold) {
                     overview.push(true);
                     continue;
                 }

@@ -39,10 +39,12 @@
                                 return;
                             } else if (type==='display') {
                                 var gene = cnas.getValue(source[0], "gene");
-                                var tip = "";
+                                var entrez = cnas.getValue(source[0], "entrez");
+                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+                                    +entrez+"\">NCBI GenBank</a>";
                                 var sanger = cnas.getValue(source[0], 'sanger');
                                 if (sanger) {
-                                    tip += "<a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
                                         +gene+"\">Sanger Cancer Gene Census</a>";
                                 }
                                 var ret = "<b>"+gene+"</b>";
@@ -218,19 +220,19 @@
                 genomicEventObs.fire('cna-built');
                 
                 // summary table
-                var cna_summary_table = buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
+                buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
                         'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25);
                 $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
                 $('.cna-summary-table-name').html(
                     "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (Gistic Q-value<0.05 or, if Gistic result is unavailable, altered in more than 5% of samples in the study).'/>");
+                     or recurrently copy number altered (Gistic Q-value is 0.05 or less or, if Gistic result is unavailable, altered in 5% or more of samples in the study).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
                 // cna
-                var cna_table = buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
+                buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
                         'cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
@@ -270,12 +272,12 @@
                 if (altrate[i][-2]) rate += altrate[i][-2];
                 if (altrate[i][2]) rate += altrate[i][2];
                 
-                if (rate/numPatientInSameCnaProfile>patient_view_cnaaltrate_threhold) {
+                if (rate/numPatientInSameCnaProfile>=patient_view_cnaaltrate_threhold) {
                     overview.push(true);
                     continue;
                 }
             } else {
-                if (gistic[i]&&gistic[i]<patient_view_gistic_qvalue_threhold) {
+                if (gistic[i]&&gistic[i]<=patient_view_gistic_qvalue_threhold) {
                     overview.push(true);
                     continue;
                 }

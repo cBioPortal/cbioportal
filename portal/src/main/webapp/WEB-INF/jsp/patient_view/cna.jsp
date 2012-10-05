@@ -188,34 +188,6 @@
     
     numPatientInSameCnaProfile = <%=numPatientInSameCnaProfile%>;
     
-    function updateCnaContext(oTable) {
-        var nRows = oTable.fnSettings().fnRecordsTotal();
-        for (var row=0; row<nRows; row++) {
-            oTable.fnUpdate(true, row, cnaTableIndices['altrate'], false, false);
-        }
-        oTable.fnDraw();
-        oTable.css("width","100%");
-    }
-    
-    var cnaContext = null;
-    function loadCnaContextData(cna_table, cna_summary_table) {
-        var params = {
-            <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_CONTEXT_CMD%>',
-            <%=PatientView.CNA_PROFILE%>:cnaProfileId,
-            <%=CnaJSON.CNA_EVENT_ID%>:genomicEventObs.cnas.getEventIds(false).join(',')
-        };
-        
-        $.post("cna.json", 
-            params,
-            function(context){
-                genomicEventObs.cnas.addDataMap('altrate', context, 'id');
-                updateCnaContext(cna_table);
-                updateCnaContext(cna_summary_table);
-            }
-            ,"json"
-        );
-    }
-    
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
         $('#cna_id_filter_msg').hide();
@@ -226,6 +198,7 @@
         $.post("cna.json", 
             params,
             function(data){
+                determineOverviewCNAs(data);
                 genomicEventObs.cnas.setData(data);
                 
                 genomicEventObs.fire('cna-built');
@@ -238,7 +211,7 @@
                 $('.cna-summary-table-name').html(
                     "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (Gistic Q-value<0.05 or, if Gistic result is unavailable, altered in more than 3% of samples in the study).'/>");
+                     or recurrently copy number altered (Gistic Q-value<0.05 or, if Gistic result is unavailable, altered in more than 5% of samples in the study).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
@@ -250,12 +223,50 @@
 
                 // help
                 $('.cna_help').tipTip();
-                
-                loadCnaContextData(cna_table, cna_summary_table);
             }
             ,"json"
         );
     });
+    
+    var patient_view_gistic_qvalue_threhold = 0.05;
+    var patient_view_cnaaltrate_threhold = 0.05;
+    function determineOverviewCNAs(data) {
+        var overview = [];
+        var len = data['id'].length;
+        var impact = data['impact'];
+        var gistic = data['gistic'];
+        var altrate = data['altrate'];
+        
+        var noGistic = true;
+        for (var i=0; i<len; i++) {
+            if (gistic[i]) {
+                noGistic = false;
+                break;
+            }
+        }
+        
+        for (var i=0; i<len; i++) {
+            if (impact[i]) {
+                overview.push(true);
+                continue;
+            }
+            
+            if (noGistic) {
+                if (altrate[i]/numPatientInSameCnaProfile>patient_view_cnaaltrate_threhold) {
+                    overview.push(true);
+                    continue;
+                }
+            } else {
+                if (gistic[i]&&gistic[i]<patient_view_gistic_qvalue_threhold) {
+                    overview.push(true);
+                    continue;
+                }
+            }
+            
+            overview.push(false);
+        }
+        data['overview'] = overview;
+    }
     
     function filterCnaTableByIds(mutIdsRegEx) {
         var cna_table = $('#cna_table').dataTable();

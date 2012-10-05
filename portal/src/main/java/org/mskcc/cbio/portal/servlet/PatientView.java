@@ -175,7 +175,10 @@ public class PatientView extends HttpServlet {
         }
         Double age = clinicalData==null?null:clinicalData.getAgeAtDiagnosis();
         if (age!=null) {
-            patientInfo.append(", ").append(age.intValue()).append(" years old");
+            if (gender!=null) {
+                patientInfo.append(", ");
+            }
+            patientInfo.append(age.intValue()).append(" years old");
         }
         
         request.setAttribute(PATIENT_INFO, patientInfo.toString());

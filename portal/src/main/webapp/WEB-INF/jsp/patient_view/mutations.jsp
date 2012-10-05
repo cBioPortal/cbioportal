@@ -435,7 +435,7 @@
                     "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
                         annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q-value<0.05 or, if MutSig result unavailable, mutated in more than 3% samples in the study) \n\
+                        or recurrently mutated (MutSig Q-value<0.05 or, if MutSig result unavailable, mutated in more than 5% samples in the study) \n\
                         or with 5 or more COSMIC overlapping mutations.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
@@ -455,7 +455,7 @@
     });
     
     var patient_view_mutsig_qvalue_threhold = 0.05;
-    var patient_view_genemutrate_threhold = 0.03;
+    var patient_view_genemutrate_threhold = 0.05;
     var patient_view_cosmic_threhold = 5;
     function determineOverviewMutations(data) {
         var overview = [];
@@ -480,7 +480,7 @@
             }
             
             if (noMutsig) {
-                if (mutrate/numPatientInSameMutationProfile>0.03) {
+                if (mutrate[i]/numPatientInSameMutationProfile>patient_view_genemutrate_threhold) {
                     overview.push(true);
                     continue;
                 }
@@ -506,7 +506,6 @@
             }
             
             overview.push(false);
-                
         }
         data['overview'] = overview;
     }

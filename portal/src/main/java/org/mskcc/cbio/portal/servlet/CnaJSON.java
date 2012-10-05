@@ -78,13 +78,17 @@ public class CnaJSON extends HttpServlet {
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<String, List<String>> drugs = Collections.emptyMap();
+        Map<Long, Integer> contextMap = Collections.emptyMap();
 
         try {
             _case = DaoCase.getCase(patient);
             cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             if (_case!=null && cnaProfile!=null) {
                 cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
-                drugs = getDrugs(cnaEvents, cnaProfile.getGeneticProfileId());
+                String concatEventIds = getConcatEventIds(cnaEvents);
+                int profileId = cnaProfile.getGeneticProfileId();
+                drugs = getDrugs(concatEventIds, profileId);
+                contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -95,7 +99,7 @@ public class CnaJSON extends HttpServlet {
             List<String> drug = 
                     (cnaEvent.getAlteration()==CnaEvent.CNA.AMP||cnaEvent.getAlteration()==CnaEvent.CNA.GAIN)
                     ? drugs.get(cnaEvent.getGeneSymbol()) : null;
-            exportCnaEvent(data, cnaEvent, drug);
+            exportCnaEvent(data, cnaEvent, drug, contextMap.get(cnaEvent.getEventId()));
         }
 
         response.setContentType("application/json");
@@ -217,17 +221,17 @@ public class CnaJSON extends HttpServlet {
         }
     }
     
-    private Map<String, List<String>> getDrugs(List<CnaEvent> cnaEvents, int profileId)
-            throws DaoException {
+    private String getConcatEventIds(List<CnaEvent> cnaEvents) {
         if (cnaEvents.isEmpty()) {
-            return Collections.emptyMap();
+            return "";
         }
+        
         StringBuilder sb = new StringBuilder();
         for (CnaEvent cna : cnaEvents) {
             sb.append(cna.getEventId()).append(',');
         }
         sb.deleteCharAt(sb.length()-1);
-        return getDrugs(sb.toString(), profileId);
+        return sb.toString();
     }
     
     private Map<String, List<String>> getDrugs(String eventIds, int profileId)
@@ -250,12 +254,14 @@ public class CnaJSON extends HttpServlet {
         map.put("alter", new ArrayList());
         map.put("gistic", new ArrayList());
         map.put("sanger", new ArrayList());
+        map.put("impact", new ArrayList());
         map.put("drug", new ArrayList());
-        map.put("overview", new ArrayList());
+        map.put("altrate", new ArrayList());
         return map;
     }
     
-    private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent, List<String> drugs) 
+    private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
+            List<String> drugs, int context) 
             throws ServletException {
         data.get("id").add(cnaEvent.getEventId());
         String symbol = null;
@@ -272,6 +278,8 @@ public class CnaJSON extends HttpServlet {
         //double gistic = 1.0;
         data.get("gistic").add(null);
         
+        data.get("altrate").add(context);
+        
         boolean isSangerGene = false;
         boolean isIMPACTGene = false;
         try {
@@ -281,14 +289,10 @@ public class CnaJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
+        data.get("impact").add(isIMPACTGene);
         
         // drug
         data.get("drug").add(drugs);
-        
-        // show in summary table
-        boolean includeInSummary = isIMPACTGene;
-                //|| (drugs!=null && !drugs.isEmpty());
-        data.get("overview").add(includeInSummary);
     }
     
     private void exportCopyNumberSegment(JSONArray table, CopyNumberSegment seg) 

@@ -37,7 +37,6 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.GisticReader;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.validate.ValidateGistic;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.validate.validationException;
@@ -67,7 +66,7 @@ public class ImportGisticData {
     }
 
     // command line utility
-    public static void main(String[] args) throws IOException, DaoException {
+    public static void main(String[] args) throws IOException, DaoException, validationException {
 
         if (args.length != 2) {
             System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +

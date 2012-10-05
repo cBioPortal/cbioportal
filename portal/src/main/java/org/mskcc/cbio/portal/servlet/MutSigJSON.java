@@ -77,10 +77,6 @@ public class MutSigJSON extends HttpServlet {
     public static Map MutSigtoMap(MutSig mutsig) {
         Map map = new HashMap();
 
-        if (log.isDebugEnabled()) {
-            log.debug(mutsig.getCanonicalGene());
-            log.debug(mutsig.getCanonicalGene().getStandardSymbol());
-        }
         map.put("gene_symbol", mutsig.getCanonicalGene().getStandardSymbol());
         map.put("num_muts", mutsig.getNumMutations());
         map.put("qval", mutsig.getqValue());
@@ -124,13 +120,19 @@ public class MutSigJSON extends HttpServlet {
             ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
 
             if (log.isDebugEnabled()) {
-                log.debug("list of mutsigs associated with cancerStudy: " + mutSigList);
+                log.debug("no of mutsigs associated with cancerStudy: " + mutSigList.size() + "\n");
             }
 
             Collections.sort(mutSigList, new sortMutsigByRank());
 
+            int i = 0;
             for (MutSig mutsig : mutSigList) {
+
+//                log.debug("" + mutsig.toString() + " " + i++);
+
                 Map map = MutSigtoMap(mutsig);
+
+//                log.debug(map);
 
                 if (!map.isEmpty()) {
                     mutSigJSONArray.add(map);

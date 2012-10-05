@@ -58,7 +58,7 @@ public class DaoGistic {
 
     private static Log log = LogFactory.getLog(DaoGistic.class);
 
-    public static void addGistic(Gistic gistic) throws DaoException {
+    public static void addGistic(Gistic gistic) throws DaoException, validationException {
         if (gistic == null) {
             throw new DaoException("Given a null gistic object");
         }
@@ -66,6 +66,8 @@ public class DaoGistic {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+
+        ValidateGistic.validateBean(gistic);
 
         try {
             con = JdbcUtil.getDbConnection();
@@ -161,7 +163,7 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static Gistic extractGistic(ResultSet rs) throws DaoException, validationException {
+    private static Gistic extractGistic(ResultSet rs) throws DaoException {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
@@ -207,7 +209,6 @@ public class DaoGistic {
             JdbcUtil.closeAll(con, pstmt, _rs);
         }
 
-        ValidateGistic.validateBean(gistic);
         return gistic;
     }
 
@@ -220,7 +221,7 @@ public class DaoGistic {
      * @return
      * @throws DaoException
      */
-    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException, validationException {
+    public static ArrayList<Gistic> getGisticByROI(int chromosome, int peakStart, int peakEnd) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -256,7 +257,7 @@ public class DaoGistic {
      * @param cancerStudyId         CancerStudyId (of a database record)
      * @return
      */
-    public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException, validationException {
+    public static ArrayList<Gistic> getAllGisticByCancerStudyId(int cancerStudyId) throws DaoException {
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -384,9 +385,8 @@ public class DaoGistic {
      * Returns all gistics in the database
      * @return ArrayList of gistics
      * @throws DaoException
-     * @throws validationException
      */
-    public static ArrayList<Gistic> getAllGistic() throws DaoException, validationException {
+    public static ArrayList<Gistic> getAllGistic() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

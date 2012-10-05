@@ -101,7 +101,10 @@ public class GisticJSON extends HttpServlet {
             } catch (DaoException e) {
                 // assume that it is not a Sanger Gene if causes an exception
                 nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
-                if (log.isDebugEnabled()) { log.debug(e + " :gene <" + g +">"); }
+
+                if (log.isDebugEnabled()) {
+                    log.debug(e + " :gene <" + g +">");
+                }
             }
         }
 
@@ -162,7 +165,7 @@ public class GisticJSON extends HttpServlet {
         } catch (DaoException e) {
             throw new ServletException(e);
         } catch (validationException e) {
-            throw new ServletException(e);
+            log.debug(e);
         }
     }
 

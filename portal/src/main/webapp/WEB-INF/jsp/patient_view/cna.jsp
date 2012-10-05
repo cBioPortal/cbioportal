@@ -93,28 +93,39 @@
                     },
                     {// context
                         "aTargets": [ cnaTableIndices['altrate'] ],
+                        "bSearchable": false,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!cnas.colExists('altrate')) return "<img height=12 width=12 src=\"images/ajax-loader2.gif\">";
-                                var con = cnas.getValue(source[0], 'altrate')-1;
-                                if (con<=0) return '';
-                                var frac = con / numPatientInSameCnaProfile;
-                                var strAlt;
-                                switch(cnas.getValue(source[0], "alter")) {
-                                case -2: strAlt='deleted'; break;
-                                case 2: strAlt='amplified'; break;
-                                }
                                 var alter = cnas.getValue(source[0], "alter");
-                                var tip = "<b>"+con+" other sample"+(con==1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                    +(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
-                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
-                                var clas = alter>0?"amp_percent_div":"del_percent_div"
-                                var ret = "<div class='"+clas+" "+table_id
+                                var altrate = cnas.getValue(source[0], 'altrate');
+                                var amp = altrate[2];
+                                var del = altrate[-2];
+                                
+                                var ret = '';
+                                if (amp&&amp>1) {
+                                    if (alter==2) amp--; //remove self
+                                    var frac = amp/numPatientInSameCnaProfile;
+                                    var tip = "<b>"+amp+" other sample"+(amp==1?"":"s")
+                                        +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
+                                        +(amp==1?"has ":"have ")+"amplified "+cnas.getValue(source[0], "gene")+".";
+                                    var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
+                                    ret += "<div class='amp_percent_div "+table_id
                                             +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                }
+                                
+                                if (del&&del>1) {
+                                    if (alter==-2) amp--; //remove self
+                                    var frac = del/numPatientInSameCnaProfile;
+                                    var tip = "<b>"+del+" other sample"+(del==1?"":"s")
+                                        +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
+                                        +(del==1?"has ":"have ")+"homozygous deleted "+cnas.getValue(source[0], "gene")+".";
+                                    var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
+                                    ret += "<div class='del_percent_div "+table_id
+                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                }
                                         
                                 // gistic
                                 var gistic = cnas.getValue(source[0], 'gistic');
@@ -126,8 +137,11 @@
                                 
                                 return ret;
                             } else if (type==='sort') {
-                                if (!cnas.colExists('altrate')) return 0;
-                                return cnas.getValue(source[0], 'altrate');
+                                var altrate = cnas.getValue(source[0], 'altrate');
+                                var rate = 0;
+                                if (altrate[-2]) rate += altrate[-2];
+                                if (altrate[2]) rate += altrate[2];
+                                return rate;
                             } else if (type==='type') {
                                     return 0.0;
                             } else {
@@ -252,7 +266,11 @@
             }
             
             if (noGistic) {
-                if (altrate[i]/numPatientInSameCnaProfile>patient_view_cnaaltrate_threhold) {
+                var rate = 0;
+                if (altrate[i][-2]) rate += altrate[i][-2];
+                if (altrate[i][2]) rate += altrate[i][2];
+                
+                if (rate/numPatientInSameCnaProfile>patient_view_cnaaltrate_threhold) {
                     overview.push(true);
                     continue;
                 }

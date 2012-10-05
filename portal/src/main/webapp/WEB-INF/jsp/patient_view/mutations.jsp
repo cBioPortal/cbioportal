@@ -15,7 +15,7 @@
 </style>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,drug:6,ma:7,'3d':8};
+    var mutTableIndices = {id:0,gene:1,aa:2,type:3,genemutrate:4,cosmic:5,ma:6,'3d':7,drug:8};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -158,8 +158,6 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                if (!mutations.colExists('genemutrate')) return "<img height=12 width=12 src='images/ajax-loader2.gif'>";
-                                
                                 // gene context
                                 var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
                                 if (geneCon<=0) return '';

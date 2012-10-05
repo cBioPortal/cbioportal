@@ -170,6 +170,51 @@ public final class DaoCnaEvent {
         }
     }
     
+    public static Map<Long, Map<Integer, Integer>> countSamplesWithCNAGenes(
+            Collection<Long> entrezGeneIds, int profileId) throws DaoException {
+        return countSamplesWithCNAGenes(StringUtils.join(entrezGeneIds, ","), profileId);
+    }
+    
+    public static Map<Long, Map<Integer, Integer>> countSamplesWithCNAGenes(
+            String concatEntrezGeneIds, int profileId) throws DaoException {
+        if (concatEntrezGeneIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT `ENTREZ_GENE_ID`, `ALTERATION`, count(*)"
+                    + " FROM case_cna_event, cna_event"
+                    + " WHERE `GENETIC_PROFILE_ID`=" + profileId
+                    + " and case_cna_event.`CNA_EVENT_ID`=cna_event.`CNA_EVENT_ID`"
+                    + " and `ENTREZ_GENE_ID` IN ("
+                    + concatEntrezGeneIds
+                    + ") GROUP BY `ENTREZ_GENE_ID`, `ALTERATION`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<Long, Map<Integer, Integer>> map = new HashMap<Long, Map<Integer, Integer>>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Long entrez = rs.getLong(1);
+                Integer alt = rs.getInt(2);
+                Integer count = rs.getInt(3);
+                Map<Integer, Integer> mapII = map.get(entrez);
+                if (mapII==null) {
+                    mapII = new HashMap<Integer, Integer>();
+                    map.put(entrez, mapII);
+                }
+                mapII.put(alt, count);
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
     public static Map<Long, Integer> countSamplesWithCnaEvents(Collection<Long> eventIds,
             int profileId) throws DaoException {
         return countSamplesWithCnaEvents(StringUtils.join(eventIds, ","), profileId);

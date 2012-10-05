@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = {id:0,gene:1,gistic:2,sanger:3,drug:4,alteration:5,altrate:6};
+    var cnaTableIndices = {id:0,gene:1,alteration:2,altrate:3,drug:4};
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength) {
         var data = [];
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
@@ -38,92 +38,22 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                return "<b>"+cnas.getValue(source[0], "gene")+"</b>";
+                                var gene = cnas.getValue(source[0], "gene");
+                                var tip = "";
+                                var sanger = cnas.getValue(source[0], 'sanger');
+                                if (sanger) {
+                                    tip += "<a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+                                        +gene+"\">Sanger Cancer Gene Census</a>";
+                                }
+                                var ret = "<b>"+gene+"</b>";
+                                if (tip) {
+                                    ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
+                                }
+                                return ret;
                             } else {
                                 return cnas.getValue(source[0], "gene");
                             }
                         }
-                    },
-                    {// gistic
-                        "aTargets": [ cnaTableIndices['gistic'] ],
-                        "bVisible": !cnas.colAllNull('gistic'),
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var gistic = cnas.getValue(source[0], 'gistic');
-                                if (gistic==null) return "";
-                                var tip = "<b>MutSig</b><br/>Q-value: "+gistic.toPrecision(2);
-                                var width = Math.ceil(3*Math.min(10,-Math.log(gistic)*Math.LOG10E));
-                                return  "<div class='mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
-                                if (gistic==null) return "";
-                            } else if (type==='sort') {
-                                var gistic = cnas.getValue(source[0], 'gistic');
-                                if (gistic==null) return 1.0;
-                                return gistic;
-                            } else if (type==='filter') {
-                                return "gistic";
-                            } else if (type==='type') {
-                                return 0.0;
-                            } else {
-                                return cnas.getValue(source[0], 'gistic');
-                            }
-                        }
-                    },
-                    {// sanger
-                        "aTargets": [ cnaTableIndices['sanger'] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var sanger = cnas.getValue(source[0], 'sanger');
-                                if (!sanger) return '';
-                                return "<img src='images/sanger.png' width=12 height=12 class='"+table_id
-                                        +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +cnas.getValue(source[0], 'gene')+"\">Sanger Cancer Gene Census</a>'/>";
-                            } else if (type==='sort') {
-                                var sanger = cnas.getValue(source[0], 'sanger');
-                                return sanger?'1':'0';
-                            }  else if (type==='filter') {
-                                var sanger = cnas.getValue(source[0], 'sanger');
-                                return sanger?'sanger':'';
-                            } else {
-                                return cnas.getValue(source[0], 'sanger');
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
-                    {// Drugs
-                        "aTargets": [ cnaTableIndices['drug'] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": 
-                            function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var drug = cnas.getValue(source[0], 'drug');
-                                if (!drug) return '';
-                                var len = drug.length;
-                                if (len==0) return '';
-                                return "<img src='images/drug.png' width=12 height=12 id='"
-                                            +table_id+'_'+source[0]+"-drug-tip' class='"
-                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
-                            } else if (type==='sort') {
-                                var drug = cnas.getValue(source[0], 'drug');
-                                return drug ? drug.length : 0;
-                            } else if (type==='filter') {
-                                var drug = cnas.getValue(source[0], 'drug');
-                                return drug&&drug.length ? 'drugs' : '';
-                            } else if (type==='type') {
-                                return 0;
-                            } else {
-                                var drug = cnas.getValue(source[0], 'drug');
-                                return drug ? drug : '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
                     },
                     {// alteration
                         "aTargets": [ cnaTableIndices['alteration'] ],
@@ -183,8 +113,18 @@
                                     +(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E)+3);
                                 var clas = alter>0?"amp_percent_div":"del_percent_div"
-                                return "<div class='"+clas+" "+table_id
+                                var ret = "<div class='"+clas+" "+table_id
                                             +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                        
+                                // gistic
+                                var gistic = cnas.getValue(source[0], 'gistic');
+                                if (gistic) {
+                                    var tip = "<b>Gistic</b><br/>Q-value: "+gistic.toPrecision(2);
+                                    ret += "<img class='right_float_div "+table_id+"-tip' alt='"
+                                        +tip+"' src='images/gistic.png' width=12 height=12>";
+                                }
+                                
+                                return ret;
                             } else if (type==='sort') {
                                 if (!cnas.colExists('altrate')) return 0;
                                 return cnas.getValue(source[0], 'altrate');
@@ -196,41 +136,42 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
-//                    {// note
-//                        "bVisible": isSummary,
-//                        "aTargets": [ cnaTableIndices['note'] ],
-//                        "mDataProp": function(source,type,value) {
-//                            if (!isSummary) return "";
-//                            if (type==='set') {
-//                                source[cnaTableIndices["note"]]=value;
-//                            } else if (type==='display') {
-//                                var notes = [];
-//                                if (source[cnaTableIndices["sanger"]])
-//                                    notes.push("<img src='images/sanger.png' width=15 height=15 class='"+table_id
-//                                                +"-tip' alt='In <a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-//                                                +source[cnaTableIndices["gene"]]+"\">Sanger Cancer Gene Census</a>'/>");
-//                                var drug = source[cnaTableIndices["drug"]];
-//                                if (drug && drug.length) {
-//                                    notes.push("<img src='images/drug.png' width=15 height=15 id='"+table_id+'_'
-//                                                +source[cnaTableIndices["id"]]+"-drug-note-tip' class='"
-//                                                +table_id+"-drug-tip' alt='"+drug.join(',')+"'/>");
-//                                }
-//                                return notes.join("&nbsp;");
-//                            } else if (type==='sort') {
-//                                return "";
-//                            } else {
-//                                if (!source[cnaTableIndices["note"]]) return '';
-//                                return source[cnaTableIndices["note"]];
-//                            }
-//                        },
-//                        "bSortable" : false
-//                    }
+                    {// Drugs
+                        "aTargets": [ cnaTableIndices['drug'] ],
+                        "sClass": "center-align-td",
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var drug = cnas.getValue(source[0], 'drug');
+                                if (!drug) return '';
+                                var len = drug.length;
+                                if (len==0) return '';
+                                return "<img src='images/drug.png' width=12 height=12 id='"
+                                            +table_id+'_'+source[0]+"-drug-tip' class='"
+                                            +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
+                            } else if (type==='sort') {
+                                var drug = cnas.getValue(source[0], 'drug');
+                                return drug ? drug.length : 0;
+                            } else if (type==='filter') {
+                                var drug = cnas.getValue(source[0], 'drug');
+                                return drug&&drug.length ? 'drugs' : '';
+                            } else if (type==='type') {
+                                return 0;
+                            } else {
+                                var drug = cnas.getValue(source[0], 'drug');
+                                return drug ? drug : '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    }
                 ],
                 "fnDrawCallback": function( oSettings ) {
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip");
                 },
-                "aaSorting": [[cnaTableIndices['gistic'],'asc'],[cnaTableIndices['altrate'],'desc'],[cnaTableIndices['drug'],'desc']],
+                "aaSorting": [[cnaTableIndices['altrate'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -296,8 +237,8 @@
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
                 $('.cna-summary-table-name').html(
                     "Copy Number Alterations <img class='cna_help' src='images/help.png'\n\
-                     title='This table contains genes that are either recurrently copy number\n\
-                     altered (Gistic Q-value<0.05) or in the Sanger Cancer Gene Census.'/>");
+                     title='This table contains genes that are either annotated cancer genes\n\
+                     or recurrently copy number altered (Gistic Q-value<0.05).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

@@ -372,7 +372,7 @@ function addDrugsTooltip(elem) {
                                 else
                                     txtDrug.push("Data source:</b></td><td>"+drug[6]);
                             }
-                            txt.push("<table><tr valign='top'><td nowrap='nowrap'><b>"+txtDrug.join("</td></tr><tr valign='top'><td nowrap='nowrap'><b>")+"</td></tr>");
+                            txt.push("<table><tr valign='top'><td nowrap='nowrap'><b>"+txtDrug.join("</td></tr><tr valign='top'><td nowrap='nowrap'><b>")+"</td></tr></table>");
                         }
                         var html = txt.join('<hr><br/>');
                         this.set('content.text', html);

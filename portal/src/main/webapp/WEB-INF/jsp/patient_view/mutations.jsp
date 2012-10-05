@@ -367,7 +367,7 @@
                     addDrugsTooltip("."+table_id+"-drug-tip");
                     addCosmicTooltip(table_id);
                 },
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["drug"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -461,9 +461,9 @@
                 $('.mutation-summary-table-name').html(
                     "Mutations <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
-                        recurrently mutated (MutSig Q-value<0.05) \n\
-                        or with 5 or more COSMIC overlapping mutations\n\
-                        or in the Sanger Cancer Gene Census.'/>");
+                        annotated cancer genes\n\
+                        or recurrently mutated (MutSig Q-value<0.05) \n\
+                        or with 5 or more COSMIC overlapping mutations.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

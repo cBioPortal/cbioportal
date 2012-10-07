@@ -106,6 +106,9 @@ public class ImportGisticData {
             } catch (DaoException e) {
                 logger.debug(e);
             }
+            catch (validationException e) {
+                logger.debug(e);
+            }
         }
 
         ConsoleUtil.showWarnings(pMonitor);

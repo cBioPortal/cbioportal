@@ -236,7 +236,7 @@
 
 	    // wrap the table contents with a div to enable scrolling, this is a workaround for
 	    // DataTable's own scrolling, seems like there is a problem with its settings
-	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
+	    //$('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
     });
     
     //  Set up Mutation Diagrams

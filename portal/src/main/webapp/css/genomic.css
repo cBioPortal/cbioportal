@@ -69,6 +69,11 @@ th.mutation-details-qtip-style
 	width: 200px;
 }
 
+#mutation_details .dataTables_filter input
+{
+	width: 120px;
+}
+
 #mutation_details .dataTables_info
 {
 	width: 300px;

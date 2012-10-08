@@ -294,7 +294,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
         var regionRect = paper.rect(regionX, regionY, regionW, regionH)
             .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
 
-        addMouseOver(regionRect.node, regionTitle, id);
+        addRegionMouseOver(regionRect.node, regionTitle, id);
 
         // region label (only if it fits)
         if (regionLabel != null)
@@ -304,7 +304,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
                 currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, regionLabel)
                     .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
 
-                addMouseOver(currentText.node, regionTitle, id);
+                addRegionMouseOver(currentText.node, regionTitle, id);
             }
             else
             {
@@ -315,7 +315,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
                     currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, truncatedLabel)
                         .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
 
-                    addMouseOver(currentText.node, regionTitle, id);
+                    addRegionMouseOver(currentText.node, regionTitle, id);
                 }
             }
         }
@@ -444,5 +444,15 @@ function addMouseOver(node, txt, id){
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
         position: {my:'bottom center',at:'top center'}
+    });
+}
+
+function addRegionMouseOver(node, txt, id)
+{
+    $(node).qtip({
+        content: {text: '<font size="2">'+txt+'</font>'},
+        hide: {fixed: true, delay: 100 },
+        style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
+        position: {my:'bottom left',at:'top center'}
     });
 }

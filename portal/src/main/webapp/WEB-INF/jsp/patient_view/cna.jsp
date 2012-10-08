@@ -107,12 +107,12 @@
                                 var del = altrate[-2];
                                 
                                 var ret = '';
-                                var tip = null;
+                                var tip = '';
                                 var tw = 0;
                                 if (amp&&amp>1) {
                                     if (alter==2) amp--; //remove self
                                     var frac = amp/numPatientInSameCnaProfile;
-                                    tip = "<b>"+amp+" other sample"+(amp==1?"":"s")
+                                    tip += "<b>"+amp+" other sample"+(amp==1?"":"s")
                                         +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
                                         +(amp==1?"has ":"have ")+"amplified "+cnas.getValue(source[0], "gene");
                                     var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
@@ -123,9 +123,7 @@
                                 if (del&&del>1) {
                                     if (alter==-2) amp--; //remove self
                                     var frac = del/numPatientInSameCnaProfile;
-                                    if (tip) {
-                                        tip += "<br/>And "
-                                    } 
+                                    if (tip) tip += "<br/>"
                                     tip += "<b>"+del+" other sample"+(del==1?"":"s")
                                         +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
                                         +(del==1?"has ":"have ")+"homozygous deleted "
@@ -135,14 +133,16 @@
                                     ret += "<div class='del_percent_div' style='width:"+width+"px;'></div>";
                                 }
                                 
-                                ret = "<div style='width:"+tw+"px;height:12px' class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</div>";
+                                ret = "<div style='width:"+tw+"px;height:12px' class='left_float_div "
+                                    +table_id+"-tip' alt='"+tip+"'>"+ret+"</div>";
 
                                 // gistic
                                 var gistic = cnas.getValue(source[0], 'gistic');
                                 if (gistic) {
-                                    var tip = "<b>Gistic</b><br/>Q-value: "+gistic.toPrecision(2);
+                                    var tip = "<b>Gistic</b><br/>Q-value: "+gistic[0].toPrecision(2)
+                                                +"<br/>Number of genes in the peak: "+gistic[1];
                                     ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/gistic.png' width=12 height=12>";
+                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
                                 }
                                 
                                 return ret;
@@ -235,7 +235,9 @@
                 $('.cna-summary-table-name').html(
                     "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (Gistic Q-value is 0.05 or less or, if Gistic result is unavailable, altered in 5% or more of samples in the study).'/>");
+                     or recurrently copy number altered (contained in a Gistic peak with less than\n\
+                     10 genes and Q-value is 0.05 or less or, if Gistic result is unavailable,\n\
+                     altered in 5% or more of samples in the study).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
@@ -253,6 +255,7 @@
     });
     
     var patient_view_gistic_qvalue_threhold = 0.05;
+    var patient_view_gistic_number_genes_threshold = 10;
     var patient_view_cnaaltrate_threhold = 0.05;
     function determineOverviewCNAs(data) {
         var overview = [];
@@ -285,7 +288,8 @@
                     continue;
                 }
             } else {
-                if (gistic[i]&&gistic[i]<=patient_view_gistic_qvalue_threhold) {
+                if (gistic[i]&&gistic[i][0]<=patient_view_gistic_qvalue_threhold
+                        &&gistic[i][1]<=patient_view_gistic_number_genes_threshold) {
                     overview.push(true);
                     continue;
                 }

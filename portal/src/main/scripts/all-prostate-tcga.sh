@@ -17,5 +17,9 @@
 # MutSig
 ./importMutSig.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/prad_tcga/meta_mutsig.txt
 
+# Gistic
+./importGistic.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/data_GISTIC_GENE_AMPS.txt prad_tcga
+./importGistic.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/data_GISTIC_GENE_DELS.txt prad_tcga
+
 # Copy number segment
 ./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/prad_tcga_scna_minus_germline_cnv_hg19.seg

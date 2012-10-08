@@ -199,6 +199,10 @@ if (patientViewError!=null) {
                 background-color: blue;
                 height: 12px;
         }
+        .left_float_div {
+                display: block;
+                float: left;
+        }
         .right_float_div {
                 display: block;
                 float: right;

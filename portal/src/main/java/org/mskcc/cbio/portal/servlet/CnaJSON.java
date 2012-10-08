@@ -12,10 +12,13 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.CnaEvent;
 import org.mskcc.cbio.cgds.model.CopyNumberSegment;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.Gistic;
 import org.mskcc.cbio.portal.util.SkinUtil;
 
 /**
@@ -65,6 +68,7 @@ public class CnaJSON extends HttpServlet {
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
                 
         GeneticProfile cnaProfile;
+        CancerStudy cancerStudy = null;
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<String, List<String>> drugs = Collections.emptyMap();
@@ -73,6 +77,7 @@ public class CnaJSON extends HttpServlet {
         try {
             _case = DaoCase.getCase(patient);
             cnaProfile = daoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
+            cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
             if (_case!=null && cnaProfile!=null) {
                 cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
                 String concatEventIds = getConcatEventIds(cnaEvents);
@@ -90,7 +95,7 @@ public class CnaJSON extends HttpServlet {
             List<String> drug = 
                     (cnaEvent.getAlteration()==CnaEvent.CNA.AMP||cnaEvent.getAlteration()==CnaEvent.CNA.GAIN)
                     ? drugs.get(cnaEvent.getGeneSymbol()) : null;
-            exportCnaEvent(data, cnaEvent, drug, contextMap.get(cnaEvent.getEntrezGeneId()));
+            exportCnaEvent(data, cnaEvent, cancerStudy, drug, contextMap.get(cnaEvent.getEntrezGeneId()));
         }
 
         response.setContentType("application/json");
@@ -196,7 +201,7 @@ public class CnaJSON extends HttpServlet {
     }
     
     private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
-            List<String> drugs, Map<Integer,Integer> context) 
+            CancerStudy cancerStudy, List<String> drugs, Map<Integer,Integer> context) 
             throws ServletException {
         data.get("id").add(cnaEvent.getEventId());
         String symbol = null;
@@ -211,8 +216,14 @@ public class CnaJSON extends HttpServlet {
         data.get("alter").add(cnaEvent.getAlteration().getCode());
         
         // TODO: GISTIC
-        //double gistic = 1.0;
-        data.get("gistic").add(null);
+        List gistic;
+        try {
+            gistic = getGistic(cancerStudy.getInternalId(),
+                    cnaEvent.getGeneSymbol(), cnaEvent.getAlteration());
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        data.get("gistic").add(gistic);
         
         data.get("altrate").add(context);
         
@@ -241,6 +252,40 @@ public class CnaJSON extends HttpServlet {
         row.add(seg.getNumProbes());
         row.add(seg.getSegMean());
         table.add(row);
+    }
+    
+    private static Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id
+            = new HashMap<Integer,Map<String,Map<CnaEvent.CNA,List>>>();     // to map from gene to a list of params
+    
+    private static List getGistic(int cancerStudyId, String gene, CnaEvent.CNA cna) throws DaoException {
+        Map<String,Map<CnaEvent.CNA,List>> mapGeneGistic;
+        synchronized(gisticMap) {
+            mapGeneGistic = gisticMap.get(cancerStudyId);
+            if (mapGeneGistic == null) {
+                mapGeneGistic = new HashMap<String,Map<CnaEvent.CNA,List>>();
+                List<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudyId);
+                for (Gistic g : gistics) {
+                    List<String> genes = new ArrayList<String>(g.getGenes_in_ROI().size());
+                    for (CanonicalGene cg : g.getGenes_in_ROI()) {
+                        genes.add(cg.getHugoGeneSymbolAllCaps());
+                    }
+                    List l = new ArrayList();
+                    l.add(g.getqValue());
+                    l.add(genes.size());
+                    for (String hugo : genes) {
+                        Map<CnaEvent.CNA,List> mapCC = mapGeneGistic.get(hugo);
+                        if (mapCC==null) {
+                            mapCC = new EnumMap<CnaEvent.CNA,List>(CnaEvent.CNA.class);
+                            mapGeneGistic.put(hugo, mapCC);
+                        }
+                        mapCC.put(cna,l);
+                    }
+                }
+            }
+        }
+        
+        Map<CnaEvent.CNA,List> m = mapGeneGistic.get(gene);
+        return m==null ? null : m.get(cna);
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

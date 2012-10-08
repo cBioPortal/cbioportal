@@ -34,5 +34,9 @@
 # MutSig
 #./importMutSig.pl $GDAC_CGDS_STAGING_HOME/lusc_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/lusc_tcga/meta_mutsig.txt
 
+# Gistic
+./importGistic.pl $GDAC_CGDS_STAGING_HOME/lusc_tcga/data_GISTIC_GENE_AMPS.txt lusc_tcga
+./importGistic.pl $GDAC_CGDS_STAGING_HOME/lusc_tcga/data_GISTIC_GENE_DELS.txt lusc_tcga
+
 # Copy number segment
 ./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/lusc_tcga/lusc_tcga_scna_minus_germline_cnv_hg19.seg

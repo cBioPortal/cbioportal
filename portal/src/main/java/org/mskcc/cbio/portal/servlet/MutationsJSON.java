@@ -21,9 +21,6 @@ import org.mskcc.cbio.cgds.model.*;
 public class MutationsJSON extends HttpServlet {
     private static Logger logger = Logger.getLogger(MutationsJSON.class);
     
-    public static final String MUT_SIG_QVALUE = "mut_sig_qvalue";
-    private static final double DEFAULT_MUT_SIG_QVALUE_THRESHOLD = 0.05;
-    
     public static final String CMD = "cmd";
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
@@ -73,14 +70,6 @@ public class MutationsJSON extends HttpServlet {
         String patient = request.getParameter(PatientView.PATIENT_ID);
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         
-        String mutSigQvalue = request.getParameter(MUT_SIG_QVALUE);
-        double qvalueThrehold;
-        try {
-            qvalueThrehold = Double.parseDouble(mutSigQvalue);
-        } catch (Exception e) {
-            qvalueThrehold = DEFAULT_MUT_SIG_QVALUE_THRESHOLD;
-        }
-        
         GeneticProfile mutationProfile;
         Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
@@ -111,7 +100,7 @@ public class MutationsJSON extends HttpServlet {
         
         Map<String,List> data = initMap();
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(data, mutation, cancerStudy, qvalueThrehold,
+            exportMutation(data, mutation, cancerStudy,
                     drugs.get(mutation.getGeneSymbol()), geneContextMap.get(mutation.getGeneSymbol()),
                     keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()));
@@ -291,8 +280,7 @@ public class MutationsJSON extends HttpServlet {
     }
     
     private void exportMutation(Map<String,List> data, ExtendedMutation mutation, CancerStudy 
-            cancerStudy, double qvalueThreshold, List<String> drugs, 
-            int geneContext, int keywordContext,
+            cancerStudy, List<String> drugs, int geneContext, int keywordContext,
             Map<String,Integer> cosmic) 
             throws ServletException {
         data.get("id").add(mutation.getMutationEventId());
@@ -314,7 +302,7 @@ public class MutationsJSON extends HttpServlet {
         double mutSigQvalue;
         try {
             mutSigQvalue = getMutSigQValue(cancerStudy.getInternalId(),
-                    mutation.getGeneSymbol(), qvalueThreshold);
+                    mutation.getGeneSymbol());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -351,15 +339,13 @@ public class MutationsJSON extends HttpServlet {
     private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id
             = new HashMap<Integer,Map<String,Double>>();     // to map from gene to Q-value
     
-    private static double getMutSigQValue(int cancerStudyId, String gene,
-            double qvalueThreshold) throws DaoException {
+    private static double getMutSigQValue(int cancerStudyId, String gene) throws DaoException {
         Map<String,Double> mapGeneQvalue;
         synchronized(mutSigMap) {
             mapGeneQvalue = mutSigMap.get(cancerStudyId);
             if (mapGeneQvalue == null) {
                 mapGeneQvalue = new HashMap<String,Double>();
-                for (MutSig ms : DaoMutSig.getInstance().getAllMutSig(cancerStudyId,
-                        qvalueThreshold)) {
+                for (MutSig ms : DaoMutSig.getInstance().getAllMutSig(cancerStudyId)) {
                     double qvalue = ms.getqValue();
                     mapGeneQvalue.put(ms.getCanonicalGene().getHugoGeneSymbolAllCaps(),
                             qvalue);

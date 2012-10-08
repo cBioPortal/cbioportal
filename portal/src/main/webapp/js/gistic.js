@@ -33,6 +33,29 @@ var Gistic = function(gistics) {
         }
     } );
 
+    $.fn.dataTableExt.afnFiltering.push( function(oSettings, aData, iDataIndex) {
+        //console.log(oSettings, aData[0], iDataIndex);
+
+        var search = $('#gistic_table_filter input').val();
+
+        if (search === '') {
+            return true;
+        }
+
+        search = new RegExp('^' + search, 'i');
+
+        var genes_l = aData[0],
+        _len = genes_l.length;
+
+        for (i = 0 ; i < _len; i += 1) {
+            if (search.test(genes_l[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    });
+
     var self = {
         getDt: function() {return dt;},
 
@@ -96,7 +119,9 @@ var Gistic = function(gistics) {
                 }
             },
             {"sTitle": "Genes",
-                "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
+                "aTargets":[4],
+                "sType": "numeric",
+                "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 

@@ -110,27 +110,32 @@ public class MutSigJSON extends HttpServlet {
 
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
-            if (cancerStudy!=null) {
-                DaoMutSig daoMutSig = DaoMutSig.getInstance();
 
-                if (log.isWarnEnabled()) {
-                    log.warn("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
-                }
+            DaoMutSig daoMutSig = DaoMutSig.getInstance();
 
-                ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
+            if (log.isDebugEnabled()) {
+                log.debug("cancerStudyId passed to MutSigJSON: " + cancerStudy.getInternalId());
+            }
 
-                if (log.isWarnEnabled()) {
-                    log.warn("list of mutsigs associated with cancerStudy: " + mutSigList);
-                }
+            ArrayList<MutSig> mutSigList = daoMutSig.getAllMutSig(cancerStudy.getInternalId());
 
-                Collections.sort(mutSigList, new sortMutsigByRank());
+            if (log.isDebugEnabled()) {
+                log.debug("no of mutsigs associated with cancerStudy: " + mutSigList.size() + "\n");
+            }
 
-                for (MutSig mutsig : mutSigList) {
-                    Map map = MutSigtoMap(mutsig);
+            Collections.sort(mutSigList, new sortMutsigByRank());
 
-                    if (!map.isEmpty()) {
-                        mutSigJSONArray.add(map);
-                    }
+            int i = 0;
+            for (MutSig mutsig : mutSigList) {
+
+//                log.debug("" + mutsig.toString() + " " + i++);
+
+                Map map = MutSigtoMap(mutsig);
+
+//                log.debug(map);
+
+                if (!map.isEmpty()) {
+                    mutSigJSONArray.add(map);
                 }
             }
             response.setContentType("application/json");

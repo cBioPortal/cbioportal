@@ -35,7 +35,6 @@ import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
-import org.mskcc.cbio.cgds.validate.validationException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -101,7 +100,10 @@ public class GisticJSON extends HttpServlet {
             } catch (DaoException e) {
                 // assume that it is not a Sanger Gene if causes an exception
                 nonSangerGenes.add(g.getHugoGeneSymbolAllCaps());
-                if (log.isDebugEnabled()) { log.debug(e + " :gene <" + g +">"); }
+
+                if (log.isDebugEnabled()) {
+                    log.debug(e + " :gene <" + g +">");
+                }
             }
         }
 
@@ -158,10 +160,8 @@ public class GisticJSON extends HttpServlet {
             } finally {
                 out.close();
             }
-
         } catch (DaoException e) {
-            throw new ServletException(e);
-        } catch (validationException e) {
+            log.debug(e);
             throw new ServletException(e);
         }
     }

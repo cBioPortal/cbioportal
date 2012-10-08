@@ -96,4 +96,9 @@ public class MutSig {
     public float getqValue() {
         return qValue;
     }
+
+    public String toString() {
+        return  String.format("[canonicalGene: %s, numBasesCovered: %d, numMutations: %d, qValue: %f]",
+                        this.getCanonicalGene(), this.numBasesCovered, this.numMutations, this.qValue);
+    }
 }

@@ -37,7 +37,6 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.GisticReader;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.validate.ValidateGistic;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.validate.validationException;
@@ -105,6 +104,9 @@ public class ImportGisticData {
             try {
                 DaoGistic.addGistic(g);
             } catch (DaoException e) {
+                logger.debug(e);
+            }
+            catch (validationException e) {
                 logger.debug(e);
             }
         }

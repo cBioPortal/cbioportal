@@ -46,6 +46,7 @@ var Gistic = function(gistics) {
                 {"sTitle": "<div style='color:red'>Amp</div>" +
                     "<div style='color:blue'>Del</div>",
                     "sWidth": '5px',
+                    "bSearchable": false,
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
                         if (type === 'display') {
@@ -59,7 +60,7 @@ var Gistic = function(gistics) {
                         return source.ampdel;
                     }
             },
-            {"sTitle": "Chr", "aTargets":[1],
+            {"sTitle": "Chr", "aTargets":[1], "bSearchable": false,
                 "mDataProp": function(source, type, val) {
                     if (type === 'display') {
                         return source.chromosome;
@@ -67,7 +68,7 @@ var Gistic = function(gistics) {
                     return source.chromosome;
                 }
             },
-            {"sTitle": "Cytoband", "aTargets":[2], "sType": "cytoband",
+            {"sTitle": "Cytoband", "aTargets":[2], "sType": "cytoband", "bSearchable": false,
                 "mDataProp": function(source, type, val) {
                     var cyto = source.cytoband;
                     if (type === 'display') {
@@ -89,7 +90,7 @@ var Gistic = function(gistics) {
                     return source;
                 }
             },
-            {"sTitle": "#", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col',
+            {"sTitle": "#", "aTargets":[3], "sType": "numeric", "sClass": 'gistic_center_col', "bSearchable": false,
                 "mDataProp": function(source, type, val) {
                     return source.nonSangerGenes.length + source.sangerGenes.length;
                 }
@@ -134,10 +135,22 @@ var Gistic = function(gistics) {
                     else if (type === 'sort') {
                         return all_genes.length;
                     }
+//                    else if (type === 'filter') {
+//                        var gene_search_str = $('#gistic_table_filter input').val();
+//                        if (gene_search_str !== "") {
+//                            var regExp = new RegExp('^' + gene_search_str);
+//                            Gistic.table_el.dataTable().fnFilter(regExp, true);
+//                        }
+//                    }
+
                     return all_genes;
                 }
             },
-            {"sTitle": "Q Value", "aTargets":[5], "sType": "numeric", "sClass": "gistic_right_col",
+            {"sTitle": "Q Value",
+                "sType": "numeric",
+                "sClass": "gistic_right_col",
+                "bSearchable": false,
+                "aTargets":[5],
                 "mDataProp": function(source, type, val) {
 
                     // round Q-Values so that decimals that are not rounded by
@@ -153,8 +166,7 @@ var Gistic = function(gistics) {
                     }
                     return rounded;
                 }
-            }
-            ];
+            } ];
 
             options.aaSorting = [[ 5, "asc" ]];     // sort Q-Value column on load
             options.oLanguage = {'sSearch': 'Filter by Gene:'};

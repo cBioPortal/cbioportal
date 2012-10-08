@@ -188,16 +188,15 @@ public class MutSigReader {
             // there should only be one EntrezId for any given HugoGeneSymbol
             CanonicalGene gene;
             if (genes.size() == 0) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol
-                    + ". Set EntrezId = 0");
+                if (log.isDebugEnabled()) {
+                    log.debug("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol
+                    + ". Skipping it");
                 }
-
-                gene = new CanonicalGene(0, hugoGeneSymbol);
+                continue;
             }
 
-            else if (genes.size() > 1 && log.isWarnEnabled()) {
-                log.warn("Found more than one CanonicalGenes for HugoGeneSymbol: " + hugoGeneSymbol
+            else if (genes.size() > 1 && log.isDebugEnabled()) {
+                log.debug("Multiple CanonicalGenes for HugoGeneSymbol: " + hugoGeneSymbol
                         + ". Chose the first one by default");
                 gene = genes.get(0);
             }

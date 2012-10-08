@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.validate;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
 
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 
 // todo: later this can be refactored into a factory method.
 public class ValidateGistic {
+    private static final Log logger = LogFactory.getLog(ValidateGistic.class);
 
     /**
      * Validates a gistic bean object according to some basic "business logic".
@@ -61,8 +64,8 @@ public class ValidateGistic {
         }
 
         if (peakEnd <= peakStart) {
-            System.out.println("peaksize=" + gistic.peakSize());
-//            throw new validationException("" +  " " + peakEnd +  " " + peakStart);
+            throw new validationException("" +  " " + peakEnd +  " " + peakStart);
+//            System.out.println("peaksize=" + gistic.peakSize());
         }
 
         if (qValue < 0 || qValue > 1) {

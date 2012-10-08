@@ -66,7 +66,7 @@ public class ImportGisticData {
     }
 
     // command line utility
-    public static void main(String[] args) throws IOException, DaoException, validationException {
+    public static void main(String[] args) throws IOException, DaoException {
 
         if (args.length != 2) {
             System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +

@@ -1,4 +1,4 @@
-# October 8, 2012
+# October 9, 2012
 
 * All data updated to the __latest Broad Firehose run__ (July 25, 2012).
 * Users can now base queries on genomic regions of interest (from __Gistic2__ via Firehose).

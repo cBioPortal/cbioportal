@@ -1,4 +1,4 @@
-# October 9, 2012
+# October 10, 2012
 
 * All data updated to the __latest Broad Firehose run__ (July 25, 2012).
 * __COSMIC data__ added to Mutation Details (via Oncotator)

@@ -207,6 +207,9 @@ if (patientViewError!=null) {
                 display: block;
                 float: right;
         }
+        .ui-tooltip-wide {
+            max-width: 800px;
+        }
 </style>
 
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
@@ -337,7 +340,7 @@ function addMoreCinicalTooltip() {
                 }
             },
             hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded wider-tooltip' },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: {my:'top right',at:'bottom right'}
         });
     }
@@ -345,7 +348,6 @@ function addMoreCinicalTooltip() {
 
 function addDrugsTooltip(elem) {
     $(elem).each(function(){
-        var tableId = 'drug_table_'+$(this).attr('id');
         $(this).qtip({
             content: {
                 text: '<img src="images/ajax-loader.gif"/>',
@@ -384,7 +386,7 @@ function addDrugsTooltip(elem) {
                 }
             },
             hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded wider-tooltip' },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: {my:'top center',at:'bottom center'}
         });
     });

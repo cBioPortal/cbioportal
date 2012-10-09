@@ -218,11 +218,8 @@
         $("#download_histogram").click(function(event) {
             event.preventDefault();
 
-            // Snip from http://bit.ly/NbPagq
-            var chartContainer = document.getElementById("chart_div" + shownHistogram);
-            var chartArea = chartContainer.getElementsByTagName('iframe')[0].
-                 contentDocument.getElementById('chartArea');
-            var svg = chartArea.innerHTML;
+            var chartContainer = $("#chart_div" + shownHistogram + " div div");
+            var svg = chartContainer.html();
 
             // Our custom form submission
             $("#histogram_svg_xml").val(svg);

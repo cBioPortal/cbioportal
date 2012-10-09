@@ -413,9 +413,6 @@
                histogramView4.setRows(sortedIndex2);
            }
 
-	   var fontSize1 = (histogramView.getNumberOfRows() > 19 ? 12 : 14);
-	   var fontSize2 = (histogramView2.getNumberOfRows() > 19 ? 12 : 14);
-
            var options = {
               title: divideHistograms ? 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')' : 'Percent Sample Alteration for Each Cancer Study (' + genesQueried + ')',
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
@@ -423,8 +420,9 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
                 slantedTextAngle: 45,
-		textStyle: { fontSize: fontSize1 },
+		showTextEvery: 1,
                 maxTextLines: 2
               },
               vAxis: {
@@ -448,8 +446,9 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                 slantedTextAngle: 45,
-		textStyle: { fontSize: fontSize2 },
                 maxTextLines: 2
               },
               vAxis: {
@@ -478,8 +477,9 @@
                 easing: 'linear'
         	  },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                  slantedTextAngle: 45,
-		 textStyle: { fontSize: fontSize1 },
                  maxTextLines: 2
                },
               yAxis: {
@@ -497,8 +497,9 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                slantedTextAngle: 45,
-	       textStyle: { fontSize: fontSize2 },
                maxTextLines: 2
               },
               animation: {

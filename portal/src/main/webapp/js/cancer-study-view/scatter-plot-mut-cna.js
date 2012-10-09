@@ -16,10 +16,9 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
         if (emphasisCaseId)
             params.push({
                 calc:function(dt,row){
-                    return dt.getValue(row,0)===emphasisCaseId;
+                    return dt.getValue(row,0)===emphasisCaseId ? dt.getValue(row,colMut) : null;
                 },
-                type:'boolean',
-                role:'emphasis'
+                type:'number'
             });
         scatterDataView.setColumns(params);
         var scatter = new google.visualization.ScatterChart(document.getElementById(divId));

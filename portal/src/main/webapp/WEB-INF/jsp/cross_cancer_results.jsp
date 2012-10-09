@@ -218,11 +218,8 @@
         $("#download_histogram").click(function(event) {
             event.preventDefault();
 
-            // Snip from http://bit.ly/NbPagq
-            var chartContainer = document.getElementById("chart_div" + shownHistogram);
-            var chartArea = chartContainer.getElementsByTagName('iframe')[0].
-                 contentDocument.getElementById('chartArea');
-            var svg = chartArea.innerHTML;
+            var chartContainer = $("#chart_div" + shownHistogram + " div div");
+            var svg = chartContainer.html();
 
             // Our custom form submission
             $("#histogram_svg_xml").val(svg);
@@ -416,6 +413,9 @@
                histogramView4.setRows(sortedIndex2);
            }
 
+	   var fontSize1 = (histogramView.getNumberOfRows() > 19 ? 12 : 14);
+	   var fontSize2 = (histogramView2.getNumberOfRows() > 19 ? 12 : 14);
+
            var options = {
               title: divideHistograms ? 'Percent Sample Alteration for Each Cancer Study with Mutation Data (' + genesQueried + ')' : 'Percent Sample Alteration for Each Cancer Study (' + genesQueried + ')',
               colors: ['#aaaaaa', '#008000', '#002efa', '#ff2617'],
@@ -424,6 +424,7 @@
               },
               hAxis: {
                 slantedTextAngle: 45,
+		textStyle: { fontSize: fontSize1 },
                 maxTextLines: 2
               },
               vAxis: {
@@ -448,6 +449,7 @@
               },
               hAxis: {
                 slantedTextAngle: 45,
+		textStyle: { fontSize: fontSize2 },
                 maxTextLines: 2
               },
               vAxis: {
@@ -477,6 +479,7 @@
         	  },
               hAxis: {
                  slantedTextAngle: 45,
+		 textStyle: { fontSize: fontSize1 },
                  maxTextLines: 2
                },
               yAxis: {
@@ -495,6 +498,7 @@
               },
               hAxis: {
                slantedTextAngle: 45,
+	       textStyle: { fontSize: fontSize2 },
                maxTextLines: 2
               },
               animation: {

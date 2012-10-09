@@ -72,7 +72,7 @@ public class CnaJSON extends HttpServlet {
         Case _case;
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<String, List<String>> drugs = Collections.emptyMap();
-        Map<Long, Map<Integer,Integer>> contextMap = Collections.emptyMap();
+        Map<Long, Integer>  contextMap = Collections.emptyMap();
 
         try {
             _case = DaoCase.getCase(patient);
@@ -84,7 +84,7 @@ public class CnaJSON extends HttpServlet {
                 int profileId = cnaProfile.getGeneticProfileId();
                 Set<Long> genes = DaoCnaEvent.getAlteredGenes(concatEventIds, profileId);
                 drugs = getDrugs(genes, profileId);
-                contextMap = DaoCnaEvent.countSamplesWithCNAGenes(genes, profileId);
+                contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -95,7 +95,7 @@ public class CnaJSON extends HttpServlet {
             List<String> drug = 
                     (cnaEvent.getAlteration()==CnaEvent.CNA.AMP||cnaEvent.getAlteration()==CnaEvent.CNA.GAIN)
                     ? drugs.get(cnaEvent.getGeneSymbol()) : null;
-            exportCnaEvent(data, cnaEvent, cancerStudy, drug, contextMap.get(cnaEvent.getEntrezGeneId()));
+            exportCnaEvent(data, cnaEvent, cancerStudy, drug, contextMap.get(cnaEvent.getEventId()));
         }
 
         response.setContentType("application/json");
@@ -201,7 +201,7 @@ public class CnaJSON extends HttpServlet {
     }
     
     private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
-            CancerStudy cancerStudy, List<String> drugs, Map<Integer,Integer> context) 
+            CancerStudy cancerStudy, List<String> drugs, Integer context) 
             throws ServletException {
         data.get("id").add(cnaEvent.getEventId());
         String symbol = null;

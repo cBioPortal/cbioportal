@@ -101,46 +101,28 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
+                                var con = cnas.getValue(source[0], 'altrate')-1;
+                                if (con<=0) return '';
+                                var frac = con / numPatientInSameCnaProfile;
+                                var strAlt;
+                                switch(cnas.getValue(source[0], "alter")) {
+                                case -2: strAlt='deleted'; break;
+                                case 2: strAlt='amplified'; break;
+                                }
                                 var alter = cnas.getValue(source[0], "alter");
-                                var altrate = cnas.getValue(source[0], 'altrate');
-                                var amp = altrate[2];
-                                var del = altrate[-2];
-                                
-                                var ret = '';
-                                var tip = '';
-                                var tw = 0;
-                                if (amp&&amp>1) {
-                                    if (alter==2) amp--; //remove self
-                                    var frac = amp/numPatientInSameCnaProfile;
-                                    tip += "<b>"+amp+" other sample"+(amp==1?"":"s")
-                                        +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                        +(amp==1?"has ":"have ")+"amplified "+cnas.getValue(source[0], "gene");
-                                    var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                    tw += width;
-                                    ret += "<div class='amp_percent_div' style='width:"+width+"px;'></div>";
-                                }
-                                
-                                if (del&&del>1) {
-                                    if (alter==-2) amp--; //remove self
-                                    var frac = del/numPatientInSameCnaProfile;
-                                    if (tip) tip += "<br/>"
-                                    tip += "<b>"+del+" other sample"+(del==1?"":"s")
-                                        +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                        +(del==1?"has ":"have ")+"homozygous deleted "
-                                        +cnas.getValue(source[0], "gene");
-                                    var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                    tw += width;
-                                    ret += "<div class='del_percent_div' style='width:"+width+"px;'></div>";
-                                }
-                                
-                                ret = "<div style='width:"+tw+"px;height:12px' class='left_float_div "
-                                    +table_id+"-tip' alt='"+tip+"'>"+ret+"</div>";
-
+                                var tip = "<b>"+con+" other sample"+(con==1?"":"s")
+                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
+                                    +(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
+                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
+                                var clas = alter>0?"amp_percent_div":"del_percent_div"
+                                var ret = "<div class='"+clas+" "+table_id
+                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                        
                                 // gistic
                                 var gistic = cnas.getValue(source[0], 'gistic');
                                 if (gistic) {
-                                    var tip = "<b>Gistic</b><br/>Q-value: "+gistic[0].toPrecision(2)
-                                                +"<br/>Number of genes in the peak: "+gistic[1];
+                                    var tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
+                                                +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                                     ret += "<img class='right_float_div "+table_id+"-tip' alt='"
                                         +tip+"' src='images/mutsig.png' width=12 height=12>";
                                 }
@@ -148,10 +130,7 @@
                                 return ret;
                             } else if (type==='sort') {
                                 var altrate = cnas.getValue(source[0], 'altrate');
-                                var rate = 0;
-                                if (altrate[-2]) rate += altrate[-2];
-                                if (altrate[2]) rate += altrate[2];
-                                return rate;
+                                return altrate;
                             } else if (type==='type') {
                                     return 0.0;
                             } else {

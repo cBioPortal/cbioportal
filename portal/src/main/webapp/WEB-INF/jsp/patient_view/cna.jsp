@@ -215,8 +215,8 @@
                     "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
                      or recurrently copy number altered (contained in a Gistic peak with less than\n\
-                     10 genes and Q-value is 0.05 or less or, if Gistic result is unavailable,\n\
-                     altered in 5% or more of samples in the study).'/>");
+                     10 genes and Q < 0.05; if Gistic results are not available,\n\
+                     genes are altered in >5% of samples in the study).'/>");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 

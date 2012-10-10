@@ -433,8 +433,9 @@
                     "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
                         annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q-value is 0.05 or less or, if MutSig result unavailable, mutated in 5% or more samples in the study) \n\
-                        or with 5 or more COSMIC overlapping mutations.'/>");
+                        or recurrently mutated (MutSig Q < 0.05; if MutSig result are not available,\n\
+                        mutated in > 5% of samples in the study) \n\
+                        or with > 5 COSMIC overlapping mutations.'/>");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 

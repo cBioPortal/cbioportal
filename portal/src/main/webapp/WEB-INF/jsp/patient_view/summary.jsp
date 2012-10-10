@@ -156,15 +156,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 $('#case-id-div').html(formatPatientLink(caseId));
             }
         });
-        for (var i=0, rows = dt.getNumberOfRows(); i<rows; i++) {
-            if (dt.getValue(i,0)===caseId) {
-                scatter.setSelection([{'row': i}]);
-                if (caseIdDiv) {
-                    $('#case-id-div').html(formatPatientLink(caseId));
-                }
-                break;
-            }
-        }
     }
 </script>
 

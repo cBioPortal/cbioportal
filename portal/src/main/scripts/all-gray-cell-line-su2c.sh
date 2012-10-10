@@ -2,7 +2,7 @@
 rm -v $CGDS_DATA_HOME/Gray-lab-cell-line/processed_*
 
 # Load up the GBM Meta Data File
-./importCancerStudy.pl $CGDS_DATA_HOME/Gray-lab-cell-line/GrayCellLine.txt
+./importCancerStudy.pl $CGDS_DATA_HOME/Gray-lab-cell-line/brca_gray.txt
 
 # Load Cases
 ./importCaseList.pl $CGDS_DATA_HOME/Gray-lab-cell-line/case_lists

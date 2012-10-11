@@ -167,6 +167,12 @@ public class ImportExtendedMutationData{
 				String caseId = null;
 				try {
 					caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
+					// the following condition was prompted by case ids coming from 
+					// private cancer studies (like SKCM_BROAD) with case id's of
+					// the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
+					if (!barCode.startsWith("TCGA") && barCodeParts.length == 4) {
+						caseId += "-" + barCodeParts[3];
+					}
 				} catch( ArrayIndexOutOfBoundsException e) {
 					caseId = barCode;
 				}

@@ -140,22 +140,23 @@ public class ImportProteinArrayData {
         String[] genes = parts[0].split(" ");
         fixSymbols(genes);
         String arrayId = parts[1];
-        if (daoPAI.getProteinArrayInfo(arrayId)==null) {
-            Pattern p = Pattern.compile("(p[STY][0-9]+)");
-            Matcher m = p.matcher(arrayId);
-            String type, residue;
-            if (m.find()) {
-                type = "phosphorylation";
-                residue = m.group(1);
-                importPhosphoGene(genes, residue);
-            } else {
-                type = "protein_level";
-                p = Pattern.compile("(cleaved[A-Z][0-9]+)");
-                m = p.matcher(arrayId);
-                residue = m.find() ? m.group(1) : null;
-                importRPPAProteinAlias(genes);
-            }
         
+        Pattern p = Pattern.compile("(p[STY][0-9]+)");
+        Matcher m = p.matcher(arrayId);
+        String type, residue;
+        if (m.find()) {
+            type = "phosphorylation";
+            residue = m.group(1);
+            importPhosphoGene(genes, residue, arrayId);
+        } else {
+            type = "protein_level";
+            p = Pattern.compile("(cleaved[A-Z][0-9]+)");
+            m = p.matcher(arrayId);
+            residue = m.find() ? m.group(1) : null;
+            importRPPAProteinAlias(genes);
+        }
+        
+        if (daoPAI.getProteinArrayInfo(arrayId)==null) {
             ProteinArrayInfo pai = new ProteinArrayInfo(arrayId, type,  
                             StringUtils.join(genes, "/"), residue, null);
             daoPAI.addProteinArrayInfo(pai);
@@ -187,15 +188,12 @@ public class ImportProteinArrayData {
         }
     }
     
-    private void importPhosphoGene(String[] genes, String residue) throws DaoException {
+    private void importPhosphoGene(String[] genes, String residue, String arrayId) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String phosphoSymbol = StringUtils.join(genes, "/")+"_"+residue;
-        CanonicalGene existingGene = daoGene.getGene(phosphoSymbol);
-        if (existingGene!=null) {
-            return;
-        }
 
         Set<String> aliases = new HashSet<String>();
+        aliases.add(arrayId);
         aliases.add("rppa-phospho");
         aliases.add("phosphoprotein");
         for (String gene : genes) {

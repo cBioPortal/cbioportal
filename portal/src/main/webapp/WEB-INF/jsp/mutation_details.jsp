@@ -109,14 +109,16 @@
     };
 
     function assignValueToPredictedImpact(str) {
-        if (str=="Low") {
-            return 1;
-        } else if (str=="Medium") {
+        if (str == "Low" || str == "L") {
             return 2;
-        } else if (str=="High") {
+        } else if (str == "Medium" || str == "M") {
             return 3;
+        } else if (str == "High" || str == "H") {
+            return 4;
+        } else if (str == "Neutral" || str == "N") {
+            return 1;
         } else {
-            return 0;
+	        return 0;
         }
     }
     
@@ -210,13 +212,15 @@
 					//"bScrollCollapse": true,
 					//"bScrollAutoCss": false,
 					"aoColumnDefs":[
-					  {"sType": 'aa-change-col',
-					          "aTargets": [ 1 ]},
-					  {"sType": 'cosmic-col',
-                                           "sClass": "right-align-td",
-					      "aTargets": [ 3 ]},
-					  {"sType": 'predicted-impact-col',
-					          "aTargets": [ 4 ]}
+						{"sType": 'aa-change-col',
+							"aTargets": [ 1 ]},
+						{"sType": 'cosmic-col',
+							"sClass": "right-align-td",
+							"aTargets": [ 3 ]},
+						{"sType": 'predicted-impact-col',
+							"aTargets": [ 4 ]},
+						{"asSorting": ["desc", "asc"],
+							"aTargets": [3,4,5]}
 					],
 					"fnDrawCallback": function( oSettings ) {
 						// add tooltips to the table
@@ -236,7 +240,7 @@
 
 	    // wrap the table contents with a div to enable scrolling, this is a workaround for
 	    // DataTable's own scrolling, seems like there is a problem with its settings
-	    $('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
+	    //$('.mutation_details_table').wrap("<div class='mutation_details_table_wrapper'></div>");
     });
     
     //  Set up Mutation Diagrams

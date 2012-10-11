@@ -218,11 +218,8 @@
         $("#download_histogram").click(function(event) {
             event.preventDefault();
 
-            // Snip from http://bit.ly/NbPagq
-            var chartContainer = document.getElementById("chart_div" + shownHistogram);
-            var chartArea = chartContainer.getElementsByTagName('iframe')[0].
-                 contentDocument.getElementById('chartArea');
-            var svg = chartArea.innerHTML;
+            var chartContainer = $("#chart_div" + shownHistogram + " div div");
+            var svg = chartContainer.html();
 
             // Our custom form submission
             $("#histogram_svg_xml").val(svg);
@@ -423,7 +420,9 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
                 slantedTextAngle: 45,
+		showTextEvery: 1,
                 maxTextLines: 2
               },
               vAxis: {
@@ -447,6 +446,8 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                 slantedTextAngle: 45,
                 maxTextLines: 2
               },
@@ -476,6 +477,8 @@
                 easing: 'linear'
         	  },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                  slantedTextAngle: 45,
                  maxTextLines: 2
                },
@@ -494,6 +497,8 @@
                 position: 'bottom'
               },
               hAxis: {
+		slantedText: true,
+		showTextEvery: 1,
                slantedTextAngle: 45,
                maxTextLines: 2
               },

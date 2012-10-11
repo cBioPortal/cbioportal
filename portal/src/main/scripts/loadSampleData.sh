@@ -5,8 +5,8 @@
 # portal/sample_data
 #################################################
 
-SAMPLE_DATA=$PORTAL_HOME/src/main/resources/sample_data
-TEST_DATA=$PORTAL_HOME/src/test/resources
+SAMPLE_DATA=$PORTAL_HOME/portal/src/main/resources/sample_data
+TEST_DATA=$PORTAL_HOME/portal/src/test/resources
 
 # Clear the Database
 ./resetDb.pl
@@ -28,10 +28,10 @@ TEST_DATA=$PORTAL_HOME/src/test/resources
 ./importClinicalData.pl $SAMPLE_DATA/gbm/GBM_clinical_portal_20110210.txt
 
 # Load Mutation Data
-./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta ../sample_data/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
+./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta $SAMPLE_DATA/gbm/meta_mutations_MAF.txt --dbmsAction clobber 
 
 # Load CNA Data
-./importProfileData.pl --data $SAMPLE_DATA/gbm/data_CNA_consensus.txt --meta ../sample_data/gbm/meta_CNA_consensus.txt --dbmsAction clobber
+./importProfileData.pl --data $SAMPLE_DATA/gbm/data_CNA_consensus.txt --meta $SAMPLE_DATA/gbm/meta_CNA_consensus.txt --dbmsAction clobber
 
 # Load network data
 ./importSif.pl $SAMPLE_DATA/network/cell-map.sif CELLMAP

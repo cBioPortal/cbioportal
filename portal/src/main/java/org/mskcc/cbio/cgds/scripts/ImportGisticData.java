@@ -70,8 +70,8 @@ public class ImportGisticData {
 
         if (args.length != 2) {
             System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +
-                    "\tNote that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad\n" +
-                    "\tcancer-study-id e.g. 'tcga-gbm'");
+                    "\t <gistic-data-file.txt> Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad\n" +
+                    "\t <cancer-study-id> e.g. 'tcga_gbm'");
             System.exit(1);
         }
 
@@ -103,14 +103,13 @@ public class ImportGisticData {
         for (Gistic g : gistics) {
             try {
                 DaoGistic.addGistic(g);
+            } catch (validationException e) {
+                // only catching validationException, not DaoException
+                logger.debug(e);
             } catch (DaoException e) {
-                logger.debug(e);
-            }
-            catch (validationException e) {
-                logger.debug(e);
+                System.err.println(e);
             }
         }
-
         ConsoleUtil.showWarnings(pMonitor);
     }
 }

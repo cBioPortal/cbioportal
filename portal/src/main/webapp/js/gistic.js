@@ -33,6 +33,29 @@ var Gistic = function(gistics) {
         }
     } );
 
+    $.fn.dataTableExt.afnFiltering.push( function(oSettings, aData, iDataIndex) {
+        //console.log(oSettings, aData[0], iDataIndex);
+
+        var search = $('#gistic_table_filter input').val();
+
+        if (search === '') {
+            return true;
+        }
+
+        search = new RegExp('^' + search, 'i');
+
+        var genes_l = aData[0],
+        _len = genes_l.length;
+
+        for (i = 0 ; i < _len; i += 1) {
+            if (search.test(genes_l[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    });
+
     var self = {
         getDt: function() {return dt;},
 
@@ -96,7 +119,9 @@ var Gistic = function(gistics) {
                 }
             },
             {"sTitle": "Genes",
-                "aTargets":[4], "sType": "numeric", "sClass": "gistic_gene_cell",
+                "aTargets":[4],
+                "sType": "numeric",
+                "sClass": "gistic_gene_cell",
                 "mDataProp": function(source, type, val) {
                     var all_genes = source.sangerGenes.concat(source.nonSangerGenes);
 
@@ -135,13 +160,6 @@ var Gistic = function(gistics) {
                     else if (type === 'sort') {
                         return all_genes.length;
                     }
-//                    else if (type === 'filter') {
-//                        var gene_search_str = $('#gistic_table_filter input').val();
-//                        if (gene_search_str !== "") {
-//                            var regExp = new RegExp('^' + gene_search_str);
-//                            Gistic.table_el.dataTable().fnFilter(regExp, true);
-//                        }
-//                    }
 
                     return all_genes;
                 }
@@ -173,6 +191,15 @@ var Gistic = function(gistics) {
             options.aaData = aaData;
             options.aoColumnDefs = aoColumnDefs;
 
+            //options.fnDrawCallback = function(oSettings) {
+            //    var data = this.fnGetData();
+            //        search = $('#gistic_table_filter input').val();
+
+            //    var gene_nodes = $('.gistic_gene_cell');
+            //    gene_nodes = gene_nodes.slice(2);
+            //        // the first two are the table headers
+            //}
+
             Gistic.dt = table_el.dataTable(options);
 
             // everytime you draw
@@ -181,10 +208,6 @@ var Gistic = function(gistics) {
                 function(val, i) {
                 return $(val).html();
             });
-
-            // paint regions red and blue
-            //$('.gistic_amp').parent().css('background-color', 'red');
-            //$('.gistic_del').parent().css('background-color', 'blue');
 
             // center cols
             $('.gistic_center_col').css('text-align', 'center');

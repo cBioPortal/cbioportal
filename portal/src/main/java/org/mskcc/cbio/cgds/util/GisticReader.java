@@ -183,12 +183,6 @@ public class GisticReader {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             for (String gene : _genes) {
 
-                // TODO: when gene mapping has implemented, map miRNA appropriately, for now miRNA is silently ignored
-                if (gene.contains("hsa")) {
-                    //System.out.println("ignoring miRNA : " + gene);
-                    continue;
-                }
-
                 CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
 
                 if (canonicalGene == null) {
@@ -196,6 +190,11 @@ public class GisticReader {
 
 //                    System.out.println("gene not found, skipping: " + gene);
 //                    throw new DaoException("gene not found: " + gene);
+                }
+
+                if (canonicalGene.isMicroRNA()) {
+                    System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                    continue;
                 }
 
                 genes.add(canonicalGene);

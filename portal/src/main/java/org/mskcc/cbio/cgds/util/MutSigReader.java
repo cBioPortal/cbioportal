@@ -192,6 +192,7 @@ public class MutSigReader {
                     log.debug("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol
                     + ". Skipping it");
                 }
+                line = buf.readLine();
                 continue;
             }
 

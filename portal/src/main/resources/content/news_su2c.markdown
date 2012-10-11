@@ -1,3 +1,19 @@
+# October 10, 2012
+
+* New studies added: Breast cancer sequencing studies from the Broad and the Sanger, Cancer Cell Line Encyclopedia (CCLE), and cervical cancer TCGA.
+* All data updated to the __Broad Firehose__ run from July 25, 2012.
+* __COSMIC data__ added to Mutation Details (via Oncotator)
+* All predicted functional impact scores are updated to __Mutation Assessor 2.0__
+* Users can now base queries on genes in recurrent regions of copy-number alteration (from __GISTIC__ via Firehose).
+* The [Onco Query Language (OQL)](onco_query_lang_desc.jsp) now supports queries for specific mutations or mutation types.
+* __Drug information__ added to the network view (via Drugbank).
+* Extended __cross-cancer__ functionality, enabling users to query across all cancer studies in our database.
+* Users can now base queries on frequently mutated genes (from __MutSig__ via Firehose).
+* New __"build a case"__ functionality, enabling users to generate custom case sets, based on one or more clinical attributes.
+* New OncoPrint features, including more __compact OncoPrints__, and support for __RPPA__ visualization.
+* New feature: __Mutation Diagrams__ that show mutations in the context of protein domains.
+<center>![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)</center>
+
 # January 27, 2011
 
 * __Updated TCGA data sets__ for Breast Cancer, Ovarian, and Uterine Corpus Endometrioid Carcinoma.

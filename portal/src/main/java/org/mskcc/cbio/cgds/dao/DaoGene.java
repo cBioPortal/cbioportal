@@ -85,7 +85,8 @@ class DaoGene {
     }
     
     public synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
-        gene.setEntrezGeneId(getNextFakeEntrezId());
+        CanonicalGene existingGene = getGene(gene.getHugoGeneSymbolAllCaps());
+        gene.setEntrezGeneId(existingGene==null?getNextFakeEntrezId():existingGene.getEntrezGeneId());
         return addGene(gene);
     }
 

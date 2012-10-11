@@ -111,7 +111,7 @@ public class CanonicalGene extends Gene {
     
     public boolean isPhosphoProtein() {
         String hugo = this.getHugoGeneSymbolAllCaps();
-        return hugo.matches("[A-Za-z0-9]+_P[STY][0-9]+.*");
+        return hugo.matches(".+_P[STY][0-9]+");
     }
 
     @Override

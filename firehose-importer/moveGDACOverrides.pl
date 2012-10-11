@@ -47,6 +47,7 @@ my $customFileProperties = {
 	'LOG2CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_data_by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
 	'SEG' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.Level_3.<date><version>', '<CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.seg.txt'],
+	'RPPA' => [ 'gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version>', '<CANCER>.rppa.txt'],
 };
 
 main();

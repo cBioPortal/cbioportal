@@ -307,7 +307,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = referenceMetadataProperty.split(":");
-		if (properties.length != 4) {
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getReferenceMetadata: " + referenceMetadataProperty);
 			}
@@ -324,7 +324,8 @@ final class GDataImpl implements Config {
                         if (entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
                                 toReturn = new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
 																 entry.getCustomElements().getValue(properties[2]),
-																 entry.getCustomElements().getValue(properties[3]));
+																 entry.getCustomElements().getValue(properties[3]),
+																 entry.getCustomElements().getValue(properties[4]));
                                 break;
                         }
                     }

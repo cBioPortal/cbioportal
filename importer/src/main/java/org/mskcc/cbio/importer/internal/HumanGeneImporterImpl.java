@@ -40,6 +40,8 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.commons.compress.compressors.gzip.GzipUtils;
+
 import java.util.Arrays;
 
 /**
@@ -106,13 +108,18 @@ public final class HumanGeneImporterImpl implements Importer {
 		// first create (and clobber an existing) db
 		databaseUtils.createDatabase(database, false);
 
+		String referenceFile = referenceMetadata.getReferenceFileDestination();
+		if (GzipUtils.isCompressedFilename(referenceFile)) {
+			referenceFile = GzipUtils.getUncompressedFilename(referenceFile);
+		}
+
 		// use mysql to import the .sql file
 		String[] command = new String[] {"mysql",
 										 "--user=" + databaseUtils.getDatabaseUser(),
 										 "--password=" + databaseUtils.getDatabasePassword(),
 										 database,
 										 "-e",
-										 "source " + referenceMetadata.getReferenceFile()};
+										 "source " + referenceFile};
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + Arrays.asList(command));
 			LOG.info("this may take a while...");

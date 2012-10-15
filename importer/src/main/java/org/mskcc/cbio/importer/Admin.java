@@ -84,6 +84,11 @@ public class Admin implements Runnable {
 		Option help = new Option("help", "print this message");
 		Option fetch = new Option("firehose_fetch", "fetch firehose data");
 
+        Option fetchReferenceData = (OptionBuilder.withArgName("reference-data")
+									  .hasArg()
+									  .withDescription("fetchs reference data")
+									  .create("fetch_reference_data"));
+
         Option createTables = (OptionBuilder.withArgName("database")
                                .hasArg()
                                .withDescription("create db tables to store data")
@@ -114,6 +119,7 @@ public class Admin implements Runnable {
 		// add options
 		toReturn.addOption(help);
 		toReturn.addOption(fetch);
+		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(createTables);
 		toReturn.addOption(convertData);
 		toReturn.addOption(importReferenceData);
@@ -163,6 +169,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("firehose_fetch")) {
 				fetchFirehoseData();
 			}
+			// fetch reference data
+			else if (commandLine.hasOption("fetch_reference_data")) {
+				fetchReferenceData(commandLine.getOptionValue("fetch_reference_data"));
+			}
 			// create tables
 			else if (commandLine.hasOption("create_tables")) {
 				createTables(commandLine.getOptionValue("create_tables"));
@@ -206,6 +216,34 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Fetcher fetcher = (Fetcher)context.getBean("firehoseFetcher");
 		fetcher.fetch();
+	}
+
+	/**
+	 * Helper function to fetch reference data.
+     *
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void fetchReferenceData(final String referenceType) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), referenceType: " + referenceType);
+		}
+
+		// create an instance of Importer
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Config config = (Config)context.getBean("config");
+		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (referenceMetadata != null) {
+			Fetcher fetcher = (Fetcher)context.getBean("referenceDataFetcher");
+			fetcher.fetchReferenceData(referenceMetadata);
+		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
+			}
+		}
 	}
 
 	/**

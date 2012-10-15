@@ -49,7 +49,7 @@ public interface Importer {
 	 * Imports the given reference data into the given database.
 	 *
 	 * @param database String
-     * @param referenceMetadata String
+     * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
 	void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception;

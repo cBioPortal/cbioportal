@@ -41,19 +41,24 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.ByteArrayInputStream;
 
 import java.lang.reflect.Constructor;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Class which implements the FileUtils interface.
@@ -87,7 +92,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             toReturn = DigestUtils.md5Hex(is);
         }
         finally {
-            closeQuietly(is);
+            IOUtils.closeQuietly(is);
         }
 
         // outta here
@@ -187,7 +192,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         byte[] fileContents;
 
         // data can be compressed
-        if (fileCanonicalPath.toLowerCase().endsWith(".gz")) {
+		if (GzipUtils.isCompressedFilename(fileCanonicalPath.toLowerCase())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
             }
@@ -205,27 +210,44 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         return getImportDataMatrix(fileContents);
     }
 
-    /**
-     * Reflexively creates a new instance of the given class.
-     *
-     * @param className String
-     * @return Object
-     */
-    public Object newInstance(final String className) {
+	/**
+	 * Downloads the given file specified via url to the given canonicalDestination.
+	 *
+	 * @param urlString String
+	 * @param canonicalDestination String
+	 * @throws Exception
+	 */
+	@Override
+	public void downloadFile(final String urlString, final String canonicalDestination) throws Exception {
 
-        try {
-            Class<?> clazz = Class.forName(className);
-            Constructor<?> c = clazz.getDeclaredConstructor();
-            c.setAccessible(true);
-            return c.newInstance();
-        }
-        catch (Exception e) {
-            LOG.error(("Failed to instantiate " + className), e) ;
-        }
+		// sanity check
+		if (urlString == null || urlString.length() == 0 ||
+			canonicalDestination == null || canonicalDestination.length() == 0) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("downloadFile(): url or canonicalDestination argument is null, returning...");
+            }
+			return;
+		}
 
-        // outta here
-        return null;
-    }
+		URL url = new URL(urlString);
+		File destinationFile = org.apache.commons.io.FileUtils.getFile(canonicalDestination);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("downloadFile(), destination: " + destinationFile.getCanonicalPath());
+			LOG.info("downloadFile(), this may take a while...");
+		}
+		org.apache.commons.io.FileUtils.copyURLToFile(url, destinationFile);
+
+		// unzip if necessary
+		if (GzipUtils.isCompressedFilename(urlString)) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("downloadFile(), gunzip: " + destinationFile.getCanonicalPath());
+			}
+			String unzipFile = gunzip(destinationFile.getCanonicalPath());
+			if (LOG.isInfoEnabled()) {
+				LOG.info("downloadFile(), gunzip complete: " + (new File(unzipFile)).getCanonicalPath());
+			}
+		}
+	}
 
     /*
      * Given a zip stream, unzips it and gets contents of desired data file.
@@ -278,9 +300,9 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             throw e;
         }
         finally {
-            closeQuietly(tis);
-            closeQuietly(gzis);
-            closeQuietly(is);
+            IOUtils.closeQuietly(tis);
+            IOUtils.closeQuietly(gzis);
+            IOUtils.closeQuietly(is);
         }
         
         // outta here
@@ -389,18 +411,34 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         return toReturn;
     }
 
-    /**
-	 * Close the specified Input Stream.
-	 *
-	 * @param is InputStream
-	 */
-    private static void closeQuietly(final InputStream is) {
 
-        try {
-            is.close();
-        }
-        catch (Exception e) {
-			LOG.warn("FileUtilsImpl.closeQuietly() failed." + e);
-        }
-    }
+	/**
+	 * Helper function to gunzip file.
+	 *
+	 * @param inFilePath String
+	 * @return String
+	 */
+	private static String gunzip(final String inFilePath) throws Exception {
+
+		// setup our gzip inputs tream
+		FileOutputStream out = null;
+		String outFilePath = GzipUtils.getUncompressedFilename(inFilePath);
+		GZIPInputStream gzipInputStream = new GZIPInputStream(new FileInputStream(inFilePath));
+ 
+		try {
+			// unzip into file less the .gz
+			out = new FileOutputStream(outFilePath);
+			IOUtils.copy(gzipInputStream, out);
+		}
+		finally {
+			// close up our streams
+			IOUtils.closeQuietly(gzipInputStream);
+			if (out != null) IOUtils.closeQuietly(out);
+			// delete gzipped file
+			new File(inFilePath).delete();
+		}
+
+		// outta here
+		return outFilePath;
+ 	}
 }

@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 import org.mskcc.cbio.importer.util.Shell;
@@ -187,6 +188,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 													 PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun)));
 			config.setDataSourceMetadata(dataSourceMetadata);
 		}
+	}
+
+	/**
+	 * Fetchers reference data from an external datasource.
+	 *
+     * @param referenceMetadata ReferenceMetadata
+	 * @throws Exception
+	 */
+	@Override
+	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+		throw new UnsupportedOperationException();
 	}
 
 	/**

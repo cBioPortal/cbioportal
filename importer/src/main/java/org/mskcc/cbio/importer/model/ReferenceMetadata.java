@@ -38,6 +38,7 @@ public final class ReferenceMetadata {
 	// bean properties
 	private String referenceType;
 	private String referenceFile;
+	private String referenceFileDestination;
 	private String importerClassName;
 
     /**
@@ -45,9 +46,11 @@ public final class ReferenceMetadata {
      *
 	 * @param referenceType String
 	 * @param referenceFile String
+	 * @param referenceFileDestination String
 	 * @param importerClassname String
      */
-    public ReferenceMetadata(final String referenceType, final String referenceFile, final String importerClassName) {
+    public ReferenceMetadata(final String referenceType, final String referenceFile,
+							 final String referenceFileDestination, final String importerClassName) {
 
 		if (referenceType == null) {
             throw new IllegalArgumentException("referenceType must not be null");
@@ -59,6 +62,11 @@ public final class ReferenceMetadata {
 		}
 		this.referenceFile = referenceFile;
 
+		if (referenceFileDestination == null) {
+            throw new IllegalArgumentException("referenceFileDestination must not be null");
+		}
+		this.referenceFileDestination = referenceFileDestination;
+
 		if (importerClassName == null) {
             throw new IllegalArgumentException("importerClassName must not be null");
 		}
@@ -67,5 +75,6 @@ public final class ReferenceMetadata {
 
 	public String getReferenceType() { return referenceType; }
 	public String getReferenceFile() { return referenceFile; }
+	public String getReferenceFileDestination() { return referenceFileDestination; }
 	public String getImporterClassName() { return importerClassName; }
 }

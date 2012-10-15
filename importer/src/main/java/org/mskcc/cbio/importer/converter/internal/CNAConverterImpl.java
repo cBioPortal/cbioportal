@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Class which implements the Converter interface.
  */
-final class CNAConverterImpl implements Converter {
+public final class CNAConverterImpl implements Converter {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);

@@ -36,10 +36,25 @@ import javax.sql.DataSource;
  */
 public interface DatabaseUtils {
 
-    /**
-	 * Creates a database schema within the given database.
-	 * 
-	 * @param databaseName - the database for which we are creating a schema
+	/**
+	 * Returns the database user credential.
+	 *
+	 * @return String
 	 */
-	void createSchema(final String databaseName);
+    public String getDatabaseUser();
+
+	/**
+	 * Returns the database password credential.
+	 *
+	 * @return String
+	 */
+    public String getDatabasePassword();
+
+    /**
+	 * Creates a database and optional schema.
+	 * 
+	 * @param databaseName String
+	 * @param createSchema boolean
+	 */
+	void createDatabase(final String databaseName, final boolean createSchema);
 }

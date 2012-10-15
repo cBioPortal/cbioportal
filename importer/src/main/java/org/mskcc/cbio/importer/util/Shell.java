@@ -26,31 +26,48 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.util;
 
 // imports
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.util.List;
 
 /**
- * Interface used to import portal data.
+ * Class which provides commandline execution.
  */
-public interface Importer {
+public final class Shell {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(Shell.class);
 
 	/**
-	 * Imports data into the given database for use in the given portal.
+	 * Executes the given command via java ProcessBuilder.
 	 *
-	 * @param database String
-     * @param portal String
-	 * @throws Exception
+	 * @param command List<String>
+	 * @param workingDirectory String
+	 * @return boolean
 	 */
-	void importData(final String database, final String portal) throws Exception;
-
-	/**
-	 * Imports the given reference data into the given database.
-	 *
-	 * @param database String
-     * @param referenceMetadata String
-	 * @throws Exception
-	 */
-	void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception;
+    public static boolean exec(final List<String> command, final String workingDirectory) {
+       
+		try {
+			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder.directory(new File(workingDirectory));
+			Process process = processBuilder.start();
+			StreamSink stdoutSink = new StreamSink(process.getInputStream());
+			StreamSink stderrSink = new StreamSink(process.getErrorStream());
+			stdoutSink.start();
+			stderrSink.start();
+			process.waitFor();
+			return process.exitValue() == 0;
+        }
+		catch (Exception e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info(e.toString() + " thrown during shell command: " + command);
+			}
+			return false;
+        }
+    }
 }

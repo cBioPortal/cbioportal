@@ -26,31 +26,46 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.model;
 
 // imports
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 /**
- * Interface used to import portal data.
+ * Class which contains reference metadata.
  */
-public interface Importer {
+public final class ReferenceMetadata {
 
-	/**
-	 * Imports data into the given database for use in the given portal.
-	 *
-	 * @param database String
-     * @param portal String
-	 * @throws Exception
-	 */
-	void importData(final String database, final String portal) throws Exception;
+	// bean properties
+	private String referenceType;
+	private String referenceFile;
+	private String importerClassName;
 
-	/**
-	 * Imports the given reference data into the given database.
-	 *
-	 * @param database String
-     * @param referenceMetadata String
-	 * @throws Exception
-	 */
-	void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception;
+    /**
+     * Create a ReferenceMetadata instance with specified properties.
+     *
+	 * @param referenceType String
+	 * @param referenceFile String
+	 * @param importerClassname String
+     */
+    public ReferenceMetadata(final String referenceType, final String referenceFile, final String importerClassName) {
+
+		if (referenceType == null) {
+            throw new IllegalArgumentException("referenceType must not be null");
+		}
+		this.referenceType = referenceType;
+
+		if (referenceFile == null) {
+            throw new IllegalArgumentException("referenceFile must not be null");
+		}
+		this.referenceFile = referenceFile;
+
+		if (importerClassName == null) {
+            throw new IllegalArgumentException("importerClassName must not be null");
+		}
+		this.importerClassName = importerClassName;
+	}
+
+	public String getReferenceType() { return referenceType; }
+	public String getReferenceFile() { return referenceFile; }
+	public String getImporterClassName() { return importerClassName; }
 }

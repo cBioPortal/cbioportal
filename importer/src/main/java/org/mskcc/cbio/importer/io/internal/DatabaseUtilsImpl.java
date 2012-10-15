@@ -39,6 +39,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sql.DataSource;
 
@@ -54,16 +55,33 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	private static final String importerContextFile = "classpath:applicationContext-importer.xml";
 	private static final String createSchemaContextFile = "classpath:applicationContext-createSchema.xml";
 
+	// the follow db properties are set here for convenient access by our clients
+
+	// db user 
+	private String databaseUser;
+	@Value("${database_user}")
+    public void setDatabaseUser(final String databaseUser) { this.databaseUser = databaseUser; }
+	@Override
+    public String getDatabaseUser() { return this.databaseUser; }
+
+	// db password
+	private String databasePassword;
+	@Value("${database_password}")
+	public void setDatabasePassword(final String databasePassword) { this.databasePassword = databasePassword; }
+	@Override
+    public String getDatabasePassword() { return this.databasePassword; }
+
     /**
-	 * Creates a database schema within the given database.
+	 * Creates a database and optional schema.
 	 * 
-	 * @param databaseName - the database for which we are creating a schema
+	 * @param databaseName String
+	 * @param createSchema boolean
 	 */
 	@Override
-	public void createSchema(final String databaseName) {
+	public void createDatabase(final String databaseName, final boolean createSchema) {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createSchema(): " + databaseName);
+			LOG.info("createDatabase(): " + databaseName);
 		}
 
 		// we want to get a reference to the database util factory bean interface
@@ -75,12 +93,14 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 		// create the database - drop if it exists
 		createDatabase(dataSourceFactoryBean, databaseName, true);
 
-		// create a datasource to this database name - important to set the map key
-		// to be equal to the bean name within the createSchema context file
-		dataSourceFactoryBean.createDataSourceMapping("createSchema", databaseName);
+		if (createSchema) {
+			// create a datasource to this database name - important to set the map key
+			// to be equal to the bean name within the createSchema context file
+			dataSourceFactoryBean.createDataSourceMapping("createSchema", databaseName);
 
-		// load the context that auto-creates tables
-		context = new ClassPathXmlApplicationContext(createSchemaContextFile);
+			// load the context that auto-creates tables
+			context = new ClassPathXmlApplicationContext(createSchemaContextFile);
+		}
 	}
 
 	/**

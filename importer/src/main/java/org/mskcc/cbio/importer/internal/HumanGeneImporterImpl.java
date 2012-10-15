@@ -33,19 +33,22 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.util.ClassLoader;
+import org.mskcc.cbio.importer.util.Shell;
+
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Arrays;
+
 /**
- * Class which implements the Importer interface.
+ * Class which implements the Importer interface, specifically for importing human gene info.
  */
-final class ImporterImpl implements Importer {
+public final class HumanGeneImporterImpl implements Importer {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
+	private static final Log LOG = LogFactory.getLog(HumanGeneImporterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -65,7 +68,7 @@ final class ImporterImpl implements Importer {
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
 	 */
-	public ImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
+	public HumanGeneImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
 
 		// set members
 		this.config = config;
@@ -82,15 +85,7 @@ final class ImporterImpl implements Importer {
 	 */
     @Override
 	public void importData(final String database, final String portal) throws Exception {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importData()");
-		}
-
-        // check args
-        if (portal == null) {
-            throw new IllegalArgumentException("portal must not be null");
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -103,9 +98,30 @@ final class ImporterImpl implements Importer {
 	@Override
 	public void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception {
 
-		// get converter and create staging file
-		Object[] args = { config, fileUtils, databaseUtils };
-		Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
-		importer.importReferenceData(database, referenceMetadata);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), database: " + database);
+			LOG.info("importReferenceData(), referenceMetadata: " + referenceMetadata.getReferenceType());
+		}
+
+		// first create (and clobber an existing) db
+		databaseUtils.createDatabase(database, false);
+
+		// use mysql to import the .sql file
+		String[] command = new String[] {"mysql",
+										 "--user=" + databaseUtils.getDatabaseUser(),
+										 "--password=" + databaseUtils.getDatabasePassword(),
+										 database,
+										 "-e",
+										 "source " + referenceMetadata.getReferenceFile()};
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+			LOG.info("this may take a while...");
+		}
+
+		if (Shell.exec(Arrays.asList(command), ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importReferenceData complete.");
+			}
+		}
 	}
 }

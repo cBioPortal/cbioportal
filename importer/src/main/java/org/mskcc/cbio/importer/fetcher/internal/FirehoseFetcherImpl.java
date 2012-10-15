@@ -37,6 +37,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.util.Shell;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,14 +47,14 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 /**
  * Class which implements the fetcher interface.
@@ -201,9 +202,9 @@ final class FirehoseFetcherImpl implements Fetcher {
 		// steup a default date for comparision
 		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
 
-		// execute firehose get to determine available runs
 		Process process = Runtime.getRuntime().exec(firehoseGetScript + " -r");
 		process.waitFor();
+		if (process.exitValue() != 0) { return latestRun; }
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		String lineOfOutput;
 		while ((lineOfOutput = reader.readLine()) != null) {
@@ -262,26 +263,24 @@ final class FirehoseFetcherImpl implements Fetcher {
 		String tumorTypesToDownload = getTumorTypesToDownload(tumorTypeMetadata);
 		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
 		String firehoseDatatypesToDownload = getFirehoseDatatypesToDownload(datatypeMetadata);
-
-		ProcessBuilder processBuilder = new ProcessBuilder(firehoseGetScript, "-b",
-                                                           "-tasks",
-                                                           firehoseDatatypesToDownload,
-                                                           runType,
-                                                           BROAD_DATE_FORMAT.format(runDate),
-                                                           tumorTypesToDownload);
-		processBuilder.directory(new File(downloadDirectoryName));
+		String[] command = new String[] { firehoseGetScript, "-b",
+										  "-tasks",
+										  firehoseDatatypesToDownload,
+										  runType,
+										  BROAD_DATE_FORMAT.format(runDate),
+										  tumorTypesToDownload };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("executing: " + processBuilder.command());
+			LOG.info("executing: " + Arrays.asList(command));
 			LOG.info("this may take a while...");
 		}
-		Process process = processBuilder.start();
-		process.waitFor();
 
-		// importing data
-		if (LOG.isInfoEnabled()) {
-			LOG.info("download complete, storing in database.");
+		if (Shell.exec(Arrays.asList(command), downloadDirectoryName)) {
+			// importing data
+			if (LOG.isInfoEnabled()) {
+				LOG.info("download complete, storing in database.");
+			}
+			storeData(downloadDirectory, datatypeMetadata, runDate);
 		}
-		storeData(downloadDirectory, datatypeMetadata, runDate);
 	}
 
 	/**

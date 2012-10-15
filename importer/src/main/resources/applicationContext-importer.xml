@@ -67,6 +67,7 @@
   <b:bean id="importer" class="org.mskcc.cbio.importer.internal.ImporterImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
   </b:bean>
   <b:bean id="converter" class="org.mskcc.cbio.importer.converter.internal.ConverterImpl">
 	<b:constructor-arg ref="config"/>

@@ -37,12 +37,12 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
-import java.lang.reflect.Constructor;
 
 /**
  * Class which implements the Converter interface.
@@ -136,7 +136,7 @@ final class ConverterImpl implements Converter {
             // get converter and create staging file
 			Object[] args = { config, fileUtils };
 			Converter converter =
-				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
+				(Converter)ClassLoader.getInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
 			converter.createStagingFile(portalMetadata, importData, importDataMatrix);
         }
 	}
@@ -215,35 +215,5 @@ final class ConverterImpl implements Converter {
 
 		// outta here
 		return toReturn;
-	}
-
-	/**
-	 * Creates a new instance of a class which implements the Converter interface (via reflection).
-	 *
-	 * @param className String
-	 * @param args Object[]
-	 * @return Object
-	 */
-	private static Object getConverterInstance(final String className, Object[] args) throws Exception {
-
-		// sanity check
-		if (className == null || className.length() == 0) {
-			throw new IllegalArgumentException("className must not be null");
-		}
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getConverterInstance(), className: " + className);
-		}
-
-		try {
-			Class<?> clazz = Class.forName(className);
-			Constructor[] constructors = clazz.getConstructors();
-			// our converters only have the one constructor
-			return constructors[0].newInstance(args);
-		}
-		catch (Exception e) {
-			LOG.error(("Failed to instantiate " + className), e) ;
-			throw e;
-		}
 	}
 }

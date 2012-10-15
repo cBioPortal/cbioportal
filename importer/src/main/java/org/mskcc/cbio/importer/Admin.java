@@ -29,8 +29,10 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -92,6 +94,11 @@ public class Admin implements Runnable {
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
 
+        Option importReferenceData = (OptionBuilder.withArgName("database:reference_type")
+									  .hasArgs(2)
+									  .withValueSeparator(':')
+									  .withDescription("import given reference data into the given db")
+									  .create("import_reference_data"));
 
         Option importData = (OptionBuilder.withArgName("database:portal")
                              .hasArgs(2)
@@ -109,6 +116,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(fetch);
 		toReturn.addOption(createTables);
 		toReturn.addOption(convertData);
+		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
 
 		// outta here
@@ -120,7 +128,7 @@ public class Admin implements Runnable {
 	 *
 	 * @param args String[]
 	 */
-	public void setCommandParameters(String[] args) {
+	public void setCommandParameters(final String[] args) {
 
 		// create our parser
 		CommandLineParser parser = new PosixParser();
@@ -163,6 +171,11 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("convert_data")) {
 				convertData(commandLine.getOptionValue("convert_data"));
 			}
+			// import reference data
+			else if (commandLine.hasOption("import_reference_data")) {
+                String[] values = commandLine.getOptionValues("import_reference_data");
+				importReferenceData(values[0], values[1]);
+			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
@@ -200,7 +213,7 @@ public class Admin implements Runnable {
      *
      * @param database String
 	 */
-	private void createTables(String database) {
+	private void createTables(final String database) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createTables(), database: " + database);
@@ -209,7 +222,7 @@ public class Admin implements Runnable {
 		// create an instance of DatabaseUtils
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
-		databaseUtils.createSchema(database);
+		databaseUtils.createDatabase(database, true);
 	}
 
 	/**
@@ -219,7 +232,7 @@ public class Admin implements Runnable {
      *
 	 * @throws Exception
 	 */
-	private void convertData(String portal) throws Exception {
+	private void convertData(final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
@@ -232,6 +245,36 @@ public class Admin implements Runnable {
 	}
 
 	/**
+	 * Helper function to import reference data.
+     *
+     * @param database String
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void importReferenceData(final String database, final String referenceType) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), database: " + database);
+			LOG.info("importReferenceData(), referenceType: " + referenceType);
+		}
+
+		// create an instance of Importer
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Config config = (Config)context.getBean("config");
+		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (referenceMetadata != null) {
+			Importer importer = (Importer)context.getBean("importer");
+			importer.importReferenceData(database, referenceMetadata);
+		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
+			}
+		}
+	}
+
+	/**
 	 * Helper function to import data.
      *
      * @param database String
@@ -239,7 +282,7 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void importData(String database, String portal) throws Exception {
+	private void importData(final String database, final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), database: " + database);
@@ -255,7 +298,7 @@ public class Admin implements Runnable {
 	/**
 	 * Helper function - prints usage
 	 */
-	public static void usage(PrintWriter writer) {
+	public static void usage(final PrintWriter writer) {
 
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(writer, HelpFormatter.DEFAULT_WIDTH,

@@ -26,31 +26,49 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.util;
 
 // imports
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.lang.reflect.Constructor;
 
 /**
- * Interface used to import portal data.
+ * Class which provides class loader services.
  */
-public interface Importer {
+public final class ClassLoader {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
 
 	/**
-	 * Imports data into the given database for use in the given portal.
+	 * Creates a new instance of given class with given arguments.
 	 *
-	 * @param database String
-     * @param portal String
-	 * @throws Exception
+	 * @param className String
+	 * @param args Object[]
+	 * @return Object
 	 */
-	void importData(final String database, final String portal) throws Exception;
+	public static Object getInstance(final String className, final Object[] args) throws Exception {
 
-	/**
-	 * Imports the given reference data into the given database.
-	 *
-	 * @param database String
-     * @param referenceMetadata String
-	 * @throws Exception
-	 */
-	void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception;
+		// sanity check
+		if (className == null || className.length() == 0) {
+			throw new IllegalArgumentException("className must not be null");
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getInstance(), className: " + className);
+		}
+
+		try {
+			Class<?> clazz = Class.forName(className);
+			Constructor[] constructors = clazz.getConstructors();
+			// our classes only have the one constructor
+			return constructors[0].newInstance(args);
+		}
+		catch (Exception e) {
+			LOG.error(("Failed to instantiate " + className), e) ;
+			throw e;
+		}
+	}
 }

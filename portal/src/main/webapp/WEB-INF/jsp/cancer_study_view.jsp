@@ -10,7 +10,7 @@
 <%@ page import="org.json.simple.JSONValue" %>
 
 <%
-request.setAttribute("standard_js_only", true);
+request.setAttribute("tumormap", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -77,22 +77,22 @@ if (cancerStudyViewError!=null) {
     </ul>
 
     <div class="study-section" id="data-table">
-        <%@ include file="cancer_study_view/data_table.jsp" %>
+        <%@ include file="tumormap/cancer_study_view/data_table.jsp" %>
     </div>
 
     <div class="study-section" id="summary">
-        <%@ include file="cancer_study_view/summary.jsp" %>
+        <%@ include file="tumormap/cancer_study_view/summary.jsp" %>
     </div>
 
     <%if(showMutationsTab){%>
     <div class="study-section" id="mutations">
-        <%@ include file="cancer_study_view/mutations.jsp" %>
+        <%@ include file="tumormap/cancer_study_view/mutations.jsp" %>
     </div>
     <%}%>
 
     <%if(showCNATab){%>
     <div class="study-section" id="cna">
-        <%@ include file="cancer_study_view/cna.jsp" %>
+        <%@ include file="tumormap/cancer_study_view/cna.jsp" %>
     </div>
     <%}%>
 

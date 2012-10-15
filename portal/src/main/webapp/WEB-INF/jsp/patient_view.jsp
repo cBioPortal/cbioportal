@@ -10,7 +10,7 @@
 
 <%
 boolean print = "1".equals(request.getParameter("print"));
-request.setAttribute("standard_js_only", true);
+request.setAttribute("tumormap", true);
 String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
@@ -107,30 +107,30 @@ if (patientViewError!=null) {
     </ul>
 
     <div class="patient-section" id="summary">
-        <%@ include file="patient_view/summary.jsp" %>
+        <%@ include file="tumormap/patient_view/summary.jsp" %>
     </div>
 
     <%if(showMutations){%>
     <div class="patient-section" id="mutations">
-        <%@ include file="patient_view/mutations.jsp" %>
+        <%@ include file="tumormap/patient_view/mutations.jsp" %>
     </div>
     <%}%>
 
     <%if(showCNA){%>
     <div class="patient-section" id="cna">
-        <%@ include file="patient_view/cna.jsp" %>
+        <%@ include file="tumormap/patient_view/cna.jsp" %>
     </div>
     <%}%>
 
     <%if(showPathways){%>
     <div class="patient-section" id="pathways">
-        <%@ include file="patient_view/pathways.jsp" %>
+        <%@ include file="tumormap/patient_view/pathways.jsp" %>
     </div>
     <%}%>
 
     <%if(showSimilarPatient){%>
     <div class="patient-section" id="similar-patients">
-        <%@ include file="patient_view/similar_patients.jsp" %>
+        <%@ include file="tumormap/patient_view/similar_patients.jsp" %>
     </div>
     <%}%>
 

@@ -9,7 +9,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-<%if(request.getAttribute("standard_js_only")!=null){%>
+<%if(request.getAttribute("tumormap")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
 <jsp:include page="js_include_standard.jsp" flush="true" />
 <%} else {%>
@@ -40,45 +40,54 @@
         <tr>
             <td class="navigation">
                <ul>
-                    <li class="selected">
-					    <a href="index.do">Home</a>
-					</li>
-					<li class="internal" id="results">
-					    <a href="#">Results</a>
-					</li>
-                    <li class="internal">
-					   	<a href="tutorial.jsp">Tutorials</a>
-					</li>
-                    <% if (SkinUtil.showNewsTab()) { %>
-                        <li class="internal">
-                            <a href="news.jsp">News</a>
-                        </li>
-                    <% } %>
-                    <li class="internal">
-					  	<a href="faq.jsp">FAQ</a>
-					</li>
-                    <% if (SkinUtil.showDataTab()) { %>
-                        <li class="internal">
-                            <a href="data_sets.jsp">Data Sets</a>
-                        </li>
-                    <% } %>
-                    <li class="internal">
-					   	<a href="about_us.jsp">About</a>
-					</li>
-                    <%
-                        //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
-                        if (!SkinUtil.usersMustAuthenticate()) {
-                    %>
-                        <li class="internal">
-                            <a href="web_api.jsp">Web API</a>
+                    <%if(request.getAttribute("tumormap")!=null){%>
+                        <li class="selected">
+                            <a href="data_sets.jsp">Tumor Map</a>
                         </li>
                         <li class="internal">
-                            <a href="cgds_r.jsp">R/MATLAB</a>
+                            <a href="index.do">cBio Portal</a>
                         </li>
-                    <% } %>
-                    <li class="internal">
-                        <a href="networks.jsp">Networks</a>
-                    </li>
+                    <%} else {%>
+                        <li class="selected">
+                            <a href="index.do">Home</a>
+                        </li>
+                        <li class="internal" id="results">
+                            <a href="#">Results</a>
+                        </li>
+                        <li class="internal">
+                            <a href="tutorial.jsp">Tutorials</a>
+                        </li>
+                        <% if (SkinUtil.showNewsTab()) { %>
+                            <li class="internal">
+                                <a href="news.jsp">News</a>
+                            </li>
+                        <% } %>
+                        <li class="internal">
+                            <a href="faq.jsp">FAQ</a>
+                        </li>
+                        <% if (SkinUtil.showDataTab()) { %>
+                            <li class="internal">
+                                <a href="data_sets.jsp">Data Sets</a>
+                            </li>
+                        <% } %>
+                        <li class="internal">
+                            <a href="about_us.jsp">About</a>
+                        </li>
+                        <%
+                            //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
+                            if (!SkinUtil.usersMustAuthenticate()) {
+                        %>
+                            <li class="internal">
+                                <a href="web_api.jsp">Web API</a>
+                            </li>
+                            <li class="internal">
+                                <a href="cgds_r.jsp">R/MATLAB</a>
+                            </li>
+                        <% } %>
+                        <li class="internal">
+                            <a href="networks.jsp">Networks</a>
+                        </li>
+                    <%}%>
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>

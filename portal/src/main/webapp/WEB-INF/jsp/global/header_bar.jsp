@@ -9,7 +9,12 @@
 		<td valign="middle" width="50%">
 			<span id="header_site_name">
 				<center>
-				<%= SkinUtil.getTitle() %>
+                                    <%
+                                    if(request.getAttribute("tumormap")!=null)
+                                        out.println(SkinUtil.getTumorMapTitle());
+                                    else
+                                        out.println(SkinUtil.getTitle());
+                                    %>
 				</center>
 			</span>
 		</td>

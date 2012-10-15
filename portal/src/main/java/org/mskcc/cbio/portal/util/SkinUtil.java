@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.util;
  */
 public class SkinUtil {
     public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
+    public static final String DEFAULT_TUMORMAP_TITLE = "cBio Tumor Map";
     public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";
@@ -60,6 +61,20 @@ public class SkinUtil {
         String skinTitle = config.getProperty("skin.title");
         if (skinTitle == null) {
             return DEFAULT_TITLE;
+        } else {
+            return skinTitle;
+        }
+    }
+    
+    /**
+     * Gets the TumorMap Site Title.
+     * @return site title.
+     */
+    public static String getTumorMapTitle() {
+        Config config = Config.getInstance();
+        String skinTitle = config.getProperty("skin.tumormap_title");
+        if (skinTitle == null) {
+            return DEFAULT_TUMORMAP_TITLE;
         } else {
             return skinTitle;
         }
@@ -236,13 +251,23 @@ public class SkinUtil {
         return config.getProperty("skin.data_sets_footer");
     }
     
+    public static String getCbioPortalUrl() {
+        Config config = Config.getInstance();
+        return config.getProperty("cbioportal.url");
+    }
+    
+    public static String getTumorMapUrl() {
+        Config config = Config.getInstance();
+        return config.getProperty("tumormap.url");
+    }
+    
     public static String getLinkToPatientView(String caseId) {
-        return "patient.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+        return getCbioPortalUrl()+"patient.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
                 + "=" + caseId;
     }
     
     public static String getLinkToCancerStudyView(String cancerStudyId) {
-        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return getCbioPortalUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
                 + "=" + cancerStudyId;
     }
 }

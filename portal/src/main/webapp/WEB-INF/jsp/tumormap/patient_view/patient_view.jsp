@@ -69,7 +69,7 @@ if (patientViewError!=null) {
     }
 %>
 
-<jsp:include page="global/header.jsp" flush="true" />
+<jsp:include page="../../global/header.jsp" flush="true" />
 
 <table width="100%">
     <tr>
@@ -107,30 +107,30 @@ if (patientViewError!=null) {
     </ul>
 
     <div class="patient-section" id="summary">
-        <%@ include file="tumormap/patient_view/summary.jsp" %>
+        <%@ include file="summary.jsp" %>
     </div>
 
     <%if(showMutations){%>
     <div class="patient-section" id="mutations">
-        <%@ include file="tumormap/patient_view/mutations.jsp" %>
+        <%@ include file="mutations.jsp" %>
     </div>
     <%}%>
 
     <%if(showCNA){%>
     <div class="patient-section" id="cna">
-        <%@ include file="tumormap/patient_view/cna.jsp" %>
+        <%@ include file="cna.jsp" %>
     </div>
     <%}%>
 
     <%if(showPathways){%>
     <div class="patient-section" id="pathways">
-        <%@ include file="tumormap/patient_view/pathways.jsp" %>
+        <%@ include file="pathways.jsp" %>
     </div>
     <%}%>
 
     <%if(showSimilarPatient){%>
     <div class="patient-section" id="similar-patients">
-        <%@ include file="tumormap/patient_view/similar_patients.jsp" %>
+        <%@ include file="similar_patients.jsp" %>
     </div>
     <%}%>
 
@@ -144,14 +144,14 @@ if (patientViewError!=null) {
 
 <tr>
     <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />
+	<jsp:include page="../../global/footer.jsp" flush="true" />
     </td>
 </tr>
 
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />
+<jsp:include page="../../global/xdebug.jsp" flush="true" />
 
 <link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>
 

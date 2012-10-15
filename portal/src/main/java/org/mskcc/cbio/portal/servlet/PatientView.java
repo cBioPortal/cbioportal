@@ -91,7 +91,7 @@ public class PatientView extends HttpServlet {
                 setNumCases(request);
             }
             RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view.jsp");
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
             dispatcher.forward(request, response);
         
         } catch (DaoException e) {

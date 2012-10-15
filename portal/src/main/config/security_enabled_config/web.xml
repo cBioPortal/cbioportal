@@ -341,7 +341,17 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
      </servlet-mapping>   
      
-     <!-- patient view -->
+     <!-- tumor map -->
+    <servlet>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.TumorMapServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <url-pattern>/tumormap.do</url-pattern>
+    </servlet-mapping>
+    
     <servlet>
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
@@ -401,7 +411,7 @@
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
-    <!-- end patient view -->
+    <!-- end tumor map -->
      
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>

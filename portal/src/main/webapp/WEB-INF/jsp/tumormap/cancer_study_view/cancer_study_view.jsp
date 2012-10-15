@@ -48,7 +48,7 @@ if (cancerStudyViewError!=null) {
 } else {
 %>
 
-<jsp:include page="global/header.jsp" flush="true" />
+<jsp:include page="../../global/header.jsp" flush="true" />
 
 <table width="100%">
     <tr>
@@ -77,22 +77,22 @@ if (cancerStudyViewError!=null) {
     </ul>
 
     <div class="study-section" id="data-table">
-        <%@ include file="tumormap/cancer_study_view/data_table.jsp" %>
+        <%@ include file="data_table.jsp" %>
     </div>
 
     <div class="study-section" id="summary">
-        <%@ include file="tumormap/cancer_study_view/summary.jsp" %>
+        <%@ include file="summary.jsp" %>
     </div>
 
     <%if(showMutationsTab){%>
     <div class="study-section" id="mutations">
-        <%@ include file="tumormap/cancer_study_view/mutations.jsp" %>
+        <%@ include file="mutations.jsp" %>
     </div>
     <%}%>
 
     <%if(showCNATab){%>
     <div class="study-section" id="cna">
-        <%@ include file="tumormap/cancer_study_view/cna.jsp" %>
+        <%@ include file="cna.jsp" %>
     </div>
     <%}%>
 
@@ -106,14 +106,14 @@ if (cancerStudyViewError!=null) {
 
 <tr>
     <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />
+	<jsp:include page="../../global/footer.jsp" flush="true" />
     </td>
 </tr>
 
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />    
+<jsp:include page="../../global/xdebug.jsp" flush="true" />    
 
 <script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
 

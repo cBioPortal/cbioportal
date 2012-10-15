@@ -42,14 +42,17 @@
                <ul>
                     <%if(request.getAttribute("tumormap")!=null){%>
                         <li class="selected">
-                            <a href="data_sets.jsp">Tumor Map</a>
+                            <a href="tumormap.do">Tumor Map</a>
                         </li>
                         <li class="internal">
-                            <a href="index.do">cBio Portal</a>
+                            <a href="<%=SkinUtil.getCbioPortalUrl()%>index.do">cBio Portal</a>
                         </li>
                     <%} else {%>
                         <li class="selected">
                             <a href="index.do">Home</a>
+                        </li>
+                        <li class="internal">
+                            <a href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do">Tumor Map</a>
                         </li>
                         <li class="internal" id="results">
                             <a href="#">Results</a>

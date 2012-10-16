@@ -143,8 +143,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>OncoprintJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.OncoprintJSON</servlet-class>
+        <servlet-name>OncoPrintJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintJSON</servlet-class>
     </servlet>
 
     <servlet>
@@ -327,8 +327,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>OncoprintJSON</servlet-name>
-        <url-pattern>/Oncoprint.json</url-pattern>
+        <servlet-name>OncoPrintJSON</servlet-name>
+        <url-pattern>/OncoPrint.json</url-pattern>
     </servlet-mapping>
 
 	<servlet-mapping>

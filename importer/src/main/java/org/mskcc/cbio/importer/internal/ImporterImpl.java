@@ -59,8 +59,6 @@ final class ImporterImpl implements Importer {
 	/**
 	 * Constructor.
      *
-     * Takes a Config, FileUtils, & DatabaseUtils reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
@@ -97,7 +95,7 @@ final class ImporterImpl implements Importer {
 	 * Imports the given reference data into the given database.
 	 *
 	 * @param database String
-     * @param referenceMetadata String
+     * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
 	@Override

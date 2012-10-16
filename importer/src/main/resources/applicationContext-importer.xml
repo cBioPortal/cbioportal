@@ -47,6 +47,8 @@
   <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
   <!-- importer beans -->
+  <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl"/>
+  <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.BridgeDBIDMapper"/>
   <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
   <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
@@ -75,6 +77,9 @@
   <b:bean id="converter" class="org.mskcc.cbio.importer.converter.internal.ConverterImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataDAO"/>
+	<b:constructor-arg ref="caseIDs"/>
+	<b:constructor-arg ref="idMapper"/>
   </b:bean>
 </b:beans>

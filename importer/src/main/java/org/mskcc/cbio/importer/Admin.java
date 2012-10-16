@@ -94,9 +94,10 @@ public class Admin implements Runnable {
                                .withDescription("create db tables to store data")
                                .create("create_tables"));
 
-        Option convertData = (OptionBuilder.withArgName("portal")
-                              .hasArg()
-                              .withDescription("convert data awaiting for import for the given portal")
+        Option convertData = (OptionBuilder.withArgName("portal:gene_database")
+                              .hasArgs(2)
+							  .withValueSeparator(':')
+                              .withDescription("convert data awaiting for import for the given portal using the given gene db")
                               .create("convert_data"));
 
         Option importReferenceData = (OptionBuilder.withArgName("database:reference_type")
@@ -179,7 +180,8 @@ public class Admin implements Runnable {
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
-				convertData(commandLine.getOptionValue("convert_data"));
+                String[] values = commandLine.getOptionValues("convert_data");
+				convertData(values[0], values[1]);
 			}
 			// import reference data
 			else if (commandLine.hasOption("import_reference_data")) {
@@ -241,7 +243,7 @@ public class Admin implements Runnable {
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
+				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
 	}
@@ -267,10 +269,11 @@ public class Admin implements Runnable {
 	 * Helper function to convert data.
      *
      * @param portal String
+	 * @param geneDatabase String
      *
 	 * @throws Exception
 	 */
-	private void convertData(final String portal) throws Exception {
+	private void convertData(final String portal, final String geneDatabase) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
@@ -279,7 +282,7 @@ public class Admin implements Runnable {
 		// create an instance of Converter
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Converter converter = (Converter)context.getBean("converter");
-		converter.convertData(portal);
+		converter.convertData(portal, geneDatabase);
 	}
 
 	/**

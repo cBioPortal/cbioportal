@@ -29,9 +29,13 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
@@ -58,45 +62,68 @@ final class ConverterImpl implements Converter {
 	// ref to file utils
 	private FileUtils fileUtils;
 
+	// ref to database utils
+	private DatabaseUtils databaseUtils;
+
 	// ref to import data
 	private ImportDataDAO importDataDAO;
+
+	// ref to caseids
+	private CaseIDs caseIDs;
+
+	// ref to IDMapper
+	private IDMapper idMapper;
 
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-	 * Takes a ImportDataDAO reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param databaseUtils DatabaseUtils
 	 * @param importDataDAO ImportDataDAO;
+	 * @param caseIDs CaseIDs;
+	 * @param idMapper IDMapper
 	 */
-	public ConverterImpl(final Config config, final FileUtils fileUtils, final ImportDataDAO importDataDAO) {
+	public ConverterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils,
+						 final ImportDataDAO importDataDAO, final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
+		this.databaseUtils = databaseUtils;
 		this.importDataDAO = importDataDAO;
+		this.caseIDs = caseIDs;
+		this.idMapper = idMapper;
 	}
 
 	/**
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param geneDatabaseName String
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(final String portal, final String geneDatabaseName) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), geneDatabaseName: " + geneDatabaseName);
 		}
 
         // check args
         if (portal == null) {
             throw new IllegalArgumentException("portal must not be null");
 		}
+        if (geneDatabaseName == null) {
+            throw new IllegalArgumentException("geneDatabaseName must not be null");
+		}
+
+		// initialize the mapper
+		if (LOG.isInfoEnabled()) {
+			LOG.info("convertData(), initializing the IDMapper.");
+		}
+		initializeMapper(geneDatabaseName);
 
         // get portal metadata
         PortalMetadata portalMetadata = config.getPortalMetadata(portal);
@@ -134,7 +161,7 @@ final class ConverterImpl implements Converter {
             ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
 
             // get converter and create staging file
-			Object[] args = { config, fileUtils };
+			Object[] args = { config, fileUtils, caseIDs, idMapper };
 			Converter converter =
 				(Converter)ClassLoader.getInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
 			converter.createStagingFile(portalMetadata, importData, importDataMatrix);
@@ -215,5 +242,21 @@ final class ConverterImpl implements Converter {
 
 		// outta here
 		return toReturn;
+	}
+
+	/**
+	 * Helper function to initialize IDMapper.
+	 *
+	 * @param geneDatabaseName String
+	 * @throws Exception
+	 */
+	private void initializeMapper(final String geneDatabaseName) throws Exception {
+
+		// parse out locat
+		String connectionString = (databaseUtils.getDatabaseConnectionString() +
+								   geneDatabaseName +
+								   "?user=" + databaseUtils.getDatabaseUser() +
+								   "&password=" + databaseUtils.getDatabasePassword());
+		idMapper.initMapper(connectionString);
 	}
 }

@@ -26,43 +26,63 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.mapper.internal;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.IDMapper;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.bridgedb.BridgeDb;
+import org.bridgedb.bio.BioDataSource;
 
 /**
- * Interface used to convert portal data.
+ * Class which provides bridgedb services.
  */
-public interface Converter {
+public final class BridgeDBIDMapper implements IDMapper {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
+
+	// ref to bridge db mapper
+	private org.bridgedb.IDMapper mapper;
 
 	/**
-	 * Converts data for the given portal.
-	 *
-     * @param portal String
-	 * @param geneDatabaseName String
-	 * @throws Exception
+	 * Default Constructor.
 	 */
-	void convertData(final String portal, final String geneDatabaseName) throws Exception;
+	public BridgeDBIDMapper() {}
 
 	/**
-	 * Generates case lists for the given portal.
+	 * Used to initialize the mapper.
 	 *
-     * @param portal String
+	 * @param connectionString String
 	 * @throws Exception
 	 */
-	void generateCaseLists(final String portal) throws Exception;
+	@Override
+	public void initMapper(final String connectionString) throws Exception {
+
+		// we need to prepend bridgedb protocol to connection string
+		String bridgeDBConnectionString = "idmapper-" + connectionString;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
+		}
+
+		Class.forName("org.bridgedb.rdb.IDMapperRdb");
+        mapper = BridgeDb.connect(bridgeDBConnectionString);
+        BioDataSource.init();
+	}
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * For the given symbol, return id.
 	 *
-     * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
-	 * @throws Exception
+	 * @param geneSymbol String
+	 * @return String
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-						   final ImportDataMatrix importDataMatrix) throws Exception;
+	@Override
+	public String entrezSymbolToNumber(final String geneSymbol) {
+
+		return "";
+	}
 }

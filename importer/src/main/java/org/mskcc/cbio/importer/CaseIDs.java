@@ -29,40 +29,35 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
-import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
+import java.util.Collection;
+
 /**
- * Interface used to convert portal data.
+ * Interface used to manage case ids within import data matrices.
  */
-public interface Converter {
+public interface CaseIDs {
 
 	/**
-	 * Converts data for the given portal.
+	 * Converts the given case id to mskcc format.
 	 *
-     * @param portal String
-	 * @param geneDatabaseName String
-	 * @throws Exception
+	 * @param caseID String
+	 * @return String
 	 */
-	void convertData(final String portal, final String geneDatabaseName) throws Exception;
+	String convertCaseID(final String caseID);
 
 	/**
-	 * Generates case lists for the given portal.
+	 * Determines if given case id is a tumor case id.
 	 *
-     * @param portal String
-	 * @throws Exception
+     * @param caseID String
+	 * @return boolean
 	 */
-	void generateCaseLists(final String portal) throws Exception;
+	boolean isTumorCaseID(final String caseID);
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * Computes the number of case ids within the give import data matrix.
 	 *
-     * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
-	 * @throws Exception
+     * @param importDataMatrix ImportDataMatrix
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-						   final ImportDataMatrix importDataMatrix) throws Exception;
+	int getCaseCount(final ImportDataMatrix importDataMatrix);
 }

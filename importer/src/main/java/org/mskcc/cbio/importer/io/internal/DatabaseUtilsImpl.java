@@ -71,6 +71,13 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Override
     public String getDatabasePassword() { return this.databasePassword; }
 
+	// db connection
+	private String databaseConnectionString;
+	@Value("${database_connection_string}")
+	public void setDatabaseConnectionString(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	@Override
+    public String getDatabaseConnectionString() { return this.databaseConnectionString; }
+
     /**
 	 * Creates a database and optional schema.
 	 * 

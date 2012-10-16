@@ -29,40 +29,25 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 /**
- * Interface used to convert portal data.
+ * Interface used to map IDS.
  */
-public interface Converter {
+public interface IDMapper {
 
 	/**
-	 * Converts data for the given portal.
+	 * Used to initialize the mapper.
 	 *
-     * @param portal String
-	 * @param geneDatabaseName String
+	 * @param connectionString String
 	 * @throws Exception
 	 */
-	void convertData(final String portal, final String geneDatabaseName) throws Exception;
+	void initMapper(final String connectionString) throws Exception;
 
 	/**
-	 * Generates case lists for the given portal.
+	 * For the given symbol, return id.
 	 *
-     * @param portal String
-	 * @throws Exception
+	 * @param geneSymbol String
+	 * @return String
 	 */
-	void generateCaseLists(final String portal) throws Exception;
-
-	/**
-	 * Creates a staging file from the given data matrix.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
-	 * @throws Exception
-	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-						   final ImportDataMatrix importDataMatrix) throws Exception;
+	String entrezSymbolToNumber(final String geneSymbol);
 }

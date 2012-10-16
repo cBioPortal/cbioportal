@@ -50,6 +50,13 @@ public interface DatabaseUtils {
 	 */
     public String getDatabasePassword();
 
+	/**
+	 * Returns the database connection string.
+	 *
+	 * @return String
+	 */
+    public String getDatabaseConnectionString();
+
     /**
 	 * Creates a database and optional schema.
 	 * 

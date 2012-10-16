@@ -16,14 +16,6 @@
   <!-- repositories -->
   <repositories>
 	<repository>
-	  <id>biopax.releases</id>
-	  <name>BioPAX Repository at Sourceforge</name>
-	  <url>http://biopax.sourceforge.net/m2repo/releases/</url>
-	  <snapshots>
-		<enabled>false</enabled>
-	  </snapshots>
-	</repository>
-	<repository>
 	  <id>gdata-maven-github</id>
 	  <name>Google Gdata Maven Repository</name>
 	  <url>https://raw.github.com/eburtsev/gdata-maven/master/</url>
@@ -90,6 +82,11 @@
 	<dependency>
 	  <groupId>org.bridgedb</groupId>
 	  <artifactId>org.bridgedb.bio</artifactId>
+	  <version>1.1.0</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.bridgedb</groupId>
+	  <artifactId>org.bridgedb.rdb</artifactId>
 	  <version>1.1.0</version>
 	</dependency>
 

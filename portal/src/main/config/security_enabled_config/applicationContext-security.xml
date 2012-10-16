@@ -76,6 +76,7 @@
 	  <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 	  <intercept-url pattern="/Gistic.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/Oncoprint.json*" access="isAuthenticated()"/>
 
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

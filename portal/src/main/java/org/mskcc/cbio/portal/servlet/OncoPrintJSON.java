@@ -7,9 +7,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -26,13 +26,11 @@ public class OncoPrintJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     private static Log log = LogFactory.getLog(GisticJSON.class);
 
-
-
     /*
-     * Initializes the servlet.
-     *
-     * @throws ServletException
-     */
+    * Initializes the servlet.
+    *
+    * @throws ServletException
+    */
     public void init() throws ServletException {
         super.init();
         try {
@@ -41,7 +39,7 @@ public class OncoPrintJSON extends HttpServlet {
             throw new ServletException(e);
         }
     }
-}
+
     /**
      *
      * @param request
@@ -53,7 +51,8 @@ public class OncoPrintJSON extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String cancer_study_id = request.getParameter(SELECTED_CANCER_STUDY);
+        String cancer_study_id = servletXssUtil
+                .getCleanInput(request.getParameter("SELECTED_CANCER_STUDY"));
 
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancer_study_id);
@@ -64,25 +63,20 @@ public class OncoPrintJSON extends HttpServlet {
 
             JSONArray gisticJSONArray = new JSONArray();
 
-//            servletXssUtil.getCleanInput(request.getParameter("SELECTED_CANCER_STUDY"));
+            ArrayList<GeneticProfile> profileList = GetGeneticProfiles.getGeneticProfiles(cancer_study_id);
 
-            for (Gistic gistic : gistics) {
-                Map map =
+//                Map map =
 
-                if (!map.isEmpty()) {
-                    gisticJSONArray.add(map);
-                }
-            }
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
 
             try {
-                JSONValue.writeJSONString(gisticJSONArray, out);
+//                JSONValue.writeJSONString(, out);
+                JSONArray.writeJSONString(profileList, out);
             } finally {
                 out.close();
             }
         } catch (DaoException e) {
-            log.debug(e);
             throw new ServletException(e);
         }
     }
@@ -100,4 +94,3 @@ public class OncoPrintJSON extends HttpServlet {
         doGet(request, response);
     }
 }
-

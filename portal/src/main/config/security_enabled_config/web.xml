@@ -143,6 +143,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>OncoprintJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OncoprintJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>plot</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PlotServlet</servlet-class>
     </servlet>
@@ -319,6 +324,11 @@
     <servlet-mapping>
         <servlet-name>GisticJSON</servlet-name>
         <url-pattern>/Gistic.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OncoprintJSON</servlet-name>
+        <url-pattern>/Oncoprint.json</url-pattern>
     </servlet-mapping>
 
 	<servlet-mapping>

@@ -126,6 +126,121 @@ sub create_data_log2CNA{
     $data->write( $CGDSfile );
 }
 
+# create data_GISTIC_GENE_AMPS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_amp.conf_99.txt
+# source file: amp_genes.conf_99.txt
+# data transformation:
+# data file is table_amp.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES_AMP {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $additionalArgs ) = @_;
+	return create_data_GISTIC_GENES($self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, 1);
+  }
+
+# create data_GISTIC_GENE_DELS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_del.conf_99.txt
+# source file: del_genes.conf_99.txt
+# data transformation:
+# data file is table_del.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES_DEL {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $additionalArgs ) = @_;
+	return create_data_GISTIC_GENES($self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, 0);
+  }
+
+
+# create data_GISTIC_GENE_AMPS.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.Gistic2.Level_4.<date><version>.tar.gz
+# source file: table_amp.conf_99.txt
+# source file: amp_genes.conf_99.txt
+# data transformation:
+# data file is table_amp.conf_99.txt + cytobands + q value + amp flag (set to 1)
+sub create_data_GISTIC_GENES {
+    my( $self, $globalHash, $firehoseFiles, $cTables, $CGDSfile, undef, $ampFlag ) = @_;
+
+	# check args
+    for(my $i=0; $i<2; $i++) {
+	    unless($self->_check_create_inputs( $firehoseFiles->[$i], $cTables->[$i])) {
+	        return undef;
+	    }
+    }
+
+	# iterate over cna_genes file and grab cytoband, q-value, indexed by geneset
+	my $file_util = File::Util->new();
+    my $cna_genes_file = shift @{$firehoseFiles};
+	my @cna_genes_file_records = $file_util->load_file($cna_genes_file, '--as-lines');
+	my @cytoband;
+	my @q_values;
+	my @gene_sets;
+	foreach (@cna_genes_file_records) {
+	  my @columns = split("\t", $_ );
+	  if ($columns[0] eq 'cytoband') {
+		@cytoband = @columns;
+	  }
+	  elsif ($columns[0] eq 'q value') {
+		@q_values = @columns;
+	  }
+	  elsif ($columns[0] eq 'genes in wide peak') {
+		for (my $lc=0; $lc < scalar(@columns); $lc++) {
+		  push(@gene_sets, $columns[$lc]);
+		}
+	  }
+	  elsif ($columns[0] eq '') {
+		$columns[0] = 'genes in wide peak';
+		for (my $lc= 0; $lc < scalar(@columns); $lc++) {
+		  if (defined($columns[$lc]) && length($columns[$lc]) > 0) {
+			$gene_sets[$lc] = $gene_sets[$lc] . ' ' . $columns[$lc];
+		  }
+		}
+	  }
+	}
+
+	# create a map using the information we just parsed (gene set is key, value is cytoband:q_value
+	my %cna_genes_map;
+	shift(@cytoband);
+	shift(@q_values);
+	shift(@gene_sets);
+	for (my $lc= 0; $lc < scalar(@gene_sets); $lc++) {
+	  $gene_sets[$lc] =~ s/^\s+|\s+$//g ;
+	  $cna_genes_map{$gene_sets[$lc]} = $cytoband[$lc] . ':' . $q_values[$lc];
+	}
+
+	# get ctable for table_*.conf_99.txt
+	shift @{$cTables};
+    my $table_cna_ctable = shift @{$cTables};
+
+	# add 'amp' column
+	$table_cna_ctable->col('amp');
+	$table_cna_ctable->calc(sub {
+							  package main;
+							  no strict 'vars';
+							  no strict 'refs';
+							  $amp = $ampFlag;
+							});
+
+	# add 'cytoband' & q value
+	$table_cna_ctable->col('cytoband');
+	$table_cna_ctable->col('q_value');
+	$table_cna_ctable->calc(sub {
+							  package main;
+							  no strict 'vars';
+							  no strict 'refs';
+							  my $cna_map_key = $genes_in_region;
+							  $cna_map_key =~ s/,/ /g;
+							  $cna_map_key =~ s/^\s+|\s+$//g ;
+							  if (defined($cna_genes_map{$cna_map_key})) {
+								my @cna_map_values = split(":", $cna_genes_map{$cna_map_key});
+								$cytoband = $cna_map_values[0];
+								$q_value = $cna_map_values[1];
+							  }
+							  else {
+								print "cannot find gene set: $cna_map_key\n";
+							  }
+							});
+
+	$table_cna_ctable->write($CGDSfile);
+}
+
 # sub to create data_expression_median.txt
 # only called if both mRNA and miRNA are available; these must be combined into a single file
 #
@@ -285,6 +400,41 @@ sub create_data_miRNA{
 
     # write CGDS file
     $data->write( $CGDSfile );
+}
+
+# create data_mutations_extended.txt
+# source tarball: gdac.broadinstitute.org_<cancer>.MutationAssessor.Level_4.<date>.<version>.tar.gz 
+# source file: <CANCER>.maf.annotated
+sub create_oncotated_data_mutations_extended {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile, $codeForCGDS ) = oneToOne( @_ );;
+    
+    unless( $self->_check_create_inputs( $firehoseFile, $data, $CGDSfile ) ){
+        return undef;
+    }
+
+    # if our file is from gdac override, its already been oncotated, skip processing
+    if ( $data->col_exists( 'ONCOTATOR_VARIANT_CLASSIFICATION' )) {
+      # write CGDS file
+      $data->write( $CGDSfile );
+    }
+    else {
+      # oncotate the file
+      my $tmpDir = File::Spec->tmpdir();
+      my $oncotatorTmpFile = File::Spec->catfile( $tmpDir, 'oncotatedMAF.txt' );
+      my $cmdLineCP = set_up_classpath( $codeForCGDS );
+      my $oncotatorInputFiles = join( ' ', ( $firehoseFile, $oncotatorTmpFile ) );
+      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.oncotator.OncotateTool " . $oncotatorInputFiles );
+      # add mutation assessor information
+      my $omaTmpFile = File::Spec->catfile( $tmpDir, 'omaMAF.txt' );
+      my $omaInputFiles = join( ' ', ( $oncotatorTmpFile, $omaTmpFile ) );
+      runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.mutassessor.MutationAssessorImporter " . $omaInputFiles );
+      # cp omaTmpFile which is now onocated and oma riched to CGDSfile
+      my ($volume, $directories, $file) = File::Spec->splitpath($CGDSfile);
+      system ("mkdir -p $directories");
+      system ("mv $omaTmpFile $CGDSfile");
+      # clean up
+      File::Remove->remove($oncotatorTmpFile);
+    }
 }
 
 # create data_mutations_extended.txt
@@ -473,10 +623,7 @@ sub create_data_mutations_extended{
 	}
 	
     # subselect and reorder columns 
-    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center Tumor_Sample_Barcode  
-        Verification_Status Validation_Status Mutation_Status 
-         Sequencer Chromosome Start_position End_position Variant_Classification
-        MA:variant MA:FImpact MA:link.var MA:link.MSA MA:link.PDB  ) ] );
+    $data->fieldlist_set( [ qw( Hugo_Symbol Entrez_Gene_Id Center NCBI_Build Chromosome Start_position End_position Strand Variant_Classification Variant_Type Reference_Allele Tumor_Seq_Allele1 Tumor_Seq_Allele2 dbSNP_RS dbSNP_Val_Status Tumor_Sample_Barcode Matched_Norm_Sample_Barcode Match_Norm_Seq_Allele1 Match_Norm_Seq_Allele2 Tumor_Validation_Allele1 Tumor_Validation_Allele2 Match_Norm_Validation_Allele1 Match_Norm_Validation_Allele2 Verification_Status Validation_Status Mutation_Status Sequencing_Phase Sequence_Source Validation_Method Score BAM_file Sequencer chromosome_name_WU start_WU stop_WU reference_WU variant_WU type_WU gene_name_WU transcript_name_WU transcript_species_WU transcript_source_WU transcript_version_WU strand_WU transcript_status_WU trv_type_WU c_position_WU amino_acid_change_WU ucsc_cons_WU domain_WU all_domains_WU deletion_substructures_WU annotation_errors_WU MA:variant MA:GE.rank MA:CNA MA:OV.variant.samples MA:OV.gene.samples MA:mapping.issue MA:FImpact MA:FI.score MA:Func.region MA:bindsite.protein MA:bindsite.DNA/RNA MA:bindsite.sm.mol MA:CancerGenes MA:TS MA:OG MA:COSMIC.mutations MA:COSMIC.cancers MA:Uniprot.regions MA:TS.interacts MA:OG.interacts MA:Pfam.domain MA:link.var MA:link.MSA MA:link.PDB ONCOTATOR_VARIANT_CLASSIFICATION ONCOTATOR_PROTEIN_CHANGE ONCOTATOR_COSMIC_OVERLAPPING ONCOTATOR_DBSNP_RS ONCOTATOR_GENE_SYMBOL ) ] );
 
     my $ffm = FirehoseFileMetadata->new( '<CANCER>.maf.annotated', $firehoseFile, $data );    
 #    print $ffm->numCases(), " unique case(s) in $firehoseFile:\n";
@@ -870,7 +1017,7 @@ sub create_data_mRNA_median_Zscores{
     my $files = join( ' ', ( $tmpFirehoseGistic_File, $tmpFirehoseMRNA_File, $CGDSfile ) );
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels " . $files );
 
 	File::Remove->remove($tmpFirehoseGistic_File);
 	File::Remove->remove($tmpFirehoseMRNA_File);
@@ -921,20 +1068,19 @@ sub create_data_RNA_seq_mRNA_median_Zscores{
 	}
 
     # run the zScore java program
-    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cgds.scripts.NormalizeExpressionLevels " . $files );
+    runSystem( "$JAVA_HOME/bin/java -Xmx3000M -cp $cmdLineCP org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels " . $files );
 
 	File::Remove->remove($tmpFirehoseGistic_File);
 	File::Remove->remove($tmpFirehoseMRNA_File);
 }
 
-# create data_mutsig.txt
-# source tarball: gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>
-# source file: <CANCER>.sig_genes.txt
+# create data_rppa.txt
+# source tarball: gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version>
+# source file: data.rppa.txt
 # data transformation:
 # None.  Simply rename the file
-sub create_mut_sig {
+sub create_rppa {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
-
 	$data->write($CGDSfile);
 }
 
@@ -955,6 +1101,17 @@ sub create_hg18_seg {
 # None.  Simply rename the file
 sub create_hg19_seg {
     my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+	$data->write($CGDSfile);
+}
+
+# create data_mutsig.txt
+# source tarball: gdac.broadinstitute.org_<CANCER>.Mutation_Significance.Level_4.<date><version>
+# source file: <CANCER>.sig_genes.txt
+# data transformation:
+# None.  Simply rename the file
+sub create_mut_sig {
+    my( $self, $globalHash, $firehoseFile, $data, $CGDSfile ) = oneToOne( @_ );
+
 	$data->write($CGDSfile);
 }
 

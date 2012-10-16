@@ -47,6 +47,7 @@ my $customFileProperties = {
 	'LOG2CNA' => [ 'gdac.broadinstitute.org_<CANCER>.CopyNumber_Gistic2.Level_4.<date><version>', 'all_data_by_genes.txt'],
 	'MAF' => [ 'gdac.broadinstitute.org_<CANCER>.Mutation_Assessor.Level_4.<date><version>', '<CANCER>.maf.annotated'],
 	'SEG' => [ 'gdac.broadinstitute.org_<CANCER>.Merge_snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg19__seg.Level_3.<date><version>', '<CANCER>.snp__genome_wide_snp_6__broad_mit_edu__Level_3__segmented_scna_minus_germline_cnv_hg18__seg.seg.txt'],
+	'RPPA' => [ 'gdac.broadinstitute.org_<CANCER>.RPPA_AnnotateWithGene.Level_3.<date><version>', '<CANCER>.rppa.txt'],
 };
 
 main();
@@ -93,9 +94,6 @@ sub moveGDACOverridesFile{
 	my $latestVersionOfLog2CNAFile;
 	if ( $customFileType eq "CNA" ) {
 	  $latestVersionOfLog2CNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_data_by_genes.txt", $cancer, $runDate );
-	  if (defined($latestVersionOfLog2CNAFile)) {
-		print "latest version of Log2CNA: $latestVersionOfLog2CNAFile\n";
-	  }
 	}
 
 	# if we are using custom Log2CNA, we will need to move over cna,
@@ -103,9 +101,18 @@ sub moveGDACOverridesFile{
 	my $latestVersionOfCNAFile;
 	if ( $customFileType eq "LOG2CNA" ) {
 	  $latestVersionOfCNAFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "all_thresholded.by_genes.txt", $cancer, $runDate );
-	  if (defined($latestVersionOfCNAFile)) {
-		print "latest version of CNA: $latestVersionOfCNAFile\n";
-	  }
+	}
+
+	# if we are using custom CNA or LOG2CNA, copy of amp, dels
+	my $latestAmpGenesFile;
+	my $latestDelGenesFile;
+	my $latestTableAmpFile;
+	my $latestTableDelFile;
+	if ($customFileType eq "CNA" || $customFileType eq "LOG2CNA") {
+	  $latestAmpGenesFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "amp_genes.conf_99.txt", $cancer, $runDate );
+	  $latestDelGenesFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "del_genes.conf_99.txt", $cancer, $runDate );
+	  $latestTableAmpFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "table_amp.conf_99.txt", $cancer, $runDate );
+	  $latestTableDelFile = getLastestVersionOfFile( $CancersFirehoseDataDir, $destDir, "table_del.conf_99.txt", $cancer, $runDate );
 	}
 
 	# if we are processing MAF, we will need to move mut sig file,
@@ -148,6 +155,25 @@ sub moveGDACOverridesFile{
 	  }
 	  else {
 		warn "Copying custom Log2CNA and cannot find CNA data\n";
+	  }
+	}
+
+	if ($customFileType eq "CNA" || $customFileType eq "LOG2CNA") {
+	  if (defined($latestAmpGenesFile)) {
+		my $newAmpGenesFile = File::Spec->catfile( $customFileDir, "amp_genes.conf_99.txt" );
+		system( "cp $latestAmpGenesFile $newAmpGenesFile"); 
+	  }
+	  if (defined($latestDelGenesFile)) {
+		my $newDelGenesFile = File::Spec->catfile( $customFileDir, "del_genes.conf_99.txt" );
+		system( "cp $latestDelGenesFile $newDelGenesFile"); 
+	  }
+	  if (defined($latestTableAmpFile)) {
+		my $newTableAmpFile = File::Spec->catfile( $customFileDir, "table_amp.conf_99.txt" );
+		system( "cp $latestTableAmpFile $newTableAmpFile"); 
+	  }
+	  if (defined($latestTableDelFile)) {
+		my $newTableDelFile = File::Spec->catfile( $customFileDir, "table_del.conf_99.txt" );
+		system( "cp $latestTableDelFile $newTableDelFile"); 
 	  }
 	}
 	

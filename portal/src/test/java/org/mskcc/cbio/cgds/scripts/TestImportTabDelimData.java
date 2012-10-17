@@ -97,10 +97,9 @@ public class TestImportTabDelimData extends TestCase {
         cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007", 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        DaoCaseProfile daoCase = new DaoCaseProfile();
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-02-0001", 1));
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-06-0241", 1));
-        ArrayList caseIds = daoCase.getAllCaseIdsInProfile(1);
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001", 1));
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241", 1));
+        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
         assertEquals(94, caseIds.size());
     }
 
@@ -156,10 +155,9 @@ public class TestImportTabDelimData extends TestCase {
         cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007", 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        DaoCaseProfile daoCase = new DaoCaseProfile();
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-02-0001", 1));
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-06-0241", 1));
-        ArrayList caseIds = daoCase.getAllCaseIdsInProfile(1);
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001", 1));
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241", 1));
+        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
         assertEquals(94, caseIds.size());
     }
 

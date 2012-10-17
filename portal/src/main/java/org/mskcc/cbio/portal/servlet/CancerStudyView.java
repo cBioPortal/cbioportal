@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.CancerStudy;
@@ -133,16 +134,14 @@ public class CancerStudyView extends HttpServlet {
     
     private void setGeneticProfiles(HttpServletRequest request) throws DaoException {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        List<GeneticProfile> profiles = daoGeneticProfile.getAllGeneticProfiles(
-                cancerStudy.getInternalId());
-        for (GeneticProfile profile : profiles) {
-            // TODO: is it possible of multiple mutation or gistic profiles for one cancer study?
-            if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                request.setAttribute(MUTATION_PROFILE, profile);
-            } else if (profile.getGeneticAlterationType() == GeneticAlterationType
-                    .COPY_NUMBER_ALTERATION && profile.showProfileInAnalysisTab()) {
-                request.setAttribute(CNA_PROFILE, profile);
-            }
+        GeneticProfile mutProfile = cancerStudy.getMutationProfile();
+        if (mutProfile!=null) {
+            request.setAttribute(MUTATION_PROFILE, mutProfile);
+        }
+        
+        GeneticProfile cnaProfile = cancerStudy.getCopyNumberAlterationProfile(true);
+        if (cnaProfile!=null) {
+            request.setAttribute(CNA_PROFILE, cnaProfile);
         }
     }
     

@@ -591,14 +591,13 @@ public class WebService extends HttpServlet {
         }
         
         if (caseList != null) {
-            DaoCaseProfile aDaoCase = new DaoCaseProfile();
             for (String aCase : caseList.split("[\\s,]+")) {
                 aCase = aCase.trim();
                 if (aCase.length() == 0) {
                     continue;
                 }
 
-                int profileId = aDaoCase.getProfileIdForCase(aCase);
+                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
                 if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
                     return null;
                 }

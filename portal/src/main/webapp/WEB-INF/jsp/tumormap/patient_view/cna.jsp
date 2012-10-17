@@ -16,7 +16,7 @@
 <script type="text/javascript">
     
     var cnaTableIndices = {id:0,gene:1,alteration:2,altrate:3,drug:4};
-    function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength) {
+    function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
                 data.push([cnaEventIds[i]]);
@@ -178,7 +178,8 @@
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
-                    "sLengthMenu": "Show _MENU_ per page"
+                    "sLengthMenu": "Show _MENU_ per page",
+                    "sInfoEmpty": sEmptyInfo
                 },
                 "iDisplayLength": iDisplayLength,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
@@ -208,7 +209,7 @@
                 
                 // summary table
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
-                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25);
+                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25, "No CNA events");
                 $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
                 $('.cna-summary-table-name').html(
@@ -222,7 +223,7 @@
                 
                 // cna
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
-                        'cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                        'cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events of interest");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
 

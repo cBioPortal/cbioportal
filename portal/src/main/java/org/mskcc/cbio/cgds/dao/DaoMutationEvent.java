@@ -273,6 +273,35 @@ public final class DaoMutationEvent {
     }
     
     /**
+     * return the number of all mutations for a profile
+     * @param caseIds if null, return all case available
+     * @param profileId
+     * @return Map &lt; case id, mutation count &gt;
+     * @throws DaoException 
+     */
+    public static int countMutationEvents(int profileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT count(*) FROM case_mutation_event"
+                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId;
+            pstmt = con.prepareStatement(sql);
+            
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    /**
      * get events for each case
      * @param concatEventIds
      * @return Map &lt; case id, list of event ids &gt;

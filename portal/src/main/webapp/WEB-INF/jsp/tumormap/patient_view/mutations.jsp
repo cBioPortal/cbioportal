@@ -16,7 +16,7 @@
 
 <script type="text/javascript">
     var mutTableIndices = {id:0,gene:1,aa:2,type:3,altrate:4,cosmic:5,ma:6,'3d':7,drug:8};
-    function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength) {
+    function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
                 data.push([mutEventIds[i]]);
@@ -369,7 +369,8 @@
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
-                    "sLengthMenu": "Show _MENU_ per page"
+                    "sLengthMenu": "Show _MENU_ per page",
+                    "sInfoEmpty": sEmptyInfo
                 },
                 "iDisplayLength": iDisplayLength,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
@@ -426,7 +427,7 @@
                 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25);
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25, "No mutation events");
                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
                 $('.mutation-summary-table-name').html(
@@ -441,7 +442,7 @@
                 
                 // mutations
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
-                    'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                    'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100, "No mutation events of interest");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
 

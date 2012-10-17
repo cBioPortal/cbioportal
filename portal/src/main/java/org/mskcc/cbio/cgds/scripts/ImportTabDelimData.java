@@ -132,12 +132,11 @@ public class ImportTabDelimData {
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
 
         // Add Cases to the Database
-        DaoCaseProfile daoCase = new DaoCaseProfile();
         ArrayList <String> orderedCaseList = new ArrayList<String>();
         for (int i = 0; i < caseIds.length; i++) {
-            if (!daoCase.caseExistsInGeneticProfile(caseIds[i],
+            if (!DaoCaseProfile.caseExistsInGeneticProfile(caseIds[i],
                     geneticProfileId)) {
-                daoCase.addCaseProfile(caseIds[i], geneticProfileId);
+                DaoCaseProfile.addCaseProfile(caseIds[i], geneticProfileId);
             }
             orderedCaseList.add(caseIds[i]);
         }

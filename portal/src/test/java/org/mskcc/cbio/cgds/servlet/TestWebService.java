@@ -246,9 +246,8 @@ public class TestWebService extends TestCase {
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
-      DaoCaseProfile daoCase = new DaoCaseProfile();
       String c1 = "TCGA-12345";
-      daoCase.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
+      DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
@@ -256,7 +255,7 @@ public class TestWebService extends TestCase {
               (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       String c2 = "TCGA-54321";
-      daoCase.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
+      DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);

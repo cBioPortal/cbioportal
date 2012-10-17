@@ -41,7 +41,6 @@ public class PatientView extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-    private static final DaoCaseProfile daoCaseProfile = new DaoCaseProfile();
     private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
     private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
@@ -128,25 +127,18 @@ public class PatientView extends HttpServlet {
     private void setGeneticProfiles(HttpServletRequest request) throws DaoException {
         Case _case = (Case)request.getAttribute(PATIENT_CASE_OBJ);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        List<GeneticProfile> profiles = daoGeneticProfile.getAllGeneticProfiles(
-                cancerStudy.getInternalId());
-        for (GeneticProfile profile : profiles) {
-            if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), 
-                        profile.getGeneticProfileId())) {
-                    request.setAttribute(MUTATION_PROFILE, profile);
-                    request.setAttribute(NUM_CASES_IN_SAME_MUTATION_PROFILE, 
-                            daoCaseProfile.countCasesInProfile(profile.getGeneticProfileId()));
-                }
-            } else if (profile.getGeneticAlterationType() == GeneticAlterationType
-                    .COPY_NUMBER_ALTERATION && profile.showProfileInAnalysisTab()) {
-                if (daoCaseProfile.caseExistsInGeneticProfile(_case.getCaseId(), 
-                        profile.getGeneticProfileId())) {
-                    request.setAttribute(CNA_PROFILE, profile);
-                    request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
-                            daoCaseProfile.countCasesInProfile(profile.getGeneticProfileId()));
-                }
-            }
+        GeneticProfile mutProfile = cancerStudy.getMutationProfile(_case.getCaseId());
+        if (mutProfile!=null) {
+            request.setAttribute(MUTATION_PROFILE, mutProfile);
+            request.setAttribute(NUM_CASES_IN_SAME_MUTATION_PROFILE, 
+                    DaoCaseProfile.countCasesInProfile(mutProfile.getGeneticProfileId()));
+        }
+        
+        GeneticProfile cnaProfile = cancerStudy.getCopyNumberAlterationProfile(_case.getCaseId(), true);
+        if (cnaProfile!=null) {
+            request.setAttribute(CNA_PROFILE, cnaProfile);
+            request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
+                    DaoCaseProfile.countCasesInProfile(cnaProfile.getGeneticProfileId()));
         }
     }
     

@@ -263,6 +263,7 @@ public class CnaJSON extends HttpServlet {
             mapGeneGistic = gisticMap.get(cancerStudyId);
             if (mapGeneGistic == null) {
                 mapGeneGistic = new HashMap<String,Map<CnaEvent.CNA,List>>();
+                gisticMap.put(cancerStudyId, mapGeneGistic);
                 List<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudyId);
                 for (Gistic g : gistics) {
                     List<String> genes = new ArrayList<String>(g.getGenes_in_ROI().size());

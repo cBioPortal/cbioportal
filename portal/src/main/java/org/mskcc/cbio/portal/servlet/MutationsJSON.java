@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
@@ -65,8 +64,6 @@ public class MutationsJSON extends HttpServlet {
     private void processGetMutationsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        JSONArray table = new JSONArray();
-
         String patient = request.getParameter(PatientView.PATIENT_ID);
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         
@@ -345,6 +342,7 @@ public class MutationsJSON extends HttpServlet {
             mapGeneQvalue = mutSigMap.get(cancerStudyId);
             if (mapGeneQvalue == null) {
                 mapGeneQvalue = new HashMap<String,Double>();
+                mutSigMap.put(cancerStudyId, mapGeneQvalue);
                 for (MutSig ms : DaoMutSig.getInstance().getAllMutSig(cancerStudyId)) {
                     double qvalue = ms.getqValue();
                     mapGeneQvalue.put(ms.getCanonicalGene().getHugoGeneSymbolAllCaps(),

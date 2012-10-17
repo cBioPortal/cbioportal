@@ -78,6 +78,7 @@
       <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/patient.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>

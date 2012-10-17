@@ -113,7 +113,6 @@ public class ImportExtendedMutationData{
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		DaoCaseProfile daoCaseProfile = new DaoCaseProfile();
 		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
 		DaoMutation daoMutation = DaoMutation.getInstance();
 
@@ -175,8 +174,8 @@ public class ImportExtendedMutationData{
 				} catch( ArrayIndexOutOfBoundsException e) {
 					caseId = barCode;
 				}
-				if( !daoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-					daoCaseProfile.addCaseProfile(caseId, geneticProfileId);
+				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
+					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
 				}
 
 				String validationStatus = record.getValidationStatus();

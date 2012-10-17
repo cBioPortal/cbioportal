@@ -9,12 +9,12 @@ import java.util.ArrayList;
 /**
  * Data access object for case_profile table
  */
-public class DaoCaseProfile {
+public final class DaoCaseProfile {
+    private DaoCaseProfile() {}
    
-   public static final int NO_SUCH_PROFILE_ID = -1;
+    public static final int NO_SUCH_PROFILE_ID = -1;
 
-   // TODO: I think these methods should be static, as this object has no state
-    public int addCaseProfile(String caseId, int geneticProfileId) throws DaoException {
+    public static int addCaseProfile(String caseId, int geneticProfileId) throws DaoException {
         if (caseId == null || caseId.trim().length() == 0) {
             throw new IllegalArgumentException ("Case ID is null or empty");
         }
@@ -41,7 +41,7 @@ public class DaoCaseProfile {
         }
     }
 
-    public boolean caseExistsInGeneticProfile(String caseId, int geneticProfileId)
+    public static boolean caseExistsInGeneticProfile(String caseId, int geneticProfileId)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -65,7 +65,7 @@ public class DaoCaseProfile {
         }
     }
     
-    public int countCasesInProfile(int geneticProfileId) throws DaoException {
+    public static int countCasesInProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -86,7 +86,7 @@ public class DaoCaseProfile {
         }
     }
 
-    public int getProfileIdForCase( String caseId ) throws DaoException {
+    public static int getProfileIdForCase( String caseId ) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -108,7 +108,7 @@ public class DaoCaseProfile {
         }
     }
 
-    public ArrayList<String> getAllCaseIdsInProfile(int geneticProfileId) throws DaoException {
+    public static ArrayList<String> getAllCaseIdsInProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -130,7 +130,7 @@ public class DaoCaseProfile {
         }
     }
 
-    public ArrayList<String> getAllCases() throws DaoException {
+    public static ArrayList<String> getAllCases() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -151,7 +151,7 @@ public class DaoCaseProfile {
         }
     }
 
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

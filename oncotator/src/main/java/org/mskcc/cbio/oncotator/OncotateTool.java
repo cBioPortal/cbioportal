@@ -42,10 +42,12 @@ import java.util.HashMap;
 public class OncotateTool
 {
     private final static String TAB = "\t";
+	private final static String SILENT_MUTATION = "Silent";
     private int buildNumErrors = 0;
     private OncotatorService oncotatorService;
     private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
     private static final int DEFAULT_ONCO_HEADERS_COUNT = 5;
+
     //private HashMap<String, Integer> genomicCountMap;
 
     public OncotateTool()
@@ -86,12 +88,13 @@ public class OncotateTool
 			writer.write(this.adjustDataLine(dataLine, mafUtil));
 
 			//  Skip Silent Mutations
-			if (!variantClassification.equalsIgnoreCase("Silent")) {
+			if (!variantClassification.equalsIgnoreCase(SILENT_MUTATION)) {
 				conditionallyOncotateRecord(mafRecord, writer);
 				numRecordsProcessed++;
 				conditionallyAbort(numRecordsProcessed);
 			} else {
-				writeEmptyDataFields(writer);
+				// keep everything empty, but output "silent" for mut. type
+				writeSilentDataFields(writer);
 			}
 			writer.write("\n");
 			dataLine = bufReader.readLine();
@@ -127,6 +130,15 @@ public class OncotateTool
             writer.write(TAB + "");
         }
     }
+
+	private void writeSilentDataFields(FileWriter writer) throws IOException
+	{
+		writer.write(TAB + SILENT_MUTATION);
+
+		for (int i=1; i< DEFAULT_ONCO_HEADERS_COUNT; i++) {
+			writer.write(TAB + "");
+		}
+	}
 
     private void writeHeaders(String headerLine,
 		    Integer oncoHeaderCount,
@@ -354,7 +366,7 @@ public class OncotateTool
 
 	    if (args.length < 2)
         {
-            System.out.println("command line usage: oncotateMaf.sh [-nocache] <input_maf_file> <output_maf_file");
+            System.out.println("command line usage: oncotateMaf.sh [-nocache] <input_maf_file> <output_maf_file>");
             System.exit(1);
         }
 	    else

@@ -94,11 +94,12 @@ public interface FileUtils {
 	 */
 	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
 
-    /**
-     * Reflexively creates a new instance of the given class.
-     *
-     * @param className String
-     * @return Object
-     */
-    Object newInstance(final String className);
+	/**
+	 * Downloads the given file specified via url to the given canonicalDestination.
+	 *
+	 * @param urlString String
+	 * @param canonicalDestination String
+	 * @throws Exception
+	 */
+	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
 }

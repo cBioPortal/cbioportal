@@ -21,6 +21,7 @@ use Data::Dumper;
 my $tumorPatternStandard = '^(TCGA-\w\w-\w\w\w\w)\-01[A-Q].*$'; # A-Q recognizes all sample sequences up to R for recurrent
 my $tumorPatternJunky = '.*(\w\w\-\w\d\d\w)(-|-D-|-DN-|_DN-)Tumor$'; # junky Jan 2011 pattern
 my $tumorPatternOvMAF = '^(TCGA-\w\w-\w\w\w\w)\-01$'; # ov MAF pattern, at least in Jan 2011, e.g., TCGA-13-1481-01
+my $tumorPatternMelMAF = '^(TCGA-\w\w-\w\w\w\w)\-06$'; # melanoma MAF pattern
 my $truncatedCaseID = '^(TCGA-\w\w-\w\w\w\w)$'; # a truncated case ID, as appeared in Dec 2010 maf files, we assume these are tumor IDs
 
 my $normalBloodPatternStandard = '^(TCGA-\w\w-\w\w\w\w)\-10'; # normal blood sample, correct, as truncated in MAF files 
@@ -93,6 +94,10 @@ sub convertCaseID{
         $rv = $1;
     }
 
+    if( $caseID =~ /$tumorPatternMelMAF/ ){ 
+        $rv = $1;
+    }
+
     if( $caseID =~ /$tumorPatternProstateMSKCC/ ){ 
         $rv = $1;
     }
@@ -140,6 +145,7 @@ sub tumorCaseID{
         $caseID =~ /$tumorPatternStandard/ || 
         $caseID =~ /$truncatedCaseID/ ||
         $caseID =~ /$tumorPatternOvMAF/ ||
+        $caseID =~ /$tumorPatternMelMAF/ ||
 		$caseID =~ /$tumorPatternProstateMSKCC/ ||
 		$caseID =~ /$tumorPatternSarcomaMSKCC/  ||
 		$caseID =~ /$tumorPatternBladderMSKCC/  ||

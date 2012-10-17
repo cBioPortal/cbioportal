@@ -95,8 +95,7 @@ public class MafProcessor
 
 		// add new MA columns if necessary
 		line = addNewMaColumns(line,
-			newColumns,
-			insertionIndex);
+			newColumns);
 
 		// write new header
 		writer.write(line);
@@ -203,12 +202,10 @@ public class MafProcessor
 	 *
 	 * @param headerLine        MAF header line
 	 * @param columnNames       new MA column names
-	 * @param insertionIndex    insertion index (<0 if not oncotated)
 	 * @return                  header line with new columns added
 	 */
 	private String addNewMaColumns(String headerLine,
-			String columnNames,
-			int insertionIndex)
+			String columnNames)
 	{
 		// check if nothing to add
 		if (columnNames == null ||
@@ -217,14 +214,15 @@ public class MafProcessor
 			return headerLine;
 		}
 
+		// this is required to get the correct insertion index
+		// for the new header line
+		MafUtil util = new MafUtil(headerLine);
+		Integer insertionIndex = this.findInsertionIndex(util);
+
 		// if the file is already oncotated insert new column names
 		// just before the oncotator columns
 		if (insertionIndex >= 0)
 		{
-			// this is required to get the correct insertion index
-			// for the new header line
-			MafUtil util = new MafUtil(headerLine);
-
 			// split and reconstruct the line with new headers
 			String[] parts = headerLine.split("\t");
 			headerLine = "";

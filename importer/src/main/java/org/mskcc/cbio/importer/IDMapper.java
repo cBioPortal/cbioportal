@@ -29,60 +29,25 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import javax.sql.DataSource;
 
 /**
- * Interface used to create database/database schema dynamically.
+ * Interface used to map IDS.
  */
-public interface DatabaseUtils {
+public interface IDMapper {
 
 	/**
-	 * Returns the database user credential.
+	 * Used to initialize the mapper.
 	 *
-	 * @return String
+	 * @param connectionString String
+	 * @throws Exception
 	 */
-    public String getDatabaseUser();
+	void initMapper(final String connectionString) throws Exception;
 
 	/**
-	 * Returns the database password credential.
+	 * For the given symbol, return id.
 	 *
+	 * @param geneSymbol String
 	 * @return String
 	 */
-    public String getDatabasePassword();
-
-	/**
-	 * Returns the database connection string.
-	 *
-	 * @return String
-	 */
-    public String getDatabaseConnectionString();
-
-	/**
-	 * Returns the importer database name.
-	 *
-	 * @return String
-	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-    /**
-	 * Creates a database and optional schema.
-	 * 
-	 * @param databaseName String
-	 * @param createSchema boolean
-	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	String entrezSymbolToNumber(final String geneSymbol);
 }

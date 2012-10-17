@@ -29,60 +29,35 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import javax.sql.DataSource;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
+
+import java.util.Collection;
 
 /**
- * Interface used to create database/database schema dynamically.
+ * Interface used to manage case ids within import data matrices.
  */
-public interface DatabaseUtils {
+public interface CaseIDs {
 
 	/**
-	 * Returns the database user credential.
+	 * Converts the given case id to mskcc format.
 	 *
+	 * @param caseID String
 	 * @return String
 	 */
-    public String getDatabaseUser();
+	String convertCaseID(final String caseID);
 
 	/**
-	 * Returns the database password credential.
+	 * Determines if given case id is a tumor case id.
 	 *
-	 * @return String
+     * @param caseID String
+	 * @return boolean
 	 */
-    public String getDatabasePassword();
+	boolean isTumorCaseID(final String caseID);
 
 	/**
-	 * Returns the database connection string.
+	 * Computes the number of case ids within the give import data matrix.
 	 *
-	 * @return String
+     * @param importDataMatrix ImportDataMatrix
 	 */
-    public String getDatabaseConnectionString();
-
-	/**
-	 * Returns the importer database name.
-	 *
-	 * @return String
-	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-    /**
-	 * Creates a database and optional schema.
-	 * 
-	 * @param databaseName String
-	 * @param createSchema boolean
-	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	int getCaseCount(final ImportDataMatrix importDataMatrix);
 }

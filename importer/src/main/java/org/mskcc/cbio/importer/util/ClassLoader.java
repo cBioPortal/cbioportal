@@ -26,63 +26,49 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.util;
 
 // imports
-import javax.sql.DataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.lang.reflect.Constructor;
 
 /**
- * Interface used to create database/database schema dynamically.
+ * Class which provides class loader services.
  */
-public interface DatabaseUtils {
+public final class ClassLoader {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
 
 	/**
-	 * Returns the database user credential.
+	 * Creates a new instance of given class with given arguments.
 	 *
-	 * @return String
+	 * @param className String
+	 * @param args Object[]
+	 * @return Object
 	 */
-    public String getDatabaseUser();
+	public static Object getInstance(final String className, final Object[] args) throws Exception {
 
-	/**
-	 * Returns the database password credential.
-	 *
-	 * @return String
-	 */
-    public String getDatabasePassword();
+		// sanity check
+		if (className == null || className.length() == 0) {
+			throw new IllegalArgumentException("className must not be null");
+		}
 
-	/**
-	 * Returns the database connection string.
-	 *
-	 * @return String
-	 */
-    public String getDatabaseConnectionString();
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getInstance(), className: " + className);
+		}
 
-	/**
-	 * Returns the importer database name.
-	 *
-	 * @return String
-	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-    /**
-	 * Creates a database and optional schema.
-	 * 
-	 * @param databaseName String
-	 * @param createSchema boolean
-	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+		try {
+			Class<?> clazz = Class.forName(className);
+			Constructor[] constructors = clazz.getConstructors();
+			// our classes only have the one constructor
+			return constructors[0].newInstance(args);
+		}
+		catch (Exception e) {
+			LOG.error(("Failed to instantiate " + className), e) ;
+			throw e;
+		}
+	}
 }

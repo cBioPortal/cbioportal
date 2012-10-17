@@ -32,11 +32,14 @@ package org.mskcc.cbio.importer.fetcher.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.util.Shell;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,14 +49,14 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 /**
  * Class which implements the fetcher interface.
@@ -90,6 +93,9 @@ final class FirehoseFetcherImpl implements Fetcher {
 	// ref to import data
 	private ImportDataDAO importDataDAO;
 
+	// ref to database utils
+	private DatabaseUtils databaseUtils;
+
 	// download directories
 	private DataSourceMetadata dataSourceMetadata;
 
@@ -101,19 +107,18 @@ final class FirehoseFetcherImpl implements Fetcher {
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-	 * Takes a ImportDataDAO reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param databaseUtils DatabaseUtils
 	 * @param importDataDAO ImportDataDAO;
 	 */
-	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils, final ImportDataDAO importDataDAO) {
+	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils,
+							   final DatabaseUtils databaseUtils, final ImportDataDAO importDataDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
+		this.databaseUtils = databaseUtils;
 		this.importDataDAO = importDataDAO;
         this.dataSourceMetadata = config.getDataSourceMetadata("firehose");
 
@@ -124,12 +129,14 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Fetchers data from the Broad.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch() throws Exception {
+	public void fetch(final boolean clobberDatabase) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch()");
@@ -155,7 +162,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fresh analysis data to download." + PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
 			}
-			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
+			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun, clobberDatabase);
 			newAnalysisRun = true;
 		}
 		else {
@@ -170,7 +177,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fresh STDDATA data to download." + PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
 			}
-			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
+			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun, clobberDatabase);
 			newSTDDataRun = true;
 		}
 		else {
@@ -189,6 +196,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
+	 * Fetchers reference data from an external datasource.
+	 *
+     * @param referenceMetadata ReferenceMetadata
+	 * @throws Exception
+	 */
+	@Override
+	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
 	 * Method determines date of latest broad run.  runType
 	 * argument is one of "analyses" or "stddata".
 	 *
@@ -201,9 +219,9 @@ final class FirehoseFetcherImpl implements Fetcher {
 		// steup a default date for comparision
 		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
 
-		// execute firehose get to determine available runs
 		Process process = Runtime.getRuntime().exec(firehoseGetScript + " -r");
 		process.waitFor();
+		if (process.exitValue() != 0) { return latestRun; }
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		String lineOfOutput;
 		while ((lineOfOutput = reader.readLine()) != null) {
@@ -235,10 +253,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 *
 	 * @param runType String
 	 * @param runDate Date
-	 * @return void
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
-	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
+	private void fetchLatestRun(final String runType, final Date runDate, final boolean clobberDatabase) throws Exception {
 
 		// determine download directory
 		String[] downloadDirectories = dataSourceMetadata.getDownloadDirectory().split(":");
@@ -262,26 +280,28 @@ final class FirehoseFetcherImpl implements Fetcher {
 		String tumorTypesToDownload = getTumorTypesToDownload(tumorTypeMetadata);
 		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
 		String firehoseDatatypesToDownload = getFirehoseDatatypesToDownload(datatypeMetadata);
-
-		ProcessBuilder processBuilder = new ProcessBuilder(firehoseGetScript, "-b",
-                                                           "-tasks",
-                                                           firehoseDatatypesToDownload,
-                                                           runType,
-                                                           BROAD_DATE_FORMAT.format(runDate),
-                                                           tumorTypesToDownload);
-		processBuilder.directory(new File(downloadDirectoryName));
+		String[] command = new String[] { firehoseGetScript, "-b",
+										  "-tasks",
+										  firehoseDatatypesToDownload,
+										  runType,
+										  BROAD_DATE_FORMAT.format(runDate),
+										  tumorTypesToDownload };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("executing: " + processBuilder.command());
+			LOG.info("executing: " + Arrays.asList(command));
 			LOG.info("this may take a while...");
 		}
-		Process process = processBuilder.start();
-		process.waitFor();
 
-		// importing data
-		if (LOG.isInfoEnabled()) {
-			LOG.info("download complete, storing in database.");
+		if (Shell.exec(Arrays.asList(command), downloadDirectoryName)) {
+			// importing data
+			if (LOG.isInfoEnabled()) {
+				LOG.info("download complete, storing in database.");
+			}
+			// clobber current import 
+			if (clobberDatabase) {
+				databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+			}
+			storeData(downloadDirectory, datatypeMetadata, runDate);
 		}
-		storeData(downloadDirectory, datatypeMetadata, runDate);
 	}
 
 	/**

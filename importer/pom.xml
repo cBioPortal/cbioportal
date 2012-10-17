@@ -73,7 +73,29 @@
       <version>2.1</version>
     </dependency>
 
-	<!-- gdata -->
+	<!-- bridgedb -->
+	<dependency>
+	  <groupId>org.bridgedb</groupId>
+	  <artifactId>org.bridgedb</artifactId>
+	  <version>1.1.0</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.bridgedb</groupId>
+	  <artifactId>org.bridgedb.bio</artifactId>
+	  <version>1.1.0</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.bridgedb</groupId>
+	  <artifactId>org.bridgedb.rdb</artifactId>
+	  <version>1.1.0</version>
+	</dependency>
+
+	<!-- google -->
+	<dependency>
+	  <groupId>com.google.collections</groupId>
+	  <artifactId>google-collections</artifactId>
+	  <version>1.0</version>
+	</dependency>
 	<dependency>
 	  <groupId>com.google.gdata.gdata-java-client</groupId>
 	  <artifactId>gdata-spreadsheet-3.0</artifactId>

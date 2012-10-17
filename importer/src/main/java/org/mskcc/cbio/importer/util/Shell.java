@@ -26,63 +26,48 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.util;
 
 // imports
-import javax.sql.DataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.util.List;
 
 /**
- * Interface used to create database/database schema dynamically.
+ * Class which provides commandline execution.
  */
-public interface DatabaseUtils {
+public final class Shell {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(Shell.class);
 
 	/**
-	 * Returns the database user credential.
+	 * Executes the given command via java ProcessBuilder.
 	 *
-	 * @return String
+	 * @param command List<String>
+	 * @param workingDirectory String
+	 * @return boolean
 	 */
-    public String getDatabaseUser();
-
-	/**
-	 * Returns the database password credential.
-	 *
-	 * @return String
-	 */
-    public String getDatabasePassword();
-
-	/**
-	 * Returns the database connection string.
-	 *
-	 * @return String
-	 */
-    public String getDatabaseConnectionString();
-
-	/**
-	 * Returns the importer database name.
-	 *
-	 * @return String
-	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-    /**
-	 * Creates a database and optional schema.
-	 * 
-	 * @param databaseName String
-	 * @param createSchema boolean
-	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+    public static boolean exec(final List<String> command, final String workingDirectory) {
+       
+		try {
+			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder.directory(new File(workingDirectory));
+			Process process = processBuilder.start();
+			StreamSink stdoutSink = new StreamSink(process.getInputStream());
+			StreamSink stderrSink = new StreamSink(process.getErrorStream());
+			stdoutSink.start();
+			stderrSink.start();
+			process.waitFor();
+			return process.exitValue() == 0;
+        }
+		catch (Exception e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info(e.toString() + " thrown during shell command: " + command);
+			}
+			return false;
+        }
+    }
 }

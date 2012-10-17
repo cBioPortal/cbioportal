@@ -29,20 +29,24 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
-import java.lang.reflect.Constructor;
 
 /**
  * Class which implements the Converter interface.
@@ -58,26 +62,38 @@ final class ConverterImpl implements Converter {
 	// ref to file utils
 	private FileUtils fileUtils;
 
+	// ref to database utils
+	private DatabaseUtils databaseUtils;
+
 	// ref to import data
 	private ImportDataDAO importDataDAO;
+
+	// ref to caseids
+	private CaseIDs caseIDs;
+
+	// ref to IDMapper
+	private IDMapper idMapper;
 
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-	 * Takes a ImportDataDAO reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param databaseUtils DatabaseUtils
 	 * @param importDataDAO ImportDataDAO;
+	 * @param caseIDs CaseIDs;
+	 * @param idMapper IDMapper
 	 */
-	public ConverterImpl(final Config config, final FileUtils fileUtils, final ImportDataDAO importDataDAO) {
+	public ConverterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils,
+						 final ImportDataDAO importDataDAO, final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
+		this.databaseUtils = databaseUtils;
 		this.importDataDAO = importDataDAO;
+		this.caseIDs = caseIDs;
+		this.idMapper = idMapper;
 	}
 
 	/**
@@ -97,6 +113,12 @@ final class ConverterImpl implements Converter {
         if (portal == null) {
             throw new IllegalArgumentException("portal must not be null");
 		}
+
+		// initialize the mapper
+		if (LOG.isInfoEnabled()) {
+			LOG.info("convertData(), initializing the IDMapper.");
+		}
+		initializeMapper();
 
         // get portal metadata
         PortalMetadata portalMetadata = config.getPortalMetadata(portal);
@@ -134,9 +156,9 @@ final class ConverterImpl implements Converter {
             ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
 
             // get converter and create staging file
-			Object[] args = { config, fileUtils };
+			Object[] args = { config, fileUtils, caseIDs, idMapper };
 			Converter converter =
-				(Converter)getConverterInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
+				(Converter)ClassLoader.getInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
 			converter.createStagingFile(portalMetadata, importData, importDataMatrix);
         }
 	}
@@ -218,32 +240,17 @@ final class ConverterImpl implements Converter {
 	}
 
 	/**
-	 * Creates a new instance of a class which implements the Converter interface (via reflection).
+	 * Helper function to initialize IDMapper.
 	 *
-	 * @param className String
-	 * @param args Object[]
-	 * @return Object
+	 * @throws Exception
 	 */
-	private static Object getConverterInstance(final String className, Object[] args) throws Exception {
+	private void initializeMapper() throws Exception {
 
-		// sanity check
-		if (className == null || className.length() == 0) {
-			throw new IllegalArgumentException("className must not be null");
-		}
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getConverterInstance(), className: " + className);
-		}
-
-		try {
-			Class<?> clazz = Class.forName(className);
-			Constructor[] constructors = clazz.getConstructors();
-			// our converters only have the one constructor
-			return constructors[0].newInstance(args);
-		}
-		catch (Exception e) {
-			LOG.error(("Failed to instantiate " + className), e) ;
-			throw e;
-		}
+		// parse out locat
+		String connectionString = (databaseUtils.getDatabaseConnectionString() +
+								   databaseUtils.getGeneInformationDatabaseName() +
+								   "?user=" + databaseUtils.getDatabaseUser() +
+								   "&password=" + databaseUtils.getDatabasePassword());
+		idMapper.initMapper(connectionString);
 	}
 }

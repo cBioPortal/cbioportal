@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,6 +99,11 @@ final class GDataImpl implements Config {
 	private String portalsMetadataProperty;
 	@Value("${portals_metadata}")
 	public void setPortalsMetadataProperty(final String property) { this.portalsMetadataProperty = property; }
+
+	// reference metadata
+	private String referenceMetadataProperty;
+	@Value("${reference_metadata}")
+	public void setReferenceMetadataProperty(final String property) { this.referenceMetadataProperty = property; }
 
 	// data source metadata
 	private String dataSourceMetadataProperty;
@@ -283,6 +289,65 @@ final class GDataImpl implements Config {
         // outta here
         return toReturn;
     }
+
+	/**
+	 * Gets ReferenceMetadata for the given referenceType.
+	 *
+	 * @param referenceType String
+	 * @return ReferenceMetadata
+	 */
+    @Override
+	public ReferenceMetadata getReferenceMetadata(String referenceType) {
+
+		ReferenceMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getReferenceMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = referenceMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getReferenceMetadata: " + referenceMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+                        if (entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
+                                toReturn = new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
+																 entry.getCustomElements().getValue(properties[2]),
+																 entry.getCustomElements().getValue(properties[3]),
+																 entry.getCustomElements().getValue(properties[4]));
+                                break;
+                        }
+                    }
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (toReturn == null && LOG.isInfoEnabled()) {
+			LOG.info("getReferenceMetadata(), toReturn is null.");
+		}
+
+        // outta here
+        return toReturn;
+	}
 
 	/**
 	 * Gets DataSourceMetadata for the given datasource.

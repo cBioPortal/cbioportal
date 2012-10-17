@@ -26,64 +26,66 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.Fetcher;
+import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
-import java.util.Collection;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * Interface used to get/set configuration properties.
+ * Class which implements the fetcher interface.
  */
-public interface Config {
+final class ReferenceDataFetcherImpl implements Fetcher {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
+
+	// ref to file utils
+	private FileUtils fileUtils;
 
 	/**
-	 * Gets a collection of TumorTypeMetadata.
-	 *
-	 * @return Collection<TumorTypeMetadata>
+	 * Constructor.
+     *
+	 * Takes a FileUtils reference.
+     *
+	 * @param fileUtils FileUtils
 	 */
-	Collection<TumorTypeMetadata> getTumorTypeMetadata();
+	public ReferenceDataFetcherImpl(final FileUtils fileUtils) {
+
+		// set members
+		this.fileUtils = fileUtils;
+	}
 
 	/**
-	 * Gets a collection of DatatypeMetadata.
+	 * Fetchers data from the Broad.
 	 *
-	 * @return Collection<DatatypeMetadata>
+	 * @param clobberDatabase boolean
+	 * @throws Exception
 	 */
-	Collection<DatatypeMetadata> getDatatypeMetadata();
+	@Override
+	public void fetch(final boolean clobberDatabase) throws Exception {
+		throw new UnsupportedOperationException();
+	}
 
 	/**
-	 * Gets a PortalMetadata object given a portal name.
+	 * Fetchers reference data from an external datasource.
 	 *
-     * @param portal String
-	 * @return PortalMetadata
+     * @param referenceMetadata ReferenceMetadata
+	 * @throws Exception
 	 */
-	PortalMetadata getPortalMetadata(String portal);
+	@Override
+	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
-	/**
-	 * Gets ReferenceMetadata for the given referenceType.
-	 *
-	 * @param referenceType String
-	 * @return ReferenceMetadata
-	 */
-	ReferenceMetadata getReferenceMetadata(String referenceType);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFile());
+			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFileDestination());
+		}
 
-	/**
-	 * Gets DataSourceMetadata for the given datasource.
-	 *
-	 * @param dataSource String
-	 * @return DataSourceMetadata
-	 */
-	DataSourceMetadata getDataSourceMetadata(String dataSource);
-
-	/**
-	 * Sets DataSourceMetadata (currently only stores latest run downloaded).
-	 *
-     * @param dataSourceMetadata DataSourceMetadata
-	 */
-	void setDataSourceMetadata(final DataSourceMetadata dataSourceMetadata);
+		fileUtils.downloadFile(referenceMetadata.getReferenceFile(),
+							   referenceMetadata.getReferenceFileDestination());
+	}
 }

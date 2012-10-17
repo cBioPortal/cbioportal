@@ -46,11 +46,11 @@ public final class TumorTypeMetadata {
      * Create a TumorTypeMetadata instance with specified properties.
      *
 	 * @param tumorTypeID String
-	 * @param tumorTypeDescription
+	 * @param tumorTypeDescription String
 	 * @param download Boolean
      */
     public TumorTypeMetadata(final String tumorTypeID,
-							   final String tumorTypeDescription, final Boolean download) {
+							 final String tumorTypeDescription, final Boolean download) {
 
 		if (tumorTypeID == null) {
             throw new IllegalArgumentException("tumorTypeID must not be null");

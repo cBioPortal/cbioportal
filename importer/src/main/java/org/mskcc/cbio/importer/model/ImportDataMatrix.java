@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.model;
 
 // imports
 import java.util.Vector;
+import java.util.Collection;
 import java.util.LinkedList;
 
 import java.io.PrintWriter;
@@ -103,7 +104,8 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Resort columns
+	 * Set column order.  Any columns in the data matrix
+	 * that are not in the given column order will be dropped.
 	 *
 	 * @param sortedColumnNames Vector<String>
 	 * @throws Exception
@@ -193,6 +195,22 @@ public final class ImportDataMatrix {
 		if (!foundColumnHeader) {
 			throw new IllegalArgumentException("column name not found: " + columnName);
 		}
+	}
+
+	/**
+	 * Gets the column headers.
+	 *
+	 * @return Collection<String>
+	 */
+	public Collection<String> getColumnHeaders() {
+
+		Vector<String> toReturn = new Vector<String>();
+		for (ColumnHeader columnHeader : columnHeaders) {
+			toReturn.add(columnHeader.label);
+		}
+
+		// outta here
+		return toReturn;
 	}
 
 	/**

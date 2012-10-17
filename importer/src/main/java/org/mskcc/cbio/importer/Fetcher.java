@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 /**
  * Interface used to retrieve portal data.
@@ -36,9 +37,19 @@ package org.mskcc.cbio.importer;
 public interface Fetcher {
 
 	/**
-	 * Fetchers data from an external datasource.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
-	void fetch() throws Exception;
+	void fetch(final boolean clobberDatabase) throws Exception;
+
+	/**
+	 * Fetchers reference data from an external datasource.
+	 *
+     * @param referenceMetadata ReferenceMetadata
+	 * @throws Exception
+	 */
+	void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception;
 }

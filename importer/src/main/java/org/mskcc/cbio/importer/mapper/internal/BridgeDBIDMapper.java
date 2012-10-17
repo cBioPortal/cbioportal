@@ -26,63 +26,63 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.mapper.internal;
 
 // imports
-import javax.sql.DataSource;
+import org.mskcc.cbio.importer.IDMapper;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.bridgedb.BridgeDb;
+import org.bridgedb.bio.BioDataSource;
 
 /**
- * Interface used to create database/database schema dynamically.
+ * Class which provides bridgedb services.
  */
-public interface DatabaseUtils {
+public final class BridgeDBIDMapper implements IDMapper {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
+
+	// ref to bridge db mapper
+	private org.bridgedb.IDMapper mapper;
 
 	/**
-	 * Returns the database user credential.
-	 *
-	 * @return String
+	 * Default Constructor.
 	 */
-    public String getDatabaseUser();
+	public BridgeDBIDMapper() {}
 
 	/**
-	 * Returns the database password credential.
+	 * Used to initialize the mapper.
 	 *
-	 * @return String
+	 * @param connectionString String
+	 * @throws Exception
 	 */
-    public String getDatabasePassword();
+	@Override
+	public void initMapper(final String connectionString) throws Exception {
+
+		// we need to prepend bridgedb protocol to connection string
+		String bridgeDBConnectionString = "idmapper-" + connectionString;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
+		}
+
+		Class.forName("org.bridgedb.rdb.IDMapperRdb");
+        mapper = BridgeDb.connect(bridgeDBConnectionString);
+        BioDataSource.init();
+	}
 
 	/**
-	 * Returns the database connection string.
+	 * For the given symbol, return id.
 	 *
+	 * @param geneSymbol String
 	 * @return String
 	 */
-    public String getDatabaseConnectionString();
+	@Override
+	public String entrezSymbolToNumber(final String geneSymbol) {
 
-	/**
-	 * Returns the importer database name.
-	 *
-	 * @return String
-	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-    /**
-	 * Creates a database and optional schema.
-	 * 
-	 * @param databaseName String
-	 * @param createSchema boolean
-	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+		return "";
+	}
 }

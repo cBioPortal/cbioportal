@@ -71,17 +71,17 @@ public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSou
 	// db password
 	private String databasePassword;
 	@Value("${database_password}")
-	public void setDbPassword(final String databasePassword) { this.databasePassword = databasePassword; }
+	public void setDatabasePassword(final String databasePassword) { this.databasePassword = databasePassword; }
 
 	// db driver
 	private String databaseDriver;
 	@Value("${database_driver}")
-	public void setDbDriver(final String databaseDriver) { this.databaseDriver = databaseDriver; }
+	public void setDatabaseDriver(final String databaseDriver) { this.databaseDriver = databaseDriver; }
 
 	// db connection
 	private String databaseConnectionString;
 	@Value("${database_connection_string}")
-	public void setDbConnection(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	public void setDatabaseConnection(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
 
 	/**
 	 * Our implementation of BeanNameAware.

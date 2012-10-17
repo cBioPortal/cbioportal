@@ -30,6 +30,8 @@ package org.mskcc.cbio.importer.converter.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.ImportData;
@@ -42,10 +44,10 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Class which implements the Converter interface.
  */
-final class CNAConverterImpl implements Converter {
+public final class CNAConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -53,20 +55,28 @@ final class CNAConverterImpl implements Converter {
 	// ref to file utils
 	private FileUtils fileUtils;
 
+	// ref to caseids
+	private CaseIDs caseIDs;
+
+	// ref to IDMapper
+	private IDMapper idMapper;
+
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param caseIDs CaseIDs;
+	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(final Config config, final FileUtils fileUtils) {
+	public CNAConverterImpl(final Config config, final FileUtils fileUtils,
+							final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
+		this.caseIDs = caseIDs;
+		this.idMapper = idMapper;
 	}
 
 	/**

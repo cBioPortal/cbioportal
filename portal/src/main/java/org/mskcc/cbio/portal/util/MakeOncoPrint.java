@@ -498,7 +498,7 @@ public class MakeOncoPrint {
 	 * @param headerElement String
 	 * @param bodyElement String
 	 * @param legendElement String
-	 * @param logestLabelVarName String
+	 * @param longestLabelVarName String
 	 * @param headerVariablesVarName String
 	 * @param geneticAlterationsVarName String
 	 * @param geneticAlterationsLegendVarName String

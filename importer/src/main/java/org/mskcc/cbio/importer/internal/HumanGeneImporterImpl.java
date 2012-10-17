@@ -33,19 +33,24 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.util.ClassLoader;
+import org.mskcc.cbio.importer.util.Shell;
+
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.commons.compress.compressors.gzip.GzipUtils;
+
+import java.util.Arrays;
+
 /**
- * Class which implements the Importer interface.
+ * Class which implements the Importer interface, specifically for importing human gene info.
  */
-final class ImporterImpl implements Importer {
+public final class HumanGeneImporterImpl implements Importer {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
+	private static final Log LOG = LogFactory.getLog(HumanGeneImporterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -59,11 +64,13 @@ final class ImporterImpl implements Importer {
 	/**
 	 * Constructor.
      *
+     * Takes a Config, FileUtils, & DatabaseUtils reference.
+     *
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
 	 */
-	public ImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
+	public HumanGeneImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
 
 		// set members
 		this.config = config;
@@ -79,29 +86,46 @@ final class ImporterImpl implements Importer {
 	 */
     @Override
 	public void importData(final String portal) throws Exception {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importData()");
-		}
-
-        // check args
-        if (portal == null) {
-            throw new IllegalArgumentException("portal must not be null");
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	/**
 	 * Imports the given reference data.
 	 *
-     * @param referenceMetadata ReferenceMetadata
+     * @param referenceMetadata String
 	 * @throws Exception
 	 */
 	@Override
 	public void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
-		// get converter and create staging file
-		Object[] args = { config, fileUtils, databaseUtils };
-		Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
-		importer.importReferenceData(referenceMetadata);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), referenceMetadata: " + referenceMetadata.getReferenceType());
+		}
+
+		// first create (and clobber an existing) db
+		databaseUtils.createDatabase(databaseUtils.getGeneInformationDatabaseName(), false);
+
+		String referenceFile = referenceMetadata.getReferenceFileDestination();
+		if (GzipUtils.isCompressedFilename(referenceFile)) {
+			referenceFile = GzipUtils.getUncompressedFilename(referenceFile);
+		}
+
+		// use mysql to import the .sql file
+		String[] command = new String[] {"mysql",
+										 "--user=" + databaseUtils.getDatabaseUser(),
+										 "--password=" + databaseUtils.getDatabasePassword(),
+										 databaseUtils.getGeneInformationDatabaseName(),
+										 "-e",
+										 "source " + referenceFile};
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+			LOG.info("this may take a while...");
+		}
+
+		if (Shell.exec(Arrays.asList(command), ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importReferenceData complete.");
+			}
+		}
 	}
 }

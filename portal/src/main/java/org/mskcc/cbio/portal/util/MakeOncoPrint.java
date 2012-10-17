@@ -747,7 +747,7 @@ public class MakeOncoPrint {
 					   "}, timerDelay); " +
 					   "return true;\">\n");
 		// show altered checkbox label
-		builder.append("<span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
+		builder.append("<span id=\"showAlteredCasesLabel\">Only&nbspShow&nbspAltered&nbspCases</span>\n");
 		builder.append("</td>\n");
 		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
@@ -788,7 +788,7 @@ public class MakeOncoPrint {
 					   "} " +
 					   "return true;\">\n");
 		// sort/unsort checkbox label
-		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
+		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort&nbspCases</span>\n");
 		builder.append("</td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
@@ -837,7 +837,7 @@ public class MakeOncoPrint {
 					   "}" +
 					   "return true;\">\n");
 		// remove padding label & help tooltip
-		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Whitespace</span>\n");
+		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove&nbspWhitespace</span>\n");
 		builder.append("&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'>\n");
 		builder.append("</td>\n");
 		builder.append("</tr>\n");

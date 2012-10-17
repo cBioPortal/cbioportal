@@ -102,7 +102,15 @@ public class OncotatorService {
                 {
                 	if (this.useCache)
 	                {
-		                cache.put(record);
+		                // surrounded with try/catch just to ignore duplicate
+		                // key error (race condition if parallel apps accessing
+		                // the DB at the same time)
+		                try {
+			                cache.put(record);
+		                } catch (SQLException e) {
+			                System.out.println("SQL error: " + e.getMessage());
+			                this.errorCount++;
+		                }
 	                }
                 }
                 else
@@ -120,7 +128,7 @@ public class OncotatorService {
         }
         catch (IOException e)
         {
-            System.out.println("Got IO Error:  " + e.getMessage());
+            System.out.println("IO error: " + e.getMessage());
 	        this.errorCount++;
             return new OncotatorRecord(key);
         }

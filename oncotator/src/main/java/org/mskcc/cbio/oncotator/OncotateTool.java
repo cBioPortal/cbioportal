@@ -354,7 +354,7 @@ public class OncotateTool
 
 	    if (args.length < 2)
         {
-            System.out.println("command line usage: oncotateMaf.sh [-nocache] <input_maf_file> <output_maf_file");
+            System.out.println("command line usage: oncotateMaf.sh [-nocache] <input_maf_file> <output_maf_file>");
             System.exit(1);
         }
 	    else

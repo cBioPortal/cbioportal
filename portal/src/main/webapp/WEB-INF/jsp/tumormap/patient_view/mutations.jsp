@@ -298,12 +298,15 @@
                                 if (impact) {
                                     var tip = "Predicted impact: <b>"+impact+"</b>";
                                     var xvia = ma['xvia'];
-                                    if (xvia&&xvia!='NA')
-                                        tip += "<br/><a href='>'"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+                                    if (xvia&&xvia!='NA') {
+                                        if (xvia.indexOf('http://')!=0) xvia='http://'+xvia;
+                                        tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+                                     }
                                     var msa = ma['msa'];
-                                    if (msa&&msa!='NA')
+                                    if (msa&&msa!='NA') {
+                                        if (msa.indexOf('http://')!=0) msa='http://'+msa;
                                         tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
-
+                                    }
                                     ret += "<span style='background-color:"+bgColor+";' class='"
                                                 +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a></span>";
                                 }
@@ -339,6 +342,7 @@
                                 var ret = '';
                                 var pdb = ma['pdb'];
                                 if (pdb&&pdb!='NA') {
+                                    if (pdb.indexOf('http://')!=0) pdb='http://'+pdb;
                                     ret += "&nbsp;<a class='"
                                             +table_id+"-tip' alt='Protein 3D structure' href='"+pdb
                                             +"'><span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>";

@@ -10,5 +10,6 @@ LUAD.maf.annotated luad
 LUSC.maf.annotated  lusc
 OV.maf.annotated ov
 PRAD.maf.annotated prad
+SKCM.maf.annotated skcm
 STAD.maf.annotated stad
 UCEC.maf.annotated  ucec

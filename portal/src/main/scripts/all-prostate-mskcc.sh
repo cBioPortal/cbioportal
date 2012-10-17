@@ -18,3 +18,6 @@
 
 # Imports MRNA Expression Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/public-override/prad_mskcc/data_mRNA_ZbyNorm.txt --meta $CGDS_DATA_HOME/public-override/prad_mskcc/meta_mRNA_ZbyNorm.txt --dbmsAction clobber
+
+# MutSig
+./importMutSig.pl $CGDS_DATA_HOME/public-override/prad_mskcc/data_mutsig.txt $CGDS_DATA_HOME/public-override/prad_mskcc/meta_mutsig.txt

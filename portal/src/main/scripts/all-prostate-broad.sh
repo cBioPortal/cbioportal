@@ -15,3 +15,6 @@
 
 # Copy number segment
 ./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/private-override/prad_broad/prad_broad_scna_hg18.seg
+
+# MutSig
+./importMutSig.pl $CGDS_DATA_HOME/private-override/prad_broad/data_mutsig.txt $CGDS_DATA_HOME/private-override/prad_broad/meta_mutsig.txt

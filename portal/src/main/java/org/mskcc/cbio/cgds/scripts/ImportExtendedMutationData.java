@@ -220,6 +220,13 @@ public class ImportExtendedMutationData{
 				String proteinChange = getProteinChange(parts, record);
 				String mutationType = getMutationType(record);
 
+				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
+				{
+					pMonitor.logWarning("Skipping entry with mutation type: RNA");
+					line = buf.readLine();
+					continue;
+				}
+
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = getField(parts, "Hugo_Symbol" );
 				String entrezGeneIdStr = getField(parts, "Entrez_Gene_Id");

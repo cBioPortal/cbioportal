@@ -37,11 +37,13 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 public interface Fetcher {
 
 	/**
-	 * Fetchers genomic data from an external datasource.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
-	void fetch() throws Exception;
+	void fetch(final boolean clobberDatabase) throws Exception;
 
 	/**
 	 * Fetchers reference data from an external datasource.

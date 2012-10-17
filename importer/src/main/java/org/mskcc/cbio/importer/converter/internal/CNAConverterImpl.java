@@ -83,11 +83,10 @@ public final class CNAConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
-	 * @param geneDatabase String
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal, final String geneDatabase) throws Exception {
+	public void convertData(final String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

@@ -63,10 +63,11 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	/**
 	 * Fetchers data from the Broad.
 	 *
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch() throws Exception {
+	public void fetch(final boolean clobberDatabase) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.fetcher.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
@@ -92,6 +93,9 @@ final class FirehoseFetcherImpl implements Fetcher {
 	// ref to import data
 	private ImportDataDAO importDataDAO;
 
+	// ref to database utils
+	private DatabaseUtils databaseUtils;
+
 	// download directories
 	private DataSourceMetadata dataSourceMetadata;
 
@@ -103,19 +107,18 @@ final class FirehoseFetcherImpl implements Fetcher {
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-	 * Takes a ImportDataDAO reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param databaseUtils DatabaseUtils
 	 * @param importDataDAO ImportDataDAO;
 	 */
-	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils, final ImportDataDAO importDataDAO) {
+	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils,
+							   final DatabaseUtils databaseUtils, final ImportDataDAO importDataDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
+		this.databaseUtils = databaseUtils;
 		this.importDataDAO = importDataDAO;
         this.dataSourceMetadata = config.getDataSourceMetadata("firehose");
 
@@ -126,12 +129,14 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Fetchers data from the Broad.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch() throws Exception {
+	public void fetch(final boolean clobberDatabase) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch()");
@@ -157,7 +162,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fresh analysis data to download." + PORTAL_DATE_FORMAT.format(latestBroadAnalysisRun));
 			}
-			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun);
+			fetchLatestRun(ANALYSIS_RUN, latestBroadAnalysisRun, clobberDatabase);
 			newAnalysisRun = true;
 		}
 		else {
@@ -172,7 +177,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fresh STDDATA data to download." + PORTAL_DATE_FORMAT.format(latestBroadSTDDATARun));
 			}
-			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun);
+			fetchLatestRun(STDDATA_RUN, latestBroadSTDDATARun, clobberDatabase);
 			newSTDDataRun = true;
 		}
 		else {
@@ -248,10 +253,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 *
 	 * @param runType String
 	 * @param runDate Date
-	 * @return void
+	 * @param clobberDatabase boolean
 	 * @throws Exception
 	 */
-	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
+	private void fetchLatestRun(final String runType, final Date runDate, final boolean clobberDatabase) throws Exception {
 
 		// determine download directory
 		String[] downloadDirectories = dataSourceMetadata.getDownloadDirectory().split(":");
@@ -290,6 +295,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 			// importing data
 			if (LOG.isInfoEnabled()) {
 				LOG.info("download complete, storing in database.");
+			}
+			// clobber current import 
+			if (clobberDatabase) {
+				databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
 			}
 			storeData(downloadDirectory, datatypeMetadata, runDate);
 		}

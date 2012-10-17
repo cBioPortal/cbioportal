@@ -100,30 +100,25 @@ final class ConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
-	 * @param geneDatabaseName String
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal, final String geneDatabaseName) throws Exception {
+	public void convertData(final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
-			LOG.info("convertData(), geneDatabaseName: " + geneDatabaseName);
 		}
 
         // check args
         if (portal == null) {
             throw new IllegalArgumentException("portal must not be null");
 		}
-        if (geneDatabaseName == null) {
-            throw new IllegalArgumentException("geneDatabaseName must not be null");
-		}
 
 		// initialize the mapper
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), initializing the IDMapper.");
 		}
-		initializeMapper(geneDatabaseName);
+		initializeMapper();
 
         // get portal metadata
         PortalMetadata portalMetadata = config.getPortalMetadata(portal);
@@ -247,14 +242,13 @@ final class ConverterImpl implements Converter {
 	/**
 	 * Helper function to initialize IDMapper.
 	 *
-	 * @param geneDatabaseName String
 	 * @throws Exception
 	 */
-	private void initializeMapper(final String geneDatabaseName) throws Exception {
+	private void initializeMapper() throws Exception {
 
 		// parse out locat
 		String connectionString = (databaseUtils.getDatabaseConnectionString() +
-								   geneDatabaseName +
+								   databaseUtils.getGeneInformationDatabaseName() +
 								   "?user=" + databaseUtils.getDatabaseUser() +
 								   "&password=" + databaseUtils.getDatabasePassword());
 		idMapper.initMapper(connectionString);

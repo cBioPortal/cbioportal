@@ -42,10 +42,9 @@ public interface Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
-	 * @param geneDatabaseName String
 	 * @throws Exception
 	 */
-	void convertData(final String portal, final String geneDatabaseName) throws Exception;
+	void convertData(final String portal) throws Exception;
 
 	/**
 	 * Generates case lists for the given portal.

@@ -18,7 +18,7 @@
   <!-- datasource -->
    <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
      <b:property name="driverClassName" value="${database_driver}"/>
-     <b:property name="url" value="${database_connection_string}${database_name}?max_allowed_packet=256M"/>
+     <b:property name="url" value="${database_connection_string}${importer_database_name}?max_allowed_packet=256M"/>
      <b:property name="username" value="${database_user}"/>
      <b:property name="password" value="${database_password}"/>
    </b:bean>
@@ -64,6 +64,7 @@
   <b:bean id="firehoseFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataDAO"/>
   </b:bean>
   <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">

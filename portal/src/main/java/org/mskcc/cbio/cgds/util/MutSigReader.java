@@ -168,7 +168,10 @@ public class MutSigReader {
             // -- load parameters for new MutSig object --
             int rank = Integer.parseInt(parts[rankField]);
             String hugoGeneSymbol = parts[hugoField];
-            int numBasesCovered = Integer.parseInt(parts[BasesCoveredField]);
+			// check for NA now that some handmade mutsig files
+			// like all2_target study can contain NA in some fields
+            int numBasesCovered = (!parts[BasesCoveredField].equalsIgnoreCase("NA")) ?
+				Integer.parseInt(parts[BasesCoveredField]) : 0;
             int numMutations = Integer.parseInt(parts[numMutationsField]);
 
             // ignoring '<' sign

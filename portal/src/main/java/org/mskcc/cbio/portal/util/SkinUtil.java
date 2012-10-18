@@ -262,12 +262,12 @@ public class SkinUtil {
     }
     
     public static String getLinkToPatientView(String caseId) {
-        return getCbioPortalUrl()+"patient.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+        return getTumorMapUrl()+"patient.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
                 + "=" + caseId;
     }
     
     public static String getLinkToCancerStudyView(String cancerStudyId) {
-        return getCbioPortalUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return getTumorMapUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
                 + "=" + cancerStudyId;
     }
 }

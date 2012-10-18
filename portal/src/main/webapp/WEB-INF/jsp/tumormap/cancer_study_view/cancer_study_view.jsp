@@ -67,7 +67,7 @@ if (cancerStudyViewError!=null) {
     <li><a href='#data-table' class='study-tab' title='Events of Interest'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>
-    <li><a href='#mutations' class='study-tab' title='Mutations'>Mutations</a></li>
+    <li><a href='#mutations' class='study-tab' title='Mutations'>Mutated Genes</a></li>
     <%}%>
     
     <%if(showCNATab){%>

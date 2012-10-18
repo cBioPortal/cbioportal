@@ -1,5 +1,6 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.MutSigJSON" %>
+<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
 <style type="text/css">
 #mut-sig-div {
@@ -27,6 +28,7 @@
                 var dataTable = google.visualization.arrayToDataTable(json);
                 var table = new google.visualization.Table(document.getElementById("mut-sig-div"));
                 var options = {
+                    allowHtml: true,
                     showRowNumber: true,
                     width: 400,
                     page: 'enable',
@@ -47,7 +49,12 @@
         for (var i=0; i<mutSigData.length; i++) {
             var row = [];
             for (var j=0; j<headers.length; j++) {
-                row.push(mutSigData[i][headers[j]]);
+                var value = mutSigData[i][headers[j]];
+                if (headers[j]==='gene_symbol')
+                    var value = '<a href="<%=SkinUtil.getCbioPortalUrl()%>index.do?Action=Submit&genetic_profile_ids='
+                            +mutationProfileId+'&case_set_id='+studyId+'_all&cancer_study_id='+studyId
+                            +'&gene_list='+value+'&tab_index=tab_visualize&#mutation_details">'+value+'</a>';
+                row.push(value);
             }
             ret.push(row);
         }

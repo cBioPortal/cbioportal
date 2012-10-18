@@ -33,7 +33,8 @@
 
 <script type="text/javascript">
 // redirect to tumormap landing page
-if (window.location.pathname.toLowerCase().indexOf('tumormap')) {
+if (document.referrer.indexOf('tumormap')==-1
+    &&window.location.pathname.toLowerCase().indexOf('tumormap')>=0) {
     window.location.replace("tumormap.do");
 }
     

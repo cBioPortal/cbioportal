@@ -32,6 +32,11 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <script type="text/javascript">
+// redirect to tumormap landing page
+if (window.location.pathname.toLowerCase().indexOf('tumormap')) {
+    window.location.replace("tumormap.do");
+}
+    
 $(document).ready(function(){
     $('#td-content').width("70%");
 });

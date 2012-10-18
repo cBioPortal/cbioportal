@@ -105,7 +105,14 @@ public class TumorMapServlet extends HttpServlet {
                 
                 if (!includeMut&&!includeMut) {
                     row.put("name",cancerStudy.getName());
-                    row.put("ref",null);
+                    String pmid = cancerStudy.getPmid();
+                    if (pmid!=null) {
+                        row.put("pmid",pmid);
+                    }
+                    String citation = cancerStudy.getCitation();
+                    if (citation!=null) {
+                        row.put("citation", citation);
+                    }
                     row.put("cases",DaoCase.countCases(cancerStudy.getInternalId()));
                 }
                 

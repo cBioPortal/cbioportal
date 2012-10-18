@@ -53,6 +53,9 @@ public class CancerStudy {
     private String cancerStudyIdentifier;
     private String typeOfCancerId;  // required
     private boolean publicStudy;  // if true, a public study, otherwise private
+    private String pmid;
+    private String citation;
+    
 
     /**
      * Constructor.
@@ -159,6 +162,22 @@ public class CancerStudy {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPmid() {
+        return pmid;
+    }
+
+    public void setPmid(String pmid) {
+        this.pmid = pmid;
+    }
+
+    public String getCitation() {
+        return citation;
+    }
+
+    public void setCitation(String citation) {
+        this.citation = citation;
     }
 
     /**

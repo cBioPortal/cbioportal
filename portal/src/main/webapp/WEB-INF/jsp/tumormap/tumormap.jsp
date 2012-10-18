@@ -62,8 +62,11 @@ request.setAttribute("tumormap", true);
                                 if (type==='set') {
                                     return;
                                 } else {
-                                    var ref = tumormap_cancerstudies[source[0]]['ref']
-                                    return ref ? ref : '';
+                                    var ref = tumormap_cancerstudies[source[0]]['citation'];
+                                    if (!ref) return '';
+                                    var pmid = tumormap_cancerstudies[source[0]]['pmid'];
+                                    if (pmid) ref = '<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+pmid+'">'+ref+'</a>';
+                                    return ref;
                                 }
                             }
                         },
@@ -90,7 +93,7 @@ request.setAttribute("tumormap", true);
                                     var id = source[0];
                                     var mut = tumormap_cancerstudies[id]['mut'];
                                     if (type==='display') {
-                                        if (mut==null) return '<img src="images/ajax-loader2.gif"/>';
+                                        if (mut==null) return '<img width=12 height=12 src="images/ajax-loader2.gif"/>';
                                         return mut ? mut.toFixed(0) : '';
                                     } else {
                                         return mut ? mut : 0.0;
@@ -109,7 +112,7 @@ request.setAttribute("tumormap", true);
                                     var id = source[0];
                                     var cna = tumormap_cancerstudies[id]['cna'];
                                     if (type==='display') {
-                                        if (cna==null) return '<img src="images/ajax-loader2.gif"/>';
+                                        if (cna==null) return '<img width=12 height=12 src="images/ajax-loader2.gif"/>';
                                         return cna ? ((cna*100).toFixed(1)+'%') : '';
                                     } else {
                                         return cna ? cna : 0.0;

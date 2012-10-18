@@ -125,7 +125,7 @@ public class TumorMapServlet extends HttpServlet {
                     if (cnaProfile==null) {
                         row.put("cna",0);
                     } else {
-                        List<String> cases = DaoCaseProfile.getAllCaseIdsInProfile(cnaProfile.getCancerStudyId());
+                        List<String> cases = DaoCaseProfile.getAllCaseIdsInProfile(cnaProfile.getGeneticProfileId());
                         Map<String,Double> fracs = DaoCopyNumberSegment.getCopyNumberActeredFraction(cases,
                                 SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
                         double aveFrac = 0;

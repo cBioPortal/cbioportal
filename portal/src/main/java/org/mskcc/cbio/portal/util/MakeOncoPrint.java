@@ -715,7 +715,7 @@ public class MakeOncoPrint {
 		builder.append("<table>\n");
 		builder.append("<tr>\n");
 		// show altered checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
@@ -747,12 +747,12 @@ public class MakeOncoPrint {
 					   "}, timerDelay); " +
 					   "return true;\">\n");
 		// show altered checkbox label
-		builder.append("<span id=\"showAlteredCasesLabel\">Only&nbspShow&nbspAltered&nbspCases</span>\n");
+		builder.append("<span id=\"showAlteredCasesLabel\">Only Show Altered Cases</span>\n");
 		builder.append("</td>\n");
 		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// sort/unsort altered checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"" +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
@@ -788,7 +788,7 @@ public class MakeOncoPrint {
 					   "} " +
 					   "return true;\">\n");
 		// sort/unsort checkbox label
-		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort&nbspCases</span>\n");
+		builder.append("<span id=\"" + oncoprintUnsortSamplesLabelName + "\">Unsort Cases</span>\n");
 		builder.append("</td>\n");
 		builder.append("</tr>\n");
 		builder.append("</table>\n");
@@ -802,7 +802,7 @@ public class MakeOncoPrint {
 		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// remove padding checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintCustomizeIndicatorName + "'); " + 
@@ -837,7 +837,7 @@ public class MakeOncoPrint {
 					   "}" +
 					   "return true;\">\n");
 		// remove padding label & help tooltip
-		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove&nbspWhitespace</span>\n");
+		builder.append("<span id=\"" + oncoprintRemovePaddingLabelName + "\">Remove Whitespace</span>\n");
 		builder.append("&nbsp;<img class='oncoprint_customize_help'  src='images/help.png' title='" + REMOVE_PADDING_TOOLTIP + "'>\n");
 		builder.append("</td>\n");
 		builder.append("</tr>\n");

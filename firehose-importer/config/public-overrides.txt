@@ -1,7 +1,7 @@
-brca_tcga
-coadread_tcga
-gbm_tcga
-lusc_tcga
-ov_tcga
+brca_tcga_pub
+coadread_tcga_pub
+gbm_tcga_pub
+lusc_tcga_pub
+ov_tcga_pub
 prad_mskcc
 sarc_mskcc

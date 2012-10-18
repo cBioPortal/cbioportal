@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.DatabaseMetadata;
 
 import java.util.Collection;
 
@@ -71,6 +72,13 @@ public interface Config {
 	 * @return ReferenceMetadata
 	 */
 	ReferenceMetadata getReferenceMetadata(String referenceType);
+
+	/**
+	 * Gets DatabaseeMetadata.
+	 *
+	 * @return DatabaseMetadata
+	 */
+	DatabaseMetadata getDatabaseMetadata();
 
 	/**
 	 * Gets DataSourceMetadata for the given datasource.

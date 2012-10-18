@@ -146,7 +146,7 @@ public final class ImportUniProtIdMapping {
                 BufferedReader bufReader = new BufferedReader(
                         new InputStreamReader(method.getResponseBodyAsStream()));
                 String line = bufReader.readLine();
-                if (!line.startsWith(">")) {
+                if (line==null||!line.startsWith(">")) {
                     return 0;
                 }
                 

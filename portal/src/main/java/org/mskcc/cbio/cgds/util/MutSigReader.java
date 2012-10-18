@@ -154,64 +154,70 @@ public class MutSigReader {
         }
 
         // parse data
-        String line = buf.readLine();
-        while (line != null) {
+        
+        for (String line = buf.readLine();line != null;line = buf.readLine()) {
 
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
             }
+            
+            MutSig mutSig = new MutSig();
+            mutSig.setCancerType(internalId);
+            
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
             String[] parts = line.split("\t");
 
             // -- load parameters for new MutSig object --
-            int rank = Integer.parseInt(parts[rankField]);
-            String hugoGeneSymbol = parts[hugoField];
-            int numBasesCovered = Integer.parseInt(parts[BasesCoveredField]);
-            int numMutations = Integer.parseInt(parts[numMutationsField]);
-
-            // ignoring '<' sign
-            float pValue = Float.valueOf(parts[PvalField].replace("<", ""));
-            float qValue = Float.valueOf(parts[QvalField].replace("<", ""));
-
-            // Ignore everything with high q-value,
-            // specified by Ethan
-            if (qValue >= 0.1) {
-                line = buf.readLine();
-                continue;
-            }
-
-            List<CanonicalGene> genes;
-            genes = daoGene.guessGene(hugoGeneSymbol);
-
-            // there should only be one EntrezId for any given HugoGeneSymbol
-            CanonicalGene gene;
-            if (genes.size() == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot find CanonicalGene for HugoGeneSymbol: " + hugoGeneSymbol
-                    + ". Skipping it");
-                }
-                line = buf.readLine();
-                continue;
-            }
-
-            else if (genes.size() > 1 && log.isDebugEnabled()) {
-                log.debug("Multiple CanonicalGenes for HugoGeneSymbol: " + hugoGeneSymbol
-                        + ". Chose the first one by default");
-                gene = genes.get(0);
+            try {
+                int rank = Integer.parseInt(parts[rankField]);
+                mutSig.setRank(rank);
+            } catch (java.lang.NumberFormatException e) {
             }
             
-            else {  // there is one and only one EntrezId for a given HUGO symbol
-                gene = genes.get(0);
+            String hugoGeneSymbol = parts[hugoField];
+
+            try {
+                int numBasesCovered = Integer.parseInt(parts[BasesCoveredField]);
+                mutSig.setNumBasesCovered(numBasesCovered);
+            } catch (java.lang.NumberFormatException e) {
             }
+            
+            try {
+                int numMutations = Integer.parseInt(parts[numMutationsField]);
+                mutSig.setNumMutations(numMutations);
+            } catch (java.lang.NumberFormatException e) {
+            }
+            
+            // ignoring '<' sign
+            try {
+                float pValue = Float.valueOf(parts[PvalField].replace("<", ""));
+                mutSig.setpValue(pValue);
+            } catch (java.lang.NumberFormatException e) {
+            }
+            
+            try {
+                float qValue = Float.valueOf(parts[QvalField].replace("<", ""));
+                // Ignore everything with high q-value,
+                // specified by Ethan
+                if (qValue >= 0.1) {
+                    continue;
+                }
+                mutSig.setqValue(qValue);
+            } catch (java.lang.NumberFormatException e) {
+            }
+
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(hugoGeneSymbol);
+            if (gene==null) {
+                continue;
+            }
+            mutSig.setCanonicalGene(gene);
 
             // -- end load parameters for new MutSig object --
 
-            MutSig mutSig = new MutSig(internalId, gene, rank, numBasesCovered, numMutations, pValue, qValue);
             loadedMutSigs += addMutSig(mutSig);
 
-            line = buf.readLine();
         }
         return loadedMutSigs;
     }

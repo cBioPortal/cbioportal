@@ -17,7 +17,7 @@
 ./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/private-override/prad_mich/prad_mich.seg
 
 # Imports MRNA Expression Data
-#./importProfileData.pl --data $CGDS_DATA_HOME/private-override/prad_mich/data_expression_median.txt --meta $CGDS_DATA_HOME/private-override/prad_mich/meta_expression_median.txt --dbmsAction clobber
+./importProfileData.pl --data $CGDS_DATA_HOME/private-override/prad_mich/data_expression_median.txt --meta $CGDS_DATA_HOME/private-override/prad_mich/meta_expression_median.txt --dbmsAction clobber
 
 # MutSig
 ./importMutSig.pl $CGDS_DATA_HOME/private-override/prad_mich/data_mutsig.txt $CGDS_DATA_HOME/private-override/prad_mich/meta_mutsig.txt

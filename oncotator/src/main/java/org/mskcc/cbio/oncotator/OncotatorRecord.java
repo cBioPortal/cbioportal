@@ -30,46 +30,25 @@ package org.mskcc.cbio.oncotator;
 /**
  * Encapsulate a Single Record from Oncotator.
  */
-public class OncotatorRecord {
+public class OncotatorRecord
+{
     private String key;
-    private String gene;
-    private String genomeChange;
-    private String proteinChange;
-    private String variantClassification;
-    private int exonAffected;
-    private String cosmicOverlappingMutations;
-    private String dbSnpRs;
+	private String genomeChange;
+	private String dbSnpRs;
+	private String cosmicOverlappingMutations;
 
-    public OncotatorRecord (String key) {
+	private Transcript bestCanonicalTranscript;
+	private Transcript bestEffectTranscript;
+
+    public OncotatorRecord (String key)
+    {
         this.key = key;
+	    this.bestCanonicalTranscript = new Transcript();
+	    this.bestEffectTranscript = new Transcript();
     }
 
     public String getKey() {
         return key;
-    }
-
-    public String getProteinChange() {
-        return proteinChange;
-    }
-
-    public void setProteinChange(String proteinChange) {
-        this.proteinChange = proteinChange;
-    }
-
-    public String getVariantClassification() {
-        return variantClassification;
-    }
-
-    public void setVariantClassification(String variantClassification) {
-        this.variantClassification = variantClassification;
-    }
-
-    public String getGene() {
-        return gene;
-    }
-
-    public void setGene(String gene) {
-        this.gene = gene;
     }
 
     public String getGenomeChange() {
@@ -78,14 +57,6 @@ public class OncotatorRecord {
 
     public void setGenomeChange(String genomeChange) {
         this.genomeChange = genomeChange;
-    }
-
-    public int getExonAffected() {
-        return exonAffected;
-    }
-
-    public void setExonAffected(int exonAffected) {
-        this.exonAffected = exonAffected;
     }
 
     public String getCosmicOverlappingMutations() {
@@ -103,4 +74,24 @@ public class OncotatorRecord {
     public void setDbSnpRs(String dbSnpRs) {
         this.dbSnpRs = dbSnpRs;
     }
+
+	public Transcript getBestCanonicalTranscript()
+	{
+		return bestCanonicalTranscript;
+	}
+
+	public void setBestCanonicalTranscript(Transcript bestCanonicalTranscript)
+	{
+		this.bestCanonicalTranscript = bestCanonicalTranscript;
+	}
+
+	public Transcript getBestEffectTranscript()
+	{
+		return bestEffectTranscript;
+	}
+
+	public void setBestEffectTranscript(Transcript bestEffectTranscript)
+	{
+		this.bestEffectTranscript = bestEffectTranscript;
+	}
 }

@@ -78,11 +78,11 @@ public class DaoOncotatorCache
                             " `EXON_AFFECTED`, `COSMIC_OVERLAP`, `DB_SNP_RS`)" +
                             " VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setString(1, record.getKey());
-            pstmt.setString(2, record.getGene());
+            pstmt.setString(2, record.getBestCanonicalTranscript().getGene());
             pstmt.setString(3, record.getGenomeChange());
-            pstmt.setString(4, record.getProteinChange());
-            pstmt.setString(5, record.getVariantClassification());
-            pstmt.setInt(6, record.getExonAffected());
+            pstmt.setString(4, record.getBestCanonicalTranscript().getProteinChange());
+            pstmt.setString(5, record.getBestCanonicalTranscript().getVariantClassification());
+            pstmt.setInt(6, record.getBestCanonicalTranscript().getExonAffected());
             pstmt.setString(7, record.getCosmicOverlappingMutations());
             pstmt.setString(8, record.getDbSnpRs());
             int rows = pstmt.executeUpdate();
@@ -113,12 +113,12 @@ public class DaoOncotatorCache
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 OncotatorRecord record = new OncotatorRecord(rs.getString("CACHE_KEY"));
-                record.setGene(rs.getString("GENE_SYMBOL"));
+                record.getBestCanonicalTranscript().setGene(rs.getString("GENE_SYMBOL"));
                 record.setGenomeChange(rs.getString("GENOME_CHANGE"));
-                record.setProteinChange(rs.getString("PROTEIN_CHANGE"));
-                record.setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
+                record.getBestCanonicalTranscript().setProteinChange(rs.getString("PROTEIN_CHANGE"));
+                record.getBestCanonicalTranscript().setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
                 record.setCosmicOverlappingMutations(rs.getString("COSMIC_OVERLAP"));
-                record.setExonAffected(rs.getInt("EXON_AFFECTED"));
+                record.getBestCanonicalTranscript().setExonAffected(rs.getInt("EXON_AFFECTED"));
                 record.setDbSnpRs(rs.getString("DB_SNP_RS"));
                 return record;
             } else {

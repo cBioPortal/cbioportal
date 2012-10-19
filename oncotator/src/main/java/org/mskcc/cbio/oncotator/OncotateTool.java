@@ -41,12 +41,13 @@ import java.util.HashMap;
  */
 public class OncotateTool
 {
-    private final static String TAB = "\t";
-	private final static String SILENT_MUTATION = "Silent";
-    private int buildNumErrors = 0;
-    private OncotatorService oncotatorService;
-    private static int MAX_NUM_RECORDS_TO_PROCESS = -1;
+    protected static final String TAB = "\t";
+	protected static final String SILENT_MUTATION = "Silent";
+    protected static int MAX_NUM_RECORDS_TO_PROCESS = -1;
     private static final int DEFAULT_ONCO_HEADERS_COUNT = 5;
+
+	protected int buildNumErrors = 0;
+	protected OncotatorService oncotatorService;
 
     //private HashMap<String, Integer> genomicCountMap;
 
@@ -56,7 +57,7 @@ public class OncotateTool
 	    //this.genomicCountMap = new HashMap<String, Integer>();
     }
 
-	private int oncotateMaf(File inputMafFile,
+	protected int oncotateMaf(File inputMafFile,
 			File outputMafFile,
 			boolean noCache) throws IOException, SQLException
 	{
@@ -74,9 +75,10 @@ public class OncotateTool
 		int numRecordsProcessed = 0;
 		FileWriter writer = new FileWriter(outputMafFile);
 
-		writeHeaders(headerLine,
-		             calculateOncoHeaderCount(mafUtil),
-		             writer);
+		headerLine = this.removeExistingOncoHeaders(headerLine,
+			calculateOncoHeaderCount(mafUtil));
+
+		this.writeHeaders(headerLine, writer);
 
 		while (dataLine != null)
 		{
@@ -114,24 +116,24 @@ public class OncotateTool
 		return this.oncotatorService.getErrorCount();
 	}
 
-    private void outputFileNames(File inputMafFile, File outputMafFile) {
+	protected void outputFileNames(File inputMafFile, File outputMafFile) {
         System.out.println("Reading MAF From:  " + inputMafFile.getAbsolutePath());
         System.out.println("Writing new MAF To:  " + outputMafFile.getAbsolutePath());
     }
 
-    private void conditionallyAbort(int numRecordsProcessed) {
+	protected void conditionallyAbort(int numRecordsProcessed) {
         if (MAX_NUM_RECORDS_TO_PROCESS > 0 && numRecordsProcessed > MAX_NUM_RECORDS_TO_PROCESS) {
             throw new IllegalStateException("Aborting at " + MAX_NUM_RECORDS_TO_PROCESS + " records");
         }
     }
 
-    private void writeEmptyDataFields(FileWriter writer) throws IOException {
+	protected void writeEmptyDataFields(FileWriter writer) throws IOException {
         for (int i=0; i< DEFAULT_ONCO_HEADERS_COUNT; i++) {
             writer.write(TAB + "");
         }
     }
 
-	private void writeSilentDataFields(FileWriter writer) throws IOException
+	protected void writeSilentDataFields(FileWriter writer) throws IOException
 	{
 		writer.write(TAB + SILENT_MUTATION);
 
@@ -140,32 +142,37 @@ public class OncotateTool
 		}
 	}
 
-    private void writeHeaders(String headerLine,
-		    Integer oncoHeaderCount,
+	protected String removeExistingOncoHeaders(String headerLine,
+			Integer oncoHeaderCount)
+	{
+		String newHeaderLine = headerLine.trim();
+
+		// header has oncotator columns, remove those column from the end
+		// (assuming oncotator columns are always at the end)
+		if (oncoHeaderCount > 0)
+		{
+			String[] parts = newHeaderLine.split(TAB);
+			newHeaderLine = "";
+
+			for (int i = 0; i < parts.length - oncoHeaderCount; i++)
+			{
+				newHeaderLine += parts[i];
+
+				if (i != parts.length - oncoHeaderCount - 1)
+				{
+					newHeaderLine += TAB;
+				}
+			}
+		}
+
+		return newHeaderLine;
+	}
+
+	protected void writeHeaders(String headerLine,
 		    FileWriter writer) throws IOException
     {
-	    String newHeaderLine = headerLine.trim();
-
-        // header has oncotator columns, remove those column from the end
-	    // (assuming oncotator columns are always at the end)
-        if (oncoHeaderCount > 0)
-        {
-	        String[] parts = newHeaderLine.split(TAB);
-	        newHeaderLine = "";
-
-	        for (int i = 0; i < parts.length - oncoHeaderCount; i++)
-	        {
-		        newHeaderLine += parts[i];
-
-		        if (i != parts.length - oncoHeaderCount - 1)
-		        {
-			        newHeaderLine += TAB;
-		        }
-	        }
-        }
-
 		// write the new header line (without oncotator columns)
-	    writer.write(newHeaderLine);
+	    writer.write(headerLine);
 
         // append oncotator headers to the end of the header list
         writer.write(TAB + "ONCOTATOR_VARIANT_CLASSIFICATION");
@@ -177,7 +184,7 @@ public class OncotateTool
         writer.write("\n");
     }
 
-    private void conditionallyOncotateRecord(MafRecord mafRecord,
+	protected void conditionallyOncotateRecord(MafRecord mafRecord,
 		    FileWriter writer) throws IOException, SQLException
     {
         String ncbiBuild = mafRecord.getNcbiBuild();
@@ -199,17 +206,17 @@ public class OncotateTool
         }
     }
 
-    private void abortDueToBuildNumErrors() {
+	protected void abortDueToBuildNumErrors() {
         System.out.println("Too many records with wrong build #.  Aborting...");
         System.exit(1);
     }
 
-    private void outputBuildNumErrorMessage(String ncbiBuild) {
+	protected void outputBuildNumErrorMessage(String ncbiBuild) {
         System.out.println("Record uses NCBI Build:  " + ncbiBuild);
         System.out.println("-->  Oncotator only works with Build 37/hg19.");
     }
 
-    private void oncotateRecord(MafRecord mafRecord,
+	protected void oncotateRecord(MafRecord mafRecord,
 		    FileWriter writer) throws IOException, SQLException
     {
         String chr = mafRecord.getChr();
@@ -234,7 +241,7 @@ public class OncotateTool
         }
     }
 
-    private String determineTumorAllele(MafRecord mafRecord,
+	protected String determineTumorAllele(MafRecord mafRecord,
 		    String refAllele)
     {
         String tumorAllel1 = mafRecord.getTumorSeqAllele1();
@@ -248,22 +255,28 @@ public class OncotateTool
         return tumorAllele;
     }
 
-    private void writeOncotatorResults(Writer writer,
+	protected void writeOncotatorResults(Writer writer,
 		    OncotatorRecord oncotatorRecord) throws IOException
     {
-        String proteinChange = oncotatorRecord.getProteinChange();
-        String cosmicOverlapping = oncotatorRecord.getCosmicOverlappingMutations();
-        String dbSnpRs = oncotatorRecord.getDbSnpRs();
-        String variantClassification = oncotatorRecord.getVariantClassification();
-        String geneSymbol = oncotatorRecord.getGene();
-        writer.write(TAB + outputField(variantClassification));
+        String proteinChange =
+		        oncotatorRecord.getBestCanonicalTranscript().getProteinChange();
+        String cosmicOverlapping =
+		        oncotatorRecord.getCosmicOverlappingMutations();
+        String dbSnpRs =
+		        oncotatorRecord.getDbSnpRs();
+        String variantClassification =
+		        oncotatorRecord.getBestCanonicalTranscript().getVariantClassification();
+        String geneSymbol =
+		        oncotatorRecord.getBestCanonicalTranscript().getGene();
+
+	    writer.write(TAB + outputField(variantClassification));
         writer.write(TAB + outputField(proteinChange));
         writer.write(TAB + outputField(cosmicOverlapping));
         writer.write(TAB + outputField(dbSnpRs));
         writer.write(TAB + outputField(geneSymbol));
     }
-    
-    private String outputField(String field)
+
+	protected String outputField(String field)
     {
         if (field == null) {
             return "";
@@ -272,7 +285,7 @@ public class OncotateTool
         }
     }
 
-    private String createCoordinates(String chr, long start, long end,
+	protected String createCoordinates(String chr, long start, long end,
                                      String refAllele, String tumorAllele)
     {
         return chr + "_" + start + "_" + end + "_" + refAllele 
@@ -292,10 +305,9 @@ public class OncotateTool
      * @param util		MAF util containing header information
      * @return			adjusted data line
      */
-    private String adjustDataLine(String dataLine, MafUtil util)
+    protected String adjustDataLine(String dataLine, MafUtil util)
     {
     	String line = "";
-	    boolean oncotated = false;
 
 	    // check if already oncotated
 	    Integer actualOncoHeaderCount = calculateOncoHeaderCount(util);
@@ -326,7 +338,14 @@ public class OncotateTool
     	return line;
     }
 
-	private Integer calculateOncoHeaderCount(MafUtil util)
+	/**
+	 * Calculates the actual number of Oncotator headers in the MAF file.
+	 * Assuming there is at most DEFAULT_ONCO_HEADERS_COUNT headers.
+	 *
+	 * @param util  MafUtil instance having header indices
+	 * @return      actual number of Oncotator headers
+	 */
+	protected Integer calculateOncoHeaderCount(MafUtil util)
 	{
 		Integer oncoHeaderCount = 0;
 

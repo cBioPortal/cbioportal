@@ -52,7 +52,7 @@ public class OncotatorParser
         ObjectMapper m = new ObjectMapper();
         JsonNode rootNode = m.readValue(json, JsonNode.class);
         
-        OncotatorRecord oncotator = new OncotatorRecord(key);
+        OncotatorRecord oncoRecord = new OncotatorRecord(key);
         
         // check if JSON has an ERROR
         
@@ -67,36 +67,58 @@ public class OncotatorParser
         
         JsonNode genomeChange = rootNode.path("genome_change");
         if (!genomeChange.isMissingNode()) {
-            oncotator.setGenomeChange(genomeChange.getTextValue());
+            oncoRecord.setGenomeChange(genomeChange.getTextValue());
         }
 
         JsonNode cosmic = rootNode.path("Cosmic_overlapping_mutations");
         if (!cosmic.isMissingNode()) {
-            oncotator.setCosmicOverlappingMutations(cosmic.getTextValue());
+            oncoRecord.setCosmicOverlappingMutations(cosmic.getTextValue());
         }
 
         JsonNode dbSnpRs = rootNode.path("dbSNP_RS");
         if (!dbSnpRs.isMissingNode()) {
-            oncotator.setDbSnpRs(dbSnpRs.getTextValue());
+            oncoRecord.setDbSnpRs(dbSnpRs.getTextValue());
         }
 
-        JsonNode bestTranscriptIndexNode = rootNode.path("best_canonical_transcript");
+        JsonNode bestCanonicalTranscriptIdxNode = rootNode.path("best_canonical_transcript");
+	    JsonNode bestEffectTranscriptIdxNode = rootNode.path("best_effect_transcript");
+	    JsonNode transcriptsNode = rootNode.path("transcripts");
+	    int transcriptIndex;
 
-        if (!bestTranscriptIndexNode.isMissingNode()) {
-            int transcriptIndex = bestTranscriptIndexNode.getIntValue();
-            JsonNode transcriptsNode = rootNode.path("transcripts");
-            JsonNode bestTranscriptNode = transcriptsNode.get(transcriptIndex);
-
-            String variantClassification = bestTranscriptNode.path("variant_classification").getTextValue();
-            String proteinChange = bestTranscriptNode.path("protein_change").getTextValue();
-            String geneSymbol = bestTranscriptNode.path("gene").getTextValue();
-            int exonAffected = bestTranscriptNode.path("exon_affected").getIntValue();
-            oncotator.setVariantClassification(variantClassification);
-            oncotator.setProteinChange(proteinChange);
-            oncotator.setGene(geneSymbol);
-            oncotator.setExonAffected(exonAffected);
+        if (!bestCanonicalTranscriptIdxNode.isMissingNode())
+        {
+            transcriptIndex = bestCanonicalTranscriptIdxNode.getIntValue();
+	        oncoRecord.setBestCanonicalTranscript(parseTranscriptNode(
+			        transcriptsNode, transcriptIndex));
         }
 
-        return oncotator;
+	    if (!bestEffectTranscriptIdxNode.isMissingNode())
+	    {
+		    transcriptIndex = bestEffectTranscriptIdxNode.getIntValue();
+		    oncoRecord.setBestEffectTranscript(parseTranscriptNode(
+				    transcriptsNode, transcriptIndex));
+	    }
+
+        return oncoRecord;
     }
+
+	public static Transcript parseTranscriptNode(JsonNode transcriptsNode,
+			int transcriptIndex)
+	{
+		JsonNode bestTranscriptNode = transcriptsNode.get(transcriptIndex);
+
+		String variantClassification = bestTranscriptNode.path("variant_classification").getTextValue();
+		String proteinChange = bestTranscriptNode.path("protein_change").getTextValue();
+		String geneSymbol = bestTranscriptNode.path("gene").getTextValue();
+		int exonAffected = bestTranscriptNode.path("exon_affected").getIntValue();
+
+		Transcript transcript = new Transcript();
+
+		transcript.setVariantClassification(variantClassification);
+		transcript.setProteinChange(proteinChange);
+		transcript.setGene(geneSymbol);
+		transcript.setExonAffected(exonAffected);
+
+		return transcript;
+	}
 }

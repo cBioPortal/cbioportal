@@ -244,6 +244,11 @@
 	  <artifactId>slf4j-jdk14</artifactId>
 	  <version>1.6.6</version>
 	</dependency>
+	<dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-api</artifactId>
+	  <version>1.6.6</version>
+	</dependency>
 
 	<!-- spring 3 -->
 	<dependency>
@@ -291,10 +296,20 @@
 
 	<!-- core portal module -->
 	<dependency>
-		<groupId>org.mskcc.cbio</groupId>
-		<artifactId>core</artifactId>
-		<version>${project.version}</version>
+          <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>core</artifactId>
+	  <version>${project.version}</version>
 	</dependency>
+        
+        <!-- 3rd party jars -->
+        <!--the following jars should be installed first: 
+        http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html-->
+        <dependency>
+          <!--download jar from http://loci.wisc.edu/software/bio-formats-->
+          <groupId>loci</groupId>
+	  <artifactId>bio-formats</artifactId>
+	  <version>4.5</version>
+        </dependency>
 
   </dependencies>
 

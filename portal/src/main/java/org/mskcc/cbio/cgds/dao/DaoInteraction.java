@@ -162,16 +162,8 @@ public class DaoInteraction {
     public ArrayList<Interaction> getInteractions (CanonicalGene gene,
             Collection<String> dataSources)
         throws DaoException {
-        Connection con = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                    false, true, dataSources, con);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeConnection(con);
-        }
+        return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
+                false, true, dataSources, null);
     }
 
     /**
@@ -186,16 +178,8 @@ public class DaoInteraction {
             boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes,
             Collection<String> dataSources)
         throws DaoException {
-        Connection con = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
-                    seedGeneOnly, includeEdgesAmongLinkerGenes, dataSources, con);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeConnection(con);
-        }
+        return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
+                seedGeneOnly, includeEdgesAmongLinkerGenes, dataSources, null);
     }
     
     /**
@@ -207,15 +191,7 @@ public class DaoInteraction {
      */
     public ArrayList<Interaction> getInteractions (Collection<Long> entrezGeneIds,
             Collection<String> dataSources) throws DaoException {
-        Connection con = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            return getInteractions(entrezGeneIds, false, true, dataSources, con); 
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeConnection(con);
-        }
+        return getInteractions(entrezGeneIds, false, true, dataSources, null);
     }
 
     /**
@@ -230,9 +206,6 @@ public class DaoInteraction {
             boolean seedGeneOnly, boolean includeEdgesAmongLinkerGenes, 
             Collection<String> dataSources, Connection con)
         throws DaoException {
-        if (con == null) {
-            throw new NullPointerException("Null SQL connection");
-        }
         ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         if (entrezGeneIds.isEmpty()) {
             return interactionList;
@@ -240,6 +213,9 @@ public class DaoInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
+                        if (con == null || con.isClosed()) {
+                                con = JdbcUtil.getDbConnection();
+                        }
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
             String dsStr = dataSources==null?null:("('"+StringUtils.join(dataSources,"','")+"')");
             if (seedGeneOnly) {
@@ -278,7 +254,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
 

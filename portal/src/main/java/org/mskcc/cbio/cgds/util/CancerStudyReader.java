@@ -72,21 +72,16 @@ public class CancerStudyReader {
       if ( typeOfCancer == null) {
          throw new IllegalArgumentException("type of cancer is not specified.");
       }
-
-      String pmid = properties.getProperty("pmid");
-      String citation = properties.getProperty("citation");
       
       return addCancerStudy(cancerStudyIdentifier, name, description, 
-               typeOfCancer, publicStudy( properties ), pmid, citation);
+               typeOfCancer, publicStudy( properties ) );
    }
 
    private static CancerStudy addCancerStudy(String cancerStudyIdentifier, String name, String description, 
-            String typeOfCancer, boolean publicStudy, String pmid, String citation)
+            String typeOfCancer, boolean publicStudy )
             throws DaoException {
       CancerStudy cancerStudy = new CancerStudy( name, description, 
                cancerStudyIdentifier, typeOfCancer, publicStudy );
-      cancerStudy.setPmid(pmid);
-      cancerStudy.setCitation(citation);
       DaoCancerStudy.addCancerStudy(cancerStudy);
       return cancerStudy;
    }

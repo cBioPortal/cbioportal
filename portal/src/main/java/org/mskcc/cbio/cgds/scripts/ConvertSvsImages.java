@@ -36,6 +36,7 @@ import loci.formats.FormatTools;
 public class ConvertSvsImages {
     public static void main(String[] args) {
         try {
+            System.out.println("Convert images");
             FormatTools.convert(args[0], args[1]);
         } catch (Exception ex) {
             ex.printStackTrace();

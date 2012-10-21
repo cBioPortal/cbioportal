@@ -306,9 +306,9 @@
         http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html-->
         <dependency>
           <!--download jar from http://loci.wisc.edu/software/bio-formats-->
-          <groupId>loci</groupId>
+          <!--groupId>loci</groupId>
 	  <artifactId>bio-formats</artifactId>
-	  <version>4.5</version>
+	  <version>4.5</version-->
         </dependency>
 
   </dependencies>

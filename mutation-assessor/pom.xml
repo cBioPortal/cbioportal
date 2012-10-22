@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.mskcc.cbio</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>mutation-assessor</artifactId>
+	<name>Mutation Assessor Importer</name>
+
+	<!-- dependencies -->
+	<dependencies>
+
+		<!-- oncotator -->
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>oncotator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- portal core -->
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<!-- plugins -->
+		<plugins>
+
+			<!-- java 1.6 support -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-5</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>org.mskcc.cbio.mutassessor.MutationAssessorImporter</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+
+		<!-- prevent some resources from getting into jar -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>build.properties.*</exclude>
+					<exclude>db.properties.EXAMPLE</exclude>
+					<exclude>*.sql</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+	</build>
+
+
+</project>

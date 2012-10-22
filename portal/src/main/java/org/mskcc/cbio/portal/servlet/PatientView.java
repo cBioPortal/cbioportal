@@ -1,7 +1,10 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +13,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.util.SkinUtil;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
@@ -38,6 +47,7 @@ public class PatientView extends HttpServlet {
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
     public static final String CLINICAL_DATA = "clinical_data";
+    public static final String TISSUE_IMAGES = "tissue_images";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
@@ -261,6 +271,12 @@ public class PatientView extends HttpServlet {
         }
         
         request.setAttribute(PATIENT_STATUS, patientStatus.toString());
+        
+        // images
+        List<String> tisImages = getTissueImages(cancerStudy.getCancerStudyStableId(), patient);
+        if (tisImages!=null) {
+            request.setAttribute(TISSUE_IMAGES, tisImages);
+        }
     }
     
     private Map<String,ClinicalFreeForm> getClinicalFreeform(String patient) throws DaoException {
@@ -327,6 +343,54 @@ public class PatientView extends HttpServlet {
         }
         
         return null;
+    }
+    
+    // Map<StudyId, Map<CaseId, List<ImageName>>>
+    private static Map<String,Map<String,List<String>>> tissueImages
+            = new HashMap<String,Map<String,List<String>>>();
+    private synchronized List<String> getTissueImages(String cancerStudyId, String caseId) {
+        String imageListUrl = SkinUtil.getTumorTissueImageUrl(cancerStudyId)+"image_list.txt";
+            
+        Map<String,List<String>> map = tissueImages.get(cancerStudyId);
+        if (map==null) {
+            map = new HashMap<String,List<String>>();
+            tissueImages.put(cancerStudyId, map);
+        
+            MultiThreadedHttpConnectionManager connectionManager =
+                    ConnectionManager.getConnectionManager();
+            HttpClient client = new HttpClient(connectionManager);
+            GetMethod method = new GetMethod(imageListUrl);
+
+            try {
+                int statusCode = client.executeMethod(method);
+                if (statusCode == HttpStatus.SC_OK) {
+                    BufferedReader bufReader = new BufferedReader(
+                            new InputStreamReader(method.getResponseBodyAsStream()));
+                    for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
+                        String[] parts = line.split("\t");
+                        String cId = parts[0];
+                        String imageName = parts[1];
+                        List<String> list = map.get(cId);
+                        if (list==null) {
+                            list = new ArrayList<String>();
+                            map.put(cId, list);
+                        }
+                        list.add(imageName);
+                    }
+                } else {
+                    //  Otherwise, throw HTTP Exception Object
+                    logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                            + " Base URL:  " + cancerStudyId);
+                }
+            } catch (IOException ex) {
+                logger.error(ex.getMessage());
+            } finally {
+                //  Must release connection back to Apache Commons Connection Pool
+                method.releaseConnection();
+            }
+        }
+        
+        return map.get(caseId);
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

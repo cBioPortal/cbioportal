@@ -18,6 +18,8 @@ String diseaseInfo = (String)request.getAttribute(PatientView.DISEASE_INFO);
 String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
+List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
+boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
@@ -95,6 +97,10 @@ if (patientViewError!=null) {
     <%if(showCNA){%>
     <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alterations</a></li>
     <%}%>
+    
+    <%if(showTissueImages){%>
+    <li><a href='#images' class='patient-tab' title='Tissue Images'>Tissue Images</a></li>
+    <%}%>
 
     <%if(showPathways){%>
     <li><a href='#pathways' class='patient-tab' title='Pathway View'>Network</a></li>
@@ -119,6 +125,12 @@ if (patientViewError!=null) {
     <%if(showCNA){%>
     <div class="patient-section" id="cna">
         <%@ include file="cna.jsp" %>
+    </div>
+    <%}%>
+
+    <%if(showTissueImages){%>
+    <div class="patient-section" id="images">
+        <%@ include file="tissue_images.jsp" %>
     </div>
     <%}%>
 

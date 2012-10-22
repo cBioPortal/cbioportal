@@ -270,4 +270,9 @@ public class SkinUtil {
         return getTumorMapUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
                 + "=" + cancerStudyId;
     }
+    
+    public static String getTumorTissueImageUrl(String studyId) {
+        Config config = Config.getInstance();
+        return config.getProperty("tumor_image.url")+studyId+"/tissue_images/";
+    }
 }

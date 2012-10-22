@@ -131,9 +131,7 @@ var Gistic = function(gistics) {
                     "bSearchable": false,
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
-                        if (type === 'set') {
-                            source.ampdel = val;
-                        } else if (type === 'display') {
+                        if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
                                 // mark amps/dels as reds and blues
                                 return "<div class=\"gistic_amp\"></div>";
@@ -147,10 +145,7 @@ var Gistic = function(gistics) {
 
             {"sTitle": "Chr", "aTargets":[1], "bSearchable": false,
                 "mDataProp": function(source, type, val) {
-
-                    if (type === 'set') {
-                        source.chromosome = val;
-                    } else if (type === 'display') {
+                    if (type === 'display') {
                         return source.chromosome;
                     }
                     return source.chromosome;
@@ -160,9 +155,7 @@ var Gistic = function(gistics) {
             {"sTitle": "Cytoband", "aTargets":[2], "sType": "cytoband", "bSearchable": false,
                 "mDataProp": function(source, type, val) {
                     var cyto = source.cytoband;
-                    if (type === 'set') {
-                        source.cytoband = val;
-                    } else if (type === 'display') {
+                    if (type === 'display') {
                         return cyto;
                     }
                     else if (type === 'sort') {

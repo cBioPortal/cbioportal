@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.maf;
 
+import java.util.HashMap;
+
 /**
  * Utility Class for Parsing MAF Files.
  *
@@ -36,7 +38,8 @@ package org.mskcc.cbio.maf;
  */
 public class MafUtil
 {
-    private int chrIndex = -1; // CHR
+    // Standard MAF columns
+	private int chrIndex = -1; // CHR
     private int ncbiIndex = -1; // NCBI_BUILD
     private int startPositionIndex = -1; // START_POSITION
     private int endPositionIndex = -1; // END_POSITION
@@ -68,22 +71,32 @@ public class MafUtil
     private int validationMethodIndex = -1; // VALIDATION_METHOD
     private int scoreIndex = -1; // SCORE
     private int bamFileIndex = -1; // BAM_FILE
-    private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
+
+	// TODO Allele Frequency Columns
+	private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
     private int tumorRefCountIndex = -1; // TUMOR_REF_COUNT
     private int normalAltCountIndex = -1; // NORMAL_ALT_COUNT
     private int normalRefCountIndex = -1; // NORMAL_REF_COUNT
+
+	// Default Oncotator Columns
     private int oncoProteinChangeIndex = -1; // ONCOTATOR_PROTEIN_CHANGE
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
 	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
+
+	// Mutation Assessor Columns
 	private int maFImpactIndex = -1; // MA:FImpact
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
 	private int maProteinChangeIndex = -1; // MA:protein.change
-    
-    private int headerCount; // number of headers in the header line
+
+	// number of headers in the header line
+    private int headerCount;
+
+	// mapping for all column names (both standard and custom columns)
+	private HashMap<String, Integer> columnIndexMap;
 
 	/**
      * Constructor.
@@ -92,6 +105,9 @@ public class MafUtil
      */
     public MafUtil(String headerLine)
     {
+        // init column index map
+	    this.columnIndexMap = new HashMap<String, Integer>();
+
         // split header names
     	String parts[] = headerLine.split("\t");
         
@@ -102,7 +118,11 @@ public class MafUtil
         for (int i=0; i<parts.length; i++)
         {
             String header = parts[i];
-            
+
+	        // put the index to the map
+	        this.columnIndexMap.put(header.toLowerCase(), i);
+
+	        // determine standard & default column indices
             if (header.equalsIgnoreCase("Chromosome")) {
                 chrIndex = i;        
             } else if(header.equals("NCBI_Build")) {
@@ -189,13 +209,13 @@ public class MafUtil
 	            maProteinChangeIndex = i;
             }
             // TODO will be decided later...
-//	        } else if(header.equalsIgnoreCase("t_ref_count")) { // TODO alternative header names?
+//	        } else if(header.equalsIgnoreCase("t_ref_count")) {
 //	        	tumorRefCountIndex = i;
-//	        } else if(header.equalsIgnoreCase("t_alt_count")) { // TODO alternative header names?
+//	        } else if(header.equalsIgnoreCase("t_alt_count")) {
 //	        	tumorAltCountIndex = i;
-//	        } else if(header.equalsIgnoreCase("i_t_ref_count")) { // TODO is it correct header name?
+//	        } else if(header.equalsIgnoreCase("i_t_ref_count")) {
 //	        	normalRefCountIndex= i;
-//	        } else if(header.equalsIgnoreCase("i_t_alt_count")) { // TODO is it correct header name?
+//	        } else if(header.equalsIgnoreCase("i_t_alt_count")) {
 //	        	normalAltCountIndex = i;
 //	        }
         }
@@ -526,6 +546,18 @@ public class MafUtil
 	public int getMaProteinChangeIndex()
 	{
 		return maProteinChangeIndex;
+	}
+
+	public int getColumnIndex(String colName)
+	{
+		Integer index = this.columnIndexMap.get(colName.toLowerCase());
+
+		if (index == null)
+		{
+			index = -1;
+		}
+
+		return index;
 	}
 
     public int getHeaderCount() {

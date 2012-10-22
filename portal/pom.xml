@@ -304,12 +304,12 @@
         <!-- 3rd party jars -->
         <!--the following jars should be installed first: 
         http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html-->
-        <dependency>
-          <!--download jar from http://loci.wisc.edu/software/bio-formats-->
+        <!--dependency>
+          <download jar from http://loci.wisc.edu/software/bio-formats-->
           <!--groupId>loci</groupId>
 	  <artifactId>bio-formats</artifactId>
-	  <version>4.5</version-->
-        </dependency>
+	  <version>4.5</version>
+        </dependency-->
 
   </dependencies>
 

@@ -165,9 +165,9 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
         if (mutationDiagram.markups[i].type == "mutation")
         {
             var x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
-            var y1 = c - 12;
+            var y1 = c - 17;
             var x2 = x1;
-            var y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
+            var y2 = c - 17 - (per * mutationDiagram.markups[i].metadata.count);
             var lollipopFillColor = mutationDiagram.markups[i].colour[0];
             var lollipopStrokeColor = darken(lollipopFillColor);
             var markupLineColor = mutationDiagram.markups[i].lineColour;
@@ -183,7 +183,7 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
             var mutationTitle = countText + "<br/>Amino Acid Change:  " +
                                 mutationDiagram.markups[i].metadata.label + " ";
 
-            var p = paper.path("M" + x1 + " " + (c - 7) + "L" + x2 + " " + y2)
+            var p = paper.path("M" + x1 + " " + (c - 5) + "L" + x2 + " " + y2)
                 .toBack()
                 .attr({"stroke": markupLineColor, "stroke-width": 1});
 
@@ -223,7 +223,7 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
 function _drawMutationScale(paper, maxCount, x, per, c, scaleColors)
 {
     var scaleX = x - 15;
-    var scaleY = c - 8;
+    var scaleY = c - 13;
     var scaleH = maxCount * per;
     //scaleW = scaleHoriz(8, w, l);
     var scaleW = 10; // no need to scale width, set a fixed value
@@ -385,7 +385,7 @@ function _drawDiagramLabels(paper, label)
     paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
     // label for y-axis
-    var yAxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+    var yAxis = paper.text(-27, 100, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
     yAxis.rotate(270);
 }
 

@@ -1,8 +1,8 @@
 # October 22, 2012
 
 * All data updated to the __Broad Firehose__ run from July 25, 2012.
-* __COSMIC data__ added to Mutation Details (via Oncotator)
-* All predicted functional impact scores are updated to __Mutation Assessor 2.0__
+* __COSMIC data__ added to Mutation Details (via Oncotator).
+* All predicted functional impact scores are updated to __Mutation Assessor 2.0__.
 * Users can now base queries on genes in recurrent regions of copy-number alteration (from __GISTIC__ via Firehose).
 * The [Onco Query Language (OQL)](onco_query_lang_desc.jsp) now supports queries for specific mutations or mutation types.
 * Data sets added that match the data of all TCGA publications (GBM, ovarian, colorectal, and lung squamous).

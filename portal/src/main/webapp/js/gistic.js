@@ -301,28 +301,35 @@ Gistic.UI = ( function() {
             var current_selection = $('#select_cancer_type').val();
 
             // if Gistic has never been run then Gistic.last_selection =
-            // undefined, otherwise, check to prevent multiple AJAXs of the
+            // undefined, otherwise, check to prevent multiple AJAXs for the
             // same cancer study
             if (Gistic.last_selection !== current_selection) {
 
                 // save this for later comparision
                 Gistic.last_selection = current_selection;
 
+                // hide the table while new data loads
+                $('#gistic_table_wrapper').hide();
+                $('#gistic_dialog_footer').hide();
+
                 $.ajax({
                     url: 'Gistic.json',
                     data: {'selected_cancer_type': current_selection},
                     dataType: 'json',
                     success: function(data) {
-                        $('#gistic_loading').hide();
-
                         GISTIC = Gistic(data);
 
                         GISTIC.drawTable(Gistic.table_el, genes, options);
+
+                        // table is ready to be shown!
+                        $('#gistic_loading').hide();
+                        $('#gistic_table_wrapper').show();
+                        $('#gistic_dialog_footer').show();
                     }
                 });
             } else {
                 $('#gistic_loading').hide();
-                GISTIC.drawTable(Gistic.table_el, genes, options);
+//                GISTIC.drawTable(Gistic.table_el, genes, options);
             }
 
             // redraw table

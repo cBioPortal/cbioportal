@@ -65,13 +65,6 @@ public interface DatabaseUtils {
     public String getImporterDatabaseName();
 
 	/**
-	 * Returns the portal database name.
-	 *
-	 * @return String
-	 */
-    public String getPortalDatabaseName();
-
-	/**
 	 * Returns the gene information database name.
 	 *
 	 * @return String

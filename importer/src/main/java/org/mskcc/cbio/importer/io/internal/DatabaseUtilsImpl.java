@@ -85,13 +85,6 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Override
     public String getImporterDatabaseName() { return this.importerDatabaseName; }
 
-	// portal database name
-	private String portalDatabaseName;
-	@Value("${portal_database_name}")
-	public void setPortalDatabaseName(final String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
-	@Override
-    public String getPortalDatabaseName() { return this.portalDatabaseName; }
-
 	// gene information database name
 	private String geneInformationDatabaseName;
 	@Value("${gene_information_database_name}")

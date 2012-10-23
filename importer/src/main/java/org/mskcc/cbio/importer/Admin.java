@@ -91,7 +91,7 @@ public class Admin implements Runnable {
 
         Option fetchReferenceData = (OptionBuilder.withArgName("reference-data")
 									  .hasArg()
-									  .withDescription("fetchs reference data")
+									  .withDescription("fetch reference data")
 									  .create("fetch_reference_data"));
 
         Option convertData = (OptionBuilder.withArgName("portal")

@@ -35,7 +35,6 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DatabaseMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,11 +109,6 @@ final class GDataImpl implements Config {
 	private String dataSourceMetadataProperty;
 	@Value("${data_sources_metadata}")
 	public void setDataSourceMetadataProperty(final String property) { this.dataSourceMetadataProperty = property; }
-
-	// database metadata
-	private String databaseMetadataProperty;
-	@Value("${database_metadata}")
-	public void setDatabaseMetadataProperty(final String property) { this.databaseMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -349,63 +343,6 @@ final class GDataImpl implements Config {
 
 		if (toReturn == null && LOG.isInfoEnabled()) {
 			LOG.info("getReferenceMetadata(), toReturn is null.");
-		}
-
-        // outta here
-        return toReturn;
-	}
-
-	/**
-	 * Gets DatabaseeMetadata.
-	 *
-	 * @return DatabaseMetadata
-	 */
-	@Override
-	public DatabaseMetadata getDatabaseMetadata() {
-
-		DatabaseMetadata toReturn = null;
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatabaseMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = databaseMetadataProperty.split(":");
-		if (properties.length != 8) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDatabaseMetadata: " + databaseMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() == 1) {
-					ListEntry entry = feed.getEntries().get(0);
-					toReturn = new DatabaseMetadata(entry.getCustomElements().getValue(properties[1]),
-													entry.getCustomElements().getValue(properties[2]),
-													entry.getCustomElements().getValue(properties[3]),
-													entry.getCustomElements().getValue(properties[4]),
-													entry.getCustomElements().getValue(properties[5]),
-													entry.getCustomElements().getValue(properties[6]),
-													entry.getCustomElements().getValue(properties[7]));
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (toReturn == null && LOG.isInfoEnabled()) {
-			LOG.info("getDatabaseMetadata(), toReturn is null.");
 		}
 
         // outta here

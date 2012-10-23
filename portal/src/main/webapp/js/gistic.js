@@ -85,9 +85,9 @@ var Gistic = function(gistics) {
             return true;
         }
 
-        data = dt.fnGetData(),          // gistic objects
+        data = Gistic.dt.fnGetData(),                   // gistic objects
             no_data = data.length,
-            nodes = dt.fnGetNodes();    // DOM elementsk
+            nodes = Gistic.dt.fnGetNodes();             // DOM elementsk
 
         //for (var i = 0; i < no_data; i += 1) {
         //    var node = data[i];

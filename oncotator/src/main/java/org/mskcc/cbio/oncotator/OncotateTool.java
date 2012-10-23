@@ -51,15 +51,36 @@ public class OncotateTool
 
     //private HashMap<String, Integer> genomicCountMap;
 
+	/**
+	 * Default constructor with the default oncotator service.
+	 */
     public OncotateTool()
     {
-	    this.oncotatorService = OncotatorService.getInstance();
+	    this.oncotatorService = new OncotatorService();
 	    //this.genomicCountMap = new HashMap<String, Integer>();
     }
 
+	/**
+	 * Alternative constructor with a specific oncotator service.
+	 */
+	public OncotateTool(OncotatorService oncotatorService)
+	{
+		this.oncotatorService = oncotatorService;
+	}
+
+	/**
+	 * Oncotates the given input MAF file and creates a new MAF
+	 * file with new/updated oncotator columns.
+	 *
+	 * @param inputMafFile  input MAF
+	 * @param outputMafFile output MAF
+	 * @param noCache       flag to indicate whether to use cache or not
+	 * @return              number of errors (if any) during the process
+	 * @throws Exception    if an (IO or service) Exception occurs
+	 */
 	protected int oncotateMaf(File inputMafFile,
 			File outputMafFile,
-			boolean noCache) throws IOException, SQLException
+			boolean noCache) throws Exception
 	{
 		// determine whether to use the DB cache or not
 		this.oncotatorService.setUseCache(!noCache);
@@ -185,7 +206,7 @@ public class OncotateTool
     }
 
 	protected void conditionallyOncotateRecord(MafRecord mafRecord,
-		    FileWriter writer) throws IOException, SQLException
+		    FileWriter writer) throws Exception
     {
         String ncbiBuild = mafRecord.getNcbiBuild();
 
@@ -217,7 +238,7 @@ public class OncotateTool
     }
 
 	protected void oncotateRecord(MafRecord mafRecord,
-		    FileWriter writer) throws IOException, SQLException
+		    FileWriter writer) throws Exception
     {
         String chr = mafRecord.getChr();
         long start = mafRecord.getStartPosition();

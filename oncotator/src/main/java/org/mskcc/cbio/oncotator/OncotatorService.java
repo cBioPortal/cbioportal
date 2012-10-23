@@ -39,32 +39,40 @@ import java.sql.SQLException;
 /**
  * Connects to Oncotator and Retrieves Details on a Single Mutation.
  */
-public class OncotatorService {
-    private static OncotatorService oncotatorService;
+public class OncotatorService
+{
+	//private static final Logger logger = Logger.getLogger(OncotatorService.class);
+    //private static OncotatorService oncotatorService;
     private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
-    //private static final Logger logger = Logger.getLogger(OncotatorService.class);
-    private DaoOncotatorCache cache;
-    private final static long SLEEP_PERIOD = 0;  // in ms
+	private final static long SLEEP_PERIOD = 0;  // in ms
 
+    private OncotatorCacheService cache;
 	private int errorCount = 0;
 	private boolean useCache = true;
 
-    private OncotatorService () {
-        cache = DaoOncotatorCache.getInstance();
+	/**
+	 * Default constructor with the default cache DAO.
+	 */
+    public OncotatorService()
+    {
+        this.cache = DaoOncotatorCache.getInstance();
     }
 
-    public static OncotatorService getInstance() {
-        if (oncotatorService == null) {
-            oncotatorService = new OncotatorService();
-        }
-        return oncotatorService;
-    }
+	/**
+	 * Alternative constructor with a cache service option.
+	 *
+	 * @param cache     cache service instance
+	 */
+	public OncotatorService(OncotatorCacheService cache)
+	{
+		this.cache = cache;
+	}
 
     public OncotatorRecord getOncotatorRecord(String chr,
 		    long start,
 		    long end,
 		    String referenceAllele,
-            String observedAllele) throws IOException, SQLException
+            String observedAllele) throws Exception
     {
         String key = createKey(chr, start, end, referenceAllele, observedAllele);
 
@@ -107,8 +115,8 @@ public class OncotatorService {
 		                // the DB at the same time)
 		                try {
 			                cache.put(record);
-		                } catch (SQLException e) {
-			                System.out.println("SQL error: " + e.getMessage());
+		                } catch (Exception e) {
+			                System.out.println("Cache error: " + e.getMessage());
 			                this.errorCount++;
 		                }
 	                }

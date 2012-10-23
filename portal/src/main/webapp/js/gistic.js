@@ -1,5 +1,3 @@
-var selected_cancer_type = 'tcga_gbm';
-
 var Gistic = function(gistics) {
     // store the DataTable object once it has been created
     Gistic.dt = '';
@@ -25,8 +23,14 @@ var Gistic = function(gistics) {
     };
 
     var drawGenes = function(genes, enteredGenes, search) {
+        // - genes :            the set of genes to deal with
+        // - enteredGenes :     the genes to make bold
+        // - search :           the filter string, maybe someday we'll want to incorporate
+        //                      this
+        //
         // draws the cells in the gene column with all of their special UI
         // features and CSS bindings
+        // also makes the appropriate genes bold
 
         search = search || '';
 
@@ -106,8 +110,6 @@ var Gistic = function(gistics) {
     });
 
     var self = {
-        getDt: function() {return dt;},
-
         drawTable : function(table_el, enteredGenes, options) {
             // draws a DataTable in the specific DOM element, table_el
             // with the specified DataTable options
@@ -310,6 +312,9 @@ Gistic.UI = ( function() {
                 });
             } else {
                 $('#gistic_loading').hide();
+                // want to redraw everytime you open in order to make the genes
+                // bold 
+                GISTIC.drawTable(Gistic.table_el, genes, options);
             }
 
             // update the selected_genes everytime you open the dialog

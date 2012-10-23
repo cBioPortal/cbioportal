@@ -195,8 +195,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     </tr>
 </table>
 </td>
-<%}if(showCNA){%>
+<%}if(showMutations&&showCNA){%>
 <td>&nbsp;</td>
+<%}if(showCNA){%>
 <td width="49%">
 <div id="cna_summary_wait"><img src="images/ajax-loader.gif"/> Loading copy number alterations ...</div>
 <table cellpadding="0" cellspacing="0" border="0" id="cna_summary_wrapper_table" width="100%">

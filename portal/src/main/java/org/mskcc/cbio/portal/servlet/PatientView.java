@@ -226,15 +226,43 @@ public class PatientView extends HttpServlet {
         }
         
         String stage = guessClinicalData(clinicalFreeForms, 
-                new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE","Gleason score"});
+                new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE"});
         if (stage!=null) {
             diseaseInfo.append(", ").append(stage); 
-       }
+        }
         
         String grade = guessClinicalData(clinicalFreeForms,
                 new String[]{"tumor_grade", "tumorgrade"});
         if (grade!=null) {
             diseaseInfo.append(", ").append(grade);
+        }
+        
+        // TODO: this is a hacky way to include the information in prad_mich
+        String etsRafSpink1Status = guessClinicalData(clinicalFreeForms,
+                new String[]{"ETS/RAF/SPINK1 status"});
+        if (etsRafSpink1Status!=null) {
+            diseaseInfo.append(", ").append(etsRafSpink1Status);
+        }
+        
+        // TODO: this is a hacky way to include the information in prad_broad
+        String tmprss2ErgFusionStatus = guessClinicalData(clinicalFreeForms,
+                new String[]{"TMPRSS2-ERG Fusion Status"});
+        if (tmprss2ErgFusionStatus!=null) {
+            diseaseInfo.append(", TMPRSS2-ERG Fusion: ").append(tmprss2ErgFusionStatus);
+        }
+        
+        // TODO: this is a hacky way to include the information in prad_mskcc
+        String ergFusion = guessClinicalData(clinicalFreeForms,
+                new String[]{"ERG-fusion aCGH"});
+        if (ergFusion!=null) {
+            diseaseInfo.append(", ERG-fusion aCGH: ").append(ergFusion);
+        }
+        
+        // TODO: this is a hacky way to include the serum psa information for prad
+        String serumPsa = guessClinicalData(clinicalFreeForms,
+                new String[]{"Serum PSA (ng/mL)","Serum PSA"});
+        if (serumPsa!=null) {
+            diseaseInfo.append(", Serum PSA: ").append(serumPsa);
         }
         
         request.setAttribute(DISEASE_INFO, diseaseInfo.toString());
@@ -336,7 +364,7 @@ public class PatientView extends HttpServlet {
     private String guessClinicalData(Map<String,ClinicalFreeForm> clinicalFreeForms,
             String[] paramName) {
         for (String name : paramName) {
-            ClinicalFreeForm form = clinicalFreeForms.get(name);
+            ClinicalFreeForm form = clinicalFreeForms.get(name.toLowerCase());
             if (form!=null) {
                 return form.getParamValue();
             }

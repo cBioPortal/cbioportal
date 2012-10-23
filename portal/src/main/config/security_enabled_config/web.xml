@@ -144,7 +144,7 @@
 
     <servlet>
         <servlet-name>OncoPrintJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneAlterationsJSON</servlet-class>
     </servlet>
 
     <servlet>

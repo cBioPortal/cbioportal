@@ -27,7 +27,7 @@ It is also possible to run the oncotator tool without connecting to a database. 
 it will access to the Oncotator Web Service for each entry. The execution syntax without
 a database connection is:
 
-	./oncotateMaf.sh -nodb <input_maf_file> <output_maf_file>
+	./oncotateMaf.sh -nocache <input_maf_file> <output_maf_file>
 
 INPUT FORMAT
 
@@ -36,9 +36,9 @@ In order to execute successfully, this tool needs the input MAF to satisfy the f
 	- NCBI build of the MAF should be 37 (hg19) because Broad's oncotator service works only with hg19.
 	If there are too many entries with incorrect build number, the program terminates without trying to
 	oncotate all entries.
-	- It must have these 6 standard column headers: Chromosome, Start_Position, End_Position,
+	- It must have these 7 standard column headers: Chromosome, Start_Position, End_Position,
 	Reference_Allele, Tumor_Seq_Allele1, Tumor_Seq_Allele2, and NCBI_Build.
-	- The data for each entry under these 6 data columns should conform to standard MAF specification.
+	- The data for each entry under these 7 data columns should conform to standard MAF specification.
 	See https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification
 	for details.
 

@@ -71,6 +71,13 @@ public interface DatabaseUtils {
 	 */
     public String getGeneInformationDatabaseName();
 
+	/**
+	 * Returns the portal database name.
+	 *
+	 * @return String
+	 */
+    public String getPortalDatabaseName();
+
     /**
 	 * Creates a database and optional schema.
 	 * 

@@ -92,6 +92,13 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Override
     public String getGeneInformationDatabaseName() { return this.geneInformationDatabaseName; }
 
+	// portal database name
+	private String portalDatabaseName;
+	@Value("${portal_database_name}")
+	public void setPortalDatabaseName(final String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
+	@Override
+    public String getPortalDatabaseName() { return this.portalDatabaseName; }
+
     /**
 	 * Creates a database and optional schema.
 	 * 

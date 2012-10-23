@@ -91,18 +91,6 @@ var Gistic = function(gistics) {
             no_data = data.length,
             nodes = Gistic.dt.fnGetNodes();             // DOM elementsk
 
-        //for (var i = 0; i < no_data; i += 1) {
-        //    var node = data[i];
-        //    var all_genes = node.sangerGenes.concat(node.nonSangerGenes);
-
-        //    var enteredGenes = GeneSet($('#gene_list').val()).getAllGenes();
-        //    var drawn = drawGenes(all_genes, enteredGenes, search);
-
-        //    dt.fnUpdate(
-
-        //    //dt.fnUpdate(drawn, i, 4, false);
-        //}
-
         search = new RegExp('^' + search, 'i');
 
         var genes_l = aData[0],
@@ -242,12 +230,13 @@ var Gistic = function(gistics) {
             // right cols
             $('.gistic_right_col').css('text-align', 'right');
 
-            // todo: maybe we'll want this someday
+            // {{{todo: maybe we'll want this someday
             // bind double clicking
             //Gistic.dt.fnGetNodes().forEach(function(i) {
             //    $(i).find('.gistic_gene_cell').
             //        select(Gistic.UI.select_all_genes);
             //});
+            //}}}
 
             // put in the help box
             $('#gistic_table_filter').parent().
@@ -321,7 +310,6 @@ Gistic.UI = ( function() {
                 });
             } else {
                 $('#gistic_loading').hide();
-//                GISTIC.drawTable(Gistic.table_el, genes, options);
             }
 
             // update the selected_genes everytime you open the dialog
@@ -329,9 +317,6 @@ Gistic.UI = ( function() {
                 function(val, i) {
                 return $(val).html();
             });
-
-            // redraw table
-            //Gistic.dt.fnDraw();
         },
 
         expandGisticGenes : function(el) {
@@ -385,9 +370,8 @@ Gistic.UI = ( function() {
             // push to gene set
             Gistic.gene_list_el.val(out);
         },
-
+        // {{{ todo: maybe we'll want this someday
         select_all_genes: function(el) {
-            // todo: maybe we'll want this someday
             var max = 50;       // max no of genes users are allowed to select
             var selection = $(this).find('.gistic_gene');
 
@@ -405,5 +389,6 @@ Gistic.UI = ( function() {
             }
             selection.toggleClass('gistic_selected_gene');
         }
+        // }}}
     };
 })();

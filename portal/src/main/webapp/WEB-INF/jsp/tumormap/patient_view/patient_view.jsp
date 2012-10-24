@@ -107,7 +107,7 @@ if (patientViewError!=null) {
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Tumors with similar genomic alterations</a></li>
+    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients</a></li>
     <%}%>
     
     </ul>
@@ -221,6 +221,15 @@ if (patientViewError!=null) {
         }
         .ui-tooltip-wide {
             max-width: 600px;
+        }
+        .datatable-name {
+                float: left;
+                font-weight: bold;
+                font-size: 120%;
+                vertical-align: middle;
+        }
+        .datatable-show-more {
+            float: left;
         }
 </style>
 

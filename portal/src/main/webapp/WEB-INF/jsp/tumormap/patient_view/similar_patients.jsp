@@ -117,7 +117,9 @@ A genomic overview with events aligned across patients goes here...
         $.post("similar_patients.json",
             params,
             function (simPatient) {
-                buildSimilarPatientsDataTable(simPatient, 'similar_patients_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100);
+                buildSimilarPatientsDataTable(simPatient, 'similar_patients_table', '<"H"<"similar-patients-table-name">fr>t<"F"<"datatable-paging"pil>>', 100);
+                $('.similar-patients-table-name').html(simPatient.length+" other tumors with similar genomic alterations");
+                $('.similar-patients-table-name').addClass("datatable-name");
                 $('#similar_patients_wrapper_table').show();
                 $('#similar_patients_wait').remove();
             }

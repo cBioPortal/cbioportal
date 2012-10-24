@@ -10,6 +10,12 @@ request.setAttribute("tumormap", true);
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";
         @import "css/data_table_ColVis.css";
+        .tumormap-datatable-name {
+                float: left;
+                font-weight: bold;
+                font-size: 120%;
+                vertical-align: middle;
+        }
 </style>
 
 <script type="text/javascript">
@@ -30,7 +36,7 @@ request.setAttribute("tumormap", true);
                 }
                 
                 var oTable = $('#cancer_study_table').dataTable({
-                    "sDom": '<"H"fr>t>',
+                    "sDom": '<"H"<"tumormap-datatable-name">fr>t>',
                     "bJQueryUI": true,
                     "bDestroy": true,
                     "aaData": ids,
@@ -129,6 +135,8 @@ request.setAttribute("tumormap", true);
                     },
                     "iDisplayLength": -1
                 });
+                
+                $(".tumormap-datatable-name").html("Available data sets");
                 oTable.css("width","100%");
                 $('#cancer_study_wait').hide();
                 $('#cancer_study_wrapper_table').show();
@@ -174,7 +182,7 @@ request.setAttribute("tumormap", true);
                         <th class="cancer-study-header" alt="Reference for published studies">Reference</th>
                         <th class="cancer-study-header" alt="Number of cases">Cases</th>
                         <th class="cancer-study-header" alt="Average number of mutations across samples">Avg. # Mut.</th>
-                        <th class="cancer-study-header" alt="Average copy-number-altered genome fraction across samples">Avg. CN-Altered Frac.</th>
+                        <th class="cancer-study-header" alt="Average copy-number-altered genome fraction across samples">Avg. % CNA</th>
                     </tr>
                 </thead>
             </table>

@@ -1,19 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 
-
-<style type="text/css" title="currentStyle">
-        .cna-table-name {
-                float: left;
-                font-weight: bold;
-                font-size: 120%;
-                vertical-align: middle;
-        }
-        .cna-show-more {
-            float: left;
-        }
-</style>
-
 <script type="text/javascript">
     
     var cnaTableIndices = {id:0,gene:1,alteration:2,altrate:3,drug:4};
@@ -213,13 +200,14 @@
                         'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25, "No CNA events of interest");
                 $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
+                $('.cna-show-more').addClass('datatable-show-more');
                 $('.cna-summary-table-name').html(
                     "CNA of interest <img class='cna_help' src='images/help.png'\n\
                      title='This table contains genes that are either annotated cancer genes\n\
                      or recurrently copy number altered (contained in a Gistic peak with less than\n\
                      10 genes and Q < 0.05; if Gistic results are not available,\n\
                      genes are altered in >5% of samples in the study).'/>");
-                $('.cna-summary-table-name').addClass("cna-table-name");
+                $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
@@ -228,7 +216,7 @@
                         'cna_table', '<"H"<"all-cna-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events");
                 $('.all-cna-table-name').html(
                     "This tumor has "+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
-                $('.all-cna-table-name').addClass("cna-table-name");
+                $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
 

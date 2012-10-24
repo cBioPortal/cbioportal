@@ -2,18 +2,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
-<style type="text/css" title="currentStyle">
-        .mutation-table-name {
-                float: left;
-                font-weight: bold;
-                font-size: 120%;
-                vertical-align: middle;
-        }
-        .mutation-show-more {
-            float: left;
-        }
-</style>
-
 <script type="text/javascript">
     var mutTableIndices = {id:0,gene:1,aa:2,type:3,altrate:4,cosmic:5,ma:6,'3d':7,drug:8};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
@@ -434,6 +422,7 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25, "No mutation events of interest");
                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
+                $('.mutation-show-more').addClass('datatable-show-more');
                 $('.mutation-summary-table-name').html(
                     "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
@@ -441,7 +430,7 @@
                         or recurrently mutated (MutSig Q < 0.05; if MutSig results are not available,\n\
                         mutated in > 5% of samples in the study) \n\
                         or with > 5 COSMIC overlapping mutations.'/>");
-                $('.mutation-summary-table-name').addClass("mutation-table-name");
+                $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
@@ -450,7 +439,7 @@
                     'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No mutation events");
                 $('.all-mutation-table-name').html(
                     "This tumor has "+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
-                $('.all-mutation-table-name').addClass("mutation-table-name");
+                $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
 

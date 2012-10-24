@@ -107,7 +107,7 @@ if (patientViewError!=null) {
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients</a></li>
+    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Tumors with similar genomic alterations</a></li>
     <%}%>
     
     </ul>

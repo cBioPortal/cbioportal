@@ -3,10 +3,11 @@
 
 
 <style type="text/css" title="currentStyle">
-        .cna-summary-table-name {
+        .cna-table-name {
                 float: left;
                 font-weight: bold;
                 font-size: 120%;
+                vertical-align: middle;
         }
         .cna-show-more {
             float: left;
@@ -218,12 +219,16 @@
                      or recurrently copy number altered (contained in a Gistic peak with less than\n\
                      10 genes and Q < 0.05; if Gistic results are not available,\n\
                      genes are altered in >5% of samples in the study).'/>");
+                $('.cna-summary-table-name').addClass("cna-table-name");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
                 
                 // cna
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
-                        'cna_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events");
+                        'cna_table', '<"H"<"all-cna-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events");
+                $('.all-cna-table-name').html(
+                    "This tumor has "+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
+                $('.all-cna-table-name').addClass("cna-table-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
 

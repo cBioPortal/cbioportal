@@ -3,10 +3,10 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <style type="text/css" title="currentStyle">
-        .mutation-summary-table-name {
+        .mutation-table-name {
                 float: left;
                 font-weight: bold;
-                font-size: 100%;
+                font-size: 120%;
                 vertical-align: middle;
         }
         .mutation-show-more {
@@ -438,15 +438,19 @@
                     "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
                         title='This table contains genes that are either \n\
                         annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q < 0.05; if MutSig result are not available,\n\
+                        or recurrently mutated (MutSig Q < 0.05; if MutSig results are not available,\n\
                         mutated in > 5% of samples in the study) \n\
                         or with > 5 COSMIC overlapping mutations.'/>");
+                $('.mutation-summary-table-name').addClass("mutation-table-name");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
                 
                 // mutations
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
-                    'mutation_table', '<"H"fr>t<"F"<"datatable-paging"pil>>', 100, "No mutation events");
+                    'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No mutation events");
+                $('.all-mutation-table-name').html(
+                    "This tumor has "+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
+                $('.all-mutation-table-name').addClass("mutation-table-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
 

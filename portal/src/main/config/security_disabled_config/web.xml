@@ -211,7 +211,7 @@
     </servlet>
 
     <servlet>
-        <servlet-name>OncoPrintJSON</servlet-name>
+        <servlet-name>GeneAlterationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GeneAlterationsJSON</servlet-class>
     </servlet>
 
@@ -346,8 +346,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>OncoPrintJSON</servlet-name>
-        <url-pattern>/OncoPrint.json</url-pattern>
+        <servlet-name>GeneAlterationsJSON</servlet-name>
+        <url-pattern>/GeneAlterations.json</url-pattern>
     </servlet-mapping>
     
     <welcome-file-list>

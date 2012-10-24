@@ -3,23 +3,12 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tools.ant.taskdefs.Java;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.GeneticAlterationUtil;
+import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.portal.model.GeneWithScore;
-import org.mskcc.cbio.portal.model.GeneticEvent;
-import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.*;
 import org.owasp.validator.html.PolicyException;
 
@@ -29,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLDecoder;
 import java.util.*;
 
 public class GeneAlterationsJSON extends HttpServlet {
@@ -38,6 +26,11 @@ public class GeneAlterationsJSON extends HttpServlet {
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
     // todo: can these strings be referenced directly from QueryBuilder itself?
+
+    public static final String HUGO_GENE_SYMBOL = "hugoGeneSymbol";
+    public static final String SAMPLE = "sample";
+    public static final String UNALTERED_SAMPLE = "unaltered_sample";
+    public static final String ALTERATION = "alteration";
 
     private static Log log = LogFactory.getLog(GisticJSON.class);
 
@@ -56,6 +49,46 @@ public class GeneAlterationsJSON extends HttpServlet {
     }
 
     /**
+     * Maps the matrix to a JSONArray of alterations
+     * @param geneticEvents matrix M[case][gene]
+     * @return
+     */
+    public JSONArray mapGeneticEventMatrix(GeneticEvent[][] geneticEvents) throws ServletException {
+        JSONArray array = new JSONArray();
+
+        for (GeneticEvent[] gene : geneticEvents) {
+            
+            Map map = new HashMap();
+            JSONArray alterations = new JSONArray();
+            map.put(HUGO_GENE_SYMBOL, gene[0].caseCaseId());        // just get it from the first element
+            
+            for (GeneticEvent case_ : gene) {      // case has another meaning...
+
+                if (!map.get("hugoGeneSymbol").equals(case_.caseCaseId())) {
+                    throw new ServletException("a matrix column normally " +
+                            "representing a single gene has multiple genes");
+                }
+                
+                Map caseJSON = new HashMap();
+                caseJSON.put(SAMPLE, case_.caseCaseId());
+                if (0 == case_.getCnaValue().compareTo(GeneticEventImpl.CNA.NONE)) {
+                    caseJSON.put(UNALTERED_SAMPLE, true);
+                } else {
+                    caseJSON.put(UNALTERED_SAMPLE, false);
+                }
+                
+//                caseJSON.put(ALTERATION, case_.getCnaValue()
+//                        // shown or not shown?
+//                        + "|" + case_.getMrnaValue()
+//                        + "|" +  case_.getRPPAValue()
+
+            }
+        }
+
+        return array;
+    }
+
+    /**
      *
      * @param request
      * @param response
@@ -68,34 +101,89 @@ public class GeneAlterationsJSON extends HttpServlet {
 
         String cancer_study_id = request.getParameter("cancer_study_id");
 
-        String geneList = request.getParameter("genes");
+        String _geneList = request.getParameter("genes");
         // list of genes separated by a space
 
-        String _cases = request.getParameter("cases");
-        // list of cases separated by a case.  This is so
+        String caseIds = request.getParameter("cases");
+        // list of cases separated by a space.  This is so
         // that you can query by an arbitrary set of cases
-        // separated by a space
-
-        String _caseIds = request.getParameter("caseIds");
-        // case ids of previously defined case sets
         // separated by a space
 
         String _geneticProfileIds = request.getParameter("geneticProfileIds");
         // list of geneticProfileIds separated by a space
+        // e.g. gbm_mutations, gbm_cna_consensus
+
+        HashSet<String> geneticProfileIdSet = new HashSet<String>(Arrays.asList(_geneticProfileIds.split(" ")));
+        
+        // map geneticProfileIds -> geneticProfiles
+        Iterator<String> gpSetIterator =  geneticProfileIdSet.iterator();
+        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
+        ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
+        if (gpSetIterator.hasNext()) {
+            String gp_str = gpSetIterator.next();
+            try {
+                GeneticProfile gp = daoGeneticProfile.getGeneticProfileByStableId(gp_str);
+                profileList.add(gp);
+                // pointer to gp is local, but gets added to profileList which is outside
+            } catch (DaoException e) {
+                throw new ServletException(e);
+            }
+        }
 
         // todo: how should this *not* be hard coded?
         double zScoreThreshold = ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT;
         double rppaScoreThreshold = ZScoreUtil.RPPA_SCORE_THRESHOLD_DEFAULT;
 
-        // ... do a bunch of work to get the matrix, basically copying out of QueryBuilder
+        // ... do a bunch of work to get the matrix, basically copying out of QueryBuilder ...
+        // todo: this is code duplication!
         ParserOutput theOncoPrintSpecParserOutput =
-                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneList,
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(_geneList,
                         geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
+
+        ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        Iterator<String> profileIterator = geneticProfileIdSet.iterator();
+
+        XDebug xdebug = new XDebug(request);
+        while (profileIterator.hasNext()) {
+            String profileId = profileIterator.next();
+            GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
+            if( null == profile ){
+                continue;
+            }
+
+            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
+
+            ArrayList<String> geneList = new ArrayList<String>(Arrays.asList(_geneList.split("\\s+")));
+            GetProfileData remoteCall = null;
+            try {
+                remoteCall = new GetProfileData(profile, geneList, caseIds);
+            } catch (DaoException e) {
+                throw new ServletException(e);
+            }
+            ProfileData pData = remoteCall.getProfileData();
+            if(pData == null){
+                System.err.println("pData == null");
+            } else {
+                if (pData.getGeneList() == null ) {
+                    System.err.println("pData.getValidGeneList() == null");
+                }
+            }
+            if (pData != null) {
+                xdebug.logMsg(this, "Got number of genes:  " + pData.getGeneList().size());
+                xdebug.logMsg(this, "Got number of cases:  " + pData.getCaseIdList().size());
+            }
+            xdebug.logMsg(this, "Number of warnings received:  " + remoteCall.getWarnings().size());
+            profileDataList.add(pData);
+        }
+
+        xdebug.logMsg(this, "Merging Profile Data");
+        ProfileMerger merger = new ProfileMerger(profileDataList);
+        ProfileData mergedProfile = merger.getMergedProfile();
 
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);

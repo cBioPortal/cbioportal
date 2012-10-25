@@ -35,10 +35,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * DAO for Oncotator Cache Table.
+ * Database implementation (DAO) for the Oncotator Cache Service.
  *
  */
-public class DaoOncotatorCache
+public class DaoOncotatorCache implements OncotatorCacheService
 {
     private static DaoOncotatorCache daoOncotatorCache;
 
@@ -59,11 +59,11 @@ public class DaoOncotatorCache
     }
 
     /**
-     * Adds a new Cache Record to the Database.
+     * Adds a new oncotator record to the database cache.
      *
-     * @param record Oncotator Record.
-     * @return number of records successfully added.
-     * @throws SQLException Database Error.
+     * @param record    Oncotator Record.
+     * @return          number of records successfully added.
+     * @throws          SQLException Database Error.
      */
     public int put(OncotatorRecord record) throws SQLException {
         Connection con = null;
@@ -97,8 +97,8 @@ public class DaoOncotatorCache
 	/**
 	 * Gets an oncotator record for the provided key.
 	 *
-	 * @param key
-	 * @return
+	 * @param key               cache key
+	 * @return                  corresponding record for the given key
 	 * @throws SQLException
 	 */
     public OncotatorRecord get(String key) throws SQLException {

@@ -29,6 +29,9 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Vector;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -40,8 +43,12 @@ import java.io.OutputStream;
  * This class recreates the functionality found in 
  * Perl Data-CTable module. Essentially it provides
  * read, write, and manipulation of tabular data.
+ * The given matrix must be square.
  */
 public final class ImportDataMatrix {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ImportDataMatrix.class);
 
 	// inner class which encapsulates a column header w/its column data
 	private class ColumnHeader {
@@ -77,6 +84,9 @@ public final class ImportDataMatrix {
 		// sanity check - row data vector should be same size as column name vector
 		for (Vector<String> row : rowData) {
 			if (row.size() != columnNames.size()) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("row size: " + row.size() + ", column size: " + columnNames.size());
+				}
 				throw new IllegalArgumentException("corrupt vector matrix passed to ImportDataMatrix");
 			}
 		}
@@ -214,6 +224,38 @@ public final class ImportDataMatrix {
 	}
 
 	/**
+	 * Gets the data for a given column name.
+	 *
+	 * @param columnName String
+	 * @return Vector<String>
+	 */
+	public Vector<String> getColumnData(final String columnName) {
+
+		for (ColumnHeader columnHeader : columnHeaders) {
+			if (columnHeader.label.equals(columnName)) {
+				return columnHeader.columnData;
+			}
+		}
+
+		// should not make it here
+		return new Vector<String>();
+	}
+
+	/**
+	 * Removes a row of data specified by the given row number.
+	 * Row indices start at 0
+	 *
+	 * @param rowNumber int
+	 */
+	public void removeRow(final int rowNumber) {
+
+		for (ColumnHeader columnHeader : columnHeaders) {
+			columnHeader.columnData.removeElementAt(rowNumber);
+		}
+		--numberOfRows;
+	}
+
+	/**
 	 * Writes the tabular data to the given OutputStream
 	 * in a TSV format.
 	 *
@@ -301,6 +343,23 @@ public final class ImportDataMatrix {
 		// reorder a last time
 		java.util.List lastNewColumnOrder = java.util.Arrays.asList("H2", "H3");
 		importDataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
+		importDataMatrix.write(System.out);
+
+		// change some values in a column
+		Vector<String> columnValues = importDataMatrix.getColumnData("H2");
+		for (int lc = 0; lc < columnValues.size(); lc++) {
+			if (columnValues.elementAt(lc).equals("2")) {
+				columnValues.setElementAt("2.7", lc);
+			}
+		}
+		System.out.println();
+		System.out.println();
+		importDataMatrix.write(System.out);
+
+		// remove a row
+		importDataMatrix.removeRow(1);
+		System.out.println();
+		System.out.println();
 		importDataMatrix.write(System.out);
 	}
 }

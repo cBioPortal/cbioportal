@@ -34,7 +34,9 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.bridgedb.Xref;
 import org.bridgedb.BridgeDb;
+import org.bridgedb.AttributeMapper;
 import org.bridgedb.bio.BioDataSource;
 
 /**
@@ -46,7 +48,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
 
 	// ref to bridge db mapper
-	private org.bridgedb.IDMapper mapper;
+	private AttributeMapper mapper;
 
 	/**
 	 * Default Constructor.
@@ -70,7 +72,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 		}
 
 		Class.forName("org.bridgedb.rdb.IDMapperRdb");
-        mapper = BridgeDb.connect(bridgeDBConnectionString);
+        mapper = (AttributeMapper)BridgeDb.connect(bridgeDBConnectionString);
         BioDataSource.init();
 	}
 
@@ -79,10 +81,22 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 *
 	 * @param geneSymbol String
 	 * @return String
+	 * @throws Exception
 	 */
 	@Override
-	public String entrezSymbolToNumber(final String geneSymbol) {
+	public String symbolToEntrezID(final String geneSymbol) throws Exception {
 
+		for (Xref xref : mapper.freeAttributeSearch(geneSymbol, "Symbol", 100).keySet()) {
+			// check only Xrefs that are in Entrez, 
+			// and that are an exact match with the label 
+			// free search will also return partial matches.
+			if (xref.getDataSource() == BioDataSource.ENTREZ_GENE &&
+				mapper.getAttributes(xref, "Symbol").contains(geneSymbol)) {
+				return xref.getId();
+			}
+		}
+
+		// outta here
 		return "";
 	}
 }

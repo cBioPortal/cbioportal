@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
@@ -113,11 +114,22 @@ public final class CNAConverterImpl implements Converter {
 	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
 								  final ImportDataMatrix importDataMatrix) throws Exception {
 
+		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile()");
+			LOG.info("createStagingFile(), calling mapDataToGeneID");
 		}
+		MapperUtil.mapDataToGeneID(importDataMatrix, idMapper,
+								   "Gene Symbol", "Locus ID");
 
-		// 
+		// remove columns
+		importDataMatrix.removeColumn("Cytoband");
+
+		// rename columns
+		importDataMatrix.renameColumn("Gene Symbol", "Hugo Symbol");
+		importDataMatrix.renameColumn("Locus ID", "Entrez_Gene_Id");
+
+		// set new column order
+		
 		
 	}
 }

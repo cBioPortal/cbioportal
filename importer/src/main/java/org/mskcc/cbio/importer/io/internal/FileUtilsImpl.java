@@ -326,12 +326,12 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             while (it.hasNext()) {
                 // first row is our column heading, create column vector
                 if (++count == 0) {
-                    columnNames = new Vector(Arrays.asList(it.nextLine().split("\t")));
+                    columnNames = new Vector(Arrays.asList(it.nextLine().split("\t", -1)));
                 }
                 // all other rows are rows in the table
                 else {
                     rowData = (rowData == null) ? new Vector<Vector<String>>() : rowData;
-                    rowData.add(new Vector(Arrays.asList(it.nextLine().split("\t"))));
+                    rowData.add(new Vector(Arrays.asList(it.nextLine().split("\t", -1))));
                 }
             }
         }

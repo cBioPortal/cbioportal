@@ -32,7 +32,8 @@ package org.mskcc.cbio.oncotator;
  */
 public class OncotatorRecord
 {
-    private String key;
+	private String key;
+	private String rawJson;
 	private String genomeChange;
 	private String dbSnpRs;
 	private String cosmicOverlappingMutations;
@@ -50,6 +51,16 @@ public class OncotatorRecord
     public String getKey() {
         return key;
     }
+
+	public String getRawJson()
+	{
+		return rawJson;
+	}
+
+	public void setRawJson(String rawJson)
+	{
+		this.rawJson = rawJson;
+	}
 
     public String getGenomeChange() {
         return genomeChange;

@@ -29,8 +29,14 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.Admin;
+import org.mskcc.cbio.importer.CaseIDs;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Vector;
 import java.util.Collection;
@@ -63,6 +69,9 @@ public final class ImportDataMatrix {
 	// each element has a column heading and a vector of column data
 	private LinkedList<ColumnHeader> columnHeaders;
 
+	// ref to caseids
+	private CaseIDs caseIDs;
+
 	/**
 	 * Default Constructor.
 	 */
@@ -71,6 +80,7 @@ public final class ImportDataMatrix {
 		// init members
 		columnHeaders = new LinkedList<ColumnHeader>();
 		numberOfRows = 0;
+		initCaseIDs();
 	}
 
 	/**
@@ -111,16 +121,52 @@ public final class ImportDataMatrix {
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);
 		}
+
+		// init our case id's object
+		initCaseIDs();
+	}
+
+	/**
+	 * Filter and convert case ID's.  Discards any column
+	 * in which the case ID is not a tumor. Also converts
+	 * full TCGA bar code to abbreviated version for use in portal.
+	 * Columns to ignore is used to specify not caseid columns (like Gene Symbol).
+	 * It may be null.
+	 *
+	 * @param columnsToIgnore Collection<String>
+	 */
+	public void filterAndConvertCaseIDs(final Collection<String> columnsToIgnore) {
+
+		// iterate over columns 
+		Vector<ColumnHeader> columnHeadersToRemove = new Vector<ColumnHeader>();
+		for (ColumnHeader columnHeader : columnHeaders) {
+			// skip if required
+			if (columnsToIgnore != null && columnsToIgnore.contains(columnHeader.label)) {
+				continue;
+			}
+			// remove case (column) if its not a tumor id
+			if (!caseIDs.isTumorCaseID(columnHeader.label)) {
+				columnHeadersToRemove.add(columnHeader);
+				continue;
+			}
+			// convert the id
+			columnHeader.label = caseIDs.convertCaseID(columnHeader.label);
+		}
+		
+		// we remove the column headers here to prevent ConcurrentModificationException
+		for (ColumnHeader columnHeader : columnHeadersToRemove) {
+			columnHeaders.remove(columnHeader);
+		}
 	}
 
 	/**
 	 * Set column order.  Any columns in the data matrix
 	 * that are not in the given column order will be dropped.
 	 *
-	 * @param sortedColumnNames Vector<String>
+	 * @param sortedColumnNames Collection<String>
 	 * @throws Exception
 	 */
-	public void setColumnOrder(final Vector<String> newColumnOrder) throws Exception {
+	public void setColumnOrder(final Collection<String> newColumnOrder) throws Exception {
 
 		LinkedList<ColumnHeader> newColumnHeaderList = new LinkedList<ColumnHeader>();
 
@@ -209,10 +255,11 @@ public final class ImportDataMatrix {
 
 	/**
 	 * Gets the column headers.
+	 * Returns a new copy.
 	 *
-	 * @return Collection<String>
+	 * @return Vector<String>
 	 */
-	public Collection<String> getColumnHeaders() {
+	public Vector<String> getColumnHeaders() {
 
 		Vector<String> toReturn = new Vector<String>();
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -224,7 +271,10 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Gets the data for a given column name.
+	 * Gets the data for a given column name.  Returns
+	 * the data stored in the internal data structure,
+	 * so changes in the returned vector will be reflected
+	 * in subsequent calls into the class.
 	 *
 	 * @param columnName String
 	 * @return Vector<String>
@@ -287,6 +337,15 @@ public final class ImportDataMatrix {
 
 		// clean up
 		writer.flush();
+	}
+
+	/**
+	 * Private function to init ref to CaseId.
+	 */
+	private void initCaseIDs() {
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
+		caseIDs = (CaseIDs)context.getBean("caseIDs");
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -361,5 +420,34 @@ public final class ImportDataMatrix {
 		System.out.println();
 		System.out.println();
 		importDataMatrix.write(System.out);
+
+		// test case id filtering & conversion
+
+		columnHeaders = java.util.Arrays.asList("Gene Symbol", "Locus ID", "Cytoband",
+												"TCGA-A1-A0SB-01A-11D-A141-01", "TCGA-A1-A0SD-Tumor",
+												"TCGA-A1-A0SE-01A-11D-A087-01", "TCGA-A1-A0SF-Normal",
+												"TCGA-A1-A0SG-01A-11D-A141-01");
+		rowOne = java.util.Arrays.asList("ACAP3", "116983", "1p36.33", "1", "2", "3", "4", "5");
+		rowTwo = java.util.Arrays.asList("ACTRT2", "140625", "1p36.32", "1", "2", "3", "4",  "5");
+		rowThree = java.util.Arrays.asList("AGRN", "375790", "1p36.33", "1", "2", "3", "4", "5");
+
+		columnNames = new Vector(columnHeaders);
+		rowData = new Vector<Vector<String>>();
+		rowData.add(new Vector<String>(rowOne));
+		rowData.add(new Vector<String>(rowTwo));
+		rowData.add(new Vector<String>(rowThree));
+
+		// create matrix and dump
+		importDataMatrix = new ImportDataMatrix(rowData, columnNames);
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// filter and convert, then dump
+		String[] columnsToIgnore = { "Gene Symbol", "Locus ID" };
+		importDataMatrix.filterAndConvertCaseIDs(java.util.Arrays.asList(columnsToIgnore));
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
 	}
 }

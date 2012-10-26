@@ -82,6 +82,7 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
 						 " and datatype: " + importData.getDatatype() + " already exists, manually merging.");
 			}
+			existing.setDataSource(importData.getDataSource());
 			existing.setTumorType(importData.getTumorType());
 			existing.setDatatype(importData.getDatatype());
 			existing.setRunDate(importData.getRunDate());

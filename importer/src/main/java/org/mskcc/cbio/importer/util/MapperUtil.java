@@ -77,16 +77,16 @@ public final class MapperUtil {
 		for (int lc = 0; lc < geneSymbols.size(); lc++) {
 			String geneSymbol = geneSymbols.elementAt(lc);
 			if (geneSymbol == "") {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("mapDataToGeneID(), geneSymbol is empty, removing row: " + lc);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("mapDataToGeneID(), geneSymbol is empty, removing row: " + lc);
 				}
 				rowsToRemove.add(lc);
 				continue;
 			}
 			String entrezID = idMapper.symbolToEntrezID(geneSymbol);
 			if (entrezID == "") {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", removing row: " + lc);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", removing row: " + lc);
 				}
 				rowsToRemove.add(lc);
 				continue;

@@ -61,7 +61,7 @@ import java.util.Properties;
 public class Admin implements Runnable {
 
 	// our context file
-	private static final String contextFile = "classpath:applicationContext-importer.xml";
+	public static final String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(Admin.class);

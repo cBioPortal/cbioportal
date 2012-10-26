@@ -54,6 +54,8 @@ public final class ImportData {
 
 	// bean properties
 	@Column(nullable=false)
+	private String dataSource;
+	@Column(nullable=false)
 	private String tumorType;
 	@Id
 	@Column(nullable=false)
@@ -79,6 +81,7 @@ public final class ImportData {
     /**
      * Create a ImportData instance with specified properties.
      *
+	 * @param dataSource String
 	 * @param tumorType String
 	 * @param datatype String
 	 * @param runDate String
@@ -88,7 +91,7 @@ public final class ImportData {
      * @param datafile String
      * @param overrideFilename
      */
-    public ImportData(final String tumorType, final String datatype,
+    public ImportData(final String dataSource, final String tumorType, final String datatype,
 					  final String runDate, final String canonicalPath, final String digest,
                       final Boolean isArchive, final String datafile, final String overrideFilename) {
         
@@ -97,6 +100,7 @@ public final class ImportData {
             throw new IllegalArgumentException("isArchive is true so datafile must not be null or empty");
         }
 
+		setDataSource(dataSource);
 		setTumorType(tumorType);
 		setDatatype(datatype);
 		setRunDate(runDate);
@@ -106,6 +110,26 @@ public final class ImportData {
         setDatafile(datafile);
         setOverrideFilename(overrideFilename);
 	}
+
+	/**
+	 * Sets the data source.
+	 *
+	 * @param dataSource String
+	 */
+	public void setDataSource(final String dataSource) {
+
+		if (dataSource == null) {
+            throw new IllegalArgumentException("data source must not be null");
+		}
+		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Gets the data source.
+	 *
+	 * @return String
+	 */
+	public String getDataSource() { return dataSource; }
 
 	/**
 	 * Sets the tumor type.

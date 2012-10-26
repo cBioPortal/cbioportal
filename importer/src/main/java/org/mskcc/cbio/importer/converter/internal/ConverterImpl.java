@@ -40,6 +40,7 @@ import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
@@ -74,6 +75,9 @@ final class ConverterImpl implements Converter {
 	// ref to IDMapper
 	private IDMapper idMapper;
 
+	// data sources
+	private Collection<DataSourceMetadata> dataSources;
+
 	/**
 	 * Constructor.
      *
@@ -94,6 +98,12 @@ final class ConverterImpl implements Converter {
 		this.importDataDAO = importDataDAO;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
+        this.dataSources = config.getDataSourceMetadata("all");
+
+		// sanity check
+		if (this.dataSources == null) {
+			throw new IllegalArgumentException("cannot instantiate the dataSources collection.");
+		}
 	}
 
 	/**
@@ -130,7 +140,7 @@ final class ConverterImpl implements Converter {
         }
 
 		// get datatype metadata
-		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
+		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
 
         // iterate over all import data objects
         for (ImportData importData : importDataDAO.getImportData()) {
@@ -152,14 +162,32 @@ final class ConverterImpl implements Converter {
                 LOG.info("convertData(), importData does belong, getting content");
             }
 
+			// get the DatatypeMetadata object fro this importData object
+			DatatypeMetadata datatypeMetadata = getDatatypeMetadata(importData.getDatatype(), datatypeMetadatas);
+			if (datatypeMetadata == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("convertData(), unrecognized datatype: " + importData.getDatatype() + ", skipping");
+				}
+				continue;
+			}
+
+			// get data source
+			DataSourceMetadata dataSourceMetadata = getDataSourceMetadata(importData.getDataSource());
+			if (dataSourceMetadata == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("convertData(), cannot determine datasource: " + importData.getDataSource() + ", skipping");
+				}
+				continue;
+			}
+
             // get data to process as JTable
             ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
 
             // get converter and create staging file
 			Object[] args = { config, fileUtils, caseIDs, idMapper };
 			Converter converter =
-				(Converter)ClassLoader.getInstance(getConverterClassName(importData.getDatatype(), datatypeMetadata), args);
-			converter.createStagingFile(portalMetadata, importData, importDataMatrix);
+				(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+			converter.createStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData, importDataMatrix);
         }
 	}
 
@@ -180,14 +208,16 @@ final class ConverterImpl implements Converter {
 	/**
 	 * Creates a staging file from the given data matrix.
 	 *
+	 * @param dataSourceMetadata DataSourceMetadata
+	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
 	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-								  final ImportDataMatrix importDataMatrix) throws Exception {
+	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata, final PortalMetadata portalMetadata,
+								  final ImportData importData, final ImportDataMatrix importDataMatrix) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -217,27 +247,44 @@ final class ConverterImpl implements Converter {
     }
 
 	/**
-	 * Helper function to get converter className
+	 * Helper function to get datatype metadata object for given datatype.
 	 *
-	 * @param filename String
+	 * @param datatype String
 	 * @param datatypeMetadata Collection<datatypeMetadata>
-	 * @return String
+	 * @return DatatypeMetadata
 	 */
-	private String getConverterClassName(final String datatype,
-										 final Collection<DatatypeMetadata> datatypeMetadata) {
+	private DatatypeMetadata getDatatypeMetadata(final String datatype,
+												 final Collection<DatatypeMetadata> datatypeMetadata) {
 		
-		String toReturn = "";
-
 		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
             if (dtMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
-                toReturn = dtMetadata.getConverterClassName();
-                break;
+				return dtMetadata;
             }
 		}
 
 		// outta here
-		return toReturn;
+		return null;
 	}
+
+	/**
+	 * Helper funciton to return the DataSourceMetadata object
+	 * for the given importData object.
+	 *
+	 * @param importData ImportData
+	 * @return DataSourceMetadata
+	 */
+	private DataSourceMetadata getDataSourceMetadata(final String dataSource) {
+
+		for (DataSourceMetadata dataSourceMetadata : dataSources) {
+			if (dataSource.equalsIgnoreCase(dataSourceMetadata.getDataSource())) {
+				return dataSourceMetadata;
+			}
+		}
+		
+		// outta here
+		return null;
+	}
+	
 
 	/**
 	 * Helper function to initialize IDMapper.

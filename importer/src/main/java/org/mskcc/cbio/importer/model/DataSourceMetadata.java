@@ -39,6 +39,7 @@ public final class DataSourceMetadata {
 	private String dataSource;
     private String downloadDirectory;
     private String latestRunDownload;
+	private String cancerStudySuffix;
 
     /**
      * Create a DataSourceMetadata instance with specified properties.
@@ -46,10 +47,12 @@ public final class DataSourceMetadata {
 	 * @param dataSource String
 	 * @param downloadDirectory String
      * @param latestRunDownload String
+	 * @param cancerStudySuffix String
      */
     public DataSourceMetadata(final String dataSource,
 							  final String downloadDirectory,
-							  final String latestRunDownload) {
+							  final String latestRunDownload,
+							  final String cancerStudySuffix) {
 
 		if (dataSource == null) {
             throw new IllegalArgumentException("dataSource must not be null");
@@ -65,10 +68,16 @@ public final class DataSourceMetadata {
             throw new IllegalArgumentException("latestRunDownload must not be null");
 		}
 		this.latestRunDownload = latestRunDownload;
+
+		if (cancerStudySuffix == null) {
+            throw new IllegalArgumentException("cancerStudySuffix must not be null");
+		}
+		this.cancerStudySuffix = cancerStudySuffix;
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
 	public String getLatestRunDownload() { return latestRunDownload; }
 	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
+	public String getCancerStudySuffix() { return cancerStudySuffix; }
 }

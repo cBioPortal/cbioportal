@@ -120,7 +120,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 		this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
 		this.importDataDAO = importDataDAO;
-        this.dataSourceMetadata = config.getDataSourceMetadata("firehose");
+		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata("firehose");
+		if (!dataSources.isEmpty()) {
+			this.dataSourceMetadata = dataSources.iterator().next();
+		}
 
 		// sanity check
 		if (this.dataSourceMetadata == null) {
@@ -300,7 +303,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (clobberDatabase) {
 				databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
 			}
-			storeData(downloadDirectory, datatypeMetadata, runDate);
+			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, datatypeMetadata, runDate);
 		}
 	}
 
@@ -346,12 +349,14 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * Helper method to store downloaded data.  If md5 digest is correct,
 	 * import data, else skip it
 	 *
+	 * @param dataSource String
 	 * @param downloadDirectory File
 	 * @param datatypeMetadata Collection<DatatypeMetadata>
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void storeData(final File downloadDirectory, final Collection<DatatypeMetadata> datatypeMetadata, final Date runDate) throws Exception {
+	private void storeData(final String dataSource, final File downloadDirectory,
+						   final Collection<DatatypeMetadata> datatypeMetadata, final Date runDate) throws Exception {
 
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
@@ -383,7 +388,7 @@ final class FirehoseFetcherImpl implements Fetcher {
             String canonicalPath = dataFile.getCanonicalPath();
             // create an store a new ImportData object
             for (DatatypeMetadata datatype : datatypes) {
-                ImportData importData = new ImportData(tumorType, datatype.getDatatype(),
+                ImportData importData = new ImportData(dataSource, tumorType, datatype.getDatatype(),
                                                        PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
                                                        true, datatype.getFirehoseDownloadFilename(),
                                                        getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));

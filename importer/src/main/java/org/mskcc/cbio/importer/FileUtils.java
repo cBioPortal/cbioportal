@@ -32,6 +32,8 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import java.io.File;
 import java.util.Collection;
@@ -102,4 +104,16 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
+
+	/**
+	 * Creates a staging file with contents from the given ImportDataMatrix.
+	 *
+	 * @param dataSourceMetadata DataSourceMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+     * @param portalMetadata PortalMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	void writeStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
+						  final PortalMetadata portalMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
 }

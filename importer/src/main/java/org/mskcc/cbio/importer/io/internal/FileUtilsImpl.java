@@ -34,6 +34,8 @@ import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import org.apache.commons.io.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -247,6 +249,34 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("downloadFile(), gunzip complete: " + (new File(unzipFile)).getCanonicalPath());
 			}
 		}
+	}
+
+	/**
+	 * Creates a staging file with contents from the given ImportDataMatrix.
+	 *
+	 * @param dataSourceMetadata DataSourceMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+     * @param portalMetadata PortalMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	@Override
+	public void writeStagingFile(final DataSourceMetadata dataSourceMetadata,
+								 final DatatypeMetadata datatypeMetadata,
+								 final PortalMetadata portalMetadata,
+								 final ImportDataMatrix importDataMatrix) throws Exception {
+
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																   dataSourceMetadata.getCancerStudySuffix(),
+																   datatypeMetadata.getStagingFilename());
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writingStagingFlie(), staging file: " + stagingFile);
+		}
+																   
+		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile);
+		importDataMatrix.write(out);
+		IOUtils.closeQuietly(out);
 	}
 
     /*

@@ -26,47 +26,38 @@
 **/
 
 // package
-package org.mskcc.cbio.importer;
+package org.mskcc.cbio.importer.model;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 /**
- * Interface used to convert portal data.
+ * Class which contains caseID filter metadata.
  */
-public interface Converter {
+public final class CaseIDFilterMetadata {
 
-	/**
-	 * Converts data for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-	void convertData(final String portal) throws Exception;
+	// bean properties
+	private String filterName;
+	private String regex;
 
-	/**
-	 * Generates case lists for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-	void generateCaseLists(final String portal) throws Exception;
+    /**
+     * Create a CaseIDFilterMetadata instance with specified properties.
+     *
+	 * @param filterName String
+	 * @param regex String
+     */
+    public CaseIDFilterMetadata(final String filterName, final String regex) {
 
-	/**
-	 * Creates a staging file from the given data matrix.
-	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-     * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
-	 * @throws Exception
-	 */
-	void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-						   final PortalMetadata portalMetadata, final ImportData importData,
-						   final ImportDataMatrix importDataMatrix) throws Exception;
+		if (filterName == null) {
+            throw new IllegalArgumentException("filterName must not be null");
+		}
+		this.filterName = filterName;
+
+		if (regex == null) {
+            throw new IllegalArgumentException("regex must not be null");
+		}
+		this.regex = regex;
+	}
+
+	public String getFilterName() { return filterName; }
+	public String getRegex() { return regex; }
 }

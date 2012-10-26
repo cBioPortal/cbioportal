@@ -30,6 +30,7 @@
 %>
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
+<script type="text/javascript" src="js/GeneAlterations.js"></script>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>

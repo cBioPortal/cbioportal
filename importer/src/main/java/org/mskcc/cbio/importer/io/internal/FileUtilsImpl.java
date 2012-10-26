@@ -173,7 +173,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	/**
 	 * Returns the contents of the datafile as specified by ImportData
      * in an ImportDataMatrix.  PortalMetadata is used to help determine if an "override"
-     * file exists.
+     * file exists.  May return null if there is a problem reading the file.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
@@ -374,7 +374,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             if (LOG.isInfoEnabled()) {
                 LOG.info("getImportDataMatrix(), problem creating ImportDataMatrix from file");
             }
-            return new ImportDataMatrix();
+            return null;
         }
 
         // made it here, we can create ImportDataMatrix

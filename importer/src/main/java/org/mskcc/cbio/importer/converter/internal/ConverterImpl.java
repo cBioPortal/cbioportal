@@ -183,6 +183,13 @@ final class ConverterImpl implements Converter {
             // get data to process as JTable
             ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
 
+			if (importDataMatrix == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("convertData(), error creating ImportDataMatrix: " + importData.getDataSource() + ", " + importData.getDatatype() + ", skipping");
+				}
+				continue;
+			}
+
             // get converter and create staging file
 			Object[] args = { config, fileUtils, caseIDs, idMapper };
 			Converter converter =

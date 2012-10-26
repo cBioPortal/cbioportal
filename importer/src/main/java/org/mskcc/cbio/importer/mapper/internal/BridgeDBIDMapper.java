@@ -86,7 +86,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 	@Override
 	public String symbolToEntrezID(final String geneSymbol) throws Exception {
 
-		for (Xref xref : mapper.freeAttributeSearch(geneSymbol, "Symbol", 100).keySet()) {
+		for (Xref xref : mapper.freeAttributeSearch(geneSymbol, "Symbol", -1).keySet()) {
 			// check only Xrefs that are in Entrez, 
 			// and that are an exact match with the label 
 			// free search will also return partial matches.

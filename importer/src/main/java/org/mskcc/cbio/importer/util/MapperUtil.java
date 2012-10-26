@@ -71,16 +71,14 @@ public final class MapperUtil {
 			return;
 		}
 
-		// do the mapping, record the rows that are missing id's
-		// we don't remove records in this loop to avoid concurrent modification exception
-		Vector<Integer> rowsToRemove = new Vector<Integer>();
+		// do the mapping, ignore rows that are missing id's
 		for (int lc = 0; lc < geneSymbols.size(); lc++) {
 			String geneSymbol = geneSymbols.elementAt(lc);
 			if (geneSymbol == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("mapDataToGeneID(), geneSymbol is empty, removing row: " + lc);
 				}
-				rowsToRemove.add(lc);
+				importDataMatrix.ignoreRow(lc);
 				continue;
 			}
 			String entrezID = idMapper.symbolToEntrezID(geneSymbol);
@@ -88,15 +86,10 @@ public final class MapperUtil {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", removing row: " + lc);
 				}
-				rowsToRemove.add(lc);
+				importDataMatrix.ignoreRow(lc);
 				continue;
 			}
 			geneIDs.setElementAt(entrezID, lc);
-		}
-
-		// remove rows that are missing ids
-		for (Integer rowNum : rowsToRemove) {
-			importDataMatrix.removeRow(rowNum);
 		}
 	}
 }

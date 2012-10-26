@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Vector;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -65,23 +66,15 @@ public final class ImportDataMatrix {
 	// keeps track of number of rows of tabular data
 	private int numberOfRows;
 
+	// this is a list of rows to ignore when dumping the matrix
+	private HashSet<Integer> rowsToIgnore;
+
 	// a list of "column" objects - 
 	// each element has a column heading and a vector of column data
 	private LinkedList<ColumnHeader> columnHeaders;
 
 	// ref to caseids
 	private CaseIDs caseIDs;
-
-	/**
-	 * Default Constructor.
-	 */
-	public ImportDataMatrix() {
-
-		// init members
-		columnHeaders = new LinkedList<ColumnHeader>();
-		numberOfRows = 0;
-		initCaseIDs();
-	}
 
 	/**
 	 * Constructor.
@@ -103,6 +96,7 @@ public final class ImportDataMatrix {
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
+		rowsToIgnore = new HashSet<Integer>();
 
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();
@@ -292,17 +286,29 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Removes a row of data specified by the given row number.
-	 * Row indices start at 0
+	 * Adds the given row number into our rowsToIgnore set.
+	 * Note row indices start an 0.
 	 *
 	 * @param rowNumber int
 	 */
-	public void removeRow(final int rowNumber) {
+	public void ignoreRow(final int rowNumber) {
+		rowsToIgnore.add(rowNumber);
+	}
 
-		for (ColumnHeader columnHeader : columnHeaders) {
-			columnHeader.columnData.removeElementAt(rowNumber);
+	/**
+	 * Removes the row number from our rowsToIgnore set.
+	 * If rowNumber = -1, all rows are removed.
+	 * Note row indices start an 0.
+	 *
+	 * @param rowNumber int
+	 */
+	public void recognizeRow(final int rowNumber) {
+		if (rowNumber == -1) {
+			rowsToIgnore.clear();
 		}
-		--numberOfRows;
+		else {
+			rowsToIgnore.remove(rowNumber);
+		}
 	}
 
 	/**
@@ -326,6 +332,10 @@ public final class ImportDataMatrix {
 		writer.println();
 
 		for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
+			// skip row if its contained in our rowsToIgnore set.
+			if (rowsToIgnore.contains(rowIndex)) {
+				continue;
+			}
 			for (ColumnHeader columnHeader : columnHeaders) {
 				writer.print(columnHeader.columnData.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
@@ -403,6 +413,8 @@ public final class ImportDataMatrix {
 		java.util.List lastNewColumnOrder = java.util.Arrays.asList("H2", "H3");
 		importDataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
 		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
 
 		// change some values in a column
 		Vector<String> columnValues = importDataMatrix.getColumnData("H2");
@@ -411,15 +423,17 @@ public final class ImportDataMatrix {
 				columnValues.setElementAt("2.7", lc);
 			}
 		}
-		System.out.println();
-		System.out.println();
-		importDataMatrix.write(System.out);
 
-		// remove a row
-		importDataMatrix.removeRow(1);
-		System.out.println();
-		System.out.println();
 		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// ignore a few rows
+		importDataMatrix.ignoreRow(0);
+		importDataMatrix.ignoreRow(2);
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
 
 		// test case id filtering & conversion
 

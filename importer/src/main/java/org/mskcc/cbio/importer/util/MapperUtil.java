@@ -76,7 +76,7 @@ public final class MapperUtil {
 			String geneSymbol = geneSymbols.elementAt(lc);
 			if (geneSymbol == "") {
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("mapDataToGeneID(), geneSymbol is empty, removing row: " + lc);
+					LOG.debug("mapDataToGeneID(), geneSymbol is empty, ignoring row: " + lc);
 				}
 				importDataMatrix.ignoreRow(lc);
 				continue;
@@ -84,7 +84,7 @@ public final class MapperUtil {
 			String entrezID = idMapper.symbolToEntrezID(geneSymbol);
 			if (entrezID == "") {
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", removing row: " + lc);
+					LOG.debug("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", ignoring row: " + lc);
 				}
 				importDataMatrix.ignoreRow(lc);
 				continue;

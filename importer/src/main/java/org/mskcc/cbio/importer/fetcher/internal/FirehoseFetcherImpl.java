@@ -336,7 +336,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		String toReturn = "";
 		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			if (dtMetadata.getDownload()) {
+			if (dtMetadata.isDownloaded()) {
 				toReturn += dtMetadata.getFirehoseDownloadArchive() + " ";
 			}
 		}

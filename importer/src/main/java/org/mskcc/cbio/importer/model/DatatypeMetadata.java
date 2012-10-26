@@ -36,6 +36,7 @@ public final class DatatypeMetadata {
 	// bean properties
 	private String datatype;
 	private Boolean download;
+	private Boolean computable;
 	private String firehoseDownloadArchive;
 	private String firehoseDownloadFilename;
 	private String overrideFilename;
@@ -48,12 +49,14 @@ public final class DatatypeMetadata {
     private String metaGeneticAlterationType;
     private Boolean metaShowProfileInAnalysisTab;
     private String metaProfileName;
+	private String metaProfileDescription;
 
     /**
      * Create a DatatypeMetadata instance with specified properties.
      *
      * @param datatype String
 	 * @param download Boolean
+	 * @param computable Boolean
 	 * @param firehoseDownloadArchive String
 	 * @param firehoseDownloadFilename String
      * @param overrideFilename String
@@ -66,14 +69,15 @@ public final class DatatypeMetadata {
      * @param metaGeneticAlterationType String
      * @param metaShowProfileInAnalyisTab Boolean
      * @param metaProfileName String
+     * @param metaProfileDescription String
      */
-    public DatatypeMetadata(final String datatype, final Boolean download,
+    public DatatypeMetadata(final String datatype, final Boolean download, final Boolean computable,
 							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
 							final String overrideFilename, final String stagingFilename, 
 							final String converterClassName, final String importerClassName, 
                             final String metaFilename, final String metaStableID,
 							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
-							final String metaProfileName) {
+							final String metaProfileName, final String metaProfileDescription) {
 
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
@@ -84,6 +88,11 @@ public final class DatatypeMetadata {
             throw new IllegalArgumentException("download must not be null");
 		}
 		this.download = download;
+
+		if (computable == null) {
+            throw new IllegalArgumentException("computable must not be null");
+		}
+		this.computable = computable;
 
 		if (firehoseDownloadArchive == null) {
             throw new IllegalArgumentException("firehoseDownloadArchive must not be null");
@@ -142,10 +151,16 @@ public final class DatatypeMetadata {
             throw new IllegalArgumentException("metaProfileName must not be null");
 		}
 		this.metaProfileName = metaProfileName;
+
+		if (metaProfileDescription == null) {
+            throw new IllegalArgumentException("metaProfileDescription must not be null");
+		}
+		this.metaProfileDescription = metaProfileDescription;
 	}
 
 	public String getDatatype() { return datatype; }
-	public Boolean getDownload() { return download; }
+	public Boolean isDownloaded() { return download; }
+	public Boolean isComputatable() { return computable; }
 	public String getFirehoseDownloadArchive() { return firehoseDownloadArchive; }
 	public String getFirehoseDownloadFilename() { return firehoseDownloadFilename; }
 	public String getOverrideFilename() { return overrideFilename; }
@@ -158,4 +173,5 @@ public final class DatatypeMetadata {
 	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }
 	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
 	public String getMetaProfileName() { return metaProfileName; }
+	public String getMetaProfileDescription() { return metaProfileName; }
 }

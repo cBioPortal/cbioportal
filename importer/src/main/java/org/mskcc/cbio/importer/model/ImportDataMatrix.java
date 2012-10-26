@@ -286,6 +286,24 @@ public final class ImportDataMatrix {
 	}
 
 	/**
+	 * Returns the number of cases within this matrix.
+	 *
+	 * @return int
+	 */
+	public int getNumCases() {
+		int toReturn = 0;
+
+		for (ColumnHeader columnHeader : columnHeaders) {
+			if (caseIDs.isTumorCaseID(columnHeader.label)) {
+				++toReturn;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
 	 * Adds the given row number into our rowsToIgnore set.
 	 * Note row indices start an 0.
 	 *

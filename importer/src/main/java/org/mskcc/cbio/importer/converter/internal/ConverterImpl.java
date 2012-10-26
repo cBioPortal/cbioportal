@@ -145,6 +145,8 @@ final class ConverterImpl implements Converter {
         // iterate over all import data objects
         for (ImportData importData : importDataDAO.getImportData()) {
 
+			if (!importData.getDatatype().equals("cna")) continue;
+
             if (LOG.isInfoEnabled()) {
                 LOG.info("convertData(), determining if importData object belongs in portal: " +
                          importData.getTumorType() + "/" + importData.getDatatype());

@@ -106,14 +106,15 @@ public interface FileUtils {
 	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
 
 	/**
-	 * Creates a staging file with contents from the given ImportDataMatrix.
+	 * Creates a staging file (and meta file) with contents from the given ImportDataMatrix.
 	 *
 	 * @param dataSourceMetadata DataSourceMetadata
 	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
+	 * @param importData ImportData
 	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	void writeStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-						  final PortalMetadata portalMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+						  final PortalMetadata portalMetadata, final ImportData importData, final ImportDataMatrix importDataMatrix) throws Exception;
 }

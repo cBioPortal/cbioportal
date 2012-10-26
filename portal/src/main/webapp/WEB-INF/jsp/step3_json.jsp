@@ -52,6 +52,7 @@
 			</tr>
 		</table>
 	</div>
+    <script type="text/javascript" src="js/mutsig.js"></script>
     <div id="mutsig_dialog" title="Recurrently Mutated Genes" class='display' style="font-size: 11px; .ui-dialog {padding: 0em;};">
         <img id='loader-img' src="images/ajax-loader.gif"/>
         <table class="MutSig">
@@ -71,6 +72,7 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
+    <script type="text/javascript" src="js/gistic.js"></script>
     <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
         <div id='gistic_loading'>loading...</div>
         <table id="gistic_table" class='display' style='border-spacing:12px;'></table>

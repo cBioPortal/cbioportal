@@ -5,11 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 
 /**
- * Created with IntelliJ IDEA.
- * User: sos
- * Date: 10/26/12
- * Time: 3:26 PM
- * To change this template use File | Settings | File Templates.
+ * Oncotate Tool altered to build JSON cache for existing oncotator key values.
  */
 public class CacheBuilderOncoTool extends OncotateTool
 {

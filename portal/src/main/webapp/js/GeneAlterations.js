@@ -5,7 +5,7 @@ var GeneAlterations = function(sendData) {
     var json = 'GeneAlterations.json',      // json url
         alterations = {},                   // alterations object, the return of the json 'to be'
         listeners = [],                     // queue of callback functions
-        that = {},                          // GeneAlterations object
+        that = {};                          // GeneAlterations object
 
     var fireAll = function(data) {
         // kaboom!
@@ -108,3 +108,21 @@ GeneAlterations.test = function() {
 
 // }}} 
 // GeneAlterations.test();
+//
+
+// {{{ help
+GeneAlterations.help = function() {
+    // constructor: GeneAlterations(sendData) 
+    // sendData is an object literal that looks something like this : 
+    // {   cancer_study_id: \"tcga_gbm\",
+    //     genes:\"EGFR MDM2\", 
+    //     cases: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
+    //     geneticProfileIds: \"gbm_mutations gbm_cna_consensus\" }
+
+    // methods: \
+    // addListener:    function                        ->  return undefined
+    // addListeners:   [list of functions]             ->  return undefined
+    // getAlterations: (optional: callback function)   ->  return undefined, or alterations if they have already been loaded
+    // redo:           new_sendData    redoes the request on the new data
+};
+// }}}

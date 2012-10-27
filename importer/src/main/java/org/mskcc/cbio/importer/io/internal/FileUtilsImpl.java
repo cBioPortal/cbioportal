@@ -265,7 +265,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 								 final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
 
 		ImportDataMatrix importDataMatrix = importData.getImportDataMatrix();
-		String cancerStudyIdentifier = importData.getTumorType() + "_" + dataSourceMetadata.getCancerStudySuffix();
+		String cancerStudyIdentifier = importData.getTumorType() + "_" + dataSourceMetadata.getCancerCenter();
 
 		// staging file
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
@@ -293,7 +293,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n", true);
 		String stableID = datatypeMetadata.getMetaStableID();
 		stableID = stableID.replace("<TUMOR_TYPE>", importData.getTumorType());
-		stableID = stableID.replace("<CANCER_STUDY_SUFFIX>", dataSourceMetadata.getCancerStudySuffix());
+		stableID = stableID.replace("<CANCER_CENTER>", dataSourceMetadata.getCancerCenter());
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n", true);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n", true);		
 		String profileDescription = datatypeMetadata.getMetaProfileDescription();

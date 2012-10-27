@@ -160,7 +160,7 @@ public final class CNAConverterImpl implements Converter {
 		fileUtils.writeStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), exiting....");
+			LOG.info("createStagingFile(), complete.");
 		}
 	}
 }

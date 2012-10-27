@@ -108,7 +108,7 @@ public final class CNAConverterImpl implements Converter {
     }
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * Creates a staging file from the given import data.
 	 *
 	 * @param dataSourceMetadata DataSourceMetadata
 	 * @param datatypeMetadata DatatypeMetadata
@@ -119,8 +119,9 @@ public final class CNAConverterImpl implements Converter {
 	 */
 	@Override
 	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-								  final PortalMetadata portalMetadata, final ImportData importData,
-								  final ImportDataMatrix importDataMatrix) throws Exception {
+								  final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+
+		ImportDataMatrix importDataMatrix = importData.getImportDataMatrix();
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
@@ -156,8 +157,7 @@ public final class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(dataSourceMetadata, datatypeMetadata,
-								   portalMetadata, importData, importDataMatrix);
+		fileUtils.writeStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), exiting....");

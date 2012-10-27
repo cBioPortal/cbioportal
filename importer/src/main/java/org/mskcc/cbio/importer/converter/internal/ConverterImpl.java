@@ -188,12 +188,13 @@ final class ConverterImpl implements Converter {
 				}
 				continue;
 			}
+			importData.setImportDataMatrix(importDataMatrix);
 
             // get converter and create staging file
 			Object[] args = { config, fileUtils, caseIDs, idMapper };
 			Converter converter =
 				(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-			converter.createStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData, importDataMatrix);
+			converter.createStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData);
         }
 	}
 
@@ -212,18 +213,17 @@ final class ConverterImpl implements Converter {
     }
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * Creates a staging file from the given import data.
 	 *
 	 * @param dataSourceMetadata DataSourceMetadata
 	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata, final PortalMetadata portalMetadata,
-								  final ImportData importData, final ImportDataMatrix importDataMatrix) throws Exception {
+	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
+								  final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

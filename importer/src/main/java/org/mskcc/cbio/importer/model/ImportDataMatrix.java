@@ -74,7 +74,10 @@ public final class ImportDataMatrix {
 	private LinkedList<ColumnHeader> columnHeaders;
 
 	// ref to caseids
-	private CaseIDs caseIDs;
+	private CaseIDs caseIDsFilter;
+
+	// our collection of case ids
+	private Vector<String> caseIDs;
 
 	/**
 	 * Constructor.
@@ -96,7 +99,10 @@ public final class ImportDataMatrix {
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
+
+		// some collections
 		rowsToIgnore = new HashSet<Integer>();
+		caseIDs = new Vector<String>();
 
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();
@@ -139,12 +145,13 @@ public final class ImportDataMatrix {
 				continue;
 			}
 			// remove case (column) if its not a tumor id
-			if (!caseIDs.isTumorCaseID(columnHeader.label)) {
+			if (!caseIDsFilter.isTumorCaseID(columnHeader.label)) {
 				columnHeadersToRemove.add(columnHeader);
 				continue;
 			}
 			// convert the id
-			columnHeader.label = caseIDs.convertCaseID(columnHeader.label);
+			columnHeader.label = caseIDsFilter.convertCaseID(columnHeader.label);
+			caseIDs.add(columnHeader.label);
 		}
 		
 		// we remove the column headers here to prevent ConcurrentModificationException
@@ -286,21 +293,15 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Returns the number of cases within this matrix.
+	 * Returns the collection of case id's within this matrix.
+	 * Note: filterAndConvertCaseIDs should be called before
+	 * this collection is returned or it will just return an
+	 * empty collection.
 	 *
-	 * @return int
+	 * @return Collection<String>
 	 */
-	public int getNumCases() {
-		int toReturn = 0;
-
-		for (ColumnHeader columnHeader : columnHeaders) {
-			if (caseIDs.isTumorCaseID(columnHeader.label)) {
-				++toReturn;
-			}
-		}
-
-		// outta here
-		return toReturn;
+	public Collection<String> getCaseIDs() {
+		return caseIDs;
 	}
 
 	/**
@@ -373,7 +374,7 @@ public final class ImportDataMatrix {
 	private void initCaseIDs() {
 
 		ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
-		caseIDs = (CaseIDs)context.getBean("caseIDs");
+		caseIDsFilter = (CaseIDs)context.getBean("caseIDs");
 	}
 
 	public static void main(String[] args) throws Exception {

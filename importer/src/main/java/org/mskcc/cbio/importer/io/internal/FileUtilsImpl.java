@@ -258,17 +258,14 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void writeStagingFile(final DataSourceMetadata dataSourceMetadata,
-								 final DatatypeMetadata datatypeMetadata,
-								 final PortalMetadata portalMetadata,
-								 final ImportData importData,
-								 final ImportDataMatrix importDataMatrix) throws Exception {
+	public void writeStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
+								 final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
 
-		String cancerStudyIdentifier = importData.getTumorType() + dataSourceMetadata.getCancerStudySuffix();
+		ImportDataMatrix importDataMatrix = importData.getImportDataMatrix();
+		String cancerStudyIdentifier = importData.getTumorType() + "_" + dataSourceMetadata.getCancerStudySuffix();
 
 		// staging file
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
@@ -285,7 +282,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// meta file
 		File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																importData.getTumorType() + dataSourceMetadata.getCancerStudySuffix(),
+																cancerStudyIdentifier,
 																datatypeMetadata.getMetaFilename());
 
 		if (LOG.isInfoEnabled()) {
@@ -300,7 +297,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n", true);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n", true);		
 		String profileDescription = datatypeMetadata.getMetaProfileDescription();
-		profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getNumCases()));
+		profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_description: " + profileDescription + "\n", true);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_name: " + datatypeMetadata.getMetaProfileName() + "\n", true);
 	}

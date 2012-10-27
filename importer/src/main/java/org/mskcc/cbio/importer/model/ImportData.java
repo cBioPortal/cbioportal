@@ -73,6 +73,8 @@ public final class ImportData {
     @Column(nullable=true)
     private String overrideFilename;
 
+	private ImportDataMatrix importDataMatrix;
+
 	/**
 	 * Default Constructor.
 	 */
@@ -278,4 +280,21 @@ public final class ImportData {
 	 * @return String
 	 */
 	public String getOverrideFilename() { return overrideFilename; }
+
+	/**
+	 * Sets the import data matrix.
+	 *
+	 * @param importDataMatrix ImportDataMatrix
+	 */
+	public void setImportDataMatrix(final ImportDataMatrix importDataMatrix) {
+
+		this.importDataMatrix = importDataMatrix;
+	}
+
+	/**
+	 * Gets the import data matrix.
+	 *
+	 * @return ImportDataMatrix
+	 */
+	public ImportDataMatrix getImportDataMatrix() { return importDataMatrix; }
 }

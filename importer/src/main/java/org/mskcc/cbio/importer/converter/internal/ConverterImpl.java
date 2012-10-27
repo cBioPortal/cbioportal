@@ -104,6 +104,9 @@ final class ConverterImpl implements Converter {
 		if (this.dataSources == null) {
 			throw new IllegalArgumentException("cannot instantiate the dataSources collection.");
 		}
+
+		// initialize mapper
+		initializeMapper();
 	}
 
 	/**
@@ -123,12 +126,6 @@ final class ConverterImpl implements Converter {
         if (portal == null) {
             throw new IllegalArgumentException("portal must not be null");
 		}
-
-		// initialize the mapper
-		if (LOG.isInfoEnabled()) {
-			LOG.info("convertData(), initializing the IDMapper.");
-		}
-		initializeMapper();
 
         // get portal metadata
         PortalMetadata portalMetadata = config.getPortalMetadata(portal);

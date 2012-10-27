@@ -33,6 +33,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Entity;
 import javax.persistence.Column;
+import javax.persistence.Transient;
 import javax.persistence.NamedQuery;
 import javax.persistence.NamedQueries; 
 import org.hibernate.annotations.Type;
@@ -72,7 +73,7 @@ public final class ImportData {
     private String datafile;
     @Column(nullable=true)
     private String overrideFilename;
-
+	@Transient
 	private ImportDataMatrix importDataMatrix;
 
 	/**

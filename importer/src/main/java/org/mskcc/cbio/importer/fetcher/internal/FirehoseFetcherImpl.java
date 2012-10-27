@@ -388,7 +388,7 @@ final class FirehoseFetcherImpl implements Fetcher {
             String canonicalPath = dataFile.getCanonicalPath();
             // create an store a new ImportData object
             for (DatatypeMetadata datatype : datatypes) {
-                ImportData importData = new ImportData(dataSource, tumorType, datatype.getDatatype(),
+                ImportData importData = new ImportData(dataSource, tumorType.toLowerCase(), datatype.getDatatype(),
                                                        PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
                                                        true, datatype.getFirehoseDownloadFilename(),
                                                        getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));

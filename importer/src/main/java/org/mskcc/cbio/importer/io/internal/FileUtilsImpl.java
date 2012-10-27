@@ -292,17 +292,17 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			LOG.info("writingStagingFlie(), meta file: " + metaFile);
 		}
 		
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "cancer_study_identifier: " + cancerStudyIdentifier + "\n");
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "cancer_study_identifier: " + cancerStudyIdentifier + "\n", true);
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n", true);
 		String stableID = datatypeMetadata.getMetaStableID();
 		stableID = stableID.replace("<TUMOR_TYPE>", importData.getTumorType());
 		stableID = stableID.replace("<CANCER_STUDY_SUFFIX>", dataSourceMetadata.getCancerStudySuffix());
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n");
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");		
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n", true);
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n", true);		
 		String profileDescription = datatypeMetadata.getMetaProfileDescription();
 		profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getNumCases()));
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_description: " + profileDescription + "\n");
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_description: " + profileDescription + "\n", true);
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_name: " + datatypeMetadata.getMetaProfileName() + "\n", true);
 	}
 
     /*

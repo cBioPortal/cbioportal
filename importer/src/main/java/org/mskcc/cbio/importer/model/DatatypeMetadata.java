@@ -173,5 +173,5 @@ public final class DatatypeMetadata {
 	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }
 	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
 	public String getMetaProfileName() { return metaProfileName; }
-	public String getMetaProfileDescription() { return metaProfileName; }
+	public String getMetaProfileDescription() { return metaProfileDescription; }
 }

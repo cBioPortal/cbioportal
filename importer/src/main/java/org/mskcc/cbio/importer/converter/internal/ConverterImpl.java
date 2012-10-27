@@ -89,7 +89,7 @@ final class ConverterImpl implements Converter {
 	 * @param idMapper IDMapper
 	 */
 	public ConverterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils,
-						 final ImportDataDAO importDataDAO, final CaseIDs caseIDs, final IDMapper idMapper) {
+						 final ImportDataDAO importDataDAO, final CaseIDs caseIDs, final IDMapper idMapper) throws Exception {
 
 		// set members
 		this.config = config;

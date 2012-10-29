@@ -35,6 +35,7 @@ public final class DatatypeMetadata {
 
 	// bean properties
 	private String datatype;
+	private String[] datatypeDependencies;
 	private Boolean download;
 	private Boolean computable;
 	private String firehoseDownloadArchive;
@@ -55,6 +56,7 @@ public final class DatatypeMetadata {
      * Create a DatatypeMetadata instance with specified properties.
      *
      * @param datatype String
+     * @param datatypeDependencies String[]
 	 * @param download Boolean
 	 * @param computable Boolean
 	 * @param firehoseDownloadArchive String
@@ -71,7 +73,8 @@ public final class DatatypeMetadata {
      * @param metaProfileName String
      * @param metaProfileDescription String
      */
-    public DatatypeMetadata(final String datatype, final Boolean download, final Boolean computable,
+    public DatatypeMetadata(final String datatype, final String[] datatypeDependencies,
+							final Boolean download, final Boolean computable,
 							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
 							final String overrideFilename, final String stagingFilename, 
 							final String converterClassName, final String importerClassName, 
@@ -83,6 +86,9 @@ public final class DatatypeMetadata {
             throw new IllegalArgumentException("datatype must not be null");
 		}
 		this.datatype = datatype;
+
+		// datatype dependencies can be null
+		this.datatypeDependencies = (datatypeDependencies == null) ? new String[0] : datatypeDependencies;
 
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");
@@ -126,7 +132,6 @@ public final class DatatypeMetadata {
 		}
 		this.importerClassName = importerClassName;
 
-
 		if (metaFilename == null) {
             throw new IllegalArgumentException("metaFilename must not be null");
 		}
@@ -159,8 +164,9 @@ public final class DatatypeMetadata {
 	}
 
 	public String getDatatype() { return datatype; }
+	public String[] getDatatypeDependencies() { return datatypeDependencies; }
 	public Boolean isDownloaded() { return download; }
-	public Boolean isComputatable() { return computable; }
+	public Boolean isComputable() { return computable; }
 	public String getFirehoseDownloadArchive() { return firehoseDownloadArchive; }
 	public String getFirehoseDownloadFilename() { return firehoseDownloadFilename; }
 	public String getOverrideFilename() { return overrideFilename; }

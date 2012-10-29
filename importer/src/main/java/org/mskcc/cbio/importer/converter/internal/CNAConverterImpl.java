@@ -35,7 +35,6 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
@@ -110,18 +109,21 @@ public final class CNAConverterImpl implements Converter {
 	/**
 	 * Creates a staging file from the given import data.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-								  final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
 
-		ImportDataMatrix importDataMatrix = importData.getImportDataMatrix();
+		// sanity check
+		if (importDataMatrices.length != 1) {
+			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		}
+		ImportDataMatrix importDataMatrix = importDataMatrices[0];
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
@@ -157,7 +159,7 @@ public final class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

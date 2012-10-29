@@ -139,63 +139,40 @@ final class ConverterImpl implements Converter {
 		// get datatype metadata
 		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
 
-        // iterate over all import data objects
-        for (ImportData importData : importDataDAO.getImportData()) {
+		// iterate over all cancer studies, tumor types
+		for (String cancerStudy : portalMetadata.getCancerStudies()) {
 
-			if (!importData.getDatatype().equals("cna")) continue;
+			// tumor type
+			String tumorType = cancerStudy.split("_")[0];
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("convertData(), determining if importData object belongs in portal: " +
-                         importData.getTumorType() + "/" + importData.getDatatype());
-            }
+			// iterate over all datatypes
+			for (String datatype : portalMetadata.getDatatypes()) {
 
-            // does this cancer study / datatype belong in this portal?
-            if (!belongsInPortal(portalMetadata, importData)) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("convertData(), importData does not belongs in portal, skipping");
-                }
-                continue;
-            }
-
-            if (LOG.isInfoEnabled()) {
-                LOG.info("convertData(), importData does belong, getting content");
-            }
-
-			// get the DatatypeMetadata object fro this importData object
-			DatatypeMetadata datatypeMetadata = getDatatypeMetadata(importData.getDatatype(), datatypeMetadatas);
-			if (datatypeMetadata == null) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("convertData(), unrecognized datatype: " + importData.getDatatype() + ", skipping");
+				// get the DatatypeMetadata object
+				DatatypeMetadata datatypeMetadata = getDatatypeMetadata(datatype, datatypeMetadatas);
+				if (datatypeMetadata == null) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("convertData(), unrecognized datatype: " + datatype + ", skipping");
+					}
+					continue;
 				}
-				continue;
-			}
 
-			// get data source
-			DataSourceMetadata dataSourceMetadata = getDataSourceMetadata(importData.getDataSource());
-			if (dataSourceMetadata == null) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("convertData(), cannot determine datasource: " + importData.getDataSource() + ", skipping");
+				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
+				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
+				if (importDataMatrices == null) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("convertData(), error getting importDataMatrices, skipping.");
+					}
+					continue;
 				}
-				continue;
+
+				// get converter and create staging file
+				Object[] args = { config, fileUtils, caseIDs, idMapper };
+				Converter converter =
+					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+				converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
 			}
-
-            // get data to process as JTable
-            ImportDataMatrix importDataMatrix = fileUtils.getFileContents(portalMetadata, importData);
-
-			if (importDataMatrix == null) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("convertData(), error creating ImportDataMatrix: " + importData.getDataSource() + ", " + importData.getDatatype() + ", skipping");
-				}
-				continue;
-			}
-			importData.setImportDataMatrix(importDataMatrix);
-
-            // get converter and create staging file
-			Object[] args = { config, fileUtils, caseIDs, idMapper };
-			Converter converter =
-				(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-			converter.createStagingFile(dataSourceMetadata, datatypeMetadata, portalMetadata, importData);
-        }
+		}
 	}
 
 	/**
@@ -215,42 +192,32 @@ final class ConverterImpl implements Converter {
 	/**
 	 * Creates a staging file from the given import data.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-								  final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
-    /**
-     * Helper function - determines if the given ImportData
-     * belongs in the given portal.
-     *
-     * @param portalMetadata PortalMetadata
-     * @param importData ImportData
-     * @return Boolean
-     */
-    private Boolean belongsInPortal(final PortalMetadata portalMetadata, final ImportData importData) {
-        
-        // check cancer studies
-        for (String cancerStudy : portalMetadata.getCancerStudies()) {
-            if (cancerStudy.contains(importData.getTumorType().toLowerCase())) {
-                for (String datatype : portalMetadata.getDatatypes()) {
-                    if (datatype.contains(importData.getDatatype().toLowerCase())) {
-                        return true;
-                    }
-                }
-            }
-        }
+	/**
+	 * Helper function to initialize IDMapper.
+	 *
+	 * @throws Exception
+	 */
+	private void initializeMapper() throws Exception {
 
-        // outta here
-        return false;
-    }
+		// parse out locat
+		String connectionString = (databaseUtils.getDatabaseConnectionString() +
+								   databaseUtils.getGeneInformationDatabaseName() +
+								   "?user=" + databaseUtils.getDatabaseUser() +
+								   "&password=" + databaseUtils.getDatabasePassword());
+		idMapper.initMapper(connectionString);
+	}
 
 	/**
 	 * Helper function to get datatype metadata object for given datatype.
@@ -273,37 +240,67 @@ final class ConverterImpl implements Converter {
 	}
 
 	/**
-	 * Helper funciton to return the DataSourceMetadata object
-	 * for the given importData object.
+	 * Helper function to get ImportDataMatrix[] array.
+	 *  - may return null.
 	 *
-	 * @param importData ImportData
-	 * @return DataSourceMetadata
-	 */
-	private DataSourceMetadata getDataSourceMetadata(final String dataSource) {
-
-		for (DataSourceMetadata dataSourceMetadata : dataSources) {
-			if (dataSource.equalsIgnoreCase(dataSourceMetadata.getDataSource())) {
-				return dataSourceMetadata;
-			}
-		}
-		
-		// outta here
-		return null;
-	}
-	
-
-	/**
-	 * Helper function to initialize IDMapper.
-	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param tumorType String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @return ImpordDataMatrix[]
 	 * @throws Exception
 	 */
-	private void initializeMapper() throws Exception {
+	private ImportDataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
+													 final DatatypeMetadata datatypeMetadata) throws Exception {
 
-		// parse out locat
-		String connectionString = (databaseUtils.getDatabaseConnectionString() +
-								   databaseUtils.getGeneInformationDatabaseName() +
-								   "?user=" + databaseUtils.getDatabaseUser() +
-								   "&password=" + databaseUtils.getDatabasePassword());
-		idMapper.initMapper(connectionString);
+		ImportDataMatrix[] toReturn = null;
+
+		String datatype = datatypeMetadata.getDatatype();
+		if (!datatypeMetadata.isComputable()) {
+			toReturn = new ImportDataMatrix[] { getImportDataMatrix(portalMetadata, tumorType, datatype) };
+		}
+		// computable, we need to parse 
+		else {
+			String[] computableDatatypes = datatypeMetadata.getDatatypeDependencies();
+			toReturn = new ImportDataMatrix[computableDatatypes.length];
+			for (int lc = 0; lc < computableDatatypes.length; lc++) {
+				String computableDatatype = computableDatatypes[lc];
+				toReturn[lc] = getImportDataMatrix(portalMetadata, tumorType, computableDatatype);
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Helper function to get an ImportDataMatrix for the given tumorType/datatype combination.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param tumorType String
+	 * @param datatype String
+	 * @return ImportDataMatrix
+	 * @throws Exception
+	 */
+	private ImportDataMatrix getImportDataMatrix(final PortalMetadata portalMetadata, final String tumorType,
+												 final String datatype) throws Exception {
+
+		ImportDataMatrix toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getImportDataMatrix(), looking for ImportData matching: " + tumorType + ":" + datatype + ".");
+		}
+		ImportData importData = importDataDAO.getImportDataByTumorAndDatatype(tumorType, datatype);
+		if (importData != null) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("getImportDataMatrix(), found ImportData matching: " + tumorType + ":" + datatype + ".");
+			}
+			toReturn = fileUtils.getFileContents(portalMetadata, importData);
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("getImportDataMatrix(), cannot find ImportData matching: " + tumorType + ":" + datatype);
+		}
+
+		// outta here
+		return toReturn;
 	}
 }

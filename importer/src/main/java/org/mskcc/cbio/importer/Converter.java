@@ -29,10 +29,9 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 /**
  * Interface used to convert portal data.
@@ -58,12 +57,12 @@ public interface Converter {
 	/**
 	 * Creates a staging file from the given import data.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
-	void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-						   final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
+	void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+						   final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception;
 }

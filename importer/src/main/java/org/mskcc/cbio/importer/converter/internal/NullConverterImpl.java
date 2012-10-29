@@ -35,10 +35,9 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -107,13 +106,13 @@ public final class NullConverterImpl implements Converter {
 	/**
 	 * Creates a staging file from the given import data.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-								  final PortalMetadata portalMetadata, final ImportData importData) throws Exception {}
+	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {}
 }

@@ -35,7 +35,6 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import org.apache.commons.io.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -254,22 +253,19 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	/**
 	 * Creates a staging file with contents from the given ImportDataMatrix.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	@Override
-	public void writeStagingFile(final DataSourceMetadata dataSourceMetadata, final DatatypeMetadata datatypeMetadata,
-								 final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
-
-		ImportDataMatrix importDataMatrix = importData.getImportDataMatrix();
-		String cancerStudyIdentifier = importData.getTumorType() + "_" + dataSourceMetadata.getCancerCenter();
+	public void writeStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								 final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
 
 		// staging file
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																   cancerStudyIdentifier,
+																   cancerStudy,
 																   datatypeMetadata.getStagingFilename());
 
 		if (LOG.isInfoEnabled()) {
@@ -282,18 +278,17 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// meta file
 		File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																cancerStudyIdentifier,
+																cancerStudy,
 																datatypeMetadata.getMetaFilename());
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writingStagingFlie(), meta file: " + metaFile);
 		}
 		
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "cancer_study_identifier: " + cancerStudyIdentifier + "\n", true);
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "cancer_study_identifier: " + cancerStudy + "\n", true);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n", true);
 		String stableID = datatypeMetadata.getMetaStableID();
-		stableID = stableID.replace("<TUMOR_TYPE>", importData.getTumorType());
-		stableID = stableID.replace("<CANCER_CENTER>", dataSourceMetadata.getCancerCenter());
+		stableID = stableID.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n", true);
 		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n", true);		
 		String profileDescription = datatypeMetadata.getMetaProfileDescription();

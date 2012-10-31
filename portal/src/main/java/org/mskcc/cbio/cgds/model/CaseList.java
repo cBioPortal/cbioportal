@@ -119,6 +119,19 @@ public class CaseList {
       this.caseList = caseList;
    }
 
+    @Override
+   public String toString() {
+       return this.getClass().getName() + "{"
+               + "stableId " + this.stableId
+               + ", caseListId " + this.caseListId
+               + ", caseLIstId " + this.cancerStudyId
+               + ", name " + this.name
+               + ", description " + this.description
+               + ", CaseListCategory " + this.caseListCategory
+               + ", caseList " + this.caseList
+               + "}";
+   }
+
     /**
      * Gets list of all case IDs in the set as one string.
      *

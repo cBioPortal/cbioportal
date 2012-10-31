@@ -25,6 +25,9 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="java.lang.reflect.Array" %>
 
 
 <%
@@ -175,6 +178,63 @@
 
              });
              </script>
+
+            <%
+                // put all the case sets
+                Log log = LogFactory.getLog("header.jsp");
+
+                ArrayList<CaseList> caseLists = (ArrayList<CaseList>) request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+                log.info("====visualize.jsp====");
+                log.info( caseLists.size() );
+
+                // concat all case sets into one big list
+                ArrayList<String> _cases = new ArrayList<String>();
+                for (CaseList c : caseLists) {
+                    if (c.getCaseList() != null) {      // todo: shouldn't this be an empty list, not null?
+                        _cases.addAll(c.getCaseList());
+                    }
+                }
+
+                // remove duplicates (cases that belong to multiple case sets)
+                Set set_of_cases = new HashSet(_cases);
+                _cases.clear();
+                _cases.addAll(set_of_cases);
+
+                // join with a space in between each element -- e.g. .join(" ")
+                String cases = "";
+                for (String c : _cases) {
+                    cases += " " + c;
+                }
+
+                //todo: this might not be the fastest way to do this since I am not removing duplicates as I go.
+            %>
+
+            <script type="text/javascript">
+
+                $(document).ready(function() {
+                    var cancer_study_id = "<%=request.getAttribute(QueryBuilder.CANCER_STUDY_ID)%>";
+                    var genes = "<%=request.getAttribute(QueryBuilder.GENE_LIST)%>";
+                    var cases = "<%=cases%>".trim();
+                    var geneticProfiles = "<%=request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS)%>";
+
+                    var sendData = {
+                        cancer_study_id: cancer_study_id,
+                        genes: genes,
+                        cases: cases,
+                        geneticProfileIds: geneticProfiles
+                    };
+
+                    geneAlterations = GeneAlterations(sendData);
+                    // bind this to the global object by omitting "var"
+
+                    geneAlterations.addListener(function(data) {
+                        console.log(data);
+                    });
+
+                    geneAlterations.getAlterations();
+                });
+
+            </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>

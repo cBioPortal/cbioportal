@@ -47,6 +47,11 @@ var GeneAlterations = function(sendData) {
         }
     };
 
+    that.getSendData = function() {
+        // gets the original data sent to the server
+        return sendData;
+    };
+
     that.redo = function(new_SendData) {
         // set the data to the new data, do another request, and fire.
         // NB : you probably need to add listeners first

@@ -34,6 +34,7 @@ import org.mskcc.cbio.maf.MafUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Test class to test Oncotator tool.
@@ -45,26 +46,16 @@ public class TestOncotator extends TestCase
 	 */
 	public void testWithOncoColumns()
 	{
-		OncotatorCacheService cacheService = new HashCacheService();
-		OncotatorService oncotatorService = new OncotatorService(cacheService);
-		OncotateTool oncotator = new OncotateTool(oncotatorService);
-
-		// there should be no inital errors
-		assertEquals(oncotatorService.getErrorCount(), 0);
-
 		// TODO replace with getResourceStream()
 		File input = new File("target/test-classes/with_onco_columns.txt");
 		File output = new File("target/test-classes/with_cols_output.txt");
 
+		// run oncotator
+		this.oncotate(input, output, true, false, false);
+
+		// check if everthing is ok with the output
 		try
 		{
-			// oncotate the sample input files
-			oncotator.oncotateMaf(input, output, false);
-
-			// now check if everthing is ok with the output
-
-			assertEquals(0, oncotatorService.getErrorCount()); // no errors
-
 			BufferedReader reader = new BufferedReader(new FileReader(output));
 
 			String line = reader.readLine();
@@ -78,26 +69,13 @@ public class TestOncotator extends TestCase
 				if (line.length() > 0)
 				{
 					MafRecord record = util.parseRecord(line);
-
-					if (record.getVariantClassification().equalsIgnoreCase("Silent"))
-					{
-						// assert mutation type is copied to the oncotator column
-						assertEquals("Silent", record.getOncotatorVariantClassification());
-					}
-					else
-					{
-						// assert all oncotator columns are overwritten with new values
-						assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
-						assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
-						assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
-						assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
-					}
+					this.validateMafRecord(record);
 				}
 			}
 
 			reader.close();
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -108,26 +86,16 @@ public class TestOncotator extends TestCase
 	 */
 	public void testWithoutOncoColumns()
 	{
-		OncotatorCacheService cacheService = new HashCacheService();
-		OncotatorService oncotatorService = new OncotatorService(cacheService);
-		OncotateTool oncotator = new OncotateTool(oncotatorService);
-
-		// there should be no inital errors
-		assertEquals(oncotatorService.getErrorCount(), 0);
-
 		// TODO replace with getResourceStream()
 		File input = new File("target/test-classes/without_onco_columns.txt");
 		File output = new File("target/test-classes/without_cols_output.txt");
 
+		// run oncotator
+		this.oncotate(input, output, true, false, false);
+
+		// check if everthing is ok with the output
 		try
 		{
-			// oncotate the sample input files
-			oncotator.oncotateMaf(input, output, false);
-
-			// now check if everthing is ok with the output
-
-			assertEquals(0, oncotatorService.getErrorCount()); // no errors
-
 			BufferedReader reader = new BufferedReader(new FileReader(output));
 
 			String line = reader.readLine();
@@ -141,28 +109,168 @@ public class TestOncotator extends TestCase
 				if (line.length() > 0)
 				{
 					MafRecord record = util.parseRecord(line);
-
-					if (record.getVariantClassification().equalsIgnoreCase("Silent"))
-					{
-						// assert mutation type is copied to the oncotator column
-						assertEquals("Silent", record.getOncotatorVariantClassification());
-					}
-					else
-					{
-						// assert all oncotator columns have non empty values
-						assertTrue(record.getOncotatorVariantClassification().length() > 0);
-						assertTrue(record.getOncotatorCosmicOverlapping().length() > 0);
-						assertTrue(record.getOncotatorDbSnpRs().length() > 0);
-						assertTrue(record.getOncotatorProteinChange().length() > 0);
-					}
+					this.validateMafRecord(record);
 				}
 			}
 
 			reader.close();
 		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Tests the shuffled input MAF file which already has oncotator columns.
+	 */
+	public void testShuffledWithOncoCols()
+	{
+		// TODO replace with getResourceStream()
+		File input = new File("target/test-classes/with_onco_cols_shuffled.txt");
+		File output = new File("target/test-classes/with_cols_shuffled_out.txt");
+
+		// run oncotator (with sort & add options enabled)
+		this.oncotate(input, output, true, true, true);
+
+		// check if everthing is ok with the output
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(output));
+
+			String line = reader.readLine();
+			MafUtil util =  new MafUtil(line);
+
+			// assert number of columns (32 standard + 5 Oncotator + 5 MA)
+			assertEquals(37, util.getHeaderCount());
+
+			// assert new indices
+			assertEquals(3, util.getNcbiIndex());
+			assertEquals(0, util.getHugoGeneSymbolIndex());
+			assertEquals(32, util.getOncoVariantClassificationIndex());
+			assertEquals(36, util.getOncoGeneSymbolIndex());
+
+			while ((line = reader.readLine()) != null)
+			{
+				if (line.length() > 0)
+				{
+					MafRecord record = util.parseRecord(line);
+
+					assertEquals("37", record.getNcbiBuild());
+					this.validateMafRecord(record);
+				}
+			}
+
+			reader.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Tests the shuffled input MAF file which does not have oncotator columns.
+	 */
+	public void testShuffledWithoutOncoCols()
+	{
+		// TODO replace with getResourceStream()
+		File input = new File("target/test-classes/without_onco_cols_shuffled.txt");
+		File output = new File("target/test-classes/without_cols_shuffled_out.txt");
+
+		// run oncotator (with sort & add options enabled)
+		this.oncotate(input, output, true, true, true);
+
+		// check if everthing is ok with the output
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(output));
+
+			String line = reader.readLine();
+			MafUtil util =  new MafUtil(line);
+
+			// assert number of columns (32 standard + 5 Oncotator + 5 MA)
+			assertEquals(37, util.getHeaderCount());
+
+			// assert new indices
+			assertEquals(3, util.getNcbiIndex());
+			assertEquals(0, util.getHugoGeneSymbolIndex());
+			assertEquals(32, util.getOncoVariantClassificationIndex());
+			assertEquals(36, util.getOncoGeneSymbolIndex());
+
+			while ((line = reader.readLine()) != null)
+			{
+				if (line.length() > 0)
+				{
+					MafRecord record = util.parseRecord(line);
+					this.validateMafRecord(record);
+				}
+			}
+
+			reader.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private void oncotate(File input,
+			File output,
+			boolean useCache,
+			boolean sort,
+			boolean addMissing)
+	{
+		OncotatorCacheService cacheService = new HashCacheService();
+		OncotatorService oncotatorService = new OncotatorService(cacheService);
+		Oncotator oncotator = new Oncotator(oncotatorService);
+		oncotator.setUseCache(useCache);
+		oncotator.setSortColumns(sort);
+		oncotator.setAddMissingCols(addMissing);
+
+		// there should be no inital errors
+		assertEquals(oncotatorService.getErrorCount(), 0);
+
+		try
+		{
+			// oncotate the sample input files
+			oncotator.oncotateMaf(input, output);
+
+			// assert no errors after oncotating
+			assertEquals(0, oncotatorService.getErrorCount());
+		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	private void validateMafRecord(MafRecord record)
+	{
+		assertEquals("37", record.getNcbiBuild());
+
+		if (record.getVariantClassification().equalsIgnoreCase("Silent"))
+		{
+			// assert mutation type is copied to the oncotator column
+			assertEquals("Silent", record.getOncotatorVariantClassification());
+		}
+		else
+		{
+			// assert all oncotator columns have non empty values
+			assertTrue(record.getOncotatorVariantClassification().length() > 0);
+			assertTrue(record.getOncotatorCosmicOverlapping().length() > 0);
+			assertTrue(record.getOncotatorDbSnpRs().length() > 0);
+			assertTrue(record.getOncotatorProteinChange().length() > 0);
+			assertTrue(record.getOncotatorGeneSymbol().length() > 0);
+
+			// assert all oncotator columns are overwritten with new values
+			assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
+			assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
+			assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
+			assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
+			assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
 		}
 	}
 }

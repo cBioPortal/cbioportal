@@ -121,7 +121,7 @@ public class MafProcessor
 		for (String header : this.oncoHeaders)
 		{
 			// always add missing oncotator columns
-			// (overwrite, if necessary, to allow conditional adding
+			// overwrite, if necessary, to allow conditional adding
 			this.addColumnToHeader(headerData, header, true);
 		}
 	}
@@ -131,7 +131,9 @@ public class MafProcessor
 	{
 		for (String header : this.maHeaders)
 		{
-			this.addColumnToHeader(headerData, header, addMissing);
+			// never add missing MA columns
+			// overwrite, if necessary, to allow conditional adding
+			this.addColumnToHeader(headerData, header, false);
 		}
 	}
 

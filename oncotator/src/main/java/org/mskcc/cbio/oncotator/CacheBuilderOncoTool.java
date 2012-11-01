@@ -7,7 +7,7 @@ import java.io.FileReader;
 /**
  * Oncotate Tool altered to build JSON cache for existing oncotator key values.
  */
-public class CacheBuilderOncoTool extends OncotateTool
+public class CacheBuilderOncoTool extends Oncotator
 {
 	/**
 	 * Default constructor with the default oncotator service.
@@ -20,8 +20,7 @@ public class CacheBuilderOncoTool extends OncotateTool
 	}
 
 	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile,
-			boolean noCache) throws Exception
+			File outputMafFile) throws Exception
 	{
 		// always use cache, this is a cache builder.
 		this.oncotatorService.setUseCache(true);

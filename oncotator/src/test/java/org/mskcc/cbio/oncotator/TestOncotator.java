@@ -141,7 +141,7 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator + 5 MA)
+			// assert number of columns (32 standard + 5 Oncotator)
 			assertEquals(37, util.getHeaderCount());
 
 			// assert new indices
@@ -190,7 +190,7 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator + 5 MA)
+			// assert number of columns (32 standard + 5 Oncotator)
 			assertEquals(37, util.getHeaderCount());
 
 			// assert new indices

@@ -27,14 +27,14 @@
 
 package org.mskcc.cbio.maf;
 
-import org.mskcc.cbio.oncotator.OncotatorRecord;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Enables re ordering of MAF files as well as adding new oncotator columns.
+ * Helps processing and reordering of MAF file content. Designed
+ * as a base MAF processing class for Oncotator and Mutation Assessor
+ * tools.
  *
  * @author Selcuk Onur Sumer
  */
@@ -58,11 +58,24 @@ public class MafProcessor
 		this.maHeaders = this.initMaHeaderList();
 	}
 
+	/**
+	 * Creates a new header list with sorted and complete standard columns.
+	 *
+	 * @return  a sorted list of header columns
+	 */
 	public List<String> newHeaderList()
 	{
 		return this.newHeaderList(true, true);
 	}
 
+	/**
+	 * Creates a new header list. Sorting and adding missing information
+	 * is optional.
+	 *
+	 * @param sorted        indicates whether sort the standard cols
+	 * @param addMissing    indicates whether add all standard cols
+	 * @return              a new header list
+	 */
 	public List<String> newHeaderList(boolean sorted, boolean addMissing)
 	{
 		List<String> headerData = new ArrayList<String>();
@@ -95,6 +108,14 @@ public class MafProcessor
 		return headerData;
 	}
 
+	/**
+	 * Adds a new column name into the given header list. If addMissing flag
+	 * is set, then the column name will be added in any case.
+	 *
+	 * @param headerData    list to add the column name
+	 * @param header        name of the column
+	 * @param addMissing    indicates if the column will be added in any case
+	 */
 	protected void addColumnToHeader(List<String> headerData,
 			String header,
 			boolean addMissing)
@@ -106,6 +127,12 @@ public class MafProcessor
 		}
 	}
 
+	/**
+	 * Adds standard MAF column names into the given header list.
+	 *
+	 * @param headerData    list of header names
+	 * @param addMissing    indicates if the missing columns will also be added
+	 */
 	protected void addStandardColsToHeader(List<String> headerData,
 			boolean addMissing)
 	{
@@ -115,28 +142,40 @@ public class MafProcessor
 		}
 	}
 
+	/**
+	 * Adds oncotator column names into the given header list.
+	 *
+	 * @param headerData    list of header names
+	 * @param addMissing    indicates if the missing columns will also be added
+	 */
 	protected void addOncoColsToHeader(List<String> headerData,
 			boolean addMissing)
 	{
 		for (String header : this.oncoHeaders)
 		{
-			// always add missing oncotator columns
-			// overwrite, if necessary, to allow conditional adding
-			this.addColumnToHeader(headerData, header, true);
+			this.addColumnToHeader(headerData, header, addMissing);
 		}
 	}
 
+	/**
+	 * Adds MA column names into the given header list.
+	 *
+	 * @param headerData    list of header names
+	 * @param addMissing    indicates if the missing columns will also be added
+	 */
 	protected void addMaColsToHeader(List<String> headerData,
 			boolean addMissing)
 	{
 		for (String header : this.maHeaders)
 		{
-			// never add missing MA columns
-			// overwrite, if necessary, to allow conditional adding
-			this.addColumnToHeader(headerData, header, false);
+			this.addColumnToHeader(headerData, header, addMissing);
 		}
 	}
 
+	/**
+	 * Adds other (custom) column names into the header list.
+	 * @param headerData    list of header names
+	 */
 	protected void addOtherColsToHeader(List<String> headerData)
 	{
 		String[] parts = this.headerLine.split(TAB);
@@ -150,12 +189,22 @@ public class MafProcessor
 		}
 	}
 
+	/**
+	 * Adds all existing column names into the header list.
+	 *
+	 * @param headerData    list of header names
+	 */
 	protected void addExistingColsToHeader(List<String> headerData)
 	{
 		// add all existing headers
 		Collections.addAll(headerData, this.headerLine.split(TAB));
 	}
 
+	/**
+	 * Adds new (oncotator) column names into the header list.
+	 *
+	 * @param headerData    list of header names
+	 */
 	protected void addNewColsToHeader(List<String> headerData)
 	{
 		for (String oncoHeader : this.oncoHeaders)
@@ -168,6 +217,12 @@ public class MafProcessor
 		}
 	}
 
+	/**
+	 * Checks if the header is a custom header or not.
+	 *
+	 * @param header    name of the header
+	 * @return          true if the header is custom, false otherwise
+	 */
 	protected boolean isCustomHeader(String header)
 	{
 		for (String knownHeader : this.standardHeaders)
@@ -197,6 +252,13 @@ public class MafProcessor
 		return true;
 	}
 
+	/**
+	 * Creates a new data list matching the order of the new header list
+	 * by parsing the given data line.
+	 *
+	 * @param dataLine  a single line of a MAF file
+	 * @return          list of data representing a single line
+	 */
 	public List<String> newDataList(String dataLine)
 	{
 		// adjust data line for consistency with the header
@@ -292,37 +354,6 @@ public class MafProcessor
 		headers.add(MafUtil.MA_LINK_VAR);
 
 		return headers;
-	}
-
-	public void updateOncotatorData(List<String> data,
-		OncotatorRecord oncotatorRecord)
-	{
-		if (oncotatorRecord == null)
-		{
-			oncotatorRecord = new OncotatorRecord("NA");
-		}
-
-		String proteinChange =
-				oncotatorRecord.getBestEffectTranscript().getProteinChange();
-		String cosmicOverlapping =
-				oncotatorRecord.getCosmicOverlappingMutations();
-		String dbSnpRs =
-				oncotatorRecord.getDbSnpRs();
-		String variantClassification =
-				oncotatorRecord.getBestEffectTranscript().getVariantClassification();
-		String geneSymbol =
-				oncotatorRecord.getBestEffectTranscript().getGene();
-
-		// create a new maf util for the new header line to get new oncotator indices
-		String newHeaderLine = this.newHeaderLineAsString();
-		MafUtil mafUtil = new MafUtil(newHeaderLine);
-
-		// update oncotator values
-		data.set(mafUtil.getOncoProteinChangeIndex(), proteinChange);
-		data.set(mafUtil.getOncoCosmicOverlappingIndex(), cosmicOverlapping);
-		data.set(mafUtil.getOncoDbSnpRsIndex(), dbSnpRs);
-		data.set(mafUtil.getOncoVariantClassificationIndex(), variantClassification);
-		data.set(mafUtil.getOncoGeneSymbolIndex(), geneSymbol);
 	}
 
 	protected String newHeaderLineAsString()

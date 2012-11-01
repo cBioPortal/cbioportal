@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.oncotator;
 
-import org.mskcc.cbio.maf.MafProcessor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
+import org.mskcc.cbio.maf.OncoMafProcessor;
 
 import java.io.*;
 import java.util.List;
@@ -102,7 +102,7 @@ public class Oncotator
 		BufferedReader bufReader = new BufferedReader(reader);
 		String headerLine = bufReader.readLine();
 		MafUtil mafUtil = new MafUtil(headerLine);
-		MafProcessor processor = new MafProcessor(headerLine);
+		OncoMafProcessor processor = new OncoMafProcessor(headerLine);
 
 		int numRecordsProcessed = 0;
 		FileWriter writer = new FileWriter(outputMafFile);

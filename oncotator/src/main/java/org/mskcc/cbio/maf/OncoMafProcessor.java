@@ -76,6 +76,23 @@ public class OncoMafProcessor extends MafProcessor
 	}
 
 	/**
+	 * Adds new oncotator column names into the header list.
+	 *
+	 * @param headerData    list of header names
+	 */
+	protected void addNewColsToHeader(List<String> headerData)
+	{
+		for (String oncoHeader : this.oncoHeaders)
+		{
+			if (!headerData.contains(oncoHeader))
+			{
+				// add missing oncotator headers
+				headerData.add(oncoHeader);
+			}
+		}
+	}
+
+	/**
 	 * Updates the data list by adding oncotator data by using
 	 * the given oncotator record.
 	 *

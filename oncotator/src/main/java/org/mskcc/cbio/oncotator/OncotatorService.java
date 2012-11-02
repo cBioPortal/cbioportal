@@ -34,7 +34,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.sql.SQLException;
 
 /**
  * Connects to Oncotator and Retrieves Details on a Single Mutation.
@@ -68,14 +67,14 @@ public class OncotatorService
 		this.cache = cache;
 	}
 
-    public OncotatorRecord getOncotatorRecord(String chr,
-		    long start,
-		    long end,
-		    String referenceAllele,
-            String observedAllele) throws Exception
+	/**
+	 * Retrieves the data from the Oncotator service for the given query key.
+	 *
+	 * @param key   key for the service query
+	 * @return      oncotator record containing the query result
+	 */
+    public OncotatorRecord getOncotatorRecord(String key) throws Exception
     {
-        String key = createKey(chr, start, end, referenceAllele, observedAllele);
-
         BufferedReader in = null;
         InputStream inputStream = null;
 
@@ -150,10 +149,7 @@ public class OncotatorService
         }
     }
 
-    public static String createKey(String chr, long start, long end, String referenceAllele,
-                                   String observedAllele) {
-        return chr + "_" + start + "_" + end + "_" + referenceAllele + "_" + observedAllele;
-    }
+	// Getters and Setters
 
 	public int getErrorCount()
 	{

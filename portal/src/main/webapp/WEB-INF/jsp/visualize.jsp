@@ -181,11 +181,9 @@
 
             <%
                 // put all the case sets
-                Log log = LogFactory.getLog("header.jsp");
-
                 ArrayList<CaseList> caseLists = (ArrayList<CaseList>) request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-                log.info("====visualize.jsp====");
-                log.info( caseLists.size() );
+                Log log = LogFactory.getLog("visualize.jsp");
+//                log.info( caseLists.size() );
 
                 // concat all case sets into one big list
                 ArrayList<String> _cases = new ArrayList<String>();
@@ -200,22 +198,31 @@
                 _cases.clear();
                 _cases.addAll(set_of_cases);
 
-                // join with a space in between each element -- e.g. .join(" ")
-                String cases = "";
-                for (String c : _cases) {
-                    cases += " " + c;
-                }
-
+                String cases = StringUtils.join(_cases, " ");
+                cases = cases.trim();
+                
                 //todo: this might not be the fastest way to do this since I am not removing duplicates as I go.
+
+                // put geneticProfileIds into the proper form for the JSON request
+                HashSet<String> _geneticProfiles =
+                        (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
+                String geneticProfiles = StringUtils.join(_geneticProfiles.iterator(), " ");
+                geneticProfiles = geneticProfiles.trim();
+
+                // put genes (HUGO symbols) into the proper form for the JSON request
+                ArrayList<String> _genes = (ArrayList<String>) request.getAttribute(QueryBuilder.GENE_LIST);
+                String genes = StringUtils.join(_genes, " ");
+                genes = genes.trim();
+                
             %>
 
             <script type="text/javascript">
 
                 $(document).ready(function() {
                     var cancer_study_id = "<%=request.getAttribute(QueryBuilder.CANCER_STUDY_ID)%>";
-                    var genes = "<%=request.getAttribute(QueryBuilder.GENE_LIST)%>";
-                    var cases = "<%=cases%>".trim();
-                    var geneticProfiles = "<%=request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS)%>";
+                    var genes = "<%=genes%>";
+                    var cases = "<%=cases%>";
+                    var geneticProfiles = "<%=geneticProfiles%>";
 
                     var sendData = {
                         cancer_study_id: cancer_study_id,
@@ -225,7 +232,7 @@
                     };
 
                     geneAlterations = GeneAlterations(sendData);
-                    // bind this to the global object by omitting "var"
+                    // bind this to the parent (global) object by omitting "var"
 
                     geneAlterations.addListener(function(data) {
                         console.log(data);

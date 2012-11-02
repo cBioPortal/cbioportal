@@ -180,7 +180,7 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @throws IOException
      */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String cancer_study_id = request.getParameter("cancer_study_id");
@@ -255,6 +255,8 @@ public class GeneAlterationsJSON extends HttpServlet {
             } else {
                 if (pData.getGeneList() == null ) {
                     System.err.println("pData.getValidGeneList() == null");
+                } if (pData.getCaseIdList().size() == 0) {
+                    System.err.println("pData.length == 0");
                 }
             }
             if (pData != null) {
@@ -281,8 +283,10 @@ public class GeneAlterationsJSON extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
+        JSONArray geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);
+
         // get outa here!
-        JSONArray.writeJSONString(mapGeneticEventMatrix(geneticEvents, dataSummary), out);
+        JSONArray.writeJSONString(geneticEventsJSON, out);
     }
 
     /**
@@ -292,9 +296,9 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
-        doGet(request, response);
+        doPost(request, response);
     }
 }

@@ -16,7 +16,7 @@ var GeneAlterations = function(sendData) {
     };
 
     var doRequest = function() {
-        $.get(json, sendData, function(returnData) {
+        $.post(json, sendData, function(returnData) {
             // set alterations first, then fire callbacks
             alterations = returnData;
             fireAll(returnData);
@@ -69,10 +69,18 @@ GeneAlterations.test = function() {
         cancer_study_id: "tcga_gbm",
         genes:"EGFR MDM2",
         cases: "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009",
-        geneticProfileIds: "gbm_mutations gbm_cna_consensus"
+        geneticProfileIds: "gbm_tcga_mutations"
+        //geneticProfileIds: "gbm_mutations gbm_cna_consensus"
     };
 
     console.log("==== GeneAlterations test ====");
+    console.log("sending this data...\n"
+                + "{\n"
+                + "cancer_study_id: " + sendData.cancer_study_id + ",\n"
+                + "genes: " + sendData.genes + ",\n"
+                + "cases: " + sendData.cases + ",\n"
+                + "geneticProfileIds: " + sendData.geneticProfileIds + ",\n"
+                + "}");
 
     var geneAlterations = GeneAlterations(sendData);
     console.log("geneAlterations sample", geneAlterations);

@@ -114,5 +114,21 @@ public final class NullConverterImpl implements Converter {
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {}
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+
+		// sanity check
+		if (importDataMatrices.length != 1) {
+			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		}
+		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), writing staging file.");
+		}
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), complete.");
+		}
+	}
 }

@@ -159,7 +159,7 @@ final class ConverterImpl implements Converter {
 
 				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
 				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
-				if (importDataMatrices == null) {
+				if (importDataMatrices == null || importDataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), error getting importDataMatrices, skipping.");
 					}

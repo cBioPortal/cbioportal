@@ -48,6 +48,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -264,37 +265,43 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 								 final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
 
 		// staging file
+		String stagingFilename = datatypeMetadata.getStagingFilename();
+		stagingFilename = stagingFilename.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
-																   datatypeMetadata.getStagingFilename());
+																   stagingFilename);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writingStagingFlie(), staging file: " + stagingFile);
 		}
 																   
-		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile);
+		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile, false);
 		importDataMatrix.write(out);
 		IOUtils.closeQuietly(out);
 
 		// meta file
-		File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																cancerStudy,
-																datatypeMetadata.getMetaFilename());
+		if (datatypeMetadata.requiresMetafile()) {
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("writingStagingFlie(), meta file: " + metaFile);
+			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	cancerStudy,
+																	datatypeMetadata.getMetaFilename());
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingStagingFlie(), meta file: " + metaFile);
+			}
+			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
+			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
+			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+			String stableID = datatypeMetadata.getMetaStableID();
+			stableID = stableID.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
+			writer.print("stable_id: " + stableID + "\n");
+			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
+			String profileDescription = datatypeMetadata.getMetaProfileDescription();
+			profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
+			writer.print("profile_description: " + profileDescription + "\n");
+			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
+			writer.flush();
+			writer.close();
 		}
-		
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "cancer_study_identifier: " + cancerStudy + "\n", true);
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n", true);
-		String stableID = datatypeMetadata.getMetaStableID();
-		stableID = stableID.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "stable_id: " + stableID + "\n", true);
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n", true);		
-		String profileDescription = datatypeMetadata.getMetaProfileDescription();
-		profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_description: " + profileDescription + "\n", true);
-		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, "profile_name: " + datatypeMetadata.getMetaProfileName() + "\n", true);
 	}
 
     /*

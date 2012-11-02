@@ -195,7 +195,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 17) {
+		if (properties.length != 18) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
@@ -219,12 +219,13 @@ final class GDataImpl implements Config {
                                                           entry.getCustomElements().getValue(properties[8]),
                                                           entry.getCustomElements().getValue(properties[9]),
                                                           entry.getCustomElements().getValue(properties[10]),
-                                                          entry.getCustomElements().getValue(properties[11]),
+														  new Boolean(entry.getCustomElements().getValue(properties[11])),
                                                           entry.getCustomElements().getValue(properties[12]),
                                                           entry.getCustomElements().getValue(properties[13]),
-														  new Boolean(entry.getCustomElements().getValue(properties[14])),
-														  entry.getCustomElements().getValue(properties[15]),
-                                                          entry.getCustomElements().getValue(properties[16])));
+                                                          entry.getCustomElements().getValue(properties[14]),
+														  new Boolean(entry.getCustomElements().getValue(properties[15])),
+														  entry.getCustomElements().getValue(properties[16]),
+                                                          entry.getCustomElements().getValue(properties[17])));
 					}
 				}
 				else {
@@ -480,7 +481,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = dataSourceMetadataProperty.split(":");
-		if (properties.length != 4) {
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
 			}

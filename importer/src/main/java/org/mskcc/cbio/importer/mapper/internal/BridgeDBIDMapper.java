@@ -87,9 +87,8 @@ public final class BridgeDBIDMapper implements IDMapper {
 		}
 		if (mapper instanceof XrefIterator) {
 			for (Xref xref : ((XrefIterator)mapper).getIterator(BioDataSource.ENTREZ_GENE)) {
-				Set<String> symbols = mapper.getAttributes(xref, "Symbol");
-				if (!symbols.isEmpty()) {
-					symbolToIDMap.put(symbols.iterator().next(), xref.getId());
+				for (String symbol : mapper.getAttributes(xref, "Symbol")) {
+					symbolToIDMap.put(symbol, xref.getId());
 				}
 			}
 		}

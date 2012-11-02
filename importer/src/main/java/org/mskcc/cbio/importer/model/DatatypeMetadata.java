@@ -45,6 +45,7 @@ public final class DatatypeMetadata {
     private String converterClassName;
     private String importerClassName;
 
+	private Boolean requiresMetafile;
     private String metaFilename;
     private String metaStableID;
     private String metaGeneticAlterationType;
@@ -66,6 +67,7 @@ public final class DatatypeMetadata {
      * @param converterClassName String
      * @param importerClassName String
 	 *
+	 * @param requiresMetafile Boolean
      * @param metaFilename String
      * @param metaStableID String
      * @param metaGeneticAlterationType String
@@ -78,7 +80,7 @@ public final class DatatypeMetadata {
 							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
 							final String overrideFilename, final String stagingFilename, 
 							final String converterClassName, final String importerClassName, 
-                            final String metaFilename, final String metaStableID,
+                            final Boolean requiresMetafile, final String metaFilename, final String metaStableID,
 							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
 							final String metaProfileName, final String metaProfileDescription) {
 
@@ -132,35 +134,49 @@ public final class DatatypeMetadata {
 		}
 		this.importerClassName = importerClassName;
 
-		if (metaFilename == null) {
-            throw new IllegalArgumentException("metaFilename must not be null");
+		if (requiresMetafile == null) {
+			throw new IllegalArgumentException("requires metaFilen must not be null");
 		}
-		this.metaFilename = metaFilename;
+		this.requiresMetafile = requiresMetafile;
 
-		if (metaStableID == null) {
-            throw new IllegalArgumentException("metaStableID must not be null");
-		}
-		this.metaStableID = metaStableID;
+		if (requiresMetafile) {
+			if (metaFilename == null) {
+				throw new IllegalArgumentException("metaFilename must not be null");
+			}
+			this.metaFilename = metaFilename;
 
-		if (metaGeneticAlterationType == null) {
-            throw new IllegalArgumentException("metaGeneticAlterationType must not be null");
-		}
-		this.metaGeneticAlterationType = metaGeneticAlterationType;
+			if (metaStableID == null) {
+				throw new IllegalArgumentException("metaStableID must not be null");
+			}
+			this.metaStableID = metaStableID;
 
-		if (metaShowProfileInAnalysisTab == null) {
-            throw new IllegalArgumentException("metaShowProfileInAnalysisTab must not be null");
-		}
-		this.metaShowProfileInAnalysisTab = metaShowProfileInAnalysisTab;
+			if (metaGeneticAlterationType == null) {
+				throw new IllegalArgumentException("metaGeneticAlterationType must not be null");
+			}
+			this.metaGeneticAlterationType = metaGeneticAlterationType;
 
-		if (metaProfileName == null) {
-            throw new IllegalArgumentException("metaProfileName must not be null");
-		}
-		this.metaProfileName = metaProfileName;
+			if (metaShowProfileInAnalysisTab == null) {
+				throw new IllegalArgumentException("metaShowProfileInAnalysisTab must not be null");
+			}
+			this.metaShowProfileInAnalysisTab = metaShowProfileInAnalysisTab;
 
-		if (metaProfileDescription == null) {
-            throw new IllegalArgumentException("metaProfileDescription must not be null");
+			if (metaProfileName == null) {
+				throw new IllegalArgumentException("metaProfileName must not be null");
+			}
+			this.metaProfileName = metaProfileName;
+
+			if (metaProfileDescription == null) {
+				throw new IllegalArgumentException("metaProfileDescription must not be null");
+			}
+			this.metaProfileDescription = metaProfileDescription;
 		}
-		this.metaProfileDescription = metaProfileDescription;
+		else {
+			this.metaFilename = "";
+			this.metaStableID = "";
+			this.metaGeneticAlterationType = "";
+			this.metaProfileName = "";
+			this.metaProfileDescription = "";
+		}
 	}
 
 	public String getDatatype() { return datatype; }
@@ -174,6 +190,7 @@ public final class DatatypeMetadata {
 	public String getConverterClassName() { return converterClassName; }
 	public String getImporterClassName() { return importerClassName; }
 
+	public Boolean requiresMetafile() { return requiresMetafile; }
 	public String getMetaFilename() { return metaFilename; }
 	public String getMetaStableID() { return metaStableID; }
 	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }

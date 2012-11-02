@@ -78,11 +78,11 @@ public class DaoOncotatorCache implements OncotatorCacheService
                             " `EXON_AFFECTED`, `COSMIC_OVERLAP`, `DB_SNP_RS`)" +
                             " VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setString(1, record.getKey());
-            pstmt.setString(2, record.getBestCanonicalTranscript().getGene());
+            pstmt.setString(2, record.getBestEffectTranscript().getGene());
             pstmt.setString(3, record.getGenomeChange());
-            pstmt.setString(4, record.getBestCanonicalTranscript().getProteinChange());
-            pstmt.setString(5, record.getBestCanonicalTranscript().getVariantClassification());
-            pstmt.setInt(6, record.getBestCanonicalTranscript().getExonAffected());
+            pstmt.setString(4, record.getBestEffectTranscript().getProteinChange());
+            pstmt.setString(5, record.getBestEffectTranscript().getVariantClassification());
+            pstmt.setInt(6, record.getBestEffectTranscript().getExonAffected());
             pstmt.setString(7, record.getCosmicOverlappingMutations());
             pstmt.setString(8, record.getDbSnpRs());
             int rows = pstmt.executeUpdate();
@@ -113,12 +113,12 @@ public class DaoOncotatorCache implements OncotatorCacheService
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 OncotatorRecord record = new OncotatorRecord(rs.getString("CACHE_KEY"));
-                record.getBestCanonicalTranscript().setGene(rs.getString("GENE_SYMBOL"));
+                record.getBestEffectTranscript().setGene(rs.getString("GENE_SYMBOL"));
                 record.setGenomeChange(rs.getString("GENOME_CHANGE"));
-                record.getBestCanonicalTranscript().setProteinChange(rs.getString("PROTEIN_CHANGE"));
-                record.getBestCanonicalTranscript().setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
+                record.getBestEffectTranscript().setProteinChange(rs.getString("PROTEIN_CHANGE"));
+                record.getBestEffectTranscript().setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
                 record.setCosmicOverlappingMutations(rs.getString("COSMIC_OVERLAP"));
-                record.getBestCanonicalTranscript().setExonAffected(rs.getInt("EXON_AFFECTED"));
+                record.getBestEffectTranscript().setExonAffected(rs.getInt("EXON_AFFECTED"));
                 record.setDbSnpRs(rs.getString("DB_SNP_RS"));
                 return record;
             } else {

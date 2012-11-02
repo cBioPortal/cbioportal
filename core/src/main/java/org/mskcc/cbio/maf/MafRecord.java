@@ -84,6 +84,7 @@ public class MafRecord {
     private String oncotatorVariantClassification;
     private String oncotatorCosmicOverlapping;
     private String oncotatorDbSnpRs;
+	private String oncotatorGeneSymbol;
 
 	public String getChr() {
         return chr;
@@ -404,6 +405,16 @@ public class MafRecord {
 
 	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
 		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+	}
+
+	public String getOncotatorGeneSymbol()
+	{
+		return oncotatorGeneSymbol;
+	}
+
+	public void setOncotatorGeneSymbol(String oncotatorGeneSymbol)
+	{
+		this.oncotatorGeneSymbol = oncotatorGeneSymbol;
 	}
 
 	public String getMaFuncImpact() {

@@ -38,7 +38,56 @@ import java.util.HashMap;
  */
 public class MafUtil
 {
-    // Standard MAF columns
+	// standard header column names
+	public static final String HUGO_SYMBOL = "Hugo_Symbol";
+	public static final String ENTREZ_GENE_ID = "Entrez_Gene_Id";
+	public static final String CENTER = "Center";
+	public static final String NCBI_BUILD = "NCBI_Build";
+	public static final String CHROMOSOME = "Chromosome";
+	public static final String START_POSITION = "Start_Position";
+	public static final String END_POSITION = "End_Position";
+	public static final String STRAND = "Strand";
+	public static final String VARIANT_CLASSIFICATION = "Variant_Classification";
+	public static final String VARIANT_TYPE = "Variant_Type";
+	public static final String REFERENCE_ALLELE = "Reference_Allele";
+	public static final String TUMOR_SEQ_ALLELE_1 = "Tumor_Seq_Allele1";
+	public static final String TUMOR_SEQ_ALLELE_2 = "Tumor_Seq_Allele2";
+	public static final String DBSNP_RS = "dbSNP_RS";
+	public static final String DBSNP_VAL_STATUS = "dbSNP_Val_Status";
+	public static final String TUMOR_SAMPLE_BARCODE = "Tumor_Sample_Barcode";
+	public static final String MATCHED_NORM_SAMPLE_BARCODE = "Matched_Norm_Sample_Barcode";
+	public static final String MATCH_NORM_SEQ_ALLELE1 = "Match_Norm_Seq_Allele1";
+	public static final String MATCH_NORM_SEQ_ALLELE2 = "Match_Norm_Seq_Allele2";
+	public static final String TUMOR_VALIDATION_ALLELE1 = "Tumor_Validation_Allele1";
+	public static final String TUMOR_VALIDATION_ALLELE2 = "Tumor_Validation_Allele2";
+	public static final String MATCH_NORM_VALIDATION_ALLELE1 = "Match_Norm_Validation_Allele1";
+	public static final String MATCH_NORM_VALIDATION_ALLELE2 = "Match_Norm_Validation_Allele2";
+	public static final String VERIFICATION_STATUS = "Verification_Status";
+	public static final String VALIDATION_STATUS = "Validation_Status";
+	public static final String MUTATION_STATUS = "Mutation_Status";
+	public static final String SEQUENCING_PHASE = "Sequencing_Phase";
+	public static final String SEQUENCE_SOURCE = "Sequence_Source";
+	public static final String VALIDATION_METHOD = "Validation_Method";
+	public static final String SCORE = "Score";
+	public static final String BAM_FILE = "BAM_File";
+	public static final String SEQUENCER = "Sequencer";
+
+	// oncotator column names
+	public static final String ONCOTATOR_PROTEIN_CHANGE = "ONCOTATOR_PROTEIN_CHANGE";
+	public static final String ONCOTATOR_VARIANT_CLASSIFICATION = "ONCOTATOR_VARIANT_CLASSIFICATION";
+	public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
+	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
+	public static final String ONCOTATOR_GENE_SYMBOL = "ONCOTATOR_GENE_SYMBOL";
+
+	// mutation assessor column names
+	public static final String MA_FIMPACT = "MA:FImpact";
+	public static final String MA_LINK_VAR = "MA:link.var";
+	public static final String MA_LINK_MSA = "MA:link.MSA";
+	public static final String MA_LINK_PDB = "MA:link.PDB";
+	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
+
+
+    // standard MAF column indices
 	private int chrIndex = -1; // CHR
     private int ncbiIndex = -1; // NCBI_BUILD
     private int startPositionIndex = -1; // START_POSITION
@@ -56,7 +105,7 @@ public class MafUtil
     private int tumorSampleIndex = -1;
     private int mutationStatusIndex = -1; // MUTATION_STATUS
     private int validationStatusIndex = -1; // VALIDATION_STATUS
-    private int sequencerIndex = -1; // SEQUENCER_INDEX
+    private int sequencerIndex = -1; // SEQUENCER
     private int dbSnpValStatusIndex = -1; // DB_SNP_VAL_STATUS
     private int matchedNormSampleBarcodeIndex = -1; // MATCHED_NORM_SAMPLE_BARCODE
     private int matchNormSeqAllele1Index = -1; // MATCH_NORM_SEQ_ALLELE1
@@ -78,14 +127,14 @@ public class MafUtil
     private int normalAltCountIndex = -1; // NORMAL_ALT_COUNT
     private int normalRefCountIndex = -1; // NORMAL_REF_COUNT
 
-	// Default Oncotator Columns
+	// default Oncotator column indices
     private int oncoProteinChangeIndex = -1; // ONCOTATOR_PROTEIN_CHANGE
     private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
 	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
 
-	// Mutation Assessor Columns
+	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
@@ -123,89 +172,89 @@ public class MafUtil
 	        this.columnIndexMap.put(header.toLowerCase(), i);
 
 	        // determine standard & default column indices
-            if (header.equalsIgnoreCase("Chromosome")) {
+            if (header.equalsIgnoreCase(CHROMOSOME)) {
                 chrIndex = i;        
-            } else if(header.equals("NCBI_Build")) {
+            } else if(header.equals(NCBI_BUILD)) {
                 ncbiIndex = i;   
-            } else if(header.equalsIgnoreCase("Start_Position")) {
+            } else if(header.equalsIgnoreCase(START_POSITION)) {
                 startPositionIndex = i;
-            } else if(header.equalsIgnoreCase("End_Position")) {
+            } else if(header.equalsIgnoreCase(END_POSITION)) {
                 endPositionIndex = i;
-            } else if(header.equalsIgnoreCase("Hugo_Symbol")) {
+            } else if(header.equalsIgnoreCase(HUGO_SYMBOL)) {
                 hugoGeneSymbolIndex = i;
-            } else if(header.equalsIgnoreCase("Entrez_Gene_Id")) {
+            } else if(header.equalsIgnoreCase(ENTREZ_GENE_ID)) {
                 entrezGeneIdIndex = i;
-            } else if(header.equalsIgnoreCase("Reference_Allele")) {
+            } else if(header.equalsIgnoreCase(REFERENCE_ALLELE)) {
                 referenceAlleleIndex = i;
-            } else if(header.equalsIgnoreCase("Variant_Classification")) {
+            } else if(header.equalsIgnoreCase(VARIANT_CLASSIFICATION)) {
                 variantClassificationIndex = i;
-            } else if(header.equalsIgnoreCase("Variant_Type")) {
+            } else if(header.equalsIgnoreCase(VARIANT_TYPE)) {
                 variantTypeIndex = i;
-            } else if(header.equalsIgnoreCase("Center")) {
+            } else if(header.equalsIgnoreCase(CENTER)) {
                 centerIndex = i;
-            } else if(header.equals("Strand")) {
+            } else if(header.equals(STRAND)) { // TODO ignore case?
                 strandIndex = i;
-            } else if(header.equalsIgnoreCase("Tumor_Seq_Allele1")) {
+            } else if(header.equalsIgnoreCase(TUMOR_SEQ_ALLELE_1)) {
                 tumorSeqAllele1Index = i;
-            } else if(header.equalsIgnoreCase("Tumor_Seq_Allele2")) {
+            } else if(header.equalsIgnoreCase(TUMOR_SEQ_ALLELE_2)) {
                 tumorSeqAllele2Index = i;
-            } else if(header.equalsIgnoreCase("dbSNP_RS")) {
+            } else if(header.equalsIgnoreCase(DBSNP_RS)) {
                 dbSNPIndex = i;
-            } else if(header.equalsIgnoreCase("Tumor_Sample_Barcode")) {
+            } else if(header.equalsIgnoreCase(TUMOR_SAMPLE_BARCODE)) {
                 tumorSampleIndex = i;
-            } else if(header.equalsIgnoreCase("Mutation_Status")) {
+            } else if(header.equalsIgnoreCase(MUTATION_STATUS)) {
                 mutationStatusIndex = i;
-            } else if(header.equalsIgnoreCase("Validation_Status")) {
+            } else if(header.equalsIgnoreCase(VALIDATION_STATUS)) {
                 validationStatusIndex = i;
-            } else if(header.equalsIgnoreCase("Sequencer")) {
+            } else if(header.equalsIgnoreCase(SEQUENCER)) {
 	            sequencerIndex = i;
-	        } else if(header.equalsIgnoreCase("dbSNP_Val_Status")) {
+	        } else if(header.equalsIgnoreCase(DBSNP_VAL_STATUS)) {
 	        	dbSnpValStatusIndex = i;
-	        } else if(header.equalsIgnoreCase("Matched_Norm_Sample_Barcode")) {
+	        } else if(header.equalsIgnoreCase(MATCHED_NORM_SAMPLE_BARCODE)) {
 	        	matchedNormSampleBarcodeIndex = i;
-	        } else if(header.equalsIgnoreCase("Match_Norm_Seq_Allele1")) {
+	        } else if(header.equalsIgnoreCase(MATCH_NORM_SEQ_ALLELE1)) {
 	        	matchNormSeqAllele1Index = i;
-	        } else if(header.equalsIgnoreCase("Match_Norm_Seq_Allele2")) {
+	        } else if(header.equalsIgnoreCase(MATCH_NORM_SEQ_ALLELE2)) {
 	        	matchNormSeqAllele2Index = i;
-	        } else if(header.equalsIgnoreCase("Tumor_Validation_Allele1")) {
+	        } else if(header.equalsIgnoreCase(TUMOR_VALIDATION_ALLELE1)) {
 	        	tumorValidationAllele1Index = i;
-	        } else if(header.equalsIgnoreCase("Tumor_Validation_Allele2")) {
+	        } else if(header.equalsIgnoreCase(TUMOR_VALIDATION_ALLELE2)) {
 	        	tumorValidationAllele2Index = i;
-	        } else if(header.equalsIgnoreCase("Match_Norm_Validation_Allele1")) {
+	        } else if(header.equalsIgnoreCase(MATCH_NORM_VALIDATION_ALLELE1)) {
 	        	matchNormValidationAllele1Index = i;
-	        } else if(header.equalsIgnoreCase("Match_Norm_Validation_Allele2")) {
+	        } else if(header.equalsIgnoreCase(MATCH_NORM_VALIDATION_ALLELE2)) {
 	        	matchNormValidationAllele2Index = i;
-	        } else if(header.equalsIgnoreCase("Verification_Status")) {
+	        } else if(header.equalsIgnoreCase(VERIFICATION_STATUS)) {
 	        	verificationStatusIndex = i;
-	        } else if(header.equalsIgnoreCase("Sequencing_Phase")) {
+	        } else if(header.equalsIgnoreCase(SEQUENCING_PHASE)) {
 	        	sequencingPhaseIndex = i;
-	        } else if(header.equalsIgnoreCase("Sequence_Source")) {
+	        } else if(header.equalsIgnoreCase(SEQUENCE_SOURCE)) {
 	        	sequenceSourceIndex = i;
-	        } else if(header.equalsIgnoreCase("Validation_Method")) {
+	        } else if(header.equalsIgnoreCase(VALIDATION_METHOD)) {
 	        	validationMethodIndex = i;
-	        } else if(header.equalsIgnoreCase("Score")) {
+	        } else if(header.equalsIgnoreCase(SCORE)) {
 	        	scoreIndex = i;
-	        } else if(header.equalsIgnoreCase("BAM_file")) {
+	        } else if(header.equalsIgnoreCase(BAM_FILE)) {
 	        	bamFileIndex = i;
-	        } else if(header.equalsIgnoreCase("ONCOTATOR_PROTEIN_CHANGE")) {
+	        } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE)) {
 	        	oncoProteinChangeIndex = i;
-	        } else if(header.equalsIgnoreCase("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+	        } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION)) {
 	        	oncoVariantClassificationIndex = i;
-	        } else if(header.equalsIgnoreCase("ONCOTATOR_COSMIC_OVERLAPPING")) {
+	        } else if(header.equalsIgnoreCase(ONCOTATOR_COSMIC_OVERLAPPING)) {
 	        	oncoCosmicOverlappingIndex = i;
-	        } else if(header.equalsIgnoreCase("ONCOTATOR_DBSNP_RS")) {
+	        } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_RS)) {
 	        	oncoDbSnpRsIndex = i;
-            } else if(header.equalsIgnoreCase("ONCOTATOR_GENE_SYMBOL")) {
+            } else if(header.equalsIgnoreCase(ONCOTATOR_GENE_SYMBOL)) {
 	            oncoGeneSymbolIndex = i;
-            } else if(header.equalsIgnoreCase("MA:FImpact")) {
+            } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
 				maFImpactIndex = i;
-            } else if(header.equalsIgnoreCase("MA:link.var")) {
+            } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
 	            maLinkVarIndex = i;
-            } else if(header.equalsIgnoreCase("MA:link.MSA")) {
+            } else if(header.equalsIgnoreCase(MA_LINK_MSA)) {
 	            maLinkMsaIndex = i;
-            } else if(header.equalsIgnoreCase("MA:link.PDB")) {
+            } else if(header.equalsIgnoreCase(MA_LINK_PDB)) {
 	            maLinkPdbIndex = i;
-            } else if(header.equalsIgnoreCase("MA:protein.change")) {
+            } else if(header.equalsIgnoreCase(MA_PROTEIN_CHANGE)) {
 	            maProteinChangeIndex = i;
             }
             // TODO will be decided later...
@@ -275,7 +324,7 @@ public class MafUtil
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
         record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
-	    // TODO also add onco gene symbol to the record (currently we do not need the value)?
+	    record.setOncotatorGeneSymbol(getPartString(oncoGeneSymbolIndex, parts));
 
         return record;
     }

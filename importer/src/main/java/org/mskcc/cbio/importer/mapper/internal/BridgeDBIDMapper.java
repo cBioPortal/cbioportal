@@ -39,6 +39,9 @@ import org.bridgedb.BridgeDb;
 import org.bridgedb.AttributeMapper;
 import org.bridgedb.bio.BioDataSource;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Class which provides bridgedb services.
  */
@@ -86,13 +89,15 @@ public final class BridgeDBIDMapper implements IDMapper {
 	@Override
 	public String symbolToEntrezID(final String geneSymbol) throws Exception {
 
-		for (Xref xref : mapper.freeAttributeSearch(geneSymbol, "Symbol", -1).keySet()) {
-			// check only Xrefs that are in Entrez, 
-			// and that are an exact match with the label 
-			// free search will also return partial matches.
-			if (xref.getDataSource() == BioDataSource.ENTREZ_GENE &&
-				mapper.getAttributes(xref, "Symbol").contains(geneSymbol)) {
+		Map<Xref,String> mapXrefsToAttributes = mapper.freeAttributeSearch(geneSymbol, "Symbol", 1);
+		if (!mapXrefsToAttributes.isEmpty()) {
+			Xref xref = mapXrefsToAttributes.keySet().iterator().next();
+			if (xref.getDataSource() == BioDataSource.ENTREZ_GENE) {
 				return xref.getId();
+			}
+			Set<Xref> entrezIds =  ((org.bridgedb.IDMapper)mapper).mapID(xref, BioDataSource.ENTREZ_GENE);
+			if (!entrezIds.isEmpty()) {
+				return entrezIds.iterator().next().getId();
 			}
 		}
 

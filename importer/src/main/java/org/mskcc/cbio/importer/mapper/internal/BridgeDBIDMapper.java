@@ -36,11 +36,13 @@ import org.apache.commons.logging.LogFactory;
 
 import org.bridgedb.Xref;
 import org.bridgedb.BridgeDb;
+import org.bridgedb.XrefIterator;
 import org.bridgedb.AttributeMapper;
 import org.bridgedb.bio.BioDataSource;
 
-import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+
 
 /**
  * Class which provides bridgedb services.
@@ -50,8 +52,8 @@ public final class BridgeDBIDMapper implements IDMapper {
 	// our logger
 	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
 
-	// ref to bridge db mapper
-	private AttributeMapper mapper;
+	// our map of gene symbols to entrez ids
+	private HashMap<String, String> symbolToIDMap;
 
 	/**
 	 * Default Constructor.
@@ -75,8 +77,25 @@ public final class BridgeDBIDMapper implements IDMapper {
 		}
 
 		Class.forName("org.bridgedb.rdb.IDMapperRdb");
-        mapper = (AttributeMapper)BridgeDb.connect(bridgeDBConnectionString);
+        AttributeMapper mapper = (AttributeMapper)BridgeDb.connect(bridgeDBConnectionString);
         BioDataSource.init();
+
+		// populate our symbolToID map
+		symbolToIDMap = new HashMap<String, String>();
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), building symbolToIDMap");
+		}
+		if (mapper instanceof XrefIterator) {
+			for (Xref xref : ((XrefIterator)mapper).getIterator(BioDataSource.ENTREZ_GENE)) {
+				Set<String> symbols = mapper.getAttributes(xref, "Symbol");
+				if (!symbols.isEmpty()) {
+					symbolToIDMap.put(symbols.iterator().next(), xref.getId());
+				}
+			}
+		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), building symbolToIDMap complete");
+		}
 	}
 
 	/**
@@ -88,20 +107,6 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 */
 	@Override
 	public String symbolToEntrezID(final String geneSymbol) throws Exception {
-
-		Map<Xref,String> mapXrefsToAttributes = mapper.freeAttributeSearch(geneSymbol, "Symbol", 1);
-		if (!mapXrefsToAttributes.isEmpty()) {
-			Xref xref = mapXrefsToAttributes.keySet().iterator().next();
-			if (xref.getDataSource() == BioDataSource.ENTREZ_GENE) {
-				return xref.getId();
-			}
-			Set<Xref> entrezIds =  ((org.bridgedb.IDMapper)mapper).mapID(xref, BioDataSource.ENTREZ_GENE);
-			if (!entrezIds.isEmpty()) {
-				return entrezIds.iterator().next().getId();
-			}
-		}
-
-		// outta here
-		return "";
+		return (symbolToIDMap.containsKey(geneSymbol)) ? symbolToIDMap.get(geneSymbol) : "";
 	}
 }

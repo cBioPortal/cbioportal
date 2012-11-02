@@ -32,13 +32,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /**
- * Main class.
+ * Main class with main method.
  */
-public class MutationAssessorImporter
+public class MutationAssessorTool
 {
 	public static void main(String[] args)
 	{
-		MafProcessor mafProcessor = new MafProcessor();
+		DataImporter mafProcessor = new DataImporter();
 		CacheBuilder builder;
 
 		String input;

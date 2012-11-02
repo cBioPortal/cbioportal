@@ -25,64 +25,58 @@
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
 
-package org.mskcc.cbio.oncotator;
+package org.mskcc.cbio.maf;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
- * Oncotate Tool altered to build JSON cache for existing oncotator key values.
+ * Utility class for MAF file IO operations.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class CacheBuilderOncoTool extends Oncotator
+public class FileIOUtil
 {
+	public static final String TAB = "\t";
+
 	/**
-	 * Default constructor with the default oncotator service.
+	 * Writes a single line of data to the output MAF.
+	 *
+	 * @param writer    writer for the output MAF
+	 * @param data      list of data to write
+	 * @throws java.io.IOException
 	 */
-	public CacheBuilderOncoTool()
+	public static void writeLine(Writer writer,
+			List<String> data) throws IOException
 	{
-		super();
-		OncotatorCacheService cacheService = new DaoJsonCache();
-		this.oncotatorService = new OncotatorService(cacheService);
-	}
-
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
-	{
-		// always use cache, this is a cache builder.
-		this.oncotatorService.setUseCache(true);
-
-		FileReader reader = new FileReader(inputMafFile);
-		BufferedReader bufReader = new BufferedReader(reader);
-
-		String dataLine;
-
-		int numRecordsProcessed = 0;
-
-		// skip header line (which is assumed to be CACHE_KEY)
-		bufReader.readLine();
-
-		while ((dataLine = bufReader.readLine()) != null)
+		for (int i = 0; i < data.size(); i++)
 		{
-			System.out.println("(" + numRecordsProcessed + ") " + dataLine);
+			String field = data.get(i);
+			writer.write(outputField(field));
 
-			if (dataLine.trim().length() < 0)
+			if (i < data.size() - 1)
 			{
-				continue;
+				writer.write(TAB);
 			}
-
-			String key = dataLine.trim();
-
-			OncotatorRecord oncotatorRecord =
-				oncotatorService.getOncotatorRecord(key);
-
-			numRecordsProcessed++;
 		}
 
-		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
+		writer.write("\n");
+	}
 
-		reader.close();
-
-		return this.oncotatorService.getErrorCount();
+	/**
+	 * Returns a string representation of a single field for
+	 * the output.
+	 *
+	 * @param field field as a string
+	 * @return      string to output
+	 */
+	public static String outputField(String field)
+	{
+		if (field == null) {
+			return "";
+		} else {
+			return field;
+		}
 	}
 }

@@ -326,6 +326,7 @@ public class MafUtil
         record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
 	    record.setOncotatorGeneSymbol(getPartString(oncoGeneSymbolIndex, parts));
 
+
         return record;
     }
     
@@ -611,5 +612,49 @@ public class MafUtil
 
     public int getHeaderCount() {
 		return headerCount;
+	}
+
+
+	// Static Utility Methods
+
+	/**
+	 * Generates a key for the given MAF record. The generated key
+	 * is in the form of :
+	 *   [chromosome]_[startPosition]_[endPosition]_[referenceAllele]_[tumorAllele]
+	 *
+	 * This method returns null, if tumor allele cannot be determined for the
+	 * given record.
+	 *
+	 * @param record    MAF record representing a single line in a MAF
+	 * @return          key for the given record
+	 */
+	public static String generateKey(MafRecord record)
+	{
+		String chr = record.getChr();
+		Long start = record.getStartPosition();
+		Long end = record.getEndPosition();
+		String refAllele = record.getReferenceAllele();
+		String tumAllele = null;
+
+		// determine tumor allele: take the one that is different from
+		// the reference allele
+		if (!refAllele.equalsIgnoreCase(record.getTumorSeqAllele1()))
+		{
+			tumAllele = record.getTumorSeqAllele1();
+		}
+		else if (!refAllele.equalsIgnoreCase(record.getTumorSeqAllele2()))
+		{
+			tumAllele = record.getTumorSeqAllele2();
+		}
+
+		String key = null;
+
+		// update key if tumor allele is valid
+		if (tumAllele != null)
+		{
+			key = chr + "_" + start + "_" + end + "_" + refAllele + "_" + tumAllele;
+		}
+
+		return key;
 	}
 }

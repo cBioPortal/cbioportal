@@ -55,7 +55,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.mskcc.cbio.mutassessor.MutationAssessorImporter</mainClass>
+							<mainClass>org.mskcc.cbio.mutassessor.MutationAssessorTool</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

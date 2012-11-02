@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.oncotator;
 
+import org.mskcc.cbio.maf.FileIOUtil;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 import org.mskcc.cbio.maf.OncoMafProcessor;
@@ -39,10 +40,8 @@ import java.util.List;
  */
 public class Oncotator
 {
-	protected static final String TAB = "\t";
 	protected static final String SILENT_MUTATION = "Silent";
 	protected static int MAX_NUM_RECORDS_TO_PROCESS = -1;
-	private static final int DEFAULT_ONCO_HEADERS_COUNT = 5;
 
 	protected OncotatorService oncotatorService;
 
@@ -52,8 +51,6 @@ public class Oncotator
 	protected boolean useCache;
 	protected boolean sortColumns;
 	protected boolean addMissingCols;
-
-//	private HashMap<String, Integer> genomicCountMap = new HashMap<String, Integer>();
 
 	/**
 	 * Default constructor with the default oncotator service.
@@ -112,13 +109,19 @@ public class Oncotator
 				this.sortColumns, this.addMissingCols);
 
 		// write the header line to output
-		this.writeLine(writer, columnNames);
+		FileIOUtil.writeLine(writer, columnNames);
 
 		String dataLine = bufReader.readLine();
 
 		// process the file line by line
 		while (dataLine != null)
 		{
+			// skip empty lines
+			if (dataLine.trim().length() == 0)
+			{
+				continue;
+			}
+
 			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
 			String variantClassification = mafRecord.getVariantClassification();
 			OncotatorRecord oncotatorRecord = null;
@@ -142,47 +145,18 @@ public class Oncotator
 			processor.updateOncotatorData(data, oncotatorRecord);
 
 			// write data to the output file
-			this.writeLine(writer, data);
+			FileIOUtil.writeLine(writer, data);
 
 			dataLine = bufReader.readLine();
 		}
 
-		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
-//		for (String coords:  genomicCountMap.keySet()) {
-//			Integer count = genomicCountMap.get(coords);
-//			if (count > 1) {
-//				System.out.println(coords + "\t" + (count-1));
-//			}
-//		}
+		System.out.println("Total Number of Records Processed: " +
+		                   numRecordsProcessed);
 
 		reader.close();
 		writer.close();
 
 		return this.oncotatorService.getErrorCount();
-	}
-
-	/**
-	 * Writes a single line of data to the output MAF.
-	 *
-	 * @param writer    writer for the output MAF
-	 * @param data      list of data to write
-	 * @throws IOException
-	 */
-	protected void writeLine(Writer writer,
-			List<String> data) throws IOException
-	{
-		for (int i = 0; i < data.size(); i++)
-		{
-			String field = data.get(i);
-			writer.write(outputField(field));
-
-			if (i < data.size() - 1)
-			{
-				writer.write(TAB);
-			}
-		}
-
-		writer.write("\n");
 	}
 
 	/**
@@ -225,79 +199,19 @@ public class Oncotator
 	 */
 	protected OncotatorRecord oncotateRecord(MafRecord mafRecord) throws Exception
 	{
-		String chr = mafRecord.getChr();
-		long start = mafRecord.getStartPosition();
-		long end = mafRecord.getEndPosition();
-		String refAllele = mafRecord.getReferenceAllele();
-		String tumorAllele = determineTumorAllele(mafRecord, refAllele);
+		String key = MafUtil.generateKey(mafRecord);
 
 		OncotatorRecord oncotatorRecord = null;
 
-		if (tumorAllele != null)
+		if (key != null)
 		{
-			oncotatorRecord = oncotatorService.getOncotatorRecord(
-					chr, start, end, refAllele, tumorAllele);
+			oncotatorRecord = oncotatorService.getOncotatorRecord(key);
 
 			// print coordinate info to stdout
-			String coords = createCoordinates(chr, start, end, refAllele, tumorAllele);
-			System.out.println(coords);
-//            if (genomicCountMap.containsKey(coords)) {
-//                Integer count = genomicCountMap.get(coords);
-//                genomicCountMap.put(coords, count+1);
-//            } else {
-//                genomicCountMap.put(coords, 1);
-//            }
+			System.out.println(key);
 		}
 
 		return oncotatorRecord;
-	}
-
-	/**
-	 * Determines the tumor allele by using reference allele and
-	 * tumor seq allele information.
-	 *
-	 * @param mafRecord represents a single line of a MAF file
-	 * @param refAllele reference allele for that mutation
-	 * @return          tumor allele as a string
-	 */
-	protected String determineTumorAllele(MafRecord mafRecord,
-			String refAllele)
-	{
-		String tumorAllel1 = mafRecord.getTumorSeqAllele1();
-		String tumorAllel2 = mafRecord.getTumorSeqAllele2();
-		String tumorAllele = null;
-
-		// choose the one that is different from the reference allele
-		if (!refAllele.equalsIgnoreCase(tumorAllel1)) {
-			tumorAllele = tumorAllel1;
-		} else if(!refAllele.equalsIgnoreCase(tumorAllel2)) {
-			tumorAllele = tumorAllel2;
-		}
-
-		return tumorAllele;
-	}
-
-	/**
-	 * Returns a string representation of a single field for
-	 * the output.
-	 *
-	 * @param field field as a string
-	 * @return      string to output
-	 */
-	protected String outputField(String field)
-	{
-		if (field == null) {
-			return "";
-		} else {
-			return field;
-		}
-	}
-
-	protected String createCoordinates(String chr, long start, long end,
-			String refAllele, String tumorAllele)
-	{
-		return chr + "_" + start + "_" + end + "_" + refAllele
-		       + "_" + tumorAllele;
 	}
 
 	protected void abortDueToBuildNumErrors() {
@@ -322,7 +236,7 @@ public class Oncotator
 	}
 
 
-	// getters and setters
+	// Getters and Setters
 
 	public boolean isUseCache()
 	{

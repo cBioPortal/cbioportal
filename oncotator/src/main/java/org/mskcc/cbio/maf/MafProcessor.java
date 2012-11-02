@@ -201,20 +201,15 @@ public class MafProcessor
 	}
 
 	/**
-	 * Adds new (oncotator) column names into the header list.
+	 * Adds new column names into the header list. This method
+	 * should be overwritten in child classes.
 	 *
 	 * @param headerData    list of header names
 	 */
 	protected void addNewColsToHeader(List<String> headerData)
 	{
-		for (String oncoHeader : this.oncoHeaders)
-		{
-			if (!headerData.contains(oncoHeader))
-			{
-				// add missing oncotator headers
-				headerData.add(oncoHeader);
-			}
-		}
+		// empty method body
+		// override to add application specific columns
 	}
 
 	/**
@@ -279,7 +274,7 @@ public class MafProcessor
 			}
 			else
 			{
-				// TODO add "NA" instead?
+				// TODO add "NA" or null instead?
 				dataList.add("");
 			}
 		}

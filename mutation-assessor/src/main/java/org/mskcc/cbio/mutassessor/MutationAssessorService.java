@@ -25,64 +25,26 @@
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
 
-package org.mskcc.cbio.oncotator;
+package org.mskcc.cbio.mutassessor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.sql.SQLException;
 
 /**
- * Oncotate Tool altered to build JSON cache for existing oncotator key values.
+ * Default Mutation Assessor Service based on a DB cache.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class CacheBuilderOncoTool extends Oncotator
+public class MutationAssessorService
 {
-	/**
-	 * Default constructor with the default oncotator service.
-	 */
-	public CacheBuilderOncoTool()
+	protected DaoMutAssessorCache cache;
+
+	public MutationAssessorService()
 	{
-		super();
-		OncotatorCacheService cacheService = new DaoJsonCache();
-		this.oncotatorService = new OncotatorService(cacheService);
+		this.cache = DaoMutAssessorCache.getInstance();
 	}
 
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
+	public MutationAssessorRecord getMaRecord(String key) throws SQLException
 	{
-		// always use cache, this is a cache builder.
-		this.oncotatorService.setUseCache(true);
-
-		FileReader reader = new FileReader(inputMafFile);
-		BufferedReader bufReader = new BufferedReader(reader);
-
-		String dataLine;
-
-		int numRecordsProcessed = 0;
-
-		// skip header line (which is assumed to be CACHE_KEY)
-		bufReader.readLine();
-
-		while ((dataLine = bufReader.readLine()) != null)
-		{
-			System.out.println("(" + numRecordsProcessed + ") " + dataLine);
-
-			if (dataLine.trim().length() < 0)
-			{
-				continue;
-			}
-
-			String key = dataLine.trim();
-
-			OncotatorRecord oncotatorRecord =
-				oncotatorService.getOncotatorRecord(key);
-
-			numRecordsProcessed++;
-		}
-
-		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
-
-		reader.close();
-
-		return this.oncotatorService.getErrorCount();
+		return this.cache.get(key);
 	}
 }

@@ -27,18 +27,18 @@
 
 package org.mskcc.cbio.maf;
 
-import org.mskcc.cbio.oncotator.OncotatorRecord;
+import org.mskcc.cbio.mutassessor.MutationAssessorRecord;
 
 import java.util.List;
 
 /**
- * MAF Processor specific to the Oncotator tool.
+ * MAF Processor specific to the Mutation Assessor tool.
  *
  * @author Selcuk Onur Sumer
  */
-public class OncoMafProcessor extends MafProcessor
+public class MaMafProcessor extends MafProcessor
 {
-	public OncoMafProcessor(String headerLine)
+	public MaMafProcessor(String headerLine)
 	{
 		super(headerLine);
 	}
@@ -54,8 +54,8 @@ public class OncoMafProcessor extends MafProcessor
 	{
 		for (String header : this.oncoHeaders)
 		{
-			// always add missing oncotator columns
-			this.addColumnToHeader(headerData, header, true);
+			// never add missing oncotator columns
+			this.addColumnToHeader(headerData, header, false);
 		}
 	}
 
@@ -70,9 +70,21 @@ public class OncoMafProcessor extends MafProcessor
 	{
 		for (String header : this.maHeaders)
 		{
-			// never add missing MA columns
-			this.addColumnToHeader(headerData, header, false);
+			// always add missing MA columns
+			this.addColumnToHeader(headerData, header, true);
 		}
+	}
+
+	/**
+	 * Adds all existing column names into the header list except
+	 * not needed MA columns.
+	 *
+	 * @param headerData    list of header names
+	 */
+	protected void addExistingColsToHeader(List<String> headerData)
+	{
+		// TODO iterate over header line and add all except ones starting "MA:"
+
 	}
 
 	/**
@@ -82,51 +94,70 @@ public class OncoMafProcessor extends MafProcessor
 	 */
 	protected void addNewColsToHeader(List<String> headerData)
 	{
-		for (String oncoHeader : this.oncoHeaders)
+		for (String maHeader : this.maHeaders)
 		{
-			if (!headerData.contains(oncoHeader))
+			if (!headerData.contains(maHeader))
 			{
 				// add missing oncotator headers
-				headerData.add(oncoHeader);
+				headerData.add(maHeader);
 			}
 		}
 	}
 
 	/**
-	 * Updates the data list by adding oncotator data by using
-	 * the given oncotator record.
+	 * Updates the data list by adding mutation assessor data by using
+	 * the given mutation assessor record.
 	 *
-	 * @param data              data representing a single line in a MAF
-	 * @param oncotatorRecord   record containing the oncotator data
+	 * @param data      data representing a single line in a MAF
+	 * @param maRecord  record containing the mutation assessor data
 	 */
-	public void updateOncotatorData(List<String> data,
-			OncotatorRecord oncotatorRecord)
+	public void updateMaData(List<String> data,
+			MutationAssessorRecord maRecord)
 	{
-		if (oncotatorRecord == null)
+		if (maRecord == null)
 		{
-			oncotatorRecord = new OncotatorRecord("NA");
+			maRecord = new MutationAssessorRecord("NA");
 		}
-
-		String proteinChange =
-				oncotatorRecord.getBestEffectTranscript().getProteinChange();
-		String cosmicOverlapping =
-				oncotatorRecord.getCosmicOverlappingMutations();
-		String dbSnpRs =
-				oncotatorRecord.getDbSnpRs();
-		String variantClassification =
-				oncotatorRecord.getBestEffectTranscript().getVariantClassification();
-		String geneSymbol =
-				oncotatorRecord.getBestEffectTranscript().getGene();
 
 		// create a new maf util for the new header line to get new oncotator indices
 		String newHeaderLine = this.newHeaderLineAsString();
 		MafUtil mafUtil = new MafUtil(newHeaderLine);
 
-		// update oncotator values
-		data.set(mafUtil.getOncoProteinChangeIndex(), proteinChange);
-		data.set(mafUtil.getOncoCosmicOverlappingIndex(), cosmicOverlapping);
-		data.set(mafUtil.getOncoDbSnpRsIndex(), dbSnpRs);
-		data.set(mafUtil.getOncoVariantClassificationIndex(), variantClassification);
-		data.set(mafUtil.getOncoGeneSymbolIndex(), geneSymbol);
+		String impact = maRecord.getImpact();
+		String proteinChange = maRecord.getProteinChange();
+		String msa = maRecord.getAlignmentLink();
+		String pdb = maRecord.getStructureLink();
+		String var = generateLinkVar(maRecord.getKey());
+
+		// update mutation assessor values
+		data.set(mafUtil.getMaFImpactIndex(), impact);
+		data.set(mafUtil.getMaProteinChangeIndex(), proteinChange);
+		data.set(mafUtil.getMaLinkMsaIndex(), msa);
+		data.set(mafUtil.getMaLinkPdbIndex(), pdb);
+		data.set(mafUtil.getMaLinkVarIndex(), var);
+	}
+
+	/**
+	 * Generates the link to the mutation assessor site for the given key.
+	 *
+	 * @param key   cache key for an MA record
+	 * @return      link to MA site for the given cache key
+	 */
+	protected String generateLinkVar(String key)
+	{
+		String linkHeader = "getma.org/?cm=var&var=hg19,";
+
+		String[] parts = key.split("_");
+
+		String chr = parts[0];
+		String startPos = parts[1];
+		String refAllele = parts[3];
+		String tumAllele = parts[4];
+
+		return linkHeader +
+		       chr + "," +
+		       startPos + "," +
+		       refAllele + "," + tumAllele +
+		       "&fts=all";
 	}
 }

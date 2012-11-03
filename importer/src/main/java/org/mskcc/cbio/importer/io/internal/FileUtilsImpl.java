@@ -266,7 +266,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
+		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
@@ -292,11 +292,13 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
-			stableID = stableID.replace("<TUMOR_TYPE>_<CANCER_CENTER>", cancerStudy);
+			stableID = stableID.replace("<CANCER_STUDY>", cancerStudy);
 			writer.print("stable_id: " + stableID + "\n");
 			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
+			profileDescription = profileDescription.replace("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
 			profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
+			profileDescription = profileDescription.replace("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
 			writer.print("profile_description: " + profileDescription + "\n");
 			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();

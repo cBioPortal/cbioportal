@@ -79,6 +79,9 @@ public final class ImportDataMatrix {
 	// our collection of case ids
 	private Vector<String> caseIDs;
 
+	// gene id column heading - may be null
+	private String geneIDColumnHeading;
+
 	/**
 	 * Constructor.
 	 *
@@ -104,6 +107,9 @@ public final class ImportDataMatrix {
 		rowsToIgnore = new HashSet<Integer>();
 		caseIDs = new Vector<String>();
 
+		// geneIDColumnHeading
+		geneIDColumnHeading = "";
+
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();
 
@@ -121,7 +127,7 @@ public final class ImportDataMatrix {
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);
 		}
-
+		
 		// init our case id's object
 		initCaseIDs();
 	}
@@ -302,6 +308,35 @@ public final class ImportDataMatrix {
 	 */
 	public Collection<String> getCaseIDs() {
 		return caseIDs;
+	}
+
+	/**
+	 * Used to set geneIDColumnHeading.  See
+	 * getGeneIDs().
+	 *
+	 * @param geneIDColumnHeading String
+	 */
+	public void setGeneIDColumnHeading(final String geneIDColumnHeading) {
+		this.geneIDColumnHeading = geneIDColumnHeading;
+	}
+
+	/**
+	 * Returns the collection of Gene id's within this matrix.
+	 * setGeneIDColumnHeading() must be called prior to calling getGeneIDs().
+	 *
+	 * @return Collection<String>
+	 */
+	public Collection<String> getGeneIDs() {
+
+		// collection we will return
+		HashSet<String> toReturn = new HashSet<String>();
+
+		for (String geneID : getColumnData(geneIDColumnHeading)) {
+			toReturn.add(geneID);
+		}
+
+		// outta here
+		return toReturn;
 	}
 
 	/**

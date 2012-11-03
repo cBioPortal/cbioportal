@@ -49,10 +49,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class CNAConverterImpl implements Converter {
+public final class MRNAMedianConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(MRNAMedianConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -74,8 +74,8 @@ public final class CNAConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(final Config config, final FileUtils fileUtils,
-							final CaseIDs caseIDs, final IDMapper idMapper) {
+	public MRNAMedianConverterImpl(final Config config, final FileUtils fileUtils,
+								   final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -125,26 +125,26 @@ public final class CNAConverterImpl implements Converter {
 		}
 		ImportDataMatrix importDataMatrix = importDataMatrices[0];
 
+		// add gene id column, rename gene symbol col
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), adding & renaming columns");
+		}
+		importDataMatrix.addColumn("Entrez_Gene_Id");
+		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
+		importDataMatrix.renameColumn("Hybridization REF", "Hugo_Symbol");
+
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapDataToGeneID()...");
 		}
 		MapperUtil.mapDataToGeneID(importDataMatrix, idMapper,
-								   "Gene Symbol", "Locus ID");
-
-		// rename columns
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), renaming columns");
-		}
-		importDataMatrix.renameColumn("Gene Symbol", "Hugo_Symbol");
-		importDataMatrix.renameColumn("Locus ID", "Entrez_Gene_Id");
-		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
+								   "Hugo_Symbol", "Entrez_Gene_Id");
 
 		// filter and convert case ids
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
-		String[] columnsToIgnore = { "Hugo_Symbol", "Entrez_Gene_Id" }; // drop Cytoband
+		String[] columnsToIgnore = { "Hugo_Symbol", "Entrez_Gene_Id" };
 		importDataMatrix.filterAndConvertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively

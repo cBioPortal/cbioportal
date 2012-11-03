@@ -420,7 +420,7 @@ final class GDataImpl implements Config {
 		Collection<DataSourceMetadata> toReturn = new ArrayList<DataSourceMetadata>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getDataSourceMetadata()");
+			LOG.info("getDataSourceMetadata(): " + dataSource);
 		}
 
 		// parse the property argument

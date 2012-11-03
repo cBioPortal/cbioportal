@@ -427,8 +427,14 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         // by default return importData's canonical path
         String toReturn = importData.getCanonicalPathToData();
+		String overrideFilename = importData.getOverrideFilename();
 
-        // look for override file
+		// no need to continue if we don't have an override filename
+		if (overrideFilename == null || overrideFilename.length() == 0) {
+			return toReturn;
+		}
+
+        // we have to contruct the path to the override file
         String potentialOverrideCancerStudyDir = null;
         String tumorType = importData.getTumorType().toLowerCase();
         // look for a cancer study that matches the tumor type
@@ -441,7 +447,6 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         if (potentialOverrideCancerStudyDir != null) {
             // construct override filename
-            String overrideFilename = importData.getOverrideFilename();
             if (overrideFilename.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
                     overrideFilename = overrideFilename.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX,
                                                                 tumorType.toUpperCase());

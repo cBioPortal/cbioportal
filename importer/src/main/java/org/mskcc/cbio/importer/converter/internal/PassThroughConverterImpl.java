@@ -48,10 +48,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class NullConverterImpl implements Converter {
+public final class PassThroughConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(NullConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(PassThroughConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -73,7 +73,7 @@ public final class NullConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public NullConverterImpl(final Config config, final FileUtils fileUtils,
+	public PassThroughConverterImpl(final Config config, final FileUtils fileUtils,
 							 final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
@@ -114,5 +114,21 @@ public final class NullConverterImpl implements Converter {
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {}
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+
+		// sanity check
+		if (importDataMatrices.length != 1) {
+			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		}
+		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), writing staging file.");
+		}
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), complete.");
+		}
+	}
 }

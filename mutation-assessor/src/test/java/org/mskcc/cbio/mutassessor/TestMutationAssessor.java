@@ -25,7 +25,7 @@
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
 
-package org.mskcc.cbio.oncotator;
+package org.mskcc.cbio.mutassessor;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.maf.MafRecord;
@@ -37,21 +37,21 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * Test class to test Oncotator tool.
+ *
  */
-public class TestOncotator extends TestCase
+public class TestMutationAssessor extends TestCase
 {
 	/**
-	 * Tests the sample input MAF file which already has oncotator columns.
+	 * Tests the sample input MAF file which already has mutation assessor columns.
 	 */
-	public void testWithOncoColumns()
+	public void testWithMaColumns()
 	{
 		// TODO replace with getResourceStream()
-		File input = new File("target/test-classes/with_onco_columns.txt");
+		File input = new File("target/test-classes/with_ma_columns.txt");
 		File output = new File("target/test-classes/with_cols_output.txt");
 
-		// run oncotator
-		this.oncotate(input, output, true, false, false);
+		// run MA tool
+		this.addMaInfo(input, output, false, false);
 
 		// check if everthing is ok with the output
 		try
@@ -61,7 +61,7 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns remains same
+			// assert unknown MA column is removed
 			assertEquals(14, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
@@ -84,14 +84,14 @@ public class TestOncotator extends TestCase
 	/**
 	 * Tests the sample input MAF file which does not have oncotator columns.
 	 */
-	public void testWithoutOncoColumns()
+	public void testWithoutMaColumns()
 	{
 		// TODO replace with getResourceStream()
-		File input = new File("target/test-classes/without_onco_columns.txt");
+		File input = new File("target/test-classes/without_ma_columns.txt");
 		File output = new File("target/test-classes/without_cols_output.txt");
 
-		// run oncotator
-		this.oncotate(input, output, true, false, false);
+		// run MA tool
+		this.addMaInfo(input, output, false, false);
 
 		// check if everthing is ok with the output
 		try
@@ -124,14 +124,14 @@ public class TestOncotator extends TestCase
 	/**
 	 * Tests the shuffled input MAF file which already has oncotator columns.
 	 */
-	public void testShuffledWithOncoCols()
+	public void testShuffledWithMaCols()
 	{
 		// TODO replace with getResourceStream()
-		File input = new File("target/test-classes/with_onco_cols_shuffled.txt");
+		File input = new File("target/test-classes/with_ma_cols_shuffled.txt");
 		File output = new File("target/test-classes/with_cols_shuffled_out.txt");
 
-		// run oncotator (with sort & add options enabled)
-		this.oncotate(input, output, true, true, true);
+		// run MA tool (with sort & add options enabled)
+		this.addMaInfo(input, output, true, true);
 
 		// check if everthing is ok with the output
 		try
@@ -141,14 +141,15 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator + 1 custom)
+			// assert number of columns (32 standard + 5 MA + 1 custom)
 			assertEquals(38, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
-			assertEquals(32, util.getOncoVariantClassificationIndex());
-			assertEquals(36, util.getOncoGeneSymbolIndex());
+			// TODO test MA values
+			//assertEquals(32, util.getOncoVariantClassificationIndex());
+			//assertEquals(36, util.getOncoGeneSymbolIndex());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -173,14 +174,14 @@ public class TestOncotator extends TestCase
 	/**
 	 * Tests the shuffled input MAF file which does not have oncotator columns.
 	 */
-	public void testShuffledWithoutOncoCols()
+	public void testShuffledWithoutMaCols()
 	{
 		// TODO replace with getResourceStream()
-		File input = new File("target/test-classes/without_onco_cols_shuffled.txt");
+		File input = new File("target/test-classes/without_ma_cols_shuffled.txt");
 		File output = new File("target/test-classes/without_cols_shuffled_out.txt");
 
-		// run oncotator (with sort & add options enabled)
-		this.oncotate(input, output, true, true, true);
+		// run MA tool (with sort & add options enabled)
+		this.addMaInfo(input, output, true, true);
 
 		// check if everthing is ok with the output
 		try
@@ -190,14 +191,15 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator + 1 Custom)
+			// assert number of columns (32 standard + 5 MA + 1 Custom)
 			assertEquals(38, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
-			assertEquals(32, util.getOncoVariantClassificationIndex());
-			assertEquals(36, util.getOncoGeneSymbolIndex());
+			// TODO test MA values
+			//assertEquals(32, util.getOncoVariantClassificationIndex());
+			//assertEquals(36, util.getOncoGeneSymbolIndex());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -217,29 +219,20 @@ public class TestOncotator extends TestCase
 
 	}
 
-	private void oncotate(File input,
+	private void addMaInfo(File input,
 			File output,
-			boolean useCache,
 			boolean sort,
 			boolean addMissing)
 	{
-		OncotatorCacheService cacheService = new HashCacheService();
-		OncotatorService oncotatorService = new OncotatorService(cacheService);
-		Oncotator oncotator = new Oncotator(oncotatorService);
-		oncotator.setUseCache(useCache);
-		oncotator.setSortColumns(sort);
-		oncotator.setAddMissingCols(addMissing);
-
-		// there should be no inital errors
-		assertEquals(oncotatorService.getErrorCount(), 0);
+		MutationAssessorService maService = new HashMaService();
+		DataImporter importer = new DataImporter(maService);
+		importer.setSortColumns(sort);
+		importer.setAddMissingCols(addMissing);
 
 		try
 		{
 			// oncotate the sample input files
-			oncotator.oncotateMaf(input, output);
-
-			// assert no errors after oncotating
-			assertEquals(0, oncotatorService.getErrorCount());
+			importer.addMutAssessorInfo(input, output);
 		}
 		catch (Exception e)
 		{
@@ -251,26 +244,18 @@ public class TestOncotator extends TestCase
 	{
 		assertEquals("37", record.getNcbiBuild());
 
-		if (record.getVariantClassification().equalsIgnoreCase("Silent"))
-		{
-			// assert mutation type is copied to the oncotator column
-			assertEquals("Silent", record.getOncotatorVariantClassification());
-		}
-		else
-		{
-			// assert all oncotator columns have non empty values
-			assertTrue(record.getOncotatorVariantClassification().length() > 0);
-			assertTrue(record.getOncotatorCosmicOverlapping().length() > 0);
-			assertTrue(record.getOncotatorDbSnpRs().length() > 0);
-			assertTrue(record.getOncotatorProteinChange().length() > 0);
-			assertTrue(record.getOncotatorGeneSymbol().length() > 0);
+		// assert all MA columns have non empty values
+		assertTrue(record.getMaFuncImpact().length() > 0);
+		assertTrue(record.getMaProteinChange().length() > 0);
+		assertTrue(record.getMaLinkMsa().length() > 0);
+		assertTrue(record.getMaLinkPdb().length() > 0);
+		assertTrue(record.getMaLinkVar().length() > 0);
 
-			// assert all oncotator columns are overwritten with new values
-			assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
-		}
+		// assert all MA columns are overwritten with new values
+		assertTrue(!record.getMaFuncImpact().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getMaProteinChange().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getMaLinkMsa().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getMaLinkPdb().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getMaLinkVar().equalsIgnoreCase("Unknown"));
 	}
 }

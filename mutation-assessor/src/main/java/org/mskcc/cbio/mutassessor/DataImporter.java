@@ -83,9 +83,8 @@ public class DataImporter
 	 * @throws SQLException
 	 */
 	public void addMutAssessorInfo(File inputMaf,
-			File outputMaf) throws IOException, SQLException
+			File outputMaf) throws Exception
 	{
-
 		BufferedReader reader = new BufferedReader(new FileReader(inputMaf));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputMaf));
 
@@ -100,6 +99,8 @@ public class DataImporter
 
 		// write the header line to output
 		FileIOUtil.writeLine(writer, columnNames);
+
+		int numRecordsProcessed = 0;
 
 		// process each data line
 		while ((line = reader.readLine()) != null)
@@ -122,7 +123,12 @@ public class DataImporter
 
 			// write data to the output file
 			FileIOUtil.writeLine(writer, data);
+
+			numRecordsProcessed++;
 		}
+
+		System.out.println("Total number of records processed: " +
+		                   numRecordsProcessed);
 
 		reader.close();
 		writer.close();

@@ -46,6 +46,8 @@ public class MutationAssessorTool
 
 		boolean db = false;
 
+		// TODO also add sort and add missing options as a program argument
+
 		// validate arguments
 		if (args.length == 0)
 		{
@@ -114,14 +116,9 @@ public class MutationAssessorTool
 						new File(input), new File(output));
 			}
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
-			System.out.println("IO error: " + e.getMessage());
-			e.printStackTrace();
-		}
-		catch (SQLException e)
-		{
-			System.out.println("Database error: " + e.getMessage());
+			System.out.println("Error occurred: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

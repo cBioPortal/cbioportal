@@ -83,12 +83,29 @@ public class MaMafProcessor extends MafProcessor
 	 */
 	protected void addExistingColsToHeader(List<String> headerData)
 	{
-		// TODO iterate over header line and add all except ones starting "MA:"
-
+		// iterate over the header line and add all columns
+		// except the ones starting with "MA:"
+		for (String header : this.headerLine.split(TAB))
+		{
+			if (header.startsWith("MA:"))
+			{
+				// add only known MA columns,
+				// discard all other columns starting with "MA:"
+				if(this.maHeaders.contains(header))
+				{
+					headerData.add(header);
+				}
+			}
+			// add all non MA columns
+			else
+			{
+				headerData.add(header);
+			}
+		}
 	}
 
 	/**
-	 * Adds new oncotator column names into the header list.
+	 * Adds new nutation assessor column names into the header list.
 	 *
 	 * @param headerData    list of header names
 	 */
@@ -100,6 +117,29 @@ public class MaMafProcessor extends MafProcessor
 			{
 				// add missing oncotator headers
 				headerData.add(maHeader);
+			}
+		}
+	}
+
+	/**
+	 * Adds custom column names into the header list
+	 * except unknown MA column names.
+	 *
+	 * @param headerData    list of header names
+	 */
+	protected void addOtherColsToHeader(List<String> headerData)
+	{
+		String[] parts = this.headerLine.split(TAB);
+
+		for (String header : parts)
+		{
+			boolean unknownMaCol = header.startsWith("MA:") &&
+				!this.maHeaders.contains(header);
+
+			if (this.isCustomHeader(header) &&
+			    !unknownMaCol)
+			{
+				headerData.add(header);
 			}
 		}
 	}
@@ -148,6 +188,11 @@ public class MaMafProcessor extends MafProcessor
 		String linkHeader = "getma.org/?cm=var&var=hg19,";
 
 		String[] parts = key.split("_");
+
+		if (parts.length < 5)
+		{
+			return null;
+		}
 
 		String chr = parts[0];
 		String startPos = parts[1];

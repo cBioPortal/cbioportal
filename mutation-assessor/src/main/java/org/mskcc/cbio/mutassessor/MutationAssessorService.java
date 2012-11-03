@@ -43,7 +43,7 @@ public class MutationAssessorService
 		this.cache = DaoMutAssessorCache.getInstance();
 	}
 
-	public MutationAssessorRecord getMaRecord(String key) throws SQLException
+	public MutationAssessorRecord getMaRecord(String key) throws Exception
 	{
 		return this.cache.get(key);
 	}

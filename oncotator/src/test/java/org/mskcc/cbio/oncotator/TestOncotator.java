@@ -62,7 +62,7 @@ public class TestOncotator extends TestCase
 			MafUtil util =  new MafUtil(line);
 
 			// assert number of columns remains same
-			assertEquals(13, util.getHeaderCount());
+			assertEquals(14, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -102,7 +102,7 @@ public class TestOncotator extends TestCase
 			MafUtil util =  new MafUtil(line);
 
 			// assert 5 new columns are added
-			assertEquals(13, util.getHeaderCount());
+			assertEquals(14, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -141,8 +141,8 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator)
-			assertEquals(37, util.getHeaderCount());
+			// assert number of columns (32 standard + 5 Oncotator + 1 custom)
+			assertEquals(38, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
@@ -190,8 +190,8 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 Oncotator)
-			assertEquals(37, util.getHeaderCount());
+			// assert number of columns (32 standard + 5 Oncotator + 1 Custom)
+			assertEquals(38, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());

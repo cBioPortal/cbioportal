@@ -150,7 +150,7 @@ public class Oncotator
 			dataLine = bufReader.readLine();
 		}
 
-		System.out.println("Total Number of Records Processed: " +
+		System.out.println("Total number of records processed: " +
 		                   numRecordsProcessed);
 
 		reader.close();

@@ -1,5 +1,5 @@
-NCBI_Build	Chromosome	Start_position	End_position	Variant_Classification	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	ONCOTATOR_VARIANT_CLASSIFICATION	ONCOTATOR_PROTEIN_CHANGE	ONCOTATOR_COSMIC_OVERLAPPING	ONCOTATOR_DBSNP_RS	ONCOTATOR_GENE_SYMBOL
-37	11	56258437	56258437	Missense_Mutation	T	T	C	Unknown	Unknown	Unknown	Unknown	Unknown
-37	4	83788017	83788017	Silent	G	G	A	Unknown	Unknown	Unknown	Unknown	Unknown
-37	1	906209	906209	Nonsense_Mutation	G	G	A	Unknown	Unknown	Unknown	Unknown	Unknown
-37	1	3411011	3411043	In_Frame_Del	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	-	Unknown	Unknown	Unknown	Unknown	Unknown
+NCBI_Build	Chromosome	Start_position	End_position	Variant_Classification	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	ONCOTATOR_VARIANT_CLASSIFICATION	ONCOTATOR_PROTEIN_CHANGE	ONCOTATOR_COSMIC_OVERLAPPING	ONCOTATOR_DBSNP_RS	ONCOTATOR_GENE_SYMBOL	Custom
+37	11	56258437	56258437	Missense_Mutation	T	T	C	Unknown	Unknown	Unknown	Unknown	Unknown	custom_data
+37	4	83788017	83788017	Silent	G	G	A	Unknown	Unknown	Unknown	Unknown	Unknown	custom_data
+37	1	906209	906209	Nonsense_Mutation	G	G	A	Unknown	Unknown	Unknown	Unknown	Unknown	custom_data
+37	1	3411011	3411043	In_Frame_Del	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	-	Unknown	Unknown	Unknown	Unknown	Unknown	custom_data

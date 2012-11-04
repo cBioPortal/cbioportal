@@ -75,12 +75,10 @@ GeneAlterations.test = function() {
 
     console.log("==== GeneAlterations test ====");
     console.log("sending this data...\n"
-                + "{\n"
-                + "cancer_study_id: " + sendData.cancer_study_id + ",\n"
+                + "{ cancer_study_id: " + sendData.cancer_study_id + ",\n"
                 + "genes: " + sendData.genes + ",\n"
                 + "cases: " + sendData.cases + ",\n"
-                + "geneticProfileIds: " + sendData.geneticProfileIds + ",\n"
-                + "}");
+                + "geneticProfileIds: " + sendData.geneticProfileIds + " }");
 
     var geneAlterations = GeneAlterations(sendData);
     console.log("geneAlterations sample", geneAlterations);

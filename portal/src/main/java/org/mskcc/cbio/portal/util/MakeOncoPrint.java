@@ -933,6 +933,22 @@ public class MakeOncoPrint {
 			COPY_NUMBER_ALTERATION_FOOTNOTE  : "";
 	}
 
+
+    /**
+     * todo: duplication of below!!
+     */
+    public static String getCaseSetDescriptionREFACTOR(String caseSetId, List<CaseList> caseSets) {
+
+        String toReturn = new String();
+        StringBuilder builder = new StringBuilder();
+        for (CaseList caseSet : caseSets) {
+            if (caseSetId.equals(caseSet.getStableId())) {
+                builder.append(caseSet.getName() + ": " + caseSet.getDescription());
+            }
+        }
+        return builder.toString();
+    }
+
 	/**
 	 * Constructs the OncoPrint case set description.
 	 *

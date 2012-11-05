@@ -188,9 +188,9 @@
 
                 // concat all case sets into one big list
                 ArrayList<String> _cases = new ArrayList<String>();
-                for (CaseList c : caseSets) {
-                    if (c.getCaseList() != null) {      // todo: shouldn't this be an empty list, not null?
-                        _cases.addAll(c.getCaseList());
+                for (CaseList caseSet : caseSets) {
+                    if (caseSetId.equals(caseSet.getStableId())) {
+                        _cases.addAll(caseSet.getCaseList());
                     }
                 }
 
@@ -220,7 +220,7 @@
     //  make global variables
     var cancer_study_id = "<%=cancerTypeId%>",
             genes = "<%=genes%>",
-            cases = "<%=cases%>",
+            cases = "<%=cases%>",       // todo: there are way too many cases being queried here.  what's going on...?
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {
                 cancer_study_id: cancer_study_id,

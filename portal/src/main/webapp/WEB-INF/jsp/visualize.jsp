@@ -215,65 +215,21 @@
 
             %>
 
-            <script type="text/javascript">
-
-                    //  make global variables
-                    var cancer_study_id = "<%=cancerTypeId%>";
-                    var genes = "<%=genes%>";
-                    var cases = "<%=cases%>";
-                    var geneticProfiles = "<%=geneticProfiles%>";
-
-                    var sendGeneAlterationsData = {
-                        cancer_study_id: cancer_study_id,
-                        genes: genes,
-                        cases: cases,
-                        geneticProfileIds: geneticProfiles
-                    };
-
-                    $(document).ready(function() {
-                        var geneAlterations = GeneAlterations(sendGeneAlterationsData);
-
-                        geneAlterations.addListener(function(data) {
-                            // listener to draw oncoprint
-                            var appendParams = {
-                                cancer_study_id: cancer_study_id,
-                                case_set_str: cases,
-                                num_cases_affected: <%= dataSummary.getNumCasesAffected()%>,
-                                total_num_cases: <%=Math.round(1 / dataSummary.getPercentCasesAffected() * dataSummary.getNumCasesAffected())%>,
-                                // todo: get ride of this hack!!
-                                percent_cases_affected: <%=MakeOncoPrint.alterationValueToString(dataSummary.getPercentCasesAffected())%>,
-                                geneAlterations_l: data
-                            };
-
-                            appendOncoPrint(appendParams);
-                        });
-
-
-                        // todo: replace GENETIC_ALTERATIONS data (temporary?)
-//                        unsortedVarName = "GENETIC_ALTERATIONS_UNSORTED_" + cancer_study_id;
-
-                        // this data encapsulation seems unnecessarily wordy
-//                        geneAlterations.addListener( function(data) {
-//                            window[unsortedVarName] = (function() {
-//                                var private = {};
-//                                private[unsortedVarName] = data;
-//
-//                                return {
-//                                    get: function(name) { return private[name]; }
-//                                };
-//                            })();
-//                        });
-
-                        // bind this to the parent (global) object by omitting "var"
-
-//                    geneAlterations.addListener(function(data) {
-//                        console.log(data);
-//                    });
-
-//                    geneAlterations.getAlterations();
-                    });
-
-            </script>
+<script type="text/javascript" src="js/GeneAlterations.js"></script>
+<script type="text/javascript">
+    //  make global variables
+    var cancer_study_id = "<%=cancerTypeId%>",
+            genes = "<%=genes%>",
+            cases = "<%=cases%>",
+            geneticProfiles = "<%=geneticProfiles%>",
+            sendGeneAlterationsData = {
+                cancer_study_id: cancer_study_id,
+                genes: genes,
+                cases: cases,
+                geneticProfileIds: geneticProfiles
+            },
+            geneAlterations = GeneAlterations(sendGeneAlterationsData);
+</script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
@@ -421,11 +377,7 @@
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
 			<%= oncoprintHTML %>
-                <div id="oncoprints">
-                    <h4>
-                        Oncoprint (<small><a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small></h4>
-                    </h4>
-                </div>
+            <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
 

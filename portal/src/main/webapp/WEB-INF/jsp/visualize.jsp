@@ -3,21 +3,15 @@
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.model.*" %>
 <%@ page import="java.text.NumberFormat" %>
-<%@ page import="java.text.DecimalFormat" %>                 
-<%@ page import="org.mskcc.cbio.portal.util.GeneSetUtil" %>
+<%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="org.mskcc.cbio.portal.util.ZScoreUtil" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.util.Enumeration" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
-<%@ page import="org.mskcc.cbio.portal.util.HeatMapLegend" %>
-<%@ page import="org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
@@ -28,6 +22,9 @@
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="java.lang.reflect.Array" %>
+<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
+<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
+<%@ page import="org.mskcc.cbio.portal.util.*" %>
 
 
 <%
@@ -180,14 +177,18 @@
              </script>
 
             <%
+                /**
+                 * Put together parameters for an AJAX call to GeneAlterations.json
+                 *
+                 */
+
                 // put all the case sets
-                ArrayList<CaseList> caseLists = (ArrayList<CaseList>) request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-                Log log = LogFactory.getLog("visualize.jsp");
+//                Log log = LogFactory.getLog("visualize.jsp");
 //                log.info( caseLists.size() );
 
                 // concat all case sets into one big list
                 ArrayList<String> _cases = new ArrayList<String>();
-                for (CaseList c : caseLists) {
+                for (CaseList c : caseSets) {
                     if (c.getCaseList() != null) {      // todo: shouldn't this be an empty list, not null?
                         _cases.addAll(c.getCaseList());
                     }
@@ -204,42 +205,73 @@
                 //todo: this might not be the fastest way to do this since I am not removing duplicates as I go.
 
                 // put geneticProfileIds into the proper form for the JSON request
-                HashSet<String> _geneticProfiles =
-                        (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
-                String geneticProfiles = StringUtils.join(_geneticProfiles.iterator(), " ");
+                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
                 geneticProfiles = geneticProfiles.trim();
 
                 // put genes (HUGO symbols) into the proper form for the JSON request
                 ArrayList<String> _genes = (ArrayList<String>) request.getAttribute(QueryBuilder.GENE_LIST);
                 String genes = StringUtils.join(_genes, " ");
                 genes = genes.trim();
-                
+
             %>
 
             <script type="text/javascript">
 
-                $(document).ready(function() {
-                    var cancer_study_id = "<%=request.getAttribute(QueryBuilder.CANCER_STUDY_ID)%>";
+                    //  make global variables
+                    var cancer_study_id = "<%=cancerTypeId%>";
                     var genes = "<%=genes%>";
                     var cases = "<%=cases%>";
                     var geneticProfiles = "<%=geneticProfiles%>";
 
-                    var sendData = {
+                    var sendGeneAlterationsData = {
                         cancer_study_id: cancer_study_id,
                         genes: genes,
                         cases: cases,
                         geneticProfileIds: geneticProfiles
                     };
 
-                    geneAlterations = GeneAlterations(sendData);
-                    // bind this to the parent (global) object by omitting "var"
+                    $(document).ready(function() {
+                        var geneAlterations = GeneAlterations(sendGeneAlterationsData);
 
-                    geneAlterations.addListener(function(data) {
-                        console.log(data);
+                        geneAlterations.addListener(function(data) {
+                            // listener to draw oncoprint
+                            var appendParams = {
+                                cancer_study_id: cancer_study_id,
+                                case_set_str: cases,
+                                num_cases_affected: <%= dataSummary.getNumCasesAffected()%>,
+                                total_num_cases: <%=Math.round(1 / dataSummary.getPercentCasesAffected() * dataSummary.getNumCasesAffected())%>,
+                                // todo: get ride of this hack!!
+                                percent_cases_affected: <%=MakeOncoPrint.alterationValueToString(dataSummary.getPercentCasesAffected())%>,
+                                geneAlterations_l: data
+                            };
+
+                            appendOncoPrint(appendParams);
+                        });
+
+
+                        // todo: replace GENETIC_ALTERATIONS data (temporary?)
+//                        unsortedVarName = "GENETIC_ALTERATIONS_UNSORTED_" + cancer_study_id;
+
+                        // this data encapsulation seems unnecessarily wordy
+//                        geneAlterations.addListener( function(data) {
+//                            window[unsortedVarName] = (function() {
+//                                var private = {};
+//                                private[unsortedVarName] = data;
+//
+//                                return {
+//                                    get: function(name) { return private[name]; }
+//                                };
+//                            })();
+//                        });
+
+                        // bind this to the parent (global) object by omitting "var"
+
+//                    geneAlterations.addListener(function(data) {
+//                        console.log(data);
+//                    });
+
+//                    geneAlterations.getAlterations();
                     });
-
-                    geneAlterations.getAlterations();
-                });
 
             </script>
 
@@ -389,6 +421,11 @@
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
 			<%= oncoprintHTML %>
+                <div id="oncoprints">
+                    <h4>
+                        Oncoprint (<small><a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small></h4>
+                    </h4>
+                </div>
             <%@ include file="gene_info.jsp" %>
             </div>
 

@@ -907,7 +907,7 @@ public class MakeOncoPrint {
 	 *
      * @return String
      */
-    static String alterationValueToString(double value) {
+    public static String alterationValueToString(double value) {
 
         // in oncoPrint show 0 percent as 0%, not --
         if (0.0 < value && value <= 0.01) {

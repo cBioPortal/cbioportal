@@ -37,12 +37,12 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- *
+ * Test class for the Mutation Assessor tool.
  */
 public class TestMutationAssessor extends TestCase
 {
 	/**
-	 * Tests the sample input MAF file which already has mutation assessor columns.
+	 * Tests the sample input MAF file which already has MA columns.
 	 */
 	public void testWithMaColumns()
 	{
@@ -68,6 +68,11 @@ public class TestMutationAssessor extends TestCase
 			{
 				if (line.length() > 0)
 				{
+					// validate last column (it should have "custom_data")
+					String[] parts = line.split("\t", -1);
+					assertEquals("custom_data", parts[parts.length - 1]);
+
+					// validate MAF record
 					MafRecord record = util.parseRecord(line);
 					this.validateMafRecord(record);
 				}
@@ -82,7 +87,7 @@ public class TestMutationAssessor extends TestCase
 	}
 
 	/**
-	 * Tests the sample input MAF file which does not have oncotator columns.
+	 * Tests the sample input MAF file which does not have MA columns.
 	 */
 	public void testWithoutMaColumns()
 	{
@@ -108,6 +113,12 @@ public class TestMutationAssessor extends TestCase
 			{
 				if (line.length() > 0)
 				{
+					// validate last column
+					// (it should be an MA column not the "custom_data")
+					String[] parts = line.split("\t", -1);
+					assertTrue(!parts[parts.length - 1].equals("custom_data"));
+
+					// validate MAF record
 					MafRecord record = util.parseRecord(line);
 					this.validateMafRecord(record);
 				}
@@ -122,7 +133,7 @@ public class TestMutationAssessor extends TestCase
 	}
 
 	/**
-	 * Tests the shuffled input MAF file which already has oncotator columns.
+	 * Tests the shuffled input MAF file which already has MA columns.
 	 */
 	public void testShuffledWithMaCols()
 	{
@@ -147,17 +158,19 @@ public class TestMutationAssessor extends TestCase
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
-			// TODO test MA values
-			//assertEquals(32, util.getOncoVariantClassificationIndex());
-			//assertEquals(36, util.getOncoGeneSymbolIndex());
+			assertEquals(33, util.getMaProteinChangeIndex());
+			assertEquals(35, util.getMaLinkPdbIndex());
 
 			while ((line = reader.readLine()) != null)
 			{
 				if (line.length() > 0)
 				{
-					MafRecord record = util.parseRecord(line);
+					// validate last column (it should have "custom_data")
+					String[] parts = line.split("\t", -1);
+					assertEquals("custom_data", parts[parts.length - 1]);
 
-					assertEquals("37", record.getNcbiBuild());
+					// validate MAF record
+					MafRecord record = util.parseRecord(line);
 					this.validateMafRecord(record);
 				}
 			}
@@ -172,7 +185,7 @@ public class TestMutationAssessor extends TestCase
 	}
 
 	/**
-	 * Tests the shuffled input MAF file which does not have oncotator columns.
+	 * Tests the shuffled input MAF file which does not have MA columns.
 	 */
 	public void testShuffledWithoutMaCols()
 	{
@@ -191,20 +204,24 @@ public class TestMutationAssessor extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 MA + 1 Custom)
+			// assert number of columns (32 standard + 5 MA + 1 custom)
 			assertEquals(38, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
-			// TODO test MA values
-			//assertEquals(32, util.getOncoVariantClassificationIndex());
-			//assertEquals(36, util.getOncoGeneSymbolIndex());
+			assertEquals(32, util.getMaFImpactIndex());
+			assertEquals(36, util.getMaLinkVarIndex());
 
 			while ((line = reader.readLine()) != null)
 			{
 				if (line.length() > 0)
 				{
+					// validate last column (it should have "custom_data")
+					String[] parts = line.split("\t", -1);
+					assertEquals("custom_data", parts[parts.length - 1]);
+
+					// validate MAF record
 					MafRecord record = util.parseRecord(line);
 					this.validateMafRecord(record);
 				}
@@ -231,7 +248,7 @@ public class TestMutationAssessor extends TestCase
 
 		try
 		{
-			// oncotate the sample input files
+			// add MA info to the sample input files
 			importer.addMutAssessorInfo(input, output);
 		}
 		catch (Exception e)

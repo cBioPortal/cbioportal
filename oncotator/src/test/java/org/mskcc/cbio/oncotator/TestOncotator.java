@@ -37,7 +37,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * Test class to test Oncotator tool.
+ * Test class for the Oncotator tool.
  */
 public class TestOncotator extends TestCase
 {

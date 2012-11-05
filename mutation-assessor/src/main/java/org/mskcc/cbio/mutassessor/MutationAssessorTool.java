@@ -28,73 +28,79 @@
 package org.mskcc.cbio.mutassessor;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
 
 /**
- * Main class with main method.
+ * Main class with the main method.
  */
 public class MutationAssessorTool
 {
 	public static void main(String[] args)
 	{
-		DataImporter mafProcessor = new DataImporter();
-		CacheBuilder builder;
-
 		String input;
 		String output = null;
 
 		boolean db = false;
+		boolean sort = false;
+		boolean addMissing = false;
 
-		// TODO also add sort and add missing options as a program argument
+		// process program arguments
 
-		// validate arguments
-		if (args.length == 0)
+		int i;
+
+		for (i = 0; i < args.length; i++)
 		{
-			// TODO invalid number of arguments, print usage
-			System.out.println("Error: Invalid number of arguments");
-			System.exit(1);
+			if (args[i].startsWith("-"))
+			{
+				if (args[0].equalsIgnoreCase("-db"))
+				{
+					db = true;
+				}
+				else if (args[0].equalsIgnoreCase("-sort"))
+				{
+					sort = true;
+				}
+				else if (args[0].equalsIgnoreCase("-std"))
+				{
+					addMissing = true;
+				}
+			}
+			else
+			{
+				break;
+			}
 		}
 
-		if (args[0].equals("-db"))
+		if (db)
 		{
-			if (args.length < 2)
+			if (args.length - i < 1)
 			{
 				// TODO no input file or directory
 				System.out.println("Error: Invalid number of arguments");
 				System.exit(1);
 			}
 		}
-		else if (args.length < 2)
+		else if (args.length - i < 2)
 		{
 			// TODO output file not specified
 			System.out.println("Error: Invalid number of arguments");
 			System.exit(1);
 		}
 
-		// if the switch -db is provided, then process MA files and insert into DB
-		if (args[0].equals("-db"))
-		{
-			db = true;
-			input = args[1];
+		input = args[i];
 
-			if (args.length >= 2)
-			{
-				output = args[2];
-			}
-		}
-		// else process a single MAF file and extend with MA information
-		else
+		if (args.length - i > 1)
 		{
-			input = args[0];
-			output = args[1];
+			output = args[i+1];
 		}
 
 		try
 		{
-			// db switch is provided
+			// if the switch -db is provided,
+			// then process MA files and insert into DB
 			if (db)
 			{
+				CacheBuilder builder;
+
 				// no output specified, write to DB (slower)
 				if (output != null)
 				{
@@ -109,10 +115,15 @@ public class MutationAssessorTool
 				// start cache building process
 				builder.buildCache(input);
 			}
-			// process given MAF file and add MA info if possible
+			// else process a single MAF file and extend with MA information
 			else
 			{
-				mafProcessor.addMutAssessorInfo(
+				DataImporter importer = new DataImporter();
+				importer.setSortColumns(sort);
+				importer.setAddMissingCols(addMissing);
+
+				// process given MAF file and add MA info if possible
+				importer.addMutAssessorInfo(
 						new File(input), new File(output));
 			}
 		}

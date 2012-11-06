@@ -30,12 +30,10 @@ public class CnaJSON extends HttpServlet {
     private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
     
     public static final String CMD = "cmd";
-    public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
     public static final String GET_SEGMENT_CMD = "get_segment";
     public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
-    public static final String CNA_CONTEXT = "cna_context";
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -254,7 +252,7 @@ public class CnaJSON extends HttpServlet {
         table.add(row);
     }
     
-    private static Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id
+    private static final Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id
             = new HashMap<Integer,Map<String,Map<CnaEvent.CNA,List>>>();     // to map from gene to a list of params
     
     private static List getGistic(int cancerStudyId, String gene, CnaEvent.CNA cna) throws DaoException {

@@ -333,7 +333,7 @@ public class MutationsJSON extends HttpServlet {
         data.get("ma").add(ma);
     }
     
-    private static Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id
+    private static final Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id
             = new HashMap<Integer,Map<String,Double>>();     // to map from gene to Q-value
     
     private static double getMutSigQValue(int cancerStudyId, String gene) throws DaoException {

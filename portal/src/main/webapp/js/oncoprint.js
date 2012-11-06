@@ -1,8 +1,10 @@
-var OncoPrint = function(div, params) {
-    var appendOncoPrint = function( params ) {
+var OncoPrint = function(params) {
+    var that = {};
+
+    that.insert = function(div) {
         var oncoPrintDiv = $('<div/>', {
             class: "oncoprint", id: params.cancer_study_id
-        }).appendTo(ONCOPRINTS_DIV);
+        }).appendTo(div);
 
         var getSVG = $('<p/>', {
             text: "Get OncoPrint"
@@ -19,10 +21,8 @@ var OncoPrint = function(div, params) {
         var alteredIn = $('<p/>', {
             text: "Altered in "
                 + params.num_cases_affected
-                + " out of "
-                + params.total_num_cases
-                + " cases ("
-                + params.percent_cases_affected + ")"
+                + " (" + params.percent_cases_affected + ")"
+                + " of cases"
         });
 
         oncoPrintDiv.append(getSVG);
@@ -34,6 +34,8 @@ var OncoPrint = function(div, params) {
         var oncoprint = OncoPrintInit([], oncoPrintDiv, []);
         DrawOncoPrintBody(oncoprint, geneAlterations);
     };
+
+    return that;
 };
 
 
@@ -44,7 +46,6 @@ OncoPrint.help = function() {
 // { cancer_study_id,
 // case_set_str,
 // num_cases_affected,
-// total_num_cases,
 // percent_cases_affected,
 // geneAlterations_l }
 }

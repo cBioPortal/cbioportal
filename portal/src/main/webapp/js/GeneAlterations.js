@@ -3,6 +3,11 @@ var GeneAlterations = function(sendData) {
     // (e.g. for tables, oncoprints, ...)
     // the idea is that you can call fire and not have to worry about whether you need to make a new AJAX call or not.
 
+    // returns a list of objects like this:
+    //    { 'sample' : "TCGA-13-0727",
+    //    'unaltered_sample' : true,
+    //    'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN }
+
     var json = 'GeneAlterations.json',      // json url
         alterations = {},                   // alterations object, the return of the json 'to be'
         listeners = [],                     // queue of callback functions

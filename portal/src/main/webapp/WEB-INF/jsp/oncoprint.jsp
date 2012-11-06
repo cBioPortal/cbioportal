@@ -1,5 +1,7 @@
 <div id="oncoprints">
     <script type="text/javascript" src="js/oncoprint.js"></script>
+    <script type="text/javascript" src="js/d3.v2.min.js"></script>
+    <%--todo: we may want to import d3 globally, for now, it's just here--%>
     <script type="text/javascript">
         var oncoPrintParams = {
             cancer_study_id: "<%=cancerTypeId%>",

@@ -35,6 +35,22 @@ var OncoPrint = function(params) {
         DrawOncoPrintBody(oncoprint, geneAlterations);
     };
 
+    that.drawTrack = function(geneAlterationsObj) {
+        // geneAlterationsObj
+    };
+
+//    holding off on this until I have a visualization.  It will make things much easier
+//
+//    that.sort = function() {
+//        // sort the samples according to the order that the genes are in,
+//        // in params.geneAlterations_l
+//
+//        var sort_helper = function(alt1, alt2) {
+//
+//        };
+//
+//    };
+
     return that;
 };
 

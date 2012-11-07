@@ -157,20 +157,24 @@ final class ConverterImpl implements Converter {
 					continue;
 				}
 
-				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
-				if (importDataMatrices == null || importDataMatrices.length == 0) {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("convertData(), error getting importDataMatrices, skipping.");
-					}
-					continue;
-				}
+				// iterate over data sources
+				for (String dataSource : portalMetadata.getDataSources()) {
 
-				// get converter and create staging file
-				Object[] args = { config, fileUtils, caseIDs, idMapper };
-				Converter converter =
-					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-				converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
+					// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
+					ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata, dataSource);
+					if (importDataMatrices == null || importDataMatrices.length == 0) {
+						if (LOG.isInfoEnabled()) {
+							LOG.info("convertData(), error getting importDataMatrices, skipping.");
+						}
+						continue;
+					}
+
+					// get converter and create staging file
+					Object[] args = { config, fileUtils, caseIDs, idMapper };
+					Converter converter =
+						(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+					converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
+				}
 			}
 		}
 	}
@@ -246,58 +250,34 @@ final class ConverterImpl implements Converter {
 	 * @param portalMetadata PortalMetadata
 	 * @param tumorType String
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataSource String
 	 * @return ImpordDataMatrix[]
 	 * @throws Exception
 	 */
 	private ImportDataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
-													 final DatatypeMetadata datatypeMetadata) throws Exception {
+													 final DatatypeMetadata datatypeMetadata, final String dataSource) throws Exception {
 
+		// this is what we are returing
 		ImportDataMatrix[] toReturn = null;
 
+		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
-		if (!datatypeMetadata.isComputable()) {
-			toReturn = new ImportDataMatrix[] { getImportDataMatrix(portalMetadata, tumorType, datatype) };
-		}
-		// computable, we need to parse 
-		else {
-			String[] computableDatatypes = datatypeMetadata.getDatatypeDependencies();
-			toReturn = new ImportDataMatrix[computableDatatypes.length];
-			for (int lc = 0; lc < computableDatatypes.length; lc++) {
-				String computableDatatype = computableDatatypes[lc];
-				toReturn[lc] = getImportDataMatrix(portalMetadata, tumorType, computableDatatype);
-			}
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
-	 * Helper function to get an ImportDataMatrix for the given tumorType/datatype combination.
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param tumorType String
-	 * @param datatype String
-	 * @return ImportDataMatrix
-	 * @throws Exception
-	 */
-	private ImportDataMatrix getImportDataMatrix(final PortalMetadata portalMetadata, final String tumorType,
-												 final String datatype) throws Exception {
-
-		ImportDataMatrix toReturn = null;
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrix(), looking for ImportData matching: " + tumorType + ":" + datatype + ".");
+			LOG.info("getImportDataMatrices(), looking for all ImportData matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
 		}
-		ImportData importData = importDataDAO.getImportDataByTumorAndDatatype(tumorType, datatype);
-		if (importData != null) {
+		ImportData[] importData = (ImportData[])importDataDAO.getImportDataByTumorAndDatatypeAndDataSource(tumorType, datatype, dataSource).toArray();
+		if (importData.length != 0) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("getImportDataMatrix(), found ImportData matching: " + tumorType + ":" + datatype + ".");
+				LOG.info("getImportDataMatrices(), found " + importData.length + " ImportData objects matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
 			}
-			toReturn = fileUtils.getFileContents(portalMetadata, importData);
+			toReturn = new ImportDataMatrix[importData.length];
+			for (int lc = 0; lc < importData.length; lc++) {
+				toReturn[lc] = fileUtils.getFileContents(portalMetadata, importData[lc]);
+			}
 		}
 		else if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrix(), cannot find ImportData matching: " + tumorType + ":" + datatype);
+			LOG.info("getImportDataMatrices(), cannot find any ImportData objects matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
 		}
 
 		// outta here

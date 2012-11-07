@@ -28,18 +28,39 @@
 // package
 package org.mskcc.cbio.importer.model;
 
+// imports
+import java.util.Set;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+
 /**
  * Class which contains datatype metadata.
  */
 public final class DatatypeMetadata {
+
+	/*
+	 * The following is an example of a downloadArchive string which the following 
+	 * static delimiters are meant to address:
+	 *
+	 * CopyNumber_Gistic2.Level_4:amp_genes.conf_99.txt;CopyNumber_Gistic2.Level_4:table_amp.conf_99.txt
+	 */
+
+	// delimiter between download archive pairs
+	private static final String DOWNLOAD_ARCHIVE_DELIMITER = ";";
+ 
+	// delimiter between archive and filename pair
+	private static final String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
 
 	// bean properties
 	private String datatype;
 	private String[] datatypeDependencies;
 	private Boolean download;
 	private Boolean computable;
-	private String firehoseDownloadArchive;
-	private String firehoseDownloadFilename;
+	// downloadArchive is parsed in constructor
+	private LinkedHashSet<String> archives;
+	// key is archive file name, values is ARCHIVE_FILENAME_PAIR_DELIMITER filenames
+	private HashMap<String, String> archivedFiles;
 	private String overrideFilename;
     private String stagingFilename;
     private String converterClassName;
@@ -57,11 +78,8 @@ public final class DatatypeMetadata {
      * Create a DatatypeMetadata instance with specified properties.
      *
      * @param datatype String
-     * @param datatypeDependencies String[]
 	 * @param download Boolean
-	 * @param computable Boolean
-	 * @param firehoseDownloadArchive String
-	 * @param firehoseDownloadFilename String
+	 * @param downloadArchive String
      * @param overrideFilename String
      * @param stagingFilename String
      * @param converterClassName String
@@ -75,12 +93,11 @@ public final class DatatypeMetadata {
      * @param metaProfileName String
      * @param metaProfileDescription String
      */
-    public DatatypeMetadata(final String datatype, final String[] datatypeDependencies,
-							final Boolean download, final Boolean computable,
-							final String firehoseDownloadArchive, final String firehoseDownloadFilename,
-							final String overrideFilename, final String stagingFilename, 
-							final String converterClassName, final String importerClassName, 
-                            final Boolean requiresMetafile, final String metaFilename, final String metaStableID,
+    public DatatypeMetadata(final String datatype, final Boolean download,
+							final String downloadArchive, final String overrideFilename,
+							final String stagingFilename, final String converterClassName,
+							final String importerClassName, final Boolean requiresMetafile,
+							final String metaFilename, final String metaStableID,
 							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
 							final String metaProfileName, final String metaProfileDescription) {
 
@@ -89,28 +106,32 @@ public final class DatatypeMetadata {
 		}
 		this.datatype = datatype;
 
-		// datatype dependencies can be null
-		this.datatypeDependencies = (datatypeDependencies == null) ? new String[0] : datatypeDependencies;
-
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");
 		}
 		this.download = download;
 
-		if (computable == null) {
-            throw new IllegalArgumentException("computable must not be null");
+		if (downloadArchive == null) {
+            throw new IllegalArgumentException("downloadArchive must not be null");
 		}
-		this.computable = computable;
-
-		if (firehoseDownloadArchive == null) {
-            throw new IllegalArgumentException("firehoseDownloadArchive must not be null");
+		else {
+			archives = new LinkedHashSet<String>();
+			archivedFiles = new HashMap<String, String>();
+			for (String archivePair : downloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
+				String archive = parts[0];
+				String archivedFile = parts[1];
+				archives.add(archive);
+				if (archivedFiles.containsKey(archive)) {
+					archivedFiles.put(archive, (archivedFiles.get(archive) +
+												ARCHIVE_FILENAME_PAIR_DELIMITER +
+												archivedFile));
+				}
+				else {
+					archivedFiles.put(archive, archivedFile);
+				}
+			}
 		}
-		this.firehoseDownloadArchive = firehoseDownloadArchive;
-
-		if (firehoseDownloadFilename == null) {
-            throw new IllegalArgumentException("firehoseDownloadFilename must not be null");
-		}
-		this.firehoseDownloadFilename = firehoseDownloadFilename;
 
 		if (overrideFilename == null) {
 			this.overrideFilename = "";
@@ -180,11 +201,26 @@ public final class DatatypeMetadata {
 	}
 
 	public String getDatatype() { return datatype; }
-	public String[] getDatatypeDependencies() { return datatypeDependencies; }
 	public Boolean isDownloaded() { return download; }
-	public Boolean isComputable() { return computable; }
-	public String getFirehoseDownloadArchive() { return firehoseDownloadArchive; }
-	public String getFirehoseDownloadFilename() { return firehoseDownloadFilename; }
+	public Set<String> getDownloadArchives() { return archives; }
+	public Set<String> getArchivedFiles(final String archive) {
+		if (archivedFiles.containsKey(archive)) {
+			return new LinkedHashSet<String>(Arrays.asList(archivedFiles.get(archive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
+		}
+		else {
+			// we do the following juggling because archive may be:
+			// gdac.broadinstitute.org_BRCA.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.2012080400.0.0.tar.gz
+			// but keys could be of the form:
+			// Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3
+			for (String possibleArchive : getDownloadArchives()) {
+				if (archive.contains(possibleArchive)) {
+					return new LinkedHashSet<String>(Arrays.asList(archivedFiles.get(possibleArchive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
+				}
+			}
+		}
+		// should not get here
+		return new LinkedHashSet<String>();
+	}
 	public String getOverrideFilename() { return overrideFilename; }
 	public String getStagingFilename() { return stagingFilename; }
 	public String getConverterClassName() { return converterClassName; }

@@ -195,7 +195,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 18) {
+		if (properties.length != 15) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
@@ -210,22 +210,19 @@ final class GDataImpl implements Config {
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
 						toReturn.add(new DatatypeMetadata(entry.getCustomElements().getValue(properties[1]),
-														  entry.getCustomElements().getValue(properties[2]).split(":"),
-														  new Boolean(entry.getCustomElements().getValue(properties[3])),
-														  new Boolean(entry.getCustomElements().getValue(properties[4])),
+														  new Boolean(entry.getCustomElements().getValue(properties[2])),
+                                                          entry.getCustomElements().getValue(properties[3]),
+                                                          entry.getCustomElements().getValue(properties[4]),
                                                           entry.getCustomElements().getValue(properties[5]),
                                                           entry.getCustomElements().getValue(properties[6]),
                                                           entry.getCustomElements().getValue(properties[7]),
-                                                          entry.getCustomElements().getValue(properties[8]),
+														  new Boolean(entry.getCustomElements().getValue(properties[8])),
                                                           entry.getCustomElements().getValue(properties[9]),
                                                           entry.getCustomElements().getValue(properties[10]),
-														  new Boolean(entry.getCustomElements().getValue(properties[11])),
-                                                          entry.getCustomElements().getValue(properties[12]),
-                                                          entry.getCustomElements().getValue(properties[13]),
-                                                          entry.getCustomElements().getValue(properties[14]),
-														  new Boolean(entry.getCustomElements().getValue(properties[15])),
-														  entry.getCustomElements().getValue(properties[16]),
-                                                          entry.getCustomElements().getValue(properties[17])));
+                                                          entry.getCustomElements().getValue(properties[11]),
+														  new Boolean(entry.getCustomElements().getValue(properties[12])),
+														  entry.getCustomElements().getValue(properties[13]),
+                                                          entry.getCustomElements().getValue(properties[14])));
 					}
 				}
 				else {
@@ -309,7 +306,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = portalsMetadataProperty.split(":");
-		if (properties.length != 7) {
+		if (properties.length != 8) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getPortalMetadata: " + portalsMetadataProperty);
 			}
@@ -329,7 +326,8 @@ final class GDataImpl implements Config {
                                                               entry.getCustomElements().getValue(properties[3]),
                                                               entry.getCustomElements().getValue(properties[4]),
                                                               entry.getCustomElements().getValue(properties[5]),
-                                                              entry.getCustomElements().getValue(properties[6]));
+                                                              entry.getCustomElements().getValue(properties[6]),
+                                                              entry.getCustomElements().getValue(properties[7]));
                                 break;
                         }
                     }
@@ -481,7 +479,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = dataSourceMetadataProperty.split(":");
-		if (properties.length != 5) {
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
 			}

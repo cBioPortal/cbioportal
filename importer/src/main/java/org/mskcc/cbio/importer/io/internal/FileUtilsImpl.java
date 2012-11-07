@@ -336,13 +336,13 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 TarArchiveEntry entry = null;
                 while ((entry = tis.getNextTarEntry()) != null) {
                     String entryName = entry.getName();
-                    String dataFile = importData.getDatafile();
+                    String dataFile = importData.getDataFilename();
                     if (dataFile.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
                         dataFile = dataFile.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
                     }
                     if (entryName.contains(dataFile)) {
                         if (LOG.isInfoEnabled()) {
-                            LOG.info("Processing tar-archive: " + importData.getDatafile());
+                            LOG.info("Processing tar-archive: " + importData.getDataFilename());
                         }
                         toReturn = IOUtils.toByteArray(tis, entry.getSize());
                         break;

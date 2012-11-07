@@ -40,10 +40,11 @@ public interface Fetcher {
 	 * Fetchers genomic data from an external datasource and
 	 * places in database for processing.
 	 *
-	 * @param clobberDatabase boolean
+	 * @param dataSource String
+	 * @param desiredRunDate String
 	 * @throws Exception
 	 */
-	void fetch(final boolean clobberDatabase) throws Exception;
+	void fetch(final String dataSource, final String desiredRunDate) throws Exception;
 
 	/**
 	 * Fetchers reference data from an external datasource.

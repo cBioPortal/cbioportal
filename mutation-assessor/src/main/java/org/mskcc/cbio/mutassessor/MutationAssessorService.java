@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.mutassessor;
 
-import java.sql.SQLException;
-
 /**
  * Default Mutation Assessor Service based on a DB cache.
  *

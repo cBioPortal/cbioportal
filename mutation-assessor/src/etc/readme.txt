@@ -38,6 +38,29 @@ insert all records directly into the database provided in the db.properties file
 specifying an sql file is recommended, since it is much faster. You can then use the
 generated sql file to import data into any database.
 
+ADVANCED OPTIONS
+
+There are 2 optional program arguments which provides more control when adding mutation assessor
+information into existing MAF files. Usage of these options are explained below.
+
+-sort: Use this option to have the output MAF with sorted columns. The columns
+will be sorted as follows:
+	The standard MAF columns come first.
+	Oncotator columns come second.
+	Mutation Assessor columns come third.
+	Any other/custom column comes last.
+
+The execution syntax for a sorted output is:
+./addMaInfo.sh -sort <input_maf_file> <output_maf_file>
+
+-std: You can use this option (when sort switch is provided) to include missing standard MAF
+columns in the output MAF file. If std switch is used, the output MAF file will always contain
+all 32 standard MAF columns. And the data under the missing columns will be empty. This option
+is useful if you want a specific column to be at the same index for all output MAFs.
+
+The execution syntax for this option is:
+./addMaInfo.sh -sort -std <input_maf_file> <output_maf_file>
+
 INPUT FORMAT
 
 In order to execute successfully, this tool needs the input MAF to satisfy the following conditions.

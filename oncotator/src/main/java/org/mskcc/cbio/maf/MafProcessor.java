@@ -80,6 +80,8 @@ public class MafProcessor
 	{
 		List<String> headerData = new ArrayList<String>();
 
+		// TODO allow adding missing columns without sorting? Does that make sense?
+
 		if (sorted)
 		{
 			// add standard columns
@@ -274,7 +276,7 @@ public class MafProcessor
 			}
 			else
 			{
-				// TODO add "NA" or null instead?
+				// TODO add "NA" or null instead of an empty string?
 				dataList.add("");
 			}
 		}

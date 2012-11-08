@@ -38,6 +38,14 @@
 		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
+	<profile>
+	  <id>patient-view</id>
+	  <properties>
+		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
+		<final-war-name>patient-view-portal</final-war-name>
+	  </properties>
+	</profile>
   </profiles>
 
   <!-- properties -->

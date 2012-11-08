@@ -6,6 +6,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,20 +15,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.simple.JSONValue;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoCase;
+import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
+import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoMutationEvent;
 import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.SkinUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
-import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
-import org.mskcc.cbio.cgds.dao.DaoMutationEvent;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 /**
  *
@@ -89,13 +90,27 @@ public class TumorMapServlet extends HttpServlet {
     
     private void processRequestStatistics(HttpServletRequest request, HttpServletResponse response, String type)
             throws ServletException, IOException {
+        String cancerStudyIds = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        
         try {
             boolean includeMut = "mut".equalsIgnoreCase(type);
             boolean includeCna = "cna".equalsIgnoreCase(type);
             
             Map<String,Map<String,Object>> data = new HashMap<String,Map<String,Object>>();
             // get list of cancer studies
-            List<CancerStudy> cancerStudies = getaccessControl().getCancerStudies();
+            AccessControl accessControl = getaccessControl();
+            List<CancerStudy> cancerStudies;
+            if (cancerStudyIds==null || cancerStudyIds.isEmpty()) {
+                cancerStudies = accessControl.getCancerStudies();
+            } else {
+                cancerStudies = new ArrayList<CancerStudy>();
+                for (String studyId : cancerStudyIds.split("[ ,]+")) {
+                    CancerStudy study  = DaoCancerStudy.getCancerStudyByStableId(studyId);
+                    if (study!=null && !accessControl.isAccessibleCancerStudy(studyId).isEmpty()) {
+                        cancerStudies.add(study);
+                    }
+                }
+            }
             for (CancerStudy cancerStudy : cancerStudies) {
                 if (cancerStudy.getCancerStudyStableId().equalsIgnoreCase("all")) {
                     continue;

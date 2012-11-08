@@ -1,5 +1,6 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.TumorMapServlet" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 
 <%
 request.setAttribute("tumormap", true);
@@ -149,23 +150,27 @@ request.setAttribute("tumormap", true);
     });
     
     function updateMutCnaStatistics(type, col, oTable) {
-        var params = {
-            <%=TumorMapServlet.CMD%>:'<%=TumorMapServlet.GET_STUDY_STATISTICS_CMD%>',
-            <%=TumorMapServlet.GET_STUDY_STATISTICS_TYPE%>:type
-        };
-        
-        $.post("tumormap.json", 
-            params,
-            function(data){
-                var row = 0;
-                for (var id in tumormap_cancerstudies) {
-                    $.extend(tumormap_cancerstudies[id],data[id]);
-                    oTable.fnUpdate(null,row++,col,false,false);
+        var row = 0;
+        var rowIndex = {};
+        for (var id in tumormap_cancerstudies) {
+            rowIndex[id] = row++;
+            var params = {
+                <%=TumorMapServlet.CMD%>:'<%=TumorMapServlet.GET_STUDY_STATISTICS_CMD%>',
+                <%=TumorMapServlet.GET_STUDY_STATISTICS_TYPE%>:type,
+                <%=QueryBuilder.CANCER_STUDY_ID%>:id
+            };
+
+            $.post("tumormap.json", 
+                params,
+                function(data){
+                    for (var id2 in data) {
+                        $.extend(tumormap_cancerstudies[id2],data[id2]);
+                        oTable.fnUpdate(null,rowIndex[id2],col);
+                    }
                 }
-                oTable.fnDraw();
-            }
-            ,"json"
-        );
+                ,"json"
+            );
+        }
     }
     
 </script>

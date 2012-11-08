@@ -129,7 +129,7 @@ public final class MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		importDataMatrix.addColumn("Entrez_Gene_Id");
+		importDataMatrix.addColumn("Entrez_Gene_Id", new Vector<String>());
 		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
 		importDataMatrix.renameColumn("Hybridization REF", "Hugo_Symbol");
 

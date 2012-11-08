@@ -281,6 +281,7 @@ public class SkinUtil {
     
     public static String getTumorTissueImageUrl(String studyId) {
         Config config = Config.getInstance();
-        return config.getProperty("tumor_image.url")+studyId+"/tissue_images/";
+        String url = config.getProperty("tumor_image.url");
+        return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
     }
 }

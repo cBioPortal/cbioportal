@@ -30,7 +30,7 @@ skin.right_nav.show_testimonials=false
 
 cbioportal.url=
 tumormap.url=
-tumor_image.url=http://cbio.mskcc.org/~jgao/
+tumor_image.url=
 
 # Manager webapp username and password
 manager.username=tomcat

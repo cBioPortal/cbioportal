@@ -31,7 +31,7 @@ manager.password=tomcat
 
 cbioportal.url=
 tumormap.url=
-tumor_image.url=http://cbio.mskcc.org/~jgao/
+tumor_image.url=
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/

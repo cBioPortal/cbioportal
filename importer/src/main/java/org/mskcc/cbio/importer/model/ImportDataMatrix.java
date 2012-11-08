@@ -90,16 +90,6 @@ public final class ImportDataMatrix {
 	 */
 	public ImportDataMatrix(final Vector<Vector<String>> rowData, final Vector<String> columnNames) {
 
-		// sanity check - row data vector should be same size as column name vector
-		for (Vector<String> row : rowData) {
-			if (row.size() != columnNames.size()) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("row size: " + row.size() + ", column size: " + columnNames.size());
-				}
-				throw new IllegalArgumentException("corrupt vector matrix passed to ImportDataMatrix");
-			}
-		}
-
 		// set numberOfRows
 		numberOfRows = rowData.size();
 
@@ -122,7 +112,13 @@ public final class ImportDataMatrix {
 			// interate over all rows and grab the data at column 'index'
 			int index = columnNames.indexOf(columnName);
 			for (Vector<String> row : rowData) {
-				columnHeader.columnData.add(row.elementAt(index));
+				// we may have a situation where there are more columns than row data (empty cells)
+				if (index < row.size()) {
+					columnHeader.columnData.add(row.elementAt(index));
+				}
+				else {
+					columnHeader.columnData.add("");
+				}
 			}
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);

@@ -3,11 +3,6 @@ var GeneAlterations = function(sendData) {
     // (e.g. for tables, oncoprints, ...)
     // the idea is that you can call fire and not have to worry about whether you need to make a new AJAX call or not.
 
-    // returns a list of objects like this:
-    //    { 'sample' : "TCGA-13-0727",
-    //    'unaltered_sample' : true,
-    //    'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN }
-
     var json = 'GeneAlterations.json',      // json url
         alterations = {},                   // alterations object, the return of the json 'to be'
         listeners = [],                     // queue of callback functions
@@ -161,10 +156,20 @@ GeneAlterations.help = function() {
     //     cases: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
     //     geneticProfileIds: \"gbm_mutations gbm_cna_consensus\" }
 
+    // returns a list of objects like this:
+    //     { alterations: (see below)
+    //     hugoGeneSymbol: "BRCA1"
+    //     percent_altered: "12%" }
+    // where alterations is a list of objects like this:
+    //    { 'sample' : "TCGA-13-0727",
+    //    'unaltered_sample' : true,
+    //    'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN }
+
     // methods: \
     // addListener:    function                        ->  return undefined
     // addListeners:   [list of functions]             ->  return undefined
     // getAlterations: (optional: callback function)   ->  return undefined, or alterations if they have already been loaded
     // redo:           new_sendData    redoes the request on the new data
+
 };
 // }}}

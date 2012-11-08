@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.plaf.basic.BasicBorders;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -86,27 +87,34 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @param alterationSettings
      * @return
      */
-    public int alterationSettings_toBits(String alterationSettings) {
+    public static int alterationSettings_toBits(String alterationSettings) {
         int bitmask = 0;
         
-        String[] split = alterationSettings.split("\\s+");
+        String[] split = alterationSettings.split("\\|");
 
         for (String s : split) {
-            bitmask = s.equals("CNA_AMPLIFIED") ? bitmask              + 1 << 0 : bitmask;
-            bitmask = s.equals("CNA_GAINED") ? bitmask                 + 1 << 1 : bitmask;
-            bitmask = s.equals("CNA_DIPLOID") ? bitmask                + 1 << 2 : bitmask;
-            bitmask = s.equals("CNA_HEMIZYGOUSLYDELETED") ? bitmask    + 1 << 3 : bitmask;
-            bitmask = s.equals("CNA_HOMODELETED") ? bitmask            + 1 << 4 : bitmask;
-            bitmask = s.equals("CNA_NONE") ? bitmask                   + 1 << 5 : bitmask;
-            bitmask = s.equals("MRNA_UPREGULATED") ? bitmask           + 1 << 6 : bitmask;
-            bitmask = s.equals("MRNA_DOWNREGULATED") ? bitmask         + 1 << 7 : bitmask;
-            bitmask = s.equals("MRNA_NOTSHOWN") ? bitmask              + 1 << 8 : bitmask;
-            bitmask = s.equals("RPPA_UPREGULATED") ? bitmask           + 1 << 9 : bitmask;
-            bitmask = s.equals("RPPA_NORMAL") ? bitmask                + 1 << 10 : bitmask;
-            bitmask = s.equals("RPPA_DOWNREGULATED") ? bitmask         + 1 << 11 : bitmask;
-            bitmask = s.equals("RPPA_NOTSHOWN") ? bitmask              + 1 << 12 : bitmask;
-            bitmask = s.equals("MUTATED") ? bitmask                    + 1 << 13 : bitmask;
-            bitmask = s.equals("NORMAL") ? bitmask                     + 1 << 14 : bitmask;
+            s = s.trim();
+            bitmask = s.equals("CNA_AMPLIFIED") ? bitmask              + (1 << 0) : bitmask;
+            bitmask = s.equals("CNA_GAINED") ? bitmask                 + (1 << 1) : bitmask;
+            bitmask = s.equals("CNA_DIPLOID") ? bitmask                + (1 << 2) : bitmask;
+            bitmask = s.equals("CNA_HEMIZYGOUSLYDELETED") ? bitmask    + (1 << 3) : bitmask;
+            bitmask = s.equals("CNA_HOMODELETED") ? bitmask            + (1 << 4) : bitmask;
+            bitmask = s.equals("CNA_NONE") ? bitmask                   + (1 << 5) : bitmask;
+            bitmask = s.equals("MRNA_UPREGULATED") ? bitmask           + (1 << 6) : bitmask;
+            bitmask = s.equals("MRNA_DOWNREGULATED") ? bitmask         + (1 << 7) : bitmask;
+            bitmask = s.equals("MRNA_NOTSHOWN") ? bitmask              + (1 << 8) : bitmask;
+            bitmask = s.equals("RPPA_UPREGULATED") ? bitmask           + (1 << 9) : bitmask;
+            bitmask = s.equals("RPPA_NORMAL") ? bitmask                + (1 << 10) : bitmask;
+            bitmask = s.equals("RPPA_DOWNREGULATED") ? bitmask         + (1 << 11) : bitmask;
+            bitmask = s.equals("RPPA_NOTSHOWN") ? bitmask              + (1 << 12) : bitmask;
+            bitmask = s.equals("MUTATED") ? bitmask                    + (1 << 13) : bitmask;
+            bitmask = s.equals("NORMAL") ? bitmask                     + (1 << 14) : bitmask;
+        }
+        
+        if (bitmask == 0) {
+            log.info("GeneAlterationsJSON "
+                    + "CNA bitmask was never set: "
+                    + Arrays.toString(split));
         }
 
         return  bitmask;

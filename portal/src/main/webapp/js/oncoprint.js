@@ -80,8 +80,8 @@ var OncoPrint = function(params) {
             'RPPA_DOWNREGULATED'      : (1<<11),
             'RPPA_NOTSHOWN'           : (1<<12),
             // MUTATION bits
-            'MUTATED'                 : (1<<13)
-
+            'MUTATED'                 : (1<<13),
+            'NORMAL'                  : (1<<14)
     };
         return {
             get: function(name) { return private[name]; }
@@ -105,6 +105,8 @@ var OncoPrint = function(params) {
             text: "Customize OncoPrint:"
         });
 
+        var customizeDiv = $('div')
+
         var caseSet =  $('<p/>', {
             text: params.case_set_str
         });
@@ -125,14 +127,28 @@ var OncoPrint = function(params) {
 //        var oncoprint = OncoPrintInit([], oncoPrintDiv, []);
 //        DrawOncoPrintBody(oncoprint, geneAlterations);
 
-        var svg = d3.select(oncoPrintDiv[0]).append('svg')
-            .attr('height', 50 * params.geneAlterations_l.length);
+        var wrapper = $('<div>', {
+            class: 'wrapper',
+            style: 'width: 1205px; overflow:scroll;'
+        }).appendTo(oncoPrintDiv);
 
-        var trackOptions = {
-            rectPadding: 2
+         var svg = d3.select(wrapper[0]).append('svg')
+            .attr('width', 3559)
+            .attr('height', 25 * params.geneAlterations_l.length + 50)      // 50 for the key at the bottom
+            .style('overflow', 'hidden')
+            .attr('xmlns',  'http://www.w3.org/2000/svg');
+
+        var trackSettings = {
+            rectPadding: 3.5,
+//            rectPadding: 0,
+            labelPadding: 50
         };
 
-        OncoPrint.drawTrack(params.geneAlterations_l[0], svg, trackOptions);
+        // draw each track
+        $.each(params.geneAlterations_l, function(i, val) {
+            trackSettings.trackNum = i;     // increment the track number
+            OncoPrint.drawTrack(val, svg, trackSettings);
+        });
     };
 
 //    holding off on this until I have a visualization.  It will make things much easier
@@ -152,6 +168,9 @@ var OncoPrint = function(params) {
 
 OncoPrint.drawTrack = function(geneAlterationsObj, svg, options) {
     // this is mainly a helper function, but I've made it public static so that anyone can use it
+
+    options.percentPadding = 27;        // right now I set this, factor this out if you'd like to set it as an option
+    options.trackHeight = 25;
 
     var colorCNA = function(d) {
         // helper function
@@ -182,8 +201,11 @@ OncoPrint.drawTrack = function(geneAlterationsObj, svg, options) {
     var label = geneAlterationsObj.hugoGeneSymbol,
         alts = geneAlterationsObj.alterations;
 
-    var g_el = svg.append('g')
+    var g_el = svg
+        .append('g')
         .attr('class', label);
+
+    var trackHeight = options.trackNum * options.trackHeight;
 
     // draw name
     g_el.append('text')
@@ -191,11 +213,22 @@ OncoPrint.drawTrack = function(geneAlterationsObj, svg, options) {
         .attr('font-size', '12px')
         .attr('fill', 'black')
         .attr('font-family', 'sans-serif')
-        .attr('y', 16);
+        .attr('y', 16 + trackHeight);
+
+    // draw the percent changed
+    g_el.append('text')
+        .text(geneAlterationsObj.percent_altered)
+        .attr('font-size', '12px')
+        .attr('fill', 'black')
+        .attr('font-family', 'sans-serif')
+        .attr('x', options.labelPadding)
+        .attr('y', 16 + trackHeight);
+
+    var rectHeight = 19;
+    var rectWidth =  5;
 
     // draw CNA layer
-    var rect_label = "cna";
-    g_el.selectAll('rect.' + rect_label)
+    g_el.selectAll('rect.cna')
         .data(alts)
         .enter()
         .append('rect')
@@ -203,13 +236,38 @@ OncoPrint.drawTrack = function(geneAlterationsObj, svg, options) {
         .attr('id', function(d) {
             return d.sample;
         })
-        .attr('width', 5)
-        .attr('height', 24)
+        .attr('width', rectWidth)
+        .attr('height', rectHeight)
         .attr('fill', colorCNA)
         .attr('x', function(d, i) {
-            return  OncoPrint.DEFAULTS.get('LABEL_PADDING')
-                + i * options.rectPadding;
-        });
+            return options.labelPadding + options.percentPadding + i * (5 + options.rectPadding);
+        })
+        .attr('y', trackHeight);
+
+    var littleRectHeight = 7;
+    var littleRectWidth = options.rectPadding === 0 ? rectWidth : 7;
+
+    // draw the mutation layer
+    g_el.selectAll('rect.mutation')
+        .data(alts)
+        .enter()
+        .append('rect')
+        .attr('class', 'mutation')
+        .attr('width', littleRectWidth)
+        .attr('height', littleRectHeight)
+        .attr('fill', function(d) {
+            if (d.alteration & MUTATED) {
+                return DEFAULTS.get('MUTATION_COLOR');
+            }
+            else {
+                return 'transparent';
+            }
+        })
+        .attr('x', function(d, i) {
+            return options.labelPadding + options.percentPadding + i * (5 + options.rectPadding) -  // todo: this is code duplication
+                (options.rectPadding === 0 ? 0 : 1);   // if padding is zero, don't center the little rect
+        })
+        .attr('y', trackHeight + (rectHeight - littleRectHeight) / 2);
 };
 
 //OncoPrint.drawTrack.longestLabel = ;

@@ -220,7 +220,7 @@
     //  make global variables
     var cancer_study_id = "<%=cancerTypeId%>",
             genes = "<%=genes%>",
-            cases = "<%=cases%>",       // todo: there are way too many cases being queried here.  what's going on...?
+            cases = "<%=cases%>",
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {
                 cancer_study_id: cancer_study_id,

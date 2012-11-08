@@ -104,6 +104,7 @@ public final class ImportDataMatrix {
 		columnHeaders = new LinkedList<ColumnHeader>();
 
 		// populate our column headers list
+		int columnIndex = -1;
 		for (String columnName : columnNames) {
 			// drop column if its missing label
 			if (columnName.length() == 0) { 
@@ -117,16 +118,16 @@ public final class ImportDataMatrix {
 			columnHeader.label = columnName;
 			columnHeader.columnData = new Vector<String>();
 			// interate over all rows and grab the data at column 'index'
-			int index = columnNames.indexOf(columnName);
-			int rowCount = 0;
+			++columnIndex;
 			for (Vector<String> row : rowData) {
-				// we may have a situation where there are more columns than row data (empty cells)
-				if (index < row.size()) {
-					columnHeader.columnData.add(row.elementAt(index));
-					++rowCount;
+				// we may have a situation where there are more columns than data in a row (empty cells)
+				if (columnIndex < row.size()) {
+					columnHeader.columnData.add(row.elementAt(columnIndex));
+				}
+				else {
+					columnHeader.columnData.add("");
 				}
 			}
-			columnHeader.columnData.setSize(rowCount);
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);
 		}
@@ -203,13 +204,14 @@ public final class ImportDataMatrix {
 	 * Adds a column to the end of the table.
 	 *
 	 * @param newColumnName String
+	 * @param columnData Vector<String>
 	 */
-	public void addColumn(final String newColumnName) {
+	public void addColumn(final String newColumnName, final Vector<String> columnData) {
 
 		// create new columnHeader object
 		ColumnHeader columnHeader = new ColumnHeader();
 		columnHeader.label = newColumnName;
-		columnHeader.columnData = new Vector<String>(numberOfRows);
+		columnHeader.columnData = columnData;
 		for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
 			columnHeader.columnData.add("");
 		}
@@ -299,6 +301,20 @@ public final class ImportDataMatrix {
 
 		// should not make it here
 		return new Vector<String>();
+	}
+
+	/**
+	 * Gets the data for the given column index.  This
+	 * method is motivated by the fact that certain files
+	 * may have the same column header - in particular,
+	 * *_genes.conf_99.txt may have multiple cytoband columns.
+	 *
+	 * @param columnIndex int
+	 * @return Vector<String>
+	 */
+	public Vector<String> getColumnData(final int columnIndex) {
+
+		return columnHeaders.get(columnIndex).columnData;
 	}
 
 	/**
@@ -435,7 +451,7 @@ public final class ImportDataMatrix {
 		System.out.println();
 
 		// add a column and dump
-		importDataMatrix.addColumn("H4");
+		importDataMatrix.addColumn("H4", new Vector<String>());
 		importDataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();

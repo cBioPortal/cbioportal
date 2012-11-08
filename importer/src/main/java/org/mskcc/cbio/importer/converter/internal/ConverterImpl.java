@@ -266,7 +266,7 @@ final class ConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getImportDataMatrices(), looking for all ImportData matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
 		}
-		ImportData[] importData = (ImportData[])importDataDAO.getImportDataByTumorAndDatatypeAndDataSource(tumorType, datatype, dataSource).toArray();
+		ImportData[] importData = importDataDAO.getImportDataByTumorAndDatatypeAndDataSource(tumorType, datatype, dataSource).toArray(new ImportData[0]);
 		if (importData.length != 0) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("getImportDataMatrices(), found " + importData.length + " ImportData objects matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");

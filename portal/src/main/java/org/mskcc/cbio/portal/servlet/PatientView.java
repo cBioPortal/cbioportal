@@ -377,12 +377,16 @@ public class PatientView extends HttpServlet {
     private static Map<String,Map<String,List<String>>> tissueImages
             = new HashMap<String,Map<String,List<String>>>();
     private synchronized List<String> getTissueImages(String cancerStudyId, String caseId) {
-        String imageListUrl = SkinUtil.getTumorTissueImageUrl(cancerStudyId)+"image_list.txt";
             
         Map<String,List<String>> map = tissueImages.get(cancerStudyId);
         if (map==null) {
             map = new HashMap<String,List<String>>();
             tissueImages.put(cancerStudyId, map);
+            
+            String imageListUrl = SkinUtil.getTumorTissueImageUrl(cancerStudyId)+"image_list.txt";
+            if (imageListUrl==null) {
+                return null;
+            }
         
             MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();

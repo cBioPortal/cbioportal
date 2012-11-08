@@ -38,6 +38,8 @@ public class SkinUtil {
     public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";
+    public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    
     private static final String PROPERTY_SKIN_EMAIL_CONTACT = "skin.email_contact";
     private static final String PROPERTY_SKIN_SHOW_NEWS_TAB = "skin.show_news_tab";
     private static final String PROPERTY_SKIN_SHOW_DATA_TAB = "skin.show_data_tab";
@@ -169,7 +171,11 @@ public class SkinUtil {
     
     public static double[] getPatientViewGenomicOverviewCnaCutoff() {
         Config config = Config.getInstance();
-        String[] strs = config.getProperty("patient_view_genomic_overview_cna_cutoff").split(",");
+        String cutoff = config.getProperty("patient_view_genomic_overview_cna_cutoff");
+        if (cutoff==null) {
+            return DEFAULT_TUMORMAP_CNA_CUTOFF;
+        }
+        String[] strs = cutoff.split(",");
         return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
     }
 
@@ -253,12 +259,14 @@ public class SkinUtil {
     
     public static String getCbioPortalUrl() {
         Config config = Config.getInstance();
-        return config.getProperty("cbioportal.url");
+        String url = config.getProperty("cbioportal.url");
+        return url==null?"":url;
     }
     
     public static String getTumorMapUrl() {
         Config config = Config.getInstance();
-        return config.getProperty("tumormap.url");
+        String url = config.getProperty("tumormap.url");
+        return url==null?"":url;
     }
     
     public static String getLinkToPatientView(String caseId) {

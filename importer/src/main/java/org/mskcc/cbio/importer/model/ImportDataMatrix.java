@@ -105,21 +105,28 @@ public final class ImportDataMatrix {
 
 		// populate our column headers list
 		for (String columnName : columnNames) {
+			// drop column if its missing label
+			if (columnName.length() == 0) { 
+				if (LOG.isInfoEnabled()) {
+					LOG.info("columnName is empty, skipping...");
+				}
+				continue;
+			}
 			// create a new ColumnHeader object
 			ColumnHeader columnHeader = new ColumnHeader();
 			columnHeader.label = columnName;
 			columnHeader.columnData = new Vector<String>();
 			// interate over all rows and grab the data at column 'index'
 			int index = columnNames.indexOf(columnName);
+			int rowCount = 0;
 			for (Vector<String> row : rowData) {
 				// we may have a situation where there are more columns than row data (empty cells)
 				if (index < row.size()) {
 					columnHeader.columnData.add(row.elementAt(index));
-				}
-				else {
-					columnHeader.columnData.add("");
+					++rowCount;
 				}
 			}
+			columnHeader.columnData.setSize(rowCount);
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);
 		}

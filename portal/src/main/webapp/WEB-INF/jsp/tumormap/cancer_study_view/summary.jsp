@@ -99,11 +99,15 @@
     function mergeDataTables() {
         if (clincialDataTable==null ||
             ((mutationProfileId!=null || cnaProfileId!=null) && mutCnaDataTable==null)) {
+            // wait for the data
             return null;
         }
         
         if (mutCnaDataTable==null)
             return clincialDataTable;
+        
+        if (clincialDataTable.getNumberOfColumns()==0)
+            return mutCnaDataTable;
         
         return google.visualization.data.join(clincialDataTable, mutCnaDataTable,
                     'full', [[0,0]],

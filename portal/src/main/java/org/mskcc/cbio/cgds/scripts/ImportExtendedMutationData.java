@@ -297,8 +297,12 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
+                                            try {
 						daoMutation.addMutation(mutation);
                                                 DaoMutationEvent.addMutation(mutation);
+                                            } catch (DaoException ex) {
+                                                ex.printStackTrace();
+                                            }
 					}
 				}
 			}

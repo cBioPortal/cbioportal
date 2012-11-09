@@ -99,6 +99,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
 
             String[] tokens = line.split(separator);
             assert tokens.length ==  5;
+            if(tokens.length < 5) continue;
             /*
                 0 - PiHelperId
                 1 - Symbol

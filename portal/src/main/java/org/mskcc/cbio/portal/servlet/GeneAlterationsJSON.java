@@ -130,7 +130,7 @@ public class GeneAlterationsJSON extends HttpServlet {
      */
     public JSONObject mapGeneticEventMatrix(GeneticEvent[][] geneticEvents, ProfileDataSummary dataSummary) throws ServletException {
 
-        JSONObject data = new JSONObject();
+        JSONObject genes = new JSONObject();
         JSONArray samples = new JSONArray();
 
         // get all caseIds and put them in an array
@@ -165,7 +165,6 @@ public class GeneAlterationsJSON extends HttpServlet {
                 String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
                 int alterationSettings_bits = alterationSettings_toBits(alterationSettings);
 
-                String caseId =  event.caseCaseId();
                 String sample_cna = event.getCnaValue().name().toUpperCase();
                 String sample_mrna = event.getMrnaValue().name().toUpperCase();
                 String sample_rppa = event.getRPPAValue().name().toUpperCase();
@@ -185,10 +184,12 @@ public class GeneAlterationsJSON extends HttpServlet {
             data_types.put("mrna", mrna);
             data_types.put("rppa", rppa);
 
-            data.put(gene, data_types);
+            genes.put(gene, data_types);
         }
         
+        JSONObject data = new JSONObject();
         data.put("samples", samples);
+        data.put("genes", genes);
 
         return data;
     }

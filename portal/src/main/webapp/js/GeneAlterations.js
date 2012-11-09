@@ -81,9 +81,13 @@ var GeneAlterations = function(sendData) {
     // data query tools
 //    that.query = (function() {
 //        return {
-//            getMutationsBySampleId: function(sample_str) {
+//            mutationBySampleId: function(sample_str) {
 //                var returnObj = {};
 //                var index = alterations.samples.indexOf(sample_str);
+//
+//                for (gene in alterations) {
+//                    if (gene !== )
+//                }
 //            }
 //
 //        };

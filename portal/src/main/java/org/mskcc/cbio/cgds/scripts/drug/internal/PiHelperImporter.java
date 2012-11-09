@@ -29,15 +29,16 @@ package org.mskcc.cbio.cgds.scripts.drug.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.cgds.dao.DaoDrug;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoInteraction;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.DrugInteraction;
 import org.mskcc.cbio.cgds.scripts.drug.AbstractDrugInfoImporter;
 import org.mskcc.cbio.cgds.scripts.drug.DrugDataResource;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class PiHelperImporter extends AbstractDrugInfoImporter {
@@ -86,8 +87,9 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     }
 
     private void importDrugTargets() throws Exception {
-        /*
-        Scanner scanner = new Scanner(getDrugInfoFile());
+        Scanner scanner = new Scanner(getDrugTargetsFile());
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
 
         int lineNo = 0;
         while (scanner.hasNextLine()) {
@@ -104,12 +106,30 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                 3 - DataSources
                 4 - References
              */
-        /*
-                String geneSymbol = tokens[1].trim();
-                String drug;
 
+            String geneSymbol = tokens[1].trim();
+            String drugName = tokens[2].trim();
+            String datasources = tokens[3].trim();
+            String refs = tokens[4].trim();
+
+            Drug drug = nameToDrugMap.get(drugName);
+            assert drug != null;
+
+            List<CanonicalGene> genes = daoGeneOptimized.guessGene(geneSymbol);
+            for (CanonicalGene gene : genes) {
+                daoDrugInteraction.addDrugInteraction(
+                        drug,
+                        gene,
+                        DRUG_INTERACTION_TYPE,
+                        datasources,
+                        "",
+                        refs);
             }
-        */
+        }
+
+        scanner.close();
+
+        log.info("Number of drug-targets imported: " + lineNo);
     }
 
     private void importDrugs() throws Exception {

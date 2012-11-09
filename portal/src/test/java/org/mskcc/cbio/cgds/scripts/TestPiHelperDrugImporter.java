@@ -29,15 +29,44 @@ package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoDrug;
+import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.scripts.drug.DrugDataResource;
 import org.mskcc.cbio.cgds.scripts.drug.internal.PiHelperImporter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class TestPiHelperDrugImporter extends TestCase {
     public void testImporter() throws Exception {
         ResetDatabase.resetDatabase();
+
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        String[] genes = {
+                "F2",
+                "EGFR",
+                "FCGR3B",
+                "C1R",
+                "C1QA",
+                "C1QB",
+                "C1QC",
+                "FCGR3A",
+                "C1S",
+                "FCGR1A",
+                "FCGR2A",
+                "FCGR2B",
+                "FCGR2C",
+                "IL2RA",
+                "IL2RB",
+                "IL2RG"
+        };
+
+        for (String gene : genes) {
+            daoGeneOptimized.addGene(new CanonicalGene(gene));
+        }
 
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
@@ -57,6 +86,27 @@ public class TestPiHelperDrugImporter extends TestCase {
         importer.importData();
 
         DaoDrug daoDrug = DaoDrug.getInstance();
-        assertEquals(6, daoDrug.getCount());
+        DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
+        ArrayList<Drug> allDrugs = daoDrug.getAllDrugs();
+        int count = allDrugs.size();
+        assertEquals(6, count);
+        assertEquals(16, daoDrugInteraction.getCount());
+
+        int[] numOfTargets = {1, 12, 0, 3, 0 ,0};
+        for(int i=0; i < count; i++) {
+            assertEquals(numOfTargets[i], daoDrugInteraction.getTargets(allDrugs.get(i)).size());
+        }
+
+        Drug cetuximab = daoDrug.getDrug("33612");
+        assertEquals(204, cetuximab.getNumberOfClinicalTrials().intValue());
+        assertTrue(cetuximab.isCancerDrug());
+        assertFalse(cetuximab.isNutraceuitical());
+        assertTrue(cetuximab.isApprovedFDA());
+
+        Drug etanercept = daoDrug.getDrug("33615");
+        assertEquals(-1, etanercept.getNumberOfClinicalTrials().intValue());
+        assertFalse(etanercept.isCancerDrug());
+        assertFalse(etanercept.isNutraceuitical());
+        assertTrue(etanercept.isApprovedFDA());
     }
 }

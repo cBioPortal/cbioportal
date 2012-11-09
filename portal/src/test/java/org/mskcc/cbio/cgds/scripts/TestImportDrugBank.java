@@ -57,7 +57,8 @@ public class TestImportDrugBank extends TestCase {
 
         DrugBankImporter drugBankImporter = new DrugBankImporter(drugBankResource);
 		// TBD: change this to use getResourceAsStream()
-        drugBankImporter.importDrugBankGeneList(new CSVReader(new FileReader("target/test-classes/test_drugbank_targets.csv")));
+        CSVReader reader = new CSVReader(new FileReader("target/test-classes/test_drugbank_targets.csv"));
+        drugBankImporter.importDrugBankGeneList(reader);
 
         assertEquals(92, drugBankImporter.getGeneMap().size());
         // We don't have all the genes loaded up yet, so we will just fake that

@@ -37,7 +37,9 @@ if (isDemoMode!=null) {
 
 boolean showPathways = showMutations | showCNA;
 boolean showSimilarPatient = showMutations | showCNA;
-boolean showGenomicOverview = showMutations | showCNA;
+
+boolean hasCnaSegmentData = cancerStudy.hasCnaSegmentData();
+boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -240,6 +242,7 @@ var print = <%=print%>;
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
+var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);

@@ -143,4 +143,33 @@ public final class DaoCopyNumberSegment {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
+    
+    /**
+     * 
+     * @param cancerStudyId
+     * @return true if segment data exist for the cancer study
+     * @throws DaoException 
+     */
+    public static boolean segmentDataExist(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sql = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            sql = "SELECT  1"
+                + " FROM `copy_number_seg`, `_case`"
+                + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
+                + " AND `_case`.`CASE_ID`=`copy_number_seg`.`CASE_ID`"
+                + " LIMIT 1";
+            
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
 }

@@ -70,7 +70,7 @@ function formatPatientLink(caseId) {
     return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?case_id='+caseId+'">'+caseId+'</a>'
 }
 
-function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
+function loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,func) {
 
     var mutDataTable = null;
     if (mutationProfileId!=null) {
@@ -86,7 +86,7 @@ function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
                 var wrapper = new DataTableWrapper();
                 wrapper.setDataMap(mutationCounts,['case_id','mutation_count']);
                 mutDataTable = wrapper.dataTable;
-                mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+                mergeTablesAndCallFunc(mutationProfileId,hasCnaSegmentData,
                             mutDataTable,cnaDataTable,func);
             }
             ,"json"
@@ -96,7 +96,7 @@ function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
 
     var cnaDataTable = null;
 
-    if (cnaProfileId!=null) {
+    if (hasCnaSegmentData) {
         var params = {
             cmd: 'get_cna_fraction',
             case_ids: caseIds.join(' ')
@@ -109,7 +109,7 @@ function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
                 // TODO: what if no segment available
                 wrapper.setDataMap(cnaFracs,['case_id','copy_number_altered_fraction']);
                 cnaDataTable = wrapper.dataTable;
-                mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+                mergeTablesAndCallFunc(mutationProfileId,hasCnaSegmentData,
                             mutDataTable,cnaDataTable,func);
             }
             ,"json"
@@ -117,10 +117,10 @@ function loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,func) {
     }
 }
 
-function mergeTablesAndCallFunc(mutationProfileId,cnaProfileId,
+function mergeTablesAndCallFunc(mutationProfileId,hasCnaSegmentData,
         mutDataTable,cnaDataTable,func) {
     if ((mutationProfileId!=null && mutDataTable==null) ||
-        (cnaProfileId!=null && cnaDataTable==null)) {
+        (hasCnaSegmentData && cnaDataTable==null)) {
         return;
     }
 

@@ -43,6 +43,8 @@ if (cnaProfile!=null) {
     cnaProfileStableId = cnaProfile.getStableId();
 }
 
+boolean hasCnaSegmentData = cancerStudy.hasCnaSegmentData();
+
 if (cancerStudyViewError!=null) {
     out.print(cancerStudyViewError);
 } else {
@@ -125,6 +127,7 @@ if (cancerStudyViewError!=null) {
 var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
+var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 

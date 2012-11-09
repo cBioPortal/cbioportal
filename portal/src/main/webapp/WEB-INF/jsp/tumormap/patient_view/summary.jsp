@@ -96,8 +96,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 return;
             }
                 
-            if (cnaProfileId==null) {
-                alert('no cna data');
+            if (!hasCnaSegmentData) {
+                alert('no copy number segment data');
                 return;
             }
             
@@ -112,7 +112,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
         loadMutCountCnaFrac(<%=jsonCaseIds%>,
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
-            <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>',
+            hasCnaSegmentData,
             function(dt){
                 var maxMut = dt.getColumnRange(1).max;
                 var vLog = maxMut>1000;

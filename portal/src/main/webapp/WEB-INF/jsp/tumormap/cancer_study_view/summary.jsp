@@ -21,7 +21,7 @@
         $('#submit-patient-btn').attr("disabled", true);
         //setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
-        loadMutCountCnaFrac(caseIds,mutationProfileId,cnaProfileId,mutCnaLoaded);
+        loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
     });
     
@@ -73,7 +73,7 @@
     
     var mutCnaDataTable = null;
     function mutCnaLoaded(mutCnaDt) {
-        if (mutationProfileId&&cnaProfileId) {
+        if (mutationProfileId&&hasCnaSegmentData) {
             var caseMap = getCaseMap(mutCnaDt);
 
             $('#clinical-data-loading-wait').hide();
@@ -98,7 +98,7 @@
     
     function mergeDataTables() {
         if (clincialDataTable==null ||
-            ((mutationProfileId!=null || cnaProfileId!=null) && mutCnaDataTable==null)) {
+            ((mutationProfileId!=null || hasCnaSegmentData) && mutCnaDataTable==null)) {
             // wait for the data
             return null;
         }

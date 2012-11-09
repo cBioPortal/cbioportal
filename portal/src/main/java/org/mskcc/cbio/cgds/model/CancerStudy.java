@@ -35,6 +35,7 @@ import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
 import java.util.ArrayList;
 import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
+import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -275,6 +276,15 @@ public class CancerStudy {
      */
     public boolean hasMutationData() throws DaoException {
         return hasMutationData(getGeneticProfiles());
+    }
+    
+    /**
+     * 
+     * @return true if copy number segment data exist for this study; false, otherwise.
+     * @throws DaoException 
+     */
+    public boolean hasCnaSegmentData() throws DaoException {
+        return DaoCopyNumberSegment.segmentDataExist(studyID);
     }
 
     /**

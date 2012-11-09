@@ -79,19 +79,20 @@ var GeneAlterations = function(sendData) {
     };
 
     // data query tools
-//    that.query = (function() {
-//        return {
-//            mutationBySampleId: function(sample_str) {
-//                var returnObj = {};
-//                var index = alterations.samples.indexOf(sample_str);
-//
-//                for (gene in alterations) {
-//                    if (gene !== )
-//                }
-//            }
-//
-//        };
-//    })();
+    that.query = (function() {
+        return {
+            mutationBySampleId: function(sample_str) {
+                var returnObj = {};
+                var index = alterations.samples.indexOf(sample_str);
+
+                for (gene in alterations.genes) {
+                    var data_types = alterations.genes[gene];
+
+
+                }
+            }
+        };
+    })();
 
     return that;
 };

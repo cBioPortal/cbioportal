@@ -177,13 +177,16 @@ public class GeneAlterationsJSON extends HttpServlet {
             }
 
             JSONObject data_types = new JSONObject();
-            data_types.put("meta_data", meta_data);
             data_types.put("mutations", mutation);
             data_types.put("cna", cna);
             data_types.put("mrna", mrna);
             data_types.put("rppa", rppa);
 
-            genes.put(gene, data_types);
+            JSONObject gene_data = new JSONObject();
+            gene_data.put("meta_data", meta_data);
+            gene_data.put("data_types", data_types);
+
+            genes.put(gene, gene_data);
         }
         
         JSONObject data = new JSONObject();

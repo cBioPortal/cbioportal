@@ -85,11 +85,14 @@ var GeneAlterations = function(sendData) {
                 var returnObj = {};
                 var index = alterations.samples.indexOf(sample_str);
 
-                for (gene in alterations.genes) {
-                    var data_types = alterations.genes[gene];
+                for (var gene in alterations.genes) {
+                    var data_types = alterations.genes[gene].data_types;
 
-
+                    var mutation = data_types["mutations"];
+                    returnObj[gene] = mutation[index];
                 }
+
+                return returnObj;
             }
         };
     })();

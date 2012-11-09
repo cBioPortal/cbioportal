@@ -318,19 +318,19 @@ public class PatientView extends HttpServlet {
     
     private Map<String,String> mergeClinicalData(ClinicalData cd, Map<String,ClinicalFreeForm> cffs) {
         Map<String,String> map = new HashMap<String,String>();
-        if (cd.getAgeAtDiagnosis()!=null) {
+        if (cd!=null&&cd.getAgeAtDiagnosis()!=null) {
             map.put("Age",cd.getAgeAtDiagnosis().toString());
         }
-        if (cd.getOverallSurvivalStatus()!=null) {
+        if (cd!=null&&cd.getOverallSurvivalStatus()!=null) {
             map.put("Overall survival status", cd.getOverallSurvivalStatus());
         }
-        if (cd.getOverallSurvivalMonths()!=null) {
+        if (cd!=null&&cd.getOverallSurvivalMonths()!=null) {
             map.put("Overall survival months", Long.toString(Math.round(cd.getOverallSurvivalMonths())));
         }
-        if (cd.getDiseaseFreeSurvivalStatus()!=null) {
+        if (cd!=null&&cd.getDiseaseFreeSurvivalStatus()!=null) {
             map.put("Disease-free survival status", cd.getDiseaseFreeSurvivalStatus());
         }
-        if (cd.getDiseaseFreeSurvivalMonths()!=null) {
+        if (cd!=null&&cd.getDiseaseFreeSurvivalMonths()!=null) {
             map.put("Disease-free survival months", Long.toString(Math.round(cd.getDiseaseFreeSurvivalMonths())));
         }
         

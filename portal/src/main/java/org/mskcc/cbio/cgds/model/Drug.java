@@ -27,10 +27,6 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import ca.drugbank.ExternalLink;
-
-import java.util.List;
-
 public class Drug {
     private String id;
     private String name;
@@ -38,9 +34,9 @@ public class Drug {
     private String synonyms;
     private String externalReference;
     private String resource;
-    private boolean isApprovedFDA;
-    private boolean isCancerDrug;
-    private boolean isNutraceuitical;
+    private boolean isApprovedFDA = false;
+    private boolean isCancerDrug = false;
+    private boolean isNutraceuitical = false;
     private Integer numberOfClinicalTrials = -1;
     private String ATCCode;
 
@@ -55,8 +51,8 @@ public class Drug {
                 String resource,
                 String ATCCode,
                 boolean approvedFDA,
-                boolean nutraceuitical,
                 boolean cancerDrug,
+                boolean nutraceuitical,
                 Integer numberOfClinicalTrials) {
 
         this.id = id;

@@ -4,6 +4,7 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
@@ -36,7 +37,7 @@ public class GeneAlterationsJSON extends HttpServlet {
     public static final String MUTATION = "mutation";
 
 
-    private static Log log = LogFactory.getLog(GisticJSON.class);
+    private static Log log = LogFactory.getLog(GeneAlterationsJSON.class);
 
     /**
      * Initializes the servlet.
@@ -84,6 +85,7 @@ public class GeneAlterationsJSON extends HttpServlet {
      * converts a string to a bitmask,
      * e.g. "CNA_AMPLIFIED | CNA_GAINED" -> (1<<0) + (1<<1)
      *
+     * todo: anachronistic
      * @param alterationSettings
      * @return
      */
@@ -126,26 +128,24 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @param geneticEvents matrix M[case][gene]
      * @return
      */
-    public JSONArray mapGeneticEventMatrix(GeneticEvent[][] geneticEvents, ProfileDataSummary dataSummary) throws ServletException {
-        JSONArray array = new JSONArray();
-        // list of json objects
+    public JSONObject mapGeneticEventMatrix(GeneticEvent[][] geneticEvents, ProfileDataSummary dataSummary) throws ServletException {
+        JSONObject data_types = new JSONObject();
+        JSONObject genes = new JSONObject();
+        JSONObject meta_data = new JSONObject();
+        JSONArray samples = new JSONArray();
+        JSONArray mutation = new JSONArray();
+        JSONArray cna = new JSONArray();
+        JSONArray mrna = new JSONArray();
+        JSONArray rppa = new JSONArray();
 
-        // todo: this is code duplication!
-        // from MakeOncoPrint
         for (int i = 0; i < geneticEvents.length; i++) {
             GeneticEvent rowEvent = geneticEvents[i][0];
             String gene = rowEvent.getGene().toUpperCase();
-            String alterationValue =
+            String percent_altered =
                     alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
 
-            Map geneAlts = new HashMap();
-            // json object e.g. { hugoGeneSymbol: "EGFR", percentAltered: "54%", 'alterations': [ ... ] }
+            meta_data.put("percent_altered", percent_altered);
 
-            geneAlts.put(HUGO_GENE_SYMBOL, gene);
-            geneAlts.put(PERCENT_ALTERED, alterationValue);
-
-            JSONArray alterations = new JSONArray();
-            // list of alterations
             for (int j = 0; j < geneticEvents[0].length; j++) {
 
                 Map alteration = new HashMap();
@@ -157,27 +157,30 @@ public class GeneAlterationsJSON extends HttpServlet {
                 String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
                 int alterationSettings_bits = alterationSettings_toBits(alterationSettings);
 
-                alteration.put(SAMPLE, event.caseCaseId());
-                alteration.put(UNALTERED_SAMPLE, sampleIsUnaltered);
-                alteration.put(ALTERATION, alterationSettings_bits);
-
-                if (event.isMutated()) {
-                    JSONArray mutationDetails = new JSONArray();
-                    mutationDetails.add(event.getMutationType());
-                    alteration.put(MUTATION, mutationDetails);
-                    // I don't know why this is a singleton list of a String with commans in it, e.g.
-                    // ["K3326*,N1322del"]
-                }
-
-                alterations.add(alteration);
+                String caseId =  event.caseCaseId();
+                String sample_cna = event.getCnaValue().name().toUpperCase();
+                String sample_mrna = event.getMrnaValue().name().toUpperCase();
+                String sample_rppa = event.getRPPAValue().name().toUpperCase();
+                String sample_mutation = event.getMutationType();
+                
+                samples.add(caseId);
+                mutation.add(event.isMutated() ? sample_mutation : null);
+                cna.add(sample_cna.equals("NONE") ? null : sample_cna);
+                mrna.add(sample_mrna.equals("NOTSHOWN") ? null : sample_mrna);
+                rppa.add(sample_rppa.equals("NOTSHOWN") ? null : sample_rppa);
             }
 
-            geneAlts.put("alterations", alterations);
+            data_types.put("meta_data", meta_data);
+            data_types.put("samples", samples);
+            data_types.put("mutations", mutation);
+            data_types.put("cna", cna);
+            data_types.put("mrna", mrna);
+            data_types.put("rppa", rppa);
 
-            array.add(geneAlts);
+            genes.put(gene, data_types);
         }
 
-        return array;
+        return genes;
     }
 
     /**
@@ -291,10 +294,10 @@ public class GeneAlterationsJSON extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        JSONArray geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);
+        JSONObject geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);
 
         // get outa here!
-        JSONArray.writeJSONString(geneticEventsJSON, out);
+        JSONObject.writeJSONString(geneticEventsJSON, out);
     }
 
     /**

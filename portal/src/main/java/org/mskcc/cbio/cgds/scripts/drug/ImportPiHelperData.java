@@ -29,6 +29,7 @@ package org.mskcc.cbio.cgds.scripts.drug;
 
 import org.mskcc.cbio.cgds.scripts.drug.internal.PiHelperImporter;
 
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -53,8 +54,8 @@ public class ImportPiHelperData {
         );
 
         PiHelperImporter piHelperImporter = new PiHelperImporter(pihelper);
-        piHelperImporter.setDrugInfoFile(arg[0].trim());
-        piHelperImporter.setDrugTargetsFile(arg[1].trim());
+        piHelperImporter.setDrugInfoFile(new FileInputStream(arg[0].trim()));
+        piHelperImporter.setDrugTargetsFile(new FileInputStream(arg[1].trim()));
 
         piHelperImporter.importData();
 

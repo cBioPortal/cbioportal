@@ -417,7 +417,7 @@ CREATE TABLE `gistic_to_gene`  (
 drop table IF EXISTS drug;
 CREATE TABLE `drug` (
   `DRUG_ID` char(30) NOT NULL,
-  `DRUG_RESOURCE` varchar(30) NOT NULL,
+  `DRUG_RESOURCE` varchar(255) NOT NULL,
   `DRUG_NAME` varchar(255) NOT NULL,
   `DRUG_SYNONYMS` varchar(2048) DEFAULT NULL,
   `DRUG_DESCRIPTION` varchar(4096) DEFAULT NULL,

@@ -28,9 +28,35 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.dao.DaoDrug;
+import org.mskcc.cbio.cgds.scripts.drug.DrugDataResource;
+import org.mskcc.cbio.cgds.scripts.drug.internal.PiHelperImporter;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class TestPiHelperDrugImporter extends TestCase {
-    public void testImporter() {
-        // TODO
+    public void testImporter() throws Exception {
+        ResetDatabase.resetDatabase();
+
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
+        String today = format.format(cal.getTime());
+        DrugDataResource pihelper = new DrugDataResource(
+                "PiHelper",
+                "https://bitbucket.org/armish/pihelper/downloads/pihelper_data_20121107.zip",
+                today
+        );
+
+        PiHelperImporter importer = new PiHelperImporter(pihelper);
+
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        importer.setDrugInfoFile(classLoader.getResourceAsStream("test_pihelper_drugs.tsv"));
+        importer.setDrugTargetsFile(classLoader.getResourceAsStream("test_pihelper_drugtargets.tsv"));
+
+        importer.importData();
+
+        DaoDrug daoDrug = DaoDrug.getInstance();
+        assertEquals(6, daoDrug.getCount());
     }
 }

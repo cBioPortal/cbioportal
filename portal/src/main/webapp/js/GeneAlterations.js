@@ -68,7 +68,6 @@ var GeneAlterations = function(sendData) {
         return true;
     };
 
-
     that.setSendData = function(new_SendData) {
         // set the data to the new data
         // N.B. you still need to add listeners and fire!
@@ -78,6 +77,17 @@ var GeneAlterations = function(sendData) {
         MAKE_NEW_REQUEST = !that.compareSendDatas(sendData, new_SendData);
         // flip on the switch since you just updated the sendData
     };
+
+    // data query tools
+//    that.query = (function() {
+//        return {
+//            getMutationsBySampleId: function(sample_str) {
+//                var returnObj = {};
+//                var index = alterations.samples.indexOf(sample_str);
+//            }
+//
+//        };
+//    })();
 
     return that;
 };

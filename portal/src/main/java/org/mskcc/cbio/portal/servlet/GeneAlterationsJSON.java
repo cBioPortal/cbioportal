@@ -129,20 +129,28 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @return
      */
     public JSONObject mapGeneticEventMatrix(GeneticEvent[][] geneticEvents, ProfileDataSummary dataSummary) throws ServletException {
-        JSONObject data_types = new JSONObject();
-        JSONObject genes = new JSONObject();
-        JSONObject meta_data = new JSONObject();
-        JSONArray samples = new JSONArray();
-        JSONArray mutation = new JSONArray();
-        JSONArray cna = new JSONArray();
-        JSONArray mrna = new JSONArray();
-        JSONArray rppa = new JSONArray();
 
+        JSONObject data = new JSONObject();
+        JSONArray samples = new JSONArray();
+
+        // get all caseIds and put them in an array
+        for (int j = 0; j < geneticEvents[0].length; j++) {
+            String caseId = geneticEvents[0][j].caseCaseId();
+            samples.add(caseId);
+        }
+
+        // for each gene, get the data and put it into an array
         for (int i = 0; i < geneticEvents.length; i++) {
             GeneticEvent rowEvent = geneticEvents[i][0];
             String gene = rowEvent.getGene().toUpperCase();
             String percent_altered =
                     alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+
+            JSONObject meta_data = new JSONObject();
+            JSONArray mutation = new JSONArray();
+            JSONArray cna = new JSONArray();
+            JSONArray mrna = new JSONArray();
+            JSONArray rppa = new JSONArray();
 
             meta_data.put("percent_altered", percent_altered);
 
@@ -163,13 +171,13 @@ public class GeneAlterationsJSON extends HttpServlet {
                 String sample_rppa = event.getRPPAValue().name().toUpperCase();
                 String sample_mutation = event.getMutationType();
                 
-                samples.add(caseId);
                 mutation.add(event.isMutated() ? sample_mutation : null);
                 cna.add(sample_cna.equals("NONE") ? null : sample_cna);
                 mrna.add(sample_mrna.equals("NOTSHOWN") ? null : sample_mrna);
                 rppa.add(sample_rppa.equals("NOTSHOWN") ? null : sample_rppa);
             }
 
+            JSONObject data_types = new JSONObject();
             data_types.put("meta_data", meta_data);
             data_types.put("samples", samples);
             data_types.put("mutations", mutation);
@@ -177,10 +185,12 @@ public class GeneAlterationsJSON extends HttpServlet {
             data_types.put("mrna", mrna);
             data_types.put("rppa", rppa);
 
-            genes.put(gene, data_types);
+            data.put(gene, data_types);
         }
+        
+        data.put("samples", samples);
 
-        return genes;
+        return data;
     }
 
     /**

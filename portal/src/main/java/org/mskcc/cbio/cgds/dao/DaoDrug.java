@@ -77,9 +77,12 @@ public class DaoDrug {
                         drug.getSynonyms(),
                         drug.getDescription(),
                         drug.getExternalReference(),
+                        drug.getATCCode(),
                         drug.isApprovedFDA() ? "1" : "0",
-                        drug.getATCCode()
-                );
+                        drug.isCancerDrug() ? "1" : "0",
+                        drug.isNutraceuitical() ? "1" : "0",
+                        drug.getNumberOfClinicalTrials().toString()
+                        );
                 return 1;
             } else {
                 Drug existingDrug = getDrug(drug.getId());
@@ -89,8 +92,9 @@ public class DaoDrug {
                             "INSERT INTO drug "
                                     + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
                                         + "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, "
-                                        + "`DRUG_APPROVED`, `DRUG_ATC_CODE`) "
-                                    + "VALUES (?,?,?,?,?,?,?,?)"
+                                        + "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, "
+                                        + "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) "
+                                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
                             );
                     pstmt.setString(1, drug.getId());
                     pstmt.setString(2, drug.getResource());
@@ -98,8 +102,12 @@ public class DaoDrug {
                     pstmt.setString(4, drug.getSynonyms());
                     pstmt.setString(5, drug.getDescription());
                     pstmt.setString(6, drug.getExternalReference());
-                    pstmt.setInt(7, drug.isApprovedFDA() ? 1 : 0);
-                    pstmt.setString(8, drug.getATCCode());
+                    pstmt.setString(7, drug.getATCCode());
+                    pstmt.setInt(8, drug.isApprovedFDA() ? 1 : 0);
+                    pstmt.setInt(9, drug.isCancerDrug() ? 1 : 0);
+                    pstmt.setInt(10, drug.isNutraceuitical() ? 1 : 0);
+                    pstmt.setInt(11, drug.getNumberOfClinicalTrials());
+
                     return pstmt.executeUpdate();
                 } else {
                     return 0;
@@ -130,8 +138,12 @@ public class DaoDrug {
                 drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
                 drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
                 drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
                 drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
+                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
+                drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
+                drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
+                drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
+
                 return drug;
             } else {
                 return null;
@@ -162,8 +174,12 @@ public class DaoDrug {
                 drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
                 drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
                 drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
                 drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
+                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
+                drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
+                drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
+                drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
+
                 drugList.add(drug);
             }
             return drugList;

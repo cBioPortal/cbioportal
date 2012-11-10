@@ -36,7 +36,8 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.persistence.NamedQuery;
 import javax.persistence.NamedQueries; 
-import org.hibernate.annotations.Type;
+import javax.persistence.GeneratedValue;
+import org.hibernate.annotations.NaturalId;
 
 /**
  * Class which represents data to be imported by the importer - 
@@ -60,8 +61,12 @@ import org.hibernate.annotations.Type;
 public final class ImportData {
 
 	// bean properties
+	@Id
+	@GeneratedValue
+	private long id;
 	@Column(nullable=false)
 	private String dataSource;
+	@NaturalId
 	@Column(nullable=false)
 	private String tumorType;
 	@Column(nullable=false)
@@ -72,7 +77,7 @@ public final class ImportData {
 	private String canonicalPath;
 	@Column(length=32)
 	private String digest;
-	@Id
+	@NaturalId
     @Column(nullable=false)
     private String dataFilename;
     @Column(nullable=true)

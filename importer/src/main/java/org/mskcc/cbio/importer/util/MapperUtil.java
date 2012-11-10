@@ -60,8 +60,8 @@ public final class MapperUtil {
 									   final String geneSymbolColumnName, final String geneIDColumnName) throws Exception {
 
 		// get refs to geneSymbols and geneIDs columns
-		Vector<String> geneSymbols = importDataMatrix.getColumnData(geneSymbolColumnName);
-		Vector<String> geneIDs = importDataMatrix.getColumnData(geneIDColumnName);
+		Vector<String> geneSymbols = importDataMatrix.getColumnData(geneSymbolColumnName).get(0);
+		Vector<String> geneIDs = importDataMatrix.getColumnData(geneIDColumnName).get(0);
 
 		// sanity check
 		if (geneSymbols.size() != geneIDs.size()) {

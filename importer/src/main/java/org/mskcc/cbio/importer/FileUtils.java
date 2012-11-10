@@ -116,4 +116,17 @@ public interface FileUtils {
 	 */
 	void writeStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
 						  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+
+	/**
+	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
+	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
+	 *
+	 * @param dataSourceMetadata DataSourceMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+     * @param portalMetadata PortalMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
 }

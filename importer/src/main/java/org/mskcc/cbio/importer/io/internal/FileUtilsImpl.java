@@ -36,6 +36,9 @@ import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 
+import org.mskcc.cbio.oncotator.OncotateTool;
+import org.mskcc.cbio.mutassessor.MutationAssessorTool;
+
 import org.apache.commons.io.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -281,6 +284,85 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingStagingFlie(), creating metadata file for staging file: " + stagingFile);
+			}
+			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		}
+	}
+
+	/**
+	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
+	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	public void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+										 final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
+
+		// we only have data matrix at this point, we need to create a temp with its contents
+		File oncotatorInputFile =
+			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+													"oncotatorInputFile");
+		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
+		importDataMatrix.write(out);
+		IOUtils.closeQuietly(out);
+		// create a temp output file from the oncotator
+		File oncotatorOutputFile = 
+			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+													"oncotatorOutputFile");
+		// call oncotator
+		String[] oncotatorArgs = { oncotatorInputFile.getCanonicalPath(),
+								   oncotatorOutputFile.getCanonicalPath() };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writingStagingFlie(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
+		}
+		OncotateTool.main(oncotatorArgs);
+		// we call OMA here -
+		// we already have input (oncotatorOutputFile)
+		// output should be the path/name of staging file
+		String stagingFilename = datatypeMetadata.getStagingFilename();
+		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																   cancerStudy,
+																   stagingFilename);
+		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
+							 stagingFile.getCanonicalPath() };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writingStagingFlie(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
+		}
+		MutationAssessorTool.main(omaArgs);
+
+		// clean up
+		org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
+
+		// meta file
+		if (datatypeMetadata.requiresMetafile()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingStagingFlie(), creating metadata file for staging file: " + stagingFile);
+			}
+			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		}
+	}
+
+	/**
+	 * Helper method which writes a metadata file for the
+	 * given DatatypeMetadata.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 *
+	 */
+	private void writeMetadataFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								   final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	cancerStudy,
@@ -303,7 +385,6 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();
 			writer.close();
-		}
 	}
 
     /*

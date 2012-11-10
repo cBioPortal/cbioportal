@@ -116,6 +116,13 @@
 	  <version>1.2.16</version>
 	</dependency>
 
+	<!-- mutation assessor tool -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>mutation-assessor</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
+
 	<!-- mysql -->
 	<dependency>
 	  <groupId>mysql</groupId>
@@ -123,6 +130,13 @@
 	  <version>5.1.10</version>
 	  <scope>runtime</scope>
 	</dependency>
+
+	<!-- oncotator -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>oncotator</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
 
 	<!-- spring -->
 	<dependency>

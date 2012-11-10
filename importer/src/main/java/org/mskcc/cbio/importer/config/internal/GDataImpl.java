@@ -479,7 +479,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = dataSourceMetadataProperty.split(":");
-		if (properties.length != 4) {
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
 			}

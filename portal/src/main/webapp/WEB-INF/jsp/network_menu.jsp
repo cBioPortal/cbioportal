@@ -4,7 +4,7 @@
 	    	<a id="network_menu_file">File</a>
 	    	<ul id="file_menu">
 	    		<li>
-	    			<a id="save_as_png" onclick="handleMenuEvent('save_as_png')">
+	    			<a id="save_as_png">
 	    				Save as Image (PNG)
 	    			</a>
 	    		</li>
@@ -14,22 +14,22 @@
 	    	<a id="network_menu_topology">Topology</a>
 	    	<ul id="topology_menu">
 	    		<li>
-	    			<a id="hide_selected" onclick="handleMenuEvent('hide_selected')">
+	    			<a id="hide_selected">
 	    				Hide Selected
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="hide_non_selected" onclick="handleMenuEvent('hide_non_selected')">
+	    			<a id="hide_non_selected">
 	    				Show Only Selected
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="unhide_all" onclick="handleMenuEvent('unhide_all')">
+	    			<a id="unhide_all">
 	    				Show All
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="remove_disconnected" onclick="handleMenuEvent('remove_disconnected')">
+	    			<a id="remove_disconnected" alt="remove_disconnected">
 	    				Remove Disconnected Nodes on Hide
 	    			</a>
 	    		</li>
@@ -39,32 +39,32 @@
 	    	<a id="network_menu_view">View</a>
 	    	<ul id="view_menu">
 	    		<li>
-	    			<a id="show_profile_data" onclick="handleMenuEvent('show_profile_data')">
+	    			<a id="show_profile_data">
 	    				Always Show Profile Data
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="merge_links" onclick="handleMenuEvent('merge_links')">
+	    			<a id="merge_links">
 	    				Merge Interactions
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_node_labels" onclick="handleMenuEvent('show_node_labels')">
+	    			<a id="show_node_labels">
 	    				Show Node Labels
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_pan_zoom_control" onclick="handleMenuEvent('show_pan_zoom_control')">
+	    			<a id="show_pan_zoom_control">
 	    				Show Pan-Zoom Control
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="highlight_neighbors" onclick="handleMenuEvent('highlight_neighbors')">
+	    			<a id="highlight_neighbors">
 	    				Highlight Neighbors
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="remove_highlights" onclick="handleMenuEvent('remove_highlights')">
+	    			<a id="remove_highlights">
 	    				Remove Highlights
 	    			</a>
 	    		</li>
@@ -74,17 +74,17 @@
 	    	<a id="network_menu_layout">Layout</a>
 	    	<ul id="layout_menu">
 	    		<li>
-	    			<a id="perform_layout" onclick="handleMenuEvent('perform_layout')">
+	    			<a id="perform_layout">
 	    				Perform Layout
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="layout_properties" onclick="handleMenuEvent('layout_properties')">
+	    			<a id="layout_properties">
 	    				Layout Properties ...
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="auto_layout" onclick="handleMenuEvent('auto_layout')">
+	    			<a id="auto_layout">
 	    				Auto Layout on Changes
 	    			</a>
 	    		</li>
@@ -94,17 +94,17 @@
 	    	<a id="network_menu_legends">Legends</a>
 	    	<ul id="legends_menu">
 	    		<li>
-	    			<a id="show_node_legend" onclick="handleMenuEvent('node_legend')">
+	    			<a id="show_node_legend">
 	    				Gene Legend
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_drug_legend" onclick="handleMenuEvent('drug_legend')">
+	    			<a id="show_drug_legend">
 	    				Drug Legend
 	    			</a>
 	    		</li>
 	    		<li>
-	    			<a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">
+	    			<a id="show_edge_legend">
 	    				Interaction Legend
 	    			</a>
 	    		</li>

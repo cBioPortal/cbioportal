@@ -256,27 +256,27 @@
  * ########################################################
  */
  
-#node_inspector_content
+.node_inspector_content
 {
 	text-align: left;
 }
 
-#node_inspector_content .data-row
+.node_inspector_content .data-row
 {
 	font-size: 12pt;
 }
 
-#node_inspector_content .xref-row td a
+.node_inspector_content .xref-row td a
 {
 	color:blue;
 }
 
-#node_inspector_content .atc_codes-data-row td a
+.node_inspector_content .atc_codes-data-row td a
 {
 	color:blue;
 }
 
-#node_inspector .percent-bar
+.network_node_inspector .percent-bar
 {
 	margin-top: 0.5em;
 	margin-left: 0.1em;
@@ -286,22 +286,22 @@
 	clear: both;
 }
 
-#node_inspector .percent-cell
+.network_node_inspector .percent-cell
 {
 	width: 120px;
 }
 
-#node_inspector .percent-value
+.network_node_inspector .percent-value
 {
 	text-align: right;
 }
 
-#node_inspector .percent-text
+.network_node_inspector .percent-text
 {
 	
 }
 
-#node_inspector .profile
+.network_node_inspector .profile
 {
 	border-collapse: collapse;
 	margin-bottom: 0.5em;
@@ -309,7 +309,7 @@
 	margin-right: 0.5em;
 }
 
-#node_inspector .profile-header
+.network_node_inspector .profile-header
 {
 	margin-top: 0.5em;
 	font-weight: bold;
@@ -319,12 +319,12 @@
  * IE ignores borders for tr elements, so setting borders for all td elements
  * inside a tr.
  */
-#node_inspector .section-separator td
+.network_node_inspector .section-separator td
 {
 	border-top: 1px solid #aaaaaa;
 }
 
-#node_inspector .total-alteration td
+.network_node_inspector .total-alteration td
 {
 	border-bottom: 2px solid #aaaaaa;
 }
@@ -335,39 +335,39 @@
  * ########################################################
  */
 
-#edge_inspector .data, #edge_inspector .xref
+.network_edge_inspector .data, .network_edge_inspector .xref
 {
 	/* centering the tables */
 	margin-left: auto;
 	margin-right: auto;
 }
 
-#edge_inspector .top-row td
+.network_edge_inspector .top-row td
 {
 	border-top: 1px solid #aaaaaa;
 	border-left: 1px solid #aaaaaa;
 	border-right: 1px solid #aaaaaa;
 }
 
-#edge_inspector .inner-row td
+.network_edge_inspector .inner-row td
 {
 	border-left: 1px solid #aaaaaa;
 	border-right: 1px solid #aaaaaa;
 }
 
-#edge_inspector .bottom-row td
+.network_edge_inspector .bottom-row td
 {
 	border-bottom: 1px solid #aaaaaa;
 	border-left: 1px solid #aaaaaa;
 	border-right: 1px solid #aaaaaa;
 }
 
-#edge_inspector .empty-row
+.network_edge_inspector .empty-row
 {
 	height: 0.5em;
 }
 
-#edge_inspector table
+.network_edge_inspector table
 {
 	border-collapse: collapse;
 	margin-left: 0.5em;
@@ -421,12 +421,12 @@
  * ########################################################
  */
  
- #genes_tab .title label
- {
+#genes_tab .title label
+{
 	font-weight: bold;
- }
+}
  
- #genes_tab .combo select
+#genes_tab .combo select
 {
 	height: 25px;
 	margin-bottom: 20px;
@@ -434,6 +434,7 @@
     font-family: verdana,arial,sans-serif;
     font-size: 12px;
 }
+
 #genes_tab .header
 {
 	padding-bottom: 0.5em;
@@ -703,30 +704,31 @@
  * ###################### Legends #########################
  * ########################################################
  */
-#node_legend img
+
+.network_node_legend img
 {
 	margin: 0.4em;
 }
 
-#drug_legend img
+.network_drug_legend img
 {
 	margin: 0.4em;
 }
 
-#edge_legend #edge_type_legend
+.network_edge_legend #edge_type_legend
 {
 	/* centering the table */
 	margin-left: auto;
 	margin-right: auto;
 }
 
-#edge_legend img
+.network_edge_legend img
 {
 	margin-top: 0.4em;
 	margin-bottom: 0.4em;
 }
 
-#edge_legend .color-bar
+.network_edge_legend .color-bar
 {
 	width: 95%;
 	margin: 0.2em 0.5em 0 1.0em;
@@ -735,17 +737,17 @@
 	clear: both;
 }
 
-#edge_legend .color-cell
+.network_edge_legend .color-cell
 {
 	width: 100px;
 }
 
-#edge_legend .label-cell
+.network_edge_legend .label-cell
 {
 	width: 165px;
 }
 
-#edge_legend .type-label
+.network_edge_legend .type-label
 {
 	align: left;
 	white-space: nowrap;

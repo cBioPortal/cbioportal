@@ -244,7 +244,9 @@
 
                     if (includeNetworks) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
-                        + "Network</a></li>");
+                        + "Network(Simple)</a></li>");
+                        out.println ("<li><a href='#network_sbgn' class='result-tab' title='Network visualization and analysis'>"
+                        + "Network(SBGN)</a></li>");
                     }
 
                     out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
@@ -388,16 +390,28 @@
 </form>
 
 <script type="text/javascript">
-	// to initially hide the network tab
+
+	// to initially hide the network tabs
 	//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
 	$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+	$("div.section#network_sbgn").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
     
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
-        if($(this).attr("href")=="#network") {
+        if($(this).attr("href")=="#network")
+        {
             $("div.section#network").removeAttr('style');
-        } else {
+	        $("div.section#network_sbgn").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+        }
+        else if($(this).attr("href")=="#network_sbgn")
+        {
+	        $("div.section#network_sbgn").removeAttr('style');
+	        $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+        }
+        else
+        {
             $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	        $("div.section#network_sbgn").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
         }
     });
 

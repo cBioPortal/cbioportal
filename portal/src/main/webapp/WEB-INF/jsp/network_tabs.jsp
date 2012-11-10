@@ -175,40 +175,6 @@
     </div>
 </div>
 
-<div id="node_inspector" class="hidden-network-ui" title="Node Inspector">
-	<div id="node_inspector_content" class="content ui-widget-content">
-		<table class="data"></table>
-		<table class="profile-header"></table>
-		<table class="profile"></table>
-		<table class="xref"></table>
-	</div>
-</div>
-
-<div id="node_legend" class="hidden-network-ui" title="Gene Legend">
-	<div id="node_legend_content" class="content ui-widget-content">
-		<img src="images/network/gene_legend.png"/>
-	</div>
-</div>
-
-<div id="drug_legend" class="hidden-network-ui" title="Drug Legend">
-	<div id="drug_legend_content" class="content ui-widget-content">
-		<img src="images/network/drug_legend.png"/>
-	</div>
-</div>
-
-<div id="edge_inspector" class="hidden-network-ui" title="Edge Inspector">
-	<div id="edge_inspector_content" class="content ui-widget-content">
-		<table class="data"></table>
-		<table class="xref"></table>
-	</div>
-</div>
-
-<div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
-	<div id="edge_legend_content" class="content ui-widget-content">
-		<img src="images/network/interaction_legend.png"/>
-	</div>
-</div>
-
 <% /*
 <div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
 	<div id="edge_legend_content" class="content ui-widget-content">

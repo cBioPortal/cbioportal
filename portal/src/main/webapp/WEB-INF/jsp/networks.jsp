@@ -29,15 +29,15 @@
         diffusion = "0";
 %>
 
-<link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
 <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+<link href="css/network/network_sbgn_ui.css" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript" src="js/cytoscape_web/json2.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/network/jquery-ui-1.8.14.custom.min.js"></script>
-<script type="text/javascript" src="js/network/network-ui.js"></script>
+<!-- <script type="text/javascript" src="js/network/network-ui.js"></script> -->
+<script type="text/javascript" src="js/network/network-visualization.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
 <script type="text/javascript">
@@ -83,6 +83,7 @@
                      netsize:'<%=netSize%>',
                      diffusion:'<%=diffusion%>'
                     };
+                // get the graphml data from the server
                 $.post("network.do", 
                     networkParams,
                     function(graphml){
@@ -98,7 +99,25 @@
                         showNetworkMessage(graphml,"#netmsg");
                     }
                 );
+
+                // TODO get the SBGN-ML data from pathway commons and pass it to cytoscapeweb
+	            $.post("network.do",
+	                   networkParams,
+	                   function(graphml){
+		                   if (typeof data !== "string") {
+			                   if (window.ActiveXObject) { // IE
+				                   graphml = graphml.xml;
+			                   } else { // Other browsers
+				                   graphml = (new XMLSerializer()).serializeToString(graphml);
+			                   }
+		                   }
+		                   send2cytoscapewebSbgn(graphml,"cytoscapeweb_sbgn");
+		                   //showXDebug(graphml);
+		                   //showNetworkMessage(graphml,"#netmsg");
+	                   }
+	            );
             }
         </script>
 
 <jsp:include page="network_div.jsp"/>
+<jsp:include page="network_sbgn_div.jsp"/>

@@ -78,37 +78,49 @@ var GeneAlterations = function(sendData) {
         // flip on the switch since you just updated the sendData
     };
 
-    // data query tools
-    that.query = (function() {
-        return {
-            mutationBySampleId: function(sample_str) {
-                var returnObj = {};
-                var index = alterations.samples.indexOf(sample_str);
-
-                for (var gene in alterations.genes) {
-                    var data_types = alterations.genes[gene].data_types;
-
-                    var mutation = data_types["mutations"];
-                    returnObj[gene] = mutation[index];
-                }
-
-                return returnObj;
-            }
-        };
-    })();
-
     return that;
 };
 
-// {{{ test
-GeneAlterations.test = function() {
-    var sendData = {
-        cancer_study_id: "tcga_gbm",
-        genes:"EGFR MDM2",
-        cases: "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009",
-        geneticProfileIds: "gbm_tcga_mutations"
-        //geneticProfileIds: "gbm_mutations gbm_cna_consensus"
+GeneAlterations.query = (function() {
+    // data query tools
+
+    return {
+        mutationBySampleId: function(alterations, sample_str) {
+            var returnObj = {};
+            var index = alterations.samples.indexOf(sample_str);
+
+            for (var gene in alterations.genes) {
+                var data_types = alterations.genes[gene].data_types;
+
+                var mutations = data_types["mutations"];
+
+                var mutation = mutations[index];
+
+                if (mutation !== undefined) {
+                    returnObj[gene] = mutations[index];
+                } else {
+                    console.log("query error: ", sample_str,
+                        "->", alterations.samples[sample_str],
+                        "->", mutation);
+                    return;
+                }
+            }
+
+            return returnObj;
+        }
     };
+})();
+
+
+// {{{ test
+GeneAlterations.test = function(sendData) {
+//    var sendData = {
+//        cancer_study_id: "tcga_gbm",
+//        genes:"EGFR MDM2",
+//        cases: "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009",
+//        geneticProfileIds: "gbm_tcga_mutations"
+//        //geneticProfileIds: "gbm_mutations gbm_cna_consensus"
+//    };
 
     console.log("==== GeneAlterations test ====");
     console.log("sending this data...", sendData);
@@ -145,16 +157,23 @@ GeneAlterations.test = function() {
     console.log(geneAlterations.compareSendDatas({a:5}, {b:5}) === false);
     console.log(geneAlterations.compareSendDatas({a:5, b:12}, {b:5}) === false);        // prints error message
 
-    sendData.cases += " TCGA-08-0525";
-    geneAlterations.setSendData(sendData);
-    console.log("setSendData: ", geneAlterations.getSendData().cases === "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009"
-    + " TCGA-08-0525");
+//    sendData.cases += " TCGA-08-0525";
+//    geneAlterations.setSendData(sendData);
+//    console.log("setSendData: ", geneAlterations.getSendData().cases === "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009"
+//    + " TCGA-08-0525");
+
 
     var endTest = function() {
         console.log("==== END GeneAlterations test ====");
     };
 
     geneAlterations.addListener(listen1);
+
+    geneAlterations.addListener(function(data)  {
+        console.log("QUERY mutationBySampleId, ", "TCGA-AA-A01D->",
+            GeneAlterations.query.mutationBySampleId(data, "TCGA-AA-A01D"));
+    });
+
     geneAlterations.addListener(endTest);
     geneAlterations.fire();
 

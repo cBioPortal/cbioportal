@@ -146,13 +146,10 @@ public class GeneAlterationsJSON extends HttpServlet {
             String percent_altered =
                     alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
 
-            JSONObject meta_data = new JSONObject();
             JSONArray mutation = new JSONArray();
             JSONArray cna = new JSONArray();
             JSONArray mrna = new JSONArray();
             JSONArray rppa = new JSONArray();
-
-            meta_data.put("percent_altered", percent_altered);
 
             for (int j = 0; j < geneticEvents[0].length; j++) {
 
@@ -183,7 +180,7 @@ public class GeneAlterationsJSON extends HttpServlet {
             data_types.put("rppa", rppa);
 
             JSONObject gene_data = new JSONObject();
-            gene_data.put("meta_data", meta_data);
+            gene_data.put("percent_altered", percent_altered);
             gene_data.put("data_types", data_types);
 
             genes.put(gene, gene_data);

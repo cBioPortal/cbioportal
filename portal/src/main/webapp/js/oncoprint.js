@@ -51,7 +51,7 @@ var OncoPrint = function(params, options) {
             .attr('y', _options.trackHeight * trackNum);
     };
 
-    that.drawMutation = function(mutation_data, samples, g_el, options) {
+    that.drawMutation = function(mutation_data, samples, g_el, options, trackNum) {
         // draw the mutation layer
 
         var _options = overrideDefaults(options, defaults);
@@ -63,23 +63,16 @@ var OncoPrint = function(params, options) {
             .enter()
             .append('rect')
             .attr('class', function(d) {
-                return 'mutation.' + d !== null ? "mut" : "none";
+                return 'mutation ' + d !== null ? "mut" : "none";
             })
             .attr('width', littleRectWidth)
             .attr('height', _options.littleRectHeight)
-            .attr('fill', function(d) {
-                if (d.alteration & MUTATED) {
-                    return DEFAULTS.get('MUTATION_COLOR');
-                }
-                else {
-                    return 'transparent';
-                }
-            })
             .attr('x', function(d, i) {
-                return _options.labelPadding + percentPadding + i * (5 + _options.rectPadding) -  // todo: this is code duplication
+                return _options.labelPadding + _options.percentPadding + i * (5 + _options.rectPadding) -  // todo: this is code duplication
                     (_options.rectPadding === 0 ? 0 : 1);   // if padding is zero, don't center the little rect
             })
-            .attr('y', _options.trackHeight + (_options.rectHeight - _options.littleRectHeight) / 2);
+            .attr('y', _options.trackHeight * trackNum  // displace down for each track
+            + (_options.rectHeight - _options.littleRectHeight) / 2);
     };
 
     that.drawTrack = function(params, trackNum) {
@@ -109,7 +102,9 @@ var OncoPrint = function(params, options) {
         var cna = params.gene_data.cna;
         that.drawCNA(cna, samples, g_el, trackSettings, trackNum);
 
-//        that.drawMutation(mutation_data, svg, trackSettings);
+        var mutation_data = params.gene_data.mutations;
+        that.drawMutation(mutation_data, samples, g_el, trackSettings, trackNum);
+
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
 

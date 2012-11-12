@@ -4,7 +4,7 @@ var OncoPrint = function(params, options) {
         trackHeight : 25,
         rectHeight: 19,
         rectWidth: 5,
-        littleRectHeight: 7,
+        littleRectHeight: 19/3,
         rectWidth: 5,
         percentPadding: 27
     };
@@ -63,7 +63,7 @@ var OncoPrint = function(params, options) {
             .enter()
             .append('rect')
             .attr('class', function(d) {
-                return 'mutation ' + d !== null ? "mut" : "none";
+                return 'mutation ' + (d !== null ? "mut" : "none");
             })
             .attr('width', littleRectWidth)
             .attr('height', _options.littleRectHeight)

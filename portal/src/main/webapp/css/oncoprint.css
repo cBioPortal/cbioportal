@@ -22,4 +22,10 @@
     fill: #0000FF;
 }
 
-#oncoprints rect.mut.HOMODELETED {
+#oncoprints rect.mutation.none {
+    fill: transparent;
+}
+
+#oncoprints rect.mutation.mut {
+    fill: #008000;
+}

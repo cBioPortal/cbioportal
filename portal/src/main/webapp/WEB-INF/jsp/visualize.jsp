@@ -208,20 +208,16 @@
                 String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
                 geneticProfiles = geneticProfiles.trim();
 
-                // put genes (HUGO symbols) into the proper form for the JSON request
-                ArrayList<String> _genes = (ArrayList<String>) request.getAttribute(QueryBuilder.GENE_LIST);
-                String genes = StringUtils.join(_genes, " ");
-                genes = genes.trim();
-
+                // put gene string into a form that javascript can swallow
+                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+                genes = genes.replace("\n", " ");
             %>
 
 <script type="text/javascript" src="js/GeneAlterations.js"></script>
 <script type="text/javascript">
     //  make global variables
     var cancer_study_id = "<%=cancerTypeId%>",
-            //genes = "<%=genes%>",
-            //genes = $('#gene_list').val();
-            genes = "<%=request.getAttribute(QueryBuilder.RAW_GENE_STR)%>",
+            genes = "<%=genes%>",
             cases = "<%=cases%>",
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {

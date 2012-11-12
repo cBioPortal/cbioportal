@@ -99,7 +99,7 @@
                                 if (type==='set') {
                                     return;
                                 } else if (type==='display') {
-                                    return data[source[0]]['qval'].toPrecision(3);
+                                    return cbio.util.round_to_2SF(data[source[0]]['qval'], 0.1);
                                 } else {
                                     return data[source[0]]['qval'];
                                 }

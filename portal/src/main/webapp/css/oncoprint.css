@@ -1,0 +1,23 @@
+#oncoprints rect.cna.NONE {
+    fill: #D3D3D3;
+}
+
+#oncoprints rect.cna.AMPLIFIED {
+    fill: #FF0000;
+}
+
+#oncoprints rect.cna.GAINED {
+    fill: #FFB6C1;
+}
+
+#oncoprints rect.cna.DIPLOID {
+    fill: #D3D3D3;
+}
+
+#oncoprints rect.cna.HEMIZYGOUSLYDELETED {
+    fill: #8FD8D8;
+}
+
+#oncoprints rect.cna.HOMODELETED {
+    fill: #0000FF;
+}

@@ -128,9 +128,9 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @param geneticEvents matrix M[case][gene]
      * @return
      */
-    public JSONObject mapGeneticEventMatrix(GeneticEvent[][] geneticEvents, ProfileDataSummary dataSummary) throws ServletException {
+    public JSONObject mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary) throws ServletException {
 
-        JSONObject genes = new JSONObject();
+        JSONArray genes = new JSONArray();
         JSONArray samples = new JSONArray();
 
         // get all caseIds and put them in an array
@@ -158,9 +158,11 @@ public class GeneAlterationsJSON extends HttpServlet {
                 // 'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN },
 
                 GeneticEvent event = geneticEvents[i][j];
-                Boolean sampleIsUnaltered = MakeOncoPrint.isSampleUnaltered(j, geneticEvents);
-                String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
-                int alterationSettings_bits = alterationSettings_toBits(alterationSettings);
+
+
+                System.out.println("GeneAlterations event: " + event);
+
+
 
                 String sample_cna = event.getCnaValue().name().toUpperCase();
                 String sample_mrna = event.getMrnaValue().name().toUpperCase();
@@ -173,17 +175,15 @@ public class GeneAlterationsJSON extends HttpServlet {
                 rppa.add(sample_rppa.equals("NOTSHOWN") ? null : sample_rppa);
             }
 
-            JSONObject data_types = new JSONObject();
-            data_types.put("mutations", mutation);
-            data_types.put("cna", cna);
-            data_types.put("mrna", mrna);
-            data_types.put("rppa", rppa);
-
             JSONObject gene_data = new JSONObject();
+            gene_data.put("hugo", gene);
             gene_data.put("percent_altered", percent_altered);
-            gene_data.put("data_types", data_types);
+            gene_data.put("mutations", mutation);
+            gene_data.put("cna", cna);
+            gene_data.put("mrna", mrna);
+            gene_data.put("rppa", rppa);
 
-            genes.put(gene, gene_data);
+            genes.add(gene_data);
         }
         
         JSONObject data = new JSONObject();
@@ -224,7 +224,7 @@ public class GeneAlterationsJSON extends HttpServlet {
         Iterator<String> gpSetIterator =  geneticProfileIdSet.iterator();
         DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
-        if (gpSetIterator.hasNext()) {
+        while (gpSetIterator.hasNext()) {
             String gp_str = gpSetIterator.next();
             try {
                 GeneticProfile gp = daoGeneticProfile.getGeneticProfileByStableId(gp_str);

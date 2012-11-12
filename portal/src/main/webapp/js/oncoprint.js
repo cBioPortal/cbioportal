@@ -4,12 +4,14 @@ var OncoPrint = function(params, options) {
         trackHeight : 25,
         rectHeight: 19,
         rectWidth: 5,
-        littleRectHeight: 19/3,
-        rectWidth: 5,
-        percentPadding: 27
+        littleRectWidth: 7,
+        percentPadding: 27,
+        rectPadding: 3.5,
+        labelPadding: 50
     };
 
     var samples = params.data.samples,
+        no_samples = samples.length,
         genes = params.data.genes,
         no_genes = Object.keys(genes).length;
 
@@ -30,13 +32,22 @@ var OncoPrint = function(params, options) {
 
         var _options = overrideDefaults(options, defaults);
 
+        // map cna_data to things like this { cna: true, data: *whatever the AA change* }
+        // this is for identification later
+        cna_data = cna_data.map(function(i) {
+            return {
+                cna: true,
+                data: i
+            };
+        });
+
         g_el.selectAll('rect.cna')
             .data(cna_data)
             .enter()
             .append('rect')
             .attr('class', function(d, i) {
                 // d is one of (AMPLIFIED, GAINED, DIPLOID, HEMIZYGOUSLYDELETED, HOMODELETED, null)
-                return 'cna ' + (d === null ? "NONE" : d);
+                return 'cna ' + (d.data === null ? "NONE" : d.data);
 
             })
             .attr('id', function(d, i) {
@@ -46,7 +57,7 @@ var OncoPrint = function(params, options) {
             .attr('height', _options.rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return _options.labelPadding + _options.percentPadding + i * (5 + _options.rectPadding);
+                return _options.labelPadding + _options.percentPadding + i * (_options.rectWidth + _options.rectPadding);
             })
             .attr('y', _options.trackHeight * trackNum);
     };
@@ -56,28 +67,37 @@ var OncoPrint = function(params, options) {
 
         var _options = overrideDefaults(options, defaults);
 
-        var littleRectWidth = _options.rectPadding === 0 ? _options.rectWidth : 7;
+        var littleRectHeight = _options.rectHeight / 3;
+
+        // map mutation_data to things like this { mutation: true, data: *whatever the AA change* }
+        // this is for identification later
+        mutation_data = mutation_data.map(function(i) {
+            return {
+                mutation: true,
+                data: i
+            };
+        });
 
         g_el.selectAll('rect.mutation')
             .data(mutation_data)
             .enter()
             .append('rect')
             .attr('class', function(d) {
-                return 'mutation ' + (d !== null ? "mut" : "none");
+                return 'mutation ' + (d.data !== null ? "mut" : "none");
             })
-            .attr('width', littleRectWidth)
-            .attr('height', _options.littleRectHeight)
+            .attr('width', _options.littleRectWidth)
+            .attr('height', littleRectHeight)
             .attr('x', function(d, i) {
                 return _options.labelPadding + _options.percentPadding + i * (5 + _options.rectPadding) -  // todo: this is code duplication
                     (_options.rectPadding === 0 ? 0 : 1);   // if padding is zero, don't center the little rect
             })
             .attr('y', _options.trackHeight * trackNum  // displace down for each track
-            + (_options.rectHeight - _options.littleRectHeight) / 2);
+            + (_options.rectHeight - littleRectHeight) / 2);
     };
 
     that.drawTrack = function(params, trackNum) {
 
-        var trackSettings = overrideDefaults(params.trackSettings, defaults);
+        var settings = overrideDefaults(params, defaults);
 
         var g_el = params.svg.append('g')
             .attr('class', params.label);
@@ -88,7 +108,7 @@ var OncoPrint = function(params, options) {
             .attr('font-size', '12px')
             .attr('fill', 'black')
             .attr('font-family', 'sans-serif')
-            .attr('y', 16 + trackNum * trackSettings.trackHeight);
+            .attr('y', 16 + trackNum * settings.trackHeight);
 
         // draw the percent changed
         g_el.append('text')
@@ -96,14 +116,14 @@ var OncoPrint = function(params, options) {
             .attr('font-size', '12px')
             .attr('fill', 'black')
             .attr('font-family', 'sans-serif')
-            .attr('x', trackSettings.labelPadding)
-            .attr('y', 16 + trackNum * trackSettings.trackHeight);
+            .attr('x', settings.labelPadding)
+            .attr('y', 16 + trackNum * settings.trackHeight);
 
         var cna = params.gene_data.cna;
-        that.drawCNA(cna, samples, g_el, trackSettings, trackNum);
+        that.drawCNA(cna, samples, g_el, settings, trackNum);
 
         var mutation_data = params.gene_data.mutations;
-        that.drawMutation(mutation_data, samples, g_el, trackSettings, trackNum);
+        that.drawMutation(mutation_data, samples, g_el, settings, trackNum);
 
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
@@ -126,20 +146,38 @@ var OncoPrint = function(params, options) {
         });
 
         // slider
-        $('<div>', { id: "width_slider" })
+        $('<div>', { id: "width_slider", width: "100" })
             .slider({
+                min: 0,
+                max: 10,
+                value: defaults.rectPadding,
                 change: function(event, ui) {
-                    var num_alterations = params.geneAlterations_l[0].alterations.length;
+//                    var num_alterations = params.geneAlterations_l[0].alterations.length;
 
-                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect')
+                    d3.selectAll('.oncoprint#' + params.cancer_study_id + ' rect')
                         .transition()
-//                        .duration(100)
+                        .duration(100)
                         .attr('x', function(d, i) {
                             var mutation_padding = 0;
 
-                            return ((i % num_alterations) * ui.value)
-                                - (d.mutation === undefined ? 0 : 20)
+//                            console.log(ui.value);
+
+                            var padding = defaults.labelPadding + defaults.percentPadding
+                                + (i % no_samples) * (defaults.rectWidth + ui.value);
+
+                            if (d.cna) {
+                                return padding;
+                            }
+
+                            if (d.mutation) {
+                                return padding + (defaults.rectWidth - defaults.littleRectWidth) / 2;
+//                                console.log(d);
+                            }
+                        })
+                        .attr('width', function(d, i) {
+                            return ui.value === 0 ? defaults.rectWidth : defaults.littleRectWidth;
                         });
+
                 }
             })
             .appendTo(customizeDiv);
@@ -167,26 +205,23 @@ var OncoPrint = function(params, options) {
         }).appendTo(oncoPrintDiv);
 
         var svg = d3.select(wrapper[0]).append('svg')
-            .attr('width', 3559)
+            .attr('width', samples.length * (5 + 3.5) + 50 + 27 + 5)
             .attr('height', 25 * no_genes + 50)      // 50 for the key at the bottom
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
-        // draw each track
-        var trackSettings = {
-            rectPadding: 3.5,
-            labelPadding: 50,
-            trackHeight: 25
-        };
-
+        // todo: eventually this will be refactored into it's own function
         var trackNum = 0;
         genes.forEach(function(gene) {
+            // draw each track
             trackNum +=1;
 
+            // todo: is it really that bad that these settings are
+            // going to be passed to all subsequent functions that don't need them?
             that.drawTrack({
                 label: gene.hugo,
                 svg: svg,
-                trackSettings: trackSettings,
+                trackSettings: defaults.trackSettings,
                 gene_data: gene
             }, trackNum);
         });

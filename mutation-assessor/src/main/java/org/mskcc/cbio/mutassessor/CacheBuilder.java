@@ -309,7 +309,7 @@ public class CacheBuilder
 	 * Generated key format:
 	 *   [chromosome]_[startPosition]_[endPosition]_[referenceAllele]_[tumorAllele]
 	 *
-	 * See also MafProcessor.generateKey format.
+	 * See also DataImporter.generateKey format.
 	 *
 	 * @param mutation  mutation string with necessary info
 	 * @return          key generated for the given string

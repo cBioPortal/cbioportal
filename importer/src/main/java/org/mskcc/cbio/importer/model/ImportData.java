@@ -33,6 +33,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Entity;
 import javax.persistence.Column;
+import javax.persistence.Transient;
 import javax.persistence.NamedQuery;
 import javax.persistence.NamedQueries; 
 import org.hibernate.annotations.Type;
@@ -47,15 +48,22 @@ import org.hibernate.annotations.Type;
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataAll",
                             query="from ImportData as importdata order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatype",
-							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype order by tumortype")
+							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataSource",
+							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype and datasource = :datasource order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataFilename",
+							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.deleteByDataSource",
+                            query="delete from ImportData where dataSource = :datasource")
 
 })
 public final class ImportData {
 
 	// bean properties
 	@Column(nullable=false)
+	private String dataSource;
+	@Column(nullable=false)
 	private String tumorType;
-	@Id
 	@Column(nullable=false)
 	private String datatype;
 	@Column(nullable=false)
@@ -64,10 +72,9 @@ public final class ImportData {
 	private String canonicalPath;
 	@Column(length=32)
 	private String digest;
-    @Type(type="yes_no")
-    private Boolean isArchive;
-    @Column(nullable=true)
-    private String datafile;
+	@Id
+    @Column(nullable=false)
+    private String dataFilename;
     @Column(nullable=true)
     private String overrideFilename;
 
@@ -79,33 +86,48 @@ public final class ImportData {
     /**
      * Create a ImportData instance with specified properties.
      *
+	 * @param dataSource String
 	 * @param tumorType String
 	 * @param datatype String
 	 * @param runDate String
 	 * @param canonicalPath String
 	 * @param digest String
-     * @param isArchive Boolean
-     * @param datafile String
+     * @param dataFilename String
      * @param overrideFilename
      */
-    public ImportData(final String tumorType, final String datatype,
+    public ImportData(final String dataSource, final String tumorType, final String datatype,
 					  final String runDate, final String canonicalPath, final String digest,
-                      final Boolean isArchive, final String datafile, final String overrideFilename) {
+                      final String dataFilename, final String overrideFilename) {
         
-        // sanity check
-        if (isArchive && (datafile == null || datafile.length() == 0)) {
-            throw new IllegalArgumentException("isArchive is true so datafile must not be null or empty");
-        }
-
+		setDataSource(dataSource);
 		setTumorType(tumorType);
 		setDatatype(datatype);
 		setRunDate(runDate);
 		setCanonicalPathToData(canonicalPath);
 		setDigest(digest);
-        setIsArchive(isArchive);
-        setDatafile(datafile);
+        setDataFilename(dataFilename);
         setOverrideFilename(overrideFilename);
 	}
+
+	/**
+	 * Sets the data source.
+	 *
+	 * @param dataSource String
+	 */
+	public void setDataSource(final String dataSource) {
+
+		if (dataSource == null) {
+            throw new IllegalArgumentException("data source must not be null");
+		}
+		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Gets the data source.
+	 *
+	 * @return String
+	 */
+	public String getDataSource() { return dataSource; }
 
 	/**
 	 * Sets the tumor type.
@@ -208,35 +230,24 @@ public final class ImportData {
 	public String getDigest() { return digest; }
 
 	/**
-	 * Sets the isArchive flag.
+	 * Sets the dataFilename.
 	 *
-	 * @param isArchive Boolean
+	 * @param dataFileName String
 	 */
-	public void setIsArchive(final Boolean isArchive) { this.isArchive = isArchive; }
+	public void setDataFilename(final String dataFilename) {
 
-	/**
-	 * Gets the isArchive flag.
-	 *
-	 * @return Boolean
-	 */
-    public Boolean isArchive() { return isArchive; }
-
-	/**
-	 * Sets the datafile.
-	 *
-	 * @param datafile String
-	 */
-	public void setDatafile(final String datafile) {
-
-		this.datafile = (datafile == null) ? "" : datafile;
+		if (dataFilename == null) {
+            throw new IllegalArgumentException("dataFilename must not be null");
+		}
+		this.dataFilename = dataFilename;
 	}
 
 	/**
-	 * Gets the datafile.
+	 * Gets the dataFilename.
 	 *
 	 * @return String
 	 */
-	public String getDatafile() { return datafile; }
+	public String getDataFilename() { return dataFilename; }
 
 	/**
 	 * Sets the override filename.

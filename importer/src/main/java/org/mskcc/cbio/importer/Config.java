@@ -31,10 +31,10 @@ package org.mskcc.cbio.importer;
 // imports
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DatabaseMetadata;
 
 import java.util.Collection;
 
@@ -58,6 +58,13 @@ public interface Config {
 	Collection<DatatypeMetadata> getDatatypeMetadata();
 
 	/**
+	 * Gets a collection of CaseIDFilterMetadata.
+	 *
+	 * @return Collection<CaseIDFilterMetadata>
+	 */
+	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
+
+	/**
 	 * Gets a PortalMetadata object given a portal name.
 	 *
      * @param portal String
@@ -74,19 +81,13 @@ public interface Config {
 	ReferenceMetadata getReferenceMetadata(String referenceType);
 
 	/**
-	 * Gets DatabaseeMetadata.
-	 *
-	 * @return DatabaseMetadata
-	 */
-	DatabaseMetadata getDatabaseMetadata();
-
-	/**
-	 * Gets DataSourceMetadata for the given datasource.
+	 * Gets DataSourceMetadata for the given dataSource.  If dataSource == "all",
+	 * all are returned.
 	 *
 	 * @param dataSource String
-	 * @return DataSourceMetadata
+	 * @return Collection<DataSourceMetadata>
 	 */
-	DataSourceMetadata getDataSourceMetadata(String dataSource);
+	Collection<DataSourceMetadata> getDataSourceMetadata(String dataSource);
 
 	/**
 	 * Sets DataSourceMetadata (currently only stores latest run downloaded).

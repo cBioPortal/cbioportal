@@ -32,10 +32,10 @@ package org.mskcc.cbio.importer.config.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DatabaseMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,6 +96,11 @@ final class GDataImpl implements Config {
 	@Value("${datatypes_metadata}")
 	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
 
+	// case id filters metadata
+	private String caseIDFiltersMetadataProperty;
+	@Value("${case_id_filters_metadata}")
+	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersMetadataProperty = property; }
+
 	// portal metadata
 	private String portalsMetadataProperty;
 	@Value("${portals_metadata}")
@@ -110,11 +115,6 @@ final class GDataImpl implements Config {
 	private String dataSourceMetadataProperty;
 	@Value("${data_sources_metadata}")
 	public void setDataSourceMetadataProperty(final String property) { this.dataSourceMetadataProperty = property; }
-
-	// database metadata
-	private String databaseMetadataProperty;
-	@Value("${database_metadata}")
-	public void setDatabaseMetadataProperty(final String property) { this.databaseMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -195,7 +195,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 14) {
+		if (properties.length != 15) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
 			}
@@ -216,12 +216,62 @@ final class GDataImpl implements Config {
                                                           entry.getCustomElements().getValue(properties[5]),
                                                           entry.getCustomElements().getValue(properties[6]),
                                                           entry.getCustomElements().getValue(properties[7]),
-                                                          entry.getCustomElements().getValue(properties[8]),
+														  new Boolean(entry.getCustomElements().getValue(properties[8])),
                                                           entry.getCustomElements().getValue(properties[9]),
                                                           entry.getCustomElements().getValue(properties[10]),
                                                           entry.getCustomElements().getValue(properties[11]),
 														  new Boolean(entry.getCustomElements().getValue(properties[12])),
-                                                          entry.getCustomElements().getValue(properties[13])));
+														  entry.getCustomElements().getValue(properties[13]),
+                                                          entry.getCustomElements().getValue(properties[14])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of CaseIDFilterMetadata.
+	 *
+	 * @return Collection<CaseIDFilterMetadata>
+	 */
+	@Override
+	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata() {
+
+		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCaseIDFilterMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = caseIDFiltersMetadataProperty.split(":");
+		if (properties.length != 4) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getCaseIDFilterMetadata: " + caseIDFiltersMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						toReturn.add(new CaseIDFilterMetadata(entry.getCustomElements().getValue(properties[1]),
+															  entry.getCustomElements().getValue(properties[2])));
 					}
 				}
 				else {
@@ -256,7 +306,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = portalsMetadataProperty.split(":");
-		if (properties.length != 7) {
+		if (properties.length != 8) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getPortalMetadata: " + portalsMetadataProperty);
 			}
@@ -276,7 +326,8 @@ final class GDataImpl implements Config {
                                                               entry.getCustomElements().getValue(properties[3]),
                                                               entry.getCustomElements().getValue(properties[4]),
                                                               entry.getCustomElements().getValue(properties[5]),
-                                                              entry.getCustomElements().getValue(properties[6]));
+                                                              entry.getCustomElements().getValue(properties[6]),
+                                                              entry.getCustomElements().getValue(properties[7]));
                                 break;
                         }
                     }
@@ -356,80 +407,23 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets DatabaseeMetadata.
-	 *
-	 * @return DatabaseMetadata
-	 */
-	@Override
-	public DatabaseMetadata getDatabaseMetadata() {
-
-		DatabaseMetadata toReturn = null;
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatabaseMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = databaseMetadataProperty.split(":");
-		if (properties.length != 8) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDatabaseMetadata: " + databaseMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() == 1) {
-					ListEntry entry = feed.getEntries().get(0);
-					toReturn = new DatabaseMetadata(entry.getCustomElements().getValue(properties[1]),
-													entry.getCustomElements().getValue(properties[2]),
-													entry.getCustomElements().getValue(properties[3]),
-													entry.getCustomElements().getValue(properties[4]),
-													entry.getCustomElements().getValue(properties[5]),
-													entry.getCustomElements().getValue(properties[6]),
-													entry.getCustomElements().getValue(properties[7]));
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (toReturn == null && LOG.isInfoEnabled()) {
-			LOG.info("getDatabaseMetadata(), toReturn is null.");
-		}
-
-        // outta here
-        return toReturn;
-	}
-
-	/**
 	 * Gets DataSourceMetadata for the given datasource.
 	 *
 	 * @param dataSource String
-	 * @return DataSourceMetadata
+	 * @return Collection<DataSourceMetadata>
 	 */
     @Override
-	public 	DataSourceMetadata getDataSourceMetadata(String dataSource) {
+	public Collection<DataSourceMetadata> getDataSourceMetadata(String dataSource) {
 
-		DataSourceMetadata toReturn = null;
+		Collection<DataSourceMetadata> toReturn = new ArrayList<DataSourceMetadata>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getDataSourceMetadata()");
+			LOG.info("getDataSourceMetadata(): " + dataSource);
 		}
 
 		// parse the property argument
 		String[] properties = dataSourceMetadataProperty.split(":");
-		if (properties.length != 4) {
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getDataSourceMetadata: " + dataSourceMetadataProperty);
 			}
@@ -443,11 +437,12 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-                        if (entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
-                                toReturn = new DataSourceMetadata(entry.getCustomElements().getValue(properties[1]),
-																  entry.getCustomElements().getValue(properties[2]),
-																  entry.getCustomElements().getValue(properties[3]));
-                                break;
+                        if (dataSource.equals("all") || entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
+							toReturn.add(new DataSourceMetadata(entry.getCustomElements().getValue(properties[1]),
+																entry.getCustomElements().getValue(properties[2]),
+																entry.getCustomElements().getValue(properties[3]),
+																entry.getCustomElements().getValue(properties[4])));
+							if (!dataSource.equals("all")) break;
                         }
                     }
 				}
@@ -484,7 +479,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = dataSourceMetadataProperty.split(":");
-		if (properties.length != 4) {
+		if (properties.length != 5) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
 			}

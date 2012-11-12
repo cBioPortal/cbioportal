@@ -34,40 +34,47 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.sql.SQLException;
 
 /**
  * Connects to Oncotator and Retrieves Details on a Single Mutation.
  */
-public class OncotatorService {
-    private static OncotatorService oncotatorService;
+public class OncotatorService
+{
+	//private static final Logger logger = Logger.getLogger(OncotatorService.class);
+    //private static OncotatorService oncotatorService;
     private final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
-    //private static final Logger logger = Logger.getLogger(OncotatorService.class);
-    private DaoOncotatorCache cache;
-    private final static long SLEEP_PERIOD = 0;  // in ms
+	private final static long SLEEP_PERIOD = 0;  // in ms
 
+    private OncotatorCacheService cache;
 	private int errorCount = 0;
 	private boolean useCache = true;
 
-    private OncotatorService () {
-        cache = DaoOncotatorCache.getInstance();
-    }
-
-    public static OncotatorService getInstance() {
-        if (oncotatorService == null) {
-            oncotatorService = new OncotatorService();
-        }
-        return oncotatorService;
-    }
-
-    public OncotatorRecord getOncotatorRecord(String chr,
-		    long start,
-		    long end,
-		    String referenceAllele,
-            String observedAllele) throws IOException, SQLException
+	/**
+	 * Default constructor with the default cache DAO.
+	 */
+    public OncotatorService()
     {
-        String key = createKey(chr, start, end, referenceAllele, observedAllele);
+        this.cache = DaoOncotatorCache.getInstance();
+    }
 
+	/**
+	 * Alternative constructor with a cache service option.
+	 *
+	 * @param cache     cache service instance
+	 */
+	public OncotatorService(OncotatorCacheService cache)
+	{
+		this.cache = cache;
+	}
+
+	/**
+	 * Retrieves the data from the Oncotator service for the given query key.
+	 *
+	 * @param key   key for the service query
+	 * @return      oncotator record containing the query result
+	 */
+    public OncotatorRecord getOncotatorRecord(String key) throws Exception
+    {
         BufferedReader in = null;
         InputStream inputStream = null;
 
@@ -107,8 +114,8 @@ public class OncotatorService {
 		                // the DB at the same time)
 		                try {
 			                cache.put(record);
-		                } catch (SQLException e) {
-			                System.out.println("SQL error: " + e.getMessage());
+		                } catch (Exception e) {
+			                System.out.println("Cache error: " + e.getMessage());
 			                this.errorCount++;
 		                }
 	                }
@@ -142,10 +149,7 @@ public class OncotatorService {
         }
     }
 
-    public static String createKey(String chr, long start, long end, String referenceAllele,
-                                   String observedAllele) {
-        return chr + "_" + start + "_" + end + "_" + referenceAllele + "_" + observedAllele;
-    }
+	// Getters and Setters
 
 	public int getErrorCount()
 	{

@@ -30,6 +30,8 @@ package org.mskcc.cbio.oncotator;
 /**
  * Represents a single Transcript. Designed to be part of
  * an OncotatorRecord instance.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class Transcript
 {

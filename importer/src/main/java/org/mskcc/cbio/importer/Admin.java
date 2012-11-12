@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.cli.Option;
@@ -52,6 +53,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -61,7 +63,7 @@ import java.util.Properties;
 public class Admin implements Runnable {
 
 	// our context file
-	private static final String contextFile = "classpath:applicationContext-importer.xml";
+	public static final String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(Admin.class);
@@ -83,15 +85,18 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "print this message");
 
-        Option fetchData = (OptionBuilder.withArgName("datasource:clobber_database")
+        Option clobberImportDatabase = new Option("clobber_import_database", "clobber the import database");
+
+        Option fetchData = (OptionBuilder.withArgName("datasource:run_date")
 							.hasArgs(2)
 							.withValueSeparator(':')
-							.withDescription("fetch data from the given database and clobber destination db if desired")
+							.withDescription("fetch data from the given datasource and the given run date (mm/dd/yyyy) " + 
+											 "or use \"latest\" to retrieve the latest.")
 							.create("fetch_data"));
 
-        Option fetchReferenceData = (OptionBuilder.withArgName("reference-data")
+        Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")
 									  .hasArg()
-									  .withDescription("fetchs reference data")
+									  .withDescription("fetch reference data")
 									  .create("fetch_reference_data"));
 
         Option convertData = (OptionBuilder.withArgName("portal")
@@ -114,6 +119,7 @@ public class Admin implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
+		toReturn.addOption(clobberImportDatabase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
@@ -160,12 +166,14 @@ public class Admin implements Runnable {
 			if (commandLine.hasOption("help")) {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
+			// clobber import database
+			else if (commandLine.hasOption("clobber_import_database")) {
+				clobberImportDatabase();
+			}
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				if (values[0].equalsIgnoreCase("firehose")) {
-					fetchFirehoseData(Boolean.getBoolean(values[1]));
-				}
+				fetchData(values[0], values[1]);
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -194,20 +202,48 @@ public class Admin implements Runnable {
 	}
 
 	/**
-	 * Helper function to get firehose data.
+	 * Helper function to clobber import database.
 	 *
 	 * @throws Exception
 	 */
-	private void fetchFirehoseData(final boolean clobberDatabase) throws Exception {
+	private void clobberImportDatabase() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchFirehoseData()");
+			LOG.info("clobberImportDatabase()");
+		}
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
+		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+	}
+
+	/**
+	 * Helper function to get data.
+	 *
+	 * @param dataSource String
+	 * @param runDate String
+	 * @throws Exception
+	 */
+	private void fetchData(final String dataSource, final String runDate) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Fetcher fetcher = (Fetcher)context.getBean("firehoseFetcher");
-		fetcher.fetch(clobberDatabase);
+		Config config = (Config)context.getBean("config");
+		DataSourceMetadata dataSourceMetadata = null;
+		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
+		if (!dataSources.isEmpty()) {
+			dataSourceMetadata = dataSources.iterator().next();
+		}
+		// sanity check
+		if (dataSourceMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		}
+		Fetcher fetcher = (Fetcher)context.getBean(dataSourceMetadata.getFetcherBeanID());
+		fetcher.fetch(dataSource, runDate);
 	}
 
 	/**

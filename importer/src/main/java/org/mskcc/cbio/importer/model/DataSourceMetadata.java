@@ -39,6 +39,7 @@ public final class DataSourceMetadata {
 	private String dataSource;
     private String downloadDirectory;
     private String latestRunDownload;
+    private String fetcherBeanID;
 
     /**
      * Create a DataSourceMetadata instance with specified properties.
@@ -46,10 +47,12 @@ public final class DataSourceMetadata {
 	 * @param dataSource String
 	 * @param downloadDirectory String
      * @param latestRunDownload String
+	 * @param fetcherBeanID String
      */
     public DataSourceMetadata(final String dataSource,
 							  final String downloadDirectory,
-							  final String latestRunDownload) {
+							  final String latestRunDownload,
+							  final String fetcherBeanID) {
 
 		if (dataSource == null) {
             throw new IllegalArgumentException("dataSource must not be null");
@@ -65,10 +68,13 @@ public final class DataSourceMetadata {
             throw new IllegalArgumentException("latestRunDownload must not be null");
 		}
 		this.latestRunDownload = latestRunDownload;
+
+		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID : "";
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
 	public String getLatestRunDownload() { return latestRunDownload; }
 	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
+	public String getFetcherBeanID() { return fetcherBeanID; }
 }

@@ -21,6 +21,7 @@
 <script type="text/javascript" src="js/mutsig.js"></script>
 <script type="text/javascript" src="js/gistic.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/cbio-util.js"></script>
 
 <!-- Google Analytics -->
 <script type="text/javascript">

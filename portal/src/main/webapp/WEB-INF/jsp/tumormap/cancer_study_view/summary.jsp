@@ -92,8 +92,6 @@
         
         mutCnaDataTable = mutCnaDt;
         waitAndDrawTable();
-        clincialDataTable = null;
-        mutCnaDataTable = null;
     }
     
     function mergeDataTables() {

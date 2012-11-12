@@ -51,4 +51,13 @@ public interface IDMapper {
 	 * @throws Exception
 	 */
 	String symbolToEntrezID(final String geneSymbol) throws Exception;
+
+	/**
+	 * For the entrezID, return symbol.
+	 *
+	 * @param entrezID String
+	 * @return String
+	 * @throws Exception
+	 */
+	String entrezIDToSymbol(final String entrezID) throws Exception;
 }

@@ -15,3 +15,4 @@
 <script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/cbio-util.js"></script>

@@ -54,6 +54,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 
 	// our map of gene symbols to entrez ids
 	private HashMap<String, String> symbolToIDMap;
+	private HashMap<String, String> idToSymbolMap;
 
 	/**
 	 * Default Constructor.
@@ -80,20 +81,22 @@ public final class BridgeDBIDMapper implements IDMapper {
         AttributeMapper mapper = (AttributeMapper)BridgeDb.connect(bridgeDBConnectionString);
         BioDataSource.init();
 
-		// populate our symbolToID map
+		// populate our maps
 		symbolToIDMap = new HashMap<String, String>();
+		idToSymbolMap = new HashMap<String, String>();
 		if (LOG.isInfoEnabled()) {
-			LOG.info("initMapper(), building symbolToIDMap");
+			LOG.info("initMapper(), building maps");
 		}
 		if (mapper instanceof XrefIterator) {
 			for (Xref xref : ((XrefIterator)mapper).getIterator(BioDataSource.ENTREZ_GENE)) {
 				for (String symbol : mapper.getAttributes(xref, "Symbol")) {
 					symbolToIDMap.put(symbol, xref.getId());
+					idToSymbolMap.put(xref.getId(), symbol);
 				}
 			}
 		}
 		if (LOG.isInfoEnabled()) {
-			LOG.info("initMapper(), building symbolToIDMap complete");
+			LOG.info("initMapper(), building maps complete");
 		}
 	}
 
@@ -107,5 +110,17 @@ public final class BridgeDBIDMapper implements IDMapper {
 	@Override
 	public String symbolToEntrezID(final String geneSymbol) throws Exception {
 		return (symbolToIDMap.containsKey(geneSymbol)) ? symbolToIDMap.get(geneSymbol) : "";
+	}
+
+	/**
+	 * For the entrezID, return symbol.
+	 *
+	 * @param entrezID String
+	 * @return String
+	 * @throws Exception
+	 */
+	@Override
+	public String entrezIDToSymbol(final String entrezID) throws Exception {
+		return (idToSymbolMap.containsKey(entrezID)) ? idToSymbolMap.get(entrezID) : "";
 	}
 }

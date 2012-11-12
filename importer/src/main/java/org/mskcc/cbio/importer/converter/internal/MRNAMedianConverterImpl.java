@@ -135,10 +135,10 @@ public final class MRNAMedianConverterImpl implements Converter {
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), calling MapperUtil.mapDataToGeneID()...");
+			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
-		MapperUtil.mapDataToGeneID(importDataMatrix, idMapper,
-								   "Hugo_Symbol", "Entrez_Gene_Id");
+		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
+									 "Entrez_Gene_Id", "Hugo_Symbol");
 
 		// filter and convert case ids
 		if (LOG.isInfoEnabled()) {
@@ -153,9 +153,9 @@ public final class MRNAMedianConverterImpl implements Converter {
 		}
 		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
 		columnHeaders.removeElement("Hugo_Symbol");
-		columnHeaders.setElementAt("Hugo_Symbol", 0);
+		columnHeaders.insertElementAt("Hugo_Symbol", 0);
 		columnHeaders.removeElement("Entrez_Gene_Id");
-		columnHeaders.setElementAt("Entrez_Gene_Id", 1);
+		columnHeaders.insertElementAt("Entrez_Gene_Id", 1);
 		importDataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file

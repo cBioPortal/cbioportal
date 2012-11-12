@@ -213,7 +213,7 @@ CREATE TABLE `mutation` (
   `END_POSITION` bigint(20) NOT NULL,
   `PROTEIN_CHANGE` varchar(255) NOT NULL,
   `MUTATION_TYPE` varchar(255) NOT NULL COMMENT 'e.g. Missense, Nonsence, etc.',
-  `FUNCTIONAL_IMPACT_SCORE` varchar(10) NOT NULL COMMENT 'Result from OMA/XVAR.',
+  `FUNCTIONAL_IMPACT_SCORE` longtext NOT NULL COMMENT 'Result from OMA/XVAR.',
   `LINK_XVAR` varchar(500) NOT NULL COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
   `LINK_PDB` varchar(500) NOT NULL,
   `LINK_MSA` varchar(500) NOT NULL,

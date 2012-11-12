@@ -162,7 +162,7 @@ public final class GisticGenesConverterImpl implements Converter {
 		// - add cytoband and q_value columns to table_*.conf_90.txt
 		Vector<String> cytobandColumnData = new Vector<String>();
 		Vector<String> qValueColumnData = new Vector<String>();
-		for (String geneSet : importDataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME)) {
+		for (String geneSet : importDataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME).get(0)) {
 			if (geneSet.endsWith(TABLE_CONF_GENES_IN_REGION_DELIMITER)) {
 				geneSet = geneSet.substring(0, geneSet.length()-1);
 			}
@@ -209,7 +209,7 @@ public final class GisticGenesConverterImpl implements Converter {
 		}
 
 		// get row headers and determine which row contains qValues and which contains genes-in-wide-peak
-		Vector<String> geneConfRowHeaders = importDataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME);
+		Vector<String> geneConfRowHeaders = importDataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME).get(0);
 		int qValueRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_Q_VALUE_ROW_HEADER_NAME);
 		int genesInWidePeakStartRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME);
 		// sanity check

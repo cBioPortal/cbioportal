@@ -49,7 +49,8 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     private InputStream drugTargetsFile;
     private HashMap<String, Drug> nameToDrugMap = new HashMap<String, Drug>();
 
-
+    // Ugly solution, but makes debugging much easier
+    private final Drug DRUG_SKIP = new Drug();
 
     public PiHelperImporter(DrugDataResource dataResource) throws DaoException {
         super(dataResource);
@@ -91,7 +92,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
 
-        int lineNo = 0;
+        int lineNo = 0, saved = 0;
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if(line.startsWith("#")) continue;
@@ -116,6 +117,9 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
             Drug drug = nameToDrugMap.get(drugName);
             assert drug != null;
 
+            if(drug == DRUG_SKIP)
+                continue;
+
             List<CanonicalGene> genes = daoGeneOptimized.guessGene(geneSymbol);
             for (CanonicalGene gene : genes) {
                 daoDrugInteraction.addDrugInteraction(
@@ -125,16 +129,18 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                         datasources,
                         "",
                         refs);
+                saved++;
             }
         }
 
         scanner.close();
 
-        log.info("Number of drug-targets imported: " + lineNo);
+        log.info("Number of drug-targets imported: " + saved);
     }
 
     private void importDrugs() throws Exception {
         nameToDrugMap.clear();
+
 
         Scanner scanner = new Scanner(getDrugInfoFile());
         int lineNo = 0;
@@ -174,8 +180,13 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                 Integer.parseInt(t[9])
             );
 
-            getDrugDao().addDrug(drug);
-            nameToDrugMap.put(drug.getName(), drug);
+            if(drug.isNutraceuitical()) { // We don't want these drugs within the database
+                nameToDrugMap.put(drug.getName(), DRUG_SKIP);
+            } else {
+                getDrugDao().addDrug(drug);
+                nameToDrugMap.put(drug.getName(), drug);
+            }
+
         }
 
         scanner.close();

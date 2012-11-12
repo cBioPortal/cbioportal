@@ -221,26 +221,35 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Removes the given column in the table.
+	 * Removes the given column (by name) in the table.
 	 *
 	 * @param columnName String
 	 */
 	public void removeColumn(final String columnName) {
 
-		ColumnHeader toRemove = null;
+		Vector<ColumnHeader> toRemove = new Vector<ColumnHeader>();
 
 		// find column header to remove
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.label.equals(columnName)) {
-				toRemove = columnHeader;
-				break;
+				toRemove.add(columnHeader);
 			}
 		}
 
 		// remove the columnHeader
-		if (toRemove != null) {
-			columnHeaders.remove(toRemove);
+		for (ColumnHeader columnHeader : toRemove) {
+			columnHeaders.remove(columnHeader);
 		}
+	}
+
+	/**
+	 * Removes the given column (by index) in the table.
+	 *
+	 * @param columnName String
+	 */
+	public void removeColumn(final int columnIndex) {
+
+		columnHeaders.remove(columnIndex);
 	}
 
 	/**
@@ -257,7 +266,6 @@ public final class ImportDataMatrix {
 			if (columnHeader.label.equals(columnName)) {
 				columnHeader.label = newColumnName;
 				foundColumnHeader = true;
-				break;
 			}
 		}
 		if (!foundColumnHeader) {
@@ -291,16 +299,18 @@ public final class ImportDataMatrix {
 	 * @param columnName String
 	 * @return Vector<String>
 	 */
-	public Vector<String> getColumnData(final String columnName) {
+	public Vector<Vector<String>> getColumnData(final String columnName) {
+
+		Vector<Vector<String>> toReturn = new Vector<Vector<String>>();
 
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.label.equals(columnName)) {
-				return columnHeader.columnData;
+				toReturn.add(columnHeader.columnData);
 			}
 		}
 
 		// should not make it here
-		return new Vector<String>();
+		return toReturn;
 	}
 
 	/**
@@ -350,7 +360,8 @@ public final class ImportDataMatrix {
 		// collection we will return
 		HashSet<String> toReturn = new HashSet<String>();
 
-		for (String geneID : getColumnData(geneIDColumnHeading)) {
+		Vector<String> geneColumnData = getColumnData(geneIDColumnHeading).get(0);
+		for (String geneID : geneColumnData) {
 			toReturn.add(geneID);
 		}
 
@@ -490,7 +501,7 @@ public final class ImportDataMatrix {
 		System.out.println();
 
 		// change some values in a column
-		Vector<String> columnValues = importDataMatrix.getColumnData("H2");
+		Vector<String> columnValues = importDataMatrix.getColumnData("H2").get(0);
 		for (int lc = 0; lc < columnValues.size(); lc++) {
 			if (columnValues.elementAt(lc).equals("2")) {
 				columnValues.setElementAt("2.7", lc);

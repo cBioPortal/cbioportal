@@ -37,7 +37,6 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 import org.apache.commons.logging.Log;
@@ -49,10 +48,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class CNAConverterImpl implements Converter {
+public final class MutationConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(MutationConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -74,8 +73,8 @@ public final class CNAConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(final Config config, final FileUtils fileUtils,
-							final CaseIDs caseIDs, final IDMapper idMapper) {
+	public MutationConverterImpl(final Config config, final FileUtils fileUtils,
+								 final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -102,9 +101,7 @@ public final class CNAConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
-		throw new UnsupportedOperationException();
-    }
+	public void generateCaseLists(final String portal) throws Exception {}
 
 	/**
 	 * Creates a staging file from the given import data.
@@ -124,46 +121,20 @@ public final class CNAConverterImpl implements Converter {
 			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
 		}
 		ImportDataMatrix importDataMatrix = importDataMatrices[0];
-
-		// perform gene mapping, remove records as needed
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
-		}
-		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
-									 "Locus ID", "Gene Symbol");
-
-		// rename columns
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), renaming columns");
-		}
-		importDataMatrix.renameColumn("Gene Symbol", "Hugo_Symbol");
-		importDataMatrix.renameColumn("Locus ID", "Entrez_Gene_Id");
-		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
-
-		// filter and convert case ids
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), filtering & converting case ids");
-		}
-		String[] columnsToIgnore = { "Hugo_Symbol", "Entrez_Gene_Id" }; // drop Cytoband
-		importDataMatrix.filterAndConvertCaseIDs(Arrays.asList(columnsToIgnore));
-
-		// ensure the first two columns are symbol, id respectively
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), sorting column headers");
-		}
 		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
-		columnHeaders.removeElement("Hugo_Symbol");
-		columnHeaders.insertElementAt("Hugo_Symbol", 0);
-		columnHeaders.removeElement("Entrez_Gene_Id");
-		columnHeaders.insertElementAt("Entrez_Gene_Id", 1);
-		importDataMatrix.setColumnOrder(columnHeaders);
 
-		// we need to write out the file
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
-
+		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+			fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
+			}
+			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		}
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}

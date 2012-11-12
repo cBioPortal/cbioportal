@@ -45,6 +45,28 @@ public final class MapperUtil {
 	// our logger
 	private static final Log LOG = LogFactory.getLog(MapperUtil.class);
 
+	// type of mapping enum
+	private enum MappingDirection {
+		ID_TO_SYMBOL, SYMBOL_TO_ID
+	}
+
+	/**
+	 * Given a gene ID column and gene symbol column within an ImportDataMatrix,
+	 * obtain gene symbols for all entries in the column.  Drop rows for which a gene
+	 * symbol cannot be found.
+	 *
+	 * @param importDataMatrix ImportDataMatrix
+	 * @param idMapper IDMapper
+	 * @param geneIDColumnName String
+	 * @param geneSymbolColumnName String
+	 * @throws Exception
+	 */
+	public static void mapGeneIDToSymbol(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
+										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
+
+		doMapping(importDataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.ID_TO_SYMBOL);
+	}
+
 	/**
 	 * Given a gene symbol column and gene ID column within an ImportDataMatrix,
 	 * obtain gene IDs for all entries in the column.  Drop rows for which a gene
@@ -52,44 +74,61 @@ public final class MapperUtil {
 	 *
 	 * @param importDataMatrix ImportDataMatrix
 	 * @param idMapper IDMapper
-	 * @param geneSymbolColumnName String
 	 * @param geneIDColumnName String
+	 * @param geneSymbolColumnName String
 	 * @throws Exception
 	 */
-	public static void mapDataToGeneID(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
-									   final String geneSymbolColumnName, final String geneIDColumnName) throws Exception {
+	public static void mapGeneSymbolToID(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
+										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
+		doMapping(importDataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.SYMBOL_TO_ID);
+	}
 
-		// get refs to geneSymbols and geneIDs columns
-		Vector<String> geneSymbols = importDataMatrix.getColumnData(geneSymbolColumnName);
-		Vector<String> geneIDs = importDataMatrix.getColumnData(geneIDColumnName);
+	/**
+	 * Helper function for public interface.
+	 *
+	 * @param importDataMatrix ImportDataMatrix
+	 * @param idMapper IDMapper
+	 * @param srcColumnName String
+	 * @param targetColumnName String
+	 * @param mappingDirection MappingDirectory
+	 * @throws Exception
+	 */
+	private static void doMapping(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
+								  final String srcColumnName, final String targetColumnName,
+								  final MappingDirection mappingDirection) throws Exception {
+
+		// get refs to src and target columns
+		Vector<String> srcColumnData = importDataMatrix.getColumnData(srcColumnName).get(0);
+		Vector<String> targetColumnData = importDataMatrix.getColumnData(targetColumnName).get(0);
 
 		// sanity check
-		if (geneSymbols.size() != geneIDs.size()) {
+		if (srcColumnData.size() != targetColumnData.size()) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("mapDataToGeneID(), geneSymbols column size != geneIDs column size, aborting.");
+				LOG.info("do(), src column size != target column size, aborting.");
 			}
 			return;
 		}
 
 		// do the mapping, ignore rows that are missing id's
-		for (int lc = 0; lc < geneSymbols.size(); lc++) {
-			String geneSymbol = geneSymbols.elementAt(lc);
-			if (geneSymbol == "") {
+		for (int lc = 0; lc < srcColumnData.size(); lc++) {
+			String src = srcColumnData.elementAt(lc);
+			if (src == "") {
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("mapDataToGeneID(), geneSymbol is empty, ignoring row: " + lc);
+					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);
 				}
 				importDataMatrix.ignoreRow(lc);
 				continue;
 			}
-			String entrezID = idMapper.symbolToEntrezID(geneSymbol);
-			if (entrezID == "") {
+			String target = (mappingDirection == MappingDirection.SYMBOL_TO_ID) ?
+				idMapper.symbolToEntrezID(src) : idMapper.entrezIDToSymbol(src);
+			if (target == "") {
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("mapDataToGeneID(), cannot find entrez id for geneSymbol: " + geneSymbol + ", ignoring row: " + lc);
+					LOG.debug("doMapping(), cannot find target for src: " + src + ", ignoring row: " + lc);
 				}
 				importDataMatrix.ignoreRow(lc);
 				continue;
 			}
-			geneIDs.setElementAt(entrezID, lc);
+			targetColumnData.setElementAt(target, lc);
 		}
 	}
 }

@@ -159,10 +159,7 @@ public class GeneAlterationsJSON extends HttpServlet {
 
                 GeneticEvent event = geneticEvents[i][j];
 
-
-                System.out.println("GeneAlterations event: " + event);
-
-
+//                System.out.println("GeneAlterations caseId: " + event.caseCaseId() + ", event: " + event);
 
                 String sample_cna = event.getCnaValue().name().toUpperCase();
                 String sample_mrna = event.getMrnaValue().name().toUpperCase();

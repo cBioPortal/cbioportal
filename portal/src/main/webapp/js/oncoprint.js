@@ -36,7 +36,6 @@ var OncoPrint = function(params, options) {
             .append('rect')
             .attr('class', function(d, i) {
                 // d is one of (AMPLIFIED, GAINED, DIPLOID, HEMIZYGOUSLYDELETED, HOMODELETED, null)
-                console.log(d);
                 return 'cna ' + (d === null ? "NONE" : d);
 
             })

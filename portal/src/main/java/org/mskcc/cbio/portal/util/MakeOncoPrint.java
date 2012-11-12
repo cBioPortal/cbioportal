@@ -362,6 +362,13 @@ public class MakeOncoPrint {
                     GeneticEvent event = matrix[i][j];
 					Boolean sampleIsUnaltered = MakeOncoPrint.isSampleUnaltered(j, matrix);
                     String alterationSettings = MakeOncoPrint.getGeneticEventAsString(event);
+                    
+
+
+                    System.out.println("MakeOncoPrint: " + "caseId: " + event.caseCaseId() + ", " + event + "->" + alterationSettings);
+                    
+                    
+                    
                     StringBuilder mutationDetails = new StringBuilder();
                     if (event.isMutated()) {
                         mutationDetails.append(", 'mutation' : [");

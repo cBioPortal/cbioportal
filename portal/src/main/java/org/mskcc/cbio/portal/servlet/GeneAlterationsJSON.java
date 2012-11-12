@@ -82,48 +82,6 @@ public class GeneAlterationsJSON extends HttpServlet {
     }
 
     /**
-     * converts a string to a bitmask,
-     * e.g. "CNA_AMPLIFIED | CNA_GAINED" -> (1<<0) + (1<<1)
-     *
-     * todo: anachronistic
-     * @param alterationSettings
-     * @return
-     */
-    public static int alterationSettings_toBits(String alterationSettings) {
-        int bitmask = 0;
-        
-        String[] split = alterationSettings.split("\\|");
-
-        for (String s : split) {
-            s = s.trim();
-            bitmask = s.equals("CNA_AMPLIFIED") ? bitmask              + (1 << 0) : bitmask;
-            bitmask = s.equals("CNA_GAINED") ? bitmask                 + (1 << 1) : bitmask;
-            bitmask = s.equals("CNA_DIPLOID") ? bitmask                + (1 << 2) : bitmask;
-            bitmask = s.equals("CNA_HEMIZYGOUSLYDELETED") ? bitmask    + (1 << 3) : bitmask;
-            bitmask = s.equals("CNA_HOMODELETED") ? bitmask            + (1 << 4) : bitmask;
-            bitmask = s.equals("CNA_NONE") ? bitmask                   + (1 << 5) : bitmask;
-            bitmask = s.equals("MRNA_UPREGULATED") ? bitmask           + (1 << 6) : bitmask;
-            bitmask = s.equals("MRNA_DOWNREGULATED") ? bitmask         + (1 << 7) : bitmask;
-            bitmask = s.equals("MRNA_NOTSHOWN") ? bitmask              + (1 << 8) : bitmask;
-            bitmask = s.equals("RPPA_UPREGULATED") ? bitmask           + (1 << 9) : bitmask;
-            bitmask = s.equals("RPPA_NORMAL") ? bitmask                + (1 << 10) : bitmask;
-            bitmask = s.equals("RPPA_DOWNREGULATED") ? bitmask         + (1 << 11) : bitmask;
-            bitmask = s.equals("RPPA_NOTSHOWN") ? bitmask              + (1 << 12) : bitmask;
-            bitmask = s.equals("MUTATED") ? bitmask                    + (1 << 13) : bitmask;
-            bitmask = s.equals("NORMAL") ? bitmask                     + (1 << 14) : bitmask;
-        }
-        
-        if (bitmask == 0) {
-            log.info("GeneAlterationsJSON "
-                    + "CNA bitmask was never set: "
-                    + Arrays.toString(split));
-        }
-
-        return  bitmask;
-    }
-
-
-    /**
      * Maps the matrix to a JSONArray of alterations
      * @param geneticEvents matrix M[case][gene]
      * @return
@@ -260,10 +218,9 @@ public class GeneAlterationsJSON extends HttpServlet {
 
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
-            ArrayList<String> geneList = new ArrayList<String>(Arrays.asList(_geneList.split("\\s+")));
-            GetProfileData remoteCall = null;
+            GetProfileData remoteCall;
             try {
-                remoteCall = new GetProfileData(profile, geneList, caseIds);
+                remoteCall = new GetProfileData(profile, listOfGenes, caseIds);
             } catch (DaoException e) {
                 throw new ServletException(e);
             }

@@ -219,7 +219,9 @@
 <script type="text/javascript">
     //  make global variables
     var cancer_study_id = "<%=cancerTypeId%>",
-            genes = "<%=genes%>",
+            //genes = "<%=genes%>",
+            //genes = $('#gene_list').val();
+            genes = "<%=request.getAttribute(QueryBuilder.RAW_GENE_STR)%>",
             cases = "<%=cases%>",
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {

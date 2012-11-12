@@ -80,6 +80,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_IDS_KEY = "case_ids_key";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
+    public static final String RAW_GENE_STR = "raw_gene_str";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
     public static final String FORMAT = "format";
@@ -183,6 +184,10 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get User Defined Gene List
         String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
+
+        // save the raw gene string as it was entered for other things to work on
+        httpServletRequest.setAttribute(RAW_GENE_STR, geneList);
+
         xdebug.logMsg(this, "Gene List is set to:  " + geneList);
 
         //  Get all Cancer Types

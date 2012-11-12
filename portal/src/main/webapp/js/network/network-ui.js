@@ -1,3 +1,8 @@
+/* This file is not imported/used by other sources anymore. Instead,
+ * we are using the javascript class NetworkVis (within the file
+ * network-visualization.js) to instantiate the network UI.
+ */
+
 // flags
 var _autoLayout;
 var _removeDisconnected;

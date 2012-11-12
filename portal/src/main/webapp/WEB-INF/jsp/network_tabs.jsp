@@ -80,7 +80,7 @@
 	        	</tr>
 	        	<tr class="in-same-component">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="in_same_component_check" type="checkbox" checked="checked">
 		        		<label>In Same Component</label>
 		        	</td>
 	        	</tr>
@@ -94,7 +94,7 @@
 	        	</tr>
 	        	<tr class="reacts-with">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="reacts_with_check" type="checkbox" checked="checked">
 		        		<label>Reacts with</label>
 		        	</td>
 	        	</tr>
@@ -108,7 +108,7 @@
 	        	</tr>
 	        	<tr class="state-change">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="state_change_check" type="checkbox" checked="checked">
 		        		<label>State Change</label>
 		        	</td>
 	        	</tr>
@@ -122,7 +122,7 @@
 	        	</tr>
 	        	<tr class="targeted-by-drug">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="targeted_by_drug_check" type="checkbox" checked="checked">
 		        		<label>Targeted by Drug</label>
 		        	</td>
 	        	</tr>
@@ -136,7 +136,7 @@
 	        	</tr>
 	        	<tr class="other">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="other_check" type="checkbox" checked="checked">
 		        		<label>Other</label>
 		        	</td>
 	        	</tr>

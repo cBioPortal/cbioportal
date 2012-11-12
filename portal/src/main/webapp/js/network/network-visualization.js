@@ -11,18 +11,20 @@ function NetworkVis(divId)
 
     // relative selectors for the given div id
 
-    this.nodeInspectorSelector = _createNodeInspector(divId);
-    this.edgeInspectorSelector = _createEdgeInspector(divId);
-    this.geneLegendSelector = _createGeneLegend(divId);
-    this.drugLegendSelector = _createDrugLegend(divId);
-    this.edgeLegendSelector = _createEdgeLegend(divId);
+    this.nodeInspectorSelector = this._createNodeInspector(divId);
+    this.edgeInspectorSelector = this._createEdgeInspector(divId);
+    this.geneLegendSelector = this._createGeneLegend(divId);
+    this.drugLegendSelector = this._createDrugLegend(divId);
+    this.edgeLegendSelector = this._createEdgeLegend(divId);
+    this.settingsDialogSelector = this._createSettingsDialog(divId);
+
+    this.mainMenuSelector = "#" + this.divId + " #network_menu_div";
+    this.quickInfoSelector = "#" + this.divId + " #quick_info_div";
 
     this.networkTabsSelector = "#" + this.divId + " #network_tabs";
     this.relationsTabSelector = "#" + this.divId + " #relations_tab";
     this.genesTabSelector = "#" + this.divId + " #genes_tab";
-    this.settingsDialogSelector = "#" + this.divId + " #settings_dialog";
     this.geneListAreaSelector = "#" + this.divId + " #gene_list_area";
-
     this.drugFilterSelector = "#" + this.divId + " #drop_down_select";
 
     // flags
@@ -148,7 +150,7 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     this._initControlFunctions();
     this._initLayoutOptions();
 
-    //this._initMainMenu();
+    this._initMainMenu();
 
     this._initDialogs();
     this._initPropsUI();
@@ -282,22 +284,22 @@ NetworkVis.prototype.saveSettings = function()
         {
             // check if the auto stabilize box is checked
 
-            if($("#autoStabilize").is(":checked"))
+            if($(this.settingsDialogSelector + " #autoStabilize").is(":checked"))
             {
                 this._layoutOptions[i].value = true;
-                $("#autoStabilize").val(true);
+                $(this.settingsDialogSelector + " #autoStabilize").val(true);
             }
             else
             {
                 this._layoutOptions[i].value = false;
-                $("#autoStabilize").val(false);
+                $(this.settingsDialogSelector + " #autoStabilize").val(false);
             }
         }
         else
         {
             // simply copy the text field value
             this._layoutOptions[i].value =
-            $("#" + this._layoutOptions[i].id).val();
+                $(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val();
         }
     }
 
@@ -305,7 +307,7 @@ NetworkVis.prototype.saveSettings = function()
     this._updateLayoutOptions();
 
     // close the settings panel
-    $("#settings_dialog").dialog("close");
+    $(this.settingsDialogSelector).dialog("close");
 };
 
 /**
@@ -1097,25 +1099,24 @@ NetworkVis.prototype.updateEdges = function()
     // update filtered edge types
 
     this._edgeTypeVisibility[this.IN_SAME_COMPONENT] =
-    $(this.divId + " .in-same-component input").is(":checked");
+        $(this.relationsTabSelector + " #in_same_component_check").is(":checked");
 
     this._edgeTypeVisibility[this.REACTS_WITH] =
-    $(this.divId + " .reacts-with input").is(":checked");
+        $(this.relationsTabSelector + " #reacts_with_check").is(":checked");
 
     this._edgeTypeVisibility[this.STATE_CHANGE] =
-    $(this.divId + " .state-change input").is(":checked");
+        $(this.relationsTabSelector + " #state_change_check").is(":checked");
 
     this._edgeTypeVisibility[this.DRUG_TARGET] =
-    $(this.divId + " .targeted-by-drug input").is(":checked");
+        $(this.relationsTabSelector + " #targeted_by_drug_check").is(":checked");
 
     this._edgeTypeVisibility[this.OTHER] =
-    $(this.divId + " .other input").is(":checked");
+        $(this.relationsTabSelector + " #other_check").is(":checked");
 
     for (var key in this._edgeSourceVisibility)
     {
         this._edgeSourceVisibility[key] =
-        $(this.divId + " ." + _safeProperty(key) +
-          " input").is(":checked");
+            $(this.relationsTabSelector + " #" + _safeProperty(key) + "_check").is(":checked");
     }
 
     // remove previous node filters due to disconnection
@@ -1848,15 +1849,15 @@ NetworkVis.prototype._setVisibility = function(visible)
         if ($(this.networkTabsSelector).hasClass("hidden-network-ui"))
         //if ($("#network_menu_div").hasClass("hidden-network-ui"))
         {
-            $("#network_menu_div").removeClass("hidden-network-ui");
-            $("#quick_info_div").removeClass("hidden-network-ui");
+            $(this.mainMenuSelector).removeClass("hidden-network-ui");
+            $(this.quickInfoSelector).removeClass("hidden-network-ui");
             $(this.networkTabsSelector).removeClass("hidden-network-ui");
             $(this.nodeInspectorSelector).removeClass("hidden-network-ui");
             $(this.edgeInspectorSelector).removeClass("hidden-network-ui");
             $(this.geneLegendSelector).removeClass("hidden-network-ui");
             $(this.drugLegendSelector).removeClass("hidden-network-ui");
             $(this.edgeLegendSelector).removeClass("hidden-network-ui");
-            $("#settings_dialog").removeClass("hidden-network-ui");
+            $(this.settingsDialogSelector).removeClass("hidden-network-ui");
         }
     }
     else
@@ -1864,15 +1865,15 @@ NetworkVis.prototype._setVisibility = function(visible)
         if (!$(this.networkTabsSelector).hasClass("hidden-network-ui"))
         //if (!$("#network_menu_div").hasClass("hidden-network-ui"))
         {
-            $("#network_menu_div").addClass("hidden-network-ui");
-            $("#quick_info_div").addClass("hidden-network-ui");
+            $(this.mainMenuSelector).addClass("hidden-network-ui");
+            $(this.quickInfoSelector).addClass("hidden-network-ui");
             $(this.networkTabsSelector).addClass("hidden-network-ui");
             $(this.nodeInspectorSelector).addClass("hidden-network-ui");
             $(this.edgeInspectorSelector).addClass("hidden-network-ui");
             $(this.geneLegendSelector).addClass("hidden-network-ui");
             $(this.drugLegendSelector).addClass("hidden-network-ui");
             $(this.edgeLegendSelector).addClass("hidden-network-ui");
-            $("#settings_dialog").addClass("hidden-network-ui");
+            $(this.settingsDialogSelector).addClass("hidden-network-ui");
         }
     }
 };
@@ -2117,38 +2118,38 @@ NetworkVis.prototype._maxAlterValNonSeed = function(map)
  */
 NetworkVis.prototype._initMainMenu = function()
 {
-    _initMenuStyle(this.divId, this.HOVERED_CLASS); // TODO pass the actual div id
+    _initMenuStyle(this.divId, this.HOVERED_CLASS);
 
     // adjust separators between menu items
 
-    $("#network_menu_file").addClass(this.MENU_CLASS);
-    $("#network_menu_topology").addClass(this.MENU_CLASS);
-    $("#network_menu_view").addClass(this.MENU_CLASS);
-    $("#network_menu_layout").addClass(this.MENU_CLASS);
-    $("#network_menu_legends").addClass(this.MENU_CLASS);
+    $(this.mainMenuSelector + " #network_menu_file").addClass(this.MENU_CLASS);
+    $(this.mainMenuSelector + " #network_menu_topology").addClass(this.MENU_CLASS);
+    $(this.mainMenuSelector + " #network_menu_view").addClass(this.MENU_CLASS);
+    $(this.mainMenuSelector + " #network_menu_layout").addClass(this.MENU_CLASS);
+    $(this.mainMenuSelector + " #network_menu_legends").addClass(this.MENU_CLASS);
 
-    $("#save_as_png").addClass(this.FIRST_CLASS);
-    $("#save_as_png").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#save_as_png").addClass(this.LAST_CLASS);
+    $(this.mainMenuSelector + " #save_as_png").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #save_as_png").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #save_as_png").addClass(this.LAST_CLASS);
 
-    $("#hide_selected").addClass(this.FIRST_CLASS);
-    $("#hide_selected").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#remove_disconnected").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#remove_disconnected").addClass(this.LAST_CLASS);
+    $(this.mainMenuSelector + " #hide_selected").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #hide_selected").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #remove_disconnected").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #remove_disconnected").addClass(this.LAST_CLASS);
 
-    $("#show_profile_data").addClass(this.FIRST_CLASS);
-    $("#show_profile_data").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#highlight_neighbors").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#remove_highlights").addClass(this.LAST_CLASS);
+    $(this.mainMenuSelector + " #show_profile_data").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #show_profile_data").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #highlight_neighbors").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #remove_highlights").addClass(this.LAST_CLASS);
 
-    $("#perform_layout").addClass(this.FIRST_CLASS);
-    $("#perform_layout").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #perform_layout").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #perform_layout").addClass(this.MENU_SEPARATOR_CLASS);
     //$("#layout_properties").addClass(SUB_MENU_CLASS);
-    $("#auto_layout").addClass(this.MENU_SEPARATOR_CLASS);
-    $("#auto_layout").addClass(this.LAST_CLASS);
+    $(this.mainMenuSelector + " #auto_layout").addClass(this.MENU_SEPARATOR_CLASS);
+    $(this.mainMenuSelector + " #auto_layout").addClass(this.LAST_CLASS);
 
-    $("#show_node_legend").addClass(this.FIRST_CLASS);
-    $("#show_edge_legend").addClass(this.LAST_CLASS);
+    $(this.mainMenuSelector + " #show_node_legend").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #show_edge_legend").addClass(this.LAST_CLASS);
 
     // init check icons for checkable menu items
     this._updateMenuCheckIcons();
@@ -2230,7 +2231,7 @@ NetworkVis.prototype._updateMenuCheckIcons = function()
 NetworkVis.prototype._initDialogs = function()
 {
     // adjust settings panel
-    $("#settings_dialog").dialog({autoOpen: false,
+    $(this.settingsDialogSelector).dialog({autoOpen: false,
                                      resizable: false,
                                      width: 333});
 
@@ -2945,7 +2946,7 @@ NetworkVis.prototype._refreshRelationsTab = function()
         $(this.relationsTabSelector + " #edge_source_filter").append(
             '<tr class="' + _safeProperty(key) + '">' +
             '<td class="edge-source-checkbox">' +
-            '<input type="checkbox" checked="checked">' +
+            '<input id="' + key + '_check" type="checkbox" checked="checked">' +
             '<label>' + key + '</label>' +
             '</td></tr>');
     }
@@ -3105,13 +3106,13 @@ NetworkVis.prototype._initControlFunctions = function()
     this._controlFunctions["show_edge_legend"] = showEdgeLegend;
 
     // add menu listeners
-    $("#network_menu a").unbind(); // TODO temporary workaround (there is listener attaching itself to every 'a's)
-    $("#network_menu a").click(handleMenuEvent);
+    $(this.mainMenuSelector + " #network_menu a").unbind(); // TODO temporary workaround (there is listener attaching itself to every 'a's)
+    $(this.mainMenuSelector + " #network_menu a").click(handleMenuEvent);
 
     // add button listeners
 
-    $("#save_layout_settings").click(saveSettings);
-    $("#default_layout_settings").click(defaultSettings);
+    $(this.settingsDialogSelector + " #save_layout_settings").click(saveSettings);
+    $(this.settingsDialogSelector + " #default_layout_settings").click(defaultSettings);
 
     $(this.genesTabSelector + " #search_genes").click(searchGene);
     $(this.genesTabSelector + " #search_box").keypress(keyPressListener);
@@ -3376,7 +3377,7 @@ NetworkVis.prototype._toggleAutoLayout = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#auto_layout");
+    var item = $(this.settingsDialogSelector + " #auto_layout");
 
     if (this._autoLayout)
     {
@@ -3400,7 +3401,7 @@ NetworkVis.prototype._toggleRemoveDisconnected = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#remove_disconnected");
+    var item = $(this.mainMenuSelector + " #remove_disconnected");
 
     if (this._removeDisconnected)
     {
@@ -3424,7 +3425,7 @@ NetworkVis.prototype._toggleProfileData = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#show_profile_data");
+    var item = $(this.mainMenuSelector + " #show_profile_data");
 
     if (this._profileDataVisible)
     {
@@ -3458,7 +3459,7 @@ NetworkVis.prototype._saveAsSvg = function()
 NetworkVis.prototype._openProperties = function()
 {
     this._updatePropsUI();
-    $("#settings_dialog").dialog("open").height("auto");
+    $(this.settingsDialogSelector).dialog("open").height("auto");
 };
 
 /**
@@ -3466,7 +3467,7 @@ NetworkVis.prototype._openProperties = function()
  */
 NetworkVis.prototype._initPropsUI = function()
 {
-    $("#fd_layout_settings tr").tipTip();
+    $(this.settingsDialogSelector + " #fd_layout_settings tr").tipTip();
 };
 
 /**
@@ -3495,19 +3496,20 @@ NetworkVis.prototype._updatePropsUI = function()
             if (this._layoutOptions[i].value == true)
             {
                 // check the box
-                $("#autoStabilize").attr("checked", true);
-                $("#autoStabilize").val(true);
+                $(this.settingsDialogSelector + " #autoStabilize").attr("checked", true);
+                $(this.settingsDialogSelector + " #autoStabilize").val(true);
             }
             else
             {
                 // uncheck the box
-                $("#autoStabilize").attr("checked", false);
-                $("#autoStabilize").val(false);
+                $(this.settingsDialogSelector + " #autoStabilize").attr("checked", false);
+                $(this.settingsDialogSelector + " #autoStabilize").val(false);
             }
         }
         else
         {
-            $("#" + this._layoutOptions[i].id).val(this._layoutOptions[i].value);
+            $(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val(
+                this._layoutOptions[i].value);
         }
     }
 };
@@ -3529,15 +3531,7 @@ NetworkVis.prototype._updateLayoutOptions = function()
     this._graphLayout.options = options;
 };
 
-
-
-/*
- * ##################################################################
- * ##################### Utility Functions ##########################
- * ##################################################################
- */
-
-function _createNodeInspector(divId)
+NetworkVis.prototype._createNodeInspector = function(divId)
 {
     var id = "node_inspector_" + divId;
 
@@ -3554,9 +3548,9 @@ function _createNodeInspector(divId)
     $("#" + divId).append(html);
 
     return "#" + id;
-}
+};
 
-function _createEdgeInspector(divId)
+NetworkVis.prototype._createEdgeInspector = function(divId)
 {
     var id = "edge_inspector_" + divId;
 
@@ -3571,9 +3565,9 @@ function _createEdgeInspector(divId)
     $("#" + divId).append(html);
 
     return "#" + id;
-}
+};
 
-function _createGeneLegend(divId)
+NetworkVis.prototype._createGeneLegend = function(divId)
 {
     var id = "node_legend_" + divId;
 
@@ -3587,9 +3581,9 @@ function _createGeneLegend(divId)
     $("#" + divId).append(html);
 
     return "#" + id;
-}
+};
 
-function _createDrugLegend(divId)
+NetworkVis.prototype._createDrugLegend = function(divId)
 {
     var id = "drug_legend_" + divId;
 
@@ -3603,9 +3597,9 @@ function _createDrugLegend(divId)
     $("#" + divId).append(html);
 
     return "#" + id;
-}
+};
 
-function _createEdgeLegend(divId)
+NetworkVis.prototype._createEdgeLegend = function(divId)
 {
     var id = "edge_legend_" + divId;
 
@@ -3619,12 +3613,125 @@ function _createEdgeLegend(divId)
     $("#" + divId).append(html);
 
     return "#" + id;
-}
+};
 
+NetworkVis.prototype._createSettingsDialog = function(divId)
+{
+    var id = "settings_dialog_" + divId;
+
+    var html =
+        '<div id="' + id + '" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
+            '<div id="fd_layout_settings" class="content ui-widget-content">' +
+                '<table>' +
+                    '<tr title="The gravitational constant. Negative values produce a repulsive force.">' +
+                        '<td align="right">' +
+                            '<label>Gravitation</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="gravitation" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The default mass value for nodes.">' +
+                        '<td align="right">' +
+                            '<label>Node mass</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="mass" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The default spring tension for edges.">' +
+                        '<td align="right">' +
+                            '<label>Edge tension</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="tension" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The default spring rest length for edges.">' +
+                        '<td align="right">' +
+                            '<label>Edge rest length</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="restLength" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The co-efficient for frictional drag forces.">' +
+                        '<td align="right">' +
+                            '<label>Drag co-efficient</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="drag" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The minimum effective distance over which forces are exerted.">' +
+                        '<td align="right">' +
+                            '<label>Minimum distance</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="minDistance" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The maximum distance over which forces are exerted.">' +
+                        '<td align="right">' +
+                            '<label>Maximum distance</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="maxDistance" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The number of iterations to run the simulation.">' +
+                        '<td align="right">' +
+                            '<label>Iterations</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="iterations" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="The maximum time to run the simulation, in milliseconds.">' +
+                        '<td align="right">' +
+                            '<label>Maximum Time</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="maxTime" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations.">' +
+                        '<td align="right">' +
+                            '<label>Auto Stabilize</label>' +
+                        '</td>' +
+                        '<td align="left">' +
+                            '<input type="checkbox" id="autoStabilize" value="true" checked="checked"/>' +
+                        '</td>' +
+                    '</tr>' +
+                '</table>' +
+            '</div>' +
+            '<div class="footer">' +
+                '<input type="button" id="save_layout_settings" value="Save"/>' +
+                '<input type="button" id="default_layout_settings" value="Default"/>' +
+            '</div>' +
+        '</div>';
+
+    $("#" + divId).append(html);
+
+    return "#" + id;
+};
+
+/*
+ * ##################################################################
+ * ##################### Utility Functions ##########################
+ * ##################################################################
+ */
+
+
+/**
+ * Initializes the style of the network menu by adjusting hover behaviour.
+ *
+ * @param divId
+ * @param hoverClass
+ * @private
+ */
 function _initMenuStyle(divId, hoverClass)
 {
-    // TODO use divId
-
     // Opera fix
     $("#" + divId + " #network_menu ul").css({display: "none"});
 

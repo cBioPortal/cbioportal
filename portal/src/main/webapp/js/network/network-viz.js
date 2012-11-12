@@ -1,6 +1,6 @@
 
 // send graphml to cytoscape web for visualization
-function send2cytoscapeweb(graphml, div_id) 
+function send2cytoscapeweb(graphml, cwDivId, networkDivId)
 {
     var visual_style = 
     {
@@ -122,7 +122,7 @@ function send2cytoscapeweb(graphml, div_id)
         flashInstallerPath: "swf/playerProductInstall"
     };
 
-    var vis = new org.cytoscapeweb.Visualization(div_id, options);
+    var vis = new org.cytoscapeweb.Visualization(cwDivId, options);
 
     
     
@@ -176,7 +176,7 @@ function send2cytoscapeweb(graphml, div_id)
 
     
     vis.ready(function() {
-        var netVis = new NetworkVis("network");
+        var netVis = new NetworkVis(networkDivId);
 
         // init UI of the network tab
         netVis.initNetworkUI(vis);
@@ -204,7 +204,7 @@ function send2cytoscapeweb(graphml, div_id)
     vis.draw(draw_options);
 }
 
-function send2cytoscapewebSbgn(sbgnml, div_id)
+function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId)
 {
     // TODO this should be replaced with the SBGN-ML style
     var visual_style =
@@ -327,7 +327,7 @@ function send2cytoscapewebSbgn(sbgnml, div_id)
         flashInstallerPath: "swf/playerProductInstall"
     };
 
-    var vis = new org.cytoscapeweb.Visualization(div_id, options);
+    var vis = new org.cytoscapeweb.Visualization(cwDivId, options);
 
     // TODO also update label and color functions
     /*
@@ -379,7 +379,7 @@ function send2cytoscapewebSbgn(sbgnml, div_id)
     };
 
     vis.ready(function() {
-        var netVis = new NetworkVis("network_sbgn");
+        var netVis = new NetworkVis(networkDivId);
 
         // init UI of the network tab
         netVis.initNetworkUI(vis);

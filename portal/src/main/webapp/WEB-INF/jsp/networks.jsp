@@ -94,9 +94,9 @@
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         }
-                        send2cytoscapeweb(graphml,"cytoscapeweb");
+                        send2cytoscapeweb(graphml, "cytoscapeweb", "network");
                         showXDebug(graphml);
-                        showNetworkMessage(graphml,"#netmsg");
+                        showNetworkMessage(graphml, "#network #netmsg");
                     }
                 );
 
@@ -111,9 +111,9 @@
 				                   graphml = (new XMLSerializer()).serializeToString(graphml);
 			                   }
 		                   }
-		                   send2cytoscapewebSbgn(graphml,"cytoscapeweb_sbgn");
-		                   //showXDebug(graphml);
-		                   //showNetworkMessage(graphml,"#netmsg");
+		                   send2cytoscapewebSbgn(graphml,"cytoscapeweb_sbgn", "network_sbgn");
+		                   //TODO showXDebug(graphml);
+		                   showNetworkMessage(graphml, "#network_sbgn #netmsg");
 	                   }
 	            );
             }

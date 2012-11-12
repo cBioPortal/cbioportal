@@ -24,4 +24,4 @@
 ./loadNetwork.sh
 
 # Drug
-./importDrugData.pl
+./importPiHelperData.pl

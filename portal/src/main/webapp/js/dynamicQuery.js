@@ -395,7 +395,17 @@ function cancerStudySelected() {
     }
 
     //  Update Cancer Study Description
-    $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
+    var citation = cancer_study.citation;
+    if (!citation) {
+        citation="";
+    }
+    else {
+        var pmid = cancer_study.pmid;
+        if (pmid) {
+            citation = "<a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
+        }
+    }
+    $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + "</p>");
 
     //  Iterate through all genomic profiles
     //  Add all non-expression profiles where show_in_analysis_tab = true

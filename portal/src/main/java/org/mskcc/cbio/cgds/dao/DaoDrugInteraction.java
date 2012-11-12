@@ -184,7 +184,7 @@ public class DaoDrugInteraction {
                 }
                  
                 if (cancerSpecific) {
-                    sql += " AND DRUG_DESCRIPTION LIKE '%cancer%'";
+                    sql += " AND DRUG_CANCERDRUG=1";
                 }
             } else {
                 sql = "SELECT DRUG,TARGET FROM drug_interaction"

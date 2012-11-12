@@ -132,20 +132,7 @@ public class DaoDrug {
             pstmt.setString(1, drugID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                Drug drug = new Drug();
-                drug.setId(drugID);
-                drug.setResource(rs.getString("DRUG_RESOURCE"));
-                drug.setName(rs.getString("DRUG_NAME"));
-                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
-                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
-                drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
-                drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
-                drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
-                drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
-
-                return drug;
+                return extractDrug(rs);
             } else {
                 return null;
             }
@@ -168,16 +155,7 @@ public class DaoDrug {
                     + StringUtils.join(drugIds, "','")+"')");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Drug drug = new Drug();
-                drug.setId(rs.getString("DRUG_ID"));
-                drug.setResource(rs.getString("DRUG_RESOURCE"));
-                drug.setName(rs.getString("DRUG_NAME"));
-                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
-                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
-                drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
-                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
-                drugList.add(drug);
+                drugList.add(extractDrug(rs));
             }
             return drugList;
         } catch (SQLException e) {
@@ -199,20 +177,7 @@ public class DaoDrug {
                     ("SELECT * FROM drug");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Drug drug = new Drug();
-                drug.setId(rs.getString("DRUG_ID"));
-                drug.setResource(rs.getString("DRUG_RESOURCE"));
-                drug.setName(rs.getString("DRUG_NAME"));
-                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
-                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
-                drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
-                drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
-                drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
-                drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
-
-                drugList.add(drug);
+                drugList.add(extractDrug(rs));
             }
             return drugList;
         } catch (SQLException e) {
@@ -220,6 +185,22 @@ public class DaoDrug {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+    }
+    
+    private Drug extractDrug(ResultSet rs) throws SQLException {
+        Drug drug = new Drug();
+        drug.setId(rs.getString("DRUG_ID"));
+        drug.setResource(rs.getString("DRUG_RESOURCE"));
+        drug.setName(rs.getString("DRUG_NAME"));
+        drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
+        drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
+        drug.setExternalReference(rs.getString("DRUG_XREF"));
+        drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
+        drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
+        drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
+        drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
+        drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
+        return drug;
     }
 
     public int getCount() throws DaoException {

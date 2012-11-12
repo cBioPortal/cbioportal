@@ -174,7 +174,7 @@ public class CnaJSON extends HttpServlet {
     
     private Map<String, List<String>> getDrugs(Set<Long> genes, int profileId)
             throws DaoException {
-        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,true,true);
+        Map<Long, List<String>> map = DaoDrugInteraction.getInstance().getDrugs(genes,false,true);
         Map<String, List<String>> ret = new HashMap<String, List<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())

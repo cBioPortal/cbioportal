@@ -69,6 +69,7 @@ public final class ImportData {
 	@NaturalId
 	@Column(nullable=false)
 	private String tumorType;
+	@NaturalId
 	@Column(nullable=false)
 	private String datatype;
 	@Column(nullable=false)

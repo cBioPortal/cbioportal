@@ -72,9 +72,6 @@
                 var wrapper = new DataTableWrapper();
                 wrapper.setDataMatrixAndFixTypes(matrix);
                 clincialDataTable = wrapper.dataTable;
-                $('#clinical-data-loading-wait').hide();
-                $('#summary-plot-table').show();
-                resetSmallPlots(clincialDataTable);
                 waitAndDrawTable();
             })
     }
@@ -122,6 +119,9 @@
     function waitAndDrawTable() {
         var dt = mergeDataTables();
         if (dt) {
+                $('#clinical-data-loading-wait').hide();
+                $('#summary-plot-table').show();
+                resetSmallPlots(dt);
             var caseMap = getCaseMap(dt);
             drawDataTable('clinical-data-table',dt,caseMap);
         }

@@ -87,7 +87,7 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)|(mutation_count)|(copy_number_altered_fraction)/);
 }
 
 // draw datatable

@@ -121,12 +121,25 @@ public interface FileUtils {
 	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
 	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
 	 * @param importDataMatrix ImportDataMatrix
 	 * @throws Exception
 	 */
 	void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
 								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+
+	/**
+	 * Creates a z-score staging file from the given dependencies.  It assumes that the
+	 * dependency - staging files have already been created.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dependencies DatatypeMetadata[]
+	 * @throws Exception
+	 */
+	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
 }

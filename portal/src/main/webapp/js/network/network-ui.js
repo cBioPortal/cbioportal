@@ -356,7 +356,7 @@ function _updateNodeInspectorForDrug(data, node)
 				'<tr align="left" class="atc_codes-data-row"><td>' +
 				'<strong>Drug Class(ATC codes): </strong></td></tr>');
 		
-		atc_codes = data["ATC_CODE"].split(",");
+		atc_codes = data["ATC_CODE"].split(";");
 		
 		for ( var i = 0; i < atc_codes.length; i++) 
 		{	
@@ -407,19 +407,25 @@ function _updateNodeInspectorForDrug(data, node)
 	}
 	
 	// For FDA approval
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="fda-data-row"><td>' +
-			'<strong>FDA Approval: </strong></td></tr>');
-	
-	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
-	
-	$("#node_inspector_content .fda-data-row td").append(fda_approval);
-	$("#node_inspector_content .fda-data-row td").append('<br>');
-	
-	
+    $("#node_inspector_content .data").append(
+        '<tr align="left" class="fda-data-row"><td>' +
+            '<strong>FDA Approval: </strong></td></tr>');
+
+    var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
+
+    $("#node_inspector_content .fda-data-row td").append(fda_approval);
+    $("#node_inspector_content .fda-data-row td").append('<br>');
+
+    // For Cancer Drug Info
+    var cancer_drug = data["CANCER_DRUG"] == "true";
+    if(cancerDrug) {
+        $("#node_inspector_content .data").append(
+            '<tr align="left" class="cancerdrug-data-row"><td>' +
+                '<strong>Cancer Drug: </strong> Yes</td></tr>');
+    }
+
 	// For Pub Med IDs	
-	
-	var pubmeds = new Array();			
+	var pubmeds = new Array();
 	var edges = _vis.edges();
 	var existed = false;
 	
@@ -1867,10 +1873,28 @@ function _xrefArray()
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
+    linkMap["uniprotkb"] = "http://www.uniprot.org/uniprot/";
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
 	linkMap["drugbank"] = "http://www.drugbank.ca/drugs/" + ID_PLACE_HOLDER;
-	linkMap["nucleotide sequence database"] = "";
+    linkMap["kegg"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + ID_PLACE_HOLDER;
+    linkMap["kegg drug"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + ID_PLACE_HOLDER;
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + ID_PLACE_HOLDER;
+    linkMap["chemspider"] = "http://www.chemspider.com/Chemical-Structure." + ID_PLACE_HOLDER + ".html";
+    linkMap["kegg compund"] = "http://www.genome.jp/dbget-bin/www_bget?cpd:" + ID_PLACE_HOLDER;
+    linkMap["doi"] = "http://www.nature.com/nrd/journal/v10/n8/full/nrd3478.html?";
+    linkMap["nci_drug"] = "http://www.cancer.gov/drugdictionary?CdrID=" + ID_PLACE_HOLDER;
+    linkMap["national drug code directory"] = "http://www.fda.gov/Safety/MedWatch/SafetyInformation/SafetyAlertsforHumanMedicalProducts/ucm" + ID_PLACE_HOLDER + ".htm";
+    linkMap["pharmgkb"] = "http://www.pharmgkb.org/gene/" + ID_PLACE_HOLDER;
+    linkMap["pubchem compund"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=" + ID_PLACE_HOLDER + "&loc=ec_rcs";
+    linkMap["pubchem substance"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?sid=" + ID_PLACE_HOLDER + "&loc=ec_rss";
+    linkMap["pdb"] = "http://www.rcsb.org/pdb/explore/explore.do?structureId=" + ID_PLACE_HOLDER;
+    linkMap["bindingdb"] = "http://www.bindingdb.org/data/mols/tenK3/MolStructure_" + ID_PLACE_HOLDER  + ".html";
+    linkMap["genbank"] = "http://www.ncbi.nlm.nih.gov/nucleotide?term=" + ID_PLACE_HOLDER;
+    linkMap["iuphar"] = "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=" + ID_PLACE_HOLDER;
+    linkMap["drugs product database (dpd)"] = "http://205.193.93.51/dpdonline/searchRequest.do?din=" + ID_PLACE_HOLDER;
+    linkMap["guide to pharmacology"] = "http://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=" + ID_PLACE_HOLDER;
+    linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;
 }

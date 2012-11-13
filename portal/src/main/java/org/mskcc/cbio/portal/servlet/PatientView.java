@@ -414,7 +414,7 @@ public class PatientView extends HttpServlet {
                     logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
                             + " Base URL:  " + cancerStudyId);
                 }
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 logger.error(ex.getMessage());
             } finally {
                 //  Must release connection back to Apache Commons Connection Pool

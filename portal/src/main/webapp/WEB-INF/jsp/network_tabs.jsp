@@ -10,7 +10,8 @@
 	      <div class="combo">
 			<select id="drop_down_select">
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
-			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
+              <option value="SHOW_CANCER"> Show Cancer Drugs</option>
+              <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
 			  <option value="SHOW_ALL">Show All Drugs</option>
 			</select>
 		  </div>

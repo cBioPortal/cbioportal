@@ -331,6 +331,9 @@ function _updateNodeInspectorForDrug(data, node)
 	var atc_codes = new Array();
 	var synonyms = new Array();
 	var description;
+
+    // clear everything
+    $("#node_inspector_content .data").html("");
 	
 	//For number of targeted genes
 	if (data["TARGETS"] != "") 
@@ -418,32 +421,50 @@ function _updateNodeInspectorForDrug(data, node)
 
     // For Cancer Drug Info
     var cancer_drug = data["CANCER_DRUG"] == "true";
-    if(cancerDrug) {
+    if(cancer_drug) {
         $("#node_inspector_content .data").append(
             '<tr align="left" class="cancerdrug-data-row"><td>' +
-                '<strong>Cancer Drug: </strong> Yes</td></tr>');
+                '<strong>Cancer Drug: </strong> Yes<br></td></tr>');
+
+        var numberOfClinicalTrials = data["NUMBER_OF_CLINICAL_TRIALS"];
+        if(numberOfClinicalTrials > 0) {
+            $("#node_inspector_content .data").append(
+                '<tr align="left" class="clinicaltrials-data-row"><td>' +
+                    '<strong>Number Of Clinical Trials: </strong>' + numberOfClinicalTrials  +  '<br><br></td></tr>');
+        }
     }
 
 	// For Pub Med IDs	
-	var pubmeds = new Array();
 	var edges = _vis.edges();
 	var existed = false;
 	
-	for ( var i = 0; i < edges.length; i++) 
+	for (var k = 0; k < edges.length; k++)
 	{
-		if (edges[i].data.source == node.data.id && edges[i].data["INTERACTION_PUBMED_ID"] != "") 
+		if (edges[k].data.source == node.data.id && edges[k].data["INTERACTION_PUBMED_ID"] != "")
 		{
-			if(existed == false){
+			if(existed == false)
+            {
 				$("#node_inspector_content .data").append(
 						'<tr align="left" class="pubmed-data-row"><td>' +
-						'<strong>PubMed IDs:'+edges[i].data["INTERACTION_PUBMED_ID"]+'</strong></td></tr>');
+						'<strong>PubMed IDs: </strong><br></td></tr>');
 				existed = true;
 			}
-			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+            var pubmeds = edges[k].data["INTERACTION_PUBMED_ID"];
+            var pubmedTokens = pubmeds.split(";");
+            for( var j=0; j < pubmedTokens.length; j++)
+            {
+                var link = _resolveXref(pubmedTokens[j]);
+                if (link.href == "#")
+                {
+                    // skip unknown sources
+                    continue;
+                }
+                var xref = '- <a href="' + link.href + '" target="_blank">' + link.pieces[1] + '</a><br>';
+                $("#node_inspector_content .pubmed-data-row td").append(xref);
+            }
 		}
 	}
 }
-
 
 /**
  * Updates the content of the node inspector with respect to the provided data.
@@ -1244,12 +1265,17 @@ function dropDownVisibility(element)
 		
 		//if the node is a drug then check the drop down selection
 		
-		if(element.data.type == "Drug"){
-			if(selectedOption.toString() == "HIDE_DRUGS"){
+		if(element.data.type == "Drug") {
+			if(selectedOption.toString() == "HIDE_DRUGS") {
 				visible = false;
-			}else if(selectedOption.toString() == "SHOW_ALL"){
+			} else if(selectedOption.toString() == "SHOW_ALL") {
 				visible = true;
-			}else{  // check FDA approved
+            } else if(selectedOption.toString() == "SHOW_CANCER") {
+                if( element.data.CANCER_DRUG == "true")
+                    visible = true;
+                else
+                    visible = false;
+            } else {  // check FDA approved
 				if( element.data.FDA_APPROVAL == "true")
 					visible = true;
 				else

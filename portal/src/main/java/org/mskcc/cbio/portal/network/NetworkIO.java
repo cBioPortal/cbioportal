@@ -394,7 +394,7 @@ public final class NetworkIO {
         node = new Node(drug.getId());
         node.setType(NodeType.DRUG);
         node.setAttribute("NAME", drug.getName());
-        node.setAttribute("RELATIONSHIP_XREF", drug.getResource() + ":" + drug.getId());
+        node.setAttribute("RELATIONSHIP_XREF", drug.getExternalReference());
         node.setAttribute("ATC_CODE", drug.getATCCode());
         node.setAttribute("FDA_APPROVAL", drug.isApprovedFDA() + "");
         node.setAttribute("CANCER_DRUG", drug.isApprovedFDA() + "");

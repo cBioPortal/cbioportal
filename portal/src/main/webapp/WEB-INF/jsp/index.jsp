@@ -33,10 +33,10 @@
 
 <script type="text/javascript">
 // redirect to tumormap landing page
-if (document.referrer.indexOf('tumormap')==-1
-    &&window.location.pathname.toLowerCase().indexOf('tumormap')>=0) {
-    window.location.replace("tumormap.do");
-}
+//if (document.referrer.indexOf('tumormap')==-1
+//    &&window.location.pathname.toLowerCase().indexOf('tumormap')>=0) {
+//    window.location.replace("data_sets.jsp");
+//}
     
 $(document).ready(function(){
     $('#td-content').width("70%");

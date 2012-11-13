@@ -38,6 +38,7 @@
 
 <!-- <script type="text/javascript" src="js/network/network-ui.js"></script> -->
 <script type="text/javascript" src="js/network/network-visualization.js"></script>
+<script type="text/javascript" src="js/network/network-sbgn-vis.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
 <script type="text/javascript">
@@ -101,19 +102,20 @@
                 );
 
                 // TODO get the SBGN-ML data from pathway commons and pass it to cytoscapeweb
-	            $.post("network.do",
+	            $.post("networkSbgn.do",
 	                   networkParams,
-	                   function(graphml){
+	                   function(sbgnml){
 		                   if (typeof data !== "string") {
 			                   if (window.ActiveXObject) { // IE
-				                   graphml = graphml.xml;
+				                   sbgnml = sbgnml.xml;
 			                   } else { // Other browsers
-				                   graphml = (new XMLSerializer()).serializeToString(graphml);
+				                   sbgnml = (new XMLSerializer()).serializeToString(sbgnml);
 			                   }
 		                   }
-		                   send2cytoscapewebSbgn(graphml,"cytoscapeweb_sbgn", "network_sbgn");
-		                   //TODO showXDebug(graphml);
-		                   showNetworkMessage(graphml, "#network_sbgn #netmsg");
+		                   send2cytoscapewebSbgn(sbgnml, "cytoscapeweb_sbgn", "network_sbgn");
+		                   // TODO these methods do not work with sbgnml
+		                   //showXDebug(sbgnml);
+		                   //showNetworkMessage(sbgnml, "#network_sbgn #netmsg");
 	                   }
 	            );
             }

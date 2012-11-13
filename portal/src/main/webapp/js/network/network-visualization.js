@@ -2162,65 +2162,65 @@ NetworkVis.prototype._updateMenuCheckIcons = function()
 {
     if (this._autoLayout)
     {
-        $("#auto_layout").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #auto_layout").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#auto_layout").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #auto_layout").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._removeDisconnected)
     {
-        $("#remove_disconnected").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #remove_disconnected").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#remove_disconnected").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #remove_disconnected").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._nodeLabelsVisible)
     {
-        $("#show_node_labels").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_node_labels").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#show_node_labels").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_node_labels").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._edgeLabelsVisible)
     {
-        $("#show_edge_labels").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_edge_labels").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#show_edge_labels").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_edge_labels").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._panZoomVisible)
     {
-        $("#show_pan_zoom_control").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_pan_zoom_control").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#show_pan_zoom_control").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_pan_zoom_control").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._linksMerged)
     {
-        $("#merge_links").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #merge_links").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#merge_links").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #merge_links").removeClass(this.CHECKED_CLASS);
     }
 
     if (this._profileDataVisible)
     {
-        $("#show_profile_data").addClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_profile_data").addClass(this.CHECKED_CLASS);
     }
     else
     {
-        $("#show_profile_data").removeClass(this.CHECKED_CLASS);
+        $(this.mainMenuSelector + " #show_profile_data").removeClass(this.CHECKED_CLASS);
     }
 };
 
@@ -3278,7 +3278,7 @@ NetworkVis.prototype._toggleNodeLabels = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#show_node_labels");
+    var item = $(this.mainMenuSelector + " #show_node_labels");
 
     if (this._nodeLabelsVisible)
     {
@@ -3302,7 +3302,7 @@ NetworkVis.prototype._toggleEdgeLabels = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#show_edge_labels");
+    var item = $(this.mainMenuSelector + " #show_edge_labels");
 
     if (this._edgeLabelsVisible)
     {
@@ -3327,7 +3327,7 @@ NetworkVis.prototype._togglePanZoom = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#show_pan_zoom_control");
+    var item = $(this.mainMenuSelector + " #show_pan_zoom_control");
 
     if (this._panZoomVisible)
     {
@@ -3353,7 +3353,7 @@ NetworkVis.prototype._toggleMerge = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $("#merge_links");
+    var item = $(this.mainMenuSelector + " #merge_links");
 
     if (this._linksMerged)
     {

@@ -206,116 +206,51 @@ function send2cytoscapeweb(graphml, cwDivId, networkDivId)
 
 function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId)
 {
-    // TODO this should be replaced with the SBGN-ML style
-    var visual_style =
+    var visualStyle =
     {
-        global:
-        {
-            backgroundColor: "#fefefe", //#F7F6C9 //#F3F7FE
-            tooltipDelay: 250
-        },
         nodes:
         {
-            shape:
-            {
-                discreteMapper:
-                {
-                    attrName: "type",
-                    entries: [
-                        { attrValue: "Protein", value: "ELLIPSE" },
-                        { attrValue: "SmallMolecule", value: "DIAMOND" },
-                        { attrValue: "Unknown", value: "TRIANGLE" },
-                        { attrValue: "Drug", value: "HEXAGON"}	]
-                }
-            },
-            borderWidth: 1,
-            borderColor:
-            {
-                discreteMapper:
-                {
-                    attrName: "type",
-                    entries: [
-                        { attrValue: "Protein", value: "#000000" },
-                        { attrValue: "SmallMolecule", value: "#000000" },
-                        { attrValue: "Drug", value: "#000000"},
-                        { attrValue: "Unknown", value: "#000000" } ]
-                }
-            },
-            size:
-            {
-                defaultValue: 24,
-                discreteMapper:
-                {
-                    attrName: "type",
-                    entries: [ { attrValue: "Drug", value: 16}	]
-                }
-            },
-            color: {customMapper: {functionName: "colorFunc"}},
-            label: {customMapper: {functionName: "labelFunc"}},
-            labelHorizontalAnchor: "center",
-            labelVerticalAnchor: "bottom",
-            labelFontSize: 10,
-            selectionGlowColor: "#f6f779",
-            selectionGlowOpacity: 0.8,
-            hoverGlowColor: "#cbcbcb", //#ffff33
-            hoverGlowOpacity: 1.0,
-            hoverGlowStrength: 8,
-            tooltipFont: "Verdana",
-            tooltipFontSize: 12,
-            tooltipFontColor:
-            {
-                defaultValue: "#EE0505", // color of all other types
-                discreteMapper:
-                {
-                    attrName: "type",
-                    entries:
-                        [
-                            { attrValue: "Drug", value: "#E6A90F"}
-                        ]
-                }
-            },
-            tooltipBackgroundColor:
-            {
-                defaultValue: "#000000", // color of all other types
-                discreteMapper:
-                {
-                    attrName: "type",
-                    entries:
-                        [
-                            { attrValue: "Drug", value: "#000000"}
-                            //"#979694"
-                        ]
-                }
-            },
-            tooltipBorderColor: "#000000"
+            label: {customMapper: {functionName: "labelFunction"}},
+            compoundColor: "#FFFFFF",
+            compoundOpacity: 1.0,
+            opacity: 1.0,
+            compoundShape: {customMapper: {functionName: "compoundShapeFunction"}},
+            color: "#FFFFFF",
+            //shape: {customMapper: {functionName: "shapeFunction"}},
+            labelVerticalAnchor: "middle",
+            labelHorizontalAnchor: "center"
         },
+
         edges:
         {
-            width: 1,
-            mergeWidth: 2,
-            mergeColor: "#666666",
             targetArrowShape:
             {
                 defaultValue: "NONE",
                 discreteMapper:
                 {
-                    attrName: "type",
-                    entries: [
-                        { attrValue: "STATE_CHANGE", value: "DELTA" },
-                        { attrValue: "DRUG_TARGET", value: "T" } ]
+                    attrName: "arc_class",
+                    entries:
+                        [
+                            {attrValue:"consumption", value: "NONE"},
+                            {attrValue:"modulation", value: "DIAMOND"},
+                            {attrValue:"catalysis", value: "CIRCLE"},
+                            {attrValue:"inhibition", value: "T"},
+                            {attrValue:"production", value: "ARROW"},
+                            {attrValue:"stimulation", value: "ARROW"},
+                            {attrValue:"necessary stimulation", value: "T-ARROW"}
+                        ]
                 }
             },
-            color:
+            targetArrowColor:
             {
-                defaultValue: "#A583AB", // color of all other types
+                defaultValue: "#ffffff",
                 discreteMapper:
                 {
-                    attrName: "type",
-                    entries: [
-                        { attrValue: "IN_SAME_COMPONENT", value: "#904930" },
-                        { attrValue: "REACTS_WITH", value: "#7B7EF7" },
-                        { attrValue: "DRUG_TARGET", value: "#E6A90F" },
-                        { attrValue: "STATE_CHANGE", value: "#67C1A9" } ]
+                    attrName: "arc_class",
+                    entries:
+                        [
+                            {attrValue:"production", value: "#000000"}
+                        ]
                 }
             }
         }
@@ -323,63 +258,49 @@ function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId)
 
     // initialization options
     var options = {
-        swfPath: "swf/CytoscapeWeb",
+        swfPath: "swf/CytoWebSbgn",
         flashInstallerPath: "swf/playerProductInstall"
     };
 
     var vis = new org.cytoscapeweb.Visualization(cwDivId, options);
 
-    // TODO also update label and color functions
-    /*
-     * This function truncates the drug names on the graph
-     * if their name length is less than 10 characters.
-     */
-    vis["labelFunc"] = function(data)
+    vis["compoundShapeFunction"] = function (data)
     {
-        var name = data["label"];
+        var retValue = "COMPLEX";
 
-        if (data["type"] == "Drug")
+        if(data["glyph_class"] == "compartment")
         {
-            name = data["NAME"];
-
-            var truncateIndicator = '...';
-            var nameSize = name.length;
-
-            if (nameSize > 10)
-            {
-                name = name.substring(0, 10);
-                name = name.concat(truncateIndicator);
-            }
-
+            retValue = "ROUNDRECT";
         }
 
-        return name;
+        return retValue;
     };
 
-    /*
-     * FDA approved drugs are shown with orange like color
-     * non FDA approved ones are shown with white color
-     */
-    vis["colorFunc"] = function(data)
+    vis["labelFunction"] = function (data)
     {
-        if (data["type"] == "Drug")
-        {
-            if (data["FDA_APPROVAL"] == "true")
-            {
-                return "#E6A90F";
-            }
-            else
-            {
-                return	"#FFFFFF";
-            }
+        var retValue = data["glyph_label_text"];
 
+        if(data["glyph_class"] == "omitted process")
+        {
+            retValue = "\\\\";
         }
-        else
-            return "#FFFFFF";
+
+        if(data["glyph_class"] == "uncertain process")
+        {
+            retValue = "?";
+        }
+
+        if(data["glyph_class"] == "and" || data["glyph_class"] == "or" || data["glyph_class"] == "not" )
+        {
+            retValue = data["glyph_class"].toUpperCase();
+        }
+
+
+        return retValue;
     };
 
     vis.ready(function() {
-        var netVis = new NetworkVis(networkDivId);
+        var netVis = new NetworkSbgnVis(networkDivId);
 
         // init UI of the network tab
         netVis.initNetworkUI(vis);
@@ -389,17 +310,17 @@ function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId)
 
         // set the style programmatically
         document.getElementById("color").onclick = function(){
-            vis.visualStyle(visual_style);
+            vis.visualStyle(visualStyle);
         };
     });
 
     var draw_options = {
         // your data goes here
         network: sbgnml,
-        edgeLabelsVisible: false,
-        edgesMerged: true,
-        layout: "ForceDirected",
-        visualStyle: visual_style,
+        //edgeLabelsVisible: false,
+        //edgesMerged: true,
+        layout: "Preset",
+        visualStyle: visualStyle,
         panZoomControlVisible: true
     };
 

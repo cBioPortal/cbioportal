@@ -72,7 +72,6 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li><a href='#summary' class='study-tab' title='Events of Interest'>Summary</a></li>
     <li><a href='#data-table' class='study-tab' title='Events of Interest'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>
@@ -87,10 +86,6 @@ if (cancerStudyViewError!=null) {
 
     <div class="study-section" id="data-table">
         <%@ include file="data_table.jsp" %>
-    </div>
-
-    <div class="study-section" id="summary">
-        <%@ include file="summary.jsp" %>
     </div>
 
     <%if(showMutationsTab){%>

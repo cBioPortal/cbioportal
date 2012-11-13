@@ -35,8 +35,8 @@ if (isDemoMode!=null) {
     showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
 }
 
-boolean showPathways = showMutations | showCNA;
-boolean showSimilarPatient = showMutations | showCNA;
+boolean showPathways = showPlaceHoder & (showMutations | showCNA);
+boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = cancerStudy.hasCnaSegmentData();
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;

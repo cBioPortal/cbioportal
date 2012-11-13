@@ -22,6 +22,10 @@
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         $('#summary-plot-table').hide();
+        if (!mutationProfileId||!hasCnaSegmentData) {
+            $('#summary-plot-table').html(""); // remove all if no cna-mut plot
+                                               // small plots will be auto generated
+        }
         $('#submit-patient-btn').attr("disabled", true);
         //setupCaseSelect(caseIds);
         loadClinicalData(caseSetId);
@@ -90,8 +94,6 @@
             $(".mut-cna-axis-log").change(function() {
                 mutCnaAxisScaleChanged(mutCnaDt,2,1,caseMap);
             });
-        } else {
-            $('#mut-cna-scatter-plot').html('No '+(!mutationProfileId?'mutation':'copy number segment')+" data for this cancer study.");
         }
         
         mutCnaDataTable = mutCnaDt;

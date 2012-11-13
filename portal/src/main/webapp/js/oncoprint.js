@@ -1,24 +1,65 @@
-var OncoPrint = function(params, options) {
+var OncoPrint = function(params) {
 
-    var defaults = {
-        trackHeight : 25,
-        rectHeight: 19,
-        rectWidth: 5,
-        littleRectWidth: 7,
-        labelPadding: 35,
-        rectPadding: 3.5,
-        labelSize: 50
-    };
-
-    var defaultSvgWidth = function(no_samples, rectWidth, rectPadding, labelSize, labelPadding) {
-        return no_samples * (rectWidth + rectPadding) + labelSize + labelPadding + rectWidth;
-    };
+    var labelPadding = 40,
+        labelSize = 50;
 
     var samples = params.data.samples,
         no_samples = samples.length,
         genes = params.data.genes,
         no_genes = Object.keys(genes).length;
 
+    // make some calculations based on an existing oncoprint (a_oncoprint)
+    var a_width = 1493,
+        a_height = 75,
+        a_trackHeight = 1 / no_genes,
+        a_rectHeight = .8 * a_trackHeight,
+        a_rectWidth = 5 / (a_width - labelSize),
+        a_littleRectWidth = 7 / (a_width - labelSize),
+        a_rectPadding = 3.5 / (a_width - labelSize);
+
+    var scaled_dims = function(width, height) {
+
+        var w = d3.interpolate(0, width);
+        var h = d3.interpolate(0, height);
+
+        return {
+            trackHeight: h(a_trackHeight),
+            rectHeight: h(a_rectHeight),
+            rectWidth: w(a_rectWidth),
+            littleRectWidth: w(a_littleRectWidth),
+            rectPadding: w(a_rectPadding)
+        };
+    };
+
+    var defaults = scaled_dims(a_width, a_height);
+
+    var calcSvgWidth = function(defaults, no_samples) {
+        return no_samples * (defaults.rectWidth + defaults.rectPadding)
+            + labelSize + labelPadding;
+    };
+
+    var calcSvgHeight = function(defaults, no_tracks) {
+        return defaults.trackHeight * no_tracks;
+    };
+
+//    var width = 3000;
+    var width = (params.width + labelSize + labelPadding) || calcSvgWidth(defaults, no_samples);
+    var height = (params.height + labelSize + labelPadding) || calcSvgHeight(defaults, no_genes);
+
+//    var x = d3.scale.linear()
+//        .domain([0, no_samples])
+//        .range([0, width]);
+
+    var x = function(kth_sample) {
+        return kth_sample / no_samples * width;
+    };
+
+    var y = d3.scale.linear().range([0, height]);
+
+    var scaled = scaled_dims(width, height);
+
+    // include whatever isn't included in options from defaults
+    // for keys that are in both, choose the options
     var overrideDefaults = function(options, defaults) {
         for (var _default in defaults) {
             if (!options[_default]) {
@@ -34,7 +75,7 @@ var OncoPrint = function(params, options) {
     that.drawCNA = function(cna_data, samples, g_el, options, trackNum) {
         // draw CNA layer
 
-        var _options = overrideDefaults(options, defaults);
+        var _options = overrideDefaults(options, scaled);
 
         g_el.selectAll('rect.cna')
             .data(cna_data)
@@ -52,7 +93,7 @@ var OncoPrint = function(params, options) {
             .attr('height', _options.rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return _options.labelSize + _options.labelPadding + i * (_options.rectWidth + _options.rectPadding);
+                return labelPadding + labelSize + x(i);
             })
             .attr('y', _options.trackHeight * trackNum);
     };
@@ -60,7 +101,7 @@ var OncoPrint = function(params, options) {
     that.drawMutation = function(mutation_data, samples, g_el, options, trackNum) {
         // draw the mutation layer
 
-        var _options = overrideDefaults(options, defaults);
+        var _options = overrideDefaults(options, scaled);
 
         var littleRectHeight = _options.rectHeight / 3;
 
@@ -71,11 +112,17 @@ var OncoPrint = function(params, options) {
             .attr('class', function(d) {
                 return 'mutation ' + (d !== null ? "mut" : "none");
             })
+            .attr('id', function(d, i) {
+                return samples[i];
+            })
             .attr('width', _options.littleRectWidth)
             .attr('height', littleRectHeight)
             .attr('x', function(d, i) {
-                return _options.labelSize + _options.labelPadding + i * (5 + _options.rectPadding) -  // todo: this is code duplication
-                    (_options.rectPadding === 0 ? 0 : 1);   // if padding is zero, don't center the little rect
+                var padding = labelSize + labelPadding + i * (_options.rectWidth + _options.rectPadding)
+                    - (_options.littleRectWidth - _options.rectWidth) / 2;
+//                    + (_options.littleRectWidth / 2);
+
+                return padding;
             })
             .attr('y', _options.trackHeight * trackNum  // displace down for each track
             + (_options.rectHeight - littleRectHeight) / 2);
@@ -83,7 +130,7 @@ var OncoPrint = function(params, options) {
 
     that.drawTrack = function(params, trackNum) {
 
-        var settings = overrideDefaults(params, defaults);
+        var settings = overrideDefaults(params, scaled);
 
         var g_el = params.svg.append('g')
             .attr('class', params.label);
@@ -98,7 +145,7 @@ var OncoPrint = function(params, options) {
 //            .attr('bottom', 0)
 //            .attr('position', 'fixed');
 
-        var label_dy = trackNum * settings.trackHeight;
+        var label_dy = (trackNum * settings.trackHeight) + settings.trackHeight / 2;
 
         // draw name
         labels.append('tspan')
@@ -116,7 +163,7 @@ var OncoPrint = function(params, options) {
             .attr('fill', 'black')
             .attr('font-family', 'sans-serif')
             .attr('text-anchor', 'end')
-            .attr('dx', defaults.labelSize)
+            .attr('dx', labelSize)
             .attr('y', label_dy);
 
         var cna = params.gene_data.cna;
@@ -152,9 +199,10 @@ var OncoPrint = function(params, options) {
         $('<div>', { id: "width_slider", width: "100", display:"inline"})
             .slider({
                 min: 0,
-                max: 7,
-                step: .5,
-                value: defaults.rectPadding,
+//                max: 7,
+                max: scaled.rectPadding * 2,
+                step: scaled.rectPadding * .2,
+                value: scaled.rectPadding ,
                 change: function(event, ui) {
 //                    console.log(ui.value);
 
@@ -162,8 +210,8 @@ var OncoPrint = function(params, options) {
                         .transition()
                         .duration(200)
                         .attr('x', function(d, i) {
-                            var padding = defaults.labelSize + defaults.labelPadding
-                                + (i % no_samples) * (defaults.rectWidth + ui.value);
+                            var padding = labelSize + labelPadding
+                                + (i % no_samples) * (scaled.rectWidth + ui.value);
 
                             return padding;
                         });
@@ -172,19 +220,29 @@ var OncoPrint = function(params, options) {
                         .transition()
                         .duration(200)
                         .attr('x', function(d, i) {
-                            var padding = defaults.labelSize + defaults.labelPadding
-                                + (i % no_samples) * (defaults.rectWidth + ui.value)
-                                + (defaults.rectWidth - defaults.littleRectWidth) / 2;
+                            var padding = labelSize + labelPadding
+                                + (i % no_samples) * (scaled.rectWidth + ui.value)
+                                + (scaled.rectWidth - scaled.littleRectWidth) / 2;
 
                             return padding;
                         })
                         .attr('width', function(d, i) {
                             if (ui.value === 0) {
-                                return defaults.rectWidth;
+                                return scaled.rectWidth;
                             } else {
-                                return defaults.littleRectWidth;
+                                return scaled.littleRectWidth;
                             }
                         });
+
+                    var _defaults = overrideDefaults({}, defaults);
+                    _defaults.rectPadding = ui.value;
+                    var width = calcSvgWidth(_defaults, no_samples);
+
+                    d3.selectAll('#oncoprints svg')
+                        .attr('width', width);
+
+//                    console.log(d3.selectAll('#oncoprints svg');
+//                    console.log(defaults.rectPadding);
                 }
             })
             .appendTo(customizeDiv);
@@ -225,29 +283,27 @@ var OncoPrint = function(params, options) {
         }).appendTo(oncoPrintDiv);
 
         var svg = d3.select(wrapper[0]).append('svg')
-            .attr('width', defaultSvgWidth(no_samples, defaults.rectWidth,
-            defaults.rectPadding,
-            defaults.labelSize,
-            defaults.labelPadding))
-//            .attr('width', samples.length * (5 + 3.5) + 50 + 27 + 5)
-            .attr('height', 25 * no_genes + 50)      // 50 for the key at the bottom
+            .attr('width', width)
+            .attr('height', height)      // 50 for the key at the bottom
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
         // todo: eventually this will be refactored into it's own function
         var trackNum = 0;
+
+        // todo: is it really that bad that these settings are
+        // going to be passed to all subsequent functions that don't need them?
         genes.forEach(function(gene) {
             // draw each track
-            trackNum +=1;
-
-            // todo: is it really that bad that these settings are
-            // going to be passed to all subsequent functions that don't need them?
             that.drawTrack({
                 label: gene.hugo,
                 svg: svg,
-                trackSettings: defaults.trackSettings,
+                trackSettings: scaled,
                 gene_data: gene
             }, trackNum);
+
+            trackNum +=1;
+
         });
     };
 

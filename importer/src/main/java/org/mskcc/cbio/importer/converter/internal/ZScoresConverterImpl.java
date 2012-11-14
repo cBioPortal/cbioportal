@@ -129,16 +129,29 @@ public final class ZScoresConverterImpl implements Converter {
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies
-		DatatypeMetadata[] datatypeMetadatas = getDependencies(dependencies);
+		DatatypeMetadata[] dependenciesMetadata = getDependencies(dependencies);
 		// sanity check
-		if (datatypeMetadatas.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), datatypeMetadatas.length != 2, aborting...");
+		if (dependenciesMetadata.length != 2) {
+			throw new IllegalArgumentException("createStagingFile(), dependenciesMetadata.length != 2, aborting...");
+		}
+
+		// verify order is copy number followed by gistic
+		if ((dependenciesMetadata[0].getDatatype().contains("expression") || dependenciesMetadata[0].getDatatype().contains("EXPRESSION")) &&
+			(dependenciesMetadata[1].getDatatype().contains("cna") || dependenciesMetadata[1].getDatatype().contains("CNA"))) {
+			DatatypeMetadata tmp = dependenciesMetadata[0];
+			dependenciesMetadata[0] = dependenciesMetadata[1];
+			dependenciesMetadata[1] = tmp;
+		}
+		// sanity check
+		if (!(dependenciesMetadata[0].getDatatype().contains("cna") || dependenciesMetadata[0].getDatatype().contains("CNA")) ||
+			!(dependenciesMetadata[1].getDatatype().contains("expression") || dependenciesMetadata[1].getDatatype().contains("EXPRESSION"))) {
+			throw new IllegalArgumentException("createStagingFile(), cannot determine cna and expression datatype order, aborting...");
 		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudy, datatypeMetadata, datatypeMetadatas);
+		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

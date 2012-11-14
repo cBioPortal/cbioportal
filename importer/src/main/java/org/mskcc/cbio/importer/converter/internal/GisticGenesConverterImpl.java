@@ -146,10 +146,10 @@ public final class GisticGenesConverterImpl implements Converter {
 			importDataMatrixGenesConf = importDataMatrices[0];
 			importDataMatrixTableConf = importDataMatrices[1];
 		}
-		else if (importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) && 
-				 importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
-			importDataMatrixGenesConf = importDataMatrices[1];
+		else if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
+				 importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
 			importDataMatrixTableConf = importDataMatrices[0];
+			importDataMatrixGenesConf = importDataMatrices[1];
 		}
 		else {
 			throw new IllegalArgumentException("Cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");

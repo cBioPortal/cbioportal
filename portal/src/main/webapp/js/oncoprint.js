@@ -10,33 +10,10 @@ var OncoPrint = function(params) {
         genes = params.data.genes,
         no_genes = Object.keys(genes).length;
 
-    // make some calculations based on an existing oncoprint (a_oncoprint)
-//    var a_width = 1453,
-    var a_width = 1453,
-        a_height = 75,
-        a_trackHeight = 1 / no_genes,
-        a_rectHeight = .8 * a_trackHeight,
-        a_rectWidth = 5 / a_width,
-        a_littleRectWidth = 7 / a_width,
-        a_rectPadding = 3.5 / a_width;
-
     var rectPadding = 1.1;
-
-    var scaled_dims = function(width, height) {
-
-        var w = d3.interpolate(0, width);
-        var h = d3.interpolate(0, height);
-
-        return {
-            trackHeight: h(a_trackHeight),
-            rectHeight: h(a_rectHeight),
-            rectWidth: w(a_rectWidth),
-            littleRectWidth: w(a_littleRectWidth),
-            rectPadding: w(a_rectPadding)
-        };
-    };
-
-    var defaults = scaled_dims(a_width, a_height);
+    var rectWidth = 5.5;
+    var trackPadding = 3;
+    var rectHeight = 23;
 
     var calcLaneWidth = function(rectWidth, rectPadding, no_samples) {
         // lane : the rectangles
@@ -44,21 +21,18 @@ var OncoPrint = function(params) {
         return no_samples * (rectWidth + rectPadding);
     };
 
-    var calcSvgHeight = function(defaults, no_tracks) {
-        return defaults.trackHeight * no_tracks;
+    var calcSvgHeight = function(rectHeight, trackPadding, no_tracks) {
+        return (rectHeight + trackPadding) * no_tracks;
     };
 
-    var laneWidth = calcLaneWidth(8, 2, no_samples);
-
-    var height = params.height || calcSvgHeight(defaults, no_genes);
+    var laneWidth = calcLaneWidth(rectWidth, 2, no_samples);
+    var height = calcSvgHeight(rectHeight, trackPadding, no_genes);
 
     var x = d3.scale.linear()
         .domain([0, no_samples])
         .range([0, laneWidth]);
 
     var y = d3.scale.linear().range([0, height]);
-
-    var scaled = scaled_dims(laneWidth, height);
 
     // include whatever isn't included in options from defaults
     // for keys that are in both, choose the options
@@ -74,10 +48,11 @@ var OncoPrint = function(params) {
 
     var that = {};
 
-    that.drawCNA = function(cna_data, samples, g_el, options, trackNum) {
+    that.drawCNA = function(cna_data, samples, g_el, trackNum) {
         // draw CNA layer
 
-        var _options = overrideDefaults(options, scaled);
+        var dy = trackNum === 0 ? 0 : (rectHeight * trackNum) + trackPadding;
+        console.log("dy", dy);
 
         g_el.selectAll('rect.cna')
             .data(cna_data)
@@ -91,48 +66,46 @@ var OncoPrint = function(params) {
             .attr('id', function(d, i) {
                 return samples[i];      // index back into the array of samples
             })
-            .attr('width', _options.rectWidth)
-            .attr('height', _options.rectHeight)
+            .attr('width', rectWidth)
+            .attr('height', rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return  x(i) * 2;
+                return  x(i) * rectPadding;
             })
-            .attr('y', _options.trackHeight * trackNum);
+            .attr('y', dy);
     };
 
-    that.drawMutation = function(mutation_data, samples, g_el, options, trackNum) {
-        // draw the mutation layer
-
-        var _options = overrideDefaults(options, scaled);
-
-        var littleRectHeight = _options.rectHeight / 3;
-
-        g_el.selectAll('rect.mutation')
-            .data(mutation_data)
-            .enter()
-            .append('rect')
-            .attr('class', function(d) {
-                return 'mutation ' + (d !== null ? "mut" : "none");
-            })
-            .attr('id', function(d, i) {
-                return samples[i];
-            })
-            .attr('width', _options.littleRectWidth)
-            .attr('height', littleRectHeight)
-            .attr('x', function(d, i) {
-//                var padding =  i * (_options.rectWidth + _options.rectPadding)
-//                    - (_options.littleRectWidth - _options.rectWidth) / 2;
-////                    + (_options.littleRectWidth / 2);
-
-                return x(i) * 2;
-            })
-            .attr('y', _options.trackHeight * trackNum  // displace down for each track
-            + (_options.rectHeight - littleRectHeight) / 2);
-    };
+//    that.drawMutation = function(mutation_data, samples, g_el, options, trackNum) {
+//        // draw the mutation layer
+//
+//        var _options = overrideDefaults(options, scaled);
+//
+//        var littleRectHeight = _options.rectHeight / 3;
+//
+//        g_el.selectAll('rect.mutation')
+//            .data(mutation_data)
+//            .enter()
+//            .append('rect')
+//            .attr('class', function(d) {
+//                return 'mutation ' + (d !== null ? "mut" : "none");
+//            })
+//            .attr('id', function(d, i) {
+//                return samples[i];
+//            })
+//            .attr('width', _options.littleRectWidth)
+//            .attr('height', littleRectHeight)
+//            .attr('x', function(d, i) {
+////                var padding =  i * (_options.rectWidth + _options.rectPadding)
+////                    - (_options.littleRectWidth - _options.rectWidth) / 2;
+//////                    + (_options.littleRectWidth / 2);
+//
+//                return x(i) * 2;
+//            })
+//            .attr('y', _options.trackHeight * trackNum  // displace down for each track
+//            + (_options.rectHeight - littleRectHeight) / 2);
+//    };
 
     that.drawTrack = function(params, trackNum) {
-
-        var settings = overrideDefaults(params, scaled);
 
         var g_el = params.svg.append('g')
             .attr('class', params.label);
@@ -169,10 +142,10 @@ var OncoPrint = function(params) {
 //            .attr('y', label_dy);
 
         var cna = params.gene_data.cna;
-        that.drawCNA(cna, samples, g_el, settings, trackNum);
+        that.drawCNA(cna, samples, g_el, trackNum);
 
         var mutation_data = params.gene_data.mutations;
-        that.drawMutation(mutation_data, samples, g_el, settings, trackNum);
+//        that.drawMutation(mutation_data, samples, g_el, settings, trackNum);
 
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
@@ -180,14 +153,11 @@ var OncoPrint = function(params) {
     that.drawTracks = function(svg, genes, trackSettings) {
         var trackNum = 0;
 
-        var _trackSettings = overrideDefaults(trackSettings, scaled);
-
         genes.forEach(function(gene) {
             // draw each track
             that.drawTrack({
                 label: gene.hugo,
                 svg: svg,
-                trackSettings: _trackSettings,
                 gene_data: gene
             }, trackNum);
 
@@ -293,12 +263,13 @@ var OncoPrint = function(params) {
             .slider({
                 min: 1,
 //                max: 7,
-                max: 11,
+                max: rectWidth * 2,
                 step: .5,
-                value: 5.5,
+                value: rectWidth,
                 change: function(event, ui) {
                     console.log(ui.value);
 
+                    // todo: need to fix this
                     var width = calcLaneWidth(ui.value, 2, no_samples);
 
                     var x = d3.scale.linear()
@@ -325,8 +296,10 @@ var OncoPrint = function(params) {
                             return x(i % no_samples) * rectPadding - .5;
                         });
 
-                    d3.selectAll('#oncoprints svg')
-                        .attr('width', width);
+//                    d3.selectAll('#oncoprints svg')
+//                        .transition()
+//                        .duration(200)
+//                        .attr('width', width);
                 }
             })
             .appendTo(customizeDiv);
@@ -363,11 +336,12 @@ var OncoPrint = function(params) {
 
         var svg = d3.select(wrapper[0]).append('svg')
             .attr('width', laneWidth)
+//            .attr('viewBox', "0 0 600 600")
             .attr('height', height)      // 50 for the key at the bottom
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
-        that.drawTracks(svg, genes, scaled);
+        that.drawTracks(svg, genes);
     };
 
 //    holding off on this until I have a visualization.  It will make things much easier

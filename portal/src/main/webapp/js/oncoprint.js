@@ -1,7 +1,14 @@
 var OncoPrint = function(params) {
 
-    var labelPadding = 40,
-        labelSize = 50;
+    var labelPadding = 0,
+        labelWidth = 50,
+        trackOffSet = 94;
+//        trackOffSet = labelPadding + labelWidth;
+
+    var getTrackOffSet = function() {
+        return $('#' + params.cancer_study_id + '.oncoprint #labels')[0].getBoundingClientRect().width;
+//            - 20;       // padding space
+    };
 
     var samples = params.data.samples,
         no_samples = samples.length,
@@ -13,9 +20,9 @@ var OncoPrint = function(params) {
         a_height = 75,
         a_trackHeight = 1 / no_genes,
         a_rectHeight = .8 * a_trackHeight,
-        a_rectWidth = 5 / (a_width - labelSize),
-        a_littleRectWidth = 7 / (a_width - labelSize),
-        a_rectPadding = 3.5 / (a_width - labelSize);
+        a_rectWidth = 5 / (a_width - labelWidth),
+        a_littleRectWidth = 7 / (a_width - labelWidth),
+        a_rectPadding = 3.5 / (a_width - labelWidth);
 
     var scaled_dims = function(width, height) {
 
@@ -33,30 +40,26 @@ var OncoPrint = function(params) {
 
     var defaults = scaled_dims(a_width, a_height);
 
-    var calcSvgWidth = function(defaults, no_samples) {
-        return no_samples * (defaults.rectWidth + defaults.rectPadding)
-            + labelSize + labelPadding;
+    var calcLaneWidth = function(defaults, no_samples) {
+        // lane : the rectangles
+        // track : the label and the rectangles together, this is just my naming convention
+        return no_samples * (defaults.rectWidth + defaults.rectPadding);
     };
 
     var calcSvgHeight = function(defaults, no_tracks) {
         return defaults.trackHeight * no_tracks;
     };
 
-//    var width = 3000;
-    var width = (params.width + labelSize + labelPadding) || calcSvgWidth(defaults, no_samples);
-    var height = (params.height + labelSize + labelPadding) || calcSvgHeight(defaults, no_genes);
+    var laneWidth = params.width || calcLaneWidth(defaults, no_samples);
+    var height = params.height || calcSvgHeight(defaults, no_genes);
 
-//    var x = d3.scale.linear()
-//        .domain([0, no_samples])
-//        .range([0, width]);
-
-    var x = function(kth_sample) {
-        return kth_sample / no_samples * width;
-    };
+    var x = d3.scale.linear()
+        .domain([0, no_samples])
+        .range([0, laneWidth]);
 
     var y = d3.scale.linear().range([0, height]);
 
-    var scaled = scaled_dims(width, height);
+    var scaled = scaled_dims(laneWidth, height);
 
     // include whatever isn't included in options from defaults
     // for keys that are in both, choose the options
@@ -93,7 +96,7 @@ var OncoPrint = function(params) {
             .attr('height', _options.rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return labelPadding + labelSize + x(i);
+                return getTrackOffSet() + x(i);
             })
             .attr('y', _options.trackHeight * trackNum);
     };
@@ -118,7 +121,7 @@ var OncoPrint = function(params) {
             .attr('width', _options.littleRectWidth)
             .attr('height', littleRectHeight)
             .attr('x', function(d, i) {
-                var padding = labelSize + labelPadding + i * (_options.rectWidth + _options.rectPadding)
+                var padding = getTrackOffSet() + i * (_options.rectWidth + _options.rectPadding)
                     - (_options.littleRectWidth - _options.rectWidth) / 2;
 //                    + (_options.littleRectWidth / 2);
 
@@ -163,7 +166,7 @@ var OncoPrint = function(params) {
             .attr('fill', 'black')
             .attr('font-family', 'sans-serif')
             .attr('text-anchor', 'end')
-            .attr('dx', labelSize)
+            .attr('dx', labelWidth)
             .attr('y', label_dy);
 
         var cna = params.gene_data.cna;
@@ -174,6 +177,25 @@ var OncoPrint = function(params) {
 
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
+
+    that.drawTracks = function(svg, genes, trackSettings) {
+        var trackNum = 0;
+        genes.forEach(function(gene) {
+            // draw each track
+            that.drawTrack({
+                label: gene.hugo,
+                svg: svg,
+                trackSettings: scaled,
+                gene_data: gene
+            }, trackNum);
+
+            trackNum +=1;
+
+            // todo: is it really that bad that these settings are
+            // going to be passed to all subsequent functions that don't need them?
+        });
+    };
+
 
     that.insertFullOncoPrint = function(div) {
         var oncoPrintDiv = $('<div/>', {
@@ -203,6 +225,9 @@ var OncoPrint = function(params) {
                 max: scaled.rectPadding * 2,
                 step: scaled.rectPadding * .2,
                 value: scaled.rectPadding ,
+//                create: function(event, ui) {
+//                    return change(event, ui);
+//                },
                 change: function(event, ui) {
 //                    console.log(ui.value);
 
@@ -210,7 +235,7 @@ var OncoPrint = function(params) {
                         .transition()
                         .duration(200)
                         .attr('x', function(d, i) {
-                            var padding = labelSize + labelPadding
+                            var padding = getTrackOffSet()
                                 + (i % no_samples) * (scaled.rectWidth + ui.value);
 
                             return padding;
@@ -220,7 +245,7 @@ var OncoPrint = function(params) {
                         .transition()
                         .duration(200)
                         .attr('x', function(d, i) {
-                            var padding = labelSize + labelPadding
+                            var padding = getTrackOffSet()
                                 + (i % no_samples) * (scaled.rectWidth + ui.value)
                                 + (scaled.rectWidth - scaled.littleRectWidth) / 2;
 
@@ -236,7 +261,7 @@ var OncoPrint = function(params) {
 
                     var _defaults = overrideDefaults({}, defaults);
                     _defaults.rectPadding = ui.value;
-                    var width = calcSvgWidth(_defaults, no_samples);
+                    var width = calcLaneWidth(_defaults, no_samples);
 
                     d3.selectAll('#oncoprints svg')
                         .attr('width', width);
@@ -283,28 +308,12 @@ var OncoPrint = function(params) {
         }).appendTo(oncoPrintDiv);
 
         var svg = d3.select(wrapper[0]).append('svg')
-            .attr('width', width)
+            .attr('width', laneWidth + getTrackOffSet())
             .attr('height', height)      // 50 for the key at the bottom
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
-        // todo: eventually this will be refactored into it's own function
-        var trackNum = 0;
-
-        // todo: is it really that bad that these settings are
-        // going to be passed to all subsequent functions that don't need them?
-        genes.forEach(function(gene) {
-            // draw each track
-            that.drawTrack({
-                label: gene.hugo,
-                svg: svg,
-                trackSettings: scaled,
-                gene_data: gene
-            }, trackNum);
-
-            trackNum +=1;
-
-        });
+        that.drawTracks(svg, genes, scaled);
     };
 
 //    holding off on this until I have a visualization.  It will make things much easier

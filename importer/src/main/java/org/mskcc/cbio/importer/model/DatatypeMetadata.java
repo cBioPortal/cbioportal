@@ -59,7 +59,6 @@ public final class DatatypeMetadata {
 	private String datatype;
 	private Boolean download;
 	private String[] dependencies;
-	private Boolean computable;
 	// downloadArchive is parsed in constructor
 	private LinkedHashSet<String> archives;
 	// key is archive file name, values is ARCHIVE_FILENAME_PAIR_DELIMITER filenames

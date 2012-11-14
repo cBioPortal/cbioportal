@@ -50,12 +50,12 @@ public final class CaseIDFilterMetadata {
 		if (filterName == null) {
             throw new IllegalArgumentException("filterName must not be null");
 		}
-		this.filterName = filterName;
+		this.filterName = filterName.trim();
 
 		if (regex == null) {
             throw new IllegalArgumentException("regex must not be null");
 		}
-		this.regex = regex;
+		this.regex = regex.trim();
 	}
 
 	public String getFilterName() { return filterName; }

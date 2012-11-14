@@ -57,19 +57,19 @@ public final class DataSourceMetadata {
 		if (dataSource == null) {
             throw new IllegalArgumentException("dataSource must not be null");
 		}
-		this.dataSource = dataSource;
+		this.dataSource = dataSource.trim();
 
 		if (downloadDirectory == null) {
             throw new IllegalArgumentException("downloadDirectory must not be null");
 		}
-		this.downloadDirectory = downloadDirectory;
+		this.downloadDirectory = downloadDirectory.trim();
 
 		if (latestRunDownload == null) {
             throw new IllegalArgumentException("latestRunDownload must not be null");
 		}
-		this.latestRunDownload = latestRunDownload;
+		this.latestRunDownload = latestRunDownload.trim();
 
-		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID : "";
+		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID.trim() : "";
 	}
 
 	public String getDataSource() { return dataSource; }

@@ -108,7 +108,7 @@ public final class DatatypeMetadata {
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
 		}
-		this.datatype = datatype;
+		this.datatype = datatype.trim();
 
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");
@@ -126,8 +126,8 @@ public final class DatatypeMetadata {
 			archivedFiles = new HashMap<String, String>();
 			for (String archivePair : downloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
-				String archive = parts[0];
-				String archivedFile = parts[1];
+				String archive = parts[0].trim();
+				String archivedFile = parts[1].trim();
 				archives.add(archive);
 				if (archivedFiles.containsKey(archive)) {
 					archivedFiles.put(archive, (archivedFiles.get(archive) +
@@ -144,23 +144,23 @@ public final class DatatypeMetadata {
 			this.overrideFilename = "";
 		}
 		else {
-			this.overrideFilename = overrideFilename;
+			this.overrideFilename = overrideFilename.trim();
 		}
 
 		if (stagingFilename == null) {
             throw new IllegalArgumentException("stagingFilename must not be null");
 		}
-		this.stagingFilename = stagingFilename;
+		this.stagingFilename = stagingFilename.trim();
 
 		if (converterClassName == null) {
             throw new IllegalArgumentException("converterClassName must not be null");
 		}
-		this.converterClassName = converterClassName;
+		this.converterClassName = converterClassName.trim();
 
 		if (importerClassName == null) {
             throw new IllegalArgumentException("importerClassName must not be null");
 		}
-		this.importerClassName = importerClassName;
+		this.importerClassName = importerClassName.trim();
 
 		if (requiresMetafile == null) {
 			throw new IllegalArgumentException("requires metaFilen must not be null");

@@ -349,7 +349,7 @@
     
     <servlet-mapping>
         <servlet-name>TumorMapServlet</servlet-name>
-        <url-pattern>/tumormap.do</url-pattern>
+        <url-pattern>/index.tumormap</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
@@ -364,7 +364,7 @@
     
     <servlet-mapping>
         <servlet-name>patient_view</servlet-name>
-        <url-pattern>/patient.do</url-pattern>
+        <url-pattern>/tumormap.do</url-pattern>
     </servlet-mapping>
     
     <servlet>

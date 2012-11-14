@@ -198,7 +198,7 @@ function getRefererCaseId() {
 }
 
 function formatPatientLink(caseId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?case_id='+caseId+'">'+caseId+'</a>'
+    return caseId==null?"":'<a title="Go to patient-centric view" href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do?case_id='+caseId+'">'+caseId+'</a>'
 }
 
 </script>

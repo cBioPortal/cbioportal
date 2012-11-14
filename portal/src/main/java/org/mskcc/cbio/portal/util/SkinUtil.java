@@ -270,7 +270,7 @@ public class SkinUtil {
     }
     
     public static String getLinkToPatientView(String caseId) {
-        return getTumorMapUrl()+"patient.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+        return getTumorMapUrl()+"tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
                 + "=" + caseId;
     }
     

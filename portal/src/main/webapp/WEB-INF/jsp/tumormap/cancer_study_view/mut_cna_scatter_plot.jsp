@@ -9,7 +9,7 @@
 <fieldset style="padding:0px 1px">
     <legend style="color:blue;font-weight:bold;">Mutation Count VS. Copy Number Alteration</legend>
     <div style="display:none">
-        <form name="input" action="patient.do" method="get">
+        <form name="input" action="tumormap.do" method="get">
             <select id="case-select" name="<%=PatientView.PATIENT_ID%>"><option id="null_case_select"></option></select>
             <input type="submit" id="submit-patient-btn" value="More About This Case" />
         </form>

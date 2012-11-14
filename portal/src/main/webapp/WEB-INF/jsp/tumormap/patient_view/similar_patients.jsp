@@ -45,7 +45,7 @@ A genomic overview with events aligned across patients goes here...
                                 source[0]=value;
                             } else if (type==='display') {
                                 var patientId = source[ 0 ];
-                                return "<a href='patient.do?<%=PatientView.PATIENT_ID%>="+patientId
+                                return "<a href='tumormap.do?<%=PatientView.PATIENT_ID%>="+patientId
                                     + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"'><b>"+patientId+"</b></a>";
                             } else {
                                 return source[0];

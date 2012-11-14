@@ -110,7 +110,7 @@ function drawDataTable(tableId,dt,caseMap) {
         for (var col=0; col<nCol; col++) {
             var val = dt.getValue(row,col);
             if (val && isColNum[col]) {
-                val = cbio.util.round_to_2SF(val,0.1);
+                val = cbio.util.toPrecision(val,3,0.01);
             }
             dRow.push(val);
         }

@@ -71,7 +71,7 @@
                                 if (type==='set') {
                                     return;
                                 } else if (type==='display') {
-                                    return cbio.util.round_to_2SF(data[source[0]]['qval'], 0.1);
+                                    return cbio.util.toPrecision(data[source[0]]['qval'], 3, 0.01);
                                 } else {
                                     return data[source[0]]['qval'];
                                 }

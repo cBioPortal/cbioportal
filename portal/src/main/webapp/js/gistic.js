@@ -198,7 +198,7 @@ var Gistic = function(gistics) {
                 "aTargets":[5],
                 "mDataProp": function(source, type, val) {
 
-                    var rounded = cbio.util.round_to_2SF(source.qval, 0.1);
+                    var rounded = cbio.util.toPrecision(source.qval, 2, 0.1);
 
                     if (type === 'display') {
                         return rounded;

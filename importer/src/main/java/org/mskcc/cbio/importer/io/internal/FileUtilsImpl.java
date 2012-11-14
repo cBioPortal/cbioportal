@@ -270,7 +270,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
@@ -327,7 +327,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we already have input (oncotatorOutputFile)
 		// output should be the path/name of staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
@@ -353,7 +353,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	/**
 	 * Creates a z-score staging file from the given dependencies.  It assumes that the
-	 * dependency - staging files have already been created.
+	 * dependency - staging files have already been created.  This code also assumes
+	 * that the dependencies are ordered by cna, then expression.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
@@ -438,15 +439,15 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
-			stableID = stableID.replace("<CANCER_STUDY>", cancerStudy);
+			stableID = stableID.replaceAll("<CANCER_STUDY>", cancerStudy);
 			writer.print("stable_id: " + stableID + "\n");
 			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
 			if (importDataMatrix != null) {
-				profileDescription = profileDescription.replace("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
-				profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
+				profileDescription = profileDescription.replaceAll("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
 			}
-			profileDescription = profileDescription.replace("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
+			profileDescription = profileDescription.replaceAll("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
 			writer.print("profile_description: " + profileDescription + "\n");
 			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();
@@ -485,7 +486,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                     String entryName = entry.getName();
                     String dataFile = importData.getDataFilename();
                     if (dataFile.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
-                        dataFile = dataFile.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
+                        dataFile = dataFile.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
                     }
                     if (entryName.contains(dataFile)) {
                         if (LOG.isInfoEnabled()) {
@@ -595,8 +596,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         if (potentialOverrideCancerStudyDir != null) {
             // construct override filename
             if (overrideFilename.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
-                    overrideFilename = overrideFilename.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX,
-                                                                tumorType.toUpperCase());
+                    overrideFilename = overrideFilename.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX,
+																   tumorType.toUpperCase());
             }
             // check for existence of override file
             File potentialOverrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getConvertOverrideDirectory(),

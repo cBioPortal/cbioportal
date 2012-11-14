@@ -56,25 +56,12 @@ $(document).ready(function(){
     });
 
     //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-	var drawTooltipRegion = true;
     $("#toggle_query_form").click(function(event) {
       event.preventDefault();
       $('#query_form_on_results_page').toggle();
 
       //  Toggle the icons
       $(".query-toggle").toggle();
-
-	  // to handle drawing of tooltip region canvas on click
-	  var currentLocation = window.location.pathname;
-	  if (currentLocation.indexOf("index.do") != -1 || currentLocation.indexOf("link.do") != -1) {
-		var cancerStudyId = $("#select_cancer_type").val();
-		drawTooltipRegion = !drawTooltipRegion;
-   	    if (drawTooltipRegion) {
-			// we use time out otherwise tiptip on Modify Query erases region
-			eval("setTimeout(function () { DrawOncoPrintTooltipRegion(ONCOPRINT_" + cancerStudyId +
-				 ", oncoprint_section_" + cancerStudyId + ")}, 100);");
-		}
-	  }
 
     });
 

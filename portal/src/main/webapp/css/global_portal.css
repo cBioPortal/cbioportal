@@ -1286,3 +1286,7 @@ cc-ie-message {
 .center-align-td {
     text-align: center;
 }
+
+.ui-tooltip-lightyellow {
+    background-color: lightyellow;
+}

@@ -125,7 +125,6 @@ function drawDataTable(tableId,dt,caseMap) {
         "aoColumnDefs":[
             {// id
                 "aTargets": [ 0 ],
-                "sClass": "center-align-td",
                 "mDataProp": function(source,type,value) {
                     if (type==='set') {
                         source[0]=value;

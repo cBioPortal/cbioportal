@@ -889,9 +889,12 @@ function showGeneDetails(evt)
 	// retrieve the selected node
 	var node = _vis.node(evt.target.value);
 	
-	// TODO position the inspector, (also center the selected gene?)
-	
-	// update inspector content
+    // clear everything
+    $("#node_inspector_content .data").html("");
+
+    // TODO position the inspector, (also center the selected gene?)
+
+    // update inspector content
 	_updateNodeInspectorContent(node.data, node);
 	
 	// open inspector panel

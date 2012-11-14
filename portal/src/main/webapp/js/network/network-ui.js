@@ -332,9 +332,6 @@ function _updateNodeInspectorForDrug(data, node)
 	var synonyms = new Array();
 	var description;
 
-    // clear everything
-    $("#node_inspector_content .data").html("");
-	
 	//For number of targeted genes
 	if (data["TARGETS"] != "") 
 	{	
@@ -496,16 +493,17 @@ function _updateNodeInspectorContent(data, node)
 	$("#node_inspector_content .data .description-data-row").remove();
 	$("#node_inspector_content .data .fda-data-row").remove();
 	$("#node_inspector_content .data .pubmed-data-row").remove();
-	
-	// For non drug view of node inspector
+    $("#node_inspector_content .data .clinicaltrials-data-row").remove();
+    $("#node_inspector_content .data .cancerdrug-data-row").remove();
+
+    // For non drug view of node inspector
 	$("#node_inspector_content .data .data-row").remove();
 	
 	$("#node_inspector_content .xref .xref-row").remove();
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
-	
-	
-	if (data.type == DRUG) 
+
+    if (data.type == DRUG)
 	{
 		_updateNodeInspectorForDrug(data, node);
 	}
@@ -889,9 +887,9 @@ function showGeneDetails(evt)
 	// retrieve the selected node
 	var node = _vis.node(evt.target.value);
 	
-	// TODO position the inspector, (also center the selected gene?)
-	
-	// update inspector content
+    // TODO position the inspector, (also center the selected gene?)
+
+    // update inspector content
 	_updateNodeInspectorContent(node.data, node);
 	
 	// open inspector panel

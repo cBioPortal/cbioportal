@@ -125,6 +125,34 @@ if (cancerStudyViewError!=null) {
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />    
 
+<style type="text/css">
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .dataTables_length {
+                width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                clear: none;
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
+        }
+        .data-table-name {
+                float: left;
+                font-weight: bold;
+                font-size: 120%;
+                vertical-align: middle;
+        }
+</style>
+
 <script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
@@ -167,6 +195,10 @@ function switchToTab(toTab) {
 function getRefererCaseId() {
     var match = /<%=PatientView.PATIENT_ID%>=([^&]+)/.exec(document.referrer);
     return match ? match[1] : null;
+}
+
+function formatPatientLink(caseId) {
+    return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?case_id='+caseId+'">'+caseId+'</a>'
 }
 
 </script>

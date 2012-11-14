@@ -12,14 +12,14 @@ CaseSelectObserver.prototype = {
     },
     fireSelection: function(caseId,source,targets,forceFire) {
         if (!forceFire&&compareAssociativeArrays(caseId,this.caseId)) return;
-        //$('#submit-patient-btn').attr("disabled", caseId==null);
         
+        var pre = this.caseId;
         this.caseId = caseId;
         for (var listener in this.funcs) {
-            if (targets!=null&&(targets!=listener&&!targets[listener])) continue;
+            if (targets&&(targets!=listener&&!targets[listener])) continue;
             if (listener==source) continue;
             var func = this.funcs[listener];
-            func.call(window,caseId);
+            func.call(window,caseId,pre);
         }
     }
 };
@@ -55,7 +55,7 @@ function resetSmallPlots(dt) {
     var hidden = false;
     for (var i=1; i<dt.getNumberOfColumns(); i++) {
         if (selectedCol(dt,i))
-            plotData(divNum++,dt,i,null);
+            plotData(divNum++,dt,i);
         else
             hidden = true;
     }
@@ -64,7 +64,7 @@ function resetSmallPlots(dt) {
         var start = divNum;
         for (var i=1; i<dt.getNumberOfColumns(); i++) {
             if (!selectedCol(dt,i))
-                plotData(divNum++,dt,i,null);
+                plotData(divNum++,dt,i);
         }
         
         var div = getSmallPlotDiv(divNum++);
@@ -91,57 +91,81 @@ function selectedCol(dt,col) {
 }
 
 // draw datatable
-function drawDataTable(divId,dt,caseMap) {
-    var tableDataView = new google.visualization.DataView(dt);
-
-    var idFormatter = new google.visualization.PatternFormat(formatPatientLink('{0}'));
-    idFormatter.format(dt, [0]);
+function drawDataTable(tableId,dt,caseMap) {
+    // set headers
+    var nCol = dt.getNumberOfColumns();
+    var headers = [];
+    var isColNum = [];
+    for (var col=0; col<nCol; col++) {
+        headers.push(getNiceHeader(dt.getColumnLabel(col)));
+        isColNum.push(dt.getColumnType(col)==='number');
+    }
+    $('#'+tableId+' thead tr').html("<th><b>"+headers.join("</b></th><th><b>")+"</b></th>");
     
-    var numFormatter = new google.visualization.NumberFormat({pattern:'#.##'});
-    for (var i=0, len=dt.getNumberOfColumns(); i<len; i++) {
-        numFormatter.format(dt, i);
+    // format data
+    var data = [];
+    var nRow = dt.getNumberOfRows();
+    for (var row=0; row<nRow; row++) {
+        var dRow = [];
+        for (var col=0; col<nCol; col++) {
+            var val = dt.getValue(row,col);
+            if (val && isColNum[col]) {
+                val = cbio.util.round_to_2SF(val,0.1);
+            }
+            dRow.push(val);
+        }
+        data.push(dRow);
     }
     
-    var table = new google.visualization.Table(document.getElementById(divId));
-    var options = {
-        allowHtml: true,
-        showRowNumber: true
-    };
-
-    google.visualization.events.addListener(table, 'select', function(e){
-        var s = table.getSelection();
-        var caseId;
-        if (s.length==0) caseId = null;
-        else if (s.length==1) caseId = dt.getValue(s[0].row,0);
-        else {
-            caseId = {};
-            for (var i=0; i<s.length; i++) {
-                caseId[dt.getValue(s[i].row,0)] = true;
-            }
-        }
-
-        csObs.fireSelection(caseId,divId);
-    });
-    google.visualization.events.addListener(table, 'ready', function(e){
-        csObs.subscribe(divId,function(caseId) {
-            if (caseId==null) {
-                table.setSelection();
-            } else if ((typeof caseId)==(typeof '')) {
-                var ix = caseMap[caseId];
-                table.setSelection(ix==null?null:[{'row': ix}]);
-            } else if ((typeof caseId)==(typeof {})) {
-                var rows = [];
-                for (var id in caseId) {
-                    var row = caseMap[id];
-                    if (row!=null)
-                        rows.push({'row':caseMap[id]});
+    var oTable = $('#'+tableId).dataTable( {
+        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"pil>>',
+        "bJQueryUI": true,
+        "bDestroy": true,
+        "aaData": data,
+        "aoColumnDefs":[
+            {// id
+                "aTargets": [ 0 ],
+                "sClass": "center-align-td",
+                "mDataProp": function(source,type,value) {
+                    if (type==='set') {
+                        source[0]=value;
+                    } else if (type==='display') {
+                        return formatPatientLink(source[0]);
+                    } else {
+                        return source[0];
+                    }
                 }
-                table.setSelection(rows);
             }
-        },false);
+        ],
+        "oLanguage": {
+            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+            "sLengthMenu": "Show _MENU_ per page"
+        },
+        "iDisplayLength": 25,
+        "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
     });
 
-    table.draw(tableDataView,options);
+    oTable.css("width","100%");
+    
+    csObs.subscribe(tableId,function(caseId) {
+        if (caseId==null) {
+            oTable.fnFilter('', 0,true);
+        } else if ((typeof caseId)==(typeof '')) {
+            oTable.fnFilter("^"+caseId+"$",0,true);
+        } else if ((typeof caseId)==(typeof {})) {
+            var ids = [];
+            for (var id in caseId) {
+                ids.push(id);
+            }
+            oTable.fnFilter("(^"+ids.join("$)|(^")+"$)",0,true);
+        }
+    },true);
+    
+    $('#'+tableId+' tbody tr').live('click', function () {
+        var nTds = $('td', this);
+        var caseId = $(nTds[0]).text();
+        csObs.fireSelection(caseId,tableId);
+    } );
 }
 
 function getHeaderMap(dataTable) {
@@ -247,7 +271,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
 }
 
 function plotData(divNum,dt,col,caseIds) {
-    var c = dt.getColumnLabel(col);
+    var c = getNiceHeader(dt.getColumnLabel(col));
     var div = getSmallPlotDiv(divNum,c);
     var t = dt.getColumnType(col);
     var nCases = nrKeysAssociativeArrays(caseIds);
@@ -272,16 +296,22 @@ function plotData(divNum,dt,col,caseIds) {
         csObs.fireSelection(caseIds,empty?null:div.id);
     });
     google.visualization.events.addListener(chart, 'ready', function(e){
-        csObs.subscribe(div.id,function(caseId) {
+        csObs.subscribe(div.id,function(caseId,preCaseId) {
             if (caseId==null) {
-                chart.setSelection();
+                if (preCaseId==null) {
+                    return;
+                } else if ((typeof preCaseId)==(typeof '')) {
+                    chart.setSelection();
+                } else if ((typeof preCaseId)==(typeof {})) {
+                    plotData(divNum,dt,col,caseId);
+                }
             } else if ((typeof caseId)==(typeof '')) {
                 var ix = hist[1][caseId];
                 chart.setSelection(ix==null?null:[{'row': ix}]);
             } else if ((typeof caseId)==(typeof {})) {
                 plotData(divNum,dt,col,caseId);
             }
-        },caseIds==null);
+        },(typeof caseIds)==='undefined');
     });
     var options = columnChart ?
         {
@@ -335,4 +365,10 @@ function getSmallPlotDiv(divNum,legend) {
 
 function removeSmallPlotDiv(divNum) {
     $('#small-plot-td-'+divNum).html("");
+}
+
+function getNiceHeader(header) {
+    var ret = header.replace(/_/g,' ');
+    ret = ret.charAt(0).toUpperCase() + ret.slice(1);
+    return ret;
 }

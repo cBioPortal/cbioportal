@@ -2,34 +2,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutSigJSON" %>
 <%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
-<style type="text/css">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        .ColVis {
-                float: left;
-                margin-bottom: 0
-        }
-        .dataTables_length {
-                width: auto;
-                float: right;
-        }
-        .dataTables_info {
-                clear: none;
-                width: auto;
-                float: right;
-        }
-        .div.datatable-paging {
-                width: auto;
-                float: right;
-        }
-        .smg-table-name {
-                float: left;
-                font-weight: bold;
-                font-size: 120%;
-                vertical-align: middle;
-        }
-</style>
-
 <script type="text/javascript">   
     $(document).ready(function(){
         $('#smg_wrapper_table').hide();
@@ -120,6 +92,7 @@
                 oTable.css("width","100%");
                 
                 $('.smg-table-name').html(n+" significantly mutated genes");
+                $('.smg-table-name').addClass('data-table-name');
                 
                 $('#smg_wrapper_table').show();
             });

@@ -66,10 +66,6 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
         return scatter;
 }
 
-function formatPatientLink(caseId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="patient.do?case_id='+caseId+'">'+caseId+'</a>'
-}
-
 function loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,func) {
 
     var mutDataTable = null;

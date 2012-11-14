@@ -9,9 +9,13 @@
     height:200px;
     display:block;
 }
-#clinical-data-table {
+#clinical-data-table-div {
     width: 1200px;
     overflow-x:scroll;
+    overflow-y:hidden;
+}
+#clinical-msg {
+    background-color: lightyellow;
 }
 </style>
 
@@ -22,35 +26,54 @@
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         $('#summary-plot-table').hide();
+        $('#clinical_wrapper_table').hide();
         if (!mutationProfileId||!hasCnaSegmentData) {
             $('#summary-plot-table').html(""); // remove all if no cna-mut plot
                                                // small plots will be auto generated
         }
         $('#submit-patient-btn').attr("disabled", true);
-        //setupCaseSelect(caseIds);
+        initMsgListener();
         loadClinicalData(caseSetId);
         loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
     });
     
-    function setupCaseSelect(caseIds) {
-        var caseSelect = $('#case-select');
-        for (var i=0; i<caseIds.length; i++) {
-            caseSelect
-                .append($("<option></option>")
-                .attr("value",caseIds[i])
-                .attr("id",caseIds[i]+"_select")
-                .text(caseIds[i]));
-        }
-        csObs.subscribe('case-select',function(caseId){
-            var op = caseId ? $("#"+caseId+"_select") : $("#null_case_select");
-            op.attr("selected","selected");
-        },true);
-        caseSelect.change(function(e) {
-            var caseId = $('#case-select  option:selected').attr('value');
-            if (caseId=="") caseId=null;
-            csObs.fireSelection(caseId,'case-select');
-        });
+    function initMsgListener() {
+        csObs.subscribe('clinical-msg',function(caseId) {
+            if (caseId==null) {
+                $('#clinical-msg').hide();
+            } else if ((typeof caseId)==(typeof '')) {
+                $('#clinical-msg').html(formatPatientLink(caseId)+
+                    " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
+                $('#clinical-msg').show();
+            } else if ((typeof caseId)==(typeof {})) {
+                var numSelected = 0;
+                for (var id in caseId) {
+                    numSelected++;
+                }
+                if (numSelected==0) {
+                    $('#clinical-msg').hide();
+                } else if (numSelected==1) {
+                    $('#clinical-msg').html(formatPatientLink(id)+
+                        " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
+                    $('#clinical-msg').show();
+                } else {
+                    var ids = [];
+                    for (var id in caseId) {
+                        ids.push(id);
+                    }
+                    var form = '<form method="post" action="index.do">'
+                            + numSelected+' cases are selected.'
+                            + '<input type="hidden" name="cancer_study_id" value="'+studyId
+                            + '"><input type="hidden" name="case_set_id" value="-1">'
+                            + '<input type="hidden" name="case_ids" value="'+ids.join(" ")
+                            + '"><input type="submit" value="Query them">'
+                            + '<input type="submit" onclick="csObs.fireSelection(null,null);return false;" value="Clear selection"></form>';
+                    $('#clinical-msg').html(form);
+                    $('#clinical-msg').show();
+                }
+            }
+        },false);
     }
     
     var clincialDataTable = null;
@@ -119,11 +142,12 @@
     function waitAndDrawTable() {
         var dt = mergeDataTables();
         if (dt) {
-                $('#clinical-data-loading-wait').hide();
-                $('#summary-plot-table').show();
-                resetSmallPlots(dt);
+            $('#clinical-data-loading-wait').hide();
+            $('#summary-plot-table').show();
+            resetSmallPlots(dt);
             var caseMap = getCaseMap(dt);
-            drawDataTable('clinical-data-table',dt,caseMap);
+            drawDataTable('clinical_table',dt,caseMap);
+            $('#clinical_wrapper_table').show();
         }
     }
     
@@ -141,6 +165,8 @@
     <img src="images/ajax-loader.gif"/>
 </div>
 
+<div id="clinical-msg"></div>
+
 <table id="summary-plot-table">
     <tr>
         <td id="small-plot-td-1"></td>
@@ -155,5 +181,20 @@
     </tr>
     
 </table>
-        
-<div id="clinical-data-table"><img src="images/ajax-loader.gif"/></div>
+
+&nbsp;<br/>        
+      
+<div id="clinical-data-table-div">
+<table cellpadding="0" cellspacing="0" border="0" id="clinical_wrapper_table" width="100%">
+    <tr>
+        <td>
+            <table cellpadding="0" cellspacing="0" border="0" class="display" id="clinical_table">
+                <thead>
+                    <tr valign="bottom">
+                    </tr>
+                </thead>
+            </table>
+        </td>
+    </tr>
+</table>
+</div>

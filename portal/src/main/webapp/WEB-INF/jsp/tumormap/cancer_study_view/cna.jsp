@@ -2,34 +2,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.GisticJSON" %>
 <%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
-<style type="text/css">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        .ColVis {
-                float: left;
-                margin-bottom: 0
-        }
-        .dataTables_length {
-                width: auto;
-                float: right;
-        }
-        .dataTables_info {
-                clear: none;
-                width: auto;
-                float: right;
-        }
-        .div.datatable-paging {
-                width: auto;
-                float: right;
-        }
-        .gistic-table-name {
-                float: left;
-                font-weight: bold;
-                font-size: 120%;
-                vertical-align: middle;
-        }
-</style>
-
 <script type="text/javascript">   
     $(document).ready(function(){
         $('#gistic_wrapper_table').hide();
@@ -163,6 +135,7 @@
                 oTable.css("width","100%");
                 
                 $('.gistic-table-name').html(n+" significantly mutated genes");
+                $('.gistic-table-name').addClass('data-table-name');
                 
                 $('#gistic_wrapper_table').show();
             });

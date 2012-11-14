@@ -20,6 +20,8 @@ var OncoPrint = function(params) {
         a_littleRectWidth = 7 / a_width,
         a_rectPadding = 3.5 / a_width;
 
+    var rectPadding = 1.1;
+
     var scaled_dims = function(width, height) {
 
         var w = d3.interpolate(0, width);
@@ -297,9 +299,11 @@ var OncoPrint = function(params) {
                 change: function(event, ui) {
                     console.log(ui.value);
 
+                    var width = calcLaneWidth(ui.value, 2, no_samples);
+
                     var x = d3.scale.linear()
                         .domain([0, no_samples])
-                        .range([0, calcLaneWidth(ui.value, 2, no_samples)]);
+                        .range([0, width]);
 
                     d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
                         .transition()
@@ -308,7 +312,7 @@ var OncoPrint = function(params) {
                             return ui.value;
                         })
                         .attr('x', function(d, i) {
-                            return x(i % no_samples) * 1.1;
+                            return x(i % no_samples) * rectPadding;
                         });
 
                     d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
@@ -318,11 +322,11 @@ var OncoPrint = function(params) {
                             return ui.value + 1;
                         })
                         .attr('x', function(d, i) {
-                            return x(i % no_samples) * 1.1 - .5;
+                            return x(i % no_samples) * rectPadding - .5;
                         });
 
-//                    d3.selectAll('#oncoprints svg')
-//                        .attr('width', width);
+                    d3.selectAll('#oncoprints svg')
+                        .attr('width', width);
                 }
             })
             .appendTo(customizeDiv);

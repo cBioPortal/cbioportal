@@ -1,14 +1,9 @@
 var OncoPrint = function(params) {
 
-    var labelPadding = 0,
-        labelWidth = 50,
-        trackOffSet = 94;
-//        trackOffSet = labelPadding + labelWidth;
-
-    var getTrackOffSet = function() {
-        return $('#' + params.cancer_study_id + '.oncoprint #labels')[0].getBoundingClientRect().width;
-//            - 20;       // padding space
-    };
+//    var getLaneOffset = function() {
+//        // returns the width of the label which someone else computes
+//        return $('#' + params.cancer_study_id + '.oncoprint #labels')[0].getBoundingClientRect().width;
+//    };
 
     var samples = params.data.samples,
         no_samples = samples.length,
@@ -16,13 +11,14 @@ var OncoPrint = function(params) {
         no_genes = Object.keys(genes).length;
 
     // make some calculations based on an existing oncoprint (a_oncoprint)
-    var a_width = 1493,
+//    var a_width = 1453,
+    var a_width = 1453,
         a_height = 75,
         a_trackHeight = 1 / no_genes,
         a_rectHeight = .8 * a_trackHeight,
-        a_rectWidth = 5 / (a_width - labelWidth),
-        a_littleRectWidth = 7 / (a_width - labelWidth),
-        a_rectPadding = 3.5 / (a_width - labelWidth);
+        a_rectWidth = 5 / a_width,
+        a_littleRectWidth = 7 / a_width,
+        a_rectPadding = 3.5 / a_width;
 
     var scaled_dims = function(width, height) {
 
@@ -40,17 +36,18 @@ var OncoPrint = function(params) {
 
     var defaults = scaled_dims(a_width, a_height);
 
-    var calcLaneWidth = function(defaults, no_samples) {
+    var calcLaneWidth = function(rectWidth, rectPadding, no_samples) {
         // lane : the rectangles
         // track : the label and the rectangles together, this is just my naming convention
-        return no_samples * (defaults.rectWidth + defaults.rectPadding);
+        return no_samples * (rectWidth + rectPadding);
     };
 
     var calcSvgHeight = function(defaults, no_tracks) {
         return defaults.trackHeight * no_tracks;
     };
 
-    var laneWidth = params.width || calcLaneWidth(defaults, no_samples);
+    var laneWidth = calcLaneWidth(8, 2, no_samples);
+
     var height = params.height || calcSvgHeight(defaults, no_genes);
 
     var x = d3.scale.linear()
@@ -96,7 +93,7 @@ var OncoPrint = function(params) {
             .attr('height', _options.rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return getTrackOffSet() + x(i);
+                return  x(i) * 2;
             })
             .attr('y', _options.trackHeight * trackNum);
     };
@@ -121,11 +118,11 @@ var OncoPrint = function(params) {
             .attr('width', _options.littleRectWidth)
             .attr('height', littleRectHeight)
             .attr('x', function(d, i) {
-                var padding = getTrackOffSet() + i * (_options.rectWidth + _options.rectPadding)
-                    - (_options.littleRectWidth - _options.rectWidth) / 2;
-//                    + (_options.littleRectWidth / 2);
+//                var padding =  i * (_options.rectWidth + _options.rectPadding)
+//                    - (_options.littleRectWidth - _options.rectWidth) / 2;
+////                    + (_options.littleRectWidth / 2);
 
-                return padding;
+                return x(i) * 2;
             })
             .attr('y', _options.trackHeight * trackNum  // displace down for each track
             + (_options.rectHeight - littleRectHeight) / 2);
@@ -138,36 +135,36 @@ var OncoPrint = function(params) {
         var g_el = params.svg.append('g')
             .attr('class', params.label);
 
-        var labels = params.svg.append('text')
-            .attr('class', params.label)
-//            .attr('width', 200)
-            .attr('id', 'labels');
-//            .attr('left', 0)
-//            .attr('right', 0)
-//            .attr('top', 'auto')
-//            .attr('bottom', 0)
-//            .attr('position', 'fixed');
-
-        var label_dy = (trackNum * settings.trackHeight) + settings.trackHeight / 2;
-
-        // draw name
-        labels.append('tspan')
-            .text(params.label)
-            .attr('font-size', '12px')
-            .attr('fill', 'black')
-            .attr('font-family', 'sans-serif')
+//        var labels = params.svg.append('text')
+//            .attr('class', params.label)
+////            .attr('width', 200)
+//            .attr('id', 'labels');
+////            .attr('left', 0)
+////            .attr('right', 0)
+////            .attr('top', 'auto')
+////            .attr('bottom', 0)
+////            .attr('position', 'fixed');
+//
+//        var label_dy = (trackNum * settings.trackHeight) + settings.trackHeight / 2;
+//
+//        // draw name
+//        labels.append('tspan')
+//            .text(params.label)
+//            .attr('font-size', '12px')
+//            .attr('fill', 'black')
+//            .attr('font-family', 'sans-serif')
+////            .attr('text-anchor', 'end')
+//            .attr('y', label_dy);
+//
+//        // draw the percent changed
+//        labels.append('tspan')
+//            .text(params.gene_data.percent_altered)
+//            .attr('font-size', '12px')
+//            .attr('fill', 'black')
+//            .attr('font-family', 'sans-serif')
 //            .attr('text-anchor', 'end')
-            .attr('y', label_dy);
-
-        // draw the percent changed
-        labels.append('tspan')
-            .text(params.gene_data.percent_altered)
-            .attr('font-size', '12px')
-            .attr('fill', 'black')
-            .attr('font-family', 'sans-serif')
-            .attr('text-anchor', 'end')
-            .attr('dx', labelWidth)
-            .attr('y', label_dy);
+//            .attr('dx', labelWidth)
+//            .attr('y', label_dy);
 
         var cna = params.gene_data.cna;
         that.drawCNA(cna, samples, g_el, settings, trackNum);
@@ -180,12 +177,15 @@ var OncoPrint = function(params) {
 
     that.drawTracks = function(svg, genes, trackSettings) {
         var trackNum = 0;
+
+        var _trackSettings = overrideDefaults(trackSettings, scaled);
+
         genes.forEach(function(gene) {
             // draw each track
             that.drawTrack({
                 label: gene.hugo,
                 svg: svg,
-                trackSettings: scaled,
+                trackSettings: _trackSettings,
                 gene_data: gene
             }, trackNum);
 
@@ -217,65 +217,115 @@ var OncoPrint = function(params) {
         $('<span>', { text: "White Space"
         }).appendTo(customizeDiv);
 
+        $('<input>', {
+            type: "checkbox"
+//            onclick: OncoPrint.UI.hideWhiteSpace($(''))   ...blah blah
+        }).appendTo(customizeDiv);
+
         // slider
-        $('<div>', { id: "width_slider", width: "100", display:"inline"})
-            .slider({
-                min: 0,
-//                max: 7,
-                max: scaled.rectPadding * 2,
-                step: scaled.rectPadding * .2,
-                value: scaled.rectPadding ,
-//                create: function(event, ui) {
-//                    return change(event, ui);
-//                },
-                change: function(event, ui) {
-//                    console.log(ui.value);
-
-                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
-                        .transition()
-                        .duration(200)
-                        .attr('x', function(d, i) {
-                            var padding = getTrackOffSet()
-                                + (i % no_samples) * (scaled.rectWidth + ui.value);
-
-                            return padding;
-                        });
-
-                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
-                        .transition()
-                        .duration(200)
-                        .attr('x', function(d, i) {
-                            var padding = getTrackOffSet()
-                                + (i % no_samples) * (scaled.rectWidth + ui.value)
-                                + (scaled.rectWidth - scaled.littleRectWidth) / 2;
-
-                            return padding;
-                        })
-                        .attr('width', function(d, i) {
-                            if (ui.value === 0) {
-                                return scaled.rectWidth;
-                            } else {
-                                return scaled.littleRectWidth;
-                            }
-                        });
-
-                    var _defaults = overrideDefaults({}, defaults);
-                    _defaults.rectPadding = ui.value;
-                    var width = calcLaneWidth(_defaults, no_samples);
-
-                    d3.selectAll('#oncoprints svg')
-                        .attr('width', width);
-
-//                    console.log(d3.selectAll('#oncoprints svg');
-//                    console.log(defaults.rectPadding);
-                }
-            })
-            .appendTo(customizeDiv);
+//        $('<div>', { id: "width_slider", width: "100", display:"inline"})
+//            .slider({
+//                min: 0,
+////                max: 7,
+//                max: scaled.rectPadding * 2,
+//                step: scaled.rectPadding * .2,
+//                value: scaled.rectPadding ,
+////                create: function(event, ui) {
+////                    return change(event, ui);
+////                },
+//                change: function(event, ui) {
+////                    console.log(ui.value);
+//
+//                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
+//                        .transition()
+//                        .duration(200)
+//                        .attr('x', function(d, i) {
+//                            var padding =
+//                                 (i % no_samples) * (scaled.rectWidth + ui.value);
+//
+//                            return padding;
+//                        });
+//
+//                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
+//                        .transition()
+//                        .duration(200)
+//                        .attr('x', function(d, i) {
+//                            var padding =
+//                                 (i % no_samples) * (scaled.rectWidth + ui.value)
+//                                + (scaled.rectWidth - scaled.littleRectWidth) / 2;
+//
+//                            return padding;
+//                        })
+//                        .attr('width', function(d, i) {
+//                            if (ui.value === 0) {
+//                                return scaled.rectWidth;
+//                            } else {
+//                                return scaled.littleRectWidth;
+//                            }
+//                        });
+//
+//                    var _defaults = overrideDefaults({}, defaults);
+//                    _defaults.rectPadding = ui.value;
+//                    var width = calcLaneWidth(_defaults, no_samples);
+//
+//                    d3.selectAll('#oncoprints svg')
+//                        .attr('width', width);
+//
+////                    console.log(d3.selectAll('#oncoprints svg');
+////                    console.log(defaults.rectPadding);
+//                }
+//            })
+//            .appendTo(customizeDiv);
 
         // Toggle altered cases
         $('<span>', {
             text: "Only Show Altered Cases"
         }).appendTo(customizeDiv);
+
+        // scale oncoprint
+        $('<span>', { text: "scale oncoprint"
+        }).appendTo(customizeDiv);
+
+        // scale oncoprint
+        $('<div>', { id: "width_slider", width: "100", display:"inline"})
+            .slider({
+                min: 1,
+//                max: 7,
+                max: 11,
+                step: .5,
+                value: 5.5,
+                change: function(event, ui) {
+                    console.log(ui.value);
+
+                    var x = d3.scale.linear()
+                        .domain([0, no_samples])
+                        .range([0, calcLaneWidth(ui.value, 2, no_samples)]);
+
+                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
+                        .transition()
+                        .duration(200)
+                        .attr('width', function(d, i) {
+                            return ui.value;
+                        })
+                        .attr('x', function(d, i) {
+                            return x(i % no_samples) * 1.1;
+                        });
+
+                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
+                        .transition()
+                        .duration(200)
+                        .attr('width', function(d, i) {
+                            return ui.value + 1;
+                        })
+                        .attr('x', function(d, i) {
+                            return x(i % no_samples) * 1.1 - .5;
+                        });
+
+//                    d3.selectAll('#oncoprints svg')
+//                        .attr('width', width);
+                }
+            })
+            .appendTo(customizeDiv);
 
         $('<input>', {
             type: "checkbox"
@@ -308,7 +358,7 @@ var OncoPrint = function(params) {
         }).appendTo(oncoPrintDiv);
 
         var svg = d3.select(wrapper[0]).append('svg')
-            .attr('width', laneWidth + getTrackOffSet())
+            .attr('width', laneWidth)
             .attr('height', height)      // 50 for the key at the bottom
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');

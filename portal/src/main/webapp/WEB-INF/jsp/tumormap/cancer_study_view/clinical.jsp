@@ -43,7 +43,7 @@
             if (caseId==null) {
                 $('#clinical-msg').hide();
             } else if ((typeof caseId)==(typeof '')) {
-                $('#clinical-msg').html(formatPatientLink(caseId)+
+                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId)+
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
             } else if ((typeof caseId)==(typeof {})) {
@@ -54,7 +54,7 @@
                 if (numSelected==0) {
                     $('#clinical-msg').hide();
                 } else if (numSelected==1) {
-                    $('#clinical-msg').html(formatPatientLink(id)+
+                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id)+
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
                 } else {
@@ -62,7 +62,7 @@
                     for (var id in caseId) {
                         ids.push(id);
                     }
-                    var form = '<form method="post" action="index.do">'
+                    var form = '<form method="post" action="index.do">&nbsp;'
                             + numSelected+' cases are selected.'
                             + '<input type="hidden" name="cancer_study_id" value="'+studyId
                             + '"><input type="hidden" name="case_set_id" value="-1">'
@@ -106,8 +106,12 @@
 
             $('#clinical-data-loading-wait').hide();
             $('#summary-plot-table').show();
+            
+            var maxMut = mutCnaDt.getColumnRange(1).max;
+            var vLog = maxMut>1000;
+            if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
 
-            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,null,2,1,caseMap,false,false);
+            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,null,2,1,caseMap,false,vLog);
 
             $('#mut-cna-config').show();
 
@@ -161,11 +165,11 @@
 
 </script>
 
+<div id="clinical-msg"></div>
+
 <div id="clinical-data-loading-wait">
     <img src="images/ajax-loader.gif"/>
 </div>
-
-<div id="clinical-msg"></div>
 
 <table id="summary-plot-table">
     <tr>

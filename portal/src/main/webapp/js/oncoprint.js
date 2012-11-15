@@ -217,62 +217,6 @@ var OncoPrint = function(params) {
 
         // bind checkbox event : hide unaltered
 
-
-        // slider
-//        $('<div>', { id: "width_slider", width: "100", display:"inline"})
-//            .slider({
-//                min: 0,
-////                max: 7,
-//                max: scaled.rectPadding * 2,
-//                step: scaled.rectPadding * .2,
-//                value: scaled.rectPadding ,
-////                create: function(event, ui) {
-////                    return change(event, ui);
-////                },
-//                change: function(event, ui) {
-////                    console.log(ui.value);
-//
-//                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
-//                        .transition()
-//                        .duration(200)
-//                        .attr('x', function(d, i) {
-//                            var padding =
-//                                 (i % no_samples) * (scaled.rectWidth + ui.value);
-//
-//                            return padding;
-//                        });
-//
-//                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
-//                        .transition()
-//                        .duration(200)
-//                        .attr('x', function(d, i) {
-//                            var padding =
-//                                 (i % no_samples) * (scaled.rectWidth + ui.value)
-//                                + (scaled.rectWidth - scaled.littleRectWidth) / 2;
-//
-//                            return padding;
-//                        })
-//                        .attr('width', function(d, i) {
-//                            if (ui.value === 0) {
-//                                return scaled.rectWidth;
-//                            } else {
-//                                return scaled.littleRectWidth;
-//                            }
-//                        });
-//
-//                    var _defaults = overrideDefaults({}, defaults);
-//                    _defaults.rectPadding = ui.value;
-//                    var width = calcLaneWidth(_defaults, no_samples);
-//
-//                    d3.selectAll('#oncoprints svg')
-//                        .attr('width', width);
-//
-////                    console.log(d3.selectAll('#oncoprints svg');
-////                    console.log(defaults.rectPadding);
-//                }
-//            })
-//            .appendTo(customizeDiv);
-
         // Toggle altered cases
         $('<span>', {
             text: "Only Show Altered Cases"

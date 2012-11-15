@@ -85,28 +85,17 @@ GeneAlterations.query = (function() {
     // data query tools
 
     return {
-        mutationBySampleId: function(alterations, sample_str) {
-            var returnObj = {};
-            var index = alterations.samples.indexOf(sample_str);
-
-            for (var gene in alterations.genes) {
-                var data_types = alterations.genes[gene].data_types;
-
-                var mutations = data_types["mutations"];
-
-                var mutation = mutations[index];
-
-                if (mutation !== undefined) {
-                    returnObj[gene] = mutations[index];
+        geneByHugo : function(hugo) {
+            for (var gene in alterations.data.genes) {
+                if (gene.hugo === hugo) {
+                    return gene;
                 } else {
-                    console.log("query error: ", sample_str,
-                        "->", alterations.samples[sample_str],
-                        "->", mutation);
-                    return;
+                    return "cannot find gene";
                 }
             }
+        },
+        mutationBySampleId: function(id) {
 
-            return returnObj;
         }
     };
 })();

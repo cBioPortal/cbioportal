@@ -314,11 +314,22 @@ var OncoPrint = function(params) {
         that.drawTracks(svg, genes);
     };
 
-    that.sort = function() {
-        // sort the samples according to the order that the genes are in,
-        // in params.geneAlterations_l
+    that.sort = function(genes_l) {
+        // this, genes_l -> permutation of samples
+        //
+        // sort the samples according to the order of genes in genes_l
+        // genes_l is a list of hugo name strings
 
         var sort_helper = function(a, b) {
+            // samples a and b
+            for (var g in genes_l) {
+                var gene = OncoPrint.query.geneByHugo(g);
+
+                var aIndex = samples.indexOf(a);
+                var bIndex = samples.indexOf(b);
+
+            }
+
         };
 
     };
@@ -326,7 +337,7 @@ var OncoPrint = function(params) {
     return that;
 };
 
-/ todo: OncoPrint.drawTrack, make this publicly available so that you can draw tracks without having to initialize,
+// todo: OncoPrint.drawTrack, make this publicly available so that you can draw tracks without having to initialize,
 // or include all UI
 
 

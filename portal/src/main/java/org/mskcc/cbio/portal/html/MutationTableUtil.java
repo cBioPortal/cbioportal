@@ -34,6 +34,7 @@ import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
+import org.mskcc.cbio.portal.util.SkinUtil;
 
 /**
  * Utility Class for Creating the Mutation Table.
@@ -129,7 +130,9 @@ public class MutationTableUtil
 
         //  Case ID.
         String caseId = HtmlUtil.getSafeWebValue(mutation.getCaseId());
-        String htmlCaseId = "<b>" + caseId + "</b>";
+        String htmlCaseId = "<a href='"
+                + SkinUtil.getLinkToPatientView(caseId)
+                + "'><b>" + caseId + "</b></a>";
         dataFieldList.add(htmlCaseId);
 
         //  Basic Mutation Info.

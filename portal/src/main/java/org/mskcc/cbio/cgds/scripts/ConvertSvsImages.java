@@ -25,35 +25,43 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.dao;
+package org.mskcc.cbio.cgds.scripts;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
-import java.util.ArrayList;
+//import loci.formats.FormatTools;
+//import loci.formats.in.SVSReader;
+//import loci.formats.out.JPEGWriter;
 
 /**
- * JUnit test for DaoCase class
+ *
+ * @author jgao
  */
-public class TestDaoCase extends TestCase {
-
-    public void testDaoCase() throws DaoException {
-        ResetDatabase.resetDatabase();
-        DaoCase daoCase = new DaoCase();
-
-        int num = daoCase.addCase("TCGA-12345", 1);
-        assertEquals(1, num);
-        boolean exists = daoCase.caseExistsInGeneticProfile("TCGA-12345", 1);
-        assertTrue(exists);
-
-        assertEquals(1, daoCase.getProfileIdForCase( "TCGA-12345" ));
-        
-        num = daoCase.addCase("TCGA-123456", 1);
-        assertEquals(1, num);
-        ArrayList<String> caseIds = daoCase.getAllCaseIdsInProfile(1);
-        assertEquals(2, caseIds.size());
-        daoCase.deleteAllRecords();
-    }
+public class ConvertSvsImages {
+//    public static void main(String[] args) {
+//        if (args.length<1) {
+//            System.err.println("specify at least the input file");
+//        }
+//        
+//        String svs = args[0];
+//        String ext = ".jpg";
+//        
+//        SVSReader svsReader = new SVSReader();
+//        
+//        try {
+//            svsReader.setId(svs);
+//            int nSeries = svsReader.getSeriesCount();
+//            System.out.println(nSeries+" series in this SVS file");
+//            
+//            for (int i=1; i<=nSeries; i++) {
+//                System.out.println("Convert images series "+i);
+//                svsReader.setSeries(i);
+//                String out = svs.replace(".svs", "")+".series"+i+ext;
+//                JPEGWriter writer = new JPEGWriter();
+//                FormatTools.convert(svsReader, writer, out);
+//                writer.close();
+//            }
+//            svsReader.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
 }

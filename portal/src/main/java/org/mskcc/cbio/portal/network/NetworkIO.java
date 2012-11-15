@@ -54,6 +54,12 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
  */
 public final class NetworkIO {
     
+    public static enum NetworkSize {
+        SMALL,
+        MEDIUM,
+        LARGE
+    }
+    
     /**
      * private constructor for utility class.
      */
@@ -243,12 +249,17 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes,
+    public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
             Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
+        List<Interaction> interactionList;
+        if (netSize==NetworkSize.SMALL) {
+            interactionList = daoInteraction.getInteractionsAmongSeeds(seedGenes, dataSources);
+        } else {
+            interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
+        }
         Network net = new Network();
         for (Interaction interaction : interactionList) {
             long geneA = interaction.getGeneA();
@@ -281,6 +292,12 @@ public final class NetworkIO {
 
             net.addEdge(edge, geneAID, geneBID);
         }
+        
+        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
+        classifyNodes(net, seedNodes);
+        if (netSize==NetworkSize.MEDIUM) {
+            pruneMediumNetwork(net, seedNodes);
+        }
 
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         DaoDrug daoDrug = DaoDrug.getInstance();
@@ -312,9 +329,6 @@ public final class NetworkIO {
 
             net.addEdge(edge, drugID, geneID);
         }
-        
-        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
-        classifyNodes(net, seedNodes);
         
         return net;
     }
@@ -351,25 +365,32 @@ public final class NetworkIO {
             }
 
             node.setAttribute("IN_QUERY", "false"); //TODO: remove this
-
-////            if (seedNodes.size()==1) {
-////                // mark linker nodes that has degree of 2 or more
-////                if (net.getDegree(node)>=2) {
-////                    node.addAttribute("IN_MEDIUM", "true");
-////                }
-////            } else {
-//                //  mark linker nodes that links to at least 2 seed genes
-//                int seedDegree = 0;
-//                for (Node neighbor : net.getNeighbors(node)) {
-//                    if (seedNodes.contains(neighbor)) {
-//                        if (++seedDegree >= 2) {
-//                            node.setAttribute("IN_MEDIUM", "true");
-//                            break;
-//                        }
-//                    }
-//                }
-////            }
         }
+    }
+    
+    /**
+     * remove linker nodes that connect to only one query gene
+     * @param net
+     * @param seedNodes 
+     */
+    private static void pruneMediumNetwork(final Network net, final Set<Node> seedNodes) {
+        NetworkUtils.pruneNetwork(net, new NetworkUtils.NodeSelector() {
+            public boolean select(Node node) {
+                if (seedNodes.contains(node)) {
+                    return false;
+                }
+                
+                int seedDegree = 0;
+                for (Node neighbor : net.getNeighbors(node)) {
+                    if (seedNodes.contains(neighbor)) {
+                        if (++seedDegree >= 2) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        });
     }
     
     private static Node addNode(Network net, String entrez, String hugo) {

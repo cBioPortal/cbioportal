@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -56,6 +58,9 @@ public class ExtendedMutation
 	private String linkXVar;
 	private String linkPdb;
 	private String linkMsa;
+        
+        private long mutationEventId;
+        private String keyword;
 
 	private String ncbiBuild;
 	private String strand;
@@ -498,6 +503,24 @@ public class ExtendedMutation
 	public String getGeneSymbol() {
 		return gene.getHugoGeneSymbolAllCaps();
 	}
+
+	@JsonIgnore
+        public long getMutationEventId() {
+            return mutationEventId;
+        }
+
+	@JsonIgnore
+        public void setMutationEventId(long mutationEventId) {
+            this.mutationEventId = mutationEventId;
+        }
+
+        public String getKeyword() {
+            return keyword;
+        }
+
+        public void setKeyword(String keyword) {
+            this.keyword = keyword;
+        }
 
 	@Override
 	public String toString() {

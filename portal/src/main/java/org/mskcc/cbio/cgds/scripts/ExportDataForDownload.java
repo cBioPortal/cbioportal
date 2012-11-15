@@ -35,14 +35,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
 import org.mskcc.cbio.cgds.dao.*;
-//TODO: ACCESS CONTROL: change to CancerStudy
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
@@ -161,9 +158,8 @@ public class ExportDataForDownload {
                StringBuffer monitorOutput = new StringBuffer();
                monitorOutput.append( "\tProcessing " + aGeneticProfile.getProfileName() );
 
-               DaoCase theDaoCase = new DaoCase();
                ArrayList<String> theCaseIds =
-                  theDaoCase.getAllCaseIdsInProfile( aGeneticProfile.getGeneticProfileId() );
+                  DaoCaseProfile.getAllCaseIdsInProfile( aGeneticProfile.getGeneticProfileId() );
 
                // don't write empty files
                if( 0 == theCaseIds.size() ){

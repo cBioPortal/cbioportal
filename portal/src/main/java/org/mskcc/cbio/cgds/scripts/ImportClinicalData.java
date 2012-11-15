@@ -106,8 +106,8 @@ public class ImportClinicalData {
         extractHeaders(colHeadingLine);
         String[] parts;
 
-        //  At a minimum, we must have Case ID, OS Survival and OS Status
-        if (caseIdCol > -1 && osStatusCol > -1 && osMonthsCol > -1) {
+        //  At a minimum, we must have Case ID
+        if (caseIdCol > -1){// && osStatusCol > -1 && osMonthsCol > -1) {
             // start reading data
             String line = buf.readLine();
             while (line != null) {
@@ -116,7 +116,7 @@ public class ImportClinicalData {
                     ConsoleUtil.showProgress(pMonitor);
                 }
                 if (!line.startsWith("#") && line.trim().length() > 0) {
-                    parts = line.split("\t");
+                    parts = line.split("\t",-1);
                     String caseId = parts[caseIdCol];
                     Double osMonths = getDouble(parts, osMonthsCol);
                     String osStatus = getString(parts, osStatusCol);
@@ -129,10 +129,11 @@ public class ImportClinicalData {
                     if (cancerStudy != null) {
                         for (int i : freeFormInludeColumns) {
                             String name = freeFormHeaders.get(i);
-                            String value = parts[i];
-                            
-                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
+                            String value = parts[i].trim();
+                            if (!value.isEmpty() && !"NA".equals(value)) {
+                                daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
                                             caseId, name, value);
+                            }
                         }
                     }
                 }
@@ -148,39 +149,40 @@ public class ImportClinicalData {
 
     private void extractHeaders(String colHeadingLine) {
         HashSet<String> caseIdNames = new HashSet<String>();
-        caseIdNames.add("BCRPATIENTBARCODE");
-        caseIdNames.add("bcr_patient_barcode");
-        caseIdNames.add("CASE_ID");
-        caseIdNames.add("patient");
-        caseIdNames.add("ID");
+        caseIdNames.add("BCRPATIENTBARCODE".toLowerCase());
+        caseIdNames.add("bcr_patient_barcode".toLowerCase());
+        caseIdNames.add("CASE_ID".toLowerCase());
+        caseIdNames.add("patient".toLowerCase());
+        caseIdNames.add("ID".toLowerCase());
         caseIdNames.add("tcga_id");
 
         HashSet<String> osStatusNames = new HashSet<String>();
-        osStatusNames.add("VITALSTATUS");
-        osStatusNames.add("OS_STATUS");
+        osStatusNames.add("VITALSTATUS".toLowerCase());
+        osStatusNames.add("OS_STATUS".toLowerCase());
 
         HashSet<String> osMonthsNames = new HashSet<String>();
-        osMonthsNames.add("OverallSurvival(mos)");
-        osMonthsNames.add("OS_MONTHS");
+        osMonthsNames.add("OverallSurvival(mos)".toLowerCase());
+        osMonthsNames.add("OS_MONTHS".toLowerCase());
 
         HashSet<String> dfsMonthsNames = new HashSet<String>();
-        dfsMonthsNames.add("ProgressionFreeSurvival (mos)#");
-        dfsMonthsNames.add("DFS_MONTHS");
+        dfsMonthsNames.add("ProgressionFreeSurvival (mos)#".toLowerCase());
+        dfsMonthsNames.add("DFS_MONTHS".toLowerCase());
 
         HashSet<String> dfsStatusNames = new HashSet<String>();
-        dfsStatusNames.add("ProgressionFreeStatus");
-        dfsStatusNames.add("DFS_STATUS");
+        dfsStatusNames.add("ProgressionFreeStatus".toLowerCase());
+        dfsStatusNames.add("DFS_STATUS".toLowerCase());
 
         HashSet<String> ageNames = new HashSet<String>();
-        ageNames.add("AgeAtDiagnosis (yrs)");
+        ageNames.add("AgeAtDiagnosis (yrs)".toLowerCase());
+        ageNames.add("age");
 
         String[] parts = colHeadingLine.split("\t");
         
         for (int i = 0; i < parts.length; i++)
         {
-            String header = parts[i];
+            String header = parts[i].toLowerCase();
             
-            freeFormHeaders.add(header);
+            freeFormHeaders.add(parts[i]);
             
             if (caseIdNames.contains(header)) {
                 caseIdCol = i;
@@ -246,7 +248,7 @@ public class ImportClinicalData {
      */
     public static void main(String[] args) throws DaoException {
         ProgressMonitor pMonitor = new ProgressMonitor();
-
+        
         // check args
         if (args.length < 2) {
             System.out.println("command line usage:  importClinicalData.pl <cancer_study_id> <data_file.txt>");

@@ -27,6 +27,10 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Properties;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoCaseList;
 import org.mskcc.cbio.cgds.model.CancerStudy;
@@ -34,11 +38,6 @@ import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.CaseListCategory;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-import java.util.ArrayList;
 
 /**
  * Command Line tool to Import Case Lists.
@@ -101,7 +100,8 @@ public class ImportCaseList {
 
       caseList = new CaseList();
       caseList.setStableId(stableId);
-      caseList.setCancerStudyId( theCancerStudy.getInternalId());
+      int cancerStudyId = theCancerStudy.getInternalId();
+      caseList.setCancerStudyId(cancerStudyId);
       caseList.setCaseListCategory(caseListCategory);
       caseList.setName(caseListName);
       caseList.setDescription(caseListDescription);

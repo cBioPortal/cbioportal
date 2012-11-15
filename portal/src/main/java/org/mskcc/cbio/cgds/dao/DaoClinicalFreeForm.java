@@ -31,11 +31,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
 import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
@@ -175,26 +171,36 @@ public class DaoClinicalFreeForm {
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             
-            ArrayList<ClinicalFreeForm> dataList = new ArrayList<ClinicalFreeForm>();
+            return retrieveClinicalFreeFormData(rs);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Retrieves all rows in the clinical_free_form table for the specified case,
+     * and returns a map of param to ClinicalFreeForm instances where each instance represents
+     * a single row in the table.
+     * 
+     * @param cancerStudyId internal id of a case
+     * @return   list of all ClinicalFreeForm instances for the given cancer study id
+     */
+    public List<ClinicalFreeForm> getCasesById(String caseId) throws DaoException
+    {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try{
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`" +
+                    "WHERE CASE_ID=?");
+            pstmt.setString(1, caseId);
+            rs = pstmt.executeQuery();
             
-            while (rs.next())
-            {
-            	// get all values as String
-                String caseId = rs.getString("CASE_ID");
-                String paramName = rs.getString("PARAM_NAME");
-                String paramValue = rs.getString("PARAM_VALUE");
-                
-                // create new ClinicalFreeForm instance
-                ClinicalFreeForm data = new ClinicalFreeForm(cancerStudyId,
-                	caseId,
-                	paramName,
-                	paramValue);
-                
-                // add it to the list
-                dataList.add(data);
-            }
-            
-            return dataList;
+            return retrieveClinicalFreeFormData(rs);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -249,6 +255,30 @@ public class DaoClinicalFreeForm {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+    }
+    
+    private List<ClinicalFreeForm> retrieveClinicalFreeFormData(ResultSet rs) throws SQLException {
+        ArrayList<ClinicalFreeForm> dataList = new ArrayList<ClinicalFreeForm>();
+            
+        while (rs.next())
+        {
+            // get all values as String
+            int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+            String caseId = rs.getString("CASE_ID");
+            String paramName = rs.getString("PARAM_NAME");
+            String paramValue = rs.getString("PARAM_VALUE");
+
+            // create new ClinicalFreeForm instance
+            ClinicalFreeForm data = new ClinicalFreeForm(cancerStudyId,
+                    caseId,
+                    paramName,
+                    paramValue);
+
+            // add it to the list
+            dataList.add(data);
+        }
+        
+        return dataList;
     }
     
     /**

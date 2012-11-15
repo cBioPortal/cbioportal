@@ -56,25 +56,12 @@ $(document).ready(function(){
     });
 
     //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-	var drawTooltipRegion = true;
     $("#toggle_query_form").click(function(event) {
       event.preventDefault();
       $('#query_form_on_results_page').toggle();
 
       //  Toggle the icons
       $(".query-toggle").toggle();
-
-	  // to handle drawing of tooltip region canvas on click
-	  var currentLocation = window.location.pathname;
-	  if (currentLocation.indexOf("index.do") != -1 || currentLocation.indexOf("link.do") != -1) {
-		var cancerStudyId = $("#select_cancer_type").val();
-		drawTooltipRegion = !drawTooltipRegion;
-   	    if (drawTooltipRegion) {
-			// we use time out otherwise tiptip on Modify Query erases region
-			eval("setTimeout(function () { DrawOncoPrintTooltipRegion(ONCOPRINT_" + cancerStudyId +
-				 ", oncoprint_section_" + cancerStudyId + ")}, 100);");
-		}
-	  }
 
     });
 
@@ -395,7 +382,19 @@ function cancerStudySelected() {
     }
 
     //  Update Cancer Study Description
-    $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
+    var citation = cancer_study.citation;
+    if (!citation) {
+        citation="";
+    }
+    else {
+        var pmid = cancer_study.pmid;
+        if (pmid) {
+            citation = " <a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
+        }
+    }
+    var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
+        +cancerStudyId+"')\">View details</button>";
+    $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles
     //  Add all non-expression profiles where show_in_analysis_tab = true

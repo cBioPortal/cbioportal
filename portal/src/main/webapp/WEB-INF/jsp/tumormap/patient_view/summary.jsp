@@ -48,7 +48,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
         if (!genomicEventObs.hasMut||!genomicEventObs.hasCna) $('#mut-cna-scatter').hide();
-        initGenomicsOverview();
+        if (showGenomicOverview) initGenomicsOverview();
         if (genomicEventObs.hasMut&&genomicEventObs.hasCna) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");

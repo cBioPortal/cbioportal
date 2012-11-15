@@ -243,6 +243,7 @@ var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
+var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);

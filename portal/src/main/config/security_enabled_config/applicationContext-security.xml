@@ -77,7 +77,7 @@
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
       <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
-      <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>

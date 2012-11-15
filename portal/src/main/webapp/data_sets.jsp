@@ -43,8 +43,8 @@
 			     if (dataSetsHeader != null) {
 				     out.println("<p>" + dataSetsHeader + "<br><br></p>");
                  }
-				 out.println("<table>");
-				 out.println("<tr>");
+				 out.println("<table style='display:none;' cellpadding='0' cellspacing='0' border='0' class='display' id='data-set-table'>");
+				 out.println("<thead><tr>");
 				 out.println("<th>CancerStudy</th>");
 				 out.println("<th>Reference</th>");
 				 out.println("<th>All</th>");
@@ -57,7 +57,8 @@
 				 out.println("<th>Methylation</th>");
 				 out.println("<th>RPPA</th>");
 				 out.println("<th>Complete</th>");
-				 out.println("</tr>");
+				 out.println("</tr></thead>");
+				 out.println("<tbody>");
 				 // iterate over all cancer study attributes
 				 int lc = 0;
 				 for (CancerStudyStats stats : cancerStudyStats) {
@@ -112,7 +113,7 @@
 					 out.println("<td style=\"text-align: center;\"><b>" + complete + "<b></td>");
 				     out.println("</tr>");
 				 }
-				 out.println("</table>");
+				 out.println("</tbody></table>");
 				 out.println("<br>Total number of samples: <b>" + dataSetsUtil.getTotalNumberOfSamples() + "</b>");
 				 if (dataSetsFooter != null) {
 				     out.println("<br><br>" + dataSetsFooter + "</p>");
@@ -125,9 +126,6 @@
     </table>
 </div>
     </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
   </tr>
   <tr>
     <td colspan="3">
@@ -139,5 +137,43 @@
 </div>
 </form>
 <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
+
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css";
+        @import "css/data_table_ColVis.css";
+        .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .dataTables_length {
+                width: auto;
+                float: right;
+        }
+        .dataTables_info {
+                clear: none;
+                width: auto;
+                float: right;
+        }
+        .div.datatable-paging {
+                width: auto;
+                float: right;
+        }
+</style>
+
+<script type="text/javascript">
+    $('#data-set-table').dataTable({
+                    "sDom": '<"H"fr>t<"F"<"datatable-paging"pil>>', // selectable columns
+                    "bJQueryUI": true,
+                    "bDestroy": true,
+                    "oLanguage": {
+                        "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                        "sInfoFiltered": "",
+                        "sLengthMenu": "Show _MENU_ per page"
+                    },
+                    "iDisplayLength": -1,
+                    "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+                }).show();
+</script>
+
 </body>
 </html>

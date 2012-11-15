@@ -10,22 +10,27 @@ var OncoPrint = function(params) {
         genes = params.data.genes,
         no_genes = Object.keys(genes).length;
 
-    var rectPadding = 1.1;
+    var selector_id = '#oncoprints #' + params.cancer_study_id;
+
+    var rectPadding = 1.5;
     var rectWidth = 5.5;
     var trackPadding = 3;
     var rectHeight = 23;
 
-    var calcLaneWidth = function(rectWidth, rectPadding, no_samples) {
+    // global boolean (reflects a state)
+    var toggleRectPadding = rectPadding;
+
+    var calcLaneWidth = function(rectWidth, no_samples) {
         // lane : the rectangles
         // track : the label and the rectangles together, this is just my naming convention
-        return no_samples * (rectWidth + rectPadding);
+        return no_samples * rectWidth;
     };
 
     var calcSvgHeight = function(rectHeight, trackPadding, no_tracks) {
         return (rectHeight + trackPadding) * no_tracks;
     };
 
-    var laneWidth = calcLaneWidth(rectWidth, 2, no_samples);
+    var laneWidth = calcLaneWidth(rectWidth, no_samples);
     var height = calcSvgHeight(rectHeight, trackPadding, no_genes);
 
     var x = d3.scale.linear()
@@ -44,6 +49,20 @@ var OncoPrint = function(params) {
         }
 
         return options;
+    };
+
+    var redrawCNA = function(width) {
+        // redrawing the CNA bars
+        d3.selectAll(selector_id + ' rect.cna')
+            .transition()
+            .duration(200)
+            .attr('width', function(d, i) {
+                return width;
+            })
+            .attr('x', function(d, i) {
+                var pos = x(i % no_samples);
+                return toggleRectPadding === 0 ? pos : pos * rectPadding;
+            });
     };
 
     var that = {};
@@ -70,7 +89,9 @@ var OncoPrint = function(params) {
             .attr('height', rectHeight)
 //            .attr('fill', colorCNA)
             .attr('x', function(d, i) {
-                return  x(i) * rectPadding;
+                //todo: this is code duplication
+                var pos = x(i % no_samples);
+                return toggleRectPadding === 0 ? pos : pos * rectPadding;
             })
             .attr('y', dy);
     };
@@ -190,9 +211,12 @@ var OncoPrint = function(params) {
         }).appendTo(customizeDiv);
 
         $('<input>', {
-            type: "checkbox"
-//            onclick: OncoPrint.UI.hideWhiteSpace($(''))   ...blah blah
+            type: "checkbox",
+            id: "white_space"
         }).appendTo(customizeDiv);
+
+        // bind checkbox event : hide unaltered
+
 
         // slider
 //        $('<div>', { id: "width_slider", width: "100", display:"inline"})
@@ -267,34 +291,26 @@ var OncoPrint = function(params) {
                 step: .5,
                 value: rectWidth,
                 change: function(event, ui) {
-                    console.log(ui.value);
+//                    console.log(ui.value);
 
-                    // todo: need to fix this
-                    var width = calcLaneWidth(ui.value, 2, no_samples);
+                    var width = calcLaneWidth(ui.value, no_samples);
 
-                    var x = d3.scale.linear()
+                    // update this global state variable
+                    x = d3.scale.linear()
                         .domain([0, no_samples])
                         .range([0, width]);
 
-                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.cna')
-                        .transition()
-                        .duration(200)
-                        .attr('width', function(d, i) {
-                            return ui.value;
-                        })
-                        .attr('x', function(d, i) {
-                            return x(i % no_samples) * rectPadding;
-                        });
+                    redrawCNA(ui.value);
 
-                    d3.selectAll('#oncoprints #' + params.cancer_study_id + ' rect.mutation')
-                        .transition()
-                        .duration(200)
-                        .attr('width', function(d, i) {
-                            return ui.value + 1;
-                        })
-                        .attr('x', function(d, i) {
-                            return x(i % no_samples) * rectPadding - .5;
-                        });
+//                    d3.selectAll(selector_id + ' rect.mutation')
+//                        .transition()
+//                        .duration(200)
+//                        .attr('width', function(d, i) {
+//                            return ui.value + 1;
+//                        })
+//                        .attr('x', function(d, i) {
+//                            return x(i % no_samples) * rectPadding - .5;
+//                        });
 
 //                    d3.selectAll('#oncoprints svg')
 //                        .transition()
@@ -308,7 +324,17 @@ var OncoPrint = function(params) {
             type: "checkbox"
         })
         .click(function() {
-            console.log($('#oncoprints #' + params.cancer_study_id + ' rect'));
+                var isChecked = $(this).is(':checked');
+                var rectWidth = $(selector_id + ' #width_slider').slider('value');
+//                console.log(rectWidth);
+
+                if (isChecked) {
+                    toggleRectPadding = 0;
+                    redrawCNA(rectWidth);
+                } else {
+                    toggleRectPadding = rectPadding;
+                    redrawCNA(rectWidth);
+                }
         }).appendTo(customizeDiv);
 
 

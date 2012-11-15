@@ -51,7 +51,7 @@ var OncoPrint = function(params) {
     that.drawCNA = function(cna_data, samples, g_el, trackNum) {
         // draw CNA layer
 
-        var dy = trackNum === 0 ? 0 : (rectHeight * trackNum) + trackPadding;
+        var dy = trackNum === 0 ? 0 : (rectHeight + trackPadding) * trackNum;
         console.log("dy", dy);
 
         g_el.selectAll('rect.cna')

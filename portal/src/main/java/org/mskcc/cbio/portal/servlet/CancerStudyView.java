@@ -73,6 +73,10 @@ public class CancerStudyView extends HttpServlet {
             if (validate(request)) {
                 setGeneticProfiles(request);
             }
+            
+            if (request.getRequestURI().toLowerCase().contains("tumormap")) {
+                request.setAttribute("tumormap", true);
+            }
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/cancer_study_view/cancer_study_view.jsp");
             dispatcher.forward(request, response);

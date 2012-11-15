@@ -117,14 +117,33 @@ function drawDataTable(tableId,dt,caseMap) {
         data.push(dRow);
     }
     
-    var oTable = $('#'+tableId).dataTable( {
-        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"pil>>',
-        "bJQueryUI": true,
-        "bDestroy": true,
-        "aaData": data,
-        "aoColumnDefs":[
+    // sorting for num col
+    jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
+	var x = parseFloat(a);
+	var y = parseFloat(b);
+        if (isNaN(x)) {
+            return isNaN(y) ? 0 : 1;
+        }
+        if (isNaN(y))
+            return -1;
+	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+    };
+
+    jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
+	var x = parseFloat(a);
+	var y = parseFloat(b);
+        if (isNaN(x)) {
+            return isNaN(y) ? 0 : 1;
+        }
+        if (isNaN(y))
+            return -1;
+	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+    };
+    
+    var colDefs = [
             {// id
                 "aTargets": [ 0 ],
+                "sClass": "case-id-td",
                 "mDataProp": function(source,type,value) {
                     if (type==='set') {
                         source[0]=value;
@@ -135,16 +154,33 @@ function drawDataTable(tableId,dt,caseMap) {
                     }
                 }
             }
-        ],
+        ];
+    for (var col=1; col<nCol; col++) {
+        if (isColNum[col]) {
+            colDefs.push({
+                    "aTargets": [ col ],
+                    "sClass": "right-align-td",
+                    "sType": "num-nan-col"
+                });
+        }
+    }
+    
+    var oTable = $('#'+tableId).dataTable( {
+        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"pil>>',
+        "bJQueryUI": true,
+        "bDestroy": true,
+        "aaData": data,
+        "aoColumnDefs":colDefs,
         "oLanguage": {
             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
             "sLengthMenu": "Show _MENU_ per page"
         },
-        "iDisplayLength": 25,
+        "iDisplayLength": 10,
         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
     });
 
     oTable.css("width","100%");
+    $('.case-id-td').attr("nowrap","nowrap");
     
     csObs.subscribe(tableId,function(caseId) {
         if (caseId==null) {

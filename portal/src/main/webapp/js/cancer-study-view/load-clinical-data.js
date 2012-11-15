@@ -41,7 +41,7 @@ MatrixDataTypeConverter.prototype = {
         var headers = this.dataMatrix[0];
         for (var c=0; c<headers.length; c++) {
             for (var r=1; r<this.dataMatrix.length; r++) {
-                if (this.dataMatrix[r][c].length==0) {
+                if (this.isValueNA(this.dataMatrix[r][c])) {
                     this.dataMatrix[r][c] = null;
                 } else if (this.colTypes[c]=='number') {
                     this.dataMatrix[r][c] = parseFloat(this.dataMatrix[r][c]);
@@ -62,7 +62,7 @@ MatrixDataTypeConverter.prototype = {
             for (var r=1; r<rows; r++) {
                 if (type=='string') break;
                 var d = dataMatrix[r][c];
-                if (d.length==0) continue;
+                if (this.isValueNA(d)) continue;
                 if (type==null)
                     type = this.getType(d);
                 else if (type!=this.getType(d))
@@ -90,5 +90,8 @@ MatrixDataTypeConverter.prototype = {
     },
     isColumnNA: function(col) {
         return this.colTypes[col] == null;
+    },
+    isValueNA: function(value) {
+        return value==null || (typeof value)==undefined || value.length==0 || value==='N/A' || value==="NA";
     }
 };

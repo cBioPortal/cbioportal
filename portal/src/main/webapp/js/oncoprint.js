@@ -10,12 +10,16 @@ var OncoPrint = function(params) {
         genes = params.data.genes,
         no_genes = Object.keys(genes).length;
 
+    console.log(genes);
+
     var selector_id = '#oncoprints #' + params.cancer_study_id;
 
     var rectPadding = 1.5;
     var rectWidth = 5.5;
+    var calcLittleRectWidth = function(width) { return (rectWidth + 1) / rectWidth * width;};
     var trackPadding = 3;
     var rectHeight = 23;
+    var littleRectHeight = rectHeight / 3;
 
     // global boolean (reflects a state)
     var toggleRectPadding = rectPadding;
@@ -51,18 +55,32 @@ var OncoPrint = function(params) {
         return options;
     };
 
+    // helper functions
+    var xpos_cna =  function(d, i) {
+        var pos = x(i % no_samples);
+        return toggleRectPadding === 0 ? pos : pos * rectPadding;
+    };
+
+    var xpos_mutation = function(d, i) {
+        var pos = x(i % no_samples) - .5;
+        return toggleRectPadding === 0 ? pos : pos * rectPadding;
+    };
+
     var redrawCNA = function(width) {
         // redrawing the CNA bars
         d3.selectAll(selector_id + ' rect.cna')
             .transition()
-            .duration(200)
-            .attr('width', function(d, i) {
-                return width;
-            })
-            .attr('x', function(d, i) {
-                var pos = x(i % no_samples);
-                return toggleRectPadding === 0 ? pos : pos * rectPadding;
-            });
+//            .ease('cubic-in-out')
+            .attr('width', width)
+            .attr('x', xpos_cna);
+    };
+
+    var redrawMutation = function(width) {
+        d3.selectAll(selector_id + ' rect.mutation')
+            .transition()
+//            .ease('cubic-in-out')
+            .attr('width', width)
+            .attr('x', xpos_mutation);
     };
 
     var that = {};
@@ -71,7 +89,7 @@ var OncoPrint = function(params) {
         // draw CNA layer
 
         var dy = trackNum === 0 ? 0 : (rectHeight + trackPadding) * trackNum;
-        console.log("dy", dy);
+//        console.log("dy", dy);
 
         g_el.selectAll('rect.cna')
             .data(cna_data)
@@ -87,44 +105,33 @@ var OncoPrint = function(params) {
             })
             .attr('width', rectWidth)
             .attr('height', rectHeight)
-//            .attr('fill', colorCNA)
-            .attr('x', function(d, i) {
-                //todo: this is code duplication
-                var pos = x(i % no_samples);
-                return toggleRectPadding === 0 ? pos : pos * rectPadding;
-            })
+            .attr('x', xpos_cna)
             .attr('y', dy);
     };
 
-//    that.drawMutation = function(mutation_data, samples, g_el, options, trackNum) {
-//        // draw the mutation layer
-//
-//        var _options = overrideDefaults(options, scaled);
-//
-//        var littleRectHeight = _options.rectHeight / 3;
-//
-//        g_el.selectAll('rect.mutation')
-//            .data(mutation_data)
-//            .enter()
-//            .append('rect')
-//            .attr('class', function(d) {
-//                return 'mutation ' + (d !== null ? "mut" : "none");
-//            })
-//            .attr('id', function(d, i) {
-//                return samples[i];
-//            })
-//            .attr('width', _options.littleRectWidth)
-//            .attr('height', littleRectHeight)
-//            .attr('x', function(d, i) {
-////                var padding =  i * (_options.rectWidth + _options.rectPadding)
-////                    - (_options.littleRectWidth - _options.rectWidth) / 2;
-//////                    + (_options.littleRectWidth / 2);
-//
-//                return x(i) * 2;
-//            })
-//            .attr('y', _options.trackHeight * trackNum  // displace down for each track
-//            + (_options.rectHeight - littleRectHeight) / 2);
-//    };
+    that.drawMutation = function(mutation_data, samples, g_el, trackNum) {
+        // draw the mutation layer
+
+        var dy = (rectHeight - littleRectHeight) / 2;
+        dy = trackNum === 0 ? dy : dy + (rectHeight + trackPadding) * trackNum;
+
+        var littleRectWidth = calcLittleRectWidth(rectWidth);
+
+        g_el.selectAll('rect.mutation')
+            .data(mutation_data)
+            .enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'mutation ' + (d !== null ? "mut" : "none");
+            })
+            .attr('id', function(d, i) {
+                return samples[i];
+            })
+            .attr('width', littleRectWidth)
+            .attr('height', littleRectHeight)
+            .attr('x', xpos_mutation)
+            .attr('y', dy);
+    };
 
     that.drawTrack = function(params, trackNum) {
 
@@ -166,7 +173,7 @@ var OncoPrint = function(params) {
         that.drawCNA(cna, samples, g_el, trackNum);
 
         var mutation_data = params.gene_data.mutations;
-//        that.drawMutation(mutation_data, samples, g_el, settings, trackNum);
+        that.drawMutation(mutation_data, samples, g_el, trackNum);
 
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
@@ -183,9 +190,6 @@ var OncoPrint = function(params) {
             }, trackNum);
 
             trackNum +=1;
-
-            // todo: is it really that bad that these settings are
-            // going to be passed to all subsequent functions that don't need them?
         });
     };
 
@@ -207,23 +211,44 @@ var OncoPrint = function(params) {
             id: "customize"
         });
 
-        $('<span>', { text: "White Space"
+        $('<div>', {
+            text: "Remove White Space"
         }).appendTo(customizeDiv);
 
+        // toggle white space checkbox
         $('<input>', {
             type: "checkbox",
-            id: "white_space"
+            id: "toggle_whitespace"
+        }).click(function() {
+            var isChecked = $(this).is(':checked');
+            var rectWidth = $(selector_id + ' #width_slider').slider('value');
+            var littleRectWidth = calcLittleRectWidth(rectWidth);
+
+            if (isChecked) {
+                // remove white space
+                toggleRectPadding = 0;
+                redrawCNA(rectWidth);
+                redrawMutation(rectWidth);
+            } else {
+                // make white space
+                toggleRectPadding = rectPadding;
+                redrawCNA(rectWidth);
+                redrawMutation(littleRectWidth);
+            }
         }).appendTo(customizeDiv);
 
-        // bind checkbox event : hide unaltered
-
-        // Toggle altered cases
-        $('<span>', {
+        $('<div>', {
             text: "Only Show Altered Cases"
         }).appendTo(customizeDiv);
 
+        // toggle unaltered checkbox
+        $('<input>', {
+            type: 'checkbox',
+            id: "toggle_unaltered"
+        }).appendTo(customizeDiv);
+
         // scale oncoprint
-        $('<span>', { text: "scale oncoprint"
+        $('<div>', { text: "scale oncoprint"
         }).appendTo(customizeDiv);
 
         // scale oncoprint
@@ -238,23 +263,16 @@ var OncoPrint = function(params) {
 //                    console.log(ui.value);
 
                     var width = calcLaneWidth(ui.value, no_samples);
+                    var littleRectWidth = calcLittleRectWidth(ui.value);
 
                     // update this global state variable
                     x = d3.scale.linear()
                         .domain([0, no_samples])
                         .range([0, width]);
 
+                    // redraw
                     redrawCNA(ui.value);
-
-//                    d3.selectAll(selector_id + ' rect.mutation')
-//                        .transition()
-//                        .duration(200)
-//                        .attr('width', function(d, i) {
-//                            return ui.value + 1;
-//                        })
-//                        .attr('x', function(d, i) {
-//                            return x(i % no_samples) * rectPadding - .5;
-//                        });
+                    redrawMutation(littleRectWidth);
 
 //                    d3.selectAll('#oncoprints svg')
 //                        .transition()
@@ -263,24 +281,6 @@ var OncoPrint = function(params) {
                 }
             })
             .appendTo(customizeDiv);
-
-        $('<input>', {
-            type: "checkbox"
-        })
-        .click(function() {
-                var isChecked = $(this).is(':checked');
-                var rectWidth = $(selector_id + ' #width_slider').slider('value');
-//                console.log(rectWidth);
-
-                if (isChecked) {
-                    toggleRectPadding = 0;
-                    redrawCNA(rectWidth);
-                } else {
-                    toggleRectPadding = rectPadding;
-                    redrawCNA(rectWidth);
-                }
-        }).appendTo(customizeDiv);
-
 
         var caseSet =  $('<p/>', {
             text: params.case_set_str
@@ -314,22 +314,19 @@ var OncoPrint = function(params) {
         that.drawTracks(svg, genes);
     };
 
-//    holding off on this until I have a visualization.  It will make things much easier
-//
-//    that.sort = function() {
-//        // sort the samples according to the order that the genes are in,
-//        // in params.geneAlterations_l
-//
-//        var sort_helper = function(alt1, alt2) {
-//
-//        };
-//
-//    };
+    that.sort = function() {
+        // sort the samples according to the order that the genes are in,
+        // in params.geneAlterations_l
+
+        var sort_helper = function(a, b) {
+        };
+
+    };
 
     return that;
 };
 
-// todo: OncoPrint.drawTrack, make this publicly available so that you can draw tracks without having to initialize,
+/ todo: OncoPrint.drawTrack, make this publicly available so that you can draw tracks without having to initialize,
 // or include all UI
 
 

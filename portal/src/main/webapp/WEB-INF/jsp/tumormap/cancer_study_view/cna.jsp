@@ -134,7 +134,7 @@
                 
                 oTable.css("width","100%");
                 
-                $('.gistic-table-name').html(n+" significantly mutated genes");
+                $('.gistic-table-name').html(n+" copy number alteration peaks by <a href='www.broadinstitute.org/cancer/pub/GISTIC2/'>GISTIC2</a>");
                 $('.gistic-table-name').addClass('data-table-name');
                 
                 $('#gistic_wrapper_table').show();

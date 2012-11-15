@@ -38,7 +38,6 @@
                         },
                         {// gene
                             "aTargets": [ 1 ],
-                            "sClass": "center-align-td",
                             "mDataProp": function(source,type,value) {
                                 if (type==='set') {
                                     return;
@@ -91,7 +90,7 @@
                 
                 oTable.css("width","100%");
                 
-                $('.smg-table-name').html(n+" significantly mutated genes");
+                $('.smg-table-name').html(n+" significantly mutated genes by <a href='https://confluence.broadinstitute.org/display/CGATools/MutSig'>MutSig</a>");
                 $('.smg-table-name').addClass('data-table-name');
                 
                 $('#smg_wrapper_table').show();
@@ -100,7 +99,7 @@
 </script>
 
 <div id="mut-sig-msg"><img src="images/ajax-loader.gif"/></div><br/>
-<table cellpadding="0" cellspacing="0" border="0" id="smg_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="smg_wrapper_table" width="50%">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="smg_table">

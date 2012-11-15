@@ -67,7 +67,7 @@
                             + '<input type="hidden" name="cancer_study_id" value="'+studyId
                             + '"><input type="hidden" name="case_set_id" value="-1">'
                             + '<input type="hidden" name="case_ids" value="'+ids.join(" ")
-                            + '"><input type="submit" value="Query them">'
+                            + '"><input type="submit" value="Query selection">'
                             + '<input type="submit" onclick="csObs.fireSelection(null,null);return false;" value="Clear selection"></form>';
                     $('#clinical-msg').html(form);
                     $('#clinical-msg').show();

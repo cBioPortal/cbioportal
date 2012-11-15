@@ -141,6 +141,9 @@ if (cancerStudyViewError!=null) {
                 width: auto;
                 float: right;
         }
+        .dataTables_filter {
+                width: 40%;
+        }
         .div.datatable-paging {
                 width: auto;
                 float: right;

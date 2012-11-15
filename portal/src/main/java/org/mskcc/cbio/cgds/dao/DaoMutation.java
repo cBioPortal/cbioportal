@@ -131,7 +131,7 @@ public class DaoMutation {
 						Integer.toString(mutation.getNormalAltCount()),
 						Integer.toString(mutation.getNormalRefCount()),
 						mutation.getOncotatorDbSnpRs(),
-						mutation.getOncotatorCosmicOverlapping()
+						DaoMutationEvent.filterCosmic(mutation)
 				                              );
 
 				// return 1 because normal insert will return 1 if no error occurs

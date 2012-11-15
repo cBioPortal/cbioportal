@@ -77,7 +77,7 @@ public final class DaoMutationEvent {
                 
                 // add cosmic
                 for (CosmicMutationFrequency cosmic :
-                        parseCosmic(mutation, mutation.getOncotatorCosmicOverlapping())) {
+                        parseCosmic(mutation)) {
                     importCosmic(eventId, cosmic, con);
                 }
             }
@@ -594,7 +594,21 @@ public final class DaoMutationEvent {
         }
     }
     
-    private static List<CosmicMutationFrequency> parseCosmic(ExtendedMutation mutation, String strCosmic) {
+    static String filterCosmic(ExtendedMutation mutation) {
+        List<CosmicMutationFrequency> cmfs = parseCosmic(mutation);
+        StringBuilder sb = new StringBuilder();
+        for (CosmicMutationFrequency cmf : cmfs) {
+            sb.append(cmf.getAminoAcidChange()).append("(")
+                    .append(cmf.getFrequency()).append(")|");
+        }
+        if (sb.length()>0) {
+            sb.deleteCharAt(sb.length()-1);
+        }
+        return sb.toString();
+    }
+    
+    private static List<CosmicMutationFrequency> parseCosmic(ExtendedMutation mutation) {
+        String strCosmic = mutation.getOncotatorCosmicOverlapping();
         if (strCosmic==null || strCosmic.isEmpty()) {
             return Collections.emptyList();
         }

@@ -86,15 +86,17 @@ public class GeneAlterationsJSON extends HttpServlet {
      * @param geneticEvents matrix M[case][gene]
      * @return
      */
-    public JSONObject mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary) throws ServletException {
+    public JSONObject mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary)
+            throws ServletException {
 
         JSONArray genes = new JSONArray();
-        JSONArray samples = new JSONArray();
+        JSONObject hugo_to_index = new JSONObject();
+        JSONObject samples = new JSONObject();
 
         // get all caseIds and put them in an array
         for (int j = 0; j < geneticEvents[0].length; j++) {
             String caseId = geneticEvents[0][j].caseCaseId();
-            samples.add(caseId);
+            samples.put(caseId, j);
         }
 
         // for each gene, get the data and put it into an array
@@ -111,10 +113,6 @@ public class GeneAlterationsJSON extends HttpServlet {
 
             for (int j = 0; j < geneticEvents[0].length; j++) {
 
-                Map alteration = new HashMap();
-                // json object, e.g. { 'sample' : "TCGA-A1-A0SD", 'unaltered_sample' : true,
-                // 'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN },
-
                 GeneticEvent event = geneticEvents[i][j];
 
 //                System.out.println("GeneAlterations caseId: " + event.caseCaseId() + ", event: " + event);
@@ -130,8 +128,9 @@ public class GeneAlterationsJSON extends HttpServlet {
                 rppa.add(sample_rppa.equals("NOTSHOWN") ? null : sample_rppa);
             }
 
+            hugo_to_index.put(gene, i);
+
             JSONObject gene_data = new JSONObject();
-            gene_data.put("hugo", gene);
             gene_data.put("percent_altered", percent_altered);
             gene_data.put("mutations", mutation);
             gene_data.put("cna", cna);
@@ -143,7 +142,8 @@ public class GeneAlterationsJSON extends HttpServlet {
         
         JSONObject data = new JSONObject();
         data.put("samples", samples);
-        data.put("genes", genes);
+        data.put("hugo_to_gene_index", hugo_to_index);
+        data.put("gene_data", genes);
 
         return data;
     }

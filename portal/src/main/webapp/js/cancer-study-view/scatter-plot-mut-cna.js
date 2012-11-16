@@ -66,7 +66,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
         return scatter;
 }
 
-function loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,func) {
+function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegmentData,func) {
 
     var mutDataTable = null;
     if (mutationProfileId!=null) {
@@ -95,7 +95,8 @@ function loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,func) {
     if (hasCnaSegmentData) {
         var params = {
             cmd: 'get_cna_fraction',
-            case_ids: caseIds.join(' ')
+            case_ids: caseIds.join(' '),
+            cancer_study_id: cancerStudyId
         };
 
         $.post("cna.json", 

@@ -437,7 +437,7 @@ drop table IF EXISTS _case;
 CREATE TABLE `_case` (
   `CASE_ID` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  PRIMARY KEY (`CASE_ID`)
+  PRIMARY KEY (`CASE_ID`,`CANCER_STUDY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS case_cna_event;
@@ -445,7 +445,7 @@ CREATE TABLE `case_cna_event` (
   `CNA_EVENT_ID` int(255) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`CNA_EVENT_ID`, `CASE_ID`)
+  PRIMARY KEY  (`CNA_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS cna_event;
@@ -463,7 +463,7 @@ CREATE TABLE `case_mutation_event` (
   `CASE_ID` varchar(255) NOT NULL,
   `MUTATION_EVENT_ID` int(255) NOT NULL,
   `VALIDATION_STATUS` varchar(25) NOT NULL,
-  PRIMARY KEY  (`MUTATION_EVENT_ID`, `CASE_ID`)
+  PRIMARY KEY  (`GENETIC_PROFILE_ID`, `MUTATION_EVENT_ID`, `CASE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data for patient view';
 
 drop table IF EXISTS mutation_event;
@@ -488,6 +488,7 @@ CREATE TABLE `mutation_event` (
 drop table IF EXISTS copy_number_seg;
 CREATE TABLE `copy_number_seg` (
   `SEG_ID` int(255) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `CHR` varchar(5) NOT NULL,
   `START` int(11) NOT NULL,

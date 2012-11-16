@@ -147,9 +147,8 @@ public class ExportDataForDownload {
 
             htmlIndexFilePrintWriter.print(  "<LI>" + aCancerStudy.getName() + "</LI>\n"  );
             
-            DaoGeneticProfile theDaoGeneticProfile = new DaoGeneticProfile();
             ArrayList<GeneticProfile> theGeneticProfiles =
-               theDaoGeneticProfile.getAllGeneticProfiles( aCancerStudy.getInternalId() );
+               DaoGeneticProfile.getAllGeneticProfiles( aCancerStudy.getInternalId() );
             htmlIndexFilePrintWriter.print( "<UL>" );
             
             // for each of this cancer's genetic profiles

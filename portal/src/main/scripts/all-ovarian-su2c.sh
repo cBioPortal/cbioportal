@@ -48,4 +48,4 @@ rm -v $GDAC_CGDS_STAGING_HOME/ovarian/processed_*
 ./importGistic.pl $GDAC_CGDS_STAGING_HOME/ov_tcga/data_GISTIC_GENE_DELS.txt ov_tcga
 
 # Copy number segment
-./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ov_tcga/ov_tcga_scna_minus_germline_cnv_hg19.seg
+./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ov_tcga/ov_tcga_scna_minus_germline_cnv_hg19.seg ov_tcga

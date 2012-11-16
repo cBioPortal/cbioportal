@@ -29,6 +29,9 @@ package org.mskcc.cbio.portal.html;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
@@ -130,8 +133,15 @@ public class MutationTableUtil
 
         //  Case ID.
         String caseId = HtmlUtil.getSafeWebValue(mutation.getCaseId());
+        String cancerStudyStableId = null;
+        try {
+            int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(mutation.getGeneticProfileId()).getCancerStudyId();
+            cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId).getCancerStudyStableId();
+        } catch (DaoException ex) {
+            ex.printStackTrace();
+        }
         String htmlCaseId = "<a href='"
-                + SkinUtil.getLinkToPatientView(caseId)
+                + SkinUtil.getLinkToPatientView(caseId, cancerStudyStableId)
                 + "'><b>" + caseId + "</b></a>";
         dataFieldList.add(htmlCaseId);
 

@@ -245,8 +245,8 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 			drawRPPA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// tooltip
 			if (!oncoprint.remove_genomic_alteration_hpadding) {
-				var tooltipText = "<a href='"+tumapUrl+"tumormap.do?case_id="+thisSampleAlteration.sample+"'><b>"
-                                    + thisSampleAlteration.sample + "</b></a>";
+				var tooltipText = "<a href='"+tumormapUrl+"tumormap.do?case_id="+thisSampleAlteration.sample
+                                    +"&cancer_study_id="+cancerStudyId+"'><b>"+thisSampleAlteration.sample + "</b></a>";
 				if (thisSampleAlteration.mutation != null) {
 					tooltipText = tooltipText + "<br/>Amino Acid Change: ";
 					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {

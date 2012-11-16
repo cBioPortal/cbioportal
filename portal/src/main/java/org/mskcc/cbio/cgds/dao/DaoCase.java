@@ -49,12 +49,8 @@ public final class DaoCase {
                 return 0;
             }
             
-            Case existingCase = getCase(_case.getCaseId());
+            Case existingCase = getCase(_case.getCaseId(), _case.getCancerStudyId());
             if (existingCase!=null) {
-                if (!_case.equals(existingCase)) {
-                    System.err.println("Inconsistent case information, e.g. different cancer study IDs "
-                            + "for the same case "+_case.getCaseId());
-                }
                 return 0;
             }
             
@@ -73,7 +69,31 @@ public final class DaoCase {
         }
     }
 
-    public static Case getCase( String caseId ) throws DaoException {
+    public static Case getCase( String caseId, int cancerStudyId ) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ? AND CANCER_STUDY_ID=?");
+            pstmt.setString(1, caseId );
+            pstmt.setInt(2, cancerStudyId);
+            rs = pstmt.executeQuery();
+            List<Case> cases = retriveCasesFromRS(rs);
+            if( !cases.isEmpty() ) {
+               return cases.get(0);
+            }else{
+               return null;
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    public static List<Case> getCase( String caseId ) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -82,12 +102,7 @@ public final class DaoCase {
             pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
-            List<Case> cases = retriveCasesFromRS(rs);
-            if( !cases.isEmpty() ) {
-               return cases.get(0);
-            }else{
-               return null;
-            }
+            return retriveCasesFromRS(rs);
 
         } catch (SQLException e) {
             throw new DaoException(e);

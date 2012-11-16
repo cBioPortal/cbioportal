@@ -76,7 +76,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     function plotCopyNumberOverview(paper,config,chmInfo,hasMut) {
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
-            <%=PatientView.PATIENT_ID%>:'<%=patient%>'
+            <%=PatientView.PATIENT_ID%>:'<%=patient%>',
+            cancer_study_id: cancerStudyId
         };
 
         $.post("cna.json", 
@@ -110,7 +111,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
-        loadMutCountCnaFrac(<%=jsonCaseIds%>,
+        loadMutCountCnaFrac(<%=jsonCaseIds%>, cancerStudyId,
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             hasCnaSegmentData,
             function(dt){

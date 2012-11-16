@@ -63,8 +63,7 @@ public class GeneticProfileReader {
     */
    public static GeneticProfile loadGeneticProfile(File file /*, int updateAction*/ ) throws IOException, DaoException {
       GeneticProfile geneticProfile = loadGeneticProfileFromMeta(file);
-      DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-      GeneticProfile existingGeneticProfile = daoGeneticProfile.getGeneticProfileByStableId(geneticProfile
+      GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile
                .getStableId());
 
       if (existingGeneticProfile != null) {
@@ -95,9 +94,9 @@ public class GeneticProfileReader {
          return existingGeneticProfile;
       } else {
          // add new profile
-         daoGeneticProfile.addGeneticProfile(geneticProfile);
+         DaoGeneticProfile.addGeneticProfile(geneticProfile);
          // load it into a GeneticProfile
-         GeneticProfile newGeneticProfile = daoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
+         GeneticProfile newGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
          newGeneticProfile.setTargetLine(geneticProfile.getTargetLine());
          return newGeneticProfile;
       }

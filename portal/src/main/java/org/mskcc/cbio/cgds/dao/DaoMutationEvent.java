@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.*;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
@@ -29,7 +30,7 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection();
             long eventId = addMutationEvent(mutation, con);
             
-            if (eventExists(eventId, mutation.getCaseId(), con)) {
+            if (eventExists(eventId, mutation.getCaseId(), mutation.getGeneticProfileId(), con)) {
                 return 0;
             }
             
@@ -159,14 +160,15 @@ public final class DaoMutationEvent {
         return "Chm"+mutation.getChr()+","+mutation.getStartPosition();
     }
     
-    private static boolean eventExists(long eventId, String caseId, Connection con) throws DaoException {
+    private static boolean eventExists(long eventId, String caseId, int mutProfileId, Connection con) throws DaoException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_mutation_event WHERE `MUTATION_EVENT_ID`=? AND `CASE_ID`=?");
+		("SELECT count(*) FROM case_mutation_event WHERE `MUTATION_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, caseId);
+            pstmt.setInt(3, mutProfileId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1)>0;
@@ -354,7 +356,7 @@ public final class DaoMutationEvent {
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
-    public static Map<String, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+    public static Map<Case, Set<Long>> getSimilarCasesWithMutationsByKeywords(
             Collection<Long> eventIds) throws DaoException {
         return getSimilarCasesWithMutationsByKeywords(StringUtils.join(eventIds, ","));
     }
@@ -365,7 +367,7 @@ public final class DaoMutationEvent {
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
-    public static Map<String, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+    public static Map<Case, Set<Long>> getSimilarCasesWithMutationsByKeywords(
             String concatEventIds) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -375,22 +377,24 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, me1.`MUTATION_EVENT_ID`"
+            String sql = "SELECT `CASE_ID`, `CANCER_STUDY_ID`, me1.`MUTATION_EVENT_ID`"
                     + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
                     + " AND me1.`KEYWORD`=me2.`KEYWORD`"
                     + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             
-            Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
+            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
+                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                Case _case = new Case(caseId, cancerStudyId);
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
-                Set<Long> events = map.get(caseId);
+                Set<Long> events = map.get(_case);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(caseId, events);
+                    map.put(_case, events);
                 }
                 events.add(eventId);
             }

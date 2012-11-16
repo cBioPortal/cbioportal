@@ -39,10 +39,10 @@ import java.util.ArrayList;
 /**
  * Data access object for Genetic Profile table
  */
-public class DaoGeneticProfile {
+public final class DaoGeneticProfile {
+    private DaoGeneticProfile() {}
    
-   // TODO: these methods should be static, as this object has no state
-    public int addGeneticProfile(GeneticProfile profile) throws DaoException {
+    public static int addGeneticProfile(GeneticProfile profile) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -76,7 +76,7 @@ public class DaoGeneticProfile {
      * @return                  Returns True if Genetic Profile was Updated.
      * @throws DaoException     Data Access Error.
      */
-    public boolean updateNameAndDescription (int geneticProfileId, String name, String description)
+    public static boolean updateNameAndDescription (int geneticProfileId, String name, String description)
         throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -101,7 +101,7 @@ public class DaoGeneticProfile {
         }
     }
     
-    public int deleteGeneticProfile(GeneticProfile profile) throws DaoException {
+    public static int deleteGeneticProfile(GeneticProfile profile) throws DaoException {
        Connection con = null;
        PreparedStatement pstmt = null;
        ResultSet rs = null;
@@ -118,7 +118,7 @@ public class DaoGeneticProfile {
        }
    }
     
-    public GeneticProfile getGeneticProfileByStableId(String stableId) throws DaoException {
+    public static GeneticProfile getGeneticProfileByStableId(String stableId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -140,7 +140,7 @@ public class DaoGeneticProfile {
         }
     }
 
-    public GeneticProfile getGeneticProfileById(int geneticProfileId) throws DaoException {
+    public static GeneticProfile getGeneticProfileById(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -163,13 +163,12 @@ public class DaoGeneticProfile {
     }
     
     // TODO: UNIT TEST
-    public ArrayList <GeneticProfile> getGeneticProfiles (int[] geneticProfileIds) throws
+    public static ArrayList <GeneticProfile> getGeneticProfiles (int[] geneticProfileIds) throws
             DaoException {
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         ArrayList <GeneticProfile> geneticProfileList = new ArrayList <GeneticProfile>();
         for (int geneticProfileId:  geneticProfileIds) {
             GeneticProfile geneticProfile =
-                    daoGeneticProfile.getGeneticProfileById(geneticProfileId);
+                    DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
             if (geneticProfile != null) {
                 geneticProfileList.add(geneticProfile);
             } else {
@@ -180,7 +179,7 @@ public class DaoGeneticProfile {
         return geneticProfileList;
     }
 
-    public int getCount() throws DaoException {
+    public static int getCount() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -200,7 +199,7 @@ public class DaoGeneticProfile {
         }
     }
 
-    private GeneticProfile extractGeneticProfile(ResultSet rs) throws SQLException {
+    private static GeneticProfile extractGeneticProfile(ResultSet rs) throws SQLException {
         GeneticProfile profileType = new GeneticProfile();
         profileType.setStableId(rs.getString("STABLE_ID"));
 
@@ -218,7 +217,7 @@ public class DaoGeneticProfile {
         return profileType;
     }
 
-    public ArrayList<GeneticProfile> getAllGeneticProfiles(int cancerStudyId) throws DaoException {
+    public static ArrayList<GeneticProfile> getAllGeneticProfiles(int cancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -242,7 +241,7 @@ public class DaoGeneticProfile {
         }
     }
 
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

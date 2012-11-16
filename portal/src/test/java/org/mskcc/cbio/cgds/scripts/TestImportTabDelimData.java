@@ -188,7 +188,6 @@ public class TestImportTabDelimData extends TestCase {
         daoGene.addGene(new CanonicalGene(11099, "G"));
         daoGene.addGene(new CanonicalGene(675, "6352"));
 
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         GeneticProfile geneticProfile = new GeneticProfile();
 
         geneticProfile.setCancerStudyId(1);
@@ -196,7 +195,7 @@ public class TestImportTabDelimData extends TestCase {
         geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
-        daoGeneticProfile.addGeneticProfile(geneticProfile);
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);

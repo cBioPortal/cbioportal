@@ -552,8 +552,7 @@ public class WebService extends HttpServlet {
                     return null;
                 }
 
-                DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
-                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
                 if (aGeneticProfile != null &&
                         DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
@@ -602,8 +601,7 @@ public class WebService extends HttpServlet {
                     return null;
                 }
 
-                DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
-                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileById(profileId);
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
                 if (aGeneticProfile == null) {
                     return null;
                 }

@@ -29,8 +29,6 @@ public class MutationsJSON extends HttpServlet {
     public static final String KEYWORD_CONTEXT = "keyword_context";
     public static final String MUTATION_CONTEXT = "mutation_context";
     
-    private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -68,7 +66,6 @@ public class MutationsJSON extends HttpServlet {
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         
         GeneticProfile mutationProfile;
-        Case _case;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
         Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
@@ -77,10 +74,9 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
         
         try {
-            _case = DaoCase.getCase(patient);
-            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
-            if (_case!=null && mutationProfile!=null) {
-                cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(_case.getCancerStudyId());
+            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            if (mutationProfile!=null) {
+                cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
                 mutations = DaoMutationEvent.getMutationEvents(patient,
                         mutationProfile.getGeneticProfileId());
                 cosmic = getCosmic(mutations);
@@ -125,7 +121,7 @@ public class MutationsJSON extends HttpServlet {
 //        Map<Long, Integer> mutationContextMap = Collections.emptyMap();
         
         try {
-            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 geneContextMap = getGeneContextMap(eventIds, mutationProfile.getGeneticProfileId());
                 keywordContextMap = getKeywordContextMap(eventIds, mutationProfile.getGeneticProfileId());
@@ -161,7 +157,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String, List<String>> drugs = Collections.emptyMap();
         
         try {
-            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 drugs = getDrugs(eventIds, mutationProfile.getGeneticProfileId());
             }
@@ -190,7 +186,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Integer> count = Collections.emptyMap();
         
         try {
-            mutationProfile = daoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 count = DaoMutationEvent.countMutationEvents(mutationProfile.getGeneticProfileId(),caseIds);
             }

@@ -65,7 +65,7 @@
                     for (String caseId : mergedCaseList) {
                         out.println("<tr>");
                         out.println("<th bgcolor='#BBBBBB'><nobr><a href=\""
-                                + SkinUtil.getLinkToPatientView(caseId)
+                                + SkinUtil.getLinkToPatientView(caseId,request.getParameter(QueryBuilder.CANCER_STUDY_ID))
                                 + "\">" + caseId + "</a>&nbsp;</nobr></th>");
                         int dataCounter=0;
                         for (GeneWithScore geneWithScore : geneWithScoreList) {

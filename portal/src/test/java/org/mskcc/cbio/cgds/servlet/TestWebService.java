@@ -289,20 +289,19 @@ public class TestWebService extends TestCase {
       UserAuthorities authorities = new UserAuthorities(user1.getEmail(), java.util.Arrays.asList("ROLE_USER"));
       DaoUserAuthorities.addUserAuthorities(authorities);
       
-      DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
       String publicSid = "stableIdpublic";
       publicGeneticProfile = new GeneticProfile( publicSid, publicCancerStudy.getInternalId(),
                GeneticAlterationType.COPY_NUMBER_ALTERATION,
                "profileName", "profileDescription", true);
-      aDaoGeneticProfile.addGeneticProfile( publicGeneticProfile );
+      DaoGeneticProfile.addGeneticProfile( publicGeneticProfile );
       // have to refetch from the dbms to get the profile_id; sigh!
-      publicGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId( publicSid ); 
+      publicGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId( publicSid ); 
       String privateSid = "stableIdPrivate";
       privateGeneticProfile = new GeneticProfile( privateSid, privateCancerStudy1.getInternalId(),
                GeneticAlterationType.COPY_NUMBER_ALTERATION,
                "profileName", "profileDescription", true);
-      aDaoGeneticProfile.addGeneticProfile( privateGeneticProfile );
-      privateGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(privateSid);
+      DaoGeneticProfile.addGeneticProfile( privateGeneticProfile );
+      privateGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(privateSid);
    }
    
 }

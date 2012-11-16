@@ -27,12 +27,7 @@
 
 package org.mskcc.cbio.cgds.web_api;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cbio.cgds.dao.DaoException;

@@ -43,6 +43,7 @@ public class CancerStudyStats {
 
 	private String stableID;
 	private String studyName;
+        private String reference;
 	private Integer all;
 	private Integer sequenced;
 	private Integer aCGH;
@@ -58,12 +59,13 @@ public class CancerStudyStats {
 	 * Constructor.
 	 *
 	 */
-	public CancerStudyStats(String stableID, String studyName, Integer all, Integer sequenced,
+	public CancerStudyStats(String stableID, String studyName, String reference, Integer all, Integer sequenced,
 							Integer aCGH, Integer rnaSEQ, Integer tumorMRNA, Integer normal,
 							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer complete) {
 
 		this.stableID = stableID;
 		this.studyName = studyName;
+                this.reference = reference;
 		this.all = all;
 		this.sequenced = sequenced;
 		this.aCGH = aCGH;
@@ -79,6 +81,7 @@ public class CancerStudyStats {
 	// accessors
 	public String getStableID() { return this.stableID; }
 	public String getStudyName() { return this.studyName; }
+	public String getReference() { return this.reference; }
 	public Integer getAll() { return this.all; }
 	public Integer getSequenced() { return this.sequenced; }
 	public Integer getACGH() { return this.aCGH; }

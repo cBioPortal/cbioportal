@@ -27,14 +27,15 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.ClinicalData;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 
 /**
  * Data access object for Clinical Data table
@@ -111,6 +112,11 @@ public class DaoClinicalData {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
     }
+    
+    public ClinicalData getCase(String _case)  throws DaoException {
+        ArrayList<ClinicalData> list = getCases(Collections.singleton(_case));
+        return list.isEmpty() ? null : list.get(0);
+    }
 
     /**
      * Gets All Cases in the Specified Case Set.
@@ -125,44 +131,43 @@ public class DaoClinicalData {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement ("SELECT * FROM clinical");
+            pstmt = con.prepareStatement ("SELECT * FROM clinical WHERE CASE_ID IN('"
+                    + StringUtils.join(caseSet, "','") + "')");
             rs = pstmt.executeQuery();
             ArrayList<ClinicalData> caseList = new ArrayList<ClinicalData>();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
-                if (caseSet.contains(caseId)) {
 
-                    //  Must check for NULL Data via rs.wasNull
-                    Double overallSurvivalMonths = rs.getDouble("OVERALL_SURVIVAL_MONTHS");
-                    if (rs.wasNull()) {
-                        overallSurvivalMonths = null;
-                    }
-
-                    String overallSurvivalStatus = rs.getString("OVERALL_SURVIVAL_STATUS");
-                    if (rs.wasNull()) {
-                        overallSurvivalStatus = null;
-                    }
-
-                    Double diseaseFreeSurvivalMonths = rs.getDouble("DISEASE_FREE_SURVIVAL_MONTHS");
-                    if (rs.wasNull()) {
-                        diseaseFreeSurvivalMonths = null;
-                    }
-
-                    String diseaseFreeSurvivalStatus = rs.getString("DISEASE_FREE_SURVIVAL_STATUS");
-                    if (rs.wasNull()) {
-                        diseaseFreeSurvivalStatus = null;
-                    }
-
-                    Double ageAtDiagnosis = rs.getDouble("AGE_AT_DIAGNOSIS");
-                    if (rs.wasNull()) {
-                        ageAtDiagnosis = null;
-                    }
-
-                    ClinicalData caseSurvival = new ClinicalData(caseId, overallSurvivalMonths,
-                            overallSurvivalStatus, diseaseFreeSurvivalMonths,
-                            diseaseFreeSurvivalStatus, ageAtDiagnosis);
-                    caseList.add(caseSurvival);
+                //  Must check for NULL Data via rs.wasNull
+                Double overallSurvivalMonths = rs.getDouble("OVERALL_SURVIVAL_MONTHS");
+                if (rs.wasNull()) {
+                    overallSurvivalMonths = null;
                 }
+
+                String overallSurvivalStatus = rs.getString("OVERALL_SURVIVAL_STATUS");
+                if (rs.wasNull()) {
+                    overallSurvivalStatus = null;
+                }
+
+                Double diseaseFreeSurvivalMonths = rs.getDouble("DISEASE_FREE_SURVIVAL_MONTHS");
+                if (rs.wasNull()) {
+                    diseaseFreeSurvivalMonths = null;
+                }
+
+                String diseaseFreeSurvivalStatus = rs.getString("DISEASE_FREE_SURVIVAL_STATUS");
+                if (rs.wasNull()) {
+                    diseaseFreeSurvivalStatus = null;
+                }
+
+                Double ageAtDiagnosis = rs.getDouble("AGE_AT_DIAGNOSIS");
+                if (rs.wasNull()) {
+                    ageAtDiagnosis = null;
+                }
+
+                ClinicalData caseSurvival = new ClinicalData(caseId, overallSurvivalMonths,
+                        overallSurvivalStatus, diseaseFreeSurvivalMonths,
+                        diseaseFreeSurvivalStatus, ageAtDiagnosis);
+                caseList.add(caseSurvival);
             }
             return caseList;
         } catch (SQLException e) {

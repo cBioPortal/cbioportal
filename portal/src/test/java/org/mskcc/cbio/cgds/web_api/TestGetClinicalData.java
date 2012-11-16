@@ -27,17 +27,14 @@
 
 package org.mskcc.cbio.cgds.web_api;
 
-import junit.framework.TestCase;
-
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.web_api.GetClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * Tests Get Clinical Data.

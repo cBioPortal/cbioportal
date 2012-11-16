@@ -18,4 +18,10 @@
 
 # Load UniProt Mapping Data
 # You must run:  ./prepareUniProtIdMapping.sh first.
-./importUniProtIdMapping.pl ../sample_data/genes/uniprot_id_mapping.txt
+./importUniProtIdMapping.pl $CGDS_DATA_HOME/reference-data/uniprot_id_mapping.txt
+
+# Network
+./loadNetwork.sh
+
+# Drug
+./importPiHelperData.pl

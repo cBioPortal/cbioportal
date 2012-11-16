@@ -27,24 +27,15 @@
 
 package org.mskcc.cbio.cgds.servlet;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-
 import junit.framework.TestCase;
-
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cbio.cgds.dao.DaoUser;
-import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.servlet.WebService;
 import org.mskcc.cbio.cgds.util.NullHttpServletRequest;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
@@ -255,9 +246,8 @@ public class TestWebService extends TestCase {
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
-      DaoCase daoCase = new DaoCase();
       String c1 = "TCGA-12345";
-      daoCase.addCase( c1, publicGeneticProfile.getGeneticProfileId());
+      DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
@@ -265,7 +255,7 @@ public class TestWebService extends TestCase {
               (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       String c2 = "TCGA-54321";
-      daoCase.addCase( c2, privateGeneticProfile.getGeneticProfileId() );
+      DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
       studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);

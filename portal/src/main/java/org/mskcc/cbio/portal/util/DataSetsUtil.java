@@ -114,7 +114,15 @@ public class DataSetsUtil {
 
 		// process the list
 		for (CancerStudy cancerStudy : cancerStudyList) {
-			String stableID = cancerStudy.getCancerStudyStableId();
+                        String citation = cancerStudy.getCitation();
+                        if (citation==null) {
+                            citation = "";
+                        } else {
+                            String pmid = cancerStudy.getPmid();
+                            if (pmid!=null) {
+                                citation = "<a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
+                            }
+                        }
 			// get genetic profiles
 			int sequenced = getCount(cancerStudy, "_sequenced");
 			int aCGH = getCount(cancerStudy, "_acgh");
@@ -128,8 +136,8 @@ public class DataSetsUtil {
 			int all = getAll(cancerStudy);
 			totalNumberOfSamples += all;
 			// add to return list
-			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(),
-											  cancerStudy.getName(), all, sequenced,
+			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
+											  cancerStudy.getName(), citation, all, sequenced,
 											  aCGH, RNASEQ, tumorMRNA, normal, tumorMIRNA,
 											  methylation, rppa, complete));
 		}

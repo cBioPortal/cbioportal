@@ -106,7 +106,7 @@ sub run{
 	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportUniProtIdMapping " . $uniprotMappingFile );
 
 	# Load up Drug Data (for drug-network view)
-	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.drug.ImportDrugBank " . $drugDataFile . " " . $drugTargetFile );
+	system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.drug.ImportPiHelperData " . $drugDataFile . " " . $drugTargetFile );
 	    
     load_cancer_data( $cgdsHome, $CGDSinputData, $cmdLineCP, $nameOfPerCancerGermlineWhitelist, 
         $nameOfPerCancerSomaticWhitelist, $loadMutationArguments );
@@ -199,6 +199,13 @@ sub load_cancer_data{
 	  if ( $fileUtil->existent($fullCanonicalMutSigDataFile) && $fileUtil->existent($fullCanonicalMutSigMetaFile)) {
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
 		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
+	  }
+
+	  # import hg19 seg file
+	  my $fullCanonicalSegDataFile = File::Spec->catfile( @pathToDataFile, $cancerDataDir . '_scna_minus_germline_cnv_hg19.seg' );
+	  if ( $fileUtil->existent($fullCanonicalSegDataFile) ) {
+		print "importingCopyNumberSegentData(hg19): $fullCanonicalSegDataFile\n";
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCopyNumberSegmentData " . $fullCanonicalSegDataFile );
 	  }
 
 	  # import gistic gene amp file

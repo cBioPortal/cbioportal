@@ -18,6 +18,7 @@ users.worksheet=
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/gdac-portal.log
 
 skin.title=cBio GDAC Portal
+skin.tumormap_title=cBio Tumor Map
 skin.email_contact=cbioportal at googlegroups dot com
 skin.blurb=<b>Data in this portal is based on the 26 October 2011 Broad Firehose run of TCGA data.  Additional mutation files have been added from each disease working group.</b>
 skin.authorization_message=Access to this portal is only available to authorized users who are involved in TCGA-funded work or are active participants of the TCGA Disease Working Groups or Analysis Working Groups.  [<a href="http://bit.ly/gdac-form">Request Access</a>].
@@ -27,6 +28,10 @@ skin.data_sets_footer=Based on the Firehose run from 12/30/2011.
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
+
+cbioportal.url=
+tumormap.url=
+tumor_image.url=
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
@@ -44,3 +49,6 @@ examples_right_column=examples_tcga.html
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]
 bitly.api_key=[put your bitly api key here]
+
+patient_view_placeholder=false
+patient_view_genomic_overview_cna_cutoff=0.2,1.5

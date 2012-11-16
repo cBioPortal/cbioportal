@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.3" jmeter="2.8 r1393162">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="JMeter Template Plan" enabled="true">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="nb.server" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">localhost</stringProp>
+            <stringProp name="Argument.name">nb.server</stringProp>
+          </elementProp>
+          <elementProp name="nb.port" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">8080</stringProp>
+            <stringProp name="Argument.name">nb.port</stringProp>
+          </elementProp>
+          <elementProp name="nb.enabled" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.name">nb.enabled</stringProp>
+          </elementProp>
+          <elementProp name="nb.interleave" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">500</stringProp>
+            <stringProp name="Argument.name">nb.interleave</stringProp>
+          </elementProp>
+          <elementProp name="nb.users" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">2</stringProp>
+            <stringProp name="Argument.name">nb.users</stringProp>
+          </elementProp>
+          <elementProp name="nb.rampup" elementType="Argument">
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.value">3</stringProp>
+            <stringProp name="Argument.name">nb.rampup</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <stringProp name="TestPlan.comments"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Study view" enabled="false">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">30</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1348774730000</longProp>
+        <longProp name="ThreadGroup.end_time">1348774730000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="study.do" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/study.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="get clinical data" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">getClinicalData</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_all</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="include_free_form" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">include_free_form</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/webservice.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="count_mutations" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">count_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="mutation_profile" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation_profile</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G1 TCGA-A5-A0G2 TCGA-A5-A0G3 TCGA-A5-A0G5 TCGA-A5-A0G9 TCGA-A5-A0GA TCGA-A5-A0GB TCGA-A5-A0GD TCGA-A5-A0GE TCGA-A5-A0GG TCGA-A5-A0GH TCGA-A5-A0GI TCGA-A5-A0GJ TCGA-A5-A0GM TCGA-A5-A0GN TCGA-A5-A0GP TCGA-A5-A0GQ TCGA-A5-A0GR TCGA-A5-A0GU TCGA-A5-A0GV TCGA-A5-A0GW TCGA-A5-A0GX TCGA-A5-A0R6 TCGA-A5-A0R7 TCGA-A5-A0R8 TCGA-A5-A0R9 TCGA-A5-A0RA TCGA-A5-A0VO TCGA-A5-A0VP TCGA-A5-A0VQ TCGA-A5-A1OF TCGA-A5-A1OG TCGA-A5-A1OJ TCGA-A5-A1OK TCGA-AJ-A23M TCGA-AJ-A23O TCGA-AP-A051 TCGA-AP-A052 TCGA-AP-A053 TCGA-AP-A054 TCGA-AP-A056 TCGA-AP-A059 TCGA-AP-A05A TCGA-AP-A05D TCGA-AP-A05H TCGA-AP-A05J TCGA-AP-A05N TCGA-AP-A05O TCGA-AP-A05P TCGA-AP-A0L8 TCGA-AP-A0L9 TCGA-AP-A0LD TCGA-AP-A0LE TCGA-AP-A0LF TCGA-AP-A0LG TCGA-AP-A0LH TCGA-AP-A0LI TCGA-AP-A0LJ TCGA-AP-A0LL TCGA-AP-A0LM TCGA-AP-A0LN TCGA-AP-A0LO TCGA-AP-A0LP TCGA-AP-A0LQ TCGA-AP-A0LS TCGA-AP-A0LT TCGA-AP-A0LV TCGA-AP-A1DH TCGA-AP-A1DK TCGA-AP-A1DM TCGA-AP-A1DO TCGA-AP-A1DP TCGA-AP-A1DQ TCGA-AP-A1DR TCGA-AP-A1DV TCGA-AP-A1E0 TCGA-AP-A1E1 TCGA-AP-A1E3 TCGA-AP-A1E4 TCGA-AW-A1PO TCGA-AX-A05S TCGA-AX-A05T TCGA-AX-A05U TCGA-AX-A05W TCGA-AX-A05Y TCGA-AX-A05Z TCGA-AX-A060 TCGA-AX-A062 TCGA-AX-A063 TCGA-AX-A064 TCGA-AX-A06B TCGA-AX-A06D TCGA-AX-A06F TCGA-AX-A06H TCGA-AX-A06J TCGA-AX-A06L TCGA-AX-A0IS TCGA-AX-A0IU TCGA-AX-A0IW TCGA-AX-A0IZ TCGA-AX-A0J0 TCGA-AX-A0J1 TCGA-AX-A1C4 TCGA-AX-A1C5 TCGA-AX-A1C7 TCGA-AX-A1C8 TCGA-AX-A1C9 TCGA-AX-A1CA TCGA-AX-A1CC TCGA-AX-A1CE TCGA-AX-A1CF TCGA-AX-A1CI TCGA-AX-A1CJ TCGA-AX-A1CK TCGA-AX-A1CN TCGA-AX-A1CP TCGA-AX-A1CR TCGA-AX-A2H5 TCGA-AX-A2H8 TCGA-AX-A2HC TCGA-AX-A2HD TCGA-AX-A2HF TCGA-AX-A2HG TCGA-AX-A2HH TCGA-AX-A2HJ TCGA-AX-A2HK TCGA-B5-A0JN TCGA-B5-A0JR TCGA-B5-A0JS TCGA-B5-A0JT TCGA-B5-A0JU TCGA-B5-A0JV TCGA-B5-A0JX TCGA-B5-A0JY TCGA-B5-A0JZ TCGA-B5-A0K0 TCGA-B5-A0K1 TCGA-B5-A0K2 TCGA-B5-A0K3 TCGA-B5-A0K4 TCGA-B5-A0K6 TCGA-B5-A0K7 TCGA-B5-A0K8 TCGA-B5-A0K9 TCGA-B5-A0KB TCGA-B5-A11E TCGA-B5-A11F TCGA-B5-A11G TCGA-B5-A11H TCGA-B5-A11I TCGA-B5-A11J TCGA-B5-A11L TCGA-B5-A11M TCGA-B5-A11N TCGA-B5-A11O TCGA-B5-A11P TCGA-B5-A11Q TCGA-B5-A11R TCGA-B5-A11S TCGA-B5-A11U TCGA-B5-A11V TCGA-B5-A11W TCGA-B5-A11X TCGA-B5-A11Y TCGA-B5-A11Z TCGA-B5-A121 TCGA-B5-A1MR TCGA-B5-A1MU TCGA-B5-A1MV TCGA-B5-A1MW TCGA-B5-A1MX TCGA-B5-A1MY TCGA-B5-A1MZ TCGA-B5-A1N2 TCGA-BG-A0LW TCGA-BG-A0LX TCGA-BG-A0M0 TCGA-BG-A0M2 TCGA-BG-A0M3 TCGA-BG-A0M4 TCGA-BG-A0M6 TCGA-BG-A0M7 TCGA-BG-A0M8 TCGA-BG-A0M9 TCGA-BG-A0MA TCGA-BG-A0MC TCGA-BG-A0MG TCGA-BG-A0MH TCGA-BG-A0MI TCGA-BG-A0MO TCGA-BG-A0MQ TCGA-BG-A0MS TCGA-BG-A0MT TCGA-BG-A0MU TCGA-BG-A0RY TCGA-BG-A0VT TCGA-BG-A0VV TCGA-BG-A0VW TCGA-BG-A0VX TCGA-BG-A0VZ TCGA-BG-A0W1 TCGA-BG-A0W2 TCGA-BG-A0YU TCGA-BG-A0YV TCGA-BG-A186 TCGA-BG-A187 TCGA-BG-A18A TCGA-BG-A18B TCGA-BG-A18C TCGA-BG-A220 TCGA-BG-A221 TCGA-BG-A222 TCGA-BG-A2AD TCGA-BG-A2AE TCGA-BK-A0C9 TCGA-BK-A0CA TCGA-BK-A0CB TCGA-BK-A0CC TCGA-BK-A139 TCGA-BK-A13C TCGA-BK-A26L TCGA-BS-A0T9 TCGA-BS-A0TA TCGA-BS-A0TC TCGA-BS-A0TD TCGA-BS-A0TE TCGA-BS-A0TG TCGA-BS-A0TI TCGA-BS-A0TJ TCGA-BS-A0U5 TCGA-BS-A0U7 TCGA-BS-A0U8 TCGA-BS-A0U9 TCGA-BS-A0UA TCGA-BS-A0UF TCGA-BS-A0UJ TCGA-BS-A0UL TCGA-BS-A0UM TCGA-BS-A0UT TCGA-BS-A0UV TCGA-BS-A0V4 TCGA-BS-A0V6 TCGA-BS-A0V7 TCGA-BS-A0V8 TCGA-BS-A0VI TCGA-BS-A0WQ TCGA-D1-A0ZN TCGA-D1-A0ZO TCGA-D1-A0ZP TCGA-D1-A0ZQ TCGA-D1-A0ZR TCGA-D1-A0ZS TCGA-D1-A0ZU TCGA-D1-A0ZV TCGA-D1-A0ZZ TCGA-D1-A101 TCGA-D1-A102 TCGA-D1-A103 TCGA-D1-A15V TCGA-D1-A15W TCGA-D1-A15X TCGA-D1-A15Z TCGA-D1-A160 TCGA-D1-A161 TCGA-D1-A162 TCGA-D1-A163 TCGA-D1-A165 TCGA-D1-A167 TCGA-D1-A168 TCGA-D1-A169 TCGA-D1-A16B TCGA-D1-A16D TCGA-D1-A16E TCGA-D1-A16F TCGA-D1-A16G TCGA-D1-A16I TCGA-D1-A16J TCGA-D1-A16N TCGA-D1-A16O TCGA-D1-A16Q TCGA-D1-A16R TCGA-D1-A16S TCGA-D1-A16V TCGA-D1-A16X TCGA-D1-A16Y TCGA-D1-A174 TCGA-D1-A175 TCGA-D1-A176 TCGA-D1-A177 TCGA-D1-A179 TCGA-D1-A17A TCGA-D1-A17B TCGA-D1-A17C TCGA-D1-A17D TCGA-D1-A17F TCGA-D1-A17H TCGA-D1-A17K TCGA-D1-A17L TCGA-D1-A17M TCGA-D1-A17N TCGA-D1-A17Q TCGA-D1-A17R TCGA-D1-A17S TCGA-D1-A17T TCGA-D1-A17U TCGA-D1-A1NS TCGA-D1-A1NU TCGA-D1-A1NW TCGA-D1-A1NX TCGA-D1-A1NY TCGA-D1-A1NZ TCGA-D1-A1O0 TCGA-D1-A1O5 TCGA-D1-A1O7 TCGA-D1-A1O8 TCGA-D1-A2G0 TCGA-D1-A2G5 TCGA-D1-A2G6 TCGA-DI-A0WH TCGA-DI-A1BU TCGA-DI-A1BY TCGA-DI-A1C3 TCGA-DI-A1NN TCGA-DI-A1NO TCGA-E6-A1LX TCGA-E6-A1LZ TCGA-E6-A1M0 TCGA-EC-A1NJ TCGA-EC-A1QX TCGA-EC-A24G TCGA-EO-A1Y5 TCGA-EO-A1Y7 TCGA-EO-A1Y8 TCGA-EY-A1G7 TCGA-EY-A1G8 TCGA-EY-A1GC TCGA-EY-A1GD TCGA-EY-A1GE TCGA-EY-A1GF TCGA-EY-A1GH TCGA-EY-A1GI TCGA-EY-A1GJ TCGA-EY-A1GK TCGA-EY-A1GL TCGA-EY-A1GM TCGA-EY-A1GO TCGA-EY-A1GP TCGA-EY-A1GQ TCGA-EY-A1GR TCGA-EY-A1GS TCGA-EY-A1GT TCGA-EY-A1GU TCGA-EY-A1GV TCGA-EY-A1GW TCGA-EY-A1GX TCGA-EY-A1H0 TCGA-EY-A210 TCGA-EY-A212 TCGA-EY-A214 TCGA-EY-A215 TCGA-FI-A2CX TCGA-FI-A2CY TCGA-FI-A2D0 TCGA-FI-A2D2 TCGA-FI-A2D4 TCGA-FI-A2D5 TCGA-FI-A2D6 TCGA-FI-A2EU TCGA-FI-A2EW TCGA-FI-A2EX TCGA-FI-A2F4 TCGA-FI-A2F8 TCGA-FI-A2F9</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/mutations.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="count_cnas" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">get_cna_fraction</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G1 TCGA-A5-A0G2 TCGA-A5-A0G3 TCGA-A5-A0G5 TCGA-A5-A0G9 TCGA-A5-A0GA TCGA-A5-A0GB TCGA-A5-A0GD TCGA-A5-A0GE TCGA-A5-A0GG TCGA-A5-A0GH TCGA-A5-A0GI TCGA-A5-A0GJ TCGA-A5-A0GM TCGA-A5-A0GN TCGA-A5-A0GP TCGA-A5-A0GQ TCGA-A5-A0GR TCGA-A5-A0GU TCGA-A5-A0GV TCGA-A5-A0GW TCGA-A5-A0GX TCGA-A5-A0R6 TCGA-A5-A0R7 TCGA-A5-A0R8 TCGA-A5-A0R9 TCGA-A5-A0RA TCGA-A5-A0VO TCGA-A5-A0VP TCGA-A5-A0VQ TCGA-A5-A1OF TCGA-A5-A1OG TCGA-A5-A1OJ TCGA-A5-A1OK TCGA-AJ-A23M TCGA-AJ-A23O TCGA-AP-A051 TCGA-AP-A052 TCGA-AP-A053 TCGA-AP-A054 TCGA-AP-A056 TCGA-AP-A059 TCGA-AP-A05A TCGA-AP-A05D TCGA-AP-A05H TCGA-AP-A05J TCGA-AP-A05N TCGA-AP-A05O TCGA-AP-A05P TCGA-AP-A0L8 TCGA-AP-A0L9 TCGA-AP-A0LD TCGA-AP-A0LE TCGA-AP-A0LF TCGA-AP-A0LG TCGA-AP-A0LH TCGA-AP-A0LI TCGA-AP-A0LJ TCGA-AP-A0LL TCGA-AP-A0LM TCGA-AP-A0LN TCGA-AP-A0LO TCGA-AP-A0LP TCGA-AP-A0LQ TCGA-AP-A0LS TCGA-AP-A0LT TCGA-AP-A0LV TCGA-AP-A1DH TCGA-AP-A1DK TCGA-AP-A1DM TCGA-AP-A1DO TCGA-AP-A1DP TCGA-AP-A1DQ TCGA-AP-A1DR TCGA-AP-A1DV TCGA-AP-A1E0 TCGA-AP-A1E1 TCGA-AP-A1E3 TCGA-AP-A1E4 TCGA-AW-A1PO TCGA-AX-A05S TCGA-AX-A05T TCGA-AX-A05U TCGA-AX-A05W TCGA-AX-A05Y TCGA-AX-A05Z TCGA-AX-A060 TCGA-AX-A062 TCGA-AX-A063 TCGA-AX-A064 TCGA-AX-A06B TCGA-AX-A06D TCGA-AX-A06F TCGA-AX-A06H TCGA-AX-A06J TCGA-AX-A06L TCGA-AX-A0IS TCGA-AX-A0IU TCGA-AX-A0IW TCGA-AX-A0IZ TCGA-AX-A0J0 TCGA-AX-A0J1 TCGA-AX-A1C4 TCGA-AX-A1C5 TCGA-AX-A1C7 TCGA-AX-A1C8 TCGA-AX-A1C9 TCGA-AX-A1CA TCGA-AX-A1CC TCGA-AX-A1CE TCGA-AX-A1CF TCGA-AX-A1CI TCGA-AX-A1CJ TCGA-AX-A1CK TCGA-AX-A1CN TCGA-AX-A1CP TCGA-AX-A1CR TCGA-AX-A2H5 TCGA-AX-A2H8 TCGA-AX-A2HC TCGA-AX-A2HD TCGA-AX-A2HF TCGA-AX-A2HG TCGA-AX-A2HH TCGA-AX-A2HJ TCGA-AX-A2HK TCGA-B5-A0JN TCGA-B5-A0JR TCGA-B5-A0JS TCGA-B5-A0JT TCGA-B5-A0JU TCGA-B5-A0JV TCGA-B5-A0JX TCGA-B5-A0JY TCGA-B5-A0JZ TCGA-B5-A0K0 TCGA-B5-A0K1 TCGA-B5-A0K2 TCGA-B5-A0K3 TCGA-B5-A0K4 TCGA-B5-A0K6 TCGA-B5-A0K7 TCGA-B5-A0K8 TCGA-B5-A0K9 TCGA-B5-A0KB TCGA-B5-A11E TCGA-B5-A11F TCGA-B5-A11G TCGA-B5-A11H TCGA-B5-A11I TCGA-B5-A11J TCGA-B5-A11L TCGA-B5-A11M TCGA-B5-A11N TCGA-B5-A11O TCGA-B5-A11P TCGA-B5-A11Q TCGA-B5-A11R TCGA-B5-A11S TCGA-B5-A11U TCGA-B5-A11V TCGA-B5-A11W TCGA-B5-A11X TCGA-B5-A11Y TCGA-B5-A11Z TCGA-B5-A121 TCGA-B5-A1MR TCGA-B5-A1MU TCGA-B5-A1MV TCGA-B5-A1MW TCGA-B5-A1MX TCGA-B5-A1MY TCGA-B5-A1MZ TCGA-B5-A1N2 TCGA-BG-A0LW TCGA-BG-A0LX TCGA-BG-A0M0 TCGA-BG-A0M2 TCGA-BG-A0M3 TCGA-BG-A0M4 TCGA-BG-A0M6 TCGA-BG-A0M7 TCGA-BG-A0M8 TCGA-BG-A0M9 TCGA-BG-A0MA TCGA-BG-A0MC TCGA-BG-A0MG TCGA-BG-A0MH TCGA-BG-A0MI TCGA-BG-A0MO TCGA-BG-A0MQ TCGA-BG-A0MS TCGA-BG-A0MT TCGA-BG-A0MU TCGA-BG-A0RY TCGA-BG-A0VT TCGA-BG-A0VV TCGA-BG-A0VW TCGA-BG-A0VX TCGA-BG-A0VZ TCGA-BG-A0W1 TCGA-BG-A0W2 TCGA-BG-A0YU TCGA-BG-A0YV TCGA-BG-A186 TCGA-BG-A187 TCGA-BG-A18A TCGA-BG-A18B TCGA-BG-A18C TCGA-BG-A220 TCGA-BG-A221 TCGA-BG-A222 TCGA-BG-A2AD TCGA-BG-A2AE TCGA-BK-A0C9 TCGA-BK-A0CA TCGA-BK-A0CB TCGA-BK-A0CC TCGA-BK-A139 TCGA-BK-A13C TCGA-BK-A26L TCGA-BS-A0T9 TCGA-BS-A0TA TCGA-BS-A0TC TCGA-BS-A0TD TCGA-BS-A0TE TCGA-BS-A0TG TCGA-BS-A0TI TCGA-BS-A0TJ TCGA-BS-A0U5 TCGA-BS-A0U7 TCGA-BS-A0U8 TCGA-BS-A0U9 TCGA-BS-A0UA TCGA-BS-A0UF TCGA-BS-A0UJ TCGA-BS-A0UL TCGA-BS-A0UM TCGA-BS-A0UT TCGA-BS-A0UV TCGA-BS-A0V4 TCGA-BS-A0V6 TCGA-BS-A0V7 TCGA-BS-A0V8 TCGA-BS-A0VI TCGA-BS-A0WQ TCGA-D1-A0ZN TCGA-D1-A0ZO TCGA-D1-A0ZP TCGA-D1-A0ZQ TCGA-D1-A0ZR TCGA-D1-A0ZS TCGA-D1-A0ZU TCGA-D1-A0ZV TCGA-D1-A0ZZ TCGA-D1-A101 TCGA-D1-A102 TCGA-D1-A103 TCGA-D1-A15V TCGA-D1-A15W TCGA-D1-A15X TCGA-D1-A15Z TCGA-D1-A160 TCGA-D1-A161 TCGA-D1-A162 TCGA-D1-A163 TCGA-D1-A165 TCGA-D1-A167 TCGA-D1-A168 TCGA-D1-A169 TCGA-D1-A16B TCGA-D1-A16D TCGA-D1-A16E TCGA-D1-A16F TCGA-D1-A16G TCGA-D1-A16I TCGA-D1-A16J TCGA-D1-A16N TCGA-D1-A16O TCGA-D1-A16Q TCGA-D1-A16R TCGA-D1-A16S TCGA-D1-A16V TCGA-D1-A16X TCGA-D1-A16Y TCGA-D1-A174 TCGA-D1-A175 TCGA-D1-A176 TCGA-D1-A177 TCGA-D1-A179 TCGA-D1-A17A TCGA-D1-A17B TCGA-D1-A17C TCGA-D1-A17D TCGA-D1-A17F TCGA-D1-A17H TCGA-D1-A17K TCGA-D1-A17L TCGA-D1-A17M TCGA-D1-A17N TCGA-D1-A17Q TCGA-D1-A17R TCGA-D1-A17S TCGA-D1-A17T TCGA-D1-A17U TCGA-D1-A1NS TCGA-D1-A1NU TCGA-D1-A1NW TCGA-D1-A1NX TCGA-D1-A1NY TCGA-D1-A1NZ TCGA-D1-A1O0 TCGA-D1-A1O5 TCGA-D1-A1O7 TCGA-D1-A1O8 TCGA-D1-A2G0 TCGA-D1-A2G5 TCGA-D1-A2G6 TCGA-DI-A0WH TCGA-DI-A1BU TCGA-DI-A1BY TCGA-DI-A1C3 TCGA-DI-A1NN TCGA-DI-A1NO TCGA-E6-A1LX TCGA-E6-A1LZ TCGA-E6-A1M0 TCGA-EC-A1NJ TCGA-EC-A1QX TCGA-EC-A24G TCGA-EO-A1Y5 TCGA-EO-A1Y7 TCGA-EO-A1Y8 TCGA-EY-A1G7 TCGA-EY-A1G8 TCGA-EY-A1GC TCGA-EY-A1GD TCGA-EY-A1GE TCGA-EY-A1GF TCGA-EY-A1GH TCGA-EY-A1GI TCGA-EY-A1GJ TCGA-EY-A1GK TCGA-EY-A1GL TCGA-EY-A1GM TCGA-EY-A1GO TCGA-EY-A1GP TCGA-EY-A1GQ TCGA-EY-A1GR TCGA-EY-A1GS TCGA-EY-A1GT TCGA-EY-A1GU TCGA-EY-A1GV TCGA-EY-A1GW TCGA-EY-A1GX TCGA-EY-A1H0 TCGA-EY-A210 TCGA-EY-A212 TCGA-EY-A214 TCGA-EY-A215 TCGA-FI-A2CX TCGA-FI-A2CY TCGA-FI-A2D0 TCGA-FI-A2D2 TCGA-FI-A2D4 TCGA-FI-A2D5 TCGA-FI-A2D6 TCGA-FI-A2EU TCGA-FI-A2EW TCGA-FI-A2EX TCGA-FI-A2F4 TCGA-FI-A2F8 TCGA-FI-A2F9</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/cna.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Patient view" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">20</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1348776929000</longProp>
+        <longProp name="ThreadGroup.end_time">1348776929000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="tumormap.do" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="case_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-AP-A0LM</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/tumormap.do</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="count_mutations" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">count_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="mutation_profile" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation_profile</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G1 TCGA-A5-A0G2 TCGA-A5-A0G3 TCGA-A5-A0G5 TCGA-A5-A0G9 TCGA-A5-A0GA TCGA-A5-A0GB TCGA-A5-A0GD TCGA-A5-A0GE TCGA-A5-A0GG TCGA-A5-A0GH TCGA-A5-A0GI TCGA-A5-A0GJ TCGA-A5-A0GM TCGA-A5-A0GN TCGA-A5-A0GP TCGA-A5-A0GQ TCGA-A5-A0GR TCGA-A5-A0GU TCGA-A5-A0GV TCGA-A5-A0GW TCGA-A5-A0GX TCGA-A5-A0R6 TCGA-A5-A0R7 TCGA-A5-A0R8 TCGA-A5-A0R9 TCGA-A5-A0RA TCGA-A5-A0VO TCGA-A5-A0VP TCGA-A5-A0VQ TCGA-A5-A1OF TCGA-A5-A1OG TCGA-A5-A1OJ TCGA-A5-A1OK TCGA-AJ-A23M TCGA-AJ-A23O TCGA-AP-A051 TCGA-AP-A052 TCGA-AP-A053 TCGA-AP-A054 TCGA-AP-A056 TCGA-AP-A059 TCGA-AP-A05A TCGA-AP-A05D TCGA-AP-A05H TCGA-AP-A05J TCGA-AP-A05N TCGA-AP-A05O TCGA-AP-A05P TCGA-AP-A0L8 TCGA-AP-A0L9 TCGA-AP-A0LD TCGA-AP-A0LE TCGA-AP-A0LF TCGA-AP-A0LG TCGA-AP-A0LH TCGA-AP-A0LI TCGA-AP-A0LJ TCGA-AP-A0LL TCGA-AP-A0LM TCGA-AP-A0LN TCGA-AP-A0LO TCGA-AP-A0LP TCGA-AP-A0LQ TCGA-AP-A0LS TCGA-AP-A0LT TCGA-AP-A0LV TCGA-AP-A1DH TCGA-AP-A1DK TCGA-AP-A1DM TCGA-AP-A1DO TCGA-AP-A1DP TCGA-AP-A1DQ TCGA-AP-A1DR TCGA-AP-A1DV TCGA-AP-A1E0 TCGA-AP-A1E1 TCGA-AP-A1E3 TCGA-AP-A1E4 TCGA-AW-A1PO TCGA-AX-A05S TCGA-AX-A05T TCGA-AX-A05U TCGA-AX-A05W TCGA-AX-A05Y TCGA-AX-A05Z TCGA-AX-A060 TCGA-AX-A062 TCGA-AX-A063 TCGA-AX-A064 TCGA-AX-A06B TCGA-AX-A06D TCGA-AX-A06F TCGA-AX-A06H TCGA-AX-A06J TCGA-AX-A06L TCGA-AX-A0IS TCGA-AX-A0IU TCGA-AX-A0IW TCGA-AX-A0IZ TCGA-AX-A0J0 TCGA-AX-A0J1 TCGA-AX-A1C4 TCGA-AX-A1C5 TCGA-AX-A1C7 TCGA-AX-A1C8 TCGA-AX-A1C9 TCGA-AX-A1CA TCGA-AX-A1CC TCGA-AX-A1CE TCGA-AX-A1CF TCGA-AX-A1CI TCGA-AX-A1CJ TCGA-AX-A1CK TCGA-AX-A1CN TCGA-AX-A1CP TCGA-AX-A1CR TCGA-AX-A2H5 TCGA-AX-A2H8 TCGA-AX-A2HC TCGA-AX-A2HD TCGA-AX-A2HF TCGA-AX-A2HG TCGA-AX-A2HH TCGA-AX-A2HJ TCGA-AX-A2HK TCGA-B5-A0JN TCGA-B5-A0JR TCGA-B5-A0JS TCGA-B5-A0JT TCGA-B5-A0JU TCGA-B5-A0JV TCGA-B5-A0JX TCGA-B5-A0JY TCGA-B5-A0JZ TCGA-B5-A0K0 TCGA-B5-A0K1 TCGA-B5-A0K2 TCGA-B5-A0K3 TCGA-B5-A0K4 TCGA-B5-A0K6 TCGA-B5-A0K7 TCGA-B5-A0K8 TCGA-B5-A0K9 TCGA-B5-A0KB TCGA-B5-A11E TCGA-B5-A11F TCGA-B5-A11G TCGA-B5-A11H TCGA-B5-A11I TCGA-B5-A11J TCGA-B5-A11L TCGA-B5-A11M TCGA-B5-A11N TCGA-B5-A11O TCGA-B5-A11P TCGA-B5-A11Q TCGA-B5-A11R TCGA-B5-A11S TCGA-B5-A11U TCGA-B5-A11V TCGA-B5-A11W TCGA-B5-A11X TCGA-B5-A11Y TCGA-B5-A11Z TCGA-B5-A121 TCGA-B5-A1MR TCGA-B5-A1MU TCGA-B5-A1MV TCGA-B5-A1MW TCGA-B5-A1MX TCGA-B5-A1MY TCGA-B5-A1MZ TCGA-B5-A1N2 TCGA-BG-A0LW TCGA-BG-A0LX TCGA-BG-A0M0 TCGA-BG-A0M2 TCGA-BG-A0M3 TCGA-BG-A0M4 TCGA-BG-A0M6 TCGA-BG-A0M7 TCGA-BG-A0M8 TCGA-BG-A0M9 TCGA-BG-A0MA TCGA-BG-A0MC TCGA-BG-A0MG TCGA-BG-A0MH TCGA-BG-A0MI TCGA-BG-A0MO TCGA-BG-A0MQ TCGA-BG-A0MS TCGA-BG-A0MT TCGA-BG-A0MU TCGA-BG-A0RY TCGA-BG-A0VT TCGA-BG-A0VV TCGA-BG-A0VW TCGA-BG-A0VX TCGA-BG-A0VZ TCGA-BG-A0W1 TCGA-BG-A0W2 TCGA-BG-A0YU TCGA-BG-A0YV TCGA-BG-A186 TCGA-BG-A187 TCGA-BG-A18A TCGA-BG-A18B TCGA-BG-A18C TCGA-BG-A220 TCGA-BG-A221 TCGA-BG-A222 TCGA-BG-A2AD TCGA-BG-A2AE TCGA-BK-A0C9 TCGA-BK-A0CA TCGA-BK-A0CB TCGA-BK-A0CC TCGA-BK-A139 TCGA-BK-A13C TCGA-BK-A26L TCGA-BS-A0T9 TCGA-BS-A0TA TCGA-BS-A0TC TCGA-BS-A0TD TCGA-BS-A0TE TCGA-BS-A0TG TCGA-BS-A0TI TCGA-BS-A0TJ TCGA-BS-A0U5 TCGA-BS-A0U7 TCGA-BS-A0U8 TCGA-BS-A0U9 TCGA-BS-A0UA TCGA-BS-A0UF TCGA-BS-A0UJ TCGA-BS-A0UL TCGA-BS-A0UM TCGA-BS-A0UT TCGA-BS-A0UV TCGA-BS-A0V4 TCGA-BS-A0V6 TCGA-BS-A0V7 TCGA-BS-A0V8 TCGA-BS-A0VI TCGA-BS-A0WQ TCGA-D1-A0ZN TCGA-D1-A0ZO TCGA-D1-A0ZP TCGA-D1-A0ZQ TCGA-D1-A0ZR TCGA-D1-A0ZS TCGA-D1-A0ZU TCGA-D1-A0ZV TCGA-D1-A0ZZ TCGA-D1-A101 TCGA-D1-A102 TCGA-D1-A103 TCGA-D1-A15V TCGA-D1-A15W TCGA-D1-A15X TCGA-D1-A15Z TCGA-D1-A160 TCGA-D1-A161 TCGA-D1-A162 TCGA-D1-A163 TCGA-D1-A165 TCGA-D1-A167 TCGA-D1-A168 TCGA-D1-A169 TCGA-D1-A16B TCGA-D1-A16D TCGA-D1-A16E TCGA-D1-A16F TCGA-D1-A16G TCGA-D1-A16I TCGA-D1-A16J TCGA-D1-A16N TCGA-D1-A16O TCGA-D1-A16Q TCGA-D1-A16R TCGA-D1-A16S TCGA-D1-A16V TCGA-D1-A16X TCGA-D1-A16Y TCGA-D1-A174 TCGA-D1-A175 TCGA-D1-A176 TCGA-D1-A177 TCGA-D1-A179 TCGA-D1-A17A TCGA-D1-A17B TCGA-D1-A17C TCGA-D1-A17D TCGA-D1-A17F TCGA-D1-A17H TCGA-D1-A17K TCGA-D1-A17L TCGA-D1-A17M TCGA-D1-A17N TCGA-D1-A17Q TCGA-D1-A17R TCGA-D1-A17S TCGA-D1-A17T TCGA-D1-A17U TCGA-D1-A1NS TCGA-D1-A1NU TCGA-D1-A1NW TCGA-D1-A1NX TCGA-D1-A1NY TCGA-D1-A1NZ TCGA-D1-A1O0 TCGA-D1-A1O5 TCGA-D1-A1O7 TCGA-D1-A1O8 TCGA-D1-A2G0 TCGA-D1-A2G5 TCGA-D1-A2G6 TCGA-DI-A0WH TCGA-DI-A1BU TCGA-DI-A1BY TCGA-DI-A1C3 TCGA-DI-A1NN TCGA-DI-A1NO TCGA-E6-A1LX TCGA-E6-A1LZ TCGA-E6-A1M0 TCGA-EC-A1NJ TCGA-EC-A1QX TCGA-EC-A24G TCGA-EO-A1Y5 TCGA-EO-A1Y7 TCGA-EO-A1Y8 TCGA-EY-A1G7 TCGA-EY-A1G8 TCGA-EY-A1GC TCGA-EY-A1GD TCGA-EY-A1GE TCGA-EY-A1GF TCGA-EY-A1GH TCGA-EY-A1GI TCGA-EY-A1GJ TCGA-EY-A1GK TCGA-EY-A1GL TCGA-EY-A1GM TCGA-EY-A1GO TCGA-EY-A1GP TCGA-EY-A1GQ TCGA-EY-A1GR TCGA-EY-A1GS TCGA-EY-A1GT TCGA-EY-A1GU TCGA-EY-A1GV TCGA-EY-A1GW TCGA-EY-A1GX TCGA-EY-A1H0 TCGA-EY-A210 TCGA-EY-A212 TCGA-EY-A214 TCGA-EY-A215 TCGA-FI-A2CX TCGA-FI-A2CY TCGA-FI-A2D0 TCGA-FI-A2D2 TCGA-FI-A2D4 TCGA-FI-A2D5 TCGA-FI-A2D6 TCGA-FI-A2EU TCGA-FI-A2EW TCGA-FI-A2EX TCGA-FI-A2F4 TCGA-FI-A2F8 TCGA-FI-A2F9</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/mutations.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="get_mutations" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="mutation_profile" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation_profile</stringProp>
+              </elementProp>
+              <elementProp name="case_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0GA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/mutations.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="get_mutations_context" enabled="false">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">get_context</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="mutation_profile" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation_profile</stringProp>
+              </elementProp>
+              <elementProp name="mutation_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">13143,13149,13156,13994,13998,14093,14462,15436,15643,16413,16564,17247,17653,17768,18166,19882,20031,20303,20591,20867,20926,21365,22245,23450,23514,23710,24110,24548,24606,24799,28006,28017,28573,29469,32432,33950,34321,34731,34772,35199,35220,36174,36379,37493,37804,37939,38209,38583,38967,39016,39297,39781,39977,41608,41804,42372,42541,42823,43157,43974,44236,44543,47574,47846,48166,49227,50382,50928,53321,53626,53747,53884,54428,54841,55077,55494,55556,55790,55976,56274,56368,56532,57653,58291,59276,59424,60048,60342,60551,60952,60979,62055,62179,62202,63534,63771,64048,64211,64583,64634,64768,65258,65302,66223,69238,69825,69860,70068,70490,71390,72034,72176,73461,73805,73825,74058,74827,75458,76261,76555,76695,76875,76903,78065,78374,79011,79276,79907,80343,80768,82749,83295,83638,85645,86485,86526,87930,89134,89442,90196,90332,90612,91233,91404,91499,92375,92650,93223,93254,93502,94259,94280,94807,94967,95078,96107,96723,98542,100323,100344,100856,102760,103492,103908,103952,104341,104370,104841,105786,105891,106272,106792,107281,107673,108358,108808,109325,110538,110961,111138,112924,113021,113754,115106,115502,115872,116261,117516,118165,119498,119658,119672,120679,121049,122849,123144,125402,125562,125774,125807,126444,126498,127816,130554,130555,132559,132586,132737,133362,133447,134758,135109,135319,135357,136813,138192,138598,139242,140142,140366,141157</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/mutations.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="count_cnas" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">get_cna_fraction</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="case_ids" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G1 TCGA-A5-A0G2 TCGA-A5-A0G3 TCGA-A5-A0G5 TCGA-A5-A0G9 TCGA-A5-A0GA TCGA-A5-A0GB TCGA-A5-A0GD TCGA-A5-A0GE TCGA-A5-A0GG TCGA-A5-A0GH TCGA-A5-A0GI TCGA-A5-A0GJ TCGA-A5-A0GM TCGA-A5-A0GN TCGA-A5-A0GP TCGA-A5-A0GQ TCGA-A5-A0GR TCGA-A5-A0GU TCGA-A5-A0GV TCGA-A5-A0GW TCGA-A5-A0GX TCGA-A5-A0R6 TCGA-A5-A0R7 TCGA-A5-A0R8 TCGA-A5-A0R9 TCGA-A5-A0RA TCGA-A5-A0VO TCGA-A5-A0VP TCGA-A5-A0VQ TCGA-A5-A1OF TCGA-A5-A1OG TCGA-A5-A1OJ TCGA-A5-A1OK TCGA-AJ-A23M TCGA-AJ-A23O TCGA-AP-A051 TCGA-AP-A052 TCGA-AP-A053 TCGA-AP-A054 TCGA-AP-A056 TCGA-AP-A059 TCGA-AP-A05A TCGA-AP-A05D TCGA-AP-A05H TCGA-AP-A05J TCGA-AP-A05N TCGA-AP-A05O TCGA-AP-A05P TCGA-AP-A0L8 TCGA-AP-A0L9 TCGA-AP-A0LD TCGA-AP-A0LE TCGA-AP-A0LF TCGA-AP-A0LG TCGA-AP-A0LH TCGA-AP-A0LI TCGA-AP-A0LJ TCGA-AP-A0LL TCGA-AP-A0LM TCGA-AP-A0LN TCGA-AP-A0LO TCGA-AP-A0LP TCGA-AP-A0LQ TCGA-AP-A0LS TCGA-AP-A0LT TCGA-AP-A0LV TCGA-AP-A1DH TCGA-AP-A1DK TCGA-AP-A1DM TCGA-AP-A1DO TCGA-AP-A1DP TCGA-AP-A1DQ TCGA-AP-A1DR TCGA-AP-A1DV TCGA-AP-A1E0 TCGA-AP-A1E1 TCGA-AP-A1E3 TCGA-AP-A1E4 TCGA-AW-A1PO TCGA-AX-A05S TCGA-AX-A05T TCGA-AX-A05U TCGA-AX-A05W TCGA-AX-A05Y TCGA-AX-A05Z TCGA-AX-A060 TCGA-AX-A062 TCGA-AX-A063 TCGA-AX-A064 TCGA-AX-A06B TCGA-AX-A06D TCGA-AX-A06F TCGA-AX-A06H TCGA-AX-A06J TCGA-AX-A06L TCGA-AX-A0IS TCGA-AX-A0IU TCGA-AX-A0IW TCGA-AX-A0IZ TCGA-AX-A0J0 TCGA-AX-A0J1 TCGA-AX-A1C4 TCGA-AX-A1C5 TCGA-AX-A1C7 TCGA-AX-A1C8 TCGA-AX-A1C9 TCGA-AX-A1CA TCGA-AX-A1CC TCGA-AX-A1CE TCGA-AX-A1CF TCGA-AX-A1CI TCGA-AX-A1CJ TCGA-AX-A1CK TCGA-AX-A1CN TCGA-AX-A1CP TCGA-AX-A1CR TCGA-AX-A2H5 TCGA-AX-A2H8 TCGA-AX-A2HC TCGA-AX-A2HD TCGA-AX-A2HF TCGA-AX-A2HG TCGA-AX-A2HH TCGA-AX-A2HJ TCGA-AX-A2HK TCGA-B5-A0JN TCGA-B5-A0JR TCGA-B5-A0JS TCGA-B5-A0JT TCGA-B5-A0JU TCGA-B5-A0JV TCGA-B5-A0JX TCGA-B5-A0JY TCGA-B5-A0JZ TCGA-B5-A0K0 TCGA-B5-A0K1 TCGA-B5-A0K2 TCGA-B5-A0K3 TCGA-B5-A0K4 TCGA-B5-A0K6 TCGA-B5-A0K7 TCGA-B5-A0K8 TCGA-B5-A0K9 TCGA-B5-A0KB TCGA-B5-A11E TCGA-B5-A11F TCGA-B5-A11G TCGA-B5-A11H TCGA-B5-A11I TCGA-B5-A11J TCGA-B5-A11L TCGA-B5-A11M TCGA-B5-A11N TCGA-B5-A11O TCGA-B5-A11P TCGA-B5-A11Q TCGA-B5-A11R TCGA-B5-A11S TCGA-B5-A11U TCGA-B5-A11V TCGA-B5-A11W TCGA-B5-A11X TCGA-B5-A11Y TCGA-B5-A11Z TCGA-B5-A121 TCGA-B5-A1MR TCGA-B5-A1MU TCGA-B5-A1MV TCGA-B5-A1MW TCGA-B5-A1MX TCGA-B5-A1MY TCGA-B5-A1MZ TCGA-B5-A1N2 TCGA-BG-A0LW TCGA-BG-A0LX TCGA-BG-A0M0 TCGA-BG-A0M2 TCGA-BG-A0M3 TCGA-BG-A0M4 TCGA-BG-A0M6 TCGA-BG-A0M7 TCGA-BG-A0M8 TCGA-BG-A0M9 TCGA-BG-A0MA TCGA-BG-A0MC TCGA-BG-A0MG TCGA-BG-A0MH TCGA-BG-A0MI TCGA-BG-A0MO TCGA-BG-A0MQ TCGA-BG-A0MS TCGA-BG-A0MT TCGA-BG-A0MU TCGA-BG-A0RY TCGA-BG-A0VT TCGA-BG-A0VV TCGA-BG-A0VW TCGA-BG-A0VX TCGA-BG-A0VZ TCGA-BG-A0W1 TCGA-BG-A0W2 TCGA-BG-A0YU TCGA-BG-A0YV TCGA-BG-A186 TCGA-BG-A187 TCGA-BG-A18A TCGA-BG-A18B TCGA-BG-A18C TCGA-BG-A220 TCGA-BG-A221 TCGA-BG-A222 TCGA-BG-A2AD TCGA-BG-A2AE TCGA-BK-A0C9 TCGA-BK-A0CA TCGA-BK-A0CB TCGA-BK-A0CC TCGA-BK-A139 TCGA-BK-A13C TCGA-BK-A26L TCGA-BS-A0T9 TCGA-BS-A0TA TCGA-BS-A0TC TCGA-BS-A0TD TCGA-BS-A0TE TCGA-BS-A0TG TCGA-BS-A0TI TCGA-BS-A0TJ TCGA-BS-A0U5 TCGA-BS-A0U7 TCGA-BS-A0U8 TCGA-BS-A0U9 TCGA-BS-A0UA TCGA-BS-A0UF TCGA-BS-A0UJ TCGA-BS-A0UL TCGA-BS-A0UM TCGA-BS-A0UT TCGA-BS-A0UV TCGA-BS-A0V4 TCGA-BS-A0V6 TCGA-BS-A0V7 TCGA-BS-A0V8 TCGA-BS-A0VI TCGA-BS-A0WQ TCGA-D1-A0ZN TCGA-D1-A0ZO TCGA-D1-A0ZP TCGA-D1-A0ZQ TCGA-D1-A0ZR TCGA-D1-A0ZS TCGA-D1-A0ZU TCGA-D1-A0ZV TCGA-D1-A0ZZ TCGA-D1-A101 TCGA-D1-A102 TCGA-D1-A103 TCGA-D1-A15V TCGA-D1-A15W TCGA-D1-A15X TCGA-D1-A15Z TCGA-D1-A160 TCGA-D1-A161 TCGA-D1-A162 TCGA-D1-A163 TCGA-D1-A165 TCGA-D1-A167 TCGA-D1-A168 TCGA-D1-A169 TCGA-D1-A16B TCGA-D1-A16D TCGA-D1-A16E TCGA-D1-A16F TCGA-D1-A16G TCGA-D1-A16I TCGA-D1-A16J TCGA-D1-A16N TCGA-D1-A16O TCGA-D1-A16Q TCGA-D1-A16R TCGA-D1-A16S TCGA-D1-A16V TCGA-D1-A16X TCGA-D1-A16Y TCGA-D1-A174 TCGA-D1-A175 TCGA-D1-A176 TCGA-D1-A177 TCGA-D1-A179 TCGA-D1-A17A TCGA-D1-A17B TCGA-D1-A17C TCGA-D1-A17D TCGA-D1-A17F TCGA-D1-A17H TCGA-D1-A17K TCGA-D1-A17L TCGA-D1-A17M TCGA-D1-A17N TCGA-D1-A17Q TCGA-D1-A17R TCGA-D1-A17S TCGA-D1-A17T TCGA-D1-A17U TCGA-D1-A1NS TCGA-D1-A1NU TCGA-D1-A1NW TCGA-D1-A1NX TCGA-D1-A1NY TCGA-D1-A1NZ TCGA-D1-A1O0 TCGA-D1-A1O5 TCGA-D1-A1O7 TCGA-D1-A1O8 TCGA-D1-A2G0 TCGA-D1-A2G5 TCGA-D1-A2G6 TCGA-DI-A0WH TCGA-DI-A1BU TCGA-DI-A1BY TCGA-DI-A1C3 TCGA-DI-A1NN TCGA-DI-A1NO TCGA-E6-A1LX TCGA-E6-A1LZ TCGA-E6-A1M0 TCGA-EC-A1NJ TCGA-EC-A1QX TCGA-EC-A24G TCGA-EO-A1Y5 TCGA-EO-A1Y7 TCGA-EO-A1Y8 TCGA-EY-A1G7 TCGA-EY-A1G8 TCGA-EY-A1GC TCGA-EY-A1GD TCGA-EY-A1GE TCGA-EY-A1GF TCGA-EY-A1GH TCGA-EY-A1GI TCGA-EY-A1GJ TCGA-EY-A1GK TCGA-EY-A1GL TCGA-EY-A1GM TCGA-EY-A1GO TCGA-EY-A1GP TCGA-EY-A1GQ TCGA-EY-A1GR TCGA-EY-A1GS TCGA-EY-A1GT TCGA-EY-A1GU TCGA-EY-A1GV TCGA-EY-A1GW TCGA-EY-A1GX TCGA-EY-A1H0 TCGA-EY-A210 TCGA-EY-A212 TCGA-EY-A214 TCGA-EY-A215 TCGA-FI-A2CX TCGA-FI-A2CY TCGA-FI-A2D0 TCGA-FI-A2D2 TCGA-FI-A2D4 TCGA-FI-A2D5 TCGA-FI-A2D6 TCGA-FI-A2EU TCGA-FI-A2EW TCGA-FI-A2EX TCGA-FI-A2F4 TCGA-FI-A2F8 TCGA-FI-A2F9</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_ids</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/cna.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="get_segments" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">get_segment</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="case_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0GA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/cna.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="get_cnas" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cna_profile" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cna_profile</stringProp>
+              </elementProp>
+              <elementProp name="case_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0GA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/cna.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="count_cnas_context" enabled="false">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cmd" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">get_context</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cmd</stringProp>
+              </elementProp>
+              <elementProp name="cna_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">7286,7287,7288,7289,7290,7291,7293,7294,7295,7297,7298,7299,7300,7301,7302,7303,7304,7306,7307,7308,7309,7310,7311,7312,7313,7314,7315,7317,7318,7319,7320,7321,7323,7325,7326,7327,7328,7329,7330,7331,7333,7334,7335,7336,7337,7338,7339,7340,7341,7342,7343,7345,7346,7349,7350,7351,7352,7353,7354,7356,7357,7358,7359,7360,7361,7362,7363,7364,7365</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cna_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/cna.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="network.do" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">LHFP,FOXO1,LCP1,EPS15,OR10J3,DNER,BAP1,PIK3CA,PHOX2B,NSD1,DEK,ROS1,CARD11,PMS2,ELN,KCND2,ARID5B,PTEN,MUC5B,KRAS,MLL2,CREBBP,CTCF,CDH1,NOL4,CLTCL1,CRLF2,GATA1,ATP11C</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="netsize" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">small</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">netsize</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/network.do</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="similar_patients.do" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="case_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0GA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_id</stringProp>
+              </elementProp>
+              <elementProp name="mutation" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">15436,20031,34321,37804,41804,43974,55077,55976,60048,62055,62202,64048,66223,79276,80343,82749,91499,92375,108358,110961,111138,119498,132737,134758,136813,141157</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">mutation</stringProp>
+              </elementProp>
+              <elementProp name="cna" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">7313,7317,7363</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cna</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/portal/similar_patients.json</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

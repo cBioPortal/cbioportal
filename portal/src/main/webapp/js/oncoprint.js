@@ -5,12 +5,14 @@ var OncoPrint = function(params) {
 //        return $('#' + params.cancer_study_id + '.oncoprint #labels')[0].getBoundingClientRect().width;
 //    };
 
-    var samples = params.data.samples,
-        no_samples = samples.length,
-        genes = params.data.genes,
-        no_genes = Object.keys(genes).length;
+    var query = GeneAlterations.query(data);
 
-    console.log(genes);
+    var samples = d3.map(data.samples),
+        no_samples = samples.keys().length,
+        gene_indexes = d3.map(samples.huo_to_gene_index),
+        no_genes = gene_data.length;
+
+//    console.log(genes);
 
     var selector_id = '#oncoprints #' + params.cancer_study_id;
 
@@ -85,7 +87,7 @@ var OncoPrint = function(params) {
 
     var that = {};
 
-    that.drawCNA = function(cna_data, samples, g_el, trackNum) {
+    that.drawCNA = function(cna_data, g_el, trackNum) {
         // draw CNA layer
 
         var dy = trackNum === 0 ? 0 : (rectHeight + trackPadding) * trackNum;
@@ -101,7 +103,7 @@ var OncoPrint = function(params) {
 
             })
             .attr('id', function(d, i) {
-                return samples[i];      // index back into the array of samples
+                return samples.get(i);      // index back into the array of samples
             })
             .attr('width', rectWidth)
             .attr('height', rectHeight)
@@ -109,7 +111,7 @@ var OncoPrint = function(params) {
             .attr('y', dy);
     };
 
-    that.drawMutation = function(mutation_data, samples, g_el, trackNum) {
+    that.drawMutation = function(mutation_data, g_el, trackNum) {
         // draw the mutation layer
 
         var dy = (rectHeight - littleRectHeight) / 2;
@@ -125,7 +127,7 @@ var OncoPrint = function(params) {
                 return 'mutation ' + (d !== null ? "mut" : "none");
             })
             .attr('id', function(d, i) {
-                return samples[i];
+                return samples.get(i);
             })
             .attr('width', littleRectWidth)
             .attr('height', littleRectHeight)
@@ -170,15 +172,15 @@ var OncoPrint = function(params) {
 //            .attr('y', label_dy);
 
         var cna = params.gene_data.cna;
-        that.drawCNA(cna, samples, g_el, trackNum);
+        that.drawCNA(cna, g_el, trackNum);
 
         var mutation_data = params.gene_data.mutations;
-        that.drawMutation(mutation_data, samples, g_el, trackNum);
+        that.drawMutation(mutation_data, g_el, trackNum);
 
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
 
-    that.drawTracks = function(svg, genes, trackSettings) {
+    that.drawTracks = function(svg, trackSettings) {
         var trackNum = 0;
 
         genes.forEach(function(gene) {

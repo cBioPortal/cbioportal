@@ -131,6 +131,7 @@ public class GeneAlterationsJSON extends HttpServlet {
             hugo_to_index.put(gene, i);
 
             JSONObject gene_data = new JSONObject();
+            gene_data.put("hugo", gene);            // efficiency at the price of redundancy
             gene_data.put("percent_altered", percent_altered);
             gene_data.put("mutations", mutation);
             gene_data.put("cna", cna);

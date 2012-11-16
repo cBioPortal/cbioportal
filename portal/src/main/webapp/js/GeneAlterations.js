@@ -124,25 +124,49 @@ var GeneAlterations = function(sendData) {
     return that;
 };
 
-GeneAlterations.query = (function() {
+GeneAlterations.query = function(data) {
     // data query tools
+    // for gene alterations data
 
     return {
         geneByHugo : function(hugo) {
-            for (var gene in data.genes) {
-                if (gene.hugo === hugo) {
-                    return gene;
-                } else {
-                    return "cannot find gene";
-                }
-            }
+            var index = data.hugo_to_gene_index[hugo];
+
+            return data.gene_data[index];
         },
-        mutationBySampleId: function(id) {
-            return 1;
+
+        data : function(_sample_id, _gene, _data_type) {
+            // _sample_id, _gene, _data_type -> data
+            // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
+
+            var sample_i = data.samples[_sample_id];
+            if (sample_i === undefined) {
+                console.log("bad sample id:", _sample_id);
+                return;
+            }
+
+            var gene_i = data.hugo_to_gene_index[_gene];
+            if (gene_i === undefined) {
+                console.log("bad gene:", _gene);
+                return;
+            }
+
+            var gene = data.gene_data[gene_i];
+            if (gene_i === undefined) {
+                console.log("bad gene:", _gene);
+                return;
+            }
+
+            var data_type = gene[_data_type];
+            if (data_type === undefined) {
+                console.log("bad data type:", _data_type);
+                return;
+            }
+
+            return data_type[sample_i];
         }
     };
-})();
-
+};
 
 // {{{ test
 GeneAlterations.test = function(sendData) {

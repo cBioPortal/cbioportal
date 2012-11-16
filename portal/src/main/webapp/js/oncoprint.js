@@ -327,9 +327,7 @@ var OncoPrint = function(params) {
             for (var g in genes_l) {
                 var gene = OncoPrint.query.geneByHugo(g);
 
-                var aIndex = samples.indexOf(a);
-                var bIndex = samples.indexOf(b);
-
+                console.log(gene);
             }
 
         };
@@ -356,6 +354,46 @@ OncoPrint.help = function() {
 // percent_cases_affected,
 // geneAlterations_l }
 };
+
+OncoPrint.test = function() {
+
+    var dumbParams = {
+        cancer_study_id: 1,
+        case_set_str: "TCGA1 TCGA2 TCGA3",
+        num_cases_affected: 3,
+        percent_cases_affected: "100%",
+        data: {
+            hugo_to_gene_index: {"gene1": 0, "gene2": 1},
+            samples: {"TCGA1": 0, "TCGA2":1, "TCGA3":2},
+            gene_data: [
+                { hugo: "gene1",
+                    percent_altered: "100%",
+                    cna: ["AMPLIFIED", "HOMODELETED", null],
+                    rppa: [null, "rppa1", "rppa2"],
+                    mutations: ["mut1", null, "mut2"],
+                    mrna: ["mrna1", "mrna2", "mrna3"] },
+
+                { hugo: "gene2",
+                    percent_altered: "100%",
+                    cna: ["AMPLIFIED", "HOMODELETED", null],
+                    rppa: [null, "rppa1", "rppa2"],
+                    mutations: ["mut1", null, "mut2"],
+                    mrna: ["mrna1", "mrna2", "mrna3"] }
+            ]
+        }
+    };
+
+    var oncoPrint = OncoPrint(dumbParams);
+    console.log(oncoPrint);
+
+    oncoPrint.sort(["gene2", "gene1"]);
+};
+
+$(document).ready(function() {
+    console.log("====OncoPrintTest====");
+    OncoPrint.test();
+    console.log("====END====");
+});
 
 
 //OncoPrint.DEFAULTS = (function() {

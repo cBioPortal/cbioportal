@@ -70,9 +70,6 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private static final String ANALYSIS_RUN = "analyses";
 	private static final String STDDATA_RUN = "stddata";
 
-	// runDate latest indicator
-	public static final String LATEST_RUN_INDICATOR = "latest";
-
 	// date formats
 	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
 	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
@@ -173,7 +170,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 		Date latestBroadRun = getLatestBroadRun(runType);
 
 		// process runDate  argument
-		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(LATEST_RUN_INDICATOR)) ?
+		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(Fetcher.LATEST_RUN_INDICATOR)) ?
 			latestBroadRun : PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
 		// grab latest analysis run

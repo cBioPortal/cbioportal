@@ -91,7 +91,7 @@ public class Admin implements Runnable {
 							.hasArgs(2)
 							.withValueSeparator(':')
 							.withDescription("fetch data from the given datasource and the given run date (mm/dd/yyyy) " + 
-											 "or use \"latest\" to retrieve the latest.")
+											 "or use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run.")
 							.create("fetch_data"));
 
         Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")

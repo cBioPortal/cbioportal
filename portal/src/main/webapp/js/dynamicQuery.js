@@ -56,25 +56,12 @@ $(document).ready(function(){
     });
 
     //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-	var drawTooltipRegion = true;
     $("#toggle_query_form").click(function(event) {
       event.preventDefault();
       $('#query_form_on_results_page').toggle();
 
       //  Toggle the icons
       $(".query-toggle").toggle();
-
-	  // to handle drawing of tooltip region canvas on click
-	  var currentLocation = window.location.pathname;
-	  if (currentLocation.indexOf("index.do") != -1 || currentLocation.indexOf("link.do") != -1) {
-		var cancerStudyId = $("#select_cancer_type").val();
-		drawTooltipRegion = !drawTooltipRegion;
-   	    if (drawTooltipRegion) {
-			// we use time out otherwise tiptip on Modify Query erases region
-			eval("setTimeout(function () { DrawOncoPrintTooltipRegion(ONCOPRINT_" + cancerStudyId +
-				 ", oncoprint_section_" + cancerStudyId + ")}, 100);");
-		}
-	  }
 
     });
 
@@ -138,6 +125,7 @@ function loadMetaData() {
             showNewContent();
         });
     }
+
     function showNewContent() {
         //show content, hide loader only after content is shown
         $('#main_query_form').fadeIn('fast',hideLoader());
@@ -350,6 +338,25 @@ function toggleThresholdPanel(profileClicked, profile, threshold_div) {
     }
 }
 
+// toggle:
+//      gistic button
+//      mutsig button
+// according to the cancer_study
+function toggleByCancerStudy(cancer_study) {
+    var mutsig = $('#toggle_mutsig_dialog');
+    var gistic = $('#toggle_gistic_dialog_button');
+    if (cancer_study.has_mutsig_data) {
+        mutsig.show();
+    } else {
+        mutsig.hide();
+    }
+    if (cancer_study.has_gistic_data) {
+        gistic.show();
+    } else {
+        gistic.hide();
+    }
+}
+
 //  Triggered when a cancer study has been selected, either by the user
 //  or programatically.
 function cancerStudySelected() {
@@ -364,15 +371,30 @@ function cancerStudySelected() {
         cancerStudyId = $("#select_cancer_type").val();
     }
 
+    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
+
+    // toggle every time a new cancer study is selected
+    toggleByCancerStudy(cancer_study);
+
     if (cancerStudyId=='all'){
         crossCancerStudySelected();
         return;
     }
 
-    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
-
     //  Update Cancer Study Description
-    $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
+    var citation = cancer_study.citation;
+    if (!citation) {
+        citation="";
+    }
+    else {
+        var pmid = cancer_study.pmid;
+        if (pmid) {
+            citation = " <a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
+        }
+    }
+    var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
+        +cancerStudyId+"')\">View details</button>";
+    $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles
     //  Add all non-expression profiles where show_in_analysis_tab = true
@@ -697,7 +719,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
 
     if(targetClass == PROFILE_RPPA && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
-        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA score threshold &#177: "
+        profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"
                 + window.rppa_score_threshold + "'>"
         + "</div>";

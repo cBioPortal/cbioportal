@@ -23,8 +23,10 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
     <tr>
         <td>Mutations</td>
         <td><TT>MUT</TT></td>
-        <td><TT>MUT </TT> Show mutated cases</td>
-        <td>Somatic, non-synonymous mutations</td>
+        <td><TT>MUT </TT> Show mutated cases<BR>
+            <TT>MUT = X</TT> Specific mutations or mutation types.
+        </td>
+        <td>All somatic, non-synonymous mutations</td>
     </tr>
     <tr>
         <td>mRNA Expression</td>
@@ -38,11 +40,11 @@ on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data 
     <tr>
         <td>Protein/phosphoprotein level (RPPA)</td>
         <td><TT>PROT</TT></td>
-        <td><TT>PROT &lt; -x </TT>  Protein level is <TT>x</TT> RPPA score lower than the median RPPA score.<BR>
-        <TT>PROT &gt; x </TT>  Protein level is <TT>x</TT> RPPA score higher than the median RPPA score.<BR>
+        <td><TT>PROT &lt; -x </TT> Protein-level under-expression is less than <TT>x</TT> SDs below the mean.<BR>
+        <TT>PROT &gt; x </TT> Protein-level over-expression is greater than <TT>x</TT> SDs above the mean.<BR>
             The comparison operators <TT>&lt;=</TT> and <TT>&gt;=</TT> also work.<BR>
         </td>
-        <td>At least 1 RPPA score from the median.</td>
+        <td>At least 2 standard deviations (SD) from the mean.</td>
     </tr>
 </table>
 
@@ -57,15 +59,42 @@ your query, you can use OQL to view only amplified cases in CCNE1:</p>
 <p>which can also be written:</p>
 <pre><code> CCNE1:  GAIN AMP
 </code></pre>
+<p>To view cases with specific mutations:</p>
+<pre><code> BRAF: MUT = V600E
+</code></pre>
+<p>or mutations on specific position only:</p>
+<pre><code> BRAF: MUT = V600
+</code></pre>
+<p>or mutations of a specific type:</p>
+<pre><code> TP53: MUT = &lt;TYPE&gt;
+</code></pre>
+<p>&lt;TYPE&gt; could be</p>
+<ul>
+<li>MISSENSE</li>
+<li>NONSENSE</li>
+<li>NONSTART</li>
+<li>NONSTOP</li>
+<li>FRAMESHIFT</li>
+<li>INFRAME</li>
+<li>SPLICE</li>
+<li>TRUNC</li>
+</ul>
+<p>e.g., to view TP53 truncating mutations and in-frame insertions/deletions:</p>
+<pre><code> TP53: MUT = TRUNC MUT = INFRAME
+</code></pre>
 <p>To view amplified and mutated cases:</p>
 <pre><code> CCNE1:  AMP MUT
 </code></pre>
 <p>but to define over-expressed cases as those with mRNA expression greater than 3 standard deviations above the mean:</p>
 <pre><code> CCNE1: EXP &gt; 3
 </code></pre>
-<p>and similarly with RPPA protein/phopshoprotein level:</p>
-<pre><code> CCNE1: PROT &gt; 1
+<p>To query cases that are over expressed in RPPA protein/phopshoprotein level:</p>
+<pre><code> EGFR: PROT &gt; 2
 </code></pre>
+<p>or</p>
+<pre><code> EGFR_PY992: PROT &gt; 2
+</code></pre>
+<p>Hint: inputing RPPA-PROTEIN or RPPA-PHOSPHO in the query will allow you to select from all proteins or phopshoproteins that have RPPA levels.</p>
 <p>In general, any combination of OQL keywords and/or categories can annotate any gene.</p>
 <h2 id="example-rb-pathway">Example:  RB Pathway</h2>
 <h3 id="using-the-defaults">Using the Defaults</h3>

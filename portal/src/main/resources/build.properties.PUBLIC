@@ -25,6 +25,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/public-portal/seg/
 
 # Skin Title and Blurb
 skin.title=cBio Cancer Genomics Portal
+skin.tumormap_title=cBio Tumor Map
 skin.blurb=The cBio Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 
 # Skin Right Nav
@@ -57,3 +58,11 @@ manager.password=tomcat
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]
 bitly.api_key=[put your bitly api key here]
+
+# patient_view_params
+patient_view_placeholder=false
+patient_view_genomic_overview_cna_cutoff=0.2,1.5
+
+cbioportal.url=
+tumormap.url=
+tumor_image.url=

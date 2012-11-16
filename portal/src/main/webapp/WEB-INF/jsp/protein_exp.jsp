@@ -345,7 +345,7 @@
                         <th rowspan="2">Alteration</th>
                         <th rowspan="2">Type</th>
                         <th colspan="2" class="ui-state-default">Target</th>
-                        <th colspan="3" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of median centered protein abundance scores for unaltered cases and altered cases, respectively."/></th>
+                        <th colspan="3" class="ui-state-default">Ave. Abundance<img class="datatable_help" src="images/help.png" title="Average of protein abundance z-scores for unaltered cases and altered cases, respectively."/></th>
                         <th rowspan="2" nowrap="nowrap">p-value<img class="datatable_help" src="images/help.png" title="Based on two-sided two sample student t-test."/></th>
                         <th rowspan="2">data</th>
                         <th rowspan="2">Plot</th>

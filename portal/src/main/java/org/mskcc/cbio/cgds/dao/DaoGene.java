@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cbio.cgds.model.CanonicalGene;
@@ -49,28 +76,17 @@ class DaoGene {
         return daoGene;
     }
     
-    public int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-                    ("SELECT MIN(ENTREZ_GENE_ID) FROM gene");
-            rs = pstmt.executeQuery();
-            int min = 0;
-            if (rs.next()) {
-                min = rs.getInt(1);
-                if (min > 0)
-                    min = 0;
-            }
-            gene.setEntrezGeneId(min-1);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+    private static int fakeEntrezId = -1;
+    private synchronized int getNextFakeEntrezId() throws DaoException {
+        while (getGene(fakeEntrezId)!=null) {
+            fakeEntrezId --;
         }
-        
+        return fakeEntrezId;
+    }
+    
+    public synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
+        CanonicalGene existingGene = getGene(gene.getHugoGeneSymbolAllCaps());
+        gene.setEntrezGeneId(existingGene==null?getNextFakeEntrezId():existingGene.getEntrezGeneId());
         return addGene(gene);
     }
 
@@ -94,6 +110,7 @@ class DaoGene {
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
+                int rows = 0;
                 CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection();
@@ -102,14 +119,13 @@ class DaoGene {
                                     + "VALUES (?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                    int rows = pstmt.executeUpdate();
+                    rows += pstmt.executeUpdate();
                     
-                    rows += addGeneAliases(gene);
-                    
-                    return rows;
-                } else {
-                    return 0;
                 }
+                    
+                rows += addGeneAliases(gene);
+                    
+                return rows;
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -124,7 +140,7 @@ class DaoGene {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    private int addGeneAliases(CanonicalGene gene)  throws DaoException {
+    public int addGeneAliases(CanonicalGene gene)  throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -143,13 +159,16 @@ class DaoGene {
             } else {
                     con = JdbcUtil.getDbConnection();
                     Set<String> aliases = gene.getAliases();
+                    Set<String> existingAliases = getAliases(gene.getEntrezGeneId());
                     int rows = 0;
                     for (String alias : aliases) {
-                        pstmt = con.prepareStatement("INSERT INTO gene_alias "
-                                + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
-                        pstmt.setLong(1, gene.getEntrezGeneId());
-                        pstmt.setString(2, alias);
-                        rows += pstmt.executeUpdate();
+                        if (!existingAliases.contains(alias)) {
+                            pstmt = con.prepareStatement("INSERT INTO gene_alias "
+                                    + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
+                            pstmt.setLong(1, gene.getEntrezGeneId());
+                            pstmt.setString(2, alias);
+                            rows += pstmt.executeUpdate();
+                        }
                     }
                     
                     return rows;

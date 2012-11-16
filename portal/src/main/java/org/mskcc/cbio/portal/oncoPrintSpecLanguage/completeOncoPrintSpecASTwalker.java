@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // $ANTLR 3.2 Sep 23, 2009 12:02:23 ../completeOncoPrintSpecASTwalker.g 2010-12-14 17:00:19
 // TODO: upgrade to ANTLR 3.3
 
@@ -618,7 +645,7 @@ public class completeOncoPrintSpecASTwalker extends TreeParser {
 
                     		theDataTypeSpec = ConcreteDataTypeSpec.concreteDataTypeSpecGenerator( (ID10!=null?ID10.getText():null) );
                     		if( null == theDataTypeSpec ){
-                    			theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( (ID10!=null?ID10.getText():null) );
+                    			theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelName( (ID10!=null?ID10.getText():null) );
                     		}
                     		if( null == theDataTypeSpec ){
                     					// APG ERRORS: throw IAE
@@ -768,7 +795,7 @@ public class completeOncoPrintSpecASTwalker extends TreeParser {
 
                     match(input, Token.UP, null); 
 
-                    		theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGenerator( (ID14!=null?ID14.getText():null), (SIGNED_INT15!=null?SIGNED_INT15.getText():null) );
+                    		theDataTypeSpec = DiscreteDataTypeSetSpec.discreteDataTypeSetSpecGeneratorByLevelCode( (ID14!=null?ID14.getText():null), (SIGNED_INT15!=null?SIGNED_INT15.getText():null) );
                     		if( null == theDataTypeSpec ){
                     			// APG ERRORS: throw IAE
                     			generateOncoError(   (ID14!=null?ID14.getCharPositionInLine():0), (ID14!=null?ID14.getLine():0), (ID14!=null?ID14.getText():null) + " " + (SIGNED_INT15!=null?SIGNED_INT15.getText():null), 

@@ -1,8 +1,31 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.model;
-
-import ca.drugbank.ExternalLink;
-
-import java.util.List;
 
 public class Drug {
     private String id;
@@ -11,7 +34,10 @@ public class Drug {
     private String synonyms;
     private String externalReference;
     private String resource;
-    private boolean isApprovedFDA;
+    private boolean isApprovedFDA = false;
+    private boolean isCancerDrug = false;
+    private boolean isNutraceuitical = false;
+    private Integer numberOfClinicalTrials = -1;
     private String ATCCode;
 
     public Drug() {
@@ -23,8 +49,11 @@ public class Drug {
                 String synonyms,
                 String externalReference,
                 String resource,
+                String ATCCode,
                 boolean approvedFDA,
-                String ATCCode) {
+                boolean cancerDrug,
+                boolean nutraceuitical,
+                Integer numberOfClinicalTrials) {
 
         this.id = id;
         this.name = name;
@@ -32,8 +61,11 @@ public class Drug {
         this.synonyms = synonyms;
         this.externalReference = externalReference;
         this.resource = resource;
-        isApprovedFDA = approvedFDA;
+        this.isApprovedFDA = approvedFDA;
         this.ATCCode = ATCCode;
+        this.isCancerDrug = cancerDrug;
+        this.isNutraceuitical = nutraceuitical;
+        this.numberOfClinicalTrials = numberOfClinicalTrials;
     }
 
     public String getId() {
@@ -98,5 +130,29 @@ public class Drug {
 
     public void setATCCode(String ATCCode) {
         this.ATCCode = ATCCode;
+    }
+
+    public boolean isCancerDrug() {
+        return isCancerDrug;
+    }
+
+    public void setCancerDrug(boolean cancerDrug) {
+        isCancerDrug = cancerDrug;
+    }
+
+    public boolean isNutraceuitical() {
+        return isNutraceuitical;
+    }
+
+    public void setNutraceuitical(boolean nutraceuitical) {
+        isNutraceuitical = nutraceuitical;
+    }
+
+    public Integer getNumberOfClinicalTrials() {
+        return numberOfClinicalTrials;
+    }
+
+    public void setNumberOfClinicalTrials(Integer numberOfClinicalTrials) {
+        this.numberOfClinicalTrials = numberOfClinicalTrials;
     }
 }

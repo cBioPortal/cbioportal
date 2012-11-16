@@ -45,3 +45,6 @@ liftover/target/*
 core/target/*
 oncotator/target/*
 importer/target/*
+mutation-assessor/target/*
+cbioportal-client/target/*
+mondrian-cy3-app/target/*

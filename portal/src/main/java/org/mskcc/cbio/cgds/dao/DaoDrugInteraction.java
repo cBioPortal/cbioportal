@@ -1,9 +1,31 @@
-package org.mskcc.cbio.cgds.dao;
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
 
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
+package org.mskcc.cbio.cgds.dao;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,6 +33,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.DrugInteraction;
 
 public class DaoDrugInteraction {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
@@ -87,6 +113,10 @@ public class DaoDrugInteraction {
         }
     }
 
+    public ArrayList<DrugInteraction> getInteractions(long entrezGeneId) throws DaoException {
+        return getInteractions(Collections.singleton(entrezGeneId));
+    }
+
     public ArrayList<DrugInteraction> getInteractions(CanonicalGene gene) throws DaoException {
         return getInteractions(Collections.singleton(gene));
     }
@@ -124,6 +154,60 @@ public class DaoDrugInteraction {
             }
 
             return interactionList;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public Map<Long, List<String>> getDrugs(Set<Long> entrezGeneIds, boolean fdaOnly, boolean cancerSpecific) throws DaoException {
+        if (entrezGeneIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            
+            String sql;
+            if (fdaOnly || cancerSpecific) {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction, drug"
+                    + " WHERE TARGET IN (" + StringUtils.join(entrezGeneIds, ",") + ")"
+                    + " AND drug_interaction.DRUG=drug.DRUG_ID";
+                if (fdaOnly) {
+                    sql += " AND DRUG_APPROVED=1";
+                }
+                 
+                if (cancerSpecific) {
+                    sql += " AND DRUG_CANCERDRUG=1";
+                }
+            } else {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction"
+                    + " WHERE TARGET IN (" 
+                    + StringUtils.join(entrezGeneIds, ",") + ")";
+            }
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            Map<Long, List<String>> map = new HashMap<Long, List<String>>();
+            while (rs.next()) {
+                long entrez = rs.getLong("TARGET");
+                List<String> drugs = map.get(entrez);
+                if (drugs==null) {
+                    drugs = new ArrayList<String>();
+                    map.put(entrez, drugs);
+                }
+                
+                drugs.add(rs.getString("DRUG"));
+            }
+
+            return map;
 
         } catch (SQLException e) {
             throw new DaoException(e);

@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 
 package org.mskcc.cbio.portal.network;
 
@@ -26,6 +53,12 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
  * @author jj
  */
 public final class NetworkIO {
+    
+    public static enum NetworkSize {
+        SMALL,
+        MEDIUM,
+        LARGE
+    }
     
     /**
      * private constructor for utility class.
@@ -216,11 +249,17 @@ public final class NetworkIO {
      * @return
      * @throws Exception 
      */
-    public static Network readNetworkFromCGDS(Set<String> genes, boolean removeSelfEdge) throws DaoException {
+    public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
+            Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
-        List<Interaction> interactionList = daoInteraction.getInteractions(seedGenes);
+        List<Interaction> interactionList;
+        if (netSize==NetworkSize.SMALL) {
+            interactionList = daoInteraction.getInteractionsAmongSeeds(seedGenes, dataSources);
+        } else {
+            interactionList = daoInteraction.getInteractions(seedGenes, dataSources);
+        }
         Network net = new Network();
         for (Interaction interaction : interactionList) {
             long geneA = interaction.getGeneA();
@@ -253,6 +292,12 @@ public final class NetworkIO {
 
             net.addEdge(edge, geneAID, geneBID);
         }
+        
+        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
+        classifyNodes(net, seedNodes);
+        if (netSize==NetworkSize.MEDIUM) {
+            pruneMediumNetwork(net, seedNodes);
+        }
 
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         DaoDrug daoDrug = DaoDrug.getInstance();
@@ -284,9 +329,6 @@ public final class NetworkIO {
 
             net.addEdge(edge, drugID, geneID);
         }
-        
-        Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
-        classifyNodes(net, seedNodes);
         
         return net;
     }
@@ -323,25 +365,32 @@ public final class NetworkIO {
             }
 
             node.setAttribute("IN_QUERY", "false"); //TODO: remove this
-
-////            if (seedNodes.size()==1) {
-////                // mark linker nodes that has degree of 2 or more
-////                if (net.getDegree(node)>=2) {
-////                    node.addAttribute("IN_MEDIUM", "true");
-////                }
-////            } else {
-//                //  mark linker nodes that links to at least 2 seed genes
-//                int seedDegree = 0;
-//                for (Node neighbor : net.getNeighbors(node)) {
-//                    if (seedNodes.contains(neighbor)) {
-//                        if (++seedDegree >= 2) {
-//                            node.setAttribute("IN_MEDIUM", "true");
-//                            break;
-//                        }
-//                    }
-//                }
-////            }
         }
+    }
+    
+    /**
+     * remove linker nodes that connect to only one query gene
+     * @param net
+     * @param seedNodes 
+     */
+    private static void pruneMediumNetwork(final Network net, final Set<Node> seedNodes) {
+        NetworkUtils.pruneNetwork(net, new NetworkUtils.NodeSelector() {
+            public boolean select(Node node) {
+                if (seedNodes.contains(node)) {
+                    return false;
+                }
+                
+                int seedDegree = 0;
+                for (Node neighbor : net.getNeighbors(node)) {
+                    if (seedNodes.contains(neighbor)) {
+                        if (++seedDegree >= 2) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        });
     }
     
     private static Node addNode(Network net, String entrez, String hugo) {
@@ -366,9 +415,11 @@ public final class NetworkIO {
         node = new Node(drug.getId());
         node.setType(NodeType.DRUG);
         node.setAttribute("NAME", drug.getName());
-        node.setAttribute("RELATIONSHIP_XREF", drug.getResource() + ":" + drug.getId());
+        node.setAttribute("RELATIONSHIP_XREF", drug.getExternalReference());
         node.setAttribute("ATC_CODE", drug.getATCCode());
         node.setAttribute("FDA_APPROVAL", drug.isApprovedFDA() + "");
+        node.setAttribute("CANCER_DRUG", drug.isApprovedFDA() + "");
+        node.setAttribute("NUMBER_OF_CLINICAL_TRIALS", drug.getNumberOfClinicalTrials());
         node.setAttribute("DESCRIPTION", drug.getDescription());
         node.setAttribute("SYNONYMS", drug.getSynonyms());
         node.setAttribute("TARGETS", createDrugTargetList(drug));

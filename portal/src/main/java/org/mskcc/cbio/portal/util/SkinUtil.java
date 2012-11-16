@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.portal.util;
 
 /**
@@ -7,9 +34,12 @@ package org.mskcc.cbio.portal.util;
  */
 public class SkinUtil {
     public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
-    public static final String DEFAULT_EMAIL_CONTACT = "cancergenomics at cbio dot mskcc dot org";
+    public static final String DEFAULT_TUMORMAP_TITLE = "cBio Tumor Map";
+    public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";
+    public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    
     private static final String PROPERTY_SKIN_EMAIL_CONTACT = "skin.email_contact";
     private static final String PROPERTY_SKIN_SHOW_NEWS_TAB = "skin.show_news_tab";
     private static final String PROPERTY_SKIN_SHOW_DATA_TAB = "skin.show_data_tab";
@@ -33,6 +63,20 @@ public class SkinUtil {
         String skinTitle = config.getProperty("skin.title");
         if (skinTitle == null) {
             return DEFAULT_TITLE;
+        } else {
+            return skinTitle;
+        }
+    }
+    
+    /**
+     * Gets the TumorMap Site Title.
+     * @return site title.
+     */
+    public static String getTumorMapTitle() {
+        Config config = Config.getInstance();
+        String skinTitle = config.getProperty("skin.tumormap_title");
+        if (skinTitle == null) {
+            return DEFAULT_TUMORMAP_TITLE;
         } else {
             return skinTitle;
         }
@@ -115,6 +159,25 @@ public class SkinUtil {
         Config config = Config.getInstance();
         return Boolean.parseBoolean(config.getProperty("include_networks"));
     }
+    
+    /**
+     * Determines whether to show placeholders in patient view
+     * @return true or false
+     */
+    public static boolean showPlaceholderInPatientView() {
+        Config config = Config.getInstance();
+        return Boolean.parseBoolean(config.getProperty("patient_view_placeholder"));
+    }
+    
+    public static double[] getPatientViewGenomicOverviewCnaCutoff() {
+        Config config = Config.getInstance();
+        String cutoff = config.getProperty("patient_view_genomic_overview_cna_cutoff");
+        if (cutoff==null) {
+            return DEFAULT_TUMORMAP_CNA_CUTOFF;
+        }
+        String[] strs = cutoff.split(",");
+        return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
+    }
 
     /**
      * Determines whether we should show the news tab.
@@ -192,5 +255,33 @@ public class SkinUtil {
     public static String getDataSetsFooter() {
         Config config = Config.getInstance();
         return config.getProperty("skin.data_sets_footer");
+    }
+    
+    public static String getCbioPortalUrl() {
+        Config config = Config.getInstance();
+        String url = config.getProperty("cbioportal.url");
+        return url==null?"":url;
+    }
+    
+    public static String getTumorMapUrl() {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tumormap.url");
+        return url==null?"":url;
+    }
+    
+    public static String getLinkToPatientView(String caseId) {
+        return getTumorMapUrl()+"tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+                + "=" + caseId;
+    }
+    
+    public static String getLinkToCancerStudyView(String cancerStudyId) {
+        return getTumorMapUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+                + "=" + cancerStudyId;
+    }
+    
+    public static String getTumorTissueImageUrl(String studyId) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tumor_image.url");
+        return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
     }
 }

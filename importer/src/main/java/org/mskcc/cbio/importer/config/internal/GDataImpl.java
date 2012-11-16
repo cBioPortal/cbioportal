@@ -1,8 +1,41 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // package
 package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,9 +53,8 @@ import com.google.gdata.client.spreadsheet.FeedURLFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.List;
-//import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.io.IOException;
 
 /**
@@ -54,30 +86,35 @@ final class GDataImpl implements Config {
 	@Value("${spreadsheet}")
 	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
-	// latest analysis run downloaded property
-	private String latestAnalysisRunProperty;
-	@Value("${latest_analysis_run_download}")
-	public void setLatestAnalysisRunProperty(final String property) { this.latestAnalysisRunProperty = property; }
+	// tumor types metadata
+	private String tumorTypesMetadataProperty;
+	@Value("${tumor_types_metadata}")
+	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesMetadataProperty = property; }
 
-	// latest stddata run download property
-	private String latestSTDDATARunProperty;
-	@Value("${latest_stddata_run_download}")
-	public void setLatestSTDDATARunProperty(final String property) { this.latestSTDDATARunProperty = property; }
+	// datatype metadata
+	private String datatypesMetadataProperty;
+	@Value("${datatypes_metadata}")
+	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
 
-	// analysis datatypes to download
-	private String analysisDatatypesToDownload;
-	@Value("${analysis_datatypes_to_download}")
-	public void setAnalysisDatatypesToDownloadProperty(final String property) { this.analysisDatatypesToDownload = property; }
+	// case id filters metadata
+	private String caseIDFiltersMetadataProperty;
+	@Value("${case_id_filters_metadata}")
+	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersMetadataProperty = property; }
 
-	// stddata datatypes to download
-	private String stddataDatatypesToDownload;
-	@Value("${stddata_datatypes_to_download}")
-	public void setSTDDATADatatypesToDownloadProperty(final String property) { this.stddataDatatypesToDownload = property; }
+	// portal metadata
+	private String portalsMetadataProperty;
+	@Value("${portals_metadata}")
+	public void setPortalsMetadataProperty(final String property) { this.portalsMetadataProperty = property; }
 
-	// cancer studies information
-	private String cancerStudiesToDownload;
-	@Value("${cancer_studies_to_download}")
-	public void setCancerStudiesProperty(final String property) { this.cancerStudiesToDownload = property; }
+	// reference metadata
+	private String referenceMetadataProperty;
+	@Value("${reference_metadata}")
+	public void setReferenceMetadataProperty(final String property) { this.referenceMetadataProperty = property; }
+
+	// data source metadata
+	private String dataSourceMetadataProperty;
+	@Value("${data_sources_metadata}")
+	public void setDataSourceMetadataProperty(final String property) { this.dataSourceMetadataProperty = property; }
 
 	/**
 	 * Constructor.
@@ -93,112 +130,24 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the latest analysis run.
+	 * Gets a collection of TumorTypeMetadata.
 	 *
-	 * Returns the date of the latest analysis run
-	 * processed by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
+	 * @return Collection<TumorTypeMetadata>
 	 */
 	@Override
-	public String getLatestAnalysisRunDownloaded() {
-		return getPropertyString(latestAnalysisRunProperty);
-	}
+	public Collection<TumorTypeMetadata> getTumorTypeMetadata() {
 
-	/**
-	 * Sets the latest analysis run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestAnalysisRunDownloaded(final String latestAnalysisRun) {
-		setPropertyString(latestAnalysisRunProperty, latestAnalysisRun);
-	}
-
-	/**
-	 * Gets the latest STDDATA run.
-	 *
-	 * Returns the date of the latest stddata run
-	 * downloaded by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getLatestSTDDATARunDownloaded() {
-		return getPropertyString(latestSTDDATARunProperty);
-	}
-
-	/**
-	 * Sets the latest stddata run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
-	 *
-	 * @param String
-	 */
-	@Override
-	public void setLatestSTDDATARunDownloaded(final String latestSTDDATARun) {
-		setPropertyString(latestSTDDATARunProperty, latestSTDDATARun);
-	}
-
-	/**
-	 * Gets the analysis datatypes to process.
-	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getAnalysisDatatypes() {
-
-		//String datatypes = getPropertyString(analysisDatatypesToDownload);
-		//return (datatypes.length() > 0) ? Arrays.asList(datatypes.split(" ")) : new ArrayList();
-		return getPropertyString(analysisDatatypesToDownload);
-	}
-
-	/**
-	 * Gets the stddata datatypes to process.
-	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getSTDDATADatatypes() {
-
-		//String datatypes = getPropertyString(stddataDatatypesToDownload);
-		//return (datatypes.length() > 0) ? Arrays.asList(datatypes.split(" ")) : new ArrayList();
-		return getPropertyString(stddataDatatypesToDownload);
-	}
-
-	/**
-	 * Gets the cancer studies to process.
-	 *
-	 * Returns a string, space delimited, with each cancer study
-	 * to process, like:
-	 *
-	 * "blca brca cesc coadread"
-	 *
-	 * @return String
-	 */
-	@Override
-	public String getCancerStudiesToDownload() {
-
-		String toReturn = "";
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getCancerStudiesToDownload()");
+			LOG.info("getTumorTypeMetadata()");
 		}
 
 		// parse the property argument
-		String[] properties = cancerStudiesToDownload.split(":");
-		if (properties.length != 3) {
+		String[] properties = tumorTypesMetadataProperty.split(":");
+		if (properties.length != 4) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCancerStudiesToDownload: " +
-						 cancerStudiesToDownload + ".  Should be worsheet:cancer_study_id:download_flag.");
+				LOG.info("Invalid property passed to getTumorTypeMetadata: " + tumorTypesMetadataProperty);
 			}
 			return toReturn;
 		}
@@ -210,24 +159,9 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-						String downloadFlag = entry.getCustomElements().getValue(properties[2]);
-						if (downloadFlag != null && downloadFlag.equals("yes")) {
-							String cancerStudy = entry.getCustomElements().getValue(properties[1]);
-							if (cancerStudy != null) {
-								if (LOG.isInfoEnabled()) {
-									LOG.info("Adding cancer study: " + cancerStudy + " to download list.");
-								}
-								toReturn += cancerStudy + " ";
-								continue;
-							}
-						}
-						else if (downloadFlag != null && downloadFlag.equals("no")) {
-							continue;
-						}
-						// only get here if problem, log it
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Cannot find cancer study and/or download property in entry list!");
-						}
+						toReturn.add(new TumorTypeMetadata(entry.getCustomElements().getValue(properties[2]),
+															 entry.getCustomElements().getValue(properties[3]),
+															 new Boolean(entry.getCustomElements().getValue(properties[1]))));
 					}
 				}
 				else {
@@ -242,8 +176,320 @@ final class GDataImpl implements Config {
 		}
 
 		// outta here
-		return toReturn.trim();
+		return toReturn;
 	}
+
+	/**
+	 * Gets a collection of DatatypeMetadata.
+	 *
+	 * @return Collection<DatatypeMetadata>
+	 */
+    @Override
+	public Collection<DatatypeMetadata> getDatatypeMetadata() {
+
+		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDatatypeMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = datatypesMetadataProperty.split(":");
+		if (properties.length != 16) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						toReturn.add(new DatatypeMetadata(entry.getCustomElements().getValue(properties[1]),
+														  new Boolean(entry.getCustomElements().getValue(properties[2])),
+                                                          entry.getCustomElements().getValue(properties[3]),
+                                                          entry.getCustomElements().getValue(properties[4]),
+                                                          entry.getCustomElements().getValue(properties[5]),
+                                                          entry.getCustomElements().getValue(properties[6]),
+                                                          entry.getCustomElements().getValue(properties[7]),
+                                                          entry.getCustomElements().getValue(properties[8]),
+														  new Boolean(entry.getCustomElements().getValue(properties[9])),
+                                                          entry.getCustomElements().getValue(properties[10]),
+                                                          entry.getCustomElements().getValue(properties[11]),
+														  entry.getCustomElements().getValue(properties[12]),
+														  new Boolean(entry.getCustomElements().getValue(properties[13])),
+														  entry.getCustomElements().getValue(properties[14]),
+                                                          entry.getCustomElements().getValue(properties[15])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of CaseIDFilterMetadata.
+	 *
+	 * @return Collection<CaseIDFilterMetadata>
+	 */
+	@Override
+	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata() {
+
+		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCaseIDFilterMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = caseIDFiltersMetadataProperty.split(":");
+		if (properties.length != 4) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getCaseIDFilterMetadata: " + caseIDFiltersMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						toReturn.add(new CaseIDFilterMetadata(entry.getCustomElements().getValue(properties[1]),
+															  entry.getCustomElements().getValue(properties[2])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a PortalMetadata object given a portal name.
+	 *
+     * @param portal String
+	 * @return PortalMetadata
+	 */
+    @Override
+	public PortalMetadata getPortalMetadata(String portal) {
+
+        PortalMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getPortalMetadata(), portal: " + portal);
+		}
+
+		// parse the property argument
+		String[] properties = portalsMetadataProperty.split(":");
+		if (properties.length != 8) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getPortalMetadata: " + portalsMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+                        if (entry.getCustomElements().getValue(properties[1]).equals(portal)) {
+                                toReturn = new PortalMetadata(entry.getCustomElements().getValue(properties[1]),
+                                                              entry.getCustomElements().getValue(properties[2]),
+                                                              entry.getCustomElements().getValue(properties[3]),
+                                                              entry.getCustomElements().getValue(properties[4]),
+                                                              entry.getCustomElements().getValue(properties[5]),
+                                                              entry.getCustomElements().getValue(properties[6]),
+                                                              entry.getCustomElements().getValue(properties[7]));
+                                break;
+                        }
+                    }
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        // outta here
+        return toReturn;
+    }
+
+	/**
+	 * Gets ReferenceMetadata for the given referenceType.
+	 *
+	 * @param referenceType String
+	 * @return ReferenceMetadata
+	 */
+    @Override
+	public ReferenceMetadata getReferenceMetadata(String referenceType) {
+
+		ReferenceMetadata toReturn = null;
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getReferenceMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = referenceMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getReferenceMetadata: " + referenceMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+                        if (entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
+                                toReturn = new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
+																 entry.getCustomElements().getValue(properties[2]),
+																 entry.getCustomElements().getValue(properties[3]),
+																 entry.getCustomElements().getValue(properties[4]));
+                                break;
+                        }
+                    }
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (toReturn == null && LOG.isInfoEnabled()) {
+			LOG.info("getReferenceMetadata(), toReturn is null.");
+		}
+
+        // outta here
+        return toReturn;
+	}
+
+	/**
+	 * Gets DataSourceMetadata for the given datasource.
+	 *
+	 * @param dataSource String
+	 * @return Collection<DataSourceMetadata>
+	 */
+    @Override
+	public Collection<DataSourceMetadata> getDataSourceMetadata(String dataSource) {
+
+		Collection<DataSourceMetadata> toReturn = new ArrayList<DataSourceMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDataSourceMetadata(): " + dataSource);
+		}
+
+		// parse the property argument
+		String[] properties = dataSourceMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getDataSourceMetadata: " + dataSourceMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+                        if (dataSource.equals("all") || entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
+							toReturn.add(new DataSourceMetadata(entry.getCustomElements().getValue(properties[1]),
+																entry.getCustomElements().getValue(properties[2]),
+																entry.getCustomElements().getValue(properties[3]),
+																entry.getCustomElements().getValue(properties[4])));
+							if (!dataSource.equals("all")) break;
+                        }
+                    }
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (toReturn == null && LOG.isInfoEnabled()) {
+			LOG.info("getDataSourceMetadata(), toReturn is null.");
+		}
+
+        // outta here
+        return toReturn;
+	}
+
+	/**
+	 * Sets DataSourceMetadata (currently only stores latest run downloaded).
+	 *
+     * @param dataSourceMetadata DataSourceMetadata
+	 */
+    @Override
+	public 	void setDataSourceMetadata(final DataSourceMetadata dataSourceMetadata) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("setFirehoseDownloadMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = dataSourceMetadataProperty.split(":");
+		if (properties.length != 5) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to setDataSourceMetadata: " + dataSourceMetadataProperty);
+			}
+			return;
+		}
+
+        setPropertyString(properties[0], properties[1], dataSourceMetadata.getDataSource(),
+						  properties[3], dataSourceMetadata.getLatestRunDownload());
+    }
 
 	/**
 	 * Gets the spreadsheet.
@@ -360,43 +606,37 @@ final class GDataImpl implements Config {
 	/**
 	 * Sets the property value.
 	 *
+	 * @param worksheetName String
+	 * @param key String
 	 * @param propertyName String
 	 * @param propertyValue String
 	 *
 	 * Note, propertyName is worksheet:property_name pair
 	 */
-	private void setPropertyString(final String propertyName, final String propertyValue) {
+	private void setPropertyString(final String worksheetName, final String keyColumn, final String key, final String propertyName, final String propertyValue) {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("setProperty(" + propertyName + " : " + propertyValue + ")");
-		}
-
-		// parse the property argument
-		String[] properties = propertyName.split(":");
-		if (properties.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getProperty: " + propertyName + ".  Should be worsheet:property_name.");
-			}
-			return;
+			LOG.info("setProperty(" + worksheetName + " : " + key + " : " + propertyName + " : " + propertyValue + ")");
 		}
 
 		try {
 			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			WorksheetEntry worksheet = getWorksheet(worksheetName);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				ListEntry entry = feed.getEntries().get(0);
-				if (entry != null) {
-					entry.getCustomElements().setValueLocal(properties[1], propertyValue);
-					entry.update();
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Property has been successfully set!");
+				for (ListEntry entry : feed.getEntries()) {
+					if (entry.getCustomElements().getValue(keyColumn).equals(key)) {
+						entry.getCustomElements().setValueLocal(propertyName, propertyValue);
+						entry.update();
+						if (LOG.isInfoEnabled()) {
+							LOG.info("Property has been successfully set!");
+						}
 					}
 				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
+			}
+			else {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Worksheet contains no entries!");
 				}
 			}
 		}

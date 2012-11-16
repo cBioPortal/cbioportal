@@ -1,7 +1,42 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 // package
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
+
+import java.util.Collection;
 
 /**
  * Interface used to get/set configuration properties.
@@ -9,72 +44,55 @@ package org.mskcc.cbio.importer;
 public interface Config {
 
 	/**
-	 * Gets the latest analysis run.
+	 * Gets a collection of TumorTypeMetadata.
 	 *
-	 * Returns the date of the latest analysis run
-	 * processed by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
+	 * @return Collection<TumorTypeMetadata>
 	 */
-	String getLatestAnalysisRunDownloaded();
+	Collection<TumorTypeMetadata> getTumorTypeMetadata();
 
 	/**
-	 * Sets the latest analysis run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
+	 * Gets a collection of DatatypeMetadata.
 	 *
-	 * @param String
+	 * @return Collection<DatatypeMetadata>
 	 */
-	void setLatestAnalysisRunDownloaded(String latestAnalysisRun);
+	Collection<DatatypeMetadata> getDatatypeMetadata();
 
 	/**
-	 * Gets the latest STDDATA run.
+	 * Gets a collection of CaseIDFilterMetadata.
 	 *
-	 * Returns the date of the latest stddata run
-	 * downloaded by the importer as "MM/dd/yyyy"
-	 *
-	 * @return String
+	 * @return Collection<CaseIDFilterMetadata>
 	 */
-	String getLatestSTDDATARunDownloaded();
+	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
 
 	/**
-	 * Sets the latest stddata run processed by the importer.  Argument
-	 * should be of the form "MM/dd/yyyy".
+	 * Gets a PortalMetadata object given a portal name.
 	 *
-	 * @param String
+     * @param portal String
+	 * @return PortalMetadata
 	 */
-	void setLatestSTDDATARunDownloaded(String latestSTDDataRun);
+	PortalMetadata getPortalMetadata(String portal);
 
 	/**
-	 * Gets the analysis datatypes to process.
+	 * Gets ReferenceMetadata for the given referenceType.
 	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "CopyNumber_Gistic2 CopyNumber_Preprocess Correlate_Methylation Mutation_Assessor"
-	 *
-	 * @return String
+	 * @param referenceType String
+	 * @return ReferenceMetadata
 	 */
-	String getAnalysisDatatypes();
+	ReferenceMetadata getReferenceMetadata(String referenceType);
 
 	/**
-	 * Gets the stddata datatypes to process.
+	 * Gets DataSourceMetadata for the given dataSource.  If dataSource == "all",
+	 * all are returned.
 	 *
-	 * Returns a string, space delimited, with each type to download, like:
-	 *
-	 * "Merge_methylation Merge_rnaseq__ Merge_transcriptome"
-	 *
-	 * @return String
+	 * @param dataSource String
+	 * @return Collection<DataSourceMetadata>
 	 */
-	String getSTDDATADatatypes();
+	Collection<DataSourceMetadata> getDataSourceMetadata(String dataSource);
 
 	/**
-	 * Gets the cancer studies to process.
+	 * Sets DataSourceMetadata (currently only stores latest run downloaded).
 	 *
-	 * Returns a string, space delimited, with each cancer study
-	 * to process, like:
-	 *
-	 * "blca brca cesc coadread"
-	 *
-	 * @return String
+     * @param dataSourceMetadata DataSourceMetadata
 	 */
-	String getCancerStudiesToDownload();
+	void setDataSourceMetadata(final DataSourceMetadata dataSourceMetadata);
 }

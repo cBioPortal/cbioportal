@@ -44,6 +44,13 @@
 			<version>1.4</version>
 		</dependency>
 
+		<!-- junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+		</dependency>
+
 		<!-- portal core -->
 		<dependency>
 			<groupId>org.mskcc.cbio</groupId>
@@ -102,7 +109,7 @@
 				<filtering>true</filtering>
 				<excludes>
 					<exclude>build.properties.*</exclude>
-					<exclude>db.properties.*</exclude>
+					<exclude>db.properties.EXAMPLE</exclude>
 					<exclude>*.sql</exclude>
 				</excludes>
 			</resource>

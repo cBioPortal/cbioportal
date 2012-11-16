@@ -1278,3 +1278,15 @@ cc-ie-message {
     background: #d3d3d3;
     border-color: #1974B8;
 }
+
+.right-align-td {
+    text-align: right;
+}
+
+.center-align-td {
+    text-align: center;
+}
+
+.ui-tooltip-lightyellow {
+    background-color: lightyellow;
+}

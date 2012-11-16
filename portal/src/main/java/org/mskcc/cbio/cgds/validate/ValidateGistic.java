@@ -1,5 +1,34 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.validate;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
 
@@ -7,6 +36,7 @@ import java.util.ArrayList;
 
 // todo: later this can be refactored into a factory method.
 public class ValidateGistic {
+    private static final Log logger = LogFactory.getLog(ValidateGistic.class);
 
     /**
      * Validates a gistic bean object according to some basic "business logic".
@@ -19,7 +49,6 @@ public class ValidateGistic {
         int peakStart = gistic.getPeakStart();
         int peakEnd = gistic.getPeakEnd();
         double qValue = gistic.getqValue();
-        double res_qValue = gistic.getRes_qValue();
         ArrayList<CanonicalGene> genes_in_ROI = gistic.getGenes_in_ROI();
 
         if (chromosome < 1 || chromosome > 22) {
@@ -35,18 +64,14 @@ public class ValidateGistic {
         }
 
         if (peakEnd <= peakStart) {
-            System.out.println("peaksize=" + gistic.peakSize());
-//            throw new validationException("" +  " " + peakEnd +  " " + peakStart);
+            throw new validationException("" +  " " + peakEnd +  " " + peakStart);
+//            System.out.println("peaksize=" + gistic.peakSize());
         }
 
         if (qValue < 0 || qValue > 1) {
-            throw new validationException(qValue);
+            throw new validationException("qValue=" + qValue);
         }
 
-        if (res_qValue < 0 || res_qValue > 1) {
-            throw new validationException(res_qValue);
-        }
-        
         if (genes_in_ROI.isEmpty()){
             throw new validationException(genes_in_ROI);
         }

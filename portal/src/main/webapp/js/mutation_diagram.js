@@ -11,6 +11,7 @@ window.log = function() {
 function drawMutationDiagram(sequences)
 {
     var MAX_OFFSET = 4;
+    var COSMIC_THRESHOLD = 5;
     var PAPER_WIDTH = 740; // width of the raphael box
     var PAPER_HEIGHT = 220; // height of the raphael box
 
@@ -32,12 +33,7 @@ function drawMutationDiagram(sequences)
     var mutationDiagram = sequences[0];
 
     // if mutation diagram is available, then show the diagram tooltip box
-    if (mutationDiagram != null)
-    {
-        $("#mutation_diagram_details_" + mutationDiagram.metadata.hugoGeneSymbol).show();
-    }
-    // else abort drawing
-    else
+    if (mutationDiagram == null)
     {
         return;
     }
@@ -83,15 +79,13 @@ function drawMutationDiagram(sequences)
     _drawMutationLollipops(paper, mutationDiagram, maxCount, MAX_OFFSET, id, x, l, w, c, per, scaleColors);
 
     // mutation histogram
-    _drawHistogram(histogram, mutationDiagram, maxCount, MAX_OFFSET, x, l, w, c, per, scaleColors);
+    _drawHistogram(histogram, mutationDiagram, maxCount, MAX_OFFSET, COSMIC_THRESHOLD, x, l, w, c, per, scaleColors);
 
     $("#mutation_histogram_" + id).hide();
 }
 
-function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, x, l, w, c, per, scaleColors)
+function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, cosmicThreshold, x, l, w, c, per, scaleColors)
 {
-    var labelShown = false;
-
     // loop variables
     var i = 0;
     var size = 0;
@@ -111,8 +105,6 @@ function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, x, l, w, c,
                            (mutationDiagram.markups[i].metadata.count -
                             mutationDiagram.markups[i].metadata.missenseCount));
 
-            // TODO also add cosmic count into metadata?
-
             // draw the bar components according to the missense vs all others ratio
             // (color coding according to missense vs other)
             // first part: non missense
@@ -128,18 +120,18 @@ function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, x, l, w, c,
                 .toBack()
                 .attr({"stroke": missenseColor, "stroke-width": 2});
 
-            // draws the label for the max count
+            // TODO also add cosmic value into metadata?
+
+            // draw the label for the mutations equal to max count
+            // TODO or the cosmic frequency is above the threshold (also make it bold)
             if (mutationDiagram.markups[i].metadata.label &&
-                (maxCount == mutationDiagram.markups[i].metadata.count + maxOffset) &&
-                !labelShown)
+                maxCount == mutationDiagram.markups[i].metadata.count + maxOffset)
             {
                 var maxCountLabel = paper.text(x1, y2 - 14, mutationDiagram.markups[i].metadata.label)
                     .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
 
                 // adjust the label if it overlaps the y-axis
                 _adjustMaxCountLabel(maxCountLabel, x);
-
-                labelShown = true;
             }
         }
     }
@@ -173,26 +165,25 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
         if (mutationDiagram.markups[i].type == "mutation")
         {
             var x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
-            var y1 = c - 12;
+            var y1 = c - 17;
             var x2 = x1;
-            var y2 = c - 12 - (per * mutationDiagram.markups[i].metadata.count);
+            var y2 = c - 17 - (per * mutationDiagram.markups[i].metadata.count);
             var lollipopFillColor = mutationDiagram.markups[i].colour[0];
             var lollipopStrokeColor = darken(lollipopFillColor);
             var markupLineColor = mutationDiagram.markups[i].lineColour;
             var countText = "";
 
             if (mutationDiagram.markups[i].metadata.count == 1) {
-                countText = "(" + mutationDiagram.markups[i].metadata.count + " mutation)";
+                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutation</b>";
             }
             else {
-                countText = "(" + mutationDiagram.markups[i].metadata.count + " mutations)";
+                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutations</b>";
             }
 
-            var mutationTitle = "Amino Acid Change:  " +
-                                mutationDiagram.markups[i].metadata.label + " " +
-                                countText;
+            var mutationTitle = countText + "<br/>Amino Acid Change:  " +
+                                mutationDiagram.markups[i].metadata.label + " ";
 
-            var p = paper.path("M" + x1 + " " + (c - 7) + "L" + x2 + " " + y2)
+            var p = paper.path("M" + x1 + " " + (c - 5) + "L" + x2 + " " + y2)
                 .toBack()
                 .attr({"stroke": markupLineColor, "stroke-width": 1});
 
@@ -232,7 +223,7 @@ function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id,
 function _drawMutationScale(paper, maxCount, x, per, c, scaleColors)
 {
     var scaleX = x - 15;
-    var scaleY = c - 8;
+    var scaleY = c - 13;
     var scaleH = maxCount * per;
     //scaleW = scaleHoriz(8, w, l);
     var scaleW = 10; // no need to scale width, set a fixed value
@@ -303,7 +294,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
         var regionRect = paper.rect(regionX, regionY, regionW, regionH)
             .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
 
-        addMouseOver(regionRect.node, regionTitle, id);
+        addRegionMouseOver(regionRect.node, regionTitle, id);
 
         // region label (only if it fits)
         if (regionLabel != null)
@@ -313,7 +304,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
                 currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, regionLabel)
                     .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
 
-                addMouseOver(currentText.node, regionTitle, id);
+                addRegionMouseOver(currentText.node, regionTitle, id);
             }
             else
             {
@@ -324,7 +315,7 @@ function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
                     currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, truncatedLabel)
                         .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
 
-                    addMouseOver(currentText.node, regionTitle, id);
+                    addRegionMouseOver(currentText.node, regionTitle, id);
                 }
             }
         }
@@ -394,7 +385,7 @@ function _drawDiagramLabels(paper, label)
     paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
     // label for y-axis
-    var yAxis = paper.text(-27, 105, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+    var yAxis = paper.text(-27, 100, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
     yAxis.rotate(270);
 }
 
@@ -448,12 +439,20 @@ function darken(color) {
 }
 
 function addMouseOver(node, txt, id){
-  node.style.cursor = "default"
-  node.onmouseover = function () {
-    $('#mutation_diagram_details_' + id).html(txt+"<BR>&nbsp;<BR>&nbsp;")
-  };
+    $(node).qtip({
+        content: {text: '<font size="2">'+txt+'</font>'},
+        hide: { fixed: true, delay: 100 },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        position: {my:'bottom center',at:'top center'}
+    });
+}
 
-  node.onmouseout = function () {
-    $('#mutation_diagram_details_' + id).html("The height of the bars indicates the number of mutations at each position.<BR>Roll-over the dots and domains to view additional details.<br>&nbsp;");
-  };
+function addRegionMouseOver(node, txt, id)
+{
+    $(node).qtip({
+        content: {text: '<font size="2">'+txt+'</font>'},
+        hide: {fixed: true, delay: 100 },
+        style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        position: {my:'bottom left',at:'top center'}
+    });
 }

@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cbio.cgds.model.CancerStudy;
@@ -44,21 +71,27 @@ public class DaoCancerStudy {
             if (cancerStudy.getCancerStudyStableId() != null) {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                         "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
-                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID` ) VALUES (?,?,?,?,?)",
+                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
+                        + "`PMID`, `CITATION` ) VALUES (?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 pstmt.setString(1, cancerStudy.getCancerStudyStableId());
                 pstmt.setString(2, cancerStudy.getName());
                 pstmt.setString(3, cancerStudy.getDescription());
                 pstmt.setBoolean(4, cancerStudy.isPublicStudy());
                 pstmt.setString(5, cancerStudy.getTypeOfCancerId());
+                pstmt.setString(6, cancerStudy.getPmid());
+                pstmt.setString(7, cancerStudy.getCitation());
             } else {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study ( `NAME`, "
-                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID` ) VALUES (?,?,?,?)",
+                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
+                        + "`PMID`, `CITATION` ) VALUES (?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 pstmt.setString(1, cancerStudy.getName());
                 pstmt.setString(2, cancerStudy.getDescription());
                 pstmt.setBoolean(3, cancerStudy.isPublicStudy());
                 pstmt.setString(4, cancerStudy.getTypeOfCancerId());
+                pstmt.setString(5, cancerStudy.getPmid());
+                pstmt.setString(6, cancerStudy.getCitation());
             }
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
@@ -259,6 +292,8 @@ public class DaoCancerStudy {
                 rs.getString("CANCER_STUDY_IDENTIFIER"),
                 rs.getString("TYPE_OF_CANCER_ID"),
                 rs.getBoolean("PUBLIC"));
+        cancerStudy.setPmid(rs.getString("PMID"));
+        cancerStudy.setCitation(rs.getString("CITATION"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;

@@ -27,7 +27,7 @@ options {output=AST;}
 	*/
 
 	// get a list to hold errors
-	ArrayList<String> errorMessages = Utilities.getErrorMessages();
+	ArrayList<String> errorMessages = new ArrayList<String>();//Utilities.getErrorMessages();
 
 	// override to make comprehensible errors for users
    public void reportError(RecognitionException e){
@@ -200,10 +200,10 @@ floatOrInt
 ContinuousDataTypeInequality 	:	'&ContinuousDataTypeInequality';
 	
 COMPARISON_OP 
-	: ( '<=' | '<' | '>' | '>=' )	
+	: ( '<=' | '<' | '>' | '>=' | '=')	
 	;		 	
 
-ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'-'|'*'|'/')*
+ID  :	('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'*') ('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'-'|'@'|'.'|'*'|'/')*
     ;
 
 SIGNED_FLOAT

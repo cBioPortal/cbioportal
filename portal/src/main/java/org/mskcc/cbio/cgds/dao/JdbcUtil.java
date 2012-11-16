@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.dao;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -13,6 +40,7 @@ import java.sql.*;
  */
 public class JdbcUtil {
     private static BasicDataSource ds;
+    private static int MAX_JDBC_CONNECTIONS = 100;
 
     /**
      * Gets Connection to the CPath Database.
@@ -23,8 +51,14 @@ public class JdbcUtil {
     public static Connection getDbConnection() throws SQLException {
         if (ds == null) {
             initDataSource();
+        } else if (ds.getNumActive()>=MAX_JDBC_CONNECTIONS) {
+            ds.close();
+            initDataSource();
+            System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS);
         }
+        
         Connection con = ds.getConnection();
+        //System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive());
         return con;
     }
 
@@ -42,7 +76,7 @@ public class JdbcUtil {
                 new String("jdbc:mysql://" + host + "/" + database
                         + "?user=" + userName + "&password=" + password
                         + "&zeroDateTimeBehavior=convertToNull");
-
+        
         //  Set up poolable data source
         ds = new BasicDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
@@ -52,7 +86,7 @@ public class JdbcUtil {
 
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
-        ds.setMaxActive(75);
+        ds.setMaxActive(MAX_JDBC_CONNECTIONS);
     }
 
     /**
@@ -60,13 +94,14 @@ public class JdbcUtil {
      *
      * @param con Connection Object.
      */
-    private static void closeConnection(Connection con) throws SQLException {
-        if (con != null && !con.isClosed()) {
-            try {
+    public static void closeConnection(Connection con) {
+        try {
+            if (con != null && !con.isClosed()) {
                 con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                //System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive());
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -77,8 +112,8 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(PreparedStatement ps, ResultSet rs) {
-		JdbcUtil.closeAll(null, ps, rs);
-	}
+                JdbcUtil.closeAll(null, ps, rs);
+        }
 
     /**
      * Frees Database Connection.
@@ -89,13 +124,7 @@ public class JdbcUtil {
      */
     public static void closeAll(Connection con, PreparedStatement ps,
             ResultSet rs) {
-        try {
-			if (con != null) {
-				closeConnection(con);
-			}
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        closeConnection(con);
         //  Don't close PreparedStatements, as we have configured DBCP to pool/reuse
         //  PreparedStatements.
         //        if (ps != null) {

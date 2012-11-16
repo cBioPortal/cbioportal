@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.servlet;
 
 import java.io.IOException;
@@ -8,35 +35,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.regex.Pattern;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.DatabaseProperties;
-import org.mskcc.cbio.cgds.web_api.GetCaseLists;
-import org.mskcc.cbio.cgds.web_api.GetTypesOfCancer;
-import org.mskcc.cbio.cgds.web_api.GetClinicalData;
-import org.mskcc.cbio.cgds.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.cgds.web_api.GetMutationData;
-import org.mskcc.cbio.cgds.web_api.GetMutationFrequencies;
-import org.mskcc.cbio.cgds.web_api.GetNetwork;
-import org.mskcc.cbio.cgds.web_api.GetMutSig;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.GetProteinArrayData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
-import org.mskcc.cbio.cgds.web_api.WebApiUtil;
 import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.cgds.web_api.*;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**
@@ -63,6 +73,7 @@ public class WebService extends HttpServlet {
     public static final String SECRET_KEY = "secret_key";
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
+    public static final String INCLUDE_FREE_FORM_CLINICAL_DATA = "include_free_form";
 
     /**
      * Shutdown the Servlet.
@@ -379,8 +390,9 @@ public class WebService extends HttpServlet {
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
+        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
         HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
-        String out = GetClinicalData.getClinicalData(caseSet);
+        String out = GetClinicalData.getClinicalData(caseSet, "1".equals(includeFreeForm));
         writer.print(out);
     }
 
@@ -579,15 +591,14 @@ public class WebService extends HttpServlet {
         }
         
         if (caseList != null) {
-            DaoCase aDaoCase = new DaoCase();
             for (String aCase : caseList.split("[\\s,]+")) {
                 aCase = aCase.trim();
                 if (aCase.length() == 0) {
                     continue;
                 }
 
-                int profileId = aDaoCase.getProfileIdForCase(aCase);
-                if (DaoCase.NO_SUCH_PROFILE_ID == profileId) {
+                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
+                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
                     return null;
                 }
 

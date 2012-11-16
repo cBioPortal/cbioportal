@@ -1,12 +1,15 @@
 BLCA.maf.annotated blca
 BRCA.maf.annotated  brca
+CESC.maf.annotated  cesc
 COADREAD.maf.annotated  coadread
 GBM.maf.annotated  gbm
+HNSC.maf.annotated hnsc
 KIRC.maf.annotated kirc
 LAML.maf.annotated laml
-LUSC.maf.annotated  lusc
 LUAD.maf.annotated luad
+LUSC.maf.annotated  lusc
 OV.maf.annotated ov
 PRAD.maf.annotated prad
+SKCM.maf.annotated skcm
 STAD.maf.annotated stad
 UCEC.maf.annotated  ucec

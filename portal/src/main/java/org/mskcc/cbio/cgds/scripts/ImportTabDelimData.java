@@ -1,20 +1,48 @@
-package org.mskcc.cbio.cgds.scripts;
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
 
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
+package org.mskcc.cbio.cgds.scripts;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.CnaEvent;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -104,12 +132,11 @@ public class ImportTabDelimData {
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
 
         // Add Cases to the Database
-        DaoCase daoCase = new DaoCase();
         ArrayList <String> orderedCaseList = new ArrayList<String>();
         for (int i = 0; i < caseIds.length; i++) {
-            if (!daoCase.caseExistsInGeneticProfile(caseIds[i],
+            if (!DaoCaseProfile.caseExistsInGeneticProfile(caseIds[i],
                     geneticProfileId)) {
-                daoCase.addCase(caseIds[i], geneticProfileId);
+                DaoCaseProfile.addCaseProfile(caseIds[i], geneticProfileId);
             }
             orderedCaseList.add(caseIds[i]);
         }
@@ -132,7 +159,7 @@ public class ImportTabDelimData {
             
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
-                parts = line.split("\t");
+                parts = line.split("\t",-1);
 
                 int startIndex = getStartIndex();
                 String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);
@@ -179,6 +206,12 @@ public class ImportTabDelimData {
                                 }
                             } else if (genes.size()==1) {
                                 storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
+                                if (geneticProfile!=null
+                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                                        && geneticProfile.showProfileInAnalysisTab()) {
+                                    storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
+                                }
+                                
                                 numRecordsStored++;
                             } else {
                                 for (CanonicalGene gene : genes) {
@@ -225,6 +258,20 @@ public class ImportTabDelimData {
         if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
+        }
+    }
+    
+    private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
+        int n = values.length;
+        if (n==0)
+            System.out.println();
+        int i = values[0].equals(""+entrezGeneId) ? 1:0;
+        for (; i<n; i++) {
+            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
+                    || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
+                DaoCnaEvent.addCaseCnaEvent(event);
+            }
         }
     }
 

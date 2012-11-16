@@ -52,7 +52,7 @@
 			</tr>
 		</table>
 	</div>
-    <div id="mutsig_dialog" title="Recurrently Mutated Genes" style="font-size: 11px; .ui-dialog {padding: 0em;};">
+    <div id="mutsig_dialog" title="Recurrently Mutated Genes" class='display' style="font-size: 11px; .ui-dialog {padding: 0em;};">
         <img id='loader-img' src="images/ajax-loader.gif"/>
         <table class="MutSig">
             <thead>
@@ -71,7 +71,70 @@
 					<button id="select_mutsig" class="tabs-button" title="Use these mutsig genes">Select</button>
 		</div>
     </div>
-    <div id="gistic_dialog" title="Regions of Interest" style="font-size: 11px; .ui-dialog {padding: 0em;};"></div>
+    <div id="gistic_dialog" title="Recurrent Copy Number Alterations (Gistic)" style="font-size:11px; text-align:left; .ui-dialog {padding:0em;};">
+        <div id='gistic_loading'><img id='loader-img' src="images/ajax-loader.gif"/></div>
+        <table id="gistic_table" class='display' style='border-spacing:12px;'></table>
+        <div id="gistic_dialog_footer">
+            <button style="float: right; display:none; margin-top:1.1em;" id="gistic_close" onclick="Gistic.UI.updateGenes(); Gistic.dialog_el.dialog('close');" class="tabs-button" title="Use these ROI genes">Select Genes</button>
+        </div>
+    </div>
+    <style type='text/css'>
+        .gistic_gene {
+            padding: 3px;
+            border-radius:5px;
+            cursor:pointer;
+        }
+        .gistic_gene:hover {
+            padding: 1px;
+            border: 2px solid #1974b8;
+        }
+        .gistic_selected_gene {
+            #background:#DDD;
+            font-weight:bold;
+        }
+        .gistic_amp {
+            height: 1em;
+            background-color: red;
+        }
+        .gistic_del {
+            height: 1em;
+            background-color: blue;
+        }
+        #gistic_table_filter {
+            font-size: 12px;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+        #gistic_msg_box {
+            line-height: 2.5em;
+            float: left;
+        }
+        #gistic_msg_box span {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 1px;
+            border: 2px solid #1974b8;
+            border-radius:5px;
+        }
+    </style>
+    <script type='text/javascript'>
+    // set up modal dialog box for gistic table
+    $('#gistic_dialog').dialog( {autoOpen: false,
+            modal: true,
+            overflow: 'hidden',
+            minWidth: 800,
+            resizable: false,
+            height: 545,
+            // width: 'auto',
+            open: function() { 
+                // sets the scrollbar to the top of the table
+                $(this).scrollTop(0);
+                return;
+                // workaround to prevent auto focus
+                //$(this).add('input').blur();
+            },
+    });
+    </script>
 <%
 String customCaseListStyle = "none";
 // Output step 3 form validation error

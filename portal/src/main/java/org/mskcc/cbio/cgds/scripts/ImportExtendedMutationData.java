@@ -1,5 +1,40 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+**
+** This library is free software; you can redistribute it and/or modify it
+** under the terms of the GNU Lesser General Public License as published
+** by the Free Software Foundation; either version 2.1 of the License, or
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+** documentation provided hereunder is on an "as is" basis, and
+** Memorial Sloan-Kettering Cancer Center 
+** has no obligations to provide maintenance, support,
+** updates, enhancements or modifications.  In no event shall
+** Memorial Sloan-Kettering Cancer Center
+** be liable to any party for direct, indirect, special,
+** incidental or consequential damages, including lost profits, arising
+** out of the use of this software and its documentation, even if
+** Memorial Sloan-Kettering Cancer Center 
+** has been advised of the possibility of such damage.  See
+** the GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+**/
+
 package org.mskcc.cbio.cgds.scripts;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
@@ -7,15 +42,6 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Import an extended mutation file.
@@ -87,7 +113,6 @@ public class ImportExtendedMutationData{
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		DaoCase daoCase = new DaoCase();
 		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
 		DaoMutation daoMutation = DaoMutation.getInstance();
 
@@ -126,11 +151,11 @@ public class ImportExtendedMutationData{
 				pMonitor.incrementCurValue();
 				ConsoleUtil.showProgress(pMonitor);
 			}
-
+                        
 			if( !line.startsWith("#") && line.trim().length() > 0)
 			{
 				String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
-				MafRecord record = mafUtil.parseRecord(line);
+                                MafRecord record = mafUtil.parseRecord(line);
 
 				// process case id
 				// an example bar code looks like this:  TCGA-13-1479-01A-01W
@@ -140,11 +165,17 @@ public class ImportExtendedMutationData{
 				String caseId = null;
 				try {
 					caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
+					// the following condition was prompted by case ids coming from 
+					// private cancer studies (like SKCM_BROAD) with case id's of
+					// the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
+					if (!barCode.startsWith("TCGA") && barCodeParts.length == 4) {
+						caseId += "-" + barCodeParts[3];
+					}
 				} catch( ArrayIndexOutOfBoundsException e) {
 					caseId = barCode;
 				}
-				if( !daoCase.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-					daoCase.addCase(caseId, geneticProfileId);
+				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
+					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
 				}
 
 				String validationStatus = record.getValidationStatus();
@@ -169,19 +200,13 @@ public class ImportExtendedMutationData{
 				if (record.getEndPosition() < 0)
 					record.setEndPosition(0);
 
-				String aminoAcidChange = "MUTATED";
 				String functionalImpactScore = "";
 				String linkXVar = "";
 				String linkMsa = "";
 				String linkPdb = "";
 
-				if( fileHasOMAData) {
-					String[] aminoAcidChangeHeaders = { "amino_acid_change", "MA:variant" };
-					aminoAcidChange = getField( parts, aminoAcidChangeHeaders );
-					if( aminoAcidChange != null && aminoAcidChange.equalsIgnoreCase( NOT_AVAILABLE )) {
-						aminoAcidChange = "MUTATED";
-					}
-
+				if (fileHasOMAData)
+				{
 					functionalImpactScore = getField(parts, "MA:FImpact" );
 					functionalImpactScore = transformOMAScore(functionalImpactScore);
 					linkXVar = getField(parts, "MA:link.var" );
@@ -190,8 +215,15 @@ public class ImportExtendedMutationData{
 					linkPdb = getField(parts, "MA:link.PDB" );
 				}
 
-				String proteinChange = getProteinChange(aminoAcidChange, record);
+				String proteinChange = getProteinChange(parts, record);
 				String mutationType = getMutationType(record);
+
+				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
+				{
+					pMonitor.logWarning("Skipping entry with mutation type: RNA");
+					line = buf.readLine();
+					continue;
+				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = getField(parts, "Hugo_Symbol" );
@@ -265,7 +297,12 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
+                                            try {
 						daoMutation.addMutation(mutation);
+                                                DaoMutationEvent.addMutation(mutation);
+                                            } catch (DaoException ex) {
+                                                ex.printStackTrace();
+                                            }
 					}
 				}
 			}
@@ -347,24 +384,62 @@ public class ImportExtendedMutationData{
 		}
 	}
 
-	private String getProteinChange(String aminoAcidChange, MafRecord record)
+	/**
+	 * Determines the most accurate amino acid change value for the given mutation.
+	 *
+	 * If there is an Oncotator value, returns that value.
+	 * If no Oncotator value, then tries Mutation Assessor value.
+	 * If no MA value either, then tries the amino_acid_change column
+	 * If none of the above is valid then returns "MUTATED"
+	 *
+	 * @param parts     current mutation as split parts of the line
+	 * @param record    MAF record for the current line
+	 * @return          most accurate amino acid change
+	 */
+	private String getProteinChange(String[] parts, MafRecord record)
 	{
-		String proteinChange = record.getOncotatorProteinChange();
+		// Note: MA may sometimes use a different isoform than Oncotator.
 
-		// TODO If we have a Mutation Assessor score for a given missense mutation,
-		// we should use the AA change provided by Mutation Assessor.
-		// MA may sometimes use a different isoform than Oncotator,
-		// but we want to make sure that the links to MA match what we show in the portal.
+		// try oncotator value first
+		String aminoAcidChange = record.getOncotatorProteinChange();
 
-		if (proteinChange == null ||
-		    proteinChange.length() == 0 ||
-		    proteinChange.equals("NULL") ||
-		    proteinChange.equals(MafRecord.NA_STRING))
+		// if no oncotator value, try mutation assessor value
+		if (!isValidProteinChange(aminoAcidChange))
 		{
-			proteinChange = aminoAcidChange;
+			aminoAcidChange = getField(parts, "MA:protein.change");
 		}
 
-		return proteinChange;
+		// if no MA value either, then try amino_acid_change column
+		if (!isValidProteinChange(aminoAcidChange))
+		{
+			aminoAcidChange = getField(parts, "amino_acid_change" );
+		}
+
+		// if none is valid, then use the string "MUTATED"
+		if (!isValidProteinChange(aminoAcidChange))
+		{
+			aminoAcidChange = "MUTATED";
+		}
+
+		String pDot = "p.";
+
+		// also remove the starting "p." string if any
+		if (aminoAcidChange.startsWith(pDot))
+		{
+			aminoAcidChange = aminoAcidChange.substring(pDot.length());
+		}
+
+		return aminoAcidChange;
+	}
+
+	private boolean isValidProteinChange(String proteinChange)
+	{
+		boolean invalid = proteinChange == null ||
+		                  proteinChange.length() == 0 ||
+		                  proteinChange.equalsIgnoreCase("NULL") ||
+		                  proteinChange.equalsIgnoreCase(NOT_AVAILABLE);
+
+		return !invalid;
 	}
 
 	private String getMutationType(MafRecord record)

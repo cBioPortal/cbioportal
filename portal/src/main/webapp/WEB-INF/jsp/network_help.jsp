@@ -21,7 +21,7 @@
 	Source of Drug Data
 <p>
 <p class="regular">
-	Drug data is derived from <a href="http://www.drugbank.ca" target="_blank">DrugBank Database</a>.
+	Drug data is derived from <a href="https://bitbucket.org/armish/pihelper" target="_blank">PiHelper</a>.
 </p>
 
 <p class="heading">

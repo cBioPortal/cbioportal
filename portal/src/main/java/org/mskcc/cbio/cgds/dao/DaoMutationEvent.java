@@ -303,7 +303,6 @@ public final class DaoMutationEvent {
     
     /**
      * get events for each case
-     * @param concatEventIds
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
@@ -352,7 +351,6 @@ public final class DaoMutationEvent {
     }
     
     /**
-     * @param concatEventIds
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
@@ -642,17 +640,17 @@ public final class DaoMutationEvent {
         if (cosmicAAChange.matches(
                 "(p\\.[A-Z]?[0-9]+_[A-Z]?[0-9]+((>)|(ins))[A-Z]+)|(p\\.[A-Z][0-9]+>[A-Z][A-Z]+)|(p\\.[A-Z]?[0-9]+.+del[A-Z]*)")) {
             // in frame del or ins
-            return type.startsWith("In_Frame_");
+            return type.toLowerCase().startsWith("in_frame_");
         }
         
         if (cosmicAAChange.matches("p\\.[A-Z][0-9]+>?[A-Z]")) {
-            return type.equals("Missense_Mutation");
+            return type.toLowerCase().startsWith("missense");
         }
         
-        return type.equals("Nonsense_Mutation") ||
-            type.equals("Splice_Site") || 
-            type.startsWith("Frame_Shift_") || 
-            type.equals("Nonstop_Mutation");
+        return type.toLowerCase().startsWith("nonsense") ||
+            type.toLowerCase().startsWith("splice_site") ||
+            type.toLowerCase().startsWith("frame_shift_") ||
+            type.toLowerCase().startsWith("nonstop");
         
         // TODO: how about Translation_Start_Site
     }

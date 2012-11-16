@@ -71,7 +71,7 @@ public final class PortalMetadata {
 		if (name == null) {
             throw new IllegalArgumentException("name must not be null");
 		}
-        this.name = name;
+        this.name = name.trim();
 
         // cancer studies
 		if (cancerStudies == null || cancerStudies.length() == 0) {
@@ -113,13 +113,13 @@ public final class PortalMetadata {
 		if (stagingDirectory == null) {
             throw new IllegalArgumentException("stagingDirectory must not be null");
 		}
-		this.stagingDirectory = stagingDirectory;
+		this.stagingDirectory = stagingDirectory.trim();
 
         // convertOverride directory
-		this.convertOverrideDirectory = (convertOverrideDirectory == null) ? "" : convertOverrideDirectory;
+		this.convertOverrideDirectory = (convertOverrideDirectory == null) ? "" : convertOverrideDirectory.trim();
 
         // importOverride directory
-		this.importOverrideDirectory = (importOverrideDirectory == null) ? "" : importOverrideDirectory;
+		this.importOverrideDirectory = (importOverrideDirectory == null) ? "" : importOverrideDirectory.trim();
 
 	}
 

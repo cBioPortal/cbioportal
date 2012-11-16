@@ -55,12 +55,12 @@ public final class TumorTypeMetadata {
 		if (tumorTypeID == null) {
             throw new IllegalArgumentException("tumorTypeID must not be null");
 		}
-		this.tumorTypeID = tumorTypeID;
+		this.tumorTypeID = tumorTypeID.trim();
 
 		if (tumorTypeDescription == null) {
             throw new IllegalArgumentException("tumorTypeDescription must not be null");
 		}
-		this.tumorTypeDescription = tumorTypeDescription;
+		this.tumorTypeDescription = tumorTypeDescription.trim();
 
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");

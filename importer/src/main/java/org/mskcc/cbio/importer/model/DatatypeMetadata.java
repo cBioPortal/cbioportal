@@ -52,11 +52,13 @@ public final class DatatypeMetadata {
 	// delimiter between archive and filename pair
 	private static final String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
 
+	// delimiter between dependencies
+	private static final String DEPENDENCIES_DELIMITER = ":";
+
 	// bean properties
 	private String datatype;
-	private String[] datatypeDependencies;
 	private Boolean download;
-	private Boolean computable;
+	private String[] dependencies;
 	// downloadArchive is parsed in constructor
 	private LinkedHashSet<String> archives;
 	// key is archive file name, values is ARCHIVE_FILENAME_PAIR_DELIMITER filenames
@@ -79,6 +81,7 @@ public final class DatatypeMetadata {
      *
      * @param datatype String
 	 * @param download Boolean
+	 * @param dependencies String
 	 * @param downloadArchive String
      * @param overrideFilename String
      * @param stagingFilename String
@@ -93,7 +96,7 @@ public final class DatatypeMetadata {
      * @param metaProfileName String
      * @param metaProfileDescription String
      */
-    public DatatypeMetadata(final String datatype, final Boolean download,
+    public DatatypeMetadata(final String datatype, final Boolean download, final String dependencies,
 							final String downloadArchive, final String overrideFilename,
 							final String stagingFilename, final String converterClassName,
 							final String importerClassName, final Boolean requiresMetafile,
@@ -104,12 +107,15 @@ public final class DatatypeMetadata {
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
 		}
-		this.datatype = datatype;
+		this.datatype = datatype.trim();
 
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");
 		}
 		this.download = download;
+
+		this.dependencies = (dependencies != null) ?
+			this.dependencies = dependencies.split(DEPENDENCIES_DELIMITER) : new String[0];
 
 		if (downloadArchive == null) {
             throw new IllegalArgumentException("downloadArchive must not be null");
@@ -119,8 +125,8 @@ public final class DatatypeMetadata {
 			archivedFiles = new HashMap<String, String>();
 			for (String archivePair : downloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
-				String archive = parts[0];
-				String archivedFile = parts[1];
+				String archive = parts[0].trim();
+				String archivedFile = parts[1].trim();
 				archives.add(archive);
 				if (archivedFiles.containsKey(archive)) {
 					archivedFiles.put(archive, (archivedFiles.get(archive) +
@@ -137,23 +143,23 @@ public final class DatatypeMetadata {
 			this.overrideFilename = "";
 		}
 		else {
-			this.overrideFilename = overrideFilename;
+			this.overrideFilename = overrideFilename.trim();
 		}
 
 		if (stagingFilename == null) {
             throw new IllegalArgumentException("stagingFilename must not be null");
 		}
-		this.stagingFilename = stagingFilename;
+		this.stagingFilename = stagingFilename.trim();
 
 		if (converterClassName == null) {
             throw new IllegalArgumentException("converterClassName must not be null");
 		}
-		this.converterClassName = converterClassName;
+		this.converterClassName = converterClassName.trim();
 
 		if (importerClassName == null) {
             throw new IllegalArgumentException("importerClassName must not be null");
 		}
-		this.importerClassName = importerClassName;
+		this.importerClassName = importerClassName.trim();
 
 		if (requiresMetafile == null) {
 			throw new IllegalArgumentException("requires metaFilen must not be null");
@@ -202,6 +208,7 @@ public final class DatatypeMetadata {
 
 	public String getDatatype() { return datatype; }
 	public Boolean isDownloaded() { return download; }
+	public String[] getDependencies() { return dependencies; }
 	public Set<String> getDownloadArchives() { return archives; }
 	public Set<String> getArchivedFiles(final String archive) {
 		if (archivedFiles.containsKey(archive)) {

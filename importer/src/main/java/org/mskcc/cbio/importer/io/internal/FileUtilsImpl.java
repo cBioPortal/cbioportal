@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.util.NormalizeExpressionLevels;
 
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
@@ -269,13 +270,13 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("writingStagingFlie(), staging file: " + stagingFile);
+			LOG.info("writingStagingFile(), staging file: " + stagingFile);
 		}
 																   
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile, false);
@@ -285,7 +286,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("writingStagingFlie(), creating metadata file for staging file: " + stagingFile);
+				LOG.info("writingStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
 			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
 		}
@@ -319,21 +320,21 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		String[] oncotatorArgs = { oncotatorInputFile.getCanonicalPath(),
 								   oncotatorOutputFile.getCanonicalPath() };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("writingStagingFlie(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
+			LOG.info("writingMutationStagingFile(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
 		}
 		OncotateTool.main(oncotatorArgs);
 		// we call OMA here -
 		// we already have input (oncotatorOutputFile)
 		// output should be the path/name of staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replace("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
 		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
 							 stagingFile.getCanonicalPath() };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("writingStagingFlie(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
+			LOG.info("writingMutationStagingFile(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
 		}
 		MutationAssessorTool.main(omaArgs);
 
@@ -344,15 +345,79 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("writingStagingFlie(), creating metadata file for staging file: " + stagingFile);
+				LOG.info("writingMutationStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
 			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
 		}
 	}
 
 	/**
+	 * Creates a z-score staging file from the given dependencies.  It assumes that the
+	 * dependency - staging files have already been created.  This code also assumes
+	 * that the dependencies are ordered by cna, then expression.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dependencies DatatypeMetadata[]
+	 * @throws Exception
+	 */
+	public void writeZScoresStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+										final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception {
+
+		// sanity check
+		if (dependencies.length != 2) {
+			throw new IllegalArgumentException("writeZScoresStagingFile(), datatypeMetadatas.length != 2, aborting...");
+		}
+
+		// check for existence of dependencies
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writeZScoresStagingFile(), checking for existence of dependencies: " + Arrays.asList(dependencies));
+		}
+		File cnaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+															   cancerStudy,
+															   dependencies[0].getStagingFilename());
+		if (!cnaFile.exists()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writeZScoresStagingFile(), cannot find cna file dependency: " + cnaFile.getCanonicalPath());
+			}
+			return;
+		}
+
+		File expressionFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	  cancerStudy,
+																	  dependencies[1].getStagingFilename());
+		if (!expressionFile.exists()) { 
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writeZScoresStagingFile(), cannot find expression file dependency: " + expressionFile.getCanonicalPath());
+			}
+			return;
+		}
+
+		// we need a zscore file
+		File zScoresFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																   cancerStudy,
+																   datatypeMetadata.getStagingFilename());
+		
+		// call NormalizeExpressionLevels
+		String[] args = { cnaFile.getCanonicalPath(), expressionFile.getCanonicalPath(), zScoresFile.getCanonicalPath() };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writingZScoresStagingFlie(), calling NormalizeExpressionLevels: " + Arrays.toString(args));
+		}
+		NormalizeExpressionLevels.main(args);
+		
+		// meta file
+		if (datatypeMetadata.requiresMetafile()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingZScoresStagingFile(), creating metadata file for staging file: " + zScoresFile.getCanonicalPath());
+			}
+			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, null);
+		}
+	}
+
+	/**
 	 * Helper method which writes a metadata file for the
-	 * given DatatypeMetadata.
+	 * given DatatypeMetadata.  ImportDataMatrix may be null.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
@@ -368,19 +433,21 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																	cancerStudy,
 																	datatypeMetadata.getMetaFilename());
 			if (LOG.isInfoEnabled()) {
-				LOG.info("writingStagingFlie(), meta file: " + metaFile);
+				LOG.info("writingMetadataFlie(), meta file: " + metaFile);
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
-			stableID = stableID.replace("<CANCER_STUDY>", cancerStudy);
+			stableID = stableID.replaceAll("<CANCER_STUDY>", cancerStudy);
 			writer.print("stable_id: " + stableID + "\n");
 			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
-			profileDescription = profileDescription.replace("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
-			profileDescription = profileDescription.replace("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
-			profileDescription = profileDescription.replace("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
+			if (importDataMatrix != null) {
+				profileDescription = profileDescription.replaceAll("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
+			}
+			profileDescription = profileDescription.replaceAll("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
 			writer.print("profile_description: " + profileDescription + "\n");
 			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();
@@ -419,7 +486,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                     String entryName = entry.getName();
                     String dataFile = importData.getDataFilename();
                     if (dataFile.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
-                        dataFile = dataFile.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
+                        dataFile = dataFile.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
                     }
                     if (entryName.contains(dataFile)) {
                         if (LOG.isInfoEnabled()) {
@@ -529,8 +596,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         if (potentialOverrideCancerStudyDir != null) {
             // construct override filename
             if (overrideFilename.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
-                    overrideFilename = overrideFilename.replace(TumorTypeMetadata.TUMOR_TYPE_REGEX,
-                                                                tumorType.toUpperCase());
+                    overrideFilename = overrideFilename.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX,
+																   tumorType.toUpperCase());
             }
             // check for existence of override file
             File potentialOverrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getConvertOverrideDirectory(),

@@ -69,6 +69,12 @@
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataDAO"/>
   </b:bean>
+  <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
+	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
+	<b:constructor-arg ref="importDataDAO"/>
+  </b:bean>
   <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">
 	<b:constructor-arg ref="fileUtils"/>
   </b:bean>

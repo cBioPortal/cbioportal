@@ -80,7 +80,7 @@ public final class MapperUtil {
 	 */
 	public static void mapGeneSymbolToID(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
 										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
-		doMapping(importDataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.SYMBOL_TO_ID);
+		doMapping(importDataMatrix, idMapper, geneSymbolColumnName, geneIDColumnName, MappingDirection.SYMBOL_TO_ID);
 	}
 
 	/**

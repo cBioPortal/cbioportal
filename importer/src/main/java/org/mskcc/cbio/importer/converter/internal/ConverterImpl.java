@@ -47,6 +47,7 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Vector;
 import java.util.Collection;
 
 /**
@@ -157,24 +158,21 @@ final class ConverterImpl implements Converter {
 					continue;
 				}
 
-				// iterate over data sources
-				for (String dataSource : portalMetadata.getDataSources()) {
-
-					// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-					ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata, dataSource);
-					if (importDataMatrices == null || importDataMatrices.length == 0) {
-						if (LOG.isInfoEnabled()) {
-							LOG.info("convertData(), error getting importDataMatrices, skipping.");
-						}
-						continue;
+				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
+				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
+				if (importDataMatrices == null || importDataMatrices.length == 0) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("convertData(), error getting importDataMatrices, skipping.");
 					}
-
-					// get converter and create staging file
-					Object[] args = { config, fileUtils, caseIDs, idMapper };
-					Converter converter =
-						(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-					converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
+					continue;
 				}
+
+				// get converter and create staging file
+				Object[] args = { config, fileUtils, caseIDs, idMapper };
+				Converter converter =
+					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+				converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
+
 			}
 		}
 	}
@@ -250,37 +248,39 @@ final class ConverterImpl implements Converter {
 	 * @param portalMetadata PortalMetadata
 	 * @param tumorType String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataSource String
-	 * @return ImpordDataMatrix[]
+	 * @return ImportDataMatrix[]
 	 * @throws Exception
 	 */
 	private ImportDataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
-													 final DatatypeMetadata datatypeMetadata, final String dataSource) throws Exception {
+													 final DatatypeMetadata datatypeMetadata) throws Exception {
 
 		// this is what we are returing
-		ImportDataMatrix[] toReturn = null;
+		Vector<ImportDataMatrix> toReturn = new Vector<ImportDataMatrix>();
 
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrices(), looking for all ImportData matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
+			LOG.info("getImportDataMatrices(), looking for all ImportData matching: " + tumorType + ":" + datatype + ".");
 		}
-		ImportData[] importData = importDataDAO.getImportDataByTumorAndDatatypeAndDataSource(tumorType, datatype, dataSource).toArray(new ImportData[0]);
-		if (importData.length != 0) {
+		Collection<ImportData> allImportData = importDataDAO.getImportDataByTumorAndDatatype(tumorType, datatype);
+		if (allImportData.size() > 0) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("getImportDataMatrices(), found " + importData.length + " ImportData objects matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
+				LOG.info("getImportDataMatrices(), found " + allImportData.size() + " ImportData objects matching: " + tumorType + ":" + datatype + ".");
 			}
-			toReturn = new ImportDataMatrix[importData.length];
-			for (int lc = 0; lc < importData.length; lc++) {
-				toReturn[lc] = fileUtils.getFileContents(portalMetadata, importData[lc]);
+			// we will filter out ImportData with datasources not belonging to the portal
+			Collection portalDataSources = portalMetadata.getDataSources();
+			for (ImportData importData : allImportData) {
+				if (portalDataSources.contains(importData.getDataSource())) {
+					toReturn.add(fileUtils.getFileContents(portalMetadata, importData));
+				}
 			}
 		}
 		else if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrices(), cannot find any ImportData objects matching: " + tumorType + ":" + datatype + ":" + dataSource + ".");
+			LOG.info("getImportDataMatrices(), cannot find any ImportData objects matching: " + tumorType + ":" + datatype + ".");
 		}
 
 		// outta here
-		return toReturn;
+		return toReturn.toArray(new ImportDataMatrix[0]);
 	}
 }

@@ -12,6 +12,7 @@
 
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/mutation_table.js"></script>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
@@ -24,7 +25,14 @@
 <%
     if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
         for (GeneWithScore geneWithScore : geneWithScoreList) {
-            outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
+            //outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
+	        MutationCounter mutationCounter = new MutationCounter(
+			        geneWithScore.getGene(), mutationMap);
+
+	        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
+	        {
+		        outputHeader(out, geneWithScore, mutationCounter);
+	        }
         }
     } else {
         outputNoMutationDetails(out);
@@ -196,6 +204,7 @@
 	    }
     }
 
+    // TODO disable this function after refactoring, the table will be rendered within mutation_table.js
     //  Place mutation_details_table in a JQuery DataTable
     $(document).ready(function(){
         <%
@@ -248,7 +257,14 @@
     <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-          $.ajax({ url: "mutation_diagram_data.json",
+	        $.ajax({ url: "mutation_table_data.json",
+		           dataType: "json",
+		           data: {hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>",
+			           mutations: "<%= outputMutationsJson(geneWithScore, mutationMap, mergedCaseList) %>"},
+		           success: drawMutationTable,
+		           type: "POST"});
+
+	        $.ajax({ url: "mutation_diagram_data.json",
               dataType: "json",
               data: {hugoGeneSymbol: "<%= geneWithScore.getGene().toUpperCase() %>",
 	              mutations: "<%= outputMutationsJson(geneWithScore, mutationMap) %>"},
@@ -417,7 +433,7 @@
 
 <%!
 	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
-        ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper();
         StringWriter stringWriter = new StringWriter();
         List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
         try {
@@ -428,6 +444,31 @@
         }
         return stringWriter.toString().replace("\"", "\\\"");
     }
+
+	private String outputMutationsJson(final GeneWithScore geneWithScore,
+			final ExtendedMutationMap mutationMap,
+			final ArrayList<String> mergedCaseList)
+	{
+		ObjectMapper objectMapper = new ObjectMapper();
+		StringWriter stringWriter = new StringWriter();
+		List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
+
+		for (String caseId : mergedCaseList)
+		{
+			mutations.addAll(
+				mutationMap.getExtendedMutations(
+						geneWithScore.getGene(), caseId));
+		}
+
+		try {
+			objectMapper.writeValue(stringWriter, mutations);
+		}
+		catch (Exception e) {
+			// ignore
+		}
+
+		return stringWriter.toString().replace("\"", "\\\"");
+	}
 
     private void outputGeneTable(GeneWithScore geneWithScore,
             ExtendedMutationMap mutationMap, JspWriter out, 
@@ -489,6 +530,7 @@
 //	               "</select>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'></div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

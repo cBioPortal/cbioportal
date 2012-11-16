@@ -33,7 +33,6 @@ public class CancerStudyView extends HttpServlet {
     public static final String CNA_PROFILE = "cna_profile";
     private ServletXssUtil servletXssUtil;
     
-    private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
     private static final DaoCaseList daoCaseList = new DaoCaseList();
 
     // class which process access control to cancer studies

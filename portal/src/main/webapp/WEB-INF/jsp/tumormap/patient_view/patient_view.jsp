@@ -19,6 +19,7 @@ String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
+String otherStudy = (String)request.getAttribute(PatientView.OTHER_STUDIES_WITH_SAME_PATIENT_ID);
 boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
@@ -74,6 +75,10 @@ if (patientViewError!=null) {
 %>
 
 <jsp:include page="../../global/header.jsp" flush="true" />
+
+<%if(otherStudy!=null) {%>
+    <p style="background-color: lightyellow;"><%=otherStudy%></p>
+<%}%>
 
 <table width="100%">
     <tr>
@@ -246,6 +251,7 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
+var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
 
 

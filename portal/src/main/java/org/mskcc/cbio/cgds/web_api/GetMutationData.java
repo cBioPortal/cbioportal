@@ -53,8 +53,7 @@ public class GetMutationData {
         StringBuffer buf = new StringBuffer();
 
         //  Get the Genetic Profile
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        GeneticProfile geneticProfile = daoGeneticProfile.getGeneticProfileByStableId
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId
                 (geneticProfileId);
         if (geneticProfile == null) {
             buf.append("No genetic profile available for ").append(WebService.GENETIC_PROFILE_ID)

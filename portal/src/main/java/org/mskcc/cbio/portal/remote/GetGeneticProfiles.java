@@ -51,8 +51,7 @@ public class GetGeneticProfiles {
             throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy != null) {
-            DaoGeneticProfile daoProfile = new DaoGeneticProfile();
-            return daoProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+            return DaoGeneticProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
         } else {
             return new ArrayList<GeneticProfile>();
         }

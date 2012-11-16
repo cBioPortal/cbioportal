@@ -7,6 +7,7 @@ package org.mskcc.cbio.cgds.model;
  */
 public class CopyNumberSegment {
     private long segId;
+    private int cancerStudyId;
     private String sample;
     private String chr; // 1-22,X/Y,M
     private long start;
@@ -14,13 +15,23 @@ public class CopyNumberSegment {
     private int numProbes;
     private double segMean;
 
-    public CopyNumberSegment(String sample, String chr, long start, long end, int numProbes, double segMean) {
+    public CopyNumberSegment(int cancerStudyId, String sample, String chr,
+            long start, long end, int numProbes, double segMean) {
+        this.cancerStudyId = cancerStudyId;
         this.sample = sample;
         this.chr = chr;
         this.start = start;
         this.end = end;
         this.numProbes = numProbes;
         this.segMean = segMean;
+    }
+
+    public int getCancerStudyId() {
+        return cancerStudyId;
+    }
+
+    public void setCancerStudyId(int cancerStudyId) {
+        this.cancerStudyId = cancerStudyId;
     }
 
     public String getChr() {

@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.servlet.QueryBuilder;
+
 /**
  * Utility Class Containing Skin Configuration Options.
  *
@@ -269,9 +271,9 @@ public class SkinUtil {
         return url==null?"":url;
     }
     
-    public static String getLinkToPatientView(String caseId) {
+    public static String getLinkToPatientView(String caseId, String cancerStudyId) {
         return getTumorMapUrl()+"tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
-                + "=" + caseId;
+                + "=" + caseId + "&" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId;
     }
     
     public static String getLinkToCancerStudyView(String cancerStudyId) {

@@ -109,11 +109,10 @@ public class ImportTabDelimData {
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoGeneticProfile dao = new DaoGeneticProfile();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
         microRnaIdSet = daoMicroRna.getEntireSet();
 
-        geneticProfile = dao.getGeneticProfileById(geneticProfileId);
+        geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);

@@ -34,7 +34,7 @@
         $('#submit-patient-btn').attr("disabled", true);
         initMsgListener();
         loadClinicalData(caseSetId);
-        loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
+        loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
     });
     
@@ -64,7 +64,7 @@
                     }
                     var form = '<form method="post" action="index.do">&nbsp;'
                             + numSelected+' cases are selected.'
-                            + '<input type="hidden" name="cancer_study_id" value="'+studyId
+                            + '<input type="hidden" name="cancer_study_id" value="'+cancerStudyId
                             + '"><input type="hidden" name="case_set_id" value="-1">'
                             + '<input type="hidden" name="case_ids" value="'+ids.join(" ")
                             + '"><input type="submit" value="Query selection">'

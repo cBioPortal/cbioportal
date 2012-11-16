@@ -14,7 +14,7 @@
 ./importProfileData.pl --data $CGDS_DATA_HOME/public-override/prad_mskcc/data_CNA.txt --meta $CGDS_DATA_HOME/public-override/prad_mskcc/meta_CNA.txt --dbmsAction clobber
 
 # Copy number segment
-#./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/public-override/prad_mskcc/prad_mskcc_scna_hg18.seg
+#./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/public-override/prad_mskcc/prad_mskcc_scna_hg18.seg coadread_tcga
 
 # Imports MRNA Expression Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/public-override/prad_mskcc/data_mRNA_ZbyNorm.txt --meta $CGDS_DATA_HOME/public-override/prad_mskcc/meta_mRNA_ZbyNorm.txt --dbmsAction clobber

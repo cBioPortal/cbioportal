@@ -149,7 +149,7 @@ public class TumorMapServlet extends HttpServlet {
                     } else {
                         List<String> cases = DaoCaseProfile.getAllCaseIdsInProfile(cnaProfile.getGeneticProfileId());
                         Map<String,Double> fracs = DaoCopyNumberSegment.getCopyNumberActeredFraction(cases,
-                                SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
+                                cnaProfile.getCancerStudyId(),SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
                         double aveFrac = 0;
                         for (double frac : fracs.values()) {
                             aveFrac += frac;

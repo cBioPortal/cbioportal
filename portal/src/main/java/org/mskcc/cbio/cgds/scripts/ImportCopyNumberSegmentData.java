@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.CopyNumberSegment;
@@ -20,11 +21,13 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
  */
 public class ImportCopyNumberSegmentData {
     private ProgressMonitor pMonitor;
+    private int cancerStudyId;
     private File file;
     private Pattern p = Pattern.compile("(TCGA\\-[^\\-]+-[^\\-]+).*");
     
-    public ImportCopyNumberSegmentData(File file, ProgressMonitor pMonitor) {
+    public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor) {
         this.file = file;
+        this.cancerStudyId = cancerStudyId;
         this.pMonitor = pMonitor;
     }
     
@@ -59,16 +62,19 @@ public class ImportCopyNumberSegmentData {
             int numProbes = Integer.parseInt(strs[4]);
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(caseId, strs[1], start, end, numProbes, segMean);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }
     }
     
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("command line usage:  importCopyNumberSegmentData.pl <copy_number_segment_file.seg>");
+        if (args.length < 2) {
+            System.out.println("command line usage:  importCopyNumberSegmentData.pl <copy_number_segment_file.seg> cancer_study_id");
             System.exit(1);
         }
+        
+        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
         
@@ -77,7 +83,7 @@ public class ImportCopyNumberSegmentData {
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
-        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, pMonitor);
+        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudyId, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");

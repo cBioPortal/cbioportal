@@ -159,7 +159,7 @@ if (cancerStudyViewError!=null) {
 <script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
-var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
@@ -201,7 +201,7 @@ function getRefererCaseId() {
 }
 
 function formatPatientLink(caseId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do?case_id='+caseId+'">'+caseId+'</a>'
+    return caseId==null?"":'<a title="Go to patient-centric view" href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do?case_id='+caseId+'">'+caseId+'&cancer_study_id='+cancerStudyId+'</a>'
 }
 
 </script>

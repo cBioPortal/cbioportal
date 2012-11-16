@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.CnaEvent;
 
 /**
@@ -24,7 +25,7 @@ public final class DaoCnaEvent {
             con = JdbcUtil.getDbConnection();
             long eventId = addCnaEvent(cnaEvent, con);
             
-            if (eventExists(eventId, cnaEvent.getCaseId(), con)) {
+            if (eventExists(eventId, cnaEvent.getCaseId(), cnaEvent.getCnaProfileId(), con)) {
                 return 0;
             }
             
@@ -79,15 +80,16 @@ public final class DaoCnaEvent {
         }
     }
     
-    private static boolean eventExists(long eventId, String caseId, Connection con)
+    private static boolean eventExists(long eventId, String caseId, int cnaProfileId, Connection con)
             throws DaoException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=?");
+		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, caseId);
+            pstmt.setInt(3, cnaProfileId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1)>0;
@@ -100,12 +102,12 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static Map<String, Set<Long>> getCasesWithAlterations(
+    public static Map<Case, Set<Long>> getCasesWithAlterations(
             Collection<Long> eventIds) throws DaoException {
         return getCasesWithAlterations(StringUtils.join(eventIds, ","));
     }
     
-    public static Map<String, Set<Long>> getCasesWithAlterations(String concatEventIds)
+    public static Map<Case, Set<Long>> getCasesWithAlterations(String concatEventIds)
             throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -115,20 +117,23 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, `CNA_EVENT_ID` FROM case_cna_event"
+            String sql = "SELECT * FROM case_cna_event"
                     + " WHERE `CNA_EVENT_ID` IN ("
                     + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
             
-            Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
+            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
+                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
+                Case _case = new Case(caseId, cancerStudyId);
                 long eventId = rs.getLong("CNA_EVENT_ID");
-                Set<Long> events = map.get(caseId);
+                Set<Long> events = map.get(_case);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(caseId, events);
+                    map.put(_case, events);
                 }
                 events.add(eventId);
             }

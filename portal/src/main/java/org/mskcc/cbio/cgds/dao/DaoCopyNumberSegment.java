@@ -24,14 +24,15 @@ public final class DaoCopyNumberSegment {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
                     ("INSERT INTO copy_number_seg (`CASE_ID`, `CHR`,"
-                        + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`)"
-                        + " VALUES (?,?,?,?,?,?)");
+                        + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`, `CANCER_STUDY_ID`)"
+                        + " VALUES (?,?,?,?,?,?,?)");
             pstmt.setString(1, seg.getCaseId());
             pstmt.setString(2, seg.getChr());
             pstmt.setLong(3, seg.getStart());
             pstmt.setLong(4, seg.getEnd());
             pstmt.setInt(5, seg.getNumProbes());
             pstmt.setDouble(6, seg.getSegMean());
+            pstmt.setInt(7, seg.getCancerStudyId());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -41,12 +42,12 @@ public final class DaoCopyNumberSegment {
     }
     
     public static List<CopyNumberSegment> getSegmentForACase(
-            String caseId) throws DaoException {
-        return getSegmentForCases(Collections.singleton(caseId));
+            String caseId, int cancerStudyId) throws DaoException {
+        return getSegmentForCases(Collections.singleton(caseId),cancerStudyId);
     }
     
     public static List<CopyNumberSegment> getSegmentForCases(
-            Collection<String> caseIds) throws DaoException {
+            Collection<String> caseIds, int cancerStudyId) throws DaoException {
         if (caseIds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -60,11 +61,13 @@ public final class DaoCopyNumberSegment {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("SELECT * FROM copy_number_seg WHERE `CASE_ID` IN "
-                    + concatCaseIds);
+                    ("SELECT * FROM copy_number_seg"
+                    + " WHERE `CASE_ID` IN "+ concatCaseIds
+                    + " AND `CANCER_STUDY_ID`="+cancerStudyId);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 CopyNumberSegment seg = new CopyNumberSegment(
+                        rs.getInt("CANCER_STUDY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getString("CHR"),
                         rs.getLong("START"),
@@ -83,16 +86,16 @@ public final class DaoCopyNumberSegment {
     }
     
     public static double getCopyNumberActeredFraction(String caseId,
-            double cutoff) throws DaoException {
-        Double d = getCopyNumberActeredFraction(Collections.singleton(caseId), cutoff)
+            int cancerStudyId, double cutoff) throws DaoException {
+        Double d = getCopyNumberActeredFraction(Collections.singleton(caseId), cancerStudyId, cutoff)
                 .get(caseId);
         return d==null ? Double.NaN : d.doubleValue();
     }
     
     public static Map<String,Double> getCopyNumberActeredFraction(Collection<String> caseIds,
-            double cutoff) throws DaoException {
-        Map<String,Long> alteredLength = getCopyNumberAlteredLength(caseIds, cutoff);
-        Map<String,Long> measuredLength = getCopyNumberAlteredLength(caseIds, 0);
+            int cancerStudyId, double cutoff) throws DaoException {
+        Map<String,Long> alteredLength = getCopyNumberAlteredLength(caseIds, cancerStudyId, cutoff);
+        Map<String,Long> measuredLength = getCopyNumberAlteredLength(caseIds, cancerStudyId, 0);
         Map<String,Double> fraction = new HashMap<String,Double>(alteredLength.size());
         for (String caseId : caseIds) {
             Long ml = measuredLength.get(caseId);
@@ -109,7 +112,7 @@ public final class DaoCopyNumberSegment {
     }
     
     private static Map<String,Long> getCopyNumberAlteredLength(Collection<String> caseIds,
-            double cutoff) throws DaoException {
+            int cancerStudyId, double cutoff) throws DaoException {
         Map<String,Long> map = new HashMap<String,Long>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -120,13 +123,15 @@ public final class DaoCopyNumberSegment {
             if (cutoff>0) {
                 sql = "SELECT  `CASE_ID`, SUM(`END`-`START`)"
                     + " FROM `copy_number_seg`"
-                    + " WHERE ABS(`SEGMENT_MEAN`)>=" + cutoff
+                    + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
+                    + " AND ABS(`SEGMENT_MEAN`)>=" + cutoff
                     + " AND `CASE_ID` IN ('" + StringUtils.join(caseIds,"','") +"')"
                     + " GROUP BY `CASE_ID`";
             } else {
                 sql = "SELECT  `CASE_ID`, SUM(`END`-`START`)"
                     + " FROM `copy_number_seg`"
-                    + " WHERE `CASE_ID` IN ('" + StringUtils.join(caseIds,"','") +"')"
+                    + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
+                    + " AND `CASE_ID` IN ('" + StringUtils.join(caseIds,"','") +"')"
                     + " GROUP BY `CASE_ID`";
             }
             
@@ -158,9 +163,8 @@ public final class DaoCopyNumberSegment {
         try {
             con = JdbcUtil.getDbConnection();
             sql = "SELECT  1"
-                + " FROM `copy_number_seg`, `_case`"
+                + " FROM `copy_number_seg`"
                 + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
-                + " AND `_case`.`CASE_ID`=`copy_number_seg`.`CASE_ID`"
                 + " LIMIT 1";
             
             pstmt = con.prepareStatement(sql);

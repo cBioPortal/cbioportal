@@ -54,9 +54,8 @@ public class GetGeneticProfiles {
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
-            DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
             ArrayList<GeneticProfile> list =
-                    daoGeneticProfile.getAllGeneticProfiles(cancerStudyInternalId);
+                    DaoGeneticProfile.getAllGeneticProfiles(cancerStudyInternalId);
             if (list.size() > 0) {
 
                 buf.append("genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\t" +

@@ -5,7 +5,7 @@
 <script type="text/javascript">   
     $(document).ready(function(){
         $('#smg_wrapper_table').hide();
-        loadMutSigData(studyId);
+        loadMutSigData(cancerStudyId);
     });
     
     function loadMutSigData(cancerStudyId) {
@@ -44,7 +44,7 @@
                                 } else if (type==='display') {
                                     var gene = data[source[0]]['gene_symbol'];
                                     return '<a href="<%=SkinUtil.getCbioPortalUrl()%>index.do?Action=Submit&genetic_profile_ids='
-                                        +mutationProfileId+'&case_set_id='+studyId+'_all&cancer_study_id='+studyId
+                                        +mutationProfileId+'&case_set_id='+cancerStudyId+'_all&cancer_study_id='+cancerStudyId
                                         +'&gene_list='+gene+'&tab_index=tab_visualize&#mutation_details">'+gene+'</a>';
                                 } else {
                                     return data[source[0]]['gene_symbol'];

@@ -36,6 +36,7 @@ public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "error";
     public static final String PATIENT_ID = "case_id";
+    public static final String OTHER_STUDIES_WITH_SAME_PATIENT_ID = "other_studies_with_same_patient_id";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
@@ -50,7 +51,6 @@ public class PatientView extends HttpServlet {
     public static final String TISSUE_IMAGES = "tissue_images";
     private ServletXssUtil servletXssUtil;
     
-    private static final DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
     private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
     private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
@@ -89,9 +89,11 @@ public class PatientView extends HttpServlet {
         
         //  Get patient ID
         String patientID = servletXssUtil.getCleanInput (request, PATIENT_ID);
+        String cancerStudyId = servletXssUtil.getCleanInput (request, QueryBuilder.CANCER_STUDY_ID);
 
         request.setAttribute(QueryBuilder.HTML_TITLE, "Patient "+patientID);
         request.setAttribute(PATIENT_ID, patientID);
+        request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
             if (validate(request)) {
@@ -112,14 +114,46 @@ public class PatientView extends HttpServlet {
     
     private boolean validate(HttpServletRequest request) throws DaoException {
         String caseId = (String) request.getAttribute(PATIENT_ID);
-        Case _case = DaoCase.getCase(caseId);
+        String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+        
+        Case _case = null;
+        CancerStudy cancerStudy = null;
+        if (cancerStudyId==null) {
+            List<Case> cases = DaoCase.getCase(caseId);
+            int nCases = cases.size();
+            if (nCases>0) {
+                _case = cases.get(0);
+                cancerStudy = DaoCancerStudy
+                    .getCancerStudyByInternalId(_case.getCancerStudyId());
+                
+                if (nCases>1) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("There ").append(nCases==2?"is an":("are "+(nCases-1)+" "))
+                            .append("other cancer stud").append(nCases==2?"y":"ies")
+                            .append(" containing the same case ID:");
+                    for (int i=1; i<nCases; i++) {
+                        CancerStudy otherStudy = DaoCancerStudy.getCancerStudyByInternalId(cases.get(i)
+                                .getCancerStudyId());
+                        sb.append(" ").append(SkinUtil.getLinkToPatientView(caseId, otherStudy.getCancerStudyStableId())).append(",");
+                    }
+                    sb.deleteCharAt(sb.charAt(sb.length()-1));
+                    request.setAttribute(OTHER_STUDIES_WITH_SAME_PATIENT_ID, sb.toString());
+                }
+            }
+        } else {
+            cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+            if (cancerStudy==null) {
+                request.setAttribute(ERROR, "We have no information about cancer study "+cancerStudyId);
+                return false;
+            }
+            
+            _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
+        }
         if (_case==null) {
             request.setAttribute(ERROR, "We have no information about patient "+caseId);
             return false;
         }
         
-        CancerStudy cancerStudy = DaoCancerStudy
-                .getCancerStudyByInternalId(_case.getCancerStudyId());
         String cancerStudyIdentifier = cancerStudy.getCancerStudyStableId();
         
         if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {

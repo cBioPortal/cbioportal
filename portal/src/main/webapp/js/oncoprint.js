@@ -5,11 +5,12 @@ var OncoPrint = function(params) {
 //        return $('#' + params.cancer_study_id + '.oncoprint #labels')[0].getBoundingClientRect().width;
 //    };
 
-    var query = GeneAlterations.query(data);
+    var query = GeneAlterations.query(params.data);
 
-    var samples = d3.map(data.samples),
+    var samples = d3.map(params.data.samples),
         no_samples = samples.keys().length,
         gene_indexes = d3.map(samples.huo_to_gene_index),
+        gene_data = params.data.gene_data,
         no_genes = gene_data.length;
 
 //    console.log(genes);
@@ -183,7 +184,7 @@ var OncoPrint = function(params) {
     that.drawTracks = function(svg, trackSettings) {
         var trackNum = 0;
 
-        genes.forEach(function(gene) {
+        gene_data.forEach(function(gene) {
             // draw each track
             that.drawTrack({
                 label: gene.hugo,
@@ -194,7 +195,6 @@ var OncoPrint = function(params) {
             trackNum +=1;
         });
     };
-
 
     that.insertFullOncoPrint = function(div) {
         var oncoPrintDiv = $('<div/>', {

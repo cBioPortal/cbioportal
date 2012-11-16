@@ -78,48 +78,10 @@ var GeneAlterations = function(sendData) {
         // flip on the switch since you just updated the sendData
     };
 
-    that.query = (function() {
-
-    // data query tools
-    return {
-        geneByHugo : function(hugo) {
-            var index = data.hugo_to_gene_index[hugo];
-
-            return data.gene_data[index];
-        },
-
-        data : function(_sample_id, _gene, _data_type) {
-            // _sample_id, _gene, _data_type -> data
-            // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
-
-            var sample_i = data.samples[_sample_id];
-            if (sample_i === undefined) {
-                console.log("bad sample id:", _sample_id);
-                return;
-            }
-
-            var gene_i = data.hugo_to_gene_index[_gene];
-            if (gene_i === undefined) {
-                console.log("bad gene:", _gene);
-                return;
-            }
-
-            var gene = data.gene_data[gene_i];
-            if (gene_i === undefined) {
-                console.log("bad gene:", _gene);
-                return;
-            }
-
-            var data_type = gene[_data_type];
-            if (data_type === undefined) {
-                console.log("bad data type:", _data_type);
-                return;
-            }
-
-            return data_type[sample_i];
-        }
+    that.getQuery = function() {
+        // N.B. you should only use this inside a callback
+        return GeneAlterations.query(data);
     };
-})();
 
     return that;
 };
@@ -130,14 +92,36 @@ GeneAlterations.query = function(data) {
 
     return {
         geneByHugo : function(hugo) {
+            // returns all the data associated with a particular gene
+            // (a row in the oncoprint matrix)
             var index = data.hugo_to_gene_index[hugo];
 
             return data.gene_data[index];
         },
 
+        bySampleId : function(sample_id) {
+            // returns all the data associated with a particular sample
+            // (a column in the oncoprint matrix)
+            var index = data.samples[sample_id];
+
+            var toReturn = {};
+
+            data.gene_data.forEach(function(gene) {
+                toReturn[gene.hugo] = {
+                    mutation: gene.mutations[index],
+                    cna: gene.cna[index],
+                    mrna: gene.mrna[index],
+                    rppa: gene.rppa[index]
+                }
+            });
+
+            return toReturn;
+        },
+
         data : function(_sample_id, _gene, _data_type) {
             // _sample_id, _gene, _data_type -> data
             // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
+            // (an entry in the oncoprint matrix)
 
             var sample_i = data.samples[_sample_id];
             if (sample_i === undefined) {

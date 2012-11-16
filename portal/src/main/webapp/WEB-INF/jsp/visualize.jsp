@@ -214,6 +214,7 @@
             %>
 
 <script type="text/javascript" src="js/GeneAlterations.js"></script>
+<script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
     var cancer_study_id = "<%=cancerTypeId%>",

@@ -4,7 +4,7 @@ var GeneAlterations = function(sendData) {
     // the idea is that you can call fire and not have to worry about whether you need to make a new AJAX call or not.
 
     var json = 'GeneAlterations.json',      // json url
-        alterations = {},                   // alterations object, the return of the json 'to be'
+        data = {},                   // alterations object, the return of the json 'to be'
         listeners = [],                     // queue of callback functions
         that = {},                          // GeneAlterations object
         MAKE_NEW_REQUEST = true;            // indicates whether you should make a new request or not
@@ -42,13 +42,13 @@ var GeneAlterations = function(sendData) {
         if (MAKE_NEW_REQUEST) {
             $.post(json, sendData, function(returnData) {
                 // set alterations first, then fire callbacks
-                alterations = returnData;
-                fire_listeners(alterations);
+                data = returnData;
+                fire_listeners(data);
 
                 MAKE_NEW_REQUEST = false;
             });
         } else {
-            fire_listeners(alterations);
+            fire_listeners(data);
         }
     };
 
@@ -78,6 +78,30 @@ var GeneAlterations = function(sendData) {
         // flip on the switch since you just updated the sendData
     };
 
+    that.query = (function() {
+    // data query tools
+
+    return {
+        geneByHugo : function(hugo) {
+
+            var index = data.genes.map(function(i) { return i.hugo; })
+                .indexOf(hugo);
+
+            return data.genes[index];
+        },
+
+        mutationBySampleId: function(id) {
+            var index = data.samples.indexOf(id);
+
+            var toReturn = data.genes.map(function(i) {
+                return {hugo: i.hugo, mutation:i.mutations[index] };
+            });
+
+            return toReturn;
+        }
+    };
+})();
+
     return that;
 };
 
@@ -86,7 +110,7 @@ GeneAlterations.query = (function() {
 
     return {
         geneByHugo : function(hugo) {
-            for (var gene in alterations.data.genes) {
+            for (var gene in data.genes) {
                 if (gene.hugo === hugo) {
                     return gene;
                 } else {
@@ -95,7 +119,7 @@ GeneAlterations.query = (function() {
             }
         },
         mutationBySampleId: function(id) {
-
+            return 1;
         }
     };
 })();
@@ -157,11 +181,6 @@ GeneAlterations.test = function(sendData) {
     };
 
     geneAlterations.addListener(listen1);
-
-    geneAlterations.addListener(function(data)  {
-        console.log("QUERY mutationBySampleId, ", "TCGA-AA-A01D->",
-            GeneAlterations.query.mutationBySampleId(data, "TCGA-AA-A01D"));
-    });
 
     geneAlterations.addListener(endTest);
     geneAlterations.fire();

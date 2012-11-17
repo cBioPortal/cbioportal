@@ -10,6 +10,7 @@
 <%@ page import="org.json.simple.JSONValue" %>
 
 <%
+request.setAttribute("tumormap", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {

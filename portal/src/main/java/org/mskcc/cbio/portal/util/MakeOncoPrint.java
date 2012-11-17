@@ -235,7 +235,6 @@ public class MakeOncoPrint {
 		}
 
 		out.append("<script type=\"text/javascript\">\n");
-                out.append("\tvar tumormapUrl='"+SkinUtil.getTumorMapUrl()+"';\n");
                 out.append("\tvar cancerStudyId='"+cancerTypeID+"';\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));

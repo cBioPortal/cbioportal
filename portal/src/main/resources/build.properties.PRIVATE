@@ -19,7 +19,6 @@ log.file.path=/srv/www/sander-tomcat/tomcat6/logs/private-portal.log
 
 # Skin Configuration
 skin.title=cBio Private Portal
-skin.tumormap_title=cBio Tumor Map
 skin.blurb=Welcome to the <b>private</b> instance of the cBio Portal.  Access to this instance is only available to authorized users.
 skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/internal-form">Request Access</a>].
 skin.show_news_tab=false
@@ -28,8 +27,6 @@ skin.right_nav.show_data_sets=false
 skin.right_nav.show_examples=false
 skin.right_nav.show_testimonials=false
 
-cbioportal.url=
-tumormap.url=
 tumor_image.url=
 
 # Manager webapp username and password

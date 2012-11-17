@@ -12,12 +12,12 @@
 
 # Imports Copy Number Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_CNA.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_CNA.txt --dbmsAction clobber
-./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_log2CNA.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_log2CNA.txt --dbmsAction clobber
+#./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_log2CNA.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_log2CNA.txt --dbmsAction clobber
 
 # Imports MRNA Expression Data
-./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_expression_median.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_expression_median.txt --dbmsAction clobber
-./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_RNA_Seq_expression_median.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_RNA_Seq_expression_median.txt --dbmsAction clobber
-./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_mRNA_median_Zscores.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_mRNA_median_Zscores.txt --dbmsAction clobber
+#./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_expression_median.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_expression_median.txt --dbmsAction clobber
+#./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_RNA_Seq_expression_median.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_RNA_Seq_expression_median.txt --dbmsAction clobber
+#./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_mRNA_median_Zscores.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_mRNA_median_Zscores.txt --dbmsAction clobber
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_RNA_Seq_mRNA_median_Zscores.txt --meta $GDAC_CGDS_STAGING_HOME/ucec_tcga/meta_RNA_Seq_mRNA_median_Zscores.txt --dbmsAction clobber
 
 # Imports Methylation Data
@@ -34,4 +34,4 @@
 ./importGistic.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/data_GISTIC_GENE_DELS.txt ucec_tcga
 
 # Copy number segment
-./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/ucec_tcga.seg
+./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/ucec_tcga/ucec_tcga.seg ucec_tcga

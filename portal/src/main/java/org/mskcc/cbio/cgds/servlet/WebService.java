@@ -489,12 +489,7 @@ public class WebService extends HttpServlet {
      * messages are written out to catalina.out.
      */
     private void verifyDbConnection() {
-        //System.out.println("Verifying Database Connection...");
-        try {
-            //System.out.println("Attempting to retrieve Cancer Types...");
-            DaoCancerStudy.getAllCancerStudies();
-            //System.out.println("Database Connection -->  [OK]");
-        } catch (DaoException e) {
+        if (DaoCancerStudy.getCount()==0) {
             System.err.println("****  Fatal Error in CGDS.  Could not connect to "
                     + "database");
         }

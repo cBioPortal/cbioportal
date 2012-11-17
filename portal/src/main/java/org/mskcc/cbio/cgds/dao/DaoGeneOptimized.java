@@ -67,16 +67,19 @@ public class DaoGeneOptimized {
         }
         
         try {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(getClass().getResourceAsStream(IMPACT_GENES_FILE)));
-            for (String line=in.readLine(); line!=null; line=in.readLine()) {
-                if (geneSymbolMap.containsKey(line)) {
-                    impactGenes.add(line);
-                } else {
-                    System.err.println(line+" in the IMPACT gene list is not a HUGO gene symbol.");
+            if (geneSymbolMap.size()>10000) { 
+                // only for deployed version; not for unit test and importing
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(getClass().getResourceAsStream(IMPACT_GENES_FILE)));
+                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    if (geneSymbolMap.containsKey(line)) {
+                        impactGenes.add(line);
+                    } else {
+                        System.err.println(line+" in the IMPACT gene list is not a HUGO gene symbol.");
+                    }
                 }
+                in.close();
             }
-            in.close();
         } catch(IOException e) {
             e.printStackTrace();
         }

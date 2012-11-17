@@ -22,4 +22,4 @@
 ./importGistic.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/data_GISTIC_GENE_DELS.txt prad_tcga
 
 # Copy number segment
-./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/prad_tcga_scna_minus_germline_cnv_hg19.seg coadread_tcga
+./importCopyNumberSegmentData.pl $GDAC_CGDS_STAGING_HOME/prad_tcga/prad_tcga_scna_minus_germline_cnv_hg19.seg prad_tcga

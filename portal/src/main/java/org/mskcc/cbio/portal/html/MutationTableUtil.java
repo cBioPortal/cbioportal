@@ -134,12 +134,8 @@ public class MutationTableUtil
         //  Case ID.
         String caseId = HtmlUtil.getSafeWebValue(mutation.getCaseId());
         String cancerStudyStableId = null;
-        try {
-            int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(mutation.getGeneticProfileId()).getCancerStudyId();
-            cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId).getCancerStudyStableId();
-        } catch (DaoException ex) {
-            ex.printStackTrace();
-        }
+        int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(mutation.getGeneticProfileId()).getCancerStudyId();
+        cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId).getCancerStudyStableId();
         String htmlCaseId = "<a href='"
                 + SkinUtil.getLinkToPatientView(caseId, cancerStudyStableId)
                 + "'><b>" + caseId + "</b></a>";

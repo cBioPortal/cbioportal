@@ -91,7 +91,7 @@ function selectedCol(dt,col) {
 }
 
 // draw datatable
-function drawDataTable(tableId,dt,caseMap) {
+function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
     // set headers
     var nCol = dt.getNumberOfColumns();
     var headers = [];
@@ -148,7 +148,7 @@ function drawDataTable(tableId,dt,caseMap) {
                     if (type==='set') {
                         source[0]=value;
                     } else if (type==='display') {
-                        return formatPatientLink(source[0]);
+                        return formatPatientLink(source[0],cancerStudyId);
                     } else {
                         return source[0];
                     }
@@ -166,7 +166,7 @@ function drawDataTable(tableId,dt,caseMap) {
     }
     
     var oTable = $('#'+tableId).dataTable( {
-        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"pil>>',
+        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"lpi>>',
         "bJQueryUI": true,
         "bDestroy": true,
         "aaData": data,

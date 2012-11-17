@@ -438,6 +438,10 @@ function addDrugsTooltip(elem) {
     });
 }
 
+function formatPatientLink(caseId,cancerStudyId) {
+    return caseId==null?"":'<a title="Go to patient-centric view" href="tumormap.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
+}
+
 function trimHtml(html) {
     return html.replace(/<[^>]*>/g,"");
 }

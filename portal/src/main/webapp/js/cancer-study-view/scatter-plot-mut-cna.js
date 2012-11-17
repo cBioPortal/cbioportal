@@ -1,6 +1,6 @@
 
 
-function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,caseMap,hLog,vLog) {
+function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colCna,colMut,caseMap,hLog,vLog) {
         var scatterDataView = new google.visualization.DataView(dt);
         var params = [
             colCna,
@@ -28,7 +28,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
                 var s = scatter.getSelection();
                 if (s.length>1) return;
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-                $('#'+caseIdDiv).html(formatPatientLink(caseId));
+                $('#'+caseIdDiv).html(formatPatientLink(caseId,cancerStudyId));
                 csObs.fireSelection(caseId, divId);
                 resetSmallPlots();
             });
@@ -42,7 +42,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,dt,emphasisCaseId,colCna,colMut,case
                     if ((typeof caseId)==(typeof "")) {
                         var ix = caseMap[caseId];
                         scatter.setSelection(ix==null?null:[{'row': ix}]);
-                        $('#'+caseIdDiv).html(formatPatientLink(caseId));
+                        $('#'+caseIdDiv).html(formatPatientLink(caseId,cancerStudyId));
                     } else if ((typeof caseId)==(typeof {})) {
                         var rows = [];
                         for (var id in caseId) {

@@ -43,7 +43,7 @@
             if (caseId==null) {
                 $('#clinical-msg').hide();
             } else if ((typeof caseId)==(typeof '')) {
-                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId)+
+                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId,cancerStudyId)+
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
             } else if ((typeof caseId)==(typeof {})) {
@@ -54,7 +54,7 @@
                 if (numSelected==0) {
                     $('#clinical-msg').hide();
                 } else if (numSelected==1) {
-                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id)+
+                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id,cancerStudyId)+
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
                 } else {
@@ -111,7 +111,7 @@
             var vLog = maxMut>1000;
             if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
 
-            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,null,2,1,caseMap,false,vLog);
+            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',cancerStudyId,mutCnaDt,null,2,1,caseMap,false,vLog);
 
             $('#mut-cna-config').show();
 
@@ -150,7 +150,12 @@
             $('#summary-plot-table').show();
             resetSmallPlots(dt);
             var caseMap = getCaseMap(dt);
-            drawDataTable('clinical_table',dt,caseMap);
+            drawDataTable('clinical_table',dt,caseMap,cancerStudyId);
+            $('#clinical_table_filter').css('float', 'left')
+            $('#clinical_table_filter').css('text-align','left');
+            $('#clinical_table_length').css('float','left');
+            $('#clinical_table_info').css('float','left');
+            $('#clinical_table_paginate').css('float','left');
             $('#clinical_wrapper_table').show();
         }
     }
@@ -158,7 +163,7 @@
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,null,colCna,colMut,caseMap,hLog,vLog);
+        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',cancerStudyId,dt,null,colCna,colMut,caseMap,hLog,vLog);
     }
     
     var csObs = new CaseSelectObserver();

@@ -149,13 +149,13 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
-        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,dt,caseId,2,1,null,hLog,vLog);
+        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,cancerStudyId,dt,caseId,2,1,null,hLog,vLog);
         google.visualization.events.addListener(scatter, 'select', function(e){
             var s = scatter.getSelection();
             if (s.length>1) return;
             if (caseIdDiv) {
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-                $('#case-id-div').html(formatPatientLink(caseId));
+                $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
             }
         });
     }

@@ -199,6 +199,7 @@
                     },
                     {// cosmic
                         "aTargets": [ mutTableIndices["cosmic"] ],
+                        "sClass": "right-align-td",
                         "asSorting": ["desc", "asc"],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -217,9 +218,8 @@
                                 var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
                                     +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
-                                var width = Math.ceil(10*Math.min(4,Math.log(n)*Math.LOG10E));
-                                return  "<div class='mutation_percent_div "+table_id
-                                                +"-cosmic-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                return  "<span class='"+table_id
+                                                +"-cosmic-tip' alt='"+tip+"'>"+n+"</span>";
                             } else if (type==='sort') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
                                 var n = 0;

@@ -47,9 +47,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     $(document).ready(function(){
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
-        if (!genomicEventObs.hasMut||!genomicEventObs.hasCna) $('#mut-cna-scatter').hide();
+        if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
         if (showGenomicOverview) initGenomicsOverview();
-        if (genomicEventObs.hasMut&&genomicEventObs.hasCna) {
+        if (genomicEventObs.hasMut&&genomicEventObs.hasSeg) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
@@ -58,17 +58,17 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasCna?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasCna?150:50));
+        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         if (genomicEventObs.hasMut) {
             genomicEventObs.subscribeMut(function(){
-                plotMuts(paper,config,chmInfo,genomicEventObs.hasCna?1:0,genomicEventObs.mutations);
+                plotMuts(paper,config,chmInfo,genomicEventObs.hasSeg?1:0,genomicEventObs.mutations);
             });
         }
         
-        if (genomicEventObs.hasCna) {
+        if (genomicEventObs.hasSeg) {
             plotCopyNumberOverview(paper,config,chmInfo,genomicEventObs.hasMut);
         }
     }

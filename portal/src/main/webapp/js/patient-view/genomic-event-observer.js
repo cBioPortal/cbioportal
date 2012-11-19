@@ -1,10 +1,11 @@
 
-function GenomicEventObserver(hasMut, hasCna) {
+function GenomicEventObserver(hasMut, hasCna, hasSeg) {
     this.fns_mut_cna = [];
     this.fns_mut = [];
     this.fns_cna = [];
     this.hasMut = hasMut;
     this.hasCna = hasCna;
+    this.hasSeg = hasSeg;
     this.mutBuilt = false;
     this.cnaBuilt = false;
     this.mutations = new GenomicEventContainer;

@@ -252,7 +252,7 @@ var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
-var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
+var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 
 
 $(document).ready(function(){

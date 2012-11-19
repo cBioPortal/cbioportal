@@ -28,7 +28,8 @@ skin.data_sets_footer=Based on the Firehose run from 12/30/2011.
 manager.username=tomcat
 manager.password=tomcat
 
-tumor_image.url=
+tumor_image.url=http://cbio.mskcc.org/~jgao/
+tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/

@@ -21,6 +21,7 @@ String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.get
 List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
 String otherStudy = (String)request.getAttribute(PatientView.OTHER_STUDIES_WITH_SAME_PATIENT_ID);
 boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
+String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
@@ -108,6 +109,10 @@ if (patientViewError!=null) {
     <%if(showTissueImages){%>
     <li><a href='#images' class='patient-tab' title='Tissue Images'>Tissue Images</a></li>
     <%}%>
+    
+    <%if(pathReportUrl!=null){%>
+    <li><a href='#path-report' class='patient-tab' title='Pathology Report'>Pathology Report</a></li>
+    <%}%>
 
     <%if(showPathways){%>
     <li><a href='#pathways' class='patient-tab' title='Pathway View'>Network</a></li>
@@ -138,6 +143,12 @@ if (patientViewError!=null) {
     <%if(showTissueImages){%>
     <div class="patient-section" id="images">
         <%@ include file="tissue_images.jsp" %>
+    </div>
+    <%}%>
+
+    <%if(pathReportUrl!=null){%>
+    <div class="patient-section" id="path-report">
+        <%@ include file="path_report.jsp" %>
     </div>
     <%}%>
 

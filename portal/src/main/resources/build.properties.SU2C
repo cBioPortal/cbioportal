@@ -39,7 +39,7 @@ faq=faq_su2c.html
 popeye=preview_su2c.jsp
 skin.right_nav.show_testimonials=true
 
-tumor_image.url=
+tumor_image.url=http://cbio.mskcc.org/~jgao/
 
 # Skin Data Sets
 skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
@@ -58,3 +58,4 @@ bitly.api_key=[put your bitly api key here]
 
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5
+tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/

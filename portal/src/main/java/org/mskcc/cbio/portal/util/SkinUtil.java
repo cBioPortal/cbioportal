@@ -259,4 +259,13 @@ public class SkinUtil {
         String url = config.getProperty("tumor_image.url");
         return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
     }
+    
+    public static String getTCGAPathReportUrl(String typeOfCancer) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tcga_path_report.url");
+        if (url==null) {
+            return null;
+        }
+        return url.replace("{cancer.type}", typeOfCancer);
+    }
 }

@@ -27,7 +27,7 @@ skin.right_nav.show_data_sets=false
 skin.right_nav.show_examples=false
 skin.right_nav.show_testimonials=false
 
-tumor_image.url=
+tumor_image.url=http://cbio.mskcc.org/~jgao/
 
 # Manager webapp username and password
 manager.username=tomcat
@@ -48,3 +48,4 @@ bitly.api_key=[put your bitly api key here]
 
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5
+tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/

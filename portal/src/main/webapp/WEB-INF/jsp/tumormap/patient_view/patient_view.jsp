@@ -407,6 +407,9 @@ function addDrugsTooltip(elem) {
                             if (drug[2]) {
                                 txtDrug.push("Drug name:</b></td><td><b>"+drug[2]+"</b>");
                             }
+                            if (drug[1]) {
+                                txtDrug.push("Target:</b></td><td><b>"+drug[1]+"</b>");
+                            }
                             if (drug[3]) {
                                 txtDrug.push("Synonyms:</b></td><td>"+drug[3]);
                             }

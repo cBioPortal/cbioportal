@@ -121,6 +121,8 @@ public class PatientView extends HttpServlet {
         String caseId = (String) request.getAttribute(PATIENT_ID);
         String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
         
+        request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE); // by default; in case return false;
+        
         Case _case = null;
         CancerStudy cancerStudy = null;
         if (cancerStudyId==null) {
@@ -139,9 +141,10 @@ public class PatientView extends HttpServlet {
                     for (int i=1; i<nCases; i++) {
                         CancerStudy otherStudy = DaoCancerStudy.getCancerStudyByInternalId(cases.get(i)
                                 .getCancerStudyId());
-                        sb.append(" ").append(SkinUtil.getLinkToPatientView(caseId, otherStudy.getCancerStudyStableId())).append(",");
+                        sb.append(" <a href='").append(SkinUtil.getLinkToPatientView(caseId, otherStudy.getCancerStudyStableId()))
+                                .append("'>").append(otherStudy.getName()).append("</a>,");
                     }
-                    sb.deleteCharAt(sb.charAt(sb.length()-1));
+                    sb.deleteCharAt(sb.length()-1);
                     request.setAttribute(OTHER_STUDIES_WITH_SAME_PATIENT_ID, sb.toString());
                 }
             }

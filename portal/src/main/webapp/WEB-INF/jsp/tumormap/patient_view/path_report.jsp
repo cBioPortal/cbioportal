@@ -10,7 +10,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
     if ( $.browser.mozilla) { // firefox
-        var msg = "You can <ul><li>either install a PDF plugin such as <a href='https://addons.mozilla.org/en-US/firefox/addon/pdfjs/'>this one</a> and reflesh this page,</li>\n\
+        var msg = "You can <ul><li>either install a PDF plugin such as <a href='https://addons.mozilla.org/en-US/firefox/addon/pdfjs/'>this one</a> and refresh this page,</li>\n\
                    <li>or <a href='<%=pathReportUrl%>'>click here to download the pathology report PDF file</a>.</li></ul>"
         $("#missing-pdf-plugin").html(msg);
     }

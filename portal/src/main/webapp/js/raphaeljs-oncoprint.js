@@ -191,7 +191,7 @@ function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummar
  * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
-function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
+function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, cancerStudyId) {
 
 	// this is so row/col values are used in computation of x,y coords
 	oncoprint.use_immediate_coordinates = false;

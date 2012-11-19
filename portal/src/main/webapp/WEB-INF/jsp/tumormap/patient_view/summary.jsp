@@ -45,6 +45,11 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <script type="text/javascript">
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        if (<%=noData%>) {
+            $('div#summary').html("No mutation or copy number profile data is available for this tumor.");
+            return;
+        }
+        
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
         if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();

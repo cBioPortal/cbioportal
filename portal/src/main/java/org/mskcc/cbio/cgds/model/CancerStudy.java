@@ -284,7 +284,7 @@ public class CancerStudy {
      * @throws DaoException 
      */
     public boolean hasCnaSegmentData() throws DaoException {
-        return DaoCopyNumberSegment.segmentDataExist(studyID);
+        return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
     }
 
     /**

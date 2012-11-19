@@ -40,7 +40,7 @@ if (isDemoMode!=null) {
 boolean showPathways = showPlaceHoder & (showMutations | showCNA);
 boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
-boolean hasCnaSegmentData = cancerStudy.hasCnaSegmentData();
+boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA)) & showCNA;
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
@@ -48,6 +48,8 @@ double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOver
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;
 int numPatientInSameCnaProfile = 0;
+
+boolean noData = cnaProfile==null & mutationProfile==null;
 
 String mutationProfileStableId = null;
 String cnaProfileStableId = null;

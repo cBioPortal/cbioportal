@@ -42,6 +42,7 @@ public class PatientView extends HttpServlet {
     public static final String OTHER_STUDIES_WITH_SAME_PATIENT_ID = "other_studies_with_same_patient_id";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
+    public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
@@ -169,6 +170,9 @@ public class PatientView extends HttpServlet {
         
         request.setAttribute(PATIENT_CASE_OBJ, _case);
         request.setAttribute(CANCER_STUDY, cancerStudy);
+        
+        request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
+                .segmentDataExistForCase(cancerStudy.getInternalId(), caseId));
         return true;
     }
     

@@ -217,6 +217,24 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
+	 * Creates (or overwrites) the given file with the given contents.
+	 *
+	 * @param directory String
+	 * @param filename String
+	 * @param fileContent String
+	 * @return File
+	 */
+	@Override
+	public File createFileWithContents(final String directory, final String filename, final String fileContent) throws Exception {
+
+		File file = org.apache.commons.io.FileUtils.getFile(directory, filename);
+		org.apache.commons.io.FileUtils.writeStringToFile(file, fileContent, false);
+
+		// outta here
+		return file;
+	}
+
+	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
 	 * @param urlString String

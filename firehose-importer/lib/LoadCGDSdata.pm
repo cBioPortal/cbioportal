@@ -205,7 +205,7 @@ sub load_cancer_data{
 	  my $fullCanonicalSegDataFile = File::Spec->catfile( @pathToDataFile, $cancerDataDir . '_scna_minus_germline_cnv_hg19.seg' );
 	  if ( $fileUtil->existent($fullCanonicalSegDataFile) ) {
 		print "importingCopyNumberSegentData(hg19): $fullCanonicalSegDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCopyNumberSegmentData " . $fullCanonicalSegDataFile );
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCopyNumberSegmentData " . $fullCanonicalSegDataFile . ' ' . $cancerDataDir );
 	  }
 
 	  # import gistic gene amp file

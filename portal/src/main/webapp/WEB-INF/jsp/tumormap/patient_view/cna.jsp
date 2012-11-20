@@ -112,7 +112,7 @@
                                     var tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
                                                 +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                                     ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
+                                        +tip+"' src='images/gistic.png' width=12 height=12>";
                                 }
                                 
                                 return ret;
@@ -197,12 +197,16 @@
                 
                 // summary table
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
-                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25, "No CNA events of interest");
-                $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
-                        +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
-                $('.cna-show-more').addClass('datatable-show-more');
+                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pl>>',25, "No CNA events of interest");
+                var numFiltered = genomicEventObs.cnas.getNumEvents(true);
+                var numAll = genomicEventObs.cnas.getNumEvents(false);
                 $('.cna-summary-table-name').html(
-                    "CNA of interest <img id='cna-summary-help' src='images/help.png'\n\
+                    "CNA of interest ("
+                        +numFiltered
+                        +" of <a href='#cna' onclick='switchToTab(\"cna\");return false;'\n\
+                         title='Show more copy number alterations of this patient'>"
+                        +numAll
+                        +"</a>) <img id='cna-summary-help' src='images/help.png'\n\
                      title='This table contains copy-number-altered genes that are \n\
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\

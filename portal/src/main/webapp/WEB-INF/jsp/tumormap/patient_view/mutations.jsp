@@ -56,7 +56,7 @@
                                     aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
-                                    ret += "&nbsp;<span style='background-color:red;font-size:small;' class='"
+                                    ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>"
                                 return ret;
                             } else {
@@ -419,12 +419,16 @@
                 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25, "No mutation events of interest");
-                $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
-                    +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
-                $('.mutation-show-more').addClass('datatable-show-more');
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"datatable-paging"pl>>', 25, "No mutation events of interest");
+                var numFiltered = genomicEventObs.mutations.getNumEvents(true);
+                var numAll = genomicEventObs.mutations.getNumEvents(false);
                 $('.mutation-summary-table-name').html(
-                    "Mutations of interest <img id='mutations-summary-help' src='images/help.png' \n\
+                    "Mutations of interest ("
+                        +numFiltered
+                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                         title='Show more mutations of this patient'>"
+                        +numAll
+                        +"</a>) <img id='mutations-summary-help' src='images/help.png' \n\
                         title='This table contains somatic mutations in genes that are \n\
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\

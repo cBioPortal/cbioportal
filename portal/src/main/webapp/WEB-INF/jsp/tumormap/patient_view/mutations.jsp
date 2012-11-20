@@ -56,8 +56,8 @@
                                     aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
-                                    ret += "&nbsp;<span style='background-color:red;' class='"
-                                            +table_id+"-tip' alt='Germline mutation'>G</span>"
+                                    ret += "&nbsp;<span style='background-color:red;font-size:small;' class='"
+                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>"
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], 'aa');
@@ -424,12 +424,18 @@
                     +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
                 $('.mutation-summary-table-name').html(
-                    "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
-                        title='This table contains genes that are either \n\
-                        annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q < 0.05; if MutSig results are not available,\n\
-                        mutated in > 5% of samples in the study) \n\
-                        or with > 5 COSMIC overlapping mutations.'/>");
+                    "Mutations of interest <img id='mutations-summary-help' src='images/help.png' \n\
+                        title='This table contains somatic mutations in genes that are \n\
+                        <ul><li>either annotated cancer genes</li>\n\
+                        <li>or recurrently mutated, namely\n\
+                            <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
+                            <li>otherwise, mutated in > 5% of samples in the study</li></ul> </li>\n\
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                $('#mutations-summary-help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    position: { my:'top center',at:'bottom center' }
+                });
                 $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
@@ -442,10 +448,6 @@
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
-
-                // help
-                $('.mutations_help').tipTip();
-                
             }
             ,"json"
         );

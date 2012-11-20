@@ -202,11 +202,17 @@
                         +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
                 $('.cna-show-more').addClass('datatable-show-more');
                 $('.cna-summary-table-name').html(
-                    "CNA of interest <img class='cna_help' src='images/help.png'\n\
-                     title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (contained in a Gistic peak with less than\n\
-                     10 genes and Q < 0.05; if Gistic results are not available,\n\
-                     genes are altered in >5% of samples in the study).'/>");
+                    "CNA of interest <img id='cna-summary-help' src='images/help.png'\n\
+                     title='This table contains copy-number-altered genes that are \n\
+                     <ul><li>either annotated cancer genes</li>\n\
+                     <li>or recurrently copy number altered, namely\n\
+                        <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\
+                        <li>otherwise, altered in >5% of samples in the study).</li></ul></li></ul>'/>");
+                $('#cna-summary-help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    position: { my:'top center',at:'bottom center' }
+                });
                 $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
@@ -219,9 +225,6 @@
                 $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
-
-                // help
-                $('.cna_help').tipTip();
             }
             ,"json"
         );

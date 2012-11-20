@@ -194,6 +194,9 @@ if (patientViewError!=null) {
                 float: left;
                 margin-bottom: 0
         }
+        .dataTables_filter {
+                width: 40%;
+        }
         .dataTables_length {
                 width: auto;
                 float: right;
@@ -247,9 +250,6 @@ if (patientViewError!=null) {
                 font-weight: bold;
                 font-size: 120%;
                 vertical-align: middle;
-        }
-        .datatable-show-more {
-            float: left;
         }
 </style>
 

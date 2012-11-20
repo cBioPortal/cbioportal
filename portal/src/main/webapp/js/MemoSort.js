@@ -8,92 +8,168 @@ var MemoSort = function(geneAlterations, sort_by) {
     // amp > del > 0
     //
 
+    var that = {};
+
     //todo: this depends on d3, would require a little bit more work to extract those values
+    var samples_map = d3.map(geneAlterations.samples);
 
-//    console.log('geneAlterations', geneAlterations);
+    // get the array of samples in their proper order
+    var samples = d3.map(geneAlterations.samples).keys()
+        .sort(function(a,b) {
+            return samples_map[b] - samples_map[a];
+        });
 
-    var gene_index = geneAlterations.hugo_to_gene_index[sort_by],
-        gene_data = geneAlterations.gene_data[gene_index];
+    var gene_data = geneAlterations.gene_data;
 
-    var samples = geneAlterations.samples,
-        samples_l = d3.map(samples).keys()
-            .sort(function(a, b) { return samples[a] - samples[b];});
+    var query = GeneAlterations.query(geneAlterations);
 
-    console.log("samples_l sanity check: ", samples[samples_l[0]]===0);
+    var elm_order = function(elm1, elm2) {
+        // helper function that orders elements of the oncoprint matrix (i.e. a single rectangle position)
+        //
+        // elm1 and elm2 look like this:
+        // { mut: ~, cna: ~, mrna: ~, rppa: ~ }
+        // where '~' stands for some data value
 
-    // lets zip all the data together into one list of objects
-    var zipped = d3.zip(gene_data.cna, gene_data.mutations, gene_data.mrna, gene_data.rppa, samples_l);
+        var UPREGULATED = "UPREGULATED",
+            DOWNREGULATED = "DOWNREGULATED",
+            AMPLIFIED = "AMPLIFIED",
+            DELETED = "HOMODELETED";
 
-    var zipped = zipped.map(function(i) {
-        return {
-            cna: i[0],
-            mutation: i[1],
-            mrna: i[2],
-            rppa: i[3],
-            sample_id: i[4]
+        var cna1 = elm1.cna,
+            cna2 = elm2.cna,
+            mut1 = elm1.mutation,
+            mut2 = elm2.mutation,
+            mrna1 = elm1.mrna,
+            mrna2 = elm2.mrna,
+            rppa1 = elm1.rppa,
+            rppa2 = elm2.rppa;
+
         };
-    });
 
-    var cna_order = {null: 0, "DELETED": 0, "AMPLIFIED": 1},
-        regulated_order = {null: 0, "DOWNREGULATED ": 1, "UPREGULATED": 2},
-        mutation_order = function(a, b) {
-            if (a !== null && b !== null) {
-                return 0;
+    that.comparator = function(s1, s2) {
+        var cna_order = {"AMPLIFIED": 2, "DELETED": 1, null: 0},
+            regulated_order = {"UPREGULATED": 2, "DOWNREGULATED": 1, null: 0};
+
+        // list of genes with corresponding alteration data
+        var sample1 = query.bySampleId(s1),
+            sample2 = query.bySampleId(s2);
+
+        // alterations for the gene we want to sort by
+        sample1 = sample1[sort_by];
+        sample2 = sample2[sort_by];
+//        console.log('sample', sample1);
+
+        // diffs
+        var cna = cna_order[sample1.cna] - cna_order[sample2.cna],
+            mutation,
+            mrna = regulated_order[sample1.mrna] - regulated_order[sample2.mrna],
+            rppa = regulated_order[sample1.rppa] - regulated_order[sample2.rppa];
+
+        // figure out the mutation diff
+        if (sample1.mutation === null && sample2 === null) {
+            mutation = 0;
+        } else if (sample1.mutation === null) {
+            mutation = 1;
+        } else {
+            mutation = -1;
+        }
+
+        // do some logic
+        // cna > mutation > mrna > rppa
+        if (cna > 0) {
+            return 1;
+        }
+        else if (cna < 0) {
+            return -1;
+        }
+        else {
+            if (mutation > 0) {
+                return 1;
             }
-            if (a === null && b === null) {
-                return 0
-            }
-            if (a === null) {
+            else if (mutation < 0) {
                 return -1;
             }
-            if (b === null) {
-                return 1;
-            } else {
-                throw "fell through";
+            else {
+                if (mrna > 0) {
+                    return 1;
+                }
+                else if (mrna < 0) {
+                    return -1;
+                }
+                else {
+                    if (rppa > 0) {
+                        return 1;
+                    }
+                    else if (rppa < 0) {
+                        return -1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
             }
-        };
+        }
+    };
 
-    NEST = d3.nest()
-        .key(function(d) { return d.cna; }).sortKeys(function(a, b) {return cna_order[b] - cna_order[a]})
-        .key(function(d) { return d.mutation; }).sortKeys(function(a,b) { return mutation_order(a,b);})
-        .key(function(d) { return d.mrna; }).sortKeys(function(a,b) {return regulated_order[a] - regulated_order[b]})
-        .key(function(d) { return d.rppa; }).sortKeys(function(a,b) {return regulated_order[a] - regulated_order[b]})
-        .rollup(function(d) { return d.sample_id; })
-        .entries(zipped);
+    that.sort = function() {
+        var sorted_samples = samples.sort(that.comparator);
+        var toReturn = geneAlterations.samples;
 
-//    console.log("zipped", zipped, zipped.length, d3.map(geneAlterations.samples).keys().length);
+        var index = 0;
+        sorted_samples.forEach(function(i) {
+            toReturn[i] = index;
+            index += 1;
+        });
+
+        return toReturn;
+    };
+
+    return that;
  };
 
 MemoSort.test = function(testData) {
     console.log("====MemoSort Test====");
 
     var dumbData = {
-            hugo_to_gene_index: {"gene1": 0, "gene2": 1},
-            samples: {"TCGA1": 0, "TCGA2":1, "TCGA3":2},
-            gene_data: [
-                { hugo: "gene1",
-                    percent_altered: "100%",
-                    cna: ["AMPLIFIED", "HOMODELETED", null],
-                    rppa: [null, "UPREGULATED", "UPREGULATED"],
-                    mutations: ["mut1", null, "mut2"],
-                    mrna: ["UPREGULATED", null, "DOWNREGULATED"] },
+        hugo_to_gene_index: {"EGFR": 0, "TP53": 1},
+        samples: {"TCGA-1": 0, "TCGA-2":1, "TCGA-3":2},
+        gene_data: [
+            { hugo: "EGFR",
+                percent_altered: "100%",
+                cna: ["AMPLIFIED", "AMPLIFIED", null],
+                mutations: [["mut-1", "mut-2"], null, "mut2"],
+                rppa: [null, "UPREGULATED", "UPREGULATED"],
+                mrna: ["UPREGULATED", null, "DOWNREGULATED"] },
 
-                { hugo: "gene2",
-                    percent_altered: "100%",
-                    cna: ["AMPLIFIED", "HOMODELETED", null],
-                    rppa: [null, "UPREGULATED", "UPREGULATED"],
-                    mutations: ["mut1", null, "mut2"],
-                    mrna: ["UPREGULATED", null, "DOWNREGULATED"] },
-            ]
-        };
+            { hugo: "TP53",
+                percent_altered: "100%",
+                cna: ["AMPLIFIED", "HOMODELETED", null],
+                rppa: [null, "UPREGULATED", "UPREGULATED"],
+                mutations: [["mut-1", "mut-2"], null, "mut2"],
+                mrna: ["UPREGULATED", null, "DOWNREGULATED"] }
+        ]
+    };
 
     testData = testData || dumbData;
 
-    MemoSort(testData, ["gene1", "gene2"]);
+    var query = GeneAlterations.query(dumbData);
+
+    var one = query.bySampleId("TCGA-1").EGFR;
+    var two = query.bySampleId("TCGA-2").EGFR;
+    var three = query.bySampleId("TCGA-3").EGFR;
+    console.log('one', one, '\ntwo', two, '\nthree', three);
+
+    // test the comparator
+    var memoSort = MemoSort(testData, "EGFR");
+    var comparatorReturn = memoSort.comparator("TCGA-1", "TCGA-2");
+    console.log('TCGA-1', 'TCGA-2', comparatorReturn);
+    comparatorReturn = memoSort.comparator("TCGA-2", "TCGA-3");
+    console.log('TCGA-2', 'TCGA-3', comparatorReturn);
+
 
     console.log("====END====");
 };
 
-//$(document).ready(function() {
-//    MemoSort.test();
-//});
+$(document).ready(function() {
+    MemoSort.test();
+});

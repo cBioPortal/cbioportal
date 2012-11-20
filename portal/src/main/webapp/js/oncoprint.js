@@ -9,6 +9,7 @@ var OncoPrint = function(params) {
 
     var samples = d3.map(params.data.samples),
         no_samples = samples.keys().length,
+        sorted_samples = samples.keys().sort(function(x,y) { return samples.get(y) - samples.get(x);}),
         gene_indexes = d3.map(samples.huo_to_gene_index),
         gene_data = params.data.gene_data,
         no_genes = gene_data.length;
@@ -29,7 +30,7 @@ var OncoPrint = function(params) {
 
     var calcLaneWidth = function(rectWidth, no_samples) {
         // lane : the rectangles
-        // track : the label and the rectangles together, this is just my naming convention
+        // track : the label and the rectangles together, this is just my naming convention,
         return no_samples * rectWidth;
     };
 
@@ -104,7 +105,7 @@ var OncoPrint = function(params) {
 
             })
             .attr('id', function(d, i) {
-                return samples.get(i);      // index back into the array of samples
+                return sorted_samples[i];      // index back into the array of samples
             })
             .attr('width', rectWidth)
             .attr('height', rectHeight)
@@ -128,7 +129,7 @@ var OncoPrint = function(params) {
                 return 'mutation ' + (d !== null ? "mut" : "none");
             })
             .attr('id', function(d, i) {
-                return samples.get(i);
+                return sorted_samples[i];
             })
             .attr('width', littleRectWidth)
             .attr('height', littleRectHeight)
@@ -194,6 +195,20 @@ var OncoPrint = function(params) {
 
             trackNum +=1;
         });
+    };
+
+    that.sort = function(svg, new_indexes) {
+        svg.selectAll('rect')
+            .transition()
+//            .ease()
+            .delay(2000)
+            .duration(1000)
+            .attr('x', function(d, i) {
+               var sample_id = this.getAttribute('id');
+
+               var pos = x(new_indexes[sample_id] % no_samples);
+               return toggleRectPadding === 0 ? pos : pos * rectPadding;
+            });
     };
 
     that.insertFullOncoPrint = function(div) {
@@ -315,6 +330,12 @@ var OncoPrint = function(params) {
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
         that.drawTracks(svg, genes);
+
+        var sorted = MemoSort(params.data, ["EGFR", "TP53"]);
+
+        that.sort(svg, sorted);
+
+//        SORT = function() { that.sort(svg, sorted); return sorted; };
     };
 
 

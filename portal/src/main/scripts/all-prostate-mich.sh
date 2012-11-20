@@ -14,7 +14,7 @@
 ./importProfileData.pl --data $CGDS_DATA_HOME/private-override/prad_mich/data_CNA.txt --meta $CGDS_DATA_HOME/private-override/prad_mich/meta_CNA.txt --dbmsAction clobber
 
 # Copy number segment
-#./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/private-override/prad_mich/prad_mich_scna_hg18.seg coadread_tcga
+#./importCopyNumberSegmentData.pl $CGDS_DATA_HOME/private-override/prad_mich/prad_mich_scna_hg18.seg prad_mich
 
 # Imports MRNA Expression Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/private-override/prad_mich/data_expression_median.txt --meta $CGDS_DATA_HOME/private-override/prad_mich/meta_expression_median.txt --dbmsAction clobber

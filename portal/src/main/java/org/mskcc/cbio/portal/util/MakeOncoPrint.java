@@ -271,7 +271,7 @@ public class MakeOncoPrint {
 
 		// on document ready, draw oncoprint header, oncoprint, oncoprint legend - comes after raphaeljs divs
 		out.append("<script type=\"text/javascript\">\n");
-		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
+		out.append(writeOncoPrintDocumentReadyJavascript(cancerTypeID, oncoprintSection, oncoprintReferenceVarName,
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
@@ -511,7 +511,7 @@ public class MakeOncoPrint {
 	 *
 	 * @return String
 	 */
-	static String writeOncoPrintDocumentReadyJavascript(String oncoprintSectionVarName,
+	static String writeOncoPrintDocumentReadyJavascript(String cancerTypeID, String oncoprintSectionVarName,
 														String oncoprintReferenceVarName,
 														String headerElement,
 														String bodyElement,
@@ -560,7 +560,7 @@ public class MakeOncoPrint {
 			// draw oncoprint
 			builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
-						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'));\n");
+						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'),'"+cancerTypeID+"');\n");
 
 			// draw legend
 			builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
@@ -713,11 +713,11 @@ public class MakeOncoPrint {
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} else { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
@@ -741,7 +741,7 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} else { " +
@@ -749,7 +749,7 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} " +
@@ -782,14 +782,14 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),cancerTypeID); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "}" +

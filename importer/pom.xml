@@ -221,6 +221,7 @@
 	  <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>jaxws-maven-plugin</artifactId>
+		<version>1.10</version>
 		<executions>
 		  <execution>
             <goals>
@@ -231,6 +232,8 @@
 				<wsdlUrl>http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
 			  </wsdlUrls>
 			  <packageName>org.foundation</packageName>
+			  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
+			  <staleFile>${project.build.directory}/generated-sources</staleFile>
             </configuration>
 		  </execution>
 		</executions>

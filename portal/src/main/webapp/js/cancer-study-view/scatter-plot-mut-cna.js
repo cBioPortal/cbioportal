@@ -58,7 +58,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colC
         }
         
         var options = {
-            hAxis: {title: "Copy number alteration fraction", logScale:hLog, format:'#%'},
+            hAxis: {title: "Fraction of copy number altered genome", logScale:hLog, format:'#%'},
             vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
             legend: {position:'none'}
         };
@@ -104,7 +104,7 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
             function(cnaFracs){
                 var wrapper = new DataTableWrapper();
                 // TODO: what if no segment available
-                wrapper.setDataMap(cnaFracs,['case_id','copy_number_altered_fraction']);
+                wrapper.setDataMap(cnaFracs,['case_id','fraction_of_copy_number_altered_genome']);
                 cnaDataTable = wrapper.dataTable;
                 mergeTablesAndCallFunc(mutationProfileId,hasCnaSegmentData,
                             mutDataTable,cnaDataTable,func);

@@ -29,7 +29,7 @@
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI GenBank</a>";
+                                    +entrez+"\">NCBI Gene</a>";
                                 var sanger = mutations.getValue(source[0], 'sanger');
                                 if (sanger) {
                                     tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="

@@ -11,8 +11,9 @@
 }
 #clinical-data-table-div {
     width: 1200px;
+    height: 500px;
     overflow-x:scroll;
-    overflow-y:hidden;
+    overflow-y:scroll;
 }
 #clinical-msg {
     background-color: lightyellow;
@@ -26,7 +27,7 @@
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         $('#summary-plot-table').hide();
-        $('#clinical_wrapper_table').hide();
+        $('#clinical-data-table-div').hide();
         if (!mutationProfileId||!hasCnaSegmentData) {
             $('#summary-plot-table').html(""); // remove all if no cna-mut plot
                                                // small plots will be auto generated
@@ -153,10 +154,7 @@
             drawDataTable('clinical_table',dt,caseMap,cancerStudyId);
             $('#clinical_table_filter').css('float', 'left')
             $('#clinical_table_filter').css('text-align','left');
-            $('#clinical_table_length').css('float','left');
-            $('#clinical_table_info').css('float','left');
-            $('#clinical_table_paginate').css('float','left');
-            $('#clinical_wrapper_table').show();
+            $('#clinical-data-table-div').show();
         }
     }
     
@@ -194,16 +192,10 @@
 &nbsp;<br/>        
       
 <div id="clinical-data-table-div">
-<table cellpadding="0" cellspacing="0" border="0" id="clinical_wrapper_table" width="100%">
-    <tr>
-        <td>
-            <table cellpadding="0" cellspacing="0" border="0" class="display" id="clinical_table">
-                <thead>
-                    <tr valign="bottom">
-                    </tr>
-                </thead>
-            </table>
-        </td>
-    </tr>
-</table>
+    <table cellpadding="0" cellspacing="0" border="0" class="display" id="clinical_table">
+        <thead>
+            <tr valign="bottom">
+            </tr>
+        </thead>
+    </table>
 </div>

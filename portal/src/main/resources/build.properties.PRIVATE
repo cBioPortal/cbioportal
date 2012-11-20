@@ -27,7 +27,7 @@ skin.right_nav.show_data_sets=false
 skin.right_nav.show_examples=false
 skin.right_nav.show_testimonials=false
 
-tumor_image.url=http://cbio.mskcc.org/~jgao/
+tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 
 # Manager webapp username and password
 manager.username=tomcat

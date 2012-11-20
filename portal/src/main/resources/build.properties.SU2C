@@ -39,7 +39,7 @@ faq=faq_su2c.html
 popeye=preview_su2c.jsp
 skin.right_nav.show_testimonials=true
 
-tumor_image.url=http://cbio.mskcc.org/~jgao/
+tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 
 # Skin Data Sets
 skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.

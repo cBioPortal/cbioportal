@@ -29,7 +29,7 @@
                                 var gene = cnas.getValue(source[0], "gene");
                                 var entrez = cnas.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI GenBank</a>";
+                                    +entrez+"\">NCBI Gene</a>";
                                 var sanger = cnas.getValue(source[0], 'sanger');
                                 if (sanger) {
                                     tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
@@ -207,7 +207,7 @@
                          title='Show more copy number alterations of this patient'>"
                         +numAll
                         +"</a>) <img id='cna-summary-help' src='images/help.png'\n\
-                     title='This table contains copy-number-altered genes that are \n\
+                     title='This table contains copy number altered genes that are \n\
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\
                         <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\

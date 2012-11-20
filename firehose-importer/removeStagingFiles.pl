@@ -57,7 +57,7 @@ sub main{
     	my $cancerDirectory = $_;
 		my $stagingAreaCancerDirectory = File::Spec->catdir($stagingFilesDirectory, $cancerDirectory);
 
-		# remove the MAF & meta if found
+		# remove the MAF & meta & mutsig if found
 		my $toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'data_mutations_extended.txt');
 		if (-e $toRemove) {
 			if (exists($cancerMAFFilesToSkip{$cancerDirectory})) {
@@ -69,6 +69,11 @@ sub main{
 				$toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'meta_mutations_extended.txt');
 				if (-e $toRemove) {
 					print "removing meta file from staging area: $toRemove\n";
+					system("rm -f $toRemove"); 
+				}
+				$toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'data_mutsig.txt');
+				if (-e $toRemove) {
+					print "removing mutsig file from staging area: $toRemove\n";
 					system("rm -f $toRemove"); 
 				}
 			}

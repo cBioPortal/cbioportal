@@ -104,7 +104,7 @@ public class MutationTableDataServlet extends HttpServlet
 		jsonObject.put("header", headerList);
 		jsonObject.put("mutations", rows);
 		jsonObject.put("footerMsg", this.getTableFooterMessage(specialGene));
-		jsonObject.put("hugoGeneSymbol", "geneSymbol");
+		jsonObject.put("hugoGeneSymbol", geneSymbol);
 
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();

@@ -331,9 +331,9 @@ var OncoPrint = function(params) {
 
         that.drawTracks(svg, genes);
 
-        var sorted = MemoSort(params.data, ["EGFR", "TP53"]);
+        var sorted = MemoSort(params.data, "EGFR");
 
-        that.sort(svg, sorted);
+//        that.sort(svg, sorted);
 
 //        SORT = function() { that.sort(svg, sorted); return sorted; };
     };

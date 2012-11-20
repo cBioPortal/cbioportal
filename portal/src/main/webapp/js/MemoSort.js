@@ -10,120 +10,58 @@ var MemoSort = function(geneAlterations, sort_by) {
 
     //todo: this depends on d3, would require a little bit more work to extract those values
 
-    var samples_map = d3.map(geneAlterations.samples);
+//    console.log('geneAlterations', geneAlterations);
 
-    // get the array of samples in their proper order
-    var samples = d3.map(geneAlterations.samples).keys()
-        .sort(function(a,b) {
-            return samples_map[b] - samples_map[a];
-        });
+    var gene_index = geneAlterations.hugo_to_gene_index[sort_by],
+        gene_data = geneAlterations.gene_data[gene_index];
 
-    var gene_data = geneAlterations.gene_data;
+    var samples = geneAlterations.samples,
+        samples_l = d3.map(samples).keys()
+            .sort(function(a, b) { return samples[a] - samples[b];});
 
-    var query = GeneAlterations.query(geneAlterations);
+    console.log("samples_l sanity check: ", samples[samples_l[0]]===0);
 
-    var elm_order = function(elm1, elm2) {
-        // helper function that orders elements of the oncoprint matrix (i.e. a single rectangle position)
-        //
-        // elm1 and elm2 look like this:
-        // { mut: ~, cna: ~, mrna: ~, rppa: ~ }
-        // where '~' stands for some data value
+    // lets zip all the data together into one list of objects
+    var zipped = d3.zip(gene_data.cna, gene_data.mutations, gene_data.mrna, gene_data.rppa, samples_l);
 
-        var UPREGULATED = "UPREGULATED",
-            DOWNREGULATED = "DOWNREGULATED",
-            AMPLIFIED = "AMPLIFIED",
-            DELETED = "HOMODELETED";
-
-        var cna1 = elm1.cna,
-            cna2 = elm2.cna,
-            mut1 = elm1.mutation,
-            mut2 = elm2.mutation,
-            mrna1 = elm1.mrna,
-            mrna2 = elm2.mrna,
-            rppa1 = elm1.rppa,
-            rppa2 = elm2.rppa;
-
-        // the functions below are merely scopes that serve to factor the logic of ordering
-        var order_mut = function() {
-            if (mut1 !== null && mut2 !== null) {
-                if (mrna1 === mrna2) {
-                    if (rppa1 === rppa2) {
-                        return 0;
-                    } else {
-                        orderUpDownRegulation(rppa1, rppa2);
-                    }
-                } else {
-                    orderUpDownRegulation(mrna1, mrna2);
-                }
-            } else if (mut1 === null) {
-                return 1;
-            } else if (mut2 === null) {
-                return -1;
-            } else {
-                // this is never executed
-                console.log("function order_mut ", "fell through");
-            }
+    var zipped = zipped.map(function(i) {
+        return {
+            cna: i[0],
+            mutation: i[1],
+            mrna: i[2],
+            rppa: i[3],
+            sample_id: i[4]
         };
-
-        var orderUpDownRegulation = function(x1, x2) {
-            if (x1 === UPREGULATED) {
-                return -1;
-            } else if (x2 === UPREGULATED) {
-                return 1;
-            } else if (x1 === DOWNREGULATED) {
-                return -1;
-            } else if (x2 === DOWNREGULATED) {
-                return 1;
-            }  else {
-                // this is never executed
-                console.log("function orderUpDownRegulation ", "fell through");
-            }
-        };
-
-        if (cna1 === cna2) {
-            order_mut();
-        } else if (cna1 === AMPLIFIED) {
-            return -1;
-        } else if (cna2 === AMPLIFIED) {
-            return 1;
-        } else if (cna1 === DELETED) {
-            return -1;
-        } else if (cna2 === DELETED) {
-            return 1;
-        } else {
-            // this is never executed
-            console.log("this shouldn't have been executed!");
-        }
-    };
-
-    var sort_helper = function(s1, s2) {
-
-        var sample_1 = query.bySampleId(s1);
-        var sample_2 = query.bySampleId(s2);
-
-//        hugo_l.forEach(function(i) {
-//
-//            var order = elm_order(sample_1[i], sample_2[i]);
-//
-//            if (order !== 0) { return order; }
-//        });
-
-        elm_order(sample_1[hugo_l[0]], sample_1[hugo_l[1]]);
-
-        return 0;
-    };
-
-    var sorted_samples = samples.sort(sort_helper);
-
-    var toReturn = geneAlterations.samples;
-
-    var index = 0;
-    sorted_samples.forEach(function(i) {
-        toReturn[i] = index;
-        index += 1;
     });
 
-    return toReturn;
+    var cna_order = {null: 0, "DELETED": 0, "AMPLIFIED": 1},
+        regulated_order = {null: 0, "DOWNREGULATED ": 1, "UPREGULATED": 2},
+        mutation_order = function(a, b) {
+            if (a !== null && b !== null) {
+                return 0;
+            }
+            if (a === null && b === null) {
+                return 0
+            }
+            if (a === null) {
+                return -1;
+            }
+            if (b === null) {
+                return 1;
+            } else {
+                throw "fell through";
+            }
+        };
+
+    NEST = d3.nest()
+        .key(function(d) { return d.cna; }).sortKeys(function(a, b) {return cna_order[b] - cna_order[a]})
+        .key(function(d) { return d.mutation; }).sortKeys(function(a,b) { return mutation_order(a,b);})
+        .key(function(d) { return d.mrna; }).sortKeys(function(a,b) {return regulated_order[a] - regulated_order[b]})
+        .key(function(d) { return d.rppa; }).sortKeys(function(a,b) {return regulated_order[a] - regulated_order[b]})
+        .rollup(function(d) { return d.sample_id; })
+        .entries(zipped);
+
+//    console.log("zipped", zipped, zipped.length, d3.map(geneAlterations.samples).keys().length);
  };
 
 MemoSort.test = function(testData) {

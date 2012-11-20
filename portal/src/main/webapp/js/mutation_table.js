@@ -133,47 +133,112 @@ function drawMutationTable(data)
     var divId = "mutation_table_" + data.hugoGeneSymbol;
     var tableId = "mutation_details_table_" + data.hugoGeneSymbol;
 
+    $("#" + divId).empty();
+
     // TODO gene.touppercase?
-    $("#" + divId).append(
-        "<table cellpadding='0' cellspacing='0' border='0' " +
-        "class='display mutation_details_table' " +
-        "id='" + tableId + "'></table>");
-
-    var rows = _getMutationTableRows(data);
-    var columns = _getMutationTableColumns(data);
+    $("#" + divId).append(_generateMutationTable(tableId, data));
 
 
-    var oTable = $("#" + tableId).dataTable({
-      //"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
-      //"bJQueryUI": true,
-      //"bPaginate": false,
-      //"bFilter": true,
-      "aaData" : rows,
-      "aoColumns" : columns
-//      "aoColumnDefs":[
-//          {"sType": 'aa-change-col',
-//              "aTargets": [ 1 ]},
-//          {"sType": 'cosmic-col',
-//              "sClass": "right-align-td",
-//              "aTargets": [ 3 ]},
-//          {"sType": 'predicted-impact-col',
-//              "aTargets": [ 4 ]},
-//          {"asSorting": ["desc", "asc"],
-//              "aTargets": [3,4,5]}
-//      ],
-      //"fnDrawCallback": function( oSettings ) {
-          // add tooltips to the table
-          //addMutationTableTooltips(tableId);
-      //}
+//			    $("#" + divId).append("<table cellpadding='0' cellspacing='0' border='0' " +
+//			                          "class='display mutation_details_table' " +
+//			                          "id='" + tableId + "'></table>");
+//
+//		        var rows = _getMutationTableRows(data);
+//		        var columns = _getMutationTableColumns(data);
+
+    var oTable = $("#mutation_details #" + tableId).dataTable({
+        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
+        "bJQueryUI": true,
+        "bPaginate": false,
+        "bFilter": true,
+//      "aaData" : rows,
+//      "aoColumns" : columns,
+        "aoColumnDefs":[
+            {"sType": 'aa-change-col',
+                "aTargets": [ 1 ]},
+            {"sType": 'cosmic-col',
+                "sClass": "right-align-td",
+                "aTargets": [ 3 ]},
+            {"sType": 'predicted-impact-col',
+                "aTargets": [ 4 ]},
+            {"asSorting": ["desc", "asc"],
+                "aTargets": [3,4,5]}
+        ],
+        "fnDrawCallback": function( oSettings ) {
+            // add tooltips to the table
+            //addMutationTableTooltips(tableId);
+        }
     });
 
-  // TODO table footer msg
+    var cols = oTable.fnSettings().aoColumns.length;
+
+    for (var col=9; col<cols; col++)
+    {
+        oTable.fnSetColumnVis( col, false );
+    }
+
+    oTable.css("width", "100%");
+}
+
+// TODO we may generate everything within dataTables instead.
+function _generateMutationTable(tableId, data)
+{
+    var i, j;
+    var headers = _getMutationTableHeaders(data);
+    var dataRows = _getMutationTableRows(data);
+
+    var table = "<table cellpadding='0' cellspacing='0' border='0' " +
+    "class='display mutation_details_table' " +
+    "id='" + tableId + "'>";
+
+    // column headers in table head
+
+    table += '<thead>';
+
+    for (i = 0; i < headers.length; i++)
+    {
+        table += '<th>' + headers[i] + '</th>';
+    }
+
+    table += '</thead>';
+
+    // data rows
+
+    for (i = 0; i < dataRows.length; i++)
+    {
+        table += '<tr>';
+
+        for (j = 0; j < dataRows[i].length; j++)
+        {
+            table += '<td>' + dataRows[i][j] + '</td>'
+        }
+
+        table += '</tr>';
+    }
+
+    // column headers in table foot
+
+    table += '<tfoot>';
+
+    for (i = 0; i < headers.length; i++)
+    {
+        table += '<th>' + headers[i] + '</th>';
+    }
+
+    table += '</tfoot>';
+
+    table += '</table>';
+
+    // TODO footer msg
+
+    return table;
 }
 
 function _getMutationTableHeaders(data)
 {
     var headers = new Array();
 
+    // default headers
     headers.push(data.header.caseId);
     headers.push(data.header.proteinChange);
     headers.push(data.header.mutationType);
@@ -187,7 +252,11 @@ function _getMutationTableHeaders(data)
     headers.push(data.header.referenceAllele);
     headers.push(data.header.variantAllele);
 
-    // TODO special genes
+    // special gene headers
+    for (var i=0; i < data.header.specialGeneHeaders.length; i++)
+    {
+        headers.push(data.header.specialGeneHeaders[i]);
+    }
 
     return headers;
 }
@@ -217,7 +286,7 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].caseId);
         row.push(data.mutations[i].proteinChange);
         row.push(data.mutations[i].mutationType);
-        row.push(data.mutations[i].cosmic);
+        row.push(data.mutations[i].cosmicCount);
         row.push(data.mutations[i].functionalImpactScore);
         row.push(data.mutations[i].pdbLink);
         row.push(data.mutations[i].mutationStatus);
@@ -227,9 +296,16 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].referenceAllele);
         row.push(data.mutations[i].variantAllele);
 
-        //TODO special genes
+        //special gene data
+        for (var j=0; j < data.mutations[i].specialGeneData.length; j++)
+        {
+            row.push(data.mutations[i].specialGeneData[j]);
+        }
+
         rows.push(row);
     }
+
+    return rows;
 }
 
 //  Place mutation_details_table in a JQuery DataTable

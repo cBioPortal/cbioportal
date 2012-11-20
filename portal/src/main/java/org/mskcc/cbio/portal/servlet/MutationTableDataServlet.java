@@ -84,19 +84,18 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("referenceAllele", mutation.getReferenceAllele());
 			rowData.put("variantAllele", this.getVariantAllele(mutation));
 
+			JSONArray specialGeneData = new JSONArray();
+
 			//  fields for "Special" genes
 			if (specialGene != null)
 			{
-				JSONArray specialGeneData = new JSONArray();
-
 				for (String field : specialGene.getDataFields(mutation))
 				{
 					specialGeneData.add(field);
 				}
-
-				rowData.put("specialGeneData", specialGeneData);
 			}
 
+			rowData.put("specialGeneData", specialGeneData);
 
 			rows.add(rowData);
 		}
@@ -139,7 +138,7 @@ public class MutationTableDataServlet extends HttpServlet
 		if (mutation.getOncotatorCosmicOverlapping() == null ||
 		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
 		{
-			return -1;
+			return 0;
 		}
 
 		// calculate total cosmic count
@@ -151,7 +150,7 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 		else
 		{
-			return -1;
+			return 0;
 		}
 	}
 
@@ -248,18 +247,18 @@ public class MutationTableDataServlet extends HttpServlet
 		//TODO headerList.add("Variant Frequency\tVar Freq");
 		//TODO headerList.add("Normal Frequency\tNorm Freq");
 
+		JSONArray specialGeneHeaders = new JSONArray();
+
 		//  Add Any Gene-Specfic Headers
 		if (specialGene != null)
 		{
-			JSONArray specialGeneHeaders = new JSONArray();
-
 			for (String header : specialGene.getDataFieldHeaders())
 			{
 				specialGeneHeaders.add(header);
 			}
-
-			headerList.put("specialGeneHeaders", specialGeneHeaders);
 		}
+
+		headerList.put("specialGeneHeaders", specialGeneHeaders);
 
 		return headerList;
 	}

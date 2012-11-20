@@ -75,14 +75,26 @@
 
 <script type="text/javascript">
     
-    //  Set up Mutation Diagrams
-    $(document).ready(function(){
-    <%
+//  Set up Mutation Diagrams
+$(document).ready(function(){
+	var geneSymbol;
+	var diagramMutations;
+	var tableMutations;
+
+	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-	        var geneSymbol = "<%= geneWithScore.getGene().toUpperCase() %>";
-	        var diagramMutations = "<%= outputMutationsJson(geneWithScore, mutationMap) %>";
-	        var tableMutations = "<%= outputMutationsJson(geneWithScore, mutationMap, mergedCaseList) %>";
+	        geneSymbol = "<%= geneWithScore.getGene().toUpperCase() %>";
+	        diagramMutations = "<%= outputMutationsJson(geneWithScore, mutationMap) %>";
+	        tableMutations = "<%= outputMutationsJson(geneWithScore, mutationMap, mergedCaseList) %>";
+
+	        $.ajax({ url: "mutation_table_data.json",
+		           dataType: "json",
+		           data: {hugoGeneSymbol: geneSymbol,
+			           mutations: tableMutations},
+		           success: drawMutationTable,
+		           type: "POST"});
+
 
 	        $.ajax({ url: "mutation_diagram_data.json",
 		           dataType: "json",
@@ -91,36 +103,30 @@
 		           success: drawMutationDiagram,
 		           type: "POST"});
 
-	        $.ajax({ url: "mutation_table_data.json",
-		           dataType: "json",
-		           data: {hugoGeneSymbol: geneSymbol,
-			           mutations: tableMutations},
-		           success: drawMutationTable,
-		           type: "POST"});
         <% } %>
     <% } %>
-    });
+});
 
-    /**
-     * Toggles the diagram between lollipop view and histogram view.
-     *
-     * @param geneId    id of the target diagram
-     */
-    function toggleMutationDiagram(geneId)
+/**
+ * Toggles the diagram between lollipop view and histogram view.
+ *
+ * @param geneId    id of the target diagram
+ */
+function toggleMutationDiagram(geneId)
+{
+    var option = $("#mutation_diagram_select_" + geneId).val();
+
+    if (option == "diagram")
     {
-	    var option = $("#mutation_diagram_select_" + geneId).val();
-
-	    if (option == "diagram")
-	    {
-		    $("#mutation_diagram_" + geneId).show();
-		    $("#mutation_histogram_" + geneId).hide();
-	    }
-	    else if (option == "histogram")
-	    {
-		    $("#mutation_diagram_" + geneId).hide();
-		    $("#mutation_histogram_" + geneId).show();
-	    }
+	    $("#mutation_diagram_" + geneId).show();
+	    $("#mutation_histogram_" + geneId).hide();
     }
+    else if (option == "histogram")
+    {
+	    $("#mutation_diagram_" + geneId).hide();
+	    $("#mutation_histogram_" + geneId).show();
+    }
+}
 
 </script>
 
@@ -228,7 +234,9 @@
 //	               "</select>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'>" +
+	                "<img src='images/ajax-loader.gif'/>" +
+	                "</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

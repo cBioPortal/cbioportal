@@ -419,16 +419,22 @@
                 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"datatable-paging"pl>>', 25, "No mutation events of interest");
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest");
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                      title='Show more mutations of this patient'>Show all "
+                        +numAll+" mutations</a>");
+                $('.mutation-show-more').addClass('datatable-show-more');
                 $('.mutation-summary-table-name').html(
-                    "Mutations of interest ("
+                    "Mutations of interest"
+                     +(numAll==0?"":(" ("
                         +numFiltered
                         +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
-                        +"</a>) <img id='mutations-summary-help' src='images/help.png' \n\
+                        +"</a>)"))
+                     +" <img id='mutations-summary-help' src='images/help.png' \n\
                         title='This table contains somatic mutations in genes that are \n\
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\

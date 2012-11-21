@@ -14,11 +14,22 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colC
             }
         ];
         if (emphasisCaseId)
-            params.push({
+            params.push(
+            {
                 calc:function(dt,row){
                     return dt.getValue(row,0)===emphasisCaseId ? dt.getValue(row,colMut) : null;
                 },
                 type:'number'
+            },
+            {
+                calc:function(dt,row){
+                    if (dt.getValue(row,0)===emphasisCaseId)
+                        return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
+                    else
+                        return null;
+                },
+                type:'string',
+                role:'tooltip'
             });
         scatterDataView.setColumns(params);
         var scatter = new google.visualization.ScatterChart(document.getElementById(divId));
@@ -58,8 +69,8 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colC
         }
         
         var options = {
-            hAxis: {title: "Fraction of copy number altered genome", logScale:hLog, format:'#%'},
-            vAxis: {title: "# of mutations", logScale:vLog, format:'#,###'},
+            hAxis: {title: "Fraction of copy number altered genome"+(hLog?" (log)":""), logScale:hLog, format:'#%'},
+            vAxis: {title: "# of mutations"+(vLog?" (log)":""), logScale:vLog, format:'#,###'},
             legend: {position:'none'}
         };
         scatter.draw(scatterDataView,options);

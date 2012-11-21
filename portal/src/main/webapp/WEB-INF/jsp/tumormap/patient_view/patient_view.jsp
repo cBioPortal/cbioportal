@@ -251,6 +251,9 @@ if (patientViewError!=null) {
                 font-size: 120%;
                 vertical-align: middle;
         }
+        .datatable-show-more {
+            float: left;
+        }
 </style>
 
 <script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>

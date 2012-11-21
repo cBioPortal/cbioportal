@@ -200,13 +200,21 @@
                         'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pl>>',25, "No CNA events of interest");
                 var numFiltered = genomicEventObs.cnas.getNumEvents(true);
                 var numAll = genomicEventObs.cnas.getNumEvents(false);
+                if (numAll>0) {
+                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' \n\
+                        title='Show more copy number alterations of this patient'>Show all "
+                        +numAll+" CNAs</a>");
+                    $('.cna-show-more').addClass('datatable-show-more');
+                } 
                 $('.cna-summary-table-name').html(
-                    "CNA of interest ("
+                    "CNA of interest"
+                    +(numAll==0?"":(" ("
                         +numFiltered
                         +" of <a href='#cna' onclick='switchToTab(\"cna\");return false;'\n\
                          title='Show more copy number alterations of this patient'>"
                         +numAll
-                        +"</a>) <img id='cna-summary-help' src='images/help.png'\n\
+                        +"</a>)"))
+                     +" <img id='cna-summary-help' src='images/help.png'\n\
                      title='This table contains copy number altered genes that are \n\
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\

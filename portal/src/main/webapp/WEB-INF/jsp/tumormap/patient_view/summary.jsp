@@ -125,7 +125,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
                 scatterPlotMutVsCna(dt,false,vLog,scatterPlotDiv,caseIdDiv);
 
-                $('#mut-cna-config').show();
+                $('.mut-cna-config').show();
 
                 $(".mut-cna-axis-log").change(function() {
                     var hLog = $('#mut-cna-haxis-log').is(":checked");

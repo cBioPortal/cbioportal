@@ -114,7 +114,7 @@
 
             plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',cancerStudyId,mutCnaDt,null,2,1,caseMap,false,vLog);
 
-            $('#mut-cna-config').show();
+            $('.mut-cna-config').show();
 
             $(".mut-cna-axis-log").change(function() {
                 mutCnaAxisScaleChanged(mutCnaDt,2,1,caseMap);

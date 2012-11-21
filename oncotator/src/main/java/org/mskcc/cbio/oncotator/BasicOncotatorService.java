@@ -27,61 +27,31 @@
 
 package org.mskcc.cbio.oncotator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-
 /**
- * Oncotate Tool altered to build JSON cache for existing oncotator key values.
+ * Basic Oncotator Service implementaion with no cache or database.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class CacheBuilderOncoTool extends Oncotator
+public class BasicOncotatorService extends OncotatorService
 {
 	/**
-	 * Default constructor with the default oncotator service.
+	 * Retrieves the data from the Oncotator service for the given query key.
+	 *
+	 * @param key   key for the service query
+	 * @return      oncotator record containing the query result
 	 */
-	public CacheBuilderOncoTool()
+	public OncotatorRecord getOncotatorRecord(String key) throws Exception
 	{
-		super();
-		OncotatorCacheService cacheService = new DaoJsonCache();
+		// get record directly from the oncotator web service
+		OncotatorRecord record = this.getRecordFromService(key);
 
-		// use a cached oncotator service with a custom cache service.
-		this.oncotatorService = new CachedOncotatorService(cacheService);
-	}
-
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
-	{
-		FileReader reader = new FileReader(inputMafFile);
-		BufferedReader bufReader = new BufferedReader(reader);
-
-		String dataLine;
-
-		int numRecordsProcessed = 0;
-
-		// skip header line (which is assumed to be CACHE_KEY)
-		bufReader.readLine();
-
-		while ((dataLine = bufReader.readLine()) != null)
+		// if record is null, then there is an error with JSON parsing
+		if (record == null)
 		{
-			System.out.println("(" + numRecordsProcessed + ") " + dataLine);
-
-			if (dataLine.trim().length() < 0)
-			{
-				continue;
-			}
-
-			String key = dataLine.trim();
-
-			OncotatorRecord oncotatorRecord =
-				oncotatorService.getOncotatorRecord(key);
-
-			numRecordsProcessed++;
+			record = new OncotatorRecord(key);
+			this.errorCount++;
 		}
 
-		System.out.println("Total Number of Records Processed:  " + numRecordsProcessed);
-
-		reader.close();
-
-		return this.oncotatorService.getErrorCount();
+		return record;
 	}
 }

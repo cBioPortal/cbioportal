@@ -224,7 +224,7 @@ public class TestOncotator extends TestCase
 			boolean addMissing)
 	{
 		OncotatorCacheService cacheService = new HashCacheService();
-		OncotatorService oncotatorService = new OncotatorService(cacheService);
+		OncotatorService oncotatorService = new CachedOncotatorService(cacheService);
 		Oncotator oncotator = new Oncotator(oncotatorService);
 		oncotator.setUseCache(useCache);
 		oncotator.setSortColumns(sort);

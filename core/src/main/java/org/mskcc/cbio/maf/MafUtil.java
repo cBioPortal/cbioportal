@@ -78,6 +78,7 @@ public class MafUtil
 	public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
 	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
 	public static final String ONCOTATOR_GENE_SYMBOL = "ONCOTATOR_GENE_SYMBOL";
+	public static final String ONCOTATOR_DBSNP_VAL_STATUS = "ONCOTATOR_DBSNP_VAL_STATUS";
 
 	// mutation assessor column names
 	public static final String MA_FIMPACT = "MA:FImpact";
@@ -133,6 +134,7 @@ public class MafUtil
     private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
     private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
 	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
+	private int oncoDbSnpValStatusIndex = -1; // ONCOTATOR_DBSNP_VAL_STATUS
 
 	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
@@ -244,6 +246,8 @@ public class MafUtil
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_RS)) {
 	        	oncoDbSnpRsIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_VAL_STATUS)) {
+	            oncoDbSnpValStatusIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_GENE_SYMBOL)) {
 	            oncoGeneSymbolIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
@@ -567,6 +571,10 @@ public class MafUtil
 
 	public int getOncoDbSnpRsIndex() {
 		return oncoDbSnpRsIndex;
+	}
+
+	public int getOncoDbSnpValStatusIndex() {
+		return oncoDbSnpValStatusIndex;
 	}
 
 	public int getOncoGeneSymbolIndex() {

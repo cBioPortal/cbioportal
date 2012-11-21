@@ -11,7 +11,7 @@
 }
 #clinical-data-table-div {
     width: 1200px;
-    height: 500px;
+    max-height: 500px;
     overflow-x:scroll;
     overflow-y:scroll;
 }

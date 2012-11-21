@@ -27,10 +27,6 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import ca.drugbank.ExternalLink;
-
-import java.util.List;
-
 public class Drug {
     private String id;
     private String name;
@@ -38,7 +34,10 @@ public class Drug {
     private String synonyms;
     private String externalReference;
     private String resource;
-    private boolean isApprovedFDA;
+    private boolean isApprovedFDA = false;
+    private boolean isCancerDrug = false;
+    private boolean isNutraceuitical = false;
+    private Integer numberOfClinicalTrials = -1;
     private String ATCCode;
 
     public Drug() {
@@ -50,8 +49,11 @@ public class Drug {
                 String synonyms,
                 String externalReference,
                 String resource,
+                String ATCCode,
                 boolean approvedFDA,
-                String ATCCode) {
+                boolean cancerDrug,
+                boolean nutraceuitical,
+                Integer numberOfClinicalTrials) {
 
         this.id = id;
         this.name = name;
@@ -59,8 +61,11 @@ public class Drug {
         this.synonyms = synonyms;
         this.externalReference = externalReference;
         this.resource = resource;
-        isApprovedFDA = approvedFDA;
+        this.isApprovedFDA = approvedFDA;
         this.ATCCode = ATCCode;
+        this.isCancerDrug = cancerDrug;
+        this.isNutraceuitical = nutraceuitical;
+        this.numberOfClinicalTrials = numberOfClinicalTrials;
     }
 
     public String getId() {
@@ -125,5 +130,29 @@ public class Drug {
 
     public void setATCCode(String ATCCode) {
         this.ATCCode = ATCCode;
+    }
+
+    public boolean isCancerDrug() {
+        return isCancerDrug;
+    }
+
+    public void setCancerDrug(boolean cancerDrug) {
+        isCancerDrug = cancerDrug;
+    }
+
+    public boolean isNutraceuitical() {
+        return isNutraceuitical;
+    }
+
+    public void setNutraceuitical(boolean nutraceuitical) {
+        isNutraceuitical = nutraceuitical;
+    }
+
+    public Integer getNumberOfClinicalTrials() {
+        return numberOfClinicalTrials;
+    }
+
+    public void setNumberOfClinicalTrials(Integer numberOfClinicalTrials) {
+        this.numberOfClinicalTrials = numberOfClinicalTrials;
     }
 }

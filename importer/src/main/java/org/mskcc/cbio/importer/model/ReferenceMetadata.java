@@ -55,22 +55,22 @@ public final class ReferenceMetadata {
 		if (referenceType == null) {
             throw new IllegalArgumentException("referenceType must not be null");
 		}
-		this.referenceType = referenceType;
+		this.referenceType = referenceType.trim();
 
 		if (referenceFile == null) {
             throw new IllegalArgumentException("referenceFile must not be null");
 		}
-		this.referenceFile = referenceFile;
+		this.referenceFile = referenceFile.trim();
 
 		if (referenceFileDestination == null) {
             throw new IllegalArgumentException("referenceFileDestination must not be null");
 		}
-		this.referenceFileDestination = referenceFileDestination;
+		this.referenceFileDestination = referenceFileDestination.trim();
 
 		if (importerClassName == null) {
             throw new IllegalArgumentException("importerClassName must not be null");
 		}
-		this.importerClassName = importerClassName;
+		this.importerClassName = importerClassName.trim();
 	}
 
 	public String getReferenceType() { return referenceType; }

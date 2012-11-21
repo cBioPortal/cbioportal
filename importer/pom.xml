@@ -116,6 +116,13 @@
 	  <version>1.2.16</version>
 	</dependency>
 
+	<!-- mutation assessor tool -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>mutation-assessor</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
+
 	<!-- mysql -->
 	<dependency>
 	  <groupId>mysql</groupId>
@@ -123,6 +130,13 @@
 	  <version>5.1.10</version>
 	  <scope>runtime</scope>
 	</dependency>
+
+	<!-- oncotator -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>oncotator</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
 
 	<!-- spring -->
 	<dependency>
@@ -178,6 +192,13 @@
 	  <version>${slf4j.version}</version>
 	</dependency>
 
+	<!-- for foundation -->
+	<dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -194,6 +215,28 @@
 		  <source>1.6</source>
 		  <target>1.6</target>
 		</configuration>
+	  </plugin>
+
+	  <!-- for foundation -->
+	  <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>jaxws-maven-plugin</artifactId>
+		<version>1.10</version>
+		<executions>
+		  <execution>
+            <goals>
+			  <goal>wsimport</goal>
+            </goals>
+            <configuration>
+			  <wsdlUrls>
+				<wsdlUrl>http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
+			  </wsdlUrls>
+			  <packageName>org.foundation</packageName>
+			  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
+			  <staleFile>${project.build.directory}/generated-sources</staleFile>
+            </configuration>
+		  </execution>
+		</executions>
 	  </plugin>
 
 	  <!-- assembly -->
@@ -220,6 +263,7 @@
 		  </execution>
 		</executions>
 	  </plugin>
+
 	</plugins>
 
 	<!-- properties file used for filter - use build.properties -->

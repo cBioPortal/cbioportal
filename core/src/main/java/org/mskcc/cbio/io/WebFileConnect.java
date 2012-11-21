@@ -102,7 +102,7 @@ public class WebFileConnect
         if (numRows > 0 && numCols > 0) {
             matrix = new String[numRows][numCols];
             for (int i = 0; i < lines.length; i++) {
-                String parts[] = lines[i].split(TAB);
+                String parts[] = lines[i].split(TAB,numCols);
                 for (int j = 0; j < parts.length; j++) {
                     matrix[i][j] = parts[j];
                 }

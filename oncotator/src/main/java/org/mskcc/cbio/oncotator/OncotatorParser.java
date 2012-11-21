@@ -53,7 +53,8 @@ public class OncotatorParser
         JsonNode rootNode = m.readValue(json, JsonNode.class);
         
         OncotatorRecord oncoRecord = new OncotatorRecord(key);
-        
+        oncoRecord.setRawJson(json);
+
         // check if JSON has an ERROR
         
         JsonNode errorNode = rootNode.path("ERROR");

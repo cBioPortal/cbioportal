@@ -127,6 +127,8 @@ public class PortalMetaDataJSON extends HttpServlet {
                 Map jsonCancerStudySubMap = new LinkedHashMap();
                 jsonCancerStudySubMap.put("name", cancerStudy.getName());
                 jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
+                jsonCancerStudySubMap.put("citation", cancerStudy.getCitation());
+                jsonCancerStudySubMap.put("pmid", cancerStudy.getPmid());
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
                 jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));

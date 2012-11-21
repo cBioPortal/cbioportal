@@ -32,6 +32,8 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 
 import java.io.File;
 import java.util.Collection;
@@ -95,6 +97,16 @@ public interface FileUtils {
 	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
 
 	/**
+	 * Creates (or overwrites) the given file with the given contents.
+	 *
+	 * @param directory String
+	 * @param filename String
+	 * @param fileContent String
+	 * @return File
+	 */
+	File createFileWithContents(final String directory, final String filename, final String fileContent) throws Exception;
+
+	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
 	 * @param urlString String
@@ -102,4 +114,42 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
+
+	/**
+	 * Creates a staging file (and meta file) with contents from the given ImportDataMatrix.
+	 *
+	 * @param dataSourceMetadata DataSourceMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+     * @param portalMetadata PortalMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	void writeStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+						  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+
+	/**
+	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
+	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrix ImportDataMatrix
+	 * @throws Exception
+	 */
+	void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+
+	/**
+	 * Creates a z-score staging file from the given dependencies.  It assumes that the
+	 * dependency - staging files have already been created.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dependencies DatatypeMetadata[]
+	 * @throws Exception
+	 */
+	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
 }

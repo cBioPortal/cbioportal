@@ -645,7 +645,7 @@
 									eval("DrawOncoPrintBody(ONCOPRINT_" + this.id +
 										 ", LONGEST_LABEL_" + this.id + ".get('LONGEST_LABEL_" + this.id +
 										 "'), GENETIC_ALTERATIONS_SORTED_" + this.id +
-										 ".get('GENETIC_ALTERATIONS_SORTED_" + this.id + "'), false)");
+										 ".get('GENETIC_ALTERATIONS_SORTED_" + this.id + "'),'"+cancerStudyID+"')");
 								}
 							}
                             return false;

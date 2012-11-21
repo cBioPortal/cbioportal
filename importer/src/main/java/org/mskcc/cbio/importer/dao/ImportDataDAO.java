@@ -56,7 +56,34 @@ public interface ImportDataDAO {
 	 *
 	 * @param tumorType String
 	 * @param dataType String
+	 * @return Collection<ImportData>
+     */
+    Collection<ImportData> getImportDataByTumorAndDatatype(final String tumorType, final String datatype);
+
+    /**
+     * Functon to retrieve ImportData via tumor type, data type, and data source.
+	 *
+	 * @param tumorType String
+	 * @param dataType String
+	 * @param dataSource String
+	 * @return Collection<ImportData>
+     */
+    Collection<ImportData> getImportDataByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource);
+
+    /**
+     * Functon to retrieve ImportData via tumor type and data type and data filename
+	 *
+	 * @param tumorType String
+	 * @param dataType String
+	 * @param dataFilename String
 	 * @return ImportData
      */
-    ImportData getImportDataByTumorAndDatatype(final String tumorType, final String datatype);
+    ImportData getImportDataByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename);
+
+	/**
+	 * Function to delete records with the given dataSource.
+	 *
+	 * @param dataSource String
+	 */
+	void deleteByDataSource(final String dataSource);
 }

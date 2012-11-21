@@ -331,7 +331,7 @@ function _updateNodeInspectorForDrug(data, node)
 	var atc_codes = new Array();
 	var synonyms = new Array();
 	var description;
-	
+
 	//For number of targeted genes
 	if (data["TARGETS"] != "") 
 	{	
@@ -356,7 +356,7 @@ function _updateNodeInspectorForDrug(data, node)
 				'<tr align="left" class="atc_codes-data-row"><td>' +
 				'<strong>Drug Class(ATC codes): </strong></td></tr>');
 		
-		atc_codes = data["ATC_CODE"].split(",");
+		atc_codes = data["ATC_CODE"].split(";");
 		
 		for ( var i = 0; i < atc_codes.length; i++) 
 		{	
@@ -407,37 +407,61 @@ function _updateNodeInspectorForDrug(data, node)
 	}
 	
 	// For FDA approval
-	$("#node_inspector_content .data").append(
-			'<tr align="left" class="fda-data-row"><td>' +
-			'<strong>FDA Approval: </strong></td></tr>');
-	
-	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
-	
-	$("#node_inspector_content .fda-data-row td").append(fda_approval);
-	$("#node_inspector_content .fda-data-row td").append('<br>');
-	
-	
+    $("#node_inspector_content .data").append(
+        '<tr align="left" class="fda-data-row"><td>' +
+            '<strong>FDA Approval: </strong></td></tr>');
+
+    var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
+
+    $("#node_inspector_content .fda-data-row td").append(fda_approval);
+    $("#node_inspector_content .fda-data-row td").append('<br>');
+
+    // For Cancer Drug Info
+    var cancer_drug = data["CANCER_DRUG"] == "true";
+    if(cancer_drug) {
+        $("#node_inspector_content .data").append(
+            '<tr align="left" class="cancerdrug-data-row"><td>' +
+                '<strong>Cancer Drug: </strong> Yes<br></td></tr>');
+
+        var numberOfClinicalTrials = data["NUMBER_OF_CLINICAL_TRIALS"];
+        if(numberOfClinicalTrials > 0) {
+            $("#node_inspector_content .data").append(
+                '<tr align="left" class="clinicaltrials-data-row"><td>' +
+                    '<strong>Number Of Clinical Trials: </strong>' + numberOfClinicalTrials  +  '<br><br></td></tr>');
+        }
+    }
+
 	// For Pub Med IDs	
-	
-	var pubmeds = new Array();			
 	var edges = _vis.edges();
 	var existed = false;
 	
-	for ( var i = 0; i < edges.length; i++) 
+	for (var k = 0; k < edges.length; k++)
 	{
-		if (edges[i].data.source == node.data.id && edges[i].data["INTERACTION_PUBMED_ID"] != "") 
+		if (edges[k].data.source == node.data.id && edges[k].data["INTERACTION_PUBMED_ID"] != "")
 		{
-			if(existed == false){
+			if(existed == false)
+            {
 				$("#node_inspector_content .data").append(
 						'<tr align="left" class="pubmed-data-row"><td>' +
-						'<strong>PubMed IDs:'+edges[i].data["INTERACTION_PUBMED_ID"]+'</strong></td></tr>');
+						'<strong>PubMed IDs: </strong><br></td></tr>');
 				existed = true;
 			}
-			$("#node_inspector_content .pubmed-data-row td").append(edges[i].data["INTERACTION_PUBMED_ID"]);
+            var pubmeds = edges[k].data["INTERACTION_PUBMED_ID"];
+            var pubmedTokens = pubmeds.split(";");
+            for( var j=0; j < pubmedTokens.length; j++)
+            {
+                var link = _resolveXref(pubmedTokens[j]);
+                if (link.href == "#")
+                {
+                    // skip unknown sources
+                    continue;
+                }
+                var xref = '- <a href="' + link.href + '" target="_blank">' + link.pieces[1] + '</a><br>';
+                $("#node_inspector_content .pubmed-data-row td").append(xref);
+            }
 		}
 	}
 }
-
 
 /**
  * Updates the content of the node inspector with respect to the provided data.
@@ -469,16 +493,17 @@ function _updateNodeInspectorContent(data, node)
 	$("#node_inspector_content .data .description-data-row").remove();
 	$("#node_inspector_content .data .fda-data-row").remove();
 	$("#node_inspector_content .data .pubmed-data-row").remove();
-	
-	// For non drug view of node inspector
+    $("#node_inspector_content .data .clinicaltrials-data-row").remove();
+    $("#node_inspector_content .data .cancerdrug-data-row").remove();
+
+    // For non drug view of node inspector
 	$("#node_inspector_content .data .data-row").remove();
 	
 	$("#node_inspector_content .xref .xref-row").remove();
 	$("#node_inspector_content .profile .percent-row").remove();
 	$("#node_inspector_content .profile-header .header-row").remove();
-	
-	
-	if (data.type == DRUG) 
+
+    if (data.type == DRUG)
 	{
 		_updateNodeInspectorForDrug(data, node);
 	}
@@ -862,9 +887,9 @@ function showGeneDetails(evt)
 	// retrieve the selected node
 	var node = _vis.node(evt.target.value);
 	
-	// TODO position the inspector, (also center the selected gene?)
-	
-	// update inspector content
+    // TODO position the inspector, (also center the selected gene?)
+
+    // update inspector content
 	_updateNodeInspectorContent(node.data, node);
 	
 	// open inspector panel
@@ -1238,12 +1263,17 @@ function dropDownVisibility(element)
 		
 		//if the node is a drug then check the drop down selection
 		
-		if(element.data.type == "Drug"){
-			if(selectedOption.toString() == "HIDE_DRUGS"){
+		if(element.data.type == "Drug") {
+			if(selectedOption.toString() == "HIDE_DRUGS") {
 				visible = false;
-			}else if(selectedOption.toString() == "SHOW_ALL"){
+			} else if(selectedOption.toString() == "SHOW_ALL") {
 				visible = true;
-			}else{  // check FDA approved
+            } else if(selectedOption.toString() == "SHOW_CANCER") {
+                if( element.data.CANCER_DRUG == "true")
+                    visible = true;
+                else
+                    visible = false;
+            } else {  // check FDA approved
 				if( element.data.FDA_APPROVAL == "true")
 					visible = true;
 				else
@@ -1867,10 +1897,28 @@ function _xrefArray()
 	linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";	
 	linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + ID_PLACE_HOLDER + "&submit=Submit";
 	linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
+    linkMap["uniprotkb"] = "http://www.uniprot.org/uniprot/";
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
 	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
 	linkMap["drugbank"] = "http://www.drugbank.ca/drugs/" + ID_PLACE_HOLDER;
-	linkMap["nucleotide sequence database"] = "";
+    linkMap["kegg"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + ID_PLACE_HOLDER;
+    linkMap["kegg drug"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + ID_PLACE_HOLDER;
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + ID_PLACE_HOLDER;
+    linkMap["chemspider"] = "http://www.chemspider.com/Chemical-Structure." + ID_PLACE_HOLDER + ".html";
+    linkMap["kegg compund"] = "http://www.genome.jp/dbget-bin/www_bget?cpd:" + ID_PLACE_HOLDER;
+    linkMap["doi"] = "http://www.nature.com/nrd/journal/v10/n8/full/nrd3478.html?";
+    linkMap["nci_drug"] = "http://www.cancer.gov/drugdictionary?CdrID=" + ID_PLACE_HOLDER;
+    linkMap["national drug code directory"] = "http://www.fda.gov/Safety/MedWatch/SafetyInformation/SafetyAlertsforHumanMedicalProducts/ucm" + ID_PLACE_HOLDER + ".htm";
+    linkMap["pharmgkb"] = "http://www.pharmgkb.org/gene/" + ID_PLACE_HOLDER;
+    linkMap["pubchem compund"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=" + ID_PLACE_HOLDER + "&loc=ec_rcs";
+    linkMap["pubchem substance"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?sid=" + ID_PLACE_HOLDER + "&loc=ec_rss";
+    linkMap["pdb"] = "http://www.rcsb.org/pdb/explore/explore.do?structureId=" + ID_PLACE_HOLDER;
+    linkMap["bindingdb"] = "http://www.bindingdb.org/data/mols/tenK3/MolStructure_" + ID_PLACE_HOLDER  + ".html";
+    linkMap["genbank"] = "http://www.ncbi.nlm.nih.gov/nucleotide?term=" + ID_PLACE_HOLDER;
+    linkMap["iuphar"] = "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=" + ID_PLACE_HOLDER;
+    linkMap["drugs product database (dpd)"] = "http://205.193.93.51/dpdonline/searchRequest.do?din=" + ID_PLACE_HOLDER;
+    linkMap["guide to pharmacology"] = "http://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=" + ID_PLACE_HOLDER;
+    linkMap["nucleotide sequence database"] = "";
 	
 	return linkMap;
 }

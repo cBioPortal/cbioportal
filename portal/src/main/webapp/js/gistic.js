@@ -198,13 +198,7 @@ var Gistic = function(gistics) {
                 "aTargets":[5],
                 "mDataProp": function(source, type, val) {
 
-                    // round Q-Values so that decimals that are not rounded by
-                    // toPrecision by default (more than 7 digits after the
-                    // decimal point) are rounded here
-                    var rounded = source.qval.toPrecision(2);
-                    0.000001 <= rounded && rounded < 0.001 ?
-                        rounded = parseFloat(rounded).toExponential() :
-                        rounded = rounded;
+                    var rounded = cbio.util.toPrecision(source.qval, 2, 0.1);
 
                     if (type === 'display') {
                         return rounded;

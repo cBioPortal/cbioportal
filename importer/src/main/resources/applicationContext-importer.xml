@@ -47,7 +47,6 @@
   <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
   <!-- importer beans -->
-  <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl"/>
   <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.BridgeDBIDMapper"/>
   <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
@@ -57,11 +56,20 @@
   <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
 	<b:constructor-arg ref="spreadsheetService"/>
   </b:bean>
+  <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
+	<b:constructor-arg ref="config"/>
+  </b:bean>
   <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl"/>
   <b:bean id="importDataDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
   </b:bean>
   <b:bean id="firehoseFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
+	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
+	<b:constructor-arg ref="importDataDAO"/>
+  </b:bean>
+  <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>

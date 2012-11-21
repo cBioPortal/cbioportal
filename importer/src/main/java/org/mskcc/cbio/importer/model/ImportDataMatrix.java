@@ -29,7 +29,17 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.Admin;
+import org.mskcc.cbio.importer.CaseIDs;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import java.util.Vector;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -40,8 +50,12 @@ import java.io.OutputStream;
  * This class recreates the functionality found in 
  * Perl Data-CTable module. Essentially it provides
  * read, write, and manipulation of tabular data.
+ * The given matrix must be square.
  */
 public final class ImportDataMatrix {
+
+	// our logger
+	private static final Log LOG = LogFactory.getLog(ImportDataMatrix.class);
 
 	// inner class which encapsulates a column header w/its column data
 	private class ColumnHeader {
@@ -52,19 +66,21 @@ public final class ImportDataMatrix {
 	// keeps track of number of rows of tabular data
 	private int numberOfRows;
 
+	// this is a list of rows to ignore when dumping the matrix
+	private HashSet<Integer> rowsToIgnore;
+
 	// a list of "column" objects - 
 	// each element has a column heading and a vector of column data
 	private LinkedList<ColumnHeader> columnHeaders;
 
-	/**
-	 * Default Constructor.
-	 */
-	public ImportDataMatrix() {
+	// ref to caseids
+	private CaseIDs caseIDsFilter;
 
-		// init members
-		columnHeaders = new LinkedList<ColumnHeader>();
-		numberOfRows = 0;
-	}
+	// our collection of case ids
+	private Vector<String> caseIDs;
+
+	// gene id column heading - may be null
+	private String geneIDColumnHeading;
 
 	/**
 	 * Constructor.
@@ -74,32 +90,83 @@ public final class ImportDataMatrix {
 	 */
 	public ImportDataMatrix(final Vector<Vector<String>> rowData, final Vector<String> columnNames) {
 
-		// sanity check - row data vector should be same size as column name vector
-		for (Vector<String> row : rowData) {
-			if (row.size() != columnNames.size()) {
-				throw new IllegalArgumentException("corrupt vector matrix passed to ImportDataMatrix");
-			}
-		}
-
 		// set numberOfRows
 		numberOfRows = rowData.size();
+
+		// some collections
+		rowsToIgnore = new HashSet<Integer>();
+		caseIDs = new Vector<String>();
+
+		// geneIDColumnHeading
+		geneIDColumnHeading = "";
 
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();
 
 		// populate our column headers list
+		int columnIndex = -1;
 		for (String columnName : columnNames) {
+			// drop column if its missing label
+			if (columnName.length() == 0) { 
+				if (LOG.isInfoEnabled()) {
+					LOG.info("columnName is empty, skipping...");
+				}
+				continue;
+			}
 			// create a new ColumnHeader object
 			ColumnHeader columnHeader = new ColumnHeader();
 			columnHeader.label = columnName;
 			columnHeader.columnData = new Vector<String>();
 			// interate over all rows and grab the data at column 'index'
-			int index = columnNames.indexOf(columnName);
+			++columnIndex;
 			for (Vector<String> row : rowData) {
-				columnHeader.columnData.add(row.elementAt(index));
+				// we may have a situation where there are more columns than data in a row (empty cells)
+				if (columnIndex < row.size()) {
+					columnHeader.columnData.add(row.elementAt(columnIndex));
+				}
+				else {
+					columnHeader.columnData.add("");
+				}
 			}
 			// add this ColumnHeader object to our linked list
 			columnHeaders.add(columnHeader);
+		}
+		
+		// init our case id's object
+		initCaseIDs();
+	}
+
+	/**
+	 * Filter and convert case ID's.  Discards any column
+	 * in which the case ID is not a tumor. Also converts
+	 * full TCGA bar code to abbreviated version for use in portal.
+	 * Columns to ignore is used to specify not caseid columns (like Gene Symbol).
+	 * It may be null.
+	 *
+	 * @param columnsToIgnore Collection<String>
+	 */
+	public void filterAndConvertCaseIDs(final Collection<String> columnsToIgnore) {
+
+		// iterate over columns 
+		Vector<ColumnHeader> columnHeadersToRemove = new Vector<ColumnHeader>();
+		for (ColumnHeader columnHeader : columnHeaders) {
+			// skip if required
+			if (columnsToIgnore != null && columnsToIgnore.contains(columnHeader.label)) {
+				continue;
+			}
+			// remove case (column) if its not a tumor id
+			if (!caseIDsFilter.isTumorCaseID(columnHeader.label)) {
+				columnHeadersToRemove.add(columnHeader);
+				continue;
+			}
+			// convert the id
+			columnHeader.label = caseIDsFilter.convertCaseID(columnHeader.label);
+			caseIDs.add(columnHeader.label);
+		}
+		
+		// we remove the column headers here to prevent ConcurrentModificationException
+		for (ColumnHeader columnHeader : columnHeadersToRemove) {
+			columnHeaders.remove(columnHeader);
 		}
 	}
 
@@ -107,10 +174,10 @@ public final class ImportDataMatrix {
 	 * Set column order.  Any columns in the data matrix
 	 * that are not in the given column order will be dropped.
 	 *
-	 * @param sortedColumnNames Vector<String>
+	 * @param sortedColumnNames Collection<String>
 	 * @throws Exception
 	 */
-	public void setColumnOrder(final Vector<String> newColumnOrder) throws Exception {
+	public void setColumnOrder(final Collection<String> newColumnOrder) throws Exception {
 
 		LinkedList<ColumnHeader> newColumnHeaderList = new LinkedList<ColumnHeader>();
 
@@ -137,13 +204,14 @@ public final class ImportDataMatrix {
 	 * Adds a column to the end of the table.
 	 *
 	 * @param newColumnName String
+	 * @param columnData Vector<String>
 	 */
-	public void addColumn(final String newColumnName) {
+	public void addColumn(final String newColumnName, final Vector<String> columnData) {
 
 		// create new columnHeader object
 		ColumnHeader columnHeader = new ColumnHeader();
 		columnHeader.label = newColumnName;
-		columnHeader.columnData = new Vector<String>(numberOfRows);
+		columnHeader.columnData = columnData;
 		for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
 			columnHeader.columnData.add("");
 		}
@@ -153,26 +221,35 @@ public final class ImportDataMatrix {
 	}
 
 	/**
-	 * Removes the given column in the table.
+	 * Removes the given column (by name) in the table.
 	 *
 	 * @param columnName String
 	 */
 	public void removeColumn(final String columnName) {
 
-		ColumnHeader toRemove = null;
+		Vector<ColumnHeader> toRemove = new Vector<ColumnHeader>();
 
 		// find column header to remove
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.label.equals(columnName)) {
-				toRemove = columnHeader;
-				break;
+				toRemove.add(columnHeader);
 			}
 		}
 
 		// remove the columnHeader
-		if (toRemove != null) {
-			columnHeaders.remove(toRemove);
+		for (ColumnHeader columnHeader : toRemove) {
+			columnHeaders.remove(columnHeader);
 		}
+	}
+
+	/**
+	 * Removes the given column (by index) in the table.
+	 *
+	 * @param columnName String
+	 */
+	public void removeColumn(final int columnIndex) {
+
+		columnHeaders.remove(columnIndex);
 	}
 
 	/**
@@ -189,7 +266,6 @@ public final class ImportDataMatrix {
 			if (columnHeader.label.equals(columnName)) {
 				columnHeader.label = newColumnName;
 				foundColumnHeader = true;
-				break;
 			}
 		}
 		if (!foundColumnHeader) {
@@ -199,10 +275,11 @@ public final class ImportDataMatrix {
 
 	/**
 	 * Gets the column headers.
+	 * Returns a new copy.
 	 *
-	 * @return Collection<String>
+	 * @return Vector<String>
 	 */
-	public Collection<String> getColumnHeaders() {
+	public Vector<String> getColumnHeaders() {
 
 		Vector<String> toReturn = new Vector<String>();
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -211,6 +288,111 @@ public final class ImportDataMatrix {
 
 		// outta here
 		return toReturn;
+	}
+
+	/**
+	 * Gets the data for a given column name.  Returns
+	 * the data stored in the internal data structure,
+	 * so changes in the returned vector will be reflected
+	 * in subsequent calls into the class.
+	 *
+	 * @param columnName String
+	 * @return Vector<String>
+	 */
+	public Vector<Vector<String>> getColumnData(final String columnName) {
+
+		Vector<Vector<String>> toReturn = new Vector<Vector<String>>();
+
+		for (ColumnHeader columnHeader : columnHeaders) {
+			if (columnHeader.label.equals(columnName)) {
+				toReturn.add(columnHeader.columnData);
+			}
+		}
+
+		// should not make it here
+		return toReturn;
+	}
+
+	/**
+	 * Gets the data for the given column index.  This
+	 * method is motivated by the fact that certain files
+	 * may have the same column header - in particular,
+	 * *_genes.conf_99.txt may have multiple cytoband columns.
+	 *
+	 * @param columnIndex int
+	 * @return Vector<String>
+	 */
+	public Vector<String> getColumnData(final int columnIndex) {
+
+		return columnHeaders.get(columnIndex).columnData;
+	}
+
+	/**
+	 * Returns the collection of case id's within this matrix.
+	 * Note: filterAndConvertCaseIDs should be called before
+	 * this collection is returned or it will just return an
+	 * empty collection.
+	 *
+	 * @return Collection<String>
+	 */
+	public Collection<String> getCaseIDs() {
+		return caseIDs;
+	}
+
+	/**
+	 * Used to set geneIDColumnHeading.  See
+	 * getGeneIDs().
+	 *
+	 * @param geneIDColumnHeading String
+	 */
+	public void setGeneIDColumnHeading(final String geneIDColumnHeading) {
+		this.geneIDColumnHeading = geneIDColumnHeading;
+	}
+
+	/**
+	 * Returns the collection of Gene id's within this matrix.
+	 * setGeneIDColumnHeading() must be called prior to calling getGeneIDs().
+	 *
+	 * @return Collection<String>
+	 */
+	public Collection<String> getGeneIDs() {
+
+		// collection we will return
+		HashSet<String> toReturn = new HashSet<String>();
+
+		Vector<String> geneColumnData = getColumnData(geneIDColumnHeading).get(0);
+		for (String geneID : geneColumnData) {
+			toReturn.add(geneID);
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Adds the given row number into our rowsToIgnore set.
+	 * Note row indices start an 0.
+	 *
+	 * @param rowNumber int
+	 */
+	public void ignoreRow(final int rowNumber) {
+		rowsToIgnore.add(rowNumber);
+	}
+
+	/**
+	 * Removes the row number from our rowsToIgnore set.
+	 * If rowNumber = -1, all rows are removed.
+	 * Note row indices start an 0.
+	 *
+	 * @param rowNumber int
+	 */
+	public void recognizeRow(final int rowNumber) {
+		if (rowNumber == -1) {
+			rowsToIgnore.clear();
+		}
+		else {
+			rowsToIgnore.remove(rowNumber);
+		}
 	}
 
 	/**
@@ -234,6 +416,10 @@ public final class ImportDataMatrix {
 		writer.println();
 
 		for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
+			// skip row if its contained in our rowsToIgnore set.
+			if (rowsToIgnore.contains(rowIndex)) {
+				continue;
+			}
 			for (ColumnHeader columnHeader : columnHeaders) {
 				writer.print(columnHeader.columnData.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
@@ -245,6 +431,15 @@ public final class ImportDataMatrix {
 
 		// clean up
 		writer.flush();
+	}
+
+	/**
+	 * Private function to init ref to CaseId.
+	 */
+	private void initCaseIDs() {
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
+		caseIDsFilter = (CaseIDs)context.getBean("caseIDs");
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -267,7 +462,7 @@ public final class ImportDataMatrix {
 		System.out.println();
 
 		// add a column and dump
-		importDataMatrix.addColumn("H4");
+		importDataMatrix.addColumn("H4", new Vector<String>());
 		importDataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
@@ -302,5 +497,55 @@ public final class ImportDataMatrix {
 		java.util.List lastNewColumnOrder = java.util.Arrays.asList("H2", "H3");
 		importDataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
 		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// change some values in a column
+		Vector<String> columnValues = importDataMatrix.getColumnData("H2").get(0);
+		for (int lc = 0; lc < columnValues.size(); lc++) {
+			if (columnValues.elementAt(lc).equals("2")) {
+				columnValues.setElementAt("2.7", lc);
+			}
+		}
+
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// ignore a few rows
+		importDataMatrix.ignoreRow(0);
+		importDataMatrix.ignoreRow(2);
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// test case id filtering & conversion
+
+		columnHeaders = java.util.Arrays.asList("Gene Symbol", "Locus ID", "Cytoband",
+												"TCGA-A1-A0SB-01A-11D-A141-01", "TCGA-A1-A0SD-Tumor",
+												"TCGA-A1-A0SE-01A-11D-A087-01", "TCGA-A1-A0SF-Normal",
+												"TCGA-A1-A0SG-01A-11D-A141-01");
+		rowOne = java.util.Arrays.asList("ACAP3", "116983", "1p36.33", "1", "2", "3", "4", "5");
+		rowTwo = java.util.Arrays.asList("ACTRT2", "140625", "1p36.32", "1", "2", "3", "4",  "5");
+		rowThree = java.util.Arrays.asList("AGRN", "375790", "1p36.33", "1", "2", "3", "4", "5");
+
+		columnNames = new Vector(columnHeaders);
+		rowData = new Vector<Vector<String>>();
+		rowData.add(new Vector<String>(rowOne));
+		rowData.add(new Vector<String>(rowTwo));
+		rowData.add(new Vector<String>(rowThree));
+
+		// create matrix and dump
+		importDataMatrix = new ImportDataMatrix(rowData, columnNames);
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// filter and convert, then dump
+		String[] columnsToIgnore = { "Gene Symbol", "Locus ID" };
+		importDataMatrix.filterAndConvertCaseIDs(java.util.Arrays.asList(columnsToIgnore));
+		importDataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
 	}
 }

@@ -34,8 +34,15 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.bridgedb.Xref;
 import org.bridgedb.BridgeDb;
+import org.bridgedb.XrefIterator;
+import org.bridgedb.AttributeMapper;
 import org.bridgedb.bio.BioDataSource;
+
+import java.util.Set;
+import java.util.HashMap;
+
 
 /**
  * Class which provides bridgedb services.
@@ -45,8 +52,9 @@ public final class BridgeDBIDMapper implements IDMapper {
 	// our logger
 	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
 
-	// ref to bridge db mapper
-	private org.bridgedb.IDMapper mapper;
+	// our map of gene symbols to entrez ids
+	private HashMap<String, String> symbolToIDMap;
+	private HashMap<String, String> idToSymbolMap;
 
 	/**
 	 * Default Constructor.
@@ -70,8 +78,26 @@ public final class BridgeDBIDMapper implements IDMapper {
 		}
 
 		Class.forName("org.bridgedb.rdb.IDMapperRdb");
-        mapper = BridgeDb.connect(bridgeDBConnectionString);
+        AttributeMapper mapper = (AttributeMapper)BridgeDb.connect(bridgeDBConnectionString);
         BioDataSource.init();
+
+		// populate our maps
+		symbolToIDMap = new HashMap<String, String>();
+		idToSymbolMap = new HashMap<String, String>();
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), building maps");
+		}
+		if (mapper instanceof XrefIterator) {
+			for (Xref xref : ((XrefIterator)mapper).getIterator(BioDataSource.ENTREZ_GENE)) {
+				for (String symbol : mapper.getAttributes(xref, "Symbol")) {
+					symbolToIDMap.put(symbol, xref.getId());
+					idToSymbolMap.put(xref.getId(), symbol);
+				}
+			}
+		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("initMapper(), building maps complete");
+		}
 	}
 
 	/**
@@ -79,10 +105,22 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 *
 	 * @param geneSymbol String
 	 * @return String
+	 * @throws Exception
 	 */
 	@Override
-	public String entrezSymbolToNumber(final String geneSymbol) {
+	public String symbolToEntrezID(final String geneSymbol) throws Exception {
+		return (symbolToIDMap.containsKey(geneSymbol)) ? symbolToIDMap.get(geneSymbol) : "";
+	}
 
-		return "";
+	/**
+	 * For the entrezID, return symbol.
+	 *
+	 * @param entrezID String
+	 * @return String
+	 * @throws Exception
+	 */
+	@Override
+	public String entrezIDToSymbol(final String entrezID) throws Exception {
+		return (idToSymbolMap.containsKey(entrezID)) ? idToSymbolMap.get(entrezID) : "";
 	}
 }

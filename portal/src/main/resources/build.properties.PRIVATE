@@ -27,6 +27,8 @@ skin.right_nav.show_data_sets=false
 skin.right_nav.show_examples=false
 skin.right_nav.show_testimonials=false
 
+tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
+
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat
@@ -43,3 +45,7 @@ authorization=true
 # Bitly API username and api key
 bitly.user=[put your bitly user name here]
 bitly.api_key=[put your bitly api key here]
+
+patient_view_placeholder=false
+patient_view_genomic_overview_cna_cutoff=0.2,1.5
+tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/

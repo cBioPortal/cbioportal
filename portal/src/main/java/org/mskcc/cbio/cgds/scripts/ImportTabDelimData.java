@@ -27,21 +27,22 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.CnaEvent;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -108,11 +109,10 @@ public class ImportTabDelimData {
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoGeneticProfile dao = new DaoGeneticProfile();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
         microRnaIdSet = daoMicroRna.getEntireSet();
 
-        geneticProfile = dao.getGeneticProfileById(geneticProfileId);
+        geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -131,12 +131,11 @@ public class ImportTabDelimData {
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
 
         // Add Cases to the Database
-        DaoCase daoCase = new DaoCase();
         ArrayList <String> orderedCaseList = new ArrayList<String>();
         for (int i = 0; i < caseIds.length; i++) {
-            if (!daoCase.caseExistsInGeneticProfile(caseIds[i],
+            if (!DaoCaseProfile.caseExistsInGeneticProfile(caseIds[i],
                     geneticProfileId)) {
-                daoCase.addCase(caseIds[i], geneticProfileId);
+                DaoCaseProfile.addCaseProfile(caseIds[i], geneticProfileId);
             }
             orderedCaseList.add(caseIds[i]);
         }
@@ -159,7 +158,7 @@ public class ImportTabDelimData {
             
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
-                parts = line.split("\t");
+                parts = line.split("\t",-1);
 
                 int startIndex = getStartIndex();
                 String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);
@@ -206,6 +205,12 @@ public class ImportTabDelimData {
                                 }
                             } else if (genes.size()==1) {
                                 storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
+                                if (geneticProfile!=null
+                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                                        && geneticProfile.showProfileInAnalysisTab()) {
+                                    storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
+                                }
+                                
                                 numRecordsStored++;
                             } else {
                                 for (CanonicalGene gene : genes) {
@@ -252,6 +257,20 @@ public class ImportTabDelimData {
         if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
+        }
+    }
+    
+    private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
+        int n = values.length;
+        if (n==0)
+            System.out.println();
+        int i = values[0].equals(""+entrezGeneId) ? 1:0;
+        for (; i<n; i++) {
+            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
+                    || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
+                DaoCnaEvent.addCaseCnaEvent(event);
+            }
         }
     }
 

@@ -72,14 +72,13 @@ public class TestDaoCancerStudy extends TestCase {
         ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
         assertEquals(2, list.size());
 
-        cancerStudy = list.get(0);
+        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(1);
         assertEquals("gbm", cancerStudy.getCancerStudyStableId());
         assertEquals("GBM", cancerStudy.getName());
         assertEquals("GBM Description", cancerStudy.getDescription());
         assertEquals(1, cancerStudy.getInternalId());
 
-        cancerStudy = list.get(1);
-        assertEquals(2, cancerStudy.getInternalId());
+        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(2);
         assertEquals("Breast Description", cancerStudy.getDescription());
         assertEquals("Breast", cancerStudy.getName());
 
@@ -128,29 +127,23 @@ public class TestDaoCancerStudy extends TestCase {
         ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
         assertEquals(3, list.size());
 
-        cancerStudy = list.get(0);
-        assertEquals(1, cancerStudy.getInternalId());
-        assertEquals("GBM Description", cancerStudy1.getDescription());
-        assertEquals("GBM public study x", cancerStudy1.getName());
-        assertEquals(true, cancerStudy1.isPublicStudy());
-
-        cancerStudy1 = list.get(1);
-        assertEquals(2, cancerStudy1.getInternalId());
-        assertEquals("GBM private study x", cancerStudy1.getName());
-        assertEquals("GBM Description 2", cancerStudy1.getDescription());
-        assertEquals(false, cancerStudy1.isPublicStudy());
-
-        cancerStudy1 = list.get(2);
-        assertEquals(3, cancerStudy1.getInternalId());
-        assertEquals("Breast", cancerStudy1.getName());
-        assertEquals("Breast Description", cancerStudy1.getDescription());
-        assertEquals(false, cancerStudy1.isPublicStudy());
-
         cancerStudy1 = DaoCancerStudy.getCancerStudyByInternalId(1);
         assertEquals(1, cancerStudy1.getInternalId());
         assertEquals("GBM Description", cancerStudy1.getDescription());
         assertEquals("GBM public study x", cancerStudy1.getName());
         assertEquals(true, cancerStudy1.isPublicStudy());
+
+        cancerStudy1 = DaoCancerStudy.getCancerStudyByInternalId(2);
+        assertEquals(2, cancerStudy1.getInternalId());
+        assertEquals("GBM private study x", cancerStudy1.getName());
+        assertEquals("GBM Description 2", cancerStudy1.getDescription());
+        assertEquals(false, cancerStudy1.isPublicStudy());
+
+        cancerStudy1 = DaoCancerStudy.getCancerStudyByInternalId(3);
+        assertEquals(3, cancerStudy1.getInternalId());
+        assertEquals("Breast", cancerStudy1.getName());
+        assertEquals("Breast Description", cancerStudy1.getDescription());
+        assertEquals(false, cancerStudy1.isPublicStudy());
 
         assertEquals(3, DaoCancerStudy.getCount());
         DaoCancerStudy.deleteCancerStudy(1);

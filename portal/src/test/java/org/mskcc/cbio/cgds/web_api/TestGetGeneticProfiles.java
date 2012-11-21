@@ -56,15 +56,14 @@ public class TestGetGeneticProfiles extends TestCase {
 
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("GBM");
 
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        daoGeneticProfile.deleteAllRecords();
+        DaoGeneticProfile.deleteAllRecords();
         GeneticProfile profile1 = new GeneticProfile();
         profile1.setCancerStudyId(cancerStudy.getInternalId());
         profile1.setStableId("gbm_rae");
         profile1.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
         profile1.setProfileName("Barry CNA Results");
         profile1.setProfileDescription("Blah");
-        daoGeneticProfile.addGeneticProfile(profile1);
+        DaoGeneticProfile.addGeneticProfile(profile1);
 
         GeneticProfile profile2 = new GeneticProfile();
         profile2.setCancerStudyId(cancerStudy.getInternalId());
@@ -72,7 +71,7 @@ public class TestGetGeneticProfiles extends TestCase {
         profile2.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
         profile2.setProfileName("Gistic CNA Results");
         profile2.setProfileDescription("BlahBlah");
-        daoGeneticProfile.addGeneticProfile(profile2);
+        DaoGeneticProfile.addGeneticProfile(profile2);
 
 
 

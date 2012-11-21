@@ -52,8 +52,7 @@ public class TestGeneticProfileReader extends TestCase {
 		// TBD: change this to use getResourceAsStream()
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
 
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        daoGeneticProfile.deleteAllRecords();
+        DaoGeneticProfile.deleteAllRecords();
 
         DaoCancerStudy.deleteAllRecords();
 
@@ -67,7 +66,7 @@ public class TestGeneticProfileReader extends TestCase {
         assertEquals("Blah Blah.", geneticProfile.getProfileDescription());
 
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
-        ArrayList<GeneticProfile> list = daoGeneticProfile.getAllGeneticProfiles
+        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles
                 (cancerStudy.getInternalId());
         geneticProfile = list.get(0);
 

@@ -56,25 +56,12 @@ $(document).ready(function(){
     });
 
     //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-	var drawTooltipRegion = true;
     $("#toggle_query_form").click(function(event) {
       event.preventDefault();
       $('#query_form_on_results_page').toggle();
 
       //  Toggle the icons
       $(".query-toggle").toggle();
-
-	  // to handle drawing of tooltip region canvas on click
-	  var currentLocation = window.location.pathname;
-	  if (currentLocation.indexOf("index.do") != -1 || currentLocation.indexOf("link.do") != -1) {
-		var cancerStudyId = $("#select_cancer_type").val();
-		drawTooltipRegion = !drawTooltipRegion;
-   	    if (drawTooltipRegion) {
-			// we use time out otherwise tiptip on Modify Query erases region
-			eval("setTimeout(function () { DrawOncoPrintTooltipRegion(ONCOPRINT_" + cancerStudyId +
-				 ", oncoprint_section_" + cancerStudyId + ")}, 100);");
-		}
-	  }
 
     });
 
@@ -180,7 +167,7 @@ function singleCancerStudySelected() {
     $("#step2").show();
     $('#step2cross').hide();
     $("#step3").show();
-    $("#step5").show();
+    //$("#step5").show();
     $("#cancer_study_desc").show();
 }
 
@@ -237,18 +224,18 @@ function reviewCurrentSelections(){
    }
 
    // determine whether optional arguments section should be shown or hidden
-   if ($("#optional_args > input").length >= 1){
-       $("#optional_args > input").each(function(){
-           if ($(this).attr('checked')){
-               // hide/show is ugly, but not sure exactly how toggle works
-               // and couldn't get it to work.. this will do for now
-               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
-               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
-               $("#optional_args").toggle();
-               return;
-           }
-       });
-   }
+//   if ($("#optional_args > input").length >= 1){
+//       $("#optional_args > input").each(function(){
+//           if ($(this).attr('checked')){
+//               // hide/show is ugly, but not sure exactly how toggle works
+//               // and couldn't get it to work.. this will do for now
+//               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+//               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+//               $("#optional_args").toggle();
+//               return;
+//           }
+//       });
+//   }
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -395,7 +382,19 @@ function cancerStudySelected() {
     }
 
     //  Update Cancer Study Description
-    $("#cancer_study_desc").html("<p> " + cancer_study.description + "</p>");
+    var citation = cancer_study.citation;
+    if (!citation) {
+        citation="";
+    }
+    else {
+        var pmid = cancer_study.pmid;
+        if (pmid) {
+            citation = " <a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
+        }
+    }
+    var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
+        +cancerStudyId+"')\">View details</button>";
+    $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles
     //  Add all non-expression profiles where show_in_analysis_tab = true

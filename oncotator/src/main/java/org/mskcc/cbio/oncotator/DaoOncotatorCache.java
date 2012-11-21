@@ -35,10 +35,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * DAO for Oncotator Cache Table.
+ * Database implementation (DAO) for the Oncotator Cache Service.
  *
  */
-public class DaoOncotatorCache
+public class DaoOncotatorCache implements OncotatorCacheService
 {
     private static DaoOncotatorCache daoOncotatorCache;
 
@@ -59,11 +59,11 @@ public class DaoOncotatorCache
     }
 
     /**
-     * Adds a new Cache Record to the Database.
+     * Adds a new oncotator record to the database cache.
      *
-     * @param record Oncotator Record.
-     * @return number of records successfully added.
-     * @throws SQLException Database Error.
+     * @param record    Oncotator Record.
+     * @return          number of records successfully added.
+     * @throws          SQLException Database Error.
      */
     public int put(OncotatorRecord record) throws SQLException {
         Connection con = null;
@@ -78,11 +78,11 @@ public class DaoOncotatorCache
                             " `EXON_AFFECTED`, `COSMIC_OVERLAP`, `DB_SNP_RS`)" +
                             " VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setString(1, record.getKey());
-            pstmt.setString(2, record.getBestCanonicalTranscript().getGene());
+            pstmt.setString(2, record.getBestEffectTranscript().getGene());
             pstmt.setString(3, record.getGenomeChange());
-            pstmt.setString(4, record.getBestCanonicalTranscript().getProteinChange());
-            pstmt.setString(5, record.getBestCanonicalTranscript().getVariantClassification());
-            pstmt.setInt(6, record.getBestCanonicalTranscript().getExonAffected());
+            pstmt.setString(4, record.getBestEffectTranscript().getProteinChange());
+            pstmt.setString(5, record.getBestEffectTranscript().getVariantClassification());
+            pstmt.setInt(6, record.getBestEffectTranscript().getExonAffected());
             pstmt.setString(7, record.getCosmicOverlappingMutations());
             pstmt.setString(8, record.getDbSnpRs());
             int rows = pstmt.executeUpdate();
@@ -97,8 +97,8 @@ public class DaoOncotatorCache
 	/**
 	 * Gets an oncotator record for the provided key.
 	 *
-	 * @param key
-	 * @return
+	 * @param key               cache key
+	 * @return                  corresponding record for the given key
 	 * @throws SQLException
 	 */
     public OncotatorRecord get(String key) throws SQLException {
@@ -113,12 +113,12 @@ public class DaoOncotatorCache
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 OncotatorRecord record = new OncotatorRecord(rs.getString("CACHE_KEY"));
-                record.getBestCanonicalTranscript().setGene(rs.getString("GENE_SYMBOL"));
+                record.getBestEffectTranscript().setGene(rs.getString("GENE_SYMBOL"));
                 record.setGenomeChange(rs.getString("GENOME_CHANGE"));
-                record.getBestCanonicalTranscript().setProteinChange(rs.getString("PROTEIN_CHANGE"));
-                record.getBestCanonicalTranscript().setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
+                record.getBestEffectTranscript().setProteinChange(rs.getString("PROTEIN_CHANGE"));
+                record.getBestEffectTranscript().setVariantClassification(rs.getString("VARIANT_CLASSIFICATION"));
                 record.setCosmicOverlappingMutations(rs.getString("COSMIC_OVERLAP"));
-                record.getBestCanonicalTranscript().setExonAffected(rs.getInt("EXON_AFFECTED"));
+                record.getBestEffectTranscript().setExonAffected(rs.getInt("EXON_AFFECTED"));
                 record.setDbSnpRs(rs.getString("DB_SNP_RS"));
                 return record;
             } else {

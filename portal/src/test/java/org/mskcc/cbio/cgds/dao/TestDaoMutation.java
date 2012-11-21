@@ -64,7 +64,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setGene(blahGene);
 		mutation.setValidationStatus("validated");
 		mutation.setMutationStatus("somatic");
-		mutation.setMutationType("missence");
+		mutation.setMutationType("missense");
 		mutation.setChr("chr1");
 		mutation.setStartPosition(10000);
 		mutation.setEndPosition(20000);
@@ -130,7 +130,7 @@ public class TestDaoMutation extends TestCase {
 		assertEquals (321, mutation.getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());
-		assertEquals ("missence", mutation.getMutationType());
+		assertEquals ("missense", mutation.getMutationType());
 		assertEquals ("chr1", mutation.getChr());
 		assertEquals (10000, mutation.getStartPosition());
 		assertEquals (20000, mutation.getEndPosition());

@@ -53,8 +53,7 @@ public class UpdateMetaData {
 
         GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfileFromMeta(descriptorFile);
 
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        GeneticProfile existingGeneticProfile = daoGeneticProfile.getGeneticProfileByStableId
+        GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId
                 (geneticProfile.getStableId());
         
         // TODO: handle null existingGeneticProfile
@@ -64,7 +63,7 @@ public class UpdateMetaData {
         System.out.println ("Changing desc from:  " + existingGeneticProfile.getProfileDescription());
         System.out.println ("                to:  " + geneticProfile.getProfileDescription());
 
-        boolean flag = daoGeneticProfile.updateNameAndDescription
+        boolean flag = DaoGeneticProfile.updateNameAndDescription
                 (existingGeneticProfile.getGeneticProfileId(),
                 geneticProfile.getProfileName(), geneticProfile.getProfileDescription());
 

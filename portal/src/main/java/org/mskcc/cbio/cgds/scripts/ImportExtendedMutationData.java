@@ -27,6 +27,14 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
@@ -34,15 +42,6 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Import an extended mutation file.
@@ -114,7 +113,6 @@ public class ImportExtendedMutationData{
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		DaoCase daoCase = new DaoCase();
 		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
 		DaoMutation daoMutation = DaoMutation.getInstance();
 
@@ -153,11 +151,11 @@ public class ImportExtendedMutationData{
 				pMonitor.incrementCurValue();
 				ConsoleUtil.showProgress(pMonitor);
 			}
-
+                        
 			if( !line.startsWith("#") && line.trim().length() > 0)
 			{
 				String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
-				MafRecord record = mafUtil.parseRecord(line);
+                                MafRecord record = mafUtil.parseRecord(line);
 
 				// process case id
 				// an example bar code looks like this:  TCGA-13-1479-01A-01W
@@ -176,8 +174,8 @@ public class ImportExtendedMutationData{
 				} catch( ArrayIndexOutOfBoundsException e) {
 					caseId = barCode;
 				}
-				if( !daoCase.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-					daoCase.addCase(caseId, geneticProfileId);
+				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
+					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
 				}
 
 				String validationStatus = record.getValidationStatus();
@@ -299,7 +297,12 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
+                                            try {
 						daoMutation.addMutation(mutation);
+                                                DaoMutationEvent.addMutation(mutation);
+                                            } catch (DaoException ex) {
+                                                ex.printStackTrace();
+                                            }
 					}
 				}
 			}

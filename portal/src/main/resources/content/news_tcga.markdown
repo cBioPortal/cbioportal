@@ -1,3 +1,5 @@
+# November 21, 2012
+
 * Major new feature: Users can now visualize __genomic alterations and clinical data of individual tumors__, including:
     - Summary of __mutations__ and __copy-number alterations__ of interest
     - __Clinical trial__ information

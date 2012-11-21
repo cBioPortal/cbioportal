@@ -3,3 +3,4 @@ NCBI_Build	Chromosome	Start_position	End_position	Variant_Classification	Referen
 37	4	83788017	83788017	Silent	G	G	A	custom_data
 37	1	906209	906209	Nonsense_Mutation	G	G	A	custom_data
 37	1	3411011	3411043	In_Frame_Del	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	-	custom_data
+

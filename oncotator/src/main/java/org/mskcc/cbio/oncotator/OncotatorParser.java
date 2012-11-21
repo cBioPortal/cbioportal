@@ -81,6 +81,11 @@ public class OncotatorParser
             oncoRecord.setDbSnpRs(dbSnpRs.getTextValue());
         }
 
+	    JsonNode dbSnpValStatus = rootNode.path("dbSNP_Val_Status");
+	    if (!dbSnpValStatus.isMissingNode()) {
+		    oncoRecord.setDbSnpValStatus(dbSnpValStatus.getTextValue());
+	    }
+
         JsonNode bestCanonicalTranscriptIdxNode = rootNode.path("best_canonical_transcript");
 	    JsonNode bestEffectTranscriptIdxNode = rootNode.path("best_effect_transcript");
 	    JsonNode transcriptsNode = rootNode.path("transcripts");

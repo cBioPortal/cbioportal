@@ -57,7 +57,9 @@ public final class Methylation27ConverterImpl implements Converter {
 	private static final Log LOG = LogFactory.getLog(Methylation27ConverterImpl.class);
 
 	// statics for column identifiers in correlate - methylation file
+	private static final String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
 	private static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
+	private static final String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
 
 	// statics for column identifires in <CANCER>.methylation__humanmethylation27 file
 	private static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
@@ -146,6 +148,69 @@ public final class Methylation27ConverterImpl implements Converter {
 		}
 		else {
 			throw new IllegalArgumentException("Cannot determine correlation & methylation data matrices, aborting...");
+		}
+
+		// get probe with lowest Spearman correlation for each gene in importDataMatrixCorrelationData
+		// (this works whether or not importDataMatrixCorrelationData is sorted by correlation value)
+		HashMap<String,String[]> lowestCorrelationMap = new HashMap<String,String[]>();
+		Vector<String> genes = importDataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).get(0);
+		Vector<String> methProbes = importDataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0);
+		Vector<String> corrSpearman = importDataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).get(0);
+		// sanity check
+		if (genes.size() != methProbes.size() && methProbes.size() != corrSpearman.size()) {
+			throw new IllegalArgumentException("Genes, probs, and corrSpearman vectors are different sizes, aborting...");
+		}
+		// iterate over all records
+		for (int lc = 0; lc < genes.size(); lc++) {
+			String gene = genes.get(lc);
+			String methProbe = methProbes.get(lc);
+			String cSpearman = corrSpearman.get(lc);
+			if (lowestCorrelationMap.containsKey(gene)) {
+				if (cSpearman < lowestCorrelationMap.get(gene)[1]) {
+					String[] value = { methProbe, cSpearman };
+					lowestCorrelationMap.put(gene, value);
+				}
+			}
+			else {
+				String[] value = { methProbe, cSpearman };
+				lowestCorrelationMap.put(gene, value);
+			}
+		}
+		// determine set of probes
+		methProbes = new HashMap<String, String>();
+		for (String gene : genes) {
+			String[] value = genes.get(gene);
+			String probe = value[0];
+			if (methProbes.containsKey(probe)) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("createStagingFile(), " + probe + " duplicated in multiple genes");
+				}
+			}
+			methProbes.put(probe, gene);
+		}
+
+		// remove extraneous columns:
+		//
+		// original methylation__humanmethylation27 file contains
+		// multiple columns with the same name, in particular 4 columns (Beta_Value  Gene_Symbol Chromosome  Genomic_Coordinate)
+		// for each case.
+		// so, count the # of columns in methylation__humanmethylation27 and delete all columns but
+		// 1, 2, 6, 10, ...,
+		Vector<String> columnHeaders = importDataMatrixMethylationData.getColumnHeaders();
+		if (columnHeaders.size()-1 % 4 != 0) {
+			throw new IllegalArgumentException(cancerStudy + ": methylation__humanmethylation27 does not have 4 columns per case, aborting...");
+		}
+		for (int lc = 1; lc < columnHeaders.size(); lc+=4) {
+			importDataMatrixMethylationData.removeColumn(lc);
+		}
+
+		// remove 2nd row (row data starts at 0 index, ignoring column headings)
+		// of data (containing "Composite Element REF Beta_Value...";
+		importDataMatrixMethylationData.(0);
+		
+		if (LOG.isInfoEnabled()) {
+			//importDataMatrixMethylationData.setGeneIDColumnHeading();
+			//LOG.info("createStagingFile(), of ", genes.size(), " with measured methylation, only ", lowestCorrelation.size(), " have correlations.\n";);
 		}
 
 		if (LOG.isInfoEnabled()) {

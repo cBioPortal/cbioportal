@@ -76,6 +76,11 @@ sub main{
 					print "removing mutsig file from staging area: $toRemove\n";
 					system("rm -f $toRemove"); 
 				}
+				$toRemove = File::Spec->catfile($stagingAreaCancerDirectory, 'meta_mutsig.txt');
+				if (-e $toRemove) {
+					print "removing meta_mutsig file from staging area: $toRemove\n";
+					system("rm -f $toRemove"); 
+				}
 			}
 		}
 

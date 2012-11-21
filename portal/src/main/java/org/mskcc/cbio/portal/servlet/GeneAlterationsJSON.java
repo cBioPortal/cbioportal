@@ -160,8 +160,6 @@ public class GeneAlterationsJSON extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String cancer_study_id = request.getParameter("cancer_study_id");
-
         String _geneList = request.getParameter("genes");
         // list of genes separated by a space
 

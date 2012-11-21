@@ -182,7 +182,7 @@ var OncoPrint = function(params) {
 //        that.drawMRNA(mrna_data, svg, trackSettings);
     };
 
-    that.drawTracks = function(svg, trackSettings) {
+    that.drawTracks = function(svg) {
         var trackNum = 0;
 
         gene_data.forEach(function(gene) {
@@ -197,19 +197,6 @@ var OncoPrint = function(params) {
         });
     };
 
-    that.sort = function(svg, new_indexes) {
-        svg.selectAll('rect')
-            .transition()
-//            .ease()
-            .delay(2000)
-            .duration(1000)
-            .attr('x', function(d, i) {
-               var sample_id = this.getAttribute('id');
-
-               var pos = x(new_indexes[sample_id] % no_samples);
-               return toggleRectPadding === 0 ? pos : pos * rectPadding;
-            });
-    };
 
     that.insertFullOncoPrint = function(div) {
         var oncoPrintDiv = $('<div/>', {
@@ -329,13 +316,30 @@ var OncoPrint = function(params) {
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
-        that.drawTracks(svg, genes);
+        that.sort = function(new_indexes) {
+            svg.selectAll('rect')
+                .transition()
+//            .ease()
+                .delay(2000)
+                .duration(1000)
+                .attr('x', function(d, i) {
+                    var sample_id = this.getAttribute('id');
 
-        var sorted = MemoSort(params.data, "EGFR");
+                    var pos = x(new_indexes[sample_id] % no_samples);
+                    return toggleRectPadding === 0 ? pos : pos * rectPadding;
+                });
+        };
 
-//        that.sort(svg, sorted);
+        that.drawTracks(svg);
 
-//        SORT = function() { that.sort(svg, sorted); return sorted; };
+        that.memoSort = function() {
+            // todo: save the memoSort somewhere so that you don't have to redo the sort
+            var memoSort = MemoSort(params.data, "EGFR");
+            var sorted = memoSort.sort();
+            that.sort(sorted);
+
+            return sorted;
+        };
     };
 
 

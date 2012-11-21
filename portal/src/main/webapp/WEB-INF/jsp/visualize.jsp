@@ -217,12 +217,10 @@
 <script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
-    var cancer_study_id = "<%=cancerTypeId%>",
-            genes = "<%=genes%>",
+        var genes = "<%=genes%>",
             cases = "<%=cases%>",
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {
-                cancer_study_id: cancer_study_id,
                 genes: genes,
                 cases: cases,
                 geneticProfileIds: geneticProfiles

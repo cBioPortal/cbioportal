@@ -1,4 +1,5 @@
 BLCA.log2CNA.txt blca
 KIRC.log2CNA.txt kirc
+LUAD.log2CNA.txt luad
 LUSC.log2CNA.txt lusc
 UCEC.log2CNA.txt ucec

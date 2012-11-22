@@ -185,23 +185,23 @@
                 // put all the case sets
 //                Log log = LogFactory.getLog("visualize.jsp");
 //                log.info( caseLists.size() );
+//
+//                // concat all case sets into one big list
+//                ArrayList<String> _cases = new ArrayList<String>();
+//                for (CaseList caseSet : caseSets) {
+//                    if (caseSetId.equals(caseSet.getStableId())) {
+//                        _cases.addAll(caseSet.getCaseList());
+//                    }
+//                }
+//
+//                // remove duplicates (cases that belong to multiple case sets)
+//                Set set_of_cases = new HashSet(_cases);
+//                _cases.clear();
+//                _cases.addAll(set_of_cases);
+//
+//                String cases = StringUtils.join(_cases, " ");
+//                cases = cases.trim();
 
-                // concat all case sets into one big list
-                ArrayList<String> _cases = new ArrayList<String>();
-                for (CaseList caseSet : caseSets) {
-                    if (caseSetId.equals(caseSet.getStableId())) {
-                        _cases.addAll(caseSet.getCaseList());
-                    }
-                }
-
-                // remove duplicates (cases that belong to multiple case sets)
-                Set set_of_cases = new HashSet(_cases);
-                _cases.clear();
-                _cases.addAll(set_of_cases);
-
-                String cases = StringUtils.join(_cases, " ");
-                cases = cases.trim();
-                
                 //todo: this might not be the fastest way to do this since I am not removing duplicates as I go.
 
                 // put geneticProfileIds into the proper form for the JSON request
@@ -211,6 +211,9 @@
                 // put gene string into a form that javascript can swallow
                 String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
                 genes = genes.replace("\n", " ");
+                
+                List<String> _cases = (List<String>) request.getAttribute(QueryBuilder.CASE_IDS);
+                String cases = StringUtils.join( _cases, " ");
             %>
 
 <script type="text/javascript" src="js/GeneAlterations.js"></script>

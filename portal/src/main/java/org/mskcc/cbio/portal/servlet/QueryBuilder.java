@@ -228,6 +228,7 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
             String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
+
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,

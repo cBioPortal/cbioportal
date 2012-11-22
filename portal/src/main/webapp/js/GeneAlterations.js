@@ -118,6 +118,23 @@ GeneAlterations.query = function(data) {
             return toReturn;
         },
 
+        getSampleList: function() {
+            var samples = data.samples;
+
+            var samples_l = [];
+
+            for (var sample in samples) {
+                samples_l.push(sample);
+//                console.log(sample);
+            }
+
+            samples_l.sort(function(a,b) {
+                return samples[a] - samples[b];
+            });
+
+            return samples_l;
+        },
+
         data : function(_sample_id, _gene, _data_type) {
             // _sample_id, _gene, _data_type -> data
             // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
@@ -212,6 +229,15 @@ GeneAlterations.test = function(sendData) {
     geneAlterations.addListener(endTest);
     geneAlterations.fire();
 
+
+    console.log("\nquery.samplesAsList");
+    var d;
+    geneAlterations.fire(function(data) { d = data; });
+    var query = GeneAlterations.query(d);
+    var samples = d.samples;
+    var sample_l = query.getSampleList();
+
+    console.log('0', (samples[sample_l[0]] === 0) || samples[samples_l[0]]);
     return true;
 };
 

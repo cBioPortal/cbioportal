@@ -207,6 +207,8 @@ public final class Methylation27ConverterImpl implements Converter {
 		// remove 2nd row (row data starts at 0 index, ignoring column headings)
 		// of data (containing "Composite Element REF Beta_Value...";
 		importDataMatrixMethylationData.(0);
+
+		
 		
 		if (LOG.isInfoEnabled()) {
 			//importDataMatrixMethylationData.setGeneIDColumnHeading();

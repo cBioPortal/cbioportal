@@ -36,6 +36,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.model.DrugInteraction;
@@ -44,6 +46,8 @@ public class DaoDrugInteraction {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoDrugInteraction daoDrugInteraction;
     private static final String NA = "NA";
+
+    private static final Log log = LogFactory.getLog(DaoDrugInteraction.class);
 
     private DaoDrugInteraction() {
     }
@@ -297,7 +301,6 @@ public class DaoDrugInteraction {
      * Gets the Number of Interaction Records in the Database.
      *
      * @return number of gene records.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
      */
     public int getCount() throws DaoException {
         Connection con = null;
@@ -364,7 +367,11 @@ public class DaoDrugInteraction {
                 String[] targetGenes = parts[2].split(",");
                 Set<Long> targetEntrez = new HashSet<Long>(targetGenes.length);
                 for (String target : targetGenes) {
-                    targetEntrez.add(daoGeneOptimized.getGene(target).getEntrezGeneId());
+                    CanonicalGene gene = daoGeneOptimized.getGene(target);
+                    if(gene == null)
+                        log.warn("Could not find gene: " + target);
+                    else
+                        targetEntrez.add(gene.getEntrezGeneId());
                 }
                 
                 for (String gene : genesOfEvents) {

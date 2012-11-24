@@ -193,12 +193,12 @@ function reviewCurrentSelections(){
         var setDefaults = true;
 
         // if no checkboxes are checked, make default selections
-        $('input:checkbox').each(function(){
-            if ($(this).attr('checked')){
-                setDefaults = false;
-                return;
-            }
-        });
+//        $('input:checkbox').each(function(){
+//            if ($(this).attr('checked')){
+//                setDefaults = false;
+//                return;
+//            }
+//        });
 
         if (setDefaults){
             console.log("reviewCurrentSelections ( makeDefaultSelections() )");

@@ -87,11 +87,8 @@
     String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
-    String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
-    boolean computeLogOddsRatio = false;
-    if (computeLogOddsRatioStr != null) {
-        computeLogOddsRatio = true;
-    }
+    
+    boolean computeLogOddsRatio = true;
 
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);

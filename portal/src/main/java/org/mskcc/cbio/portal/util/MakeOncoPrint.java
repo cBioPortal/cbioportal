@@ -226,6 +226,7 @@ public class MakeOncoPrint {
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/jquery.qtip.min.js\"></script>\n");
 		if (forSummaryTab) {
 			out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
 			out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");

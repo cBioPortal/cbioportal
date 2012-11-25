@@ -272,7 +272,7 @@ public class PatientView extends HttpServlet {
         
         String stage = guessClinicalData(clinicalFreeForms, 
                 new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE"});
-        if (stage!=null) {
+        if (stage!=null && !stage.equalsIgnoreCase("unknown")) {
             diseaseInfo.append(", ").append(stage); 
         }
         

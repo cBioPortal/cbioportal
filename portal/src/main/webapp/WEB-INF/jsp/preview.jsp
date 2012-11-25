@@ -1,6 +1,16 @@
 <div class="ppy" id="ppy2">
     <ul class="ppy-imglist">
         <li>
+            <a href="images/previews/patient_view.png">
+                <img src="images/previews/thumb_patient_view.png" alt="" />
+            </a>
+            <span class="ppy-extcaption">
+                <strong>Mutation summary for TCGA endometrial cancer case <a href="tumormap.do?case_id=TCGA-BK-A0CC&cancer_study_id=ucec_tcga">TCGA-BK-A0CC</a>.</strong>
+                <br /><br />The most prominent or most interesting genomic alteration events from an individual tumor sample can now be browsed and analyzed in the portal.
+                <br /><br />Data source: TCGA Uterine Corpus Endometrioid Carcinoma.
+            </span>
+        </li>
+        <li>
             <a href="images/previews/ova_network.png">
                 <img src="images/previews/thumb_ova_network.png" alt="" />
             </a>

@@ -1,5 +1,6 @@
 BLCA.cna.txt blca
 GBM.cna.txt gbm
+LUAD.cna.txt luad
 LUSC.cna.txt lusc
 KIRC.cna.txt kirc
 UCEC.cna.txt ucec

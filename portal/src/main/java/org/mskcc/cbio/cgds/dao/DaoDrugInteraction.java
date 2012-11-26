@@ -36,6 +36,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.model.DrugInteraction;
@@ -44,6 +46,8 @@ public class DaoDrugInteraction {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoDrugInteraction daoDrugInteraction;
     private static final String NA = "NA";
+
+    private static final Log log = LogFactory.getLog(DaoDrugInteraction.class);
 
     private DaoDrugInteraction() {
     }
@@ -297,7 +301,6 @@ public class DaoDrugInteraction {
      * Gets the Number of Interaction Records in the Database.
      *
      * @return number of gene records.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
      */
     public int getCount() throws DaoException {
         Connection con = null;
@@ -346,48 +349,57 @@ public class DaoDrugInteraction {
     
     // Temporary way of handling cases such as akt inhibitor for pten loss
     private static final String DRUG_TARGET_FILE = "/drug_target_annotation.txt";
-    private static final Map<Long,Map<String,Set<Long>>> drugTargetAnnotation // map <entrez of gene of event, map <event, target genes> >
-            = new HashMap<Long,Map<String,Set<Long>>>();
-    static {
-        try {
-            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(DaoDrugInteraction.class.getResourceAsStream(DRUG_TARGET_FILE)));
-            for (String line=in.readLine(); line!=null; line=in.readLine()) {
-                if (line.startsWith("#")) {
-                    continue;
-                }
+    private static  Map<Long,Map<String,Set<Long>>> drugTargetAnnotation = null; // map <entrez of gene of event, map <event, target genes> >
+    
+    private static synchronized Map<Long,Map<String,Set<Long>>> getDrugTargetAnnotation() {
+        if (drugTargetAnnotation==null) {
+            drugTargetAnnotation = new HashMap<Long,Map<String,Set<Long>>>();
+            try {
+                DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(DaoDrugInteraction.class.getResourceAsStream(DRUG_TARGET_FILE)));
+                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    if (line.startsWith("#")) {
+                        continue;
+                    }
 
-                String[] parts = line.split("\t");
-                String[] genesOfEvents = parts[0].split(",");
-                String[] events = parts[1].split(",");
-                String[] targetGenes = parts[2].split(",");
-                Set<Long> targetEntrez = new HashSet<Long>(targetGenes.length);
-                for (String target : targetGenes) {
-                    targetEntrez.add(daoGeneOptimized.getGene(target).getEntrezGeneId());
-                }
-                
-                for (String gene : genesOfEvents) {
-                    long entrez = daoGeneOptimized.getGene(gene).getEntrezGeneId();
-                    Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(entrez);
-                    if (mapEventTargets==null) {
-                        mapEventTargets = new HashMap<String,Set<Long>>();
-                        drugTargetAnnotation.put(entrez, mapEventTargets);
+                    String[] parts = line.split("\t");
+                    String[] genesOfEvents = parts[0].split(",");
+                    String[] events = parts[1].split(",");
+                    String[] targetGenes = parts[2].split(",");
+                    Set<Long> targetEntrez = new HashSet<Long>(targetGenes.length);
+                    for (String target : targetGenes) {
+                        CanonicalGene gene = daoGeneOptimized.getGene(target);
+                        if(gene == null)
+                            log.warn("Could not find gene: " + target);
+                        else
+                            targetEntrez.add(gene.getEntrezGeneId());
                     }
-                    
-                    for (String event : events) {
-                        mapEventTargets.put(event, targetEntrez);
+
+                    for (String gene : genesOfEvents) {
+                        long entrez = daoGeneOptimized.getGene(gene).getEntrezGeneId();
+                        Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(entrez);
+                        if (mapEventTargets==null) {
+                            mapEventTargets = new HashMap<String,Set<Long>>();
+                            drugTargetAnnotation.put(entrez, mapEventTargets);
+                        }
+
+                        for (String event : events) {
+                            mapEventTargets.put(event, targetEntrez);
+                        }
                     }
                 }
+                in.close();
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-            in.close();
-        } catch(Exception e) {
-            e.printStackTrace();
         }
+        
+        return drugTargetAnnotation;
     }
     
     public Set<Long> getMoreTargets(long geneOfEvent, String event) {
-        Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(geneOfEvent);
+        Map<String,Set<Long>> mapEventTargets = getDrugTargetAnnotation().get(geneOfEvent);
         if (mapEventTargets==null) {
             return Collections.emptySet();
         }

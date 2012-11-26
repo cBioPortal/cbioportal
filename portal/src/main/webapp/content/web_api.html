@@ -134,7 +134,7 @@
 <p>You can either:</p>
 <ul>
 <li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=BRCA1+BRCA2+TP53">Specify multiple genes and a single genetic profile ID.</a></li>
-<li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&amp;gene_list=EGFR">Specify a single gene and multiple genetic profile IDs.</a></li>
+<li><a href="webservice.do?cmd=getProfileData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_log2CNA,gbm_tcga_gistic&amp;gene_list=EGFR">Specify a single gene and multiple genetic profile IDs.</a></li>
 </ul>
 <h4 id="response-format-1">Response Format 1</h4>
 <p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
@@ -239,7 +239,6 @@
 <ul>
 <li><strong>cmd</strong>=getProteinArrayData (required)</li>
 <li><strong>case_set_id</strong>= [case set ID] (required)</li>
-<li><strong>protein_array_id</strong>= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
 <li><strong>array_info</strong>= [1 or 0]. If 1, antibody information will also be exported. </li>
 </ul>
 <h4 id="response-format-1_1">Response Format 1</h4>
@@ -260,7 +259,6 @@
 <h3 id="example_7">Example</h3>
 <ul>
 <li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA">Get All RPPA Data in TCGA Colorectal Cases.</a></li>
-<li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA&amp;protein_array_id=GBL9017366+GBL9017365">Get RPPA data in TCGA Colorectal Cases for Specific Antibodies.</a></li>
 <li><a href="webservice.do?cmd=getProteinArrayData&amp;case_set_id=coadread_tcga_RPPA&amp;array_info=1">Get All RPPA Data with antibody information in TCGA Colorectal Cases.</a></li>
 </ul>
 <h1 id="linking-to-us">Linking to Us</h1>

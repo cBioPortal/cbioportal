@@ -12,4 +12,5 @@ OV.maf.annotated ov
 PRAD.maf.annotated prad
 SKCM.maf.annotated skcm
 STAD.maf.annotated stad
+THCA.maf.annotated thca
 UCEC.maf.annotated  ucec

@@ -88,8 +88,7 @@ public class OncotateTool
 
         try
         {
-            Oncotator tool = new Oncotator();
-	        tool.setUseCache(useCache);
+            Oncotator tool = new Oncotator(useCache);
 	        tool.setSortColumns(sort);
 	        tool.setAddMissingCols(addMissing);
 

@@ -32,14 +32,16 @@ import java.io.File;
 import java.io.FileReader;
 
 /**
- * Oncotate Tool altered to build JSON cache for existing oncotator key values.
+ * Oncotator altered to build JSON cache for existing oncotator key values.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class CacheBuilderOncoTool extends Oncotator
+public class CacheBuilderOncotator extends Oncotator
 {
 	/**
 	 * Default constructor with the default oncotator service.
 	 */
-	public CacheBuilderOncoTool()
+	public CacheBuilderOncotator()
 	{
 		super();
 		OncotatorCacheService cacheService = new DaoJsonCache();

@@ -36,6 +36,8 @@ import java.sql.SQLException;
 
 /**
  * DAO for oncotator json cache.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class DaoJsonCache implements OncotatorCacheService
 {

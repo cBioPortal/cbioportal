@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -78,6 +79,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
     public static final String CASE_IDS_KEY = "case_ids_key";
+    public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
     public static final String RAW_GENE_STR = "raw_gene_str";
@@ -372,6 +374,11 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         }
+        
+        String _setOfCaseIds;
+        _setOfCaseIds = StringUtils.join(setOfCaseIds.toArray(), " ");
+
+        request.setAttribute(SET_OF_CASE_IDS, _setOfCaseIds);
         
         if (caseIdsKey == null)
         {

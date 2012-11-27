@@ -214,12 +214,15 @@
                 
                 List<String> _cases = (List<String>) request.getAttribute(QueryBuilder.CASE_IDS);
                 String cases = StringUtils.join( _cases, " ");
+                
+                cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
             %>
 
 <script type="text/javascript" src="js/GeneAlterations.js"></script>
 <script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
+
         var genes = "<%=genes%>",
             cases = "<%=cases%>",
             geneticProfiles = "<%=geneticProfiles%>",

@@ -316,14 +316,14 @@ var OncoPrint = function(params) {
             .style('overflow', 'hidden')
             .attr('xmlns',  'http://www.w3.org/2000/svg');
 
-        that.sort = function(new_indexes) {
+        that.sort = function(new_indices) {
             svg.selectAll('rect')
                 .transition()
                 .duration(1000)
                 .attr('x', function(d, i) {
                     var sample_id = this.getAttribute('id');
 
-                    var pos = x(new_indexes[sample_id] % no_samples);
+                    var pos = x(new_indices[sample_id] % no_samples);
                     return toggleRectPadding === 0 ? pos : pos * rectPadding;
                 });
         };
@@ -332,7 +332,7 @@ var OncoPrint = function(params) {
 
         that.memoSort = function() {
             // todo: save the memoSort somewhere so that you don't have to redo the sort
-            var memoSort = MemoSort(params.data, "BRCA1");
+            var memoSort = MemoSort(params.data, "BRCA2");
             var sorted = memoSort.sort();
             that.sort(sorted);
 

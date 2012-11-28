@@ -81,7 +81,8 @@ var MemoSort = function(geneAlterations, sort_by) {
         // get the array of samples in the defined order
         var samples_l = query.getSampleList();
 
-        samples_l.sort(that.comparator);        // samples_l is now sorted, is this bad functional programming?
+        samples_l.sort(that.comparator);
+        // samples_l is now sorted, is this bad functional programming?
 
         // copy the mapping
         var sorted_samples =  $.extend({}, samples);

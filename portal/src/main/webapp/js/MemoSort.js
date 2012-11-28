@@ -1,11 +1,8 @@
-var MemoSort = function(geneAlterations) {
- // todo: should i protect these functions from being tampered with? ( comme d'habitude, use a closure)
+var MemoSort = function(geneAlterations, sort_by) {
 
     var query = GeneAlterations.query(geneAlterations);
 
-    that = {};
-
-    that.comparator = function(s1, s2) {
+    var comparator = function(s1, s2) {
         // list of genes with corresponding alteration data
         var sample1 = query.bySampleId(s1),
             sample2 = query.bySampleId(s2);
@@ -19,18 +16,18 @@ var MemoSort = function(geneAlterations) {
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
 
         // diffs
-        var cna = cna_order[sample2.cna] - cna_order[sample1.cna],
+        var cna = cna_order[sample1.cna] - cna_order[sample2.cna],
             mutation,
-            mrna = regulated_order[sample2.mrna] - regulated_order[sample1.mrna],
-            rppa = regulated_order[sample2.rppa] - regulated_order[sample1.rppa];
+            mrna = regulated_order[sample1.mrna] - regulated_order[sample2.mrna],
+            rppa = regulated_order[sample1.rppa] - regulated_order[sample2.rppa];
 
         // figure out the mutation diff
         if ((sample1.mutation === null) === (sample2.mutation === null)) {
             mutation = 0;
-        } else if (sample2.mutation === null) {
-            mutation = -1;
-        } else {
+        } else if (sample1.mutation !== null) {
             mutation = 1;
+        } else {
+            mutation = -1;
         }
 
         // sanity check
@@ -48,46 +45,65 @@ var MemoSort = function(geneAlterations) {
         // do some logic
         // cna > mutation > mrna > rppa
 
-        // cna
-        if (cna > 0) {
-            return 1;
+        if (cna !== 0) {
+            return cna;
         }
-        else if (cna < 0) {
-            return -1;
+
+        if (mutation !== 0) {
+            return mutation;
         }
-        else {
-            // mutation
-            if (mutation > 0) {
-                return 1;
-            }
-            else if (mutation < 0) {
-                return -1;
-            }
-            else {
-                // mrna
-                if (mrna > 0) {
-                    return 1;
-                }
-                else if (mrna < 0) {
-                    return -1;
-                }
-                else {
-                    // rppa
-                    if (rppa > 0) {
-                        return 1;
-                    }
-                    else if (rppa < 0) {
-                        return -1;
-                    }
-                    else {
-                        return 0;
-                    }
-                }
-            }
+
+        if (mrna !== 0) {
+            return mrna;
         }
+
+        if (rppa !== 0) {
+            return rppa;
+        }
+
+        return 0;
+
+
+//        // cna
+//        if (cna > 0) {
+//            return 1;
+//        }
+//        else if (cna < 0) {
+//            return -1;
+//        }
+//        else {
+//            // mutation
+//            if (mutation > 0) {
+//                return 1;
+//            }
+//            else if (mutation < 0) {
+//                return -1;
+//            }
+//            else {
+//                // mrna
+//                if (mrna > 0) {
+//                    return 1;
+//                }
+//                else if (mrna < 0) {
+//                    return -1;
+//                }
+//                else {
+//                    // rppa
+//                    if (rppa > 0) {
+//                        return 1;
+//                    }
+//                    else if (rppa < 0) {
+//                        return -1;
+//                    }
+//                    else {
+//                        return 0;
+//                    }
+//                }
+//            }
+//        }
     };
 
-    that.sort = function(geneAlterations, sort_by) {
+    var sort = function() {
         // geneAlterations:  data structure from GeneAlterationsJSON
 
         // the hugo gene symbol to sort by
@@ -114,7 +130,7 @@ var MemoSort = function(geneAlterations) {
 //        return order[sample1.cna] - order[sample2.cna];
 //    };
 
-        samples_l.sort(MemoSort.comparator);        // samples_l is now sorted, is this bad functional programming?
+        samples_l.sort(that.comparator);        // samples_l is now sorted, is this bad functional programming?
 
         // copy the mapping
         var sorted_samples =  $.extend({}, samples);
@@ -124,11 +140,16 @@ var MemoSort = function(geneAlterations) {
             sorted_samples[val] = i;
         });
 
-        console.log('sanity check: ', sorted_samples[samples_l[0]] === 0);
-
-//        return sorted_samples;
         return sorted_samples;
     };
+
+    var that = {
+        comparator: comparator,
+        sort: sort
+    };
+
+    return that;
+};
 
     MemoSort.test = function() {
         console.log("====MemoSort Test====");
@@ -180,7 +201,6 @@ var MemoSort = function(geneAlterations) {
                     mrna: [null, null] }
             ]
         };
-
 //    var query = GeneAlterations.query(dumbData);
 //
 //    var one = query.bySampleId("TCGA-1").EGFR;
@@ -225,4 +245,3 @@ var MemoSort = function(geneAlterations) {
 //$(document).ready(function() {
 //    MemoSort.test();
 //});
- ;  });

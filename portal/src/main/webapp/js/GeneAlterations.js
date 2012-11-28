@@ -1,10 +1,47 @@
+// Gideon Dresdner
+// dresdnerg@cbio.mskcc.org
+// November 2012
+
 var GeneAlterations = function(sendData) {
-    // manager to handle ajax requests for gene alteration data
-    // (e.g. for tables, oncoprints, ...)
-    // the idea is that you can call fire and not have to worry about whether you need to make a new AJAX call or not.
+//     manager to handle ajax requests for gene alteration data
+//     (e.g. for tables, oncoprints, ...)
+//     the idea is that you can call fire and not have to worry about whether you need to make a new AJAX call or not.
+//
+//     methods:
+//     addListener:    function                        ->  return undefined
+//     addListeners:   [list of functions]             ->  return undefined
+//     getAlterations: (optional: callback function)   ->  return undefined, or alterations if they have already been loaded
+//     redo:           new_sendData    redoes the request on the new data
+//
+//     sendData is an object literal that looks something like this :
+//     {   cancer_study_id: \"tcga_gbm\",
+//         genes:\"EGFR MDM2\",
+//         cases: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
+//         geneticProfileIds: \"gbm_mutations gbm_cna_consensus\" }
+//
+//     doing a request returns an object like this:
+//     {
+//      gene_data : ~,
+//      hugo_to_gene_index: ~,
+//      samples: ~
+//     }
+//
+//     gene_data:           *array* of objects like this
+//     {
+//         cna:                     array,
+//         hugo:                    string,
+//         mrna:                    array,
+//         mutations:               array,
+//         rppa:                    array,
+//         percent_altered:         string
+//     }
+
+//     hugo_to_gene_index:  map into the gene_data array indices
+//     samples:             map into the array indices of the data_types (cna, mutations, etc)
+
 
     var json = 'GeneAlterations.json',      // json url
-        data = {},                   // alterations object, the return of the json 'to be'
+        data = {},                          // alterations object, the return of the json 'to be'
         listeners = [],                     // queue of callback functions
         that = {},                          // GeneAlterations object
         MAKE_NEW_REQUEST = true;            // indicates whether you should make a new request or not
@@ -108,7 +145,7 @@ GeneAlterations.query = function(data) {
 
             data.gene_data.forEach(function(gene) {
                 toReturn[gene.hugo] = {
-                    mutation: gene.mutations[index],
+                    mutation: gene.mutation[index],
                     cna: gene.cna[index],
                     mrna: gene.mrna[index],
                     rppa: gene.rppa[index]
@@ -168,106 +205,3 @@ GeneAlterations.query = function(data) {
         }
     };
 };
-
-// {{{ test
-GeneAlterations.test = function(sendData) {
-//    var sendData = {
-//        cancer_study_id: "tcga_gbm",
-//        genes:"EGFR MDM2",
-//        cases: "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009",
-//        geneticProfileIds: "gbm_tcga_mutations"
-//        //geneticProfileIds: "gbm_mutations gbm_cna_consensus"
-//    };
-
-    console.log("==== GeneAlterations test ====");
-    console.log("sending this data...", sendData);
-
-    var geneAlterations = GeneAlterations(sendData);
-    console.log("geneAlterations sample", geneAlterations);
-
-    var listen1 = function(data) {
-        console.log("listen1", data);
-    };
-
-    var listen2 = function(data) {
-        console.log("listen2", (data === 5) === false);
-    };
-
-    geneAlterations.addListener(listen1);
-    geneAlterations.addListener(listen2);
-
-    geneAlterations.fire(function(data) {
-        console.log('final callback!');
-    });
-
-    geneAlterations.fire(function(data) {
-        console.log("preloaded: ", data);
-    });
-
-    console.log("out of listeners. nothing should happen between here...");
-    geneAlterations.fire();
-    console.log("...and here");
-
-    console.log("compareObj");
-    console.log(geneAlterations.compareSendDatas({a:5}, {a:5}) === true);
-    console.log(geneAlterations.compareSendDatas({a:5}, {a:4}) === false);
-    console.log(geneAlterations.compareSendDatas({a:5}, {b:5}) === false);
-    console.log(geneAlterations.compareSendDatas({a:5, b:12}, {b:5}) === false);        // prints error message
-
-//    sendData.cases += " TCGA-08-0525";
-//    geneAlterations.setSendData(sendData);
-//    console.log("setSendData: ", geneAlterations.getSendData().cases === "TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009"
-//    + " TCGA-08-0525");
-
-
-    var endTest = function() {
-        console.log("==== END GeneAlterations test ====");
-    };
-
-    geneAlterations.addListener(listen1);
-
-    geneAlterations.addListener(endTest);
-    geneAlterations.fire();
-
-
-    console.log("\nquery.samplesAsList");
-    var d;
-    geneAlterations.fire(function(data) { d = data; });
-    var query = GeneAlterations.query(d);
-    var samples = d.samples;
-    var sample_l = query.getSampleList();
-
-    console.log('0', (samples[sample_l[0]] === 0) || samples[samples_l[0]]);
-    return true;
-};
-
-// }}} 
-// GeneAlterations.test();
-//
-
-// {{{ help
-GeneAlterations.help = function() {
-    // constructor: GeneAlterations(sendData) 
-    // sendData is an object literal that looks something like this : 
-    // {   cancer_study_id: \"tcga_gbm\",
-    //     genes:\"EGFR MDM2\", 
-    //     cases: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
-    //     geneticProfileIds: \"gbm_mutations gbm_cna_consensus\" }
-
-    // returns a list of objects like this:
-    //     { alterations: (see below)
-    //     hugoGeneSymbol: "BRCA1"
-    //     percent_altered: "12%" }
-    // where alterations is a list of objects like this:
-    //    { 'sample' : "TCGA-13-0727",
-    //    'unaltered_sample' : true,
-    //    'alteration' : CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN }
-
-    // methods: \
-    // addListener:    function                        ->  return undefined
-    // addListeners:   [list of functions]             ->  return undefined
-    // getAlterations: (optional: callback function)   ->  return undefined, or alterations if they have already been loaded
-    // redo:           new_sendData    redoes the request on the new data
-
-};
-// }}}

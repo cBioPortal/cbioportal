@@ -334,7 +334,7 @@ var OncoPrint = function(params) {
 
         that.memoSort = function() {
             // todo: save the memoSort somewhere so that you don't have to redo the sort
-            var memoSort = MemoSort(params.data, "EGFR");
+            var memoSort = MemoSort(params.data, "BRCA1");
             var sorted = memoSort.sort();
             that.sort(sorted);
 

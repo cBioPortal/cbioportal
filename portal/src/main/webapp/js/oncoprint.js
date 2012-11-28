@@ -319,8 +319,6 @@ var OncoPrint = function(params) {
         that.sort = function(new_indexes) {
             svg.selectAll('rect')
                 .transition()
-//            .ease()
-//                .delay(2000)
                 .duration(1000)
                 .attr('x', function(d, i) {
                     var sample_id = this.getAttribute('id');

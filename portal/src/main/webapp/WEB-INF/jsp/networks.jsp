@@ -88,7 +88,7 @@
                 $.post("network.do", 
                     networkParams,
                     function(graphml){
-                        if (typeof data !== "string") { 
+                        if (typeof graphml !== "string") {
                             if (window.ActiveXObject) { // IE 
                                     graphml = graphml.xml; 
                             } else { // Other browsers 
@@ -105,7 +105,7 @@
 	            $.post("networkSbgn.do",
 	                   networkParams,
 	                   function(sbgnml){
-		                   if (typeof data !== "string") {
+		                   if (typeof sbgnml !== "string") {
 			                   if (window.ActiveXObject) { // IE
 				                   sbgnml = sbgnml.xml;
 			                   } else { // Other browsers

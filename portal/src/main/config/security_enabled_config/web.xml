@@ -186,6 +186,11 @@
 		<servlet-class>org.mskcc.cbio.portal.servlet.NetworkSbgnServlet</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>bioGeneQuery</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.BioGeneServlet</servlet-class>
+	</servlet>
+
     <servlet>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
@@ -309,6 +314,11 @@
 	<servlet-mapping>
 		<servlet-name>network_sbgn</servlet-name>
 		<url-pattern>/networkSbgn.do</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>bioGeneQuery</servlet-name>
+		<url-pattern>/bioGeneQuery.do</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>

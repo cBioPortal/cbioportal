@@ -64,6 +64,7 @@
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/networkSbgn.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/bioGeneQuery.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>

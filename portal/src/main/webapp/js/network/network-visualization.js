@@ -164,7 +164,7 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     var self = this;
 
     var hideDialogs = function(evt, ui){
-        self.hideDialogs(evt, ui)
+        self.hideDialogs(evt, ui);
     };
 
     $("#tabs").bind("tabsshow", hideDialogs);
@@ -341,7 +341,6 @@ NetworkVis.prototype.showNodeInspector = function(evt)
     // update the contents of the inspector by using the target node
 
     var data = evt.target.data;
-
     this._updateNodeInspectorContent(data, evt.target);
 
     // open inspector panel
@@ -526,6 +525,9 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 
         // add percentage information
         this._addPercentages(data);
+
+        // TODO enable to have BioGene info in a new tab in the inspector
+        //this.updateBioGeneContent(data);
     }
 
     // add cross references
@@ -571,6 +573,58 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
     }
 };
 
+
+NetworkVis.prototype.updateBioGeneContent = function(data)
+{
+    var self = this;
+
+    // clean previous content
+    $(self.nodeInspectorSelector + " .node_inspector_biogene").empty();
+    $(self.nodeInspectorSelector + " .node_inspector_biogene").append(
+        '<img src="images/ajax-loader.gif">');
+
+    var handler = function(queryResult) {
+        if (typeof queryResult !== "string") {
+            if (window.ActiveXObject) { // IE
+                queryResult = queryResult.xml;
+            } else { // Other browsers
+                queryResult = (new XMLSerializer()).serializeToString(queryResult);
+            }
+        }
+
+        var parser, xmlDoc;
+
+        if (window.DOMParser)
+        {
+            parser = new DOMParser();
+            xmlDoc = parser.parseFromString(queryResult, "text/xml");
+        }
+        else // Internet Explorer
+        {
+            xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+            xmlDoc.async = false;
+            xmlDoc.loadXML(queryResult);
+        }
+
+        var bioGene = _parseBioGeneXml(xmlDoc);
+
+        // TODO update content (temporary test values)
+        $(self.nodeInspectorSelector + " .node_inspector_biogene").empty();
+        $(self.nodeInspectorSelector + " .node_inspector_biogene").append("<table>" +
+            "<tr><td>Gene ID:</td><td>" + bioGene.geneId + "</td></tr>" +
+            "<tr><td>Gene Symbol:</td><td>" + bioGene.geneSymbol + "</td></tr>" +
+            "<tr><td>Chromosome:</td><td>" + bioGene.geneChromosome + "</td></tr>" +
+            "<tr><td>Location:</td><td>" + bioGene.geneLocation + "</td></tr>" +
+            "<tr><td>Description:</td><td>" + bioGene.geneDescription + "</td></tr>" +
+            "</table>");
+    };
+
+    var queryParams = {"query": data.label, "org": "human"};
+
+    $.post("bioGeneQuery.do",
+           queryParams,
+           handler);
+};
 
 /**
  * Add percentages (genomic profile data) to the node inspector with their
@@ -2241,6 +2295,9 @@ NetworkVis.prototype._initDialogs = function()
                                     width: 366,
                                     maxHeight: 300});
 
+    // TODO enable to have BioGene info in a new tab in the inspector
+    //$(this.nodeInspectorSelector + "_tabs").tabs();
+
     // adjust edge inspector
     $(this.edgeInspectorSelector).dialog({autoOpen: false,
                                     resizable: false,
@@ -3545,6 +3602,26 @@ NetworkVis.prototype._createNodeInspector = function(divId)
             '</div>' +
         '</div>';
 
+    // TODO enable to have BioGene info in a new tab in the inspector
+//    html =
+//        '<div id="' + id + '" class="network_node_inspector hidden-network-ui" title="Node Inspector">' +
+//            '<div id="' + id + '_tabs">' +
+//                '<ul>' +
+//                    '<li><a href="#node_inspector_main"><span>Main</span></a></li>' +
+//                    '<li><a href="#node_inspector_biogene"><span>BioGene</span></a></li>' +
+//                '</ul>' +
+//                '<div id="node_inspector_main" class="node_inspector_content content ui-widget-content">' +
+//                    '<table class="data"></table>' +
+//                    '<table class="profile-header"></table>' +
+//                    '<table class="profile"></table>' +
+//                    '<table class="xref"></table>' +
+//                '</div>' +
+//                '<div id="node_inspector_biogene" class="node_inspector_biogene content ui-widget-content">' +
+//                    '<img src="images/ajax-loader.gif">' +
+//                '</div>' +
+//            '</div>' +
+//        '</div>';
+
     $("#" + divId).append(html);
 
     return "#" + id;
@@ -3722,6 +3799,28 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
  * ##################################################################
  */
 
+/**
+ * Parses the given xmlDoc representing the BioGene query result, and
+ * returns a corresponding JSON object.
+ *
+ * @param xmlDoc
+ * @private
+ */
+function _parseBioGeneXml(xmlDoc)
+{
+    var json = new Object();
+
+    // work on the first result only
+    var geneInfo = xmlDoc.getElementsByTagName("gene_info")[0];
+
+    json.geneId = geneInfo.getElementsByTagName("gene_id")[0].childNodes[0].nodeValue;
+    json.geneSymbol = geneInfo.getElementsByTagName("gene_symbol")[0].childNodes[0].nodeValue;
+    json.geneLocation = geneInfo.getElementsByTagName("gene_location")[0].childNodes[0].nodeValue;
+    json.geneChromosome = geneInfo.getElementsByTagName("gene_chromosome")[0].childNodes[0].nodeValue;
+    json.geneDescription = geneInfo.getElementsByTagName("gene_description")[0].childNodes[0].nodeValue;
+
+    return json;
+}
 
 /**
  * Initializes the style of the network menu by adjusting hover behaviour.

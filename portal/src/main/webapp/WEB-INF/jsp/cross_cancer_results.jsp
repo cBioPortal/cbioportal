@@ -624,8 +624,6 @@
                     var panelHasAlreadyBeenDrawn = {};
 
                     jQuery(document).ready(function() {
-                        $(".sortable").sortable({connectWith: '.sortable'});
-
                         $('#accordion .head').click(function() {
                             //  This toggles the next element, right after head,
                             //  which is the accordion ajax panel
@@ -690,12 +688,12 @@
                     <h2 class="cross_cancer_header">Studies with Mutation Data</h2>
                     <% } %>
 
-                    <div class="sortable">
+                    <div>
                     <% outputCancerStudies(cancerStudiesWithMutations, out); %>
                     <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
                     %>
                     </div>
-                    <div class="sortable">
+                    <div>
 
                             <% if(divideHistograms) { %>
                             <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
@@ -758,8 +756,6 @@
             out.println("<span class='ui-icon ui-icon-triangle-1-s'"
                     + " style='float:left;display:none;'></span>");
             out.println(cancerStudy.getName());
-            out.println("<span class='ui-icon ui-icon-triangle-2-n-s movable-icon' style='float:right;'"
-                    + " title='You can drag this box and drop it to anywhere on the list.'></span>");
             out.println("<span class='percent_altered' id='percent_altered_" + cancerStudy.getCancerStudyStableId()
                     + "' style='float:right'><img src='images/ajax-loader2.gif'></span>");
             out.println("</h1>");

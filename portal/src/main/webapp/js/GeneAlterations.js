@@ -129,7 +129,7 @@ GeneAlterations.query = function(data) {
 
     that = {};
 
-        that.geneByHugo = function(hugo) {
+        that.byHugo = function(hugo) {
             // returns all the data associated with a particular gene
             // (a row in the oncoprint matrix)
             var index = data.hugo_to_gene_index[hugo];

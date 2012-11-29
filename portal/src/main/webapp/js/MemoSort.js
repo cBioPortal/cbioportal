@@ -12,7 +12,7 @@ var MemoSort = function(geneAlterations, sort_by) {
         sample2 = sample2[sort_by];
 //        console.log('sample', sample1);
 
-        var cna_order = {AMPLIFIED: 2, DELETED: 1, null: 0},
+        var cna_order = {AMPLIFIED: 2, DELETED: 1, HOMODELETED: 1, null: 0},
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
 
         // diffs

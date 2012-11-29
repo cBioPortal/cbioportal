@@ -1,7 +1,8 @@
 describe("MemoSort", function() {
 
     var AMPLIFIED = "AMPLIFIED",
-        DELETED = "DELETED";
+        DELETED = "DELETED",
+        HOMODELETED = "HOMODELETED";
 
     var UPREGULATED = "UPREGULATED",
         DOWNREGULATED = "DOWNREGULATED";
@@ -27,7 +28,7 @@ describe("MemoSort", function() {
     it(".comparator cna", function() {
 
         var GENE1 = { hugo: "GENE1",
-            cna: [AMPLIFIED, DELETED, null],
+            cna: [AMPLIFIED, HOMODELETED, null],
             mutations: [null, null, null],
             mrna: [null, null, null],
             rppa: [null, null, null],
@@ -96,7 +97,7 @@ describe("MemoSort", function() {
     it(".sort", function() {
         var GENE1 = { hugo: "GENE1",
             hugo: "GENE1",
-            cna:        [AMPLIFIED, DELETED, null, null],
+            cna:        [AMPLIFIED, HOMODELETED, null, null],
             mutations:  [['a mutation'], null, ['a mutation'], null],
             mrna:       [null, null, null, null],
             rppa:       [null, null, null, null],

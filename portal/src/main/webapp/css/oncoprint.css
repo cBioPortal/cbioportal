@@ -1,31 +1,31 @@
-#oncoprints rect.cna.NONE {
+rect.cna.none {
     fill: #D3D3D3;
 }
 
-#oncoprints rect.cna.AMPLIFIED {
+rect.cna.AMPLIFIED {
     fill: #FF0000;
 }
 
-#oncoprints rect.cna.GAINED {
+rect.cna.GAINED {
     fill: #FFB6C1;
 }
 
-#oncoprints rect.cna.DIPLOID {
+rect.cna.DIPLOID {
     fill: #D3D3D3;
 }
 
-#oncoprints rect.cna.HEMIZYGOUSLYDELETED {
+rect.cna.HEMIZYGOUSLYDELETED {
     fill: #8FD8D8;
 }
 
-#oncoprints rect.cna.HOMODELETED {
+rect.cna.HOMODELETED {
     fill: #0000FF;
 }
 
-#oncoprints rect.mutation.none {
+rect.mutation.none {
     fill: transparent;
 }
 
-#oncoprints rect.mutation.mut {
+rect.mutation.mut {
     fill: #008000;
 }

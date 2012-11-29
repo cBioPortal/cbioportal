@@ -39,8 +39,8 @@ describe("GeneAlterations", function() {
 
     it("should also test it's management of AJAX calls...but doesn't right now");
 
-    it(".query.geneByHugo", function() {
-        expect(query.geneByHugo("GENE1")).toEqual(GENE1);
+    it(".query.byHugo", function() {
+        expect(query.byHugo("GENE1")).toEqual(GENE1);
     });
 
     it(".query.bySampleId", function() {

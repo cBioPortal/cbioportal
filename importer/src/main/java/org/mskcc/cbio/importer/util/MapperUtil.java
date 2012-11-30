@@ -88,7 +88,7 @@ public final class MapperUtil {
 	 *
 	 * @param importDataMatrix ImportDataMatrix
 	 * @param idMapper IDMapper
-	 * @param srcColumnName String
+	 th	 * @param srcColumnName String
 	 * @param targetColumnName String
 	 * @param mappingDirection MappingDirectory
 	 * @throws Exception
@@ -102,9 +102,9 @@ public final class MapperUtil {
 		Vector<String> targetColumnData = importDataMatrix.getColumnData(targetColumnName).get(0);
 
 		// sanity check
-		if (srcColumnData.size() != targetColumnData.size()) {
+		if (targetColumnData.size() < srcColumnData.size()) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("do(), src column size != target column size, aborting.");
+				LOG.info("do(), target column size < src column size, aborting.");
 			}
 			return;
 		}
@@ -116,7 +116,7 @@ public final class MapperUtil {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);
 				}
-				importDataMatrix.ignoreRow(lc);
+				importDataMatrix.ignoreRow(lc, true);
 				continue;
 			}
 			String target = (mappingDirection == MappingDirection.SYMBOL_TO_ID) ?
@@ -125,7 +125,7 @@ public final class MapperUtil {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), cannot find target for src: " + src + ", ignoring row: " + lc);
 				}
-				importDataMatrix.ignoreRow(lc);
+				importDataMatrix.ignoreRow(lc, true);
 				continue;
 			}
 			targetColumnData.setElementAt(target, lc);

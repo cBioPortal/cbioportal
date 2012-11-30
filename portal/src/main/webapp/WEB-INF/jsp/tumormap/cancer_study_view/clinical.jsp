@@ -34,6 +34,7 @@
         }
         $('#submit-patient-btn').attr("disabled", true);
         initMsgListener();
+        initCustomCaseSelectTooltip();
         loadClinicalData(caseSetId);
         loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
@@ -75,6 +76,38 @@
                 }
             }
         },false);
+    }
+    
+    function initCustomCaseSelectTooltip() {
+        $('#case-select-custom-btn').qtip({
+            id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+            content: {
+                    text: $('#case-select-custom-dialog'),
+                    title: {
+                            text: 'Custom case selection',
+                            button: true
+                    }
+            },
+            position: {
+                    my: 'center', // ...at the center of the viewport
+                    at: 'center',
+                    target: $(window)
+            },
+            show: {
+                    event: 'click', // Show it on click...
+                    solo: true // ...and hide all other tooltips...
+            },
+            hide: false,
+            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+        });
+        
+        $("#case-select-custom-submit-btn").click(function() {
+            var caseIds = $('#case-select-custom-input').val().trim().split(/\s+/);
+            var ids = {};
+            for (var i in caseIds) ids[caseIds[i]]=true;
+            csObs.fireSelection(ids);
+            $('#case-select-custom-btn').qtip('toggle');
+        });
     }
     
     var clincialDataTable = null;
@@ -167,6 +200,13 @@
     var csObs = new CaseSelectObserver();
 
 </script>
+
+<div id="case-select-custom"><button type='button' id="case-select-custom-btn" style="float:right;">Select cases by IDs</button></div>
+<div style="display: none;" id="case-select-custom-dialog">
+    Please input case IDs (one per line)
+    <textarea rows="20" cols="50" id="case-select-custom-input"></textarea><br/>
+    <button type='button' id="case-select-custom-submit-btn">Select</button>
+</div>
 
 <div id="clinical-msg"></div>
 

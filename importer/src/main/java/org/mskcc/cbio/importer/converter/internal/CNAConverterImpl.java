@@ -51,6 +51,9 @@ import java.util.Vector;
  */
 public final class CNAConverterImpl implements Converter {
 
+	private static final String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
+	private static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
+
 	// our logger
 	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
 
@@ -130,32 +133,32 @@ public final class CNAConverterImpl implements Converter {
 			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
 		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
-									 "Locus ID", "Gene Symbol");
+									 GENE_ID_COLUMN_HEADER_NAME, GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// rename columns
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), renaming columns");
 		}
-		importDataMatrix.renameColumn("Gene Symbol", "Hugo_Symbol");
-		importDataMatrix.renameColumn("Locus ID", "Entrez_Gene_Id");
-		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
+		importDataMatrix.renameColumn(GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		importDataMatrix.renameColumn(GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
-		// filter and convert case ids
+		// convert case ids
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
-		String[] columnsToIgnore = { "Hugo_Symbol", "Entrez_Gene_Id" }; // drop Cytoband
-		importDataMatrix.filterAndConvertCaseIDs(Arrays.asList(columnsToIgnore));
+		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME }; // drop Cytoband
+		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
 		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
-		columnHeaders.removeElement("Hugo_Symbol");
-		columnHeaders.insertElementAt("Hugo_Symbol", 0);
-		columnHeaders.removeElement("Entrez_Gene_Id");
-		columnHeaders.insertElementAt("Entrez_Gene_Id", 1);
+		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
+		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
 		importDataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file

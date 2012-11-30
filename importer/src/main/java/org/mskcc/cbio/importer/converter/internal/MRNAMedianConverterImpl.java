@@ -129,33 +129,33 @@ public final class MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		importDataMatrix.addColumn("Entrez_Gene_Id", new Vector<String>());
-		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
-		importDataMatrix.renameColumn("Hybridization REF", "Hugo_Symbol");
+		importDataMatrix.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
+		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		importDataMatrix.renameColumn("Hybridization REF", Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
 		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
-									 "Entrez_Gene_Id", "Hugo_Symbol");
+									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
-		// filter and convert case ids
+		// convert case ids
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
-		String[] columnsToIgnore = { "Hugo_Symbol", "Entrez_Gene_Id" };
-		importDataMatrix.filterAndConvertCaseIDs(Arrays.asList(columnsToIgnore));
+		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME };
+		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
 		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
-		columnHeaders.removeElement("Hugo_Symbol");
-		columnHeaders.insertElementAt("Hugo_Symbol", 0);
-		columnHeaders.removeElement("Entrez_Gene_Id");
-		columnHeaders.insertElementAt("Entrez_Gene_Id", 1);
+		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
+		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
 		importDataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file

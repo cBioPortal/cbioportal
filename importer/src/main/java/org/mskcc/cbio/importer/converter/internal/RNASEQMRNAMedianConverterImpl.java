@@ -51,6 +51,8 @@ import java.util.Vector;
  */
 public final class RNASEQMRNAMedianConverterImpl implements Converter {
 
+	private static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+
 	// our logger
 	private static final Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
 
@@ -135,7 +137,7 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 		for (int lc = columnHeaders.size()-1; lc >= 0; lc--) {
 			String columnHeader = columnHeaders.get(lc);
 			if (columnHeader.equals(previousHeader)) {
-				importDataMatrix.removeColumn(lc);
+				importDataMatrix.ignoreColumn(lc, true);
 			}
 			else {
 				previousHeader = columnHeader;
@@ -143,15 +145,15 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 		}
 
 		// row one (zero offset) in file is another header:
-		// (gene, raw_counts, median_length_normalized, RPKM, raw_counts,  median_length_normalized...)
-		importDataMatrix.ignoreRow(0); // row data starts at 0
+		// (gene, raw_counts, median_length_normalized, RPKM, raw_counts,  median_length_normalized, RPKM, raw_counts, ...)
+		importDataMatrix.ignoreRow(0, true); // row data starts at 0
 
 		// rna seq data files has combination gene_symbol|id
 		// replace the combination with gene_symbol only
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
 		}
-		Vector<String> pairs = importDataMatrix.getColumnData("Hybridization REF").get(0);
+		Vector<String> pairs = importDataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
 		for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
@@ -166,33 +168,33 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		importDataMatrix.addColumn("Hugo_Symbol", new Vector<String>());
-		importDataMatrix.renameColumn("Hybridization REF", "Entrez_Gene_Id");
-		importDataMatrix.setGeneIDColumnHeading("Entrez_Gene_Id");
+		importDataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new Vector<String>());
+		importDataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapDataToGeneID()...");
 		}
 		MapperUtil.mapGeneIDToSymbol(importDataMatrix, idMapper,
-									 "Entrez_Gene_Id", "Hugo_Symbol");
+									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
-		// filter and convert case ids
+		// convert case ids
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
-		String[] columnsToIgnore = { "Entrez_Gene_Id", "Hugo_Symbol" };
-		importDataMatrix.filterAndConvertCaseIDs(Arrays.asList(columnsToIgnore));
+		String[] columnsToIgnore = { Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME };
+		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
 		Vector<String> headers = importDataMatrix.getColumnHeaders();
-		headers.removeElement("Hugo_Symbol");
-		headers.insertElementAt("Hugo_Symbol", 0);
-		headers.removeElement("Entrez_Gene_Id");
-		headers.insertElementAt("Entrez_Gene_Id", 1);
+		headers.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		headers.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
+		headers.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		headers.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
 		importDataMatrix.setColumnOrder(headers);
 
 		// we need to write out the file

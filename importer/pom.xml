@@ -29,6 +29,38 @@
 	<slf4j.version>1.5.8</slf4j.version>
   </properties>
 
+  <!-- profiles -->
+  <profiles>
+	<!-- foundation -->
+	<profile>
+	  <id>foundation</id>
+	  <build>
+        <plugins>
+		  <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>jaxws-maven-plugin</artifactId>
+			<version>1.10</version>
+			<executions>
+			  <execution>
+				<goals>
+				  <goal>wsimport</goal>
+				</goals>
+				<configuration>
+				  <wsdlUrls>
+					<wsdlUrl>http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
+				  </wsdlUrls>
+				  <packageName>org.foundation</packageName>
+				  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
+				  <staleFile>${project.build.directory}/generated-sources</staleFile>
+				</configuration>
+			  </execution>
+			</executions>
+		  </plugin>
+        </plugins>
+      </build>
+	</profile>
+  </profiles>
+
   <dependencies>
 
 	<!-- apache commons CLI -->
@@ -215,28 +247,6 @@
 		  <source>1.6</source>
 		  <target>1.6</target>
 		</configuration>
-	  </plugin>
-
-	  <!-- for foundation -->
-	  <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>jaxws-maven-plugin</artifactId>
-		<version>1.10</version>
-		<executions>
-		  <execution>
-            <goals>
-			  <goal>wsimport</goal>
-            </goals>
-            <configuration>
-			  <wsdlUrls>
-				<wsdlUrl>http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
-			  </wsdlUrls>
-			  <packageName>org.foundation</packageName>
-			  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
-			  <staleFile>${project.build.directory}/generated-sources</staleFile>
-            </configuration>
-		  </execution>
-		</executions>
 	  </plugin>
 
 	  <!-- assembly -->

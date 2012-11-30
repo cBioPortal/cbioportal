@@ -37,16 +37,17 @@ import java.net.URL;
 
 /**
  * Base class for Oncotator Service implementations.
+ *
  * This class provides a method to connect to Oncotator Web service and
  * retrieve details on a single mutation.
  *
+ * @author Selcuk Onur Sumer
  */
 public abstract class OncotatorService
 {
-	//private static final Logger logger = Logger.getLogger(OncotatorService.class);
-    //private static OncotatorService oncotatorService;
-    protected final static String ONCOTATOR_BASE_URL = "http://www.broadinstitute.org/oncotator/mutation/";
-	protected final static long SLEEP_PERIOD = 0;  // in ms
+    protected final static String ONCOTATOR_BASE_URL =
+		    "http://www.broadinstitute.org/oncotator/mutation/";
+	//protected final static long SLEEP_PERIOD = 0;  // in ms
 
 	protected int errorCount = 0;
 

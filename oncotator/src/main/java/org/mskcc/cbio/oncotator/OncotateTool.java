@@ -32,6 +32,8 @@ import java.util.Date;
 
 /**
  * Command Line Tool to Oncotate a Single MAF File.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class OncotateTool
 {

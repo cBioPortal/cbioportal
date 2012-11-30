@@ -212,7 +212,7 @@
 
     <servlet>
         <servlet-name>GeneAlterationsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneAlterationsJSON</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
     <servlet-mapping>

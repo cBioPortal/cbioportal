@@ -19,3 +19,4 @@
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script> 
 <script type="text/javascript" src="js/gene_set.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/DataManager.js"></script>

@@ -2,8 +2,6 @@ package org.mskcc.cbio.portal.servlet;
 
 import junit.framework.TestCase;
 
-import static org.mskcc.cbio.portal.servlet.GeneAlterationsJSON.*;
-
 public class TestGeneAlterationsJSON extends TestCase {
 
     public void testGeneAlterationsJSON() {

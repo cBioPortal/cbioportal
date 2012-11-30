@@ -194,7 +194,7 @@
                 String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
             %>
 
-<script type="text/javascript" src="js/GeneAlterations.js"></script>
+<script type="text/javascript" src="js/DataManager.js"></script>
 <script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
@@ -206,8 +206,7 @@
                 genes: genes,
                 samples: samples,
                 geneticProfileIds: geneticProfiles
-            },
-            geneAlterations = GeneAlterations(sendGeneAlterationsData);
+            };
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">

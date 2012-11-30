@@ -17,12 +17,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.plaf.basic.BasicBorders;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-public class GeneAlterationsJSON extends HttpServlet {
+public class GeneDataJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     public static final String GENE_LIST = "gene_list";
@@ -37,7 +36,7 @@ public class GeneAlterationsJSON extends HttpServlet {
     public static final String MUTATION = "mutation";
 
 
-    private static Log log = LogFactory.getLog(GeneAlterationsJSON.class);
+    private static Log log = LogFactory.getLog(GeneDataJSON.class);
 
     /**
      * Initializes the servlet.

@@ -13,12 +13,12 @@
         };
 
         var oncoprint;
-        geneAlterations.fire(function(data) {
-            oncoPrintParams['data'] = data;
-
-            oncoprint = OncoPrint(oncoPrintParams);
-            oncoprint.insertFullOncoPrint($('#oncoprints'));
-        });
+//        geneAlterations.fire(function(data) {
+//            oncoPrintParams['data'] = data;
+//
+//            oncoprint = OncoPrint(oncoPrintParams);
+//            oncoprint.insertFullOncoPrint($('#oncoprints'));
+//        });
 
     </script>
 </div>

@@ -65,7 +65,7 @@ var MemoSort = function(geneAlterations, sort_by) {
     };
 
     var sort = function() {
-        // geneAlterations:  data structure from GeneAlterationsJSON
+        // geneAlterations:  data structure from GeneDataJSON
 
         // the hugo gene symbol to sort by
 

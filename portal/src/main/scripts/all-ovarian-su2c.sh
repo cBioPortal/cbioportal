@@ -40,6 +40,9 @@ rm -v $GDAC_CGDS_STAGING_HOME/ovarian/processed_*
 # import ovarian protein data
 #./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/ov_tcga/data_protein.txt --meta $GDAC_CGDS_STAGING_HOME/ov_tcga/meta_protein.txt --dbmsAction clobber
 
+# rppa
+./importProteinArrayData.pl $GDAC_CGDS_STAGING_HOME/ov_tcga/data_rppa.txt ov_tcga
+
 # MutSig
 ./importMutSig.pl $GDAC_CGDS_STAGING_HOME/ov_tcga/data_mutsig.txt $GDAC_CGDS_STAGING_HOME/ov_tcga/meta_mutsig.txt
 

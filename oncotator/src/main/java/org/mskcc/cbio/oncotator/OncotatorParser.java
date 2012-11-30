@@ -108,22 +108,49 @@ public class OncotatorParser
         return oncoRecord;
     }
 
+	/**
+	 * Parses a transcript node at the specified index within the given
+	 * transcripts node.
+	 *
+	 * @param transcriptsNode   node containing all transcripts
+	 * @param transcriptIndex   specific index for a single transcript
+	 * @return                  Transcript instance containing parsed info
+	 */
 	public static Transcript parseTranscriptNode(JsonNode transcriptsNode,
 			int transcriptIndex)
 	{
-		JsonNode bestTranscriptNode = transcriptsNode.get(transcriptIndex);
+		// get the transcript node for the specified index
+		JsonNode transcriptNode = transcriptsNode.get(transcriptIndex);
 
-		String variantClassification = bestTranscriptNode.path("variant_classification").getTextValue();
-		String proteinChange = bestTranscriptNode.path("protein_change").getTextValue();
-		String geneSymbol = bestTranscriptNode.path("gene").getTextValue();
-		int exonAffected = bestTranscriptNode.path("exon_affected").getIntValue();
+		// parse nodes for the transcript
+		JsonNode variantClassification = transcriptNode.path("variant_classification");
+		JsonNode proteinChange = transcriptNode.path("protein_change");
+		JsonNode geneSymbol = transcriptNode.path("gene");
+		JsonNode exonAffected = transcriptNode.path("exon_affected");
+
+		// construct a transcript instance for the parsed nodes
 
 		Transcript transcript = new Transcript();
 
-		transcript.setVariantClassification(variantClassification);
-		transcript.setProteinChange(proteinChange);
-		transcript.setGene(geneSymbol);
-		transcript.setExonAffected(exonAffected);
+		if (!variantClassification.isMissingNode())
+		{
+			transcript.setVariantClassification(variantClassification.getTextValue());
+		}
+
+		if (!proteinChange.isMissingNode())
+		{
+			transcript.setProteinChange(proteinChange.getTextValue());
+		}
+
+		if (!geneSymbol.isMissingNode())
+		{
+			transcript.setGene(geneSymbol.getTextValue());
+		}
+
+		if (!exonAffected.isMissingNode())
+		{
+			transcript.setExonAffected(exonAffected.getIntValue());
+		}
 
 		return transcript;
 	}

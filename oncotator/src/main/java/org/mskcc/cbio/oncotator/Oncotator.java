@@ -37,6 +37,8 @@ import java.util.List;
 
 /**
  * Main controller class for MAF processing and IO operations.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class Oncotator
 {
@@ -92,6 +94,15 @@ public class Oncotator
 		this.oncotatorService = oncotatorService;
 	}
 
+	/**
+	 * Instantiates a new (default) MAF processor for this oncotator.
+	 *
+	 * Override this method in a child class to provide a custom MAF
+	 * processor for specific needs.
+	 *
+	 * @param headerLine    header line of the MAF containing column names
+	 * @return              default MAF processor instance
+	 */
 	protected OncoMafProcessor initMafProcessor(String headerLine)
 	{
 		return new OncoMafProcessor(headerLine);

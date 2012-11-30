@@ -28,7 +28,9 @@
 package org.mskcc.cbio.oncotator;
 
 /**
- * Encapsulate a Single Record from Oncotator.
+ * Encapsulates a single record from the Oncotator service.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class OncotatorRecord
 {
@@ -42,12 +44,14 @@ public class OncotatorRecord
 	private Transcript bestCanonicalTranscript;
 	private Transcript bestEffectTranscript;
 
-    public OncotatorRecord (String key)
+    public OncotatorRecord(String key)
     {
         this.key = key;
 	    this.bestCanonicalTranscript = new Transcript();
 	    this.bestEffectTranscript = new Transcript();
     }
+
+	// Getters and Setters
 
     public String getKey() {
         return key;

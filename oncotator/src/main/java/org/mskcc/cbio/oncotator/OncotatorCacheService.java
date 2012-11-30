@@ -29,6 +29,8 @@ package org.mskcc.cbio.oncotator;
 
 /**
  * Interface to define a Cache Service for Oncotator records.
+ *
+ * @author Selcuk Onur Sumer
  */
 public interface OncotatorCacheService
 {

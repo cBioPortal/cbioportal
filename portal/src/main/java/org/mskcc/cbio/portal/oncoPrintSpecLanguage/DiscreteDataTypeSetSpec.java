@@ -257,7 +257,8 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                         return true;
                     }
                 } else if (mutationPattern.equals("IF") || mutationPattern.equals("INFRAME")) {
-                    if (specificMutationUpper.matches(".+IN_FRAME_((INS)|(DEL)).*")) {
+                    if (specificMutationUpper.matches(".+IN_FRAME_((INS)|(DEL)).*") ||
+                            specificMutationUpper.matches(".*[0-9]+((INS)|(DEL))[A-Z]*")) {
                         return true;
                     }
                 } else if (mutationPattern.equals("SP") || mutationPattern.equals("SPLICE")) {

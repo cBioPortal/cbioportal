@@ -191,7 +191,7 @@
                 genes = genes.replace("\n", " ");
 
                 // get cases
-                String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
             %>
 
 <script type="text/javascript" src="js/GeneAlterations.js"></script>
@@ -200,11 +200,11 @@
     //  make global variables
 
         var genes = "<%=genes%>",
-            cases = "<%=cases%>",
+            samples = "<%=samples%>",
             geneticProfiles = "<%=geneticProfiles%>",
             sendGeneAlterationsData = {
                 genes: genes,
-                cases: cases,
+                samples: samples,
                 geneticProfileIds: geneticProfiles
             },
             geneAlterations = GeneAlterations(sendGeneAlterationsData);

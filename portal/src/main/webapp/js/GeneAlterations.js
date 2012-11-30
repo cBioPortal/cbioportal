@@ -16,7 +16,7 @@ var GeneAlterations = function(sendData) {
 //     sendData is an object literal that looks something like this :
 //     {   cancer_study_id: \"tcga_gbm\",
 //         genes:\"EGFR MDM2\",
-//         cases: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
+//         samples: \"TCGA-02-0001 TCGA-02-0003 TCGA-02-0004 TCGA-02-0006 TCGA-02-0007 TCGA-02-0009\",
 //         geneticProfileIds: \"gbm_mutations gbm_cna_consensus\" }
 //
 //     doing a request returns an object like this:

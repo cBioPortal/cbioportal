@@ -163,9 +163,9 @@ public class GeneAlterationsJSON extends HttpServlet {
         String _geneList = request.getParameter("genes");
         // list of genes separated by a space
 
-        String caseIds = request.getParameter("cases");
-        // list of cases separated by a space.  This is so
-        // that you can query by an arbitrary set of cases
+        String sampleIds = request.getParameter("samples");
+        // list of samples separated by a space.  This is so
+        // that you can query by an arbitrary set of samples
         // separated by a space
 
         String _geneticProfileIds = request.getParameter("geneticProfileIds");
@@ -219,7 +219,7 @@ public class GeneAlterationsJSON extends HttpServlet {
 
             GetProfileData remoteCall;
             try {
-                remoteCall = new GetProfileData(profile, listOfGenes, caseIds);
+                remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {
                 throw new ServletException(e);
             }

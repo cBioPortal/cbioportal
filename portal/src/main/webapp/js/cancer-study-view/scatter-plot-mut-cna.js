@@ -1,6 +1,6 @@
 
 
-function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colCna,colMut,caseMap,hLog,vLog) {
+function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseIds,colCna,colMut,caseMap,hLog,vLog) {
         var scatterDataView = new google.visualization.DataView(dt);
         var params = [
             colCna,
@@ -13,17 +13,26 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colC
                 role:'tooltip'
             }
         ];
-        if (emphasisCaseId)
+        var emIds = emphasisCaseIds;
+        if (emIds==null) {
+            if ((typeof csObs.caseId)==(typeof {})) {
+                emIds = csObs.caseId;
+            } else if ((typeof csObs.caseId)==(typeof '')) {
+                emIds={};
+                emIds[csObs.caseId]=true;
+            }
+        }
+        if (emIds)
             params.push(
             {
                 calc:function(dt,row){
-                    return dt.getValue(row,0)===emphasisCaseId ? dt.getValue(row,colMut) : null;
+                    return (dt.getValue(row,0) in emIds) ? dt.getValue(row,colMut) : null;
                 },
                 type:'number'
             },
             {
                 calc:function(dt,row){
-                    if (dt.getValue(row,0)===emphasisCaseId)
+                    if (dt.getValue(row,0) in emIds)
                         return dt.getValue(row,0)+'\n('+(dt.getValue(row,colCna)*100).toFixed(1)+'%, '+dt.getValue(row,colMut)+')';
                     else
                         return null;
@@ -39,32 +48,14 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseId,colC
                 var s = scatter.getSelection();
                 if (s.length>1) return;
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-                $('#'+caseIdDiv).html(formatPatientLink(caseId,cancerStudyId));
                 csObs.fireSelection(caseId, divId);
                 resetSmallPlots();
             });
 
             google.visualization.events.addListener(scatter, 'ready', function(e){
                 csObs.subscribe(divId,function(caseId) {
-                    if (caseId==null) {
-                        scatter.setSelection(null);
-                        $('#'+caseIdDiv).html("");
-                    }
-                    if ((typeof caseId)==(typeof "")) {
-                        var ix = caseMap[caseId];
-                        scatter.setSelection(ix==null?null:[{'row': ix}]);
-                        $('#'+caseIdDiv).html(formatPatientLink(caseId,cancerStudyId));
-                    } else if ((typeof caseId)==(typeof {})) {
-                        var rows = [];
-                        for (var id in caseId) {
-                            var row = caseMap[id];
-                            if (row!=null)
-                                rows.push({'row':caseMap[id]});
-                        }
-                        scatter.setSelection(rows);
-                        $('#'+caseIdDiv).html(rows.length==1?formatPatientLink(id):"");
-                    } 
-                },true);
+                    plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseIds,colCna,colMut,caseMap,hLog,vLog);
+                },false);
             });
         }
         

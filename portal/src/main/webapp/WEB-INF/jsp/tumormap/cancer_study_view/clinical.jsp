@@ -17,6 +17,7 @@
 }
 #clinical-msg {
     background-color: lightyellow;
+    float: right;
 }
 </style>
 
@@ -44,10 +45,12 @@
         csObs.subscribe('clinical-msg',function(caseId) {
             if (caseId==null) {
                 $('#clinical-msg').hide();
+                $('#case-select-custom').show();
             } else if ((typeof caseId)==(typeof '')) {
                 $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId,cancerStudyId)+
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
+                $('#case-select-custom').hide();
             } else if ((typeof caseId)==(typeof {})) {
                 var numSelected = 0;
                 for (var id in caseId) {
@@ -55,10 +58,12 @@
                 }
                 if (numSelected==0) {
                     $('#clinical-msg').hide();
+                    $('#case-select-custom').show();
                 } else if (numSelected==1) {
                     $('#clinical-msg').html("&nbsp;"+formatPatientLink(id,cancerStudyId)+
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
+                    $('#case-select-custom').hide();
                 } else {
                     var ids = [];
                     for (var id in caseId) {
@@ -73,6 +78,7 @@
                             + '<input type="submit" onclick="csObs.fireSelection(null,null);return false;" value="Clear selection"></form>';
                     $('#clinical-msg').html(form);
                     $('#clinical-msg').show();
+                    $('#case-select-custom').hide();
                 }
             }
         },false);

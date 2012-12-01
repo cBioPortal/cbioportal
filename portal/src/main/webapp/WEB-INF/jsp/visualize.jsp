@@ -194,19 +194,13 @@
                 String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
             %>
 
-<script type="text/javascript" src="js/DataManager.js"></script>
 <script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
 
         var genes = "<%=genes%>",
             samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>",
-            sendGeneAlterationsData = {
-                genes: genes,
-                samples: samples,
-                geneticProfileIds: geneticProfiles
-            };
+            geneticProfiles = "<%=geneticProfiles%>";
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">

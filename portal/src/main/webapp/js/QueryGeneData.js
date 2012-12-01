@@ -39,69 +39,63 @@
 //     hugo_to_gene_index:  map into the gene_data array indices
 //     samples:             map into the array indices of the data_types (cna, mutations, etc)
 
-GeneAlterationsQuery = function(data) {
+QueryGeneData = function(data) {
     // data query tools
     // for gene alterations data
 
-    that = {};
+    var that = {};
 
-        that.byHugo = function(hugo) {
-            // returns all the data associated with a particular gene
-            // (a row in the oncoprint matrix)
-            var index = data.hugo_to_gene_index[hugo];
+    that.byHugo = function(hugo) {
+        // returns all the data associated with a particular gene
+        // (a row in the oncoprint matrix)
+        var index = data.hugo_to_gene_index[hugo];
 
-            return data.gene_data[index];
-        };
+        return data.gene_data[index];
+    };
 
-        that.bySampleId = function(sample_id) {
-            // returns all the data associated with a particular sample
-            // (a column in the oncoprint matrix)
-            var index = data.samples[sample_id];
+    that.bySampleId = function(sample_id) {
+        // returns all the data associated with a particular sample
+        // (a column in the oncoprint matrix)
+        var index = data.samples[sample_id];
 
-            var toReturn = {};
+        var toReturn = {};
 
-            data.gene_data.forEach(function(gene) {
-                toReturn[gene.hugo] = {
-                    mutation: gene.mutations[index],
-                    cna: gene.cna[index],
-                    mrna: gene.mrna[index],
-                    rppa: gene.rppa[index]
-                }
-            });
-
-            return toReturn;
-        };
-
-        that.getSampleList = function() {
-            var samples = data.samples;
-
-            var samples_l = [];
-
-            for (var sample in samples) {
-                samples_l.push(sample);
-//                console.log(sample);
+        data.gene_data.forEach(function(gene) {
+            toReturn[gene.hugo] = {
+                mutation: gene.mutations[index],
+                cna: gene.cna[index],
+                mrna: gene.mrna[index],
+                rppa: gene.rppa[index]
             }
+        });
 
-            samples_l.sort(function(a,b) {
-                return samples[a] - samples[b];
-            });
+        return toReturn;
+    };
 
-            return samples_l;
-        };
+    that.getSampleList = function() {
+        var samples = data.samples;
 
-        that.data = function(sample_id, gene, data_type) {
-            // _sample_id, _gene, _data_type -> data
-            // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
-            // (an entry in the oncoprint matrix)
+        var samples_l = [];
 
-            return that.bySampleId(sample_id)[gene][data_type];
-        };
+        for (var sample in samples) {
+            samples_l.push(sample);
+//                console.log(sample);
+        }
 
-        return that;
+        samples_l.sort(function(a,b) {
+            return samples[a] - samples[b];
+        });
+
+        return samples_l;
+    };
+
+    that.data = function(sample_id, gene, data_type) {
+        // _sample_id, _gene, _data_type -> data
+        // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
+        // (an entry in the oncoprint matrix)
+
+        return that.bySampleId(sample_id)[gene][data_type];
+    };
+
+    return that;
 };
-
-$.post(json, sendData, function(returnData) {
-    // set alterations first, then fire callbacks
-
-    GeneAlterations.fire(data);
-});

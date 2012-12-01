@@ -13,7 +13,9 @@ import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
+import org.mskcc.cbio.portal.util.OmaLinkUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
+import org.mskcc.cbio.portal.util.SkinUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,12 +73,15 @@ public class MutationTableDataServlet extends HttpServlet
 			HashMap<String, Object> rowData = new HashMap<String, Object>();
 
 			rowData.put("caseId", mutation.getCaseId());
+			rowData.put("linkToPatientView", SkinUtil.getLinkToPatientView(mutation.getCaseId()));
 			rowData.put("proteinChange", mutation.getProteinChange());
 			rowData.put("mutationType", mutation.getMutationType());
 			rowData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
 			rowData.put("cosmicCount", this.getCosmicCount(mutation));
-			rowData.put("functionalImpactScore", "TODO (OMA)"); // TODO oma
-			rowData.put("pdbLink", "TODO (OMA)"); // TODO oma
+			rowData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
+			rowData.put("msaLink", this.getMsaLink(mutation));
+			rowData.put("xVarLink", this.getXVarLink(mutation));
+			rowData.put("pdbLink", this.getPdbLink(mutation));
 			rowData.put("mutationStatus", mutation.getMutationStatus());
 			rowData.put("validationStatus", mutation.getValidationStatus());
 			rowData.put("sequencingCenter", this.getSequencingCenter(mutation));
@@ -116,6 +122,87 @@ public class MutationTableDataServlet extends HttpServlet
 		{
 			out.close();
 		}
+	}
+
+	protected String getMsaLink(ExtendedMutation mutation)
+	{
+		String urlMsa = "";
+
+		if (linkIsValid(mutation.getLinkMsa()))
+		{
+			try
+			{
+				if(mutation.getLinkMsa().length() == 0 ||
+				   mutation.getLinkMsa().equals("NA"))
+				{
+					urlMsa = "NA";
+				}
+				else
+				{
+					urlMsa = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkMsa());
+				}
+			}
+			catch (MalformedURLException e)
+			{
+				logger.error("Could not parse OMA URL:  " + e.getMessage());
+			}
+		}
+
+		return urlMsa;
+	}
+
+	protected String getPdbLink(ExtendedMutation mutation)
+	{
+		String urlPdb = "";
+
+		if (linkIsValid(mutation.getLinkPdb()))
+		{
+			try
+			{
+				if(mutation.getLinkPdb().length() == 0 ||
+				   mutation.getLinkPdb().equals("NA"))
+				{
+					urlPdb = "NA";
+				}
+				else
+				{
+					urlPdb = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkPdb());
+				}
+			}
+			catch (MalformedURLException e)
+			{
+				logger.error("Could not parse OMA URL:  " + e.getMessage());
+			}
+		}
+
+		return urlPdb;
+	}
+
+	protected String getXVarLink(ExtendedMutation mutation)
+	{
+		String xVarLink = "";
+
+		if (linkIsValid(mutation.getLinkXVar()))
+		{
+			try
+			{
+				xVarLink = OmaLinkUtil.createOmaRedirectLink(mutation.getLinkXVar());
+			}
+			catch (MalformedURLException e)
+			{
+				logger.error("Could not parse OMA URL:  " + e.getMessage());
+				//return HtmlUtil.createEmptySpacer();
+			}
+		}
+
+		return xVarLink;
+	}
+
+	protected boolean linkIsValid(String link)
+	{
+		return link != null &&
+		   link.length() > 0 &&
+		   !link.equalsIgnoreCase("NA");
 	}
 
 	protected String getSequencingCenter(ExtendedMutation mutation)

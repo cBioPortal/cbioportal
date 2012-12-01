@@ -61,15 +61,19 @@
         }
         .missense_mutation {
                 color: green;
+	            font-weight: bold;
         }
         .trunc_mutation {
                 color: red;
+	            font-weight: bold;
         }
         .inframe_mutation {
                 color: black;
+	            font-weight: bold;
         }
         .other_mutation {
                 color: gray;
+	            font-weight: bold;
         }
 </style>
 
@@ -92,7 +96,7 @@ $(document).ready(function(){
 		           dataType: "json",
 		           data: {hugoGeneSymbol: geneSymbol,
 			           mutations: tableMutations},
-		           success: drawMutationTable,
+		           success: delayedMutationTable, // TODO temporary work-around (issue 429)
 		           type: "POST"});
 
 

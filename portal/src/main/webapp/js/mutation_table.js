@@ -128,16 +128,20 @@ function _compareSortDesc(a, b, av, bv)
     }
 }
 
+function delayedMutationTable(data)
+{
+    //TODO temporary work-around for the missing columns in the filter (issue 429)
+    setTimeout(function(){drawMutationTable(data);},
+               3000);
+}
+
 function drawMutationTable(data)
 {
-    var divId = "mutation_table_" + data.hugoGeneSymbol;
-    var tableId = "mutation_details_table_" + data.hugoGeneSymbol;
+    var divId = "mutation_table_" + data.hugoGeneSymbol.toUpperCase();
+    var tableId = "mutation_details_table_" + data.hugoGeneSymbol.toUpperCase();
 
     $("#" + divId).empty();
-
-    // TODO gene.touppercase?
     $("#" + divId).append(_generateMutationTable(tableId, data));
-
 
 //			    $("#" + divId).append("<table cellpadding='0' cellspacing='0' border='0' " +
 //			                          "class='display mutation_details_table' " +
@@ -165,7 +169,7 @@ function drawMutationTable(data)
                 "aTargets": [3,4,5]}
         ],
         "fnDrawCallback": function( oSettings ) {
-            // add tooltips to the table
+            // TODO add tooltips to the table
             //addMutationTableTooltips(tableId);
         }
     });
@@ -180,7 +184,6 @@ function drawMutationTable(data)
     oTable.css("width", "100%");
 }
 
-// TODO we may generate everything within dataTables instead.
 function _generateMutationTable(tableId, data)
 {
     var i, j;
@@ -197,7 +200,7 @@ function _generateMutationTable(tableId, data)
 
     for (i = 0; i < headers.length; i++)
     {
-        table += '<th>' + headers[i] + '</th>';
+        table += '<th><b>' + headers[i] + '</b></th>';
     }
 
     table += '</thead>';
@@ -222,7 +225,7 @@ function _generateMutationTable(tableId, data)
 
     for (i = 0; i < headers.length; i++)
     {
-        table += '<th>' + headers[i] + '</th>';
+        table += '<th><b>' + headers[i] + '</b></th>';
     }
 
     table += '</tfoot>';
@@ -261,36 +264,192 @@ function _getMutationTableHeaders(data)
     return headers;
 }
 
-function _getMutationTableColumns(data)
-{
-    var columns = new Array();
-    var headers = _getMutationTableHeaders(data);
-
-    for (var i=0; i < headers.length; i++)
-    {
-        columns.push({"sTitle" : headers[i]});
-    }
-
-    return columns;
-
-}
 function _getMutationTableRows(data)
 {
+    /**
+     * Mapping between the mutation type (data) values and
+     * view values. The first element of an array corresponding to a
+     * data value is the display text (html), and the second one
+     * is style (css).
+     */
+    var mutationTypeMap = {
+        missense_mutation: {label: "Missense", style: "missense_mutation"},
+        nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
+        frame_shift_del: {label: "Nonstop", style: "trunc_mutation"},
+        frame_shift_ins: {label: "FS del", style: "trunc_mutation"},
+        in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
+        in_frame_del: {label: "IF del", style: "inframe_mutation"},
+        splice_site: {label: "Splice", style: "trunc_mutation"},
+        other: {style: "other_mutation"}
+    };
+
+    /**
+     * Mapping between the validation status (data) values and
+     * view values. The first element of an array corresponding to a
+     * data value is the display text (html), and the second one
+     * is style (css).
+     */
+    var validationStatusMap = {
+        valid: {label: "V", style: "valid"},
+        validated: {label: "V", style: "valid"},
+        wildtype: {label: "W", style: "wildtype"},
+        unknown: {label: "U", style: "unknown"},
+        not_tested: {label: "U", style: "unknown"},
+        none: {label: "U", style: "unknown"},
+        na: {label: "U", style: "unknown"}
+    };
+
+    /**
+     * Mapping between the mutation status (data) values and
+     * view values. The first element of an array corresponding to a
+     * data value is the display text (html), and the second one
+     * is style (css).
+     */
+    var mutationStatusMap = {
+        somatic: {label: "S", style: "somatic"},
+        germline: {label: "G", style: "germline"},
+        unknown: {label: "U", style: "unknown"},
+        none: {label: "U", style: "unknown"},
+        na: {label: "U", style: "unknown"}
+    };
+
+    var omaScoreMap = {
+        h: {label: "H", style: "oma_high"},
+        m: {label: "M", style: "oma_medium"},
+        l: {label: "L", style: "oma_low"},
+        n: {label: "N", style: "oma_neutral"}
+    };
+
+    // inner functions used for html generation
+
+    var getMutationTypeHtml = function(value) {
+        var style, label;
+
+        if (mutationTypeMap[value] != null)
+        {
+            style = mutationTypeMap[value].style;
+            label = mutationTypeMap[value].label;
+        }
+        else
+        {
+            style = mutationTypeMap.other.style;
+            label = value;
+        }
+
+        return '<span class="' + style + '"><label>' + label + '</label></span>';
+    };
+
+    var getMutationStatusHtml = function(value) {
+        var style, label;
+
+        if (mutationStatusMap[value] != null)
+        {
+            style = mutationStatusMap[value].style;
+            label = mutationStatusMap[value].label;
+        }
+        else
+        {
+            style = " ";
+            label = value;
+        }
+
+        return '<span class="' + style + '"><label>' + label + '</label></span>';
+    };
+
+    var getValidationStatusHtml = function(value) {
+        var style, label;
+
+        if (validationStatusMap[value] != null)
+        {
+            style = validationStatusMap[value].style;
+            label = validationStatusMap[value].label;
+        }
+        else
+        {
+            style = validationStatusMap.unknown.style;
+            label = validationStatusMap.unknown.label;
+        }
+
+        return '<span class="' + style + '"><label>' + label + '</label></span>';
+    };
+
+    var getFisHtml = function(value, msaLink, xVarLink) {
+
+        var html;
+
+        if (omaScoreMap[value] != null)
+        {
+            html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +
+                   + xVarLink + '|' + msaLink + '">' +
+                   '<label>' + omaScoreMap[value].label + '</label>' +
+                   '</span>';
+        }
+        else
+        {
+            html = "";
+        }
+
+        // TODO msa link as a tooltip...
+
+        return html;
+    };
+
+    var getPdbLinkHtml = function(value) {
+        var html;
+
+        if (value != null)
+        {
+            html = '<a href="' + value + '">' +
+                     '<span style="background-color:#88C;color:white;">&nbsp;3D&nbsp;</span>' +
+                     '</a>';
+        }
+        else
+        {
+            html = "";
+        }
+
+        return html;
+    };
+
+    var getCosmicHtml = function(value, count) {
+        var html;
+
+        if (count <= 0)
+        {
+            html = "<label></label>";
+        }
+        else
+        {
+            html = '<label class="mutation_table_cosmic" alt="' + value + '">' +
+                   '<b>' + count + '</b></label>';
+        }
+
+        return html;
+    };
+
+
     var row;
     var rows = new Array();
+
+    // TODO move the css mapping from MutationTableUtil to client side
 
     for (var i=0; i<data.mutations.length; i++)
     {
         row = new Array();
 
-        row.push(data.mutations[i].caseId);
-        row.push(data.mutations[i].proteinChange);
-        row.push(data.mutations[i].mutationType);
-        row.push(data.mutations[i].cosmicCount);
-        row.push(data.mutations[i].functionalImpactScore);
-        row.push(data.mutations[i].pdbLink);
-        row.push(data.mutations[i].mutationStatus);
-        row.push(data.mutations[i].validationStatus);
+        row.push('<a href="' + data.mutations[i].linkToPatientView + '">' +
+                 '<b>' + data.mutations[i].caseId + "</b></a>");
+        row.push('<span class="protein_change">' +
+                 data.mutations[i].proteinChange +
+                '</span>');
+        row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
+        row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
+        row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),
+                            data.mutations[i].xVarLink,
+                            data.mutations[i].msaLink));
+        row.push(getPdbLinkHtml(data.mutations[i].pdbLink));
+        row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
+        row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));// TODO "not tested"
         row.push(data.mutations[i].sequencingCenter);
         row.push(data.mutations[i].position);
         row.push(data.mutations[i].referenceAllele);
@@ -319,7 +478,6 @@ function _drawMutationTableOld(){
         "bJQueryUI": true,
         "bPaginate": false,
         "bFilter": true,
-        // TODO DataTable's own scroll doesn't work as expected (probably because of bad CSS settings)
         //"sScrollX": "100%",
         //"sScrollXInner": "105%",
         //"bScrollCollapse": true,

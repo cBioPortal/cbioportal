@@ -39,36 +39,88 @@ public class Transcript
 	private String proteinChange;
 	private String variantClassification;
 	private int exonAffected;
+	private String refseqId;
+	private String uniprotName;
+	private String codonChange;
+	private String transcriptChange;
 
-	public String getProteinChange() {
+	public String getProteinChange()
+	{
 		return proteinChange;
 	}
 
-	public void setProteinChange(String proteinChange) {
+	public void setProteinChange(String proteinChange)
+	{
 		this.proteinChange = proteinChange;
 	}
 
-	public String getVariantClassification() {
+	public String getVariantClassification()
+	{
 		return variantClassification;
 	}
 
-	public void setVariantClassification(String variantClassification) {
+	public void setVariantClassification(String variantClassification)
+	{
 		this.variantClassification = variantClassification;
 	}
 
-	public String getGene() {
+	public String getGene()
+	{
 		return gene;
 	}
 
-	public void setGene(String gene) {
+	public void setGene(String gene)
+	{
 		this.gene = gene;
 	}
 
-	public int getExonAffected() {
+	public int getExonAffected()
+	{
 		return exonAffected;
 	}
 
-	public void setExonAffected(int exonAffected) {
+	public void setExonAffected(int exonAffected)
+	{
 		this.exonAffected = exonAffected;
+	}
+
+	public String getRefseqId()
+	{
+		return refseqId;
+	}
+
+	public void setRefseqId(String refseqId)
+	{
+		this.refseqId = refseqId;
+	}
+
+	public String getUniprotName()
+	{
+		return uniprotName;
+	}
+
+	public void setUniprotName(String uniprotName)
+	{
+		this.uniprotName = uniprotName;
+	}
+
+	public String getCodonChange()
+	{
+		return codonChange;
+	}
+
+	public void setCodonChange(String codonChange)
+	{
+		this.codonChange = codonChange;
+	}
+
+	public String getTranscriptChange()
+	{
+		return transcriptChange;
+	}
+
+	public void setTranscriptChange(String transcriptChange)
+	{
+		this.transcriptChange = transcriptChange;
 	}
 }

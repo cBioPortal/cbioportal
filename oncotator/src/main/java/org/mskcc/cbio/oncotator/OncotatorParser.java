@@ -127,6 +127,10 @@ public class OncotatorParser
 		JsonNode proteinChange = transcriptNode.path("protein_change");
 		JsonNode geneSymbol = transcriptNode.path("gene");
 		JsonNode exonAffected = transcriptNode.path("exon_affected");
+		JsonNode refseqId = transcriptNode.path("refseq_mRNA_id");
+		JsonNode uniprotName = transcriptNode.path("uniprot_entry_name");
+		JsonNode codonChange = transcriptNode.path("codon_change");
+		JsonNode transcriptChange = transcriptNode.path("transcript_change");
 
 		// construct a transcript instance for the parsed nodes
 
@@ -150,6 +154,26 @@ public class OncotatorParser
 		if (!exonAffected.isMissingNode())
 		{
 			transcript.setExonAffected(exonAffected.getIntValue());
+		}
+
+		if (!refseqId.isMissingNode())
+		{
+			transcript.setRefseqId(refseqId.getTextValue());
+		}
+
+		if (!uniprotName.isMissingNode())
+		{
+			transcript.setUniprotName(uniprotName.getTextValue());
+		}
+
+		if (!codonChange.isMissingNode())
+		{
+			transcript.setCodonChange(codonChange.getTextValue());
+		}
+
+		if (!transcriptChange.isMissingNode())
+		{
+			transcript.setTranscriptChange(transcriptChange.getTextValue());
 		}
 
 		return transcript;

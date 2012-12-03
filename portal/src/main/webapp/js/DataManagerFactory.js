@@ -47,11 +47,11 @@ var DataManagerFactory = (function() {
 
     var GENE_DATA_MANAGER = getNewDataManager();
 
-
     that.getGeneDataManager = function() {
         return GENE_DATA_MANAGER;
     };
-    that.getGeneDataManager.getJsonUrl = function() { return 'GeneAlterations.json'; };     // json url
+
+    that.getGeneDataJsonUrl = function() { return 'GeneAlterations.json'; };     // json url
 
     that.getNewDataManager = function() { return getNewDataManager(); };
 

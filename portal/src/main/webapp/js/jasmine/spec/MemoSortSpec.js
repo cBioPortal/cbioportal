@@ -1,4 +1,4 @@
-describe("MemoSort", function() {
+xdescribe("MemoSort", function() {
 
     var AMPLIFIED = "AMPLIFIED",
         DELETED = "DELETED",

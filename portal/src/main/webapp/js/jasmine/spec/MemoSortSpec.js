@@ -38,10 +38,10 @@ describe("MemoSort", function() {
         var comparator = setup(GENE1).comparator;
 
         expect(comparator("CASE1", "CASE1")).toBe(0);
-        expect(comparator("CASE1", "CASE2")).toBe(1);
-        expect(comparator("CASE2", "CASE1")).toBe(-1);
+        expect(comparator("CASE1", "CASE2")).toBe(-1);
+        expect(comparator("CASE2", "CASE1")).toBe(1);
 
-        expect(comparator("CASE2", "CASE3")).toBe(1);
+        expect(comparator("CASE2", "CASE3")).toBe(-1);
     });
 
     it(".comparator mutation", function() {
@@ -56,8 +56,8 @@ describe("MemoSort", function() {
         var comparator = setup(GENE1).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
-        expect(comparator("CASE1", "CASE2")).toBe(1);
-        expect(comparator("CASE2", "CASE1")).toBe(-1);
+        expect(comparator("CASE1", "CASE2")).toBe(-1);
+        expect(comparator("CASE2", "CASE1")).toBe(1);
     });
 
     it(".comparator mrna", function() {
@@ -72,9 +72,9 @@ describe("MemoSort", function() {
         var comparator = setup(GENE1).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
-        expect(comparator("CASE1", "CASE2")).toBe(1);
-        expect(comparator("CASE2", "CASE3")).toBe(1);
-        expect(comparator("CASE3", "CASE2")).toBe(-1);
+        expect(comparator("CASE1", "CASE2")).toBe(-1);
+        expect(comparator("CASE2", "CASE3")).toBe(-1);
+        expect(comparator("CASE3", "CASE2")).toBe(1);
     });
 
     it(".comparator rppa", function() {
@@ -89,9 +89,9 @@ describe("MemoSort", function() {
         var comparator = setup(GENE1).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
-        expect(comparator("CASE1", "CASE2")).toBe(1);
-        expect(comparator("CASE2", "CASE3")).toBe(1);
-        expect(comparator("CASE3", "CASE2")).toBe(-1);
+        expect(comparator("CASE1", "CASE2")).toBe(-1);
+        expect(comparator("CASE2", "CASE3")).toBe(-1);
+        expect(comparator("CASE3", "CASE2")).toBe(1);
     });
 
     it(".sort", function() {
@@ -108,7 +108,7 @@ describe("MemoSort", function() {
 
 
         expect(memoSort.sort()).toEqual(
-            ['CASE4', 'CASE3', 'CASE2', 'CASE1']
+            ['CASE1', 'CASE2', 'CASE3', 'CASE4']
         );
     });
 });

@@ -38,23 +38,6 @@ QueryGeneData = function(data) {
         return toReturn;
     };
 
-    that.getSampleList = function() {
-        var samples = data.samples;
-
-        var samples_l = [];
-
-        for (var sample in samples) {
-            samples_l.push(sample);
-//                console.log(sample);
-        }
-
-        samples_l.sort(function(a,b) {
-            return samples[a] - samples[b];
-        });
-
-        return samples_l;
-    };
-
     that.data = function(sample_id, gene, data_type) {
         // _sample_id, _gene, _data_type -> data
         // e.g. "TCGA-04-1331", "BRCA2", "mutations" -> "C711*"
@@ -62,6 +45,25 @@ QueryGeneData = function(data) {
 
         return that.bySampleId(sample_id)[gene][data_type];
     };
+
+    var getMapAsList = function(map) {
+        var list = [];
+
+        // get keys
+        for (var key in map) {
+            list.push(key);
+        }
+
+        list.sort(function(a,b) {
+            return map[a] - map[b];
+        });
+
+        return list;
+    };
+
+    that.getSampleList = function() { return getMapAsList(data.samples); };
+
+    that.getGeneList = function() { return getMapAsList(data.hugo_to_gene_index); };
 
     return that;
 };

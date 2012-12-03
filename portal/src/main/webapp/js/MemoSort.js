@@ -16,15 +16,15 @@ var MemoSort = function(geneAlterations, sort_by) {
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
 
         // diffs
-        var cna = cna_order[sample1.cna] - cna_order[sample2.cna],
+        var cna = cna_order[sample2.cna] - cna_order[sample1.cna],
             mutation,
-            mrna = regulated_order[sample1.mrna] - regulated_order[sample2.mrna],
-            rppa = regulated_order[sample1.rppa] - regulated_order[sample2.rppa];
+            mrna = regulated_order[sample2.mrna] - regulated_order[sample1.mrna],
+            rppa = regulated_order[sample2.rppa] - regulated_order[sample1.rppa];
 
         // figure out the mutation diff
-        if ((sample1.mutation === null) === (sample2.mutation === null)) {
+        if ((sample2.mutation === null) === (sample1.mutation === null)) {
             mutation = 0;
-        } else if (sample1.mutation !== null) {
+        } else if (sample2.mutation !== null) {
             mutation = 1;
         } else {
             mutation = -1;

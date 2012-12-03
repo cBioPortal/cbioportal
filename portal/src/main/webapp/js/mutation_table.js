@@ -262,10 +262,8 @@ function _generateMutationTable(tableId, data)
 
     for (i = 0; i < headers.length; i++)
     {
-        var header = headers[i];
-        var tooltip = _getMutationTableHeaderTip(header);
-
-        table += '<th alt="' + tooltip + '"><b>' + headers[i] + '</b></th>';
+        table += '<th alt="' + _getMutationTableHeaderTip(headers[i]) + '"><b>' +
+                 headers[i] + '</b></th>';
     }
 
     table += '</thead>';
@@ -290,7 +288,8 @@ function _generateMutationTable(tableId, data)
 
     for (i = 0; i < headers.length; i++)
     {
-        table += '<th><b>' + headers[i] + '</b></th>';
+        table += '<th alt="' + _getMutationTableHeaderTip(headers[i]) + '"><b>' +
+                 headers[i] + '</b></th>';
     }
 
     table += '</tfoot></table>';

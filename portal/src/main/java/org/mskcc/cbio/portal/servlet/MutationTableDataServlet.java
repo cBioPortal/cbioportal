@@ -36,6 +36,8 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
@@ -98,9 +100,16 @@ public class MutationTableDataServlet extends HttpServlet
 		{
 			HashMap<String, Object> rowData = new HashMap<String, Object>();
 
+			int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+					mutation.getGeneticProfileId()).getCancerStudyId();
+			String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(
+					cancerStudyId).getCancerStudyStableId();
+			String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(),
+					cancerStudyStableId);
+
 			// TODO verify linkToPatientView...
 			rowData.put("caseId", mutation.getCaseId());
-			rowData.put("linkToPatientView", SkinUtil.getLinkToPatientView(mutation.getCaseId()));
+			rowData.put("linkToPatientView", linkToPatientView);
 			rowData.put("proteinChange", mutation.getProteinChange());
 			rowData.put("mutationType", mutation.getMutationType());
 			rowData.put("cosmic", mutation.getOncotatorCosmicOverlapping());

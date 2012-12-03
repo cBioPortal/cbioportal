@@ -1,13 +1,4 @@
-describe("GeneAlterations", function() {
-    var sendData = {
-        cancer_study_id: "cancer",
-        genes: "GENE1",
-        cases: "CASE1 CASE2",
-        geneticProfileIds: "profileId1"
-    };
-
-//    var gA = GeneAlterations(sendData);
-
+describe("QueryGeneData", function() {
     var AMPLIFIED = "AMPLIFIED",
         DELETED = "DELETED";
 
@@ -23,27 +14,25 @@ describe("GeneAlterations", function() {
         percent_altered: "10%"
     };
 
-    var gene_data = [GENE1],
+    var genes = [GENE1],
         hugo_to_gene_index = {"GENE1": 0},
         samples = {"CASE1": 0, "CASE2": 1};
 
-    var return_data =  { gene_data: gene_data,
+    var gene_data =  { gene_data: genes,
         hugo_to_gene_index: hugo_to_gene_index,
         samples: samples
     };
 
     var query;
     beforeEach(function() {
-        query = GeneAlterations.query(return_data);
+        query = QueryGeneData(gene_data);
     });
 
-    it("should also test it's management of AJAX calls...but doesn't right now");
-
-    it(".query.byHugo", function() {
+    it("should query by hugo gene symbol (.byHugo), i.e. a slice of data", function() {
         expect(query.byHugo("GENE1")).toEqual(GENE1);
     });
 
-    it(".query.bySampleId", function() {
+    it("and by sample id (.bySampleId), i.e. another slice of data", function() {
         var CASE1 = {
             "GENE1": {
                 mutation: null,
@@ -55,13 +44,7 @@ describe("GeneAlterations", function() {
         expect(query.bySampleId("CASE1")).toEqual(CASE1);
     });
 
-    it(".query.getSampleList", function() {
-
-        var sample_list = ["CASE1", "CASE2"];
-        expect(query.getSampleList()).toEqual(sample_list);
-    });
-
-    it(".query.data", function() {
+    it("and get a particular entry of data (.data)", function() {
         var mutation_case2 = ["a"],
             cna_case2 = DELETED,
             mrna_case2 = DOWNREGULATED,
@@ -72,4 +55,11 @@ describe("GeneAlterations", function() {
         expect(query.data("CASE2", "GENE1", "mrna")).toBe(mrna_case2);
         expect(query.data("CASE2", "GENE1", "rppa")).toBe(rppa_case2);
     });
+
+    it("Also, should be able to return a list of samples (.getSampleList)", function() {
+
+        var sample_list = ["CASE1", "CASE2"];
+        expect(query.getSampleList()).toEqual(sample_list);
+    });
+
 });

@@ -1,1 +1,0 @@
-/Users/dresdneg/dev/cbio-cancer-genomics-portal/portal/src/main/webapp/js/GeneAlterations.js

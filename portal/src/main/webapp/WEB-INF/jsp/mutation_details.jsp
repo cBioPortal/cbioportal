@@ -178,52 +178,6 @@ function toggleMutationDiagram(geneId)
 		return stringWriter.toString().replace("\"", "\\\"");
 	}
 
-    private void outputGeneTable(GeneWithScore geneWithScore,
-            ExtendedMutationMap mutationMap, JspWriter out, 
-            ArrayList<String> mergedCaseList) throws IOException {
-        MutationTableUtil mutationTableUtil = new MutationTableUtil(geneWithScore.getGene());
-        MutationCounter mutationCounter = new MutationCounter(geneWithScore.getGene(),
-                mutationMap);
-
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
-        {
-            outputHeader(out, geneWithScore, mutationCounter);
-	        //outputColumnFilter(out, geneWithScore, mutationTableUtil.getTableHeaders());
-
-            out.println("<table cellpadding='0' cellspacing='0' border='0' " +
-                    "class='display mutation_details_table' " +
-                    "id='mutation_details_table_" + geneWithScore.getGene().toUpperCase()
-                    +"'>");
-
-            //  Table column headers
-            out.println("<thead>");
-            out.println(mutationTableUtil.getTableHeaderHtml() + "<BR>");
-            out.println("</thead>");
-
-            //  Mutations are sorted by case
-            out.println("<tbody>");
-            for (String caseId : mergedCaseList) {
-                ArrayList<ExtendedMutation> mutationList =
-                        mutationMap.getExtendedMutations(geneWithScore.getGene(), caseId);
-                if (mutationList != null && mutationList.size() > 0) {
-                    for (ExtendedMutation mutation : mutationList) {
-                        out.println(mutationTableUtil.getDataRowHtml(mutation));
-                    }
-                }
-            }
-            out.println("</tbody>");
-
-            //  Table column footer
-            out.println("<tfoot>");
-            out.println(mutationTableUtil.getTableHeaderHtml());
-            out.println("</tfoot>");
-
-            out.println("</table><p><br>");
-            out.println(mutationTableUtil.getTableFooterMessage());
-            out.println("<br>");
-        }
-    }
-
     private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
             MutationCounter mutationCounter) throws IOException {
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");

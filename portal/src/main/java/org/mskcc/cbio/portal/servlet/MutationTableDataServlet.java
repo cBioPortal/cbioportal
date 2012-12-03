@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ **
+ ** This library is free software; you can redistribute it and/or modify it
+ ** under the terms of the GNU Lesser General Public License as published
+ ** by the Free Software Foundation; either version 2.1 of the License, or
+ ** any later version.
+ **
+ ** This library is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ ** documentation provided hereunder is on an "as is" basis, and
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has no obligations to provide maintenance, support,
+ ** updates, enhancements or modifications.  In no event shall
+ ** Memorial Sloan-Kettering Cancer Center
+ ** be liable to any party for direct, indirect, special,
+ ** incidental or consequential damages, including lost profits, arising
+ ** out of the use of this software and its documentation, even if
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has been advised of the possibility of such damage.  See
+ ** the GNU Lesser General Public License for more details.
+ **
+ ** You should have received a copy of the GNU Lesser General Public License
+ ** along with this library; if not, write to the Free Software Foundation,
+ ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ **/
+
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.log4j.Logger;
@@ -31,15 +58,14 @@ import java.util.List;
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
 /**
+ * A servlet designed to retrieve mutation data for a single mutation details table.
+ * This servlet returns a JSON object.
  *
+ * @author Selcuk Onur Sumer
  */
 public class MutationTableDataServlet extends HttpServlet
 {
 	private static final Logger logger = Logger.getLogger(MutationTableDataServlet.class);
-
-	//protected SpecialGene specialGene;
-	//protected HashMap<String, Object> headerList;
-
 	private final ObjectMapper objectMapper;
 
 	public MutationTableDataServlet()
@@ -72,6 +98,7 @@ public class MutationTableDataServlet extends HttpServlet
 		{
 			HashMap<String, Object> rowData = new HashMap<String, Object>();
 
+			// TODO verify linkToPatientView...
 			rowData.put("caseId", mutation.getCaseId());
 			rowData.put("linkToPatientView", SkinUtil.getLinkToPatientView(mutation.getCaseId()));
 			rowData.put("proteinChange", mutation.getProteinChange());
@@ -124,6 +151,12 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Returns the MSA (alignment) link for the given mutation.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          corresponding MSA link
+	 */
 	protected String getMsaLink(ExtendedMutation mutation)
 	{
 		String urlMsa = "";
@@ -151,6 +184,12 @@ public class MutationTableDataServlet extends HttpServlet
 		return urlMsa;
 	}
 
+	/**
+	 * Returns the PDB (structure) link for the given mutation.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          corresponding PDB link
+	 */
 	protected String getPdbLink(ExtendedMutation mutation)
 	{
 		String urlPdb = "";
@@ -178,6 +217,12 @@ public class MutationTableDataServlet extends HttpServlet
 		return urlPdb;
 	}
 
+	/**
+	 * Returns the xVar (mutation assessor) link for the given mutation.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          corresponding xVar link
+	 */
 	protected String getXVarLink(ExtendedMutation mutation)
 	{
 		String xVarLink = "";
@@ -198,6 +243,12 @@ public class MutationTableDataServlet extends HttpServlet
 		return xVarLink;
 	}
 
+	/**
+	 * Checks the validity of the given link.
+	 *
+	 * @param link  string representation of a URL
+	 * @return      true if valid, false otherwise
+	 */
 	protected boolean linkIsValid(String link)
 	{
 		return link != null &&
@@ -291,6 +342,12 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Returns the corresponding chromosome and start position.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          chromosome number and start position
+	 */
 	protected String getChrPosition(ExtendedMutation mutation)
 	{
 		if (mutation.getChr() == null)
@@ -303,6 +360,12 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Gets the footer message specific to the provided special gene.
+	 *
+	 * @param specialGene   a special gene
+	 * @return              corresponding footer message
+	 */
 	public String getTableFooterMessage(SpecialGene specialGene)
 	{
 		if (specialGene != null)
@@ -314,6 +377,13 @@ public class MutationTableDataServlet extends HttpServlet
 			return "";
 		}
 	}
+
+	/**
+	 * Initializes a map of data column headers.
+	 *
+	 * @param specialGene   a special gene
+	 * @return              a map of variable name and column name pairs
+	 */
 	protected HashMap<String, Object> initHeaders(SpecialGene specialGene)
 	{
 		HashMap<String, Object> headerList = new HashMap<String, Object>();
@@ -331,8 +401,8 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("position", "Position");
 		headerList.put("referenceAllele", "Ref");
 		headerList.put("variantAllele", "Var");
-		//TODO headerList.add("Variant Frequency\tVar Freq");
-		//TODO headerList.add("Normal Frequency\tNorm Freq");
+		//TODO headerList.add("variantFrequency", "Var Freq");
+		//TODO headerList.add("normalFrequency", "Norm Freq");
 
 		JSONArray specialGeneHeaders = new JSONArray();
 

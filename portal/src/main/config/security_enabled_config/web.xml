@@ -201,6 +201,11 @@
         <servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
+	<servlet>
+		<servlet-name>mutation_table_data_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationTableDataServlet</servlet-class>
+	</servlet>
+
     <servlet>
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
@@ -245,6 +250,11 @@
         <servlet-name>mutation_diagram_data_json</servlet-name>
         <url-pattern>/mutation_diagram_data.json</url-pattern>
     </servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mutation_table_data_json</servlet-name>
+		<url-pattern>/mutation_table_data.json</url-pattern>
+	</servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>

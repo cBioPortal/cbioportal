@@ -1,6 +1,6 @@
 var MemoSort = function(geneAlterations, sort_by) {
 
-    var query = GeneAlterations.query(geneAlterations);
+    var query = QueryGeneData(geneAlterations);
 
     var comparator = function(s1, s2) {
         // list of genes with corresponding alteration data
@@ -76,23 +76,13 @@ var MemoSort = function(geneAlterations, sort_by) {
 
         var samples = geneAlterations.samples;
 
-        var query = GeneAlterations.query(geneAlterations);
-
         // get the array of samples in the defined order
-        var samples_l = query.getSampleList();
+        var sorted_samples_l = query.getSampleList();
 
-        samples_l.sort(that.comparator);
+        sorted_samples_l.sort(that.comparator);
         // samples_l is now sorted, is this bad functional programming?
 
-        // copy the mapping
-        var sorted_samples =  $.extend({}, samples);
-
-        // reindex the mapping according to the new sorting
-        samples_l.forEach(function(val, i) {
-            sorted_samples[val] = i;
-        });
-
-        return sorted_samples;
+        return sorted_samples_l;
     };
 
     var that = {

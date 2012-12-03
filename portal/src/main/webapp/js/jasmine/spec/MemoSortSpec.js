@@ -1,4 +1,4 @@
-xdescribe("MemoSort", function() {
+describe("MemoSort", function() {
 
     var AMPLIFIED = "AMPLIFIED",
         DELETED = "DELETED",
@@ -106,11 +106,9 @@ xdescribe("MemoSort", function() {
 
         var memoSort = setup(GENE1);
 
-        expect(memoSort.sort()).toEqual({
-            "CASE1": 3,
-            "CASE2": 2,
-            "CASE3": 1,
-            "CASE4": 0
-        });
+
+        expect(memoSort.sort()).toEqual(
+            ['CASE4', 'CASE3', 'CASE2', 'CASE1']
+        );
     });
 });

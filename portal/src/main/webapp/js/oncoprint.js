@@ -3,12 +3,6 @@ var Oncoprint = function(wrapper, params) {
 
     that.wrapper = wrapper;
 
-    var svg = d3.select(wrapper).append('svg')
-        .attr('width', 500)
-        .attr('height', 500);
-
-    that.svg = svg;
-
     that.getData = function() {
         return params.data;
     };
@@ -18,49 +12,45 @@ var Oncoprint = function(wrapper, params) {
     var genes_list = query.getGeneList();
 
     var no_samples = samples_list.length,
-        gene_indexes = d3.map(samples.huo_to_gene_index),
         gene_data = params.data.gene_data,
         no_genes = gene_data.length;
 
-    var selector_id = '#oncoprints #' + params.cancer_study_id;
-
-    var rectPadding = 1.5;
     var rectWidth = 5.5;
-    var calcLittleRectWidth = function(width) { return (rectWidth + 1) / rectWidth * width;};
-    var trackPadding = 3;
     var rectHeight = 23;
+    var rectPadding = 3;
     var littleRectHeight = rectHeight / 3;
+    var getLaneWidth = function(padding) {
+        // padding : boolean
 
-    // global boolean (reflects a state)
-    var toggleRectPadding = rectPadding;
-
-    var calcLaneWidth = function(rectWidth, no_samples) {
-        // lane : the rectangles
-        // track : the label and the rectangles together, this is just my naming convention,
-        return no_samples * rectWidth;
+        var _rectPadding = padding ? rectPadding : 0;
+        return (rectWidth + _rectPadding) * no_samples;
     };
 
-    var calcSvgHeight = function(rectHeight, trackPadding, no_tracks) {
-        return (rectHeight + trackPadding) * no_tracks;
+    var getHeight = function() {
+        return (rectHeight + 10) * no_genes;
     };
 
-    var x = d3.scale.ordinal().rangeBands([0, 500], 3);
-    var y = d3.scale.ordinal().rangeBands([0, 500], .5)
+    var x = d3.scale.ordinal().rangeBands([0, getLaneWidth(true)], 0);
+
+    var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
-
-    var laneWidth = calcLaneWidth(rectWidth, no_samples);
-    var height = calcSvgHeight(rectHeight, trackPadding, no_genes);
 
     var translate = function(x,y) {
         return "translate(" + x + "," + y + ")";
     };
 
-    var redrawTrack = function(name) {
+    that.draw = function() {
+
+        var svg = d3.select(wrapper).append('svg')
+            .attr('width', getLaneWidth() + (2 * (rectWidth + rectPadding)))
+            .attr('height', getHeight());
+        that.svg = svg;
+
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
         x.domain(samples_list);
 
-        data.gene_data.forEach(function(gene_obj) {
+        gene_data.forEach(function(gene_obj) {
 
             var sample = svg.selectAll('.sample ' + gene_obj.hugo)
                 .data(samples_list, function(d) { return d;});
@@ -68,8 +58,8 @@ var Oncoprint = function(wrapper, params) {
 
             var sample_enter = sample.enter().append('g')
                 .attr('class', 'sample ' + gene_obj.hugo)
-                .attr('transform', function(d) {
-                    return translate(x(d) - 130, y(gene_obj.hugo));
+                .attr('transform', function(d, i) {
+                    return translate(x(d), y(gene_obj.hugo));
                 });
 
             var cna = sample_enter.append('rect')
@@ -77,44 +67,40 @@ var Oncoprint = function(wrapper, params) {
                     var cna = query.data(d, gene_obj.hugo, 'cna');
                     return 'cna ' + (cna === null ? 'none' : cna);
                 })
-                .attr('width', 25)
-                .attr('height', 50);
+                .attr('width', rectWidth)
+                .attr('height', rectHeight);
 
             var mut = sample.append('rect')
                 .attr('class', function(d) {
                     var mutation = query.data(d, gene_obj.hugo, 'mutation');
                     return 'mutation ' + (mutation === null ? 'none' : 'mut');
                 })
-                .attr('width', 25)
-                .attr('height', 25);
+                .attr('width', rectWidth)
+                .attr('height', littleRectHeight);
 
 //        // ... mrna, rppa
         });
 
-        console.log(samples_list);
         return samples_list;
     };
 
-    that.redrawTrack = redrawTrack;
-
-    var memoSort = function() {
-        var memoSort = MemoSort(params.data, "GENE1");
+    that.memoSort = function() {
+        var memoSort = MemoSort(params.data, genes_list);
         samples_list = memoSort.sort();
 
         x.domain(samples_list);
 
-        data.gene_data.forEach(function(gene_obj) {
-            d3.selectAll('.sample.' + gene_obj.hugo)
+        gene_data.forEach(function(gene_obj) {
+            that.svg.selectAll('.sample.' + gene_obj.hugo)
                 .transition()
                 .duration(1000)
                 .attr('transform', function(d) {
-                    return translate(x(d) - 130, y(gene_obj.hugo));
+                    return translate(x(d), y(gene_obj.hugo));
                 });
         });
 
         return samples_list;
     };
-    that.memoSort = memoSort;
 
     return that;
 };

@@ -60,7 +60,11 @@
 </head>
 
 <body>
-<div id='oncoprint'></div>
+<div id='oncoprint'>
+    <h2>
+        oncoprint
+    </h2>
+    </div>
   <script type="text/javascript">
 // {{{ test data
 
@@ -81,8 +85,8 @@
         percent_altered: "10%"
     };
 
-    var cna2        = [AMPLIFIED, DELETED, null, null, null, null];
-    var mutations2  = [null, ['a'], null, ['1'], null, ['b']];
+    var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
+    var mutations2  = [null, null, null, null, null, null];
 
     var GENE2 = { hugo: "GENE2",
         cna: cna2,
@@ -120,21 +124,8 @@
         percent_cases_affected: "-1%"
     };
 // }}}
-
     var oncoprint = Oncoprint($('#oncoprint')[0], params);
-    oncoprint.redrawTrack("GENE1");
+    oncoprint.draw();
   </script>
-
-<div id='playtime'>
-    <svg width=100 height=100>
-        <g>
-            <rect width=30 height=30 fill=black>
-        </g>
-        <g transform="translate(10,10)">
-            <rect width=30 height=30 fill=blue>
-        </g>
-    </svg>
-</div>
-
 </body>
 </html>

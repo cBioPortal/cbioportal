@@ -7,23 +7,27 @@ describe("MemoSort", function() {
     var UPREGULATED = "UPREGULATED",
         DOWNREGULATED = "DOWNREGULATED";
 
-    var setup = function(GENE1) {
+    var setup = function(gene_data) {
 
-        var gene_data = [GENE1],
-            hugo_to_gene_index = {"GENE1": 0},
-            samples = { "CASE1": 0,
-                "CASE2": 1,
-                "CASE3": 2,
-                "CASE4": 3 };
+        var hugo_to_gene_index = {};
 
-        var geneAlterations =  { gene_data: gene_data,
+        gene_data.forEach(function(gene, i) {
+            hugo_to_gene_index[gene.hugo] = i;
+        });
+
+        var samples = { "CASE1": 0,
+            "CASE2": 1,
+            "CASE3": 2,
+            "CASE4": 3 };
+
+        var gene_data =  { gene_data: gene_data,
             hugo_to_gene_index: hugo_to_gene_index,
             samples: samples
         };
 
-        return MemoSort(geneAlterations, "GENE1");
+        return MemoSort(gene_data,
+            QueryGeneData(gene_data).getGeneList());
     };
-
 
     it(".comparator cna", function() {
 
@@ -35,7 +39,9 @@ describe("MemoSort", function() {
             percent_altered: "10%"
         };
 
-        var comparator = setup(GENE1).comparator;
+        var gene_data = [GENE1];
+
+        var comparator = setup(gene_data).comparator;
 
         expect(comparator("CASE1", "CASE1")).toBe(0);
         expect(comparator("CASE1", "CASE2")).toBe(-1);
@@ -53,7 +59,9 @@ describe("MemoSort", function() {
             percent_altered: "10%"
         };
 
-        var comparator = setup(GENE1).comparator;
+        var gene_data = [GENE1];
+
+        var comparator = setup(gene_data).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
         expect(comparator("CASE1", "CASE2")).toBe(-1);
@@ -69,7 +77,9 @@ describe("MemoSort", function() {
             percent_altered: "10%"
         };
 
-        var comparator = setup(GENE1).comparator;
+        var gene_data = [GENE1];
+
+        var comparator = setup(gene_data).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
         expect(comparator("CASE1", "CASE2")).toBe(-1);
@@ -86,7 +96,9 @@ describe("MemoSort", function() {
             percent_altered: "10%"
         };
 
-        var comparator = setup(GENE1).comparator;
+        var gene_data = [GENE1];
+
+        var comparator = setup(gene_data).comparator;
 
         expect(comparator("CASE2", "CASE2")).toBe(0);
         expect(comparator("CASE1", "CASE2")).toBe(-1);
@@ -95,7 +107,7 @@ describe("MemoSort", function() {
     });
 
     it(".sort", function() {
-        var GENE1 = { hugo: "GENE1",
+        var GENE1 = {
             hugo: "GENE1",
             cna:        [AMPLIFIED, HOMODELETED, null, null],
             mutations:  [['a mutation'], null, ['a mutation'], null],
@@ -104,11 +116,41 @@ describe("MemoSort", function() {
             percent_altered: "10%"
         };
 
-        var memoSort = setup(GENE1);
+        var gene_data = [GENE1];
+
+        var memoSort = setup(gene_data);
 
 
         expect(memoSort.sort()).toEqual(
             ['CASE1', 'CASE2', 'CASE3', 'CASE4']
+        );
+    });
+
+    it("should sort cases for multiple genes", function() {
+        var GENE1 = {
+            hugo: "GENE1",
+            cna:        [AMPLIFIED, HOMODELETED, null, null],
+            mutations:  [null, null, null, null],
+            mrna:       [null, null, null, null],
+            rppa:       [null, null, null, null],
+            percent_altered: "10%"
+        };
+
+        var GENE2 = {
+            hugo: "GENE2",
+            cna:        [null, null, HOMODELETED, AMPLIFIED],
+            mutations:  [null, null, null, null],
+            mrna:       [null, null, null, null],
+            rppa:       [null, null, null, null],
+            percent_altered: "10%"
+        };
+
+        var gene_data = [GENE1, GENE2];
+
+        var memoSort = setup(gene_data);
+
+        expect(memoSort.sort()).toEqual(
+            ['CASE1', 'CASE2', 'CASE4', 'CASE3']
         );
     });
 });

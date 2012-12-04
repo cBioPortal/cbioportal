@@ -1,5 +1,5 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-<div id="oncoprints">
+<div id="oncoprint">
     <link rel="stylesheet" type="text/css" href="css/oncoprint.css">
     <script type="text/javascript" src="js/oncoprint.js"></script>
     <script type="text/javascript" src="js/d3.v2.min.js"></script>
@@ -18,21 +18,17 @@
             geneticProfileIds: geneticProfiles
         };
 
-        $.post(DataManagerFactory.getGeneDataManager.getJsonUrl(), geneDataQuery, function(data) {
+        var oncoprint;      // global
+        $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
 
-            // ...do some stuff
+            oncoPrintParams['data'] = data;
+
+            oncoprint = Oncoprint($('#oncoprint')[0], oncoPrintParams);
+
+            oncoprint.draw();
 
             var geneDataManager = DataManagerFactory.getGeneDataManager();
             geneDataManager.fire(data);
         });
-
-//        var oncoprint;
-//        geneAlterations.fire(function(data) {
-//            oncoPrintParams['data'] = data;
-//
-//            oncoprint = OncoPrint(oncoPrintParams);
-//            oncoprint.insertFullOncoPrint($('#oncoprints'));
-//        });
-
     </script>
 </div>

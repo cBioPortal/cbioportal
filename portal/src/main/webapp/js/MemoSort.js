@@ -1,16 +1,23 @@
-var MemoSort = function(geneAlterations, sort_by) {
+var MemoSort = function(geneAlterations, gene_list) {
 
     var query = QueryGeneData(geneAlterations);
 
-    var comparator = function(s1, s2) {
+    var comparator_helper = function(s1, s2, gene_list) {
+
+        var sort_by = gene_list.pop();
+
+        // base case
+        if (sort_by === undefined) {
+            return 0;
+        }
+
         // list of genes with corresponding alteration data
         var sample1 = query.bySampleId(s1),
             sample2 = query.bySampleId(s2);
 
-        // alterations for the gene we want to sort by
+        // get the gene object
         sample1 = sample1[sort_by];
         sample2 = sample2[sort_by];
-//        console.log('sample', sample1);
 
         var cna_order = {AMPLIFIED: 2, DELETED: 1, HOMODELETED: 1, null: 0},
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
@@ -61,7 +68,16 @@ var MemoSort = function(geneAlterations, sort_by) {
             return rppa;
         }
 
-        return 0;
+        return comparator_helper(s1, s2, gene_list);
+    };
+
+    var comparator = function(s1, s2) {
+        // make a copy of gene_list
+        var gene_list_copy = [];
+        gene_list.forEach(function(i) { gene_list_copy.push(i); });
+        gene_list_copy.reverse();
+
+        return comparator_helper(s1, s2, gene_list_copy);
     };
 
     var sort = function() {
@@ -79,16 +95,14 @@ var MemoSort = function(geneAlterations, sort_by) {
         // get the array of samples in the defined order
         var sorted_samples_l = query.getSampleList();
 
-        sorted_samples_l.sort(that.comparator);
+        sorted_samples_l.sort(comparator);
         // samples_l is now sorted, is this bad functional programming?
 
         return sorted_samples_l;
     };
 
-    var that = {
+    return {
         comparator: comparator,
         sort: sort
     };
-
-    return that;
 };

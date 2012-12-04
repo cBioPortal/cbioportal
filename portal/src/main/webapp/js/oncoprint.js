@@ -39,6 +39,11 @@ var Oncoprint = function(wrapper, params) {
         return "translate(" + x + "," + y + ")";
     };
 
+    var cleanHugo = function(hugo) {
+        // can't have '/' in DOM id
+        return hugo.replace("/", "_");
+    };
+
     that.draw = function() {
 
         var svg = d3.select(wrapper).append('svg')
@@ -52,13 +57,14 @@ var Oncoprint = function(wrapper, params) {
 
         gene_data.forEach(function(gene_obj) {
 
-            var sample = svg.selectAll('.sample ' + gene_obj.hugo)
+            var cleaned_hugo = cleanHugo(gene_obj.hugo);
+
+            var sample = svg.selectAll('.sample ' + cleaned_hugo)
                 .data(samples_list, function(d) { return d;});
-//            .data(samples_list);
 
             var sample_enter = sample.enter().append('g')
-                .attr('class', 'sample ' + gene_obj.hugo)
-                .attr('transform', function(d, i) {
+                .attr('class', 'sample ' + cleaned_hugo)
+                .attr('transform', function(d) {
                     return translate(x(d), y(gene_obj.hugo));
                 });
 
@@ -91,7 +97,7 @@ var Oncoprint = function(wrapper, params) {
         x.domain(samples_list);
 
         gene_data.forEach(function(gene_obj) {
-            that.svg.selectAll('.sample.' + gene_obj.hugo)
+            that.svg.selectAll('.sample.' + cleanHugo(gene_obj.hugo))
                 .transition()
                 .duration(1000)
                 .attr('transform', function(d) {

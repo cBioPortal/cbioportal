@@ -70,31 +70,23 @@
     var UPREGULATED = "UPREGULATED",
         DOWNREGULATED = "DOWNREGULATED";
 
-        var cna = [AMPLIFIED,
-            DELETED,
-            null,
-            null,
-            null,
-            null];
-
-        var mutations = [null,
-            ['a'],
-            null,
-            ['1'],
-            null,
-            ['b']];
+        var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
+        var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
 
     var GENE1 = { hugo: "GENE1",
-        cna: cna,
-        mutations: mutations,
+        cna: cna1,
+        mutations: mutations1,
         mrna: [null, null, null, null, null, null],
         rppa: [null, null, null, null, null, null],
         percent_altered: "10%"
     };
 
+    var cna2        = [AMPLIFIED, DELETED, null, null, null, null];
+    var mutations2  = [null, ['a'], null, ['1'], null, ['b']];
+
     var GENE2 = { hugo: "GENE2",
-        cna: cna,
-        mutations: mutations,
+        cna: cna2,
+        mutations: mutations2,
         mrna: [null, null, null, null, null, null],
         rppa: [null, null, null, null, null, null],
         percent_altered: "10%"

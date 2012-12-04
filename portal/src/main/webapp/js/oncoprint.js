@@ -60,21 +60,21 @@ var Oncoprint = function(wrapper, params) {
 
         x.domain(samples_list);
 
-        var sample = svg.selectAll('.sample')
-            .data(samples_list);
-//            .data(samples_list, function(d) { return d;});
-
         data.gene_data.forEach(function(gene_obj) {
 
+            var sample = svg.selectAll('.sample ' + gene_obj.hugo)
+                .data(samples_list, function(d) { return d;});
+//            .data(samples_list);
+
             var sample_enter = sample.enter().append('g')
-                .attr('class', 'sample')
+                .attr('class', 'sample ' + gene_obj.hugo)
                 .attr('transform', function(d) {
                     return translate(x(d) - 130, y(gene_obj.hugo));
                 });
 
             var cna = sample_enter.append('rect')
                 .attr('class', function(d) {
-                    var cna = query.data(d, name, 'cna');
+                    var cna = query.data(d, gene_obj.hugo, 'cna');
                     return 'cna ' + (cna === null ? 'none' : cna);
                 })
                 .attr('width', 25)
@@ -82,7 +82,7 @@ var Oncoprint = function(wrapper, params) {
 
             var mut = sample.append('rect')
                 .attr('class', function(d) {
-                    var mutation = query.data(d, name, 'mutation');
+                    var mutation = query.data(d, gene_obj.hugo, 'mutation');
                     return 'mutation ' + (mutation === null ? 'none' : 'mut');
                 })
                 .attr('width', 25)
@@ -103,12 +103,14 @@ var Oncoprint = function(wrapper, params) {
 
         x.domain(samples_list);
 
-        d3.selectAll('.sample')
-            .transition()
-            .duration(1000)
-            .attr('transform', function(d) {
-                return translate(x(d) - 130, 10);
-            });
+        data.gene_data.forEach(function(gene_obj) {
+            d3.selectAll('.sample.' + gene_obj.hugo)
+                .transition()
+                .duration(1000)
+                .attr('transform', function(d) {
+                    return translate(x(d) - 130, y(gene_obj.hugo));
+                });
+        });
 
         return samples_list;
     };

@@ -41,7 +41,7 @@ public class CachedOncotatorService extends OncotatorService
 	 */
 	public CachedOncotatorService()
 	{
-		this.cache = DaoOncotatorCache.getInstance();
+		this.cache = new DaoJsonCache();
 	}
 
 	/**

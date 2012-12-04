@@ -107,26 +107,84 @@ public class OncoMafProcessor extends MafProcessor
 			oncotatorRecord = new OncotatorRecord("NA");
 		}
 
-		String proteinChange =
-				oncotatorRecord.getBestEffectTranscript().getProteinChange();
 		String cosmicOverlapping =
 				oncotatorRecord.getCosmicOverlappingMutations();
 		String dbSnpRs =
 				oncotatorRecord.getDbSnpRs();
+		String dbSnpValStatus =
+				oncotatorRecord.getDbSnpValStatus();
+
+		String proteinChange =
+				oncotatorRecord.getBestCanonicalTranscript().getProteinChange();
 		String variantClassification =
-				oncotatorRecord.getBestEffectTranscript().getVariantClassification();
+				oncotatorRecord.getBestCanonicalTranscript().getVariantClassification();
 		String geneSymbol =
+				oncotatorRecord.getBestCanonicalTranscript().getGene();
+		String refseqMrnaId =
+				oncotatorRecord.getBestCanonicalTranscript().getRefseqMrnaId();
+		String refseqProtId =
+				oncotatorRecord.getBestCanonicalTranscript().getRefseqProtId();
+		String uniprotName =
+				oncotatorRecord.getBestCanonicalTranscript().getUniprotName();
+		String uniprotAccession =
+				oncotatorRecord.getBestCanonicalTranscript().getUniprotAccession();
+		String codonChange =
+				oncotatorRecord.getBestCanonicalTranscript().getCodonChange();
+		String transcriptChange =
+				oncotatorRecord.getBestCanonicalTranscript().getTranscriptChange();
+		String exonAffected = (oncotatorRecord.getBestCanonicalTranscript().getExonAffected() == null) ?
+				null : oncotatorRecord.getBestCanonicalTranscript().getExonAffected().toString();
+
+		String proteinChangeBe =
+				oncotatorRecord.getBestEffectTranscript().getProteinChange();
+		String variantClassificationBe =
+				oncotatorRecord.getBestEffectTranscript().getVariantClassification();
+		String geneSymbolBe =
 				oncotatorRecord.getBestEffectTranscript().getGene();
+		String refseqMrnaIdBe =
+				oncotatorRecord.getBestEffectTranscript().getRefseqMrnaId();
+		String refseqProtIdBe =
+				oncotatorRecord.getBestEffectTranscript().getRefseqProtId();
+		String uniprotNameBe =
+				oncotatorRecord.getBestEffectTranscript().getUniprotName();
+		String uniprotAccessionBe =
+				oncotatorRecord.getBestEffectTranscript().getUniprotAccession();
+		String codonChangeBe =
+				oncotatorRecord.getBestEffectTranscript().getCodonChange();
+		String transcriptChangeBe =
+				oncotatorRecord.getBestEffectTranscript().getTranscriptChange();
+		String exonAffectedBe =(oncotatorRecord.getBestEffectTranscript().getExonAffected() == null) ?
+				null : oncotatorRecord.getBestEffectTranscript().getExonAffected().toString();
 
 		// create a new maf util for the new header line to get new oncotator indices
 		String newHeaderLine = this.newHeaderLineAsString();
 		MafUtil mafUtil = new MafUtil(newHeaderLine);
 
 		// update oncotator values
-		data.set(mafUtil.getOncoProteinChangeIndex(), proteinChange);
 		data.set(mafUtil.getOncoCosmicOverlappingIndex(), cosmicOverlapping);
 		data.set(mafUtil.getOncoDbSnpRsIndex(), dbSnpRs);
+		data.set(mafUtil.getOncoDbSnpValStatusIndex(), dbSnpValStatus);
+
+		data.set(mafUtil.getOncoProteinChangeIndex(), proteinChange);
 		data.set(mafUtil.getOncoVariantClassificationIndex(), variantClassification);
 		data.set(mafUtil.getOncoGeneSymbolIndex(), geneSymbol);
+		data.set(mafUtil.getOncoRefseqMrnaIdIndex(), refseqMrnaId);
+		data.set(mafUtil.getOncoRefseqProtIdIndex(), refseqProtId);
+		data.set(mafUtil.getOncoUniprotNameIndex(), uniprotName);
+		data.set(mafUtil.getOncoUniprotAccessionIndex(), uniprotAccession);
+		data.set(mafUtil.getOncoCodonChangeIndex(), codonChange);
+		data.set(mafUtil.getOncoTranscriptChangeIndex(), transcriptChange);
+		data.set(mafUtil.getOncoExonAffectedIndex(), exonAffected);
+
+		data.set(mafUtil.getOncoProteinChangeBeIndex(), proteinChangeBe);
+		data.set(mafUtil.getOncoVariantClassificationBeIndex(), variantClassificationBe);
+		data.set(mafUtil.getOncoGeneSymbolBeIndex(), geneSymbolBe);
+		data.set(mafUtil.getOncoRefseqMrnaIdBeIndex(), refseqMrnaIdBe);
+		data.set(mafUtil.getOncoRefseqProtIdBeIndex(), refseqProtIdBe);
+		data.set(mafUtil.getOncoUniprotNameBeIndex(), uniprotNameBe);
+		data.set(mafUtil.getOncoUniprotAccessionBeIndex(), uniprotAccessionBe);
+		data.set(mafUtil.getOncoCodonChangeBeIndex(), codonChangeBe);
+		data.set(mafUtil.getOncoTranscriptChangeBeIndex(), transcriptChangeBe);
+		data.set(mafUtil.getOncoExonAffectedBeIndex(), exonAffectedBe);
 	}
 }

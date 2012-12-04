@@ -166,6 +166,7 @@ public class Oncotator
 				// just set the mutation type, all other data will be empty
 				oncotatorRecord = new OncotatorRecord("NA");
 				oncotatorRecord.getBestEffectTranscript().setVariantClassification("Silent");
+				oncotatorRecord.getBestCanonicalTranscript().setVariantClassification("Silent");
 			}
 
 			// get the data and update/add new oncotator columns

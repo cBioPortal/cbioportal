@@ -104,6 +104,11 @@ public class Admin implements Runnable {
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
 
+        Option generateCaseLists = (OptionBuilder.withArgName("portal")
+									.hasArg()
+									.withDescription("generate case lists for the given portal")
+									.create("generate_case_lists"));
+
         Option importReferenceData = (OptionBuilder.withArgName("reference_type")
 									  .hasArg()
 									  .withDescription("import given reference data")
@@ -123,6 +128,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
+		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
 
@@ -182,6 +188,10 @@ public class Admin implements Runnable {
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
 				convertData(commandLine.getOptionValue("convert_data"));
+			}
+			// convert data
+			else if (commandLine.hasOption("generate_case_lists")) {
+				generateCaseLists(commandLine.getOptionValue("generate_case_lists"));
 			}
 			// import reference data
 			else if (commandLine.hasOption("import_reference_data")) {
@@ -291,6 +301,25 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Converter converter = (Converter)context.getBean("converter");
 		converter.convertData(portal);
+	}
+
+	/**
+	 * Helper function to generate case lists.
+     *
+     * @param portal String
+     *
+	 * @throws Exception
+	 */
+	private void generateCaseLists(final String portal) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("generateCaseLists(), portal: " + portal);
+		}
+
+		// create an instance of Converter
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Converter converter = (Converter)context.getBean("converter");
+		converter.generateCaseLists(portal);
 	}
 
 	/**

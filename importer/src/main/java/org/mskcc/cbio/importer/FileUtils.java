@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 
 import java.io.File;
 import java.util.Collection;
@@ -97,6 +98,16 @@ public interface FileUtils {
 	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
 
 	/**
+	 * Get staging file header.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @return stagingFile String
+	 * @throws Exception
+	 */
+	String getStagingFileHeader(final PortalMetadata portalMetadata, final String cancerStudy, final String stagingFile) throws Exception;
+
+	/**
 	 * Creates (or overwrites) the given file with the given contents.
 	 *
 	 * @param directory String
@@ -152,4 +163,15 @@ public interface FileUtils {
 	 */
 	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
 								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
+
+	/**
+	 * Create a case list file from the given case list metadata file.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param caseListMetadata CaseListMetadata
+	 * @param caseList String[]
+	 * @throws Exception
+	 */
+	void writeCaseListFile(final PortalMetadata portalMetadata, final String cancerStudy, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
 }

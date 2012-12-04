@@ -36,6 +36,7 @@ import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -100,6 +101,11 @@ final class GDataImpl implements Config {
 	private String caseIDFiltersMetadataProperty;
 	@Value("${case_id_filters_metadata}")
 	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersMetadataProperty = property; }
+
+	// case list metadata
+	private String caseListMetadataProperty;
+	@Value("${case_lists_metadata}")
+	public void setCaseListMetadataProperty(final String property) { this.caseListMetadataProperty = property; }
 
 	// portal metadata
 	private String portalsMetadataProperty;
@@ -273,6 +279,61 @@ final class GDataImpl implements Config {
 					for (ListEntry entry : feed.getEntries()) {
 						toReturn.add(new CaseIDFilterMetadata(entry.getCustomElements().getValue(properties[1]),
 															  entry.getCustomElements().getValue(properties[2])));
+					}
+				}
+				else {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet contains no entries!");
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of CaseListMetadata.
+	 *
+	 * @return Collection<CaseListMetadata>
+	 */
+	@Override
+	public Collection<CaseListMetadata> getCaseListMetadata() {
+
+		Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCaseListMetadata()");
+		}
+
+		// parse the property argument
+		String[] properties = caseListMetadataProperty.split(":");
+		if (properties.length != 8) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Invalid property passed to getCaseListMetadata: " + caseListMetadataProperty);
+			}
+			return toReturn;
+		}
+
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			if (worksheet != null) {
+				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+				if (feed != null && feed.getEntries().size() > 0) {
+					for (ListEntry entry : feed.getEntries()) {
+						toReturn.add(new CaseListMetadata(entry.getCustomElements().getValue(properties[1]),
+														  entry.getCustomElements().getValue(properties[2]),
+														  entry.getCustomElements().getValue(properties[3]),
+														  entry.getCustomElements().getValue(properties[4]),
+														  entry.getCustomElements().getValue(properties[5]),
+														  entry.getCustomElements().getValue(properties[6]),
+														  entry.getCustomElements().getValue(properties[7])));
+															
 					}
 				}
 				else {

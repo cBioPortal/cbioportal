@@ -30,11 +30,13 @@ package org.mskcc.cbio.importer.io.internal;
 
 // imports
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.util.NormalizeExpressionLevels;
 
 import org.mskcc.cbio.oncotator.OncotateTool;
@@ -215,6 +217,46 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         // outta here
         return getImportDataMatrix(fileContents);
     }
+
+	/**
+	 * Get staging file header.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @return stagingFilename String
+	 * @throws Exception
+	 */
+	@Override
+	public String getStagingFileHeader(final PortalMetadata portalMetadata, final String cancerStudy, final String stagingFilename) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getStagingFileHeader(): " + stagingFilename);
+		}
+
+		String toReturn = "";
+
+		// staging file
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																   cancerStudy,
+																   stagingFilename);
+		// sanity check
+		if (!stagingFile.exists()) {
+			return toReturn;
+		}
+
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(stagingFile);
+		try {
+			while (it.hasNext()) {
+				toReturn = it.nextLine();
+				break;
+			}
+		} finally {
+			it.close();
+		}
+
+		// outta here
+		return toReturn;
+	}
 
 	/**
 	 * Creates (or overwrites) the given file with the given contents.
@@ -434,6 +476,44 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
+	 * Create a case list file from the given case list metadata file.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudy String
+	 * @param caseListMetadata CaseListMetadata
+	 * @param caseList String[]
+	 * @throws Exception
+	 */
+	public void writeCaseListFile(final PortalMetadata portalMetadata, final String cancerStudy, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception {
+
+		File caseListFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	cancerStudy,
+																	"case_lists",
+																	caseListMetadata.getCaseListFilename());
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writeCaseListFile(), case list file: " + caseListFile.getCanonicalPath());
+		}
+		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(caseListFile, false));
+		writer.print("cancer_study_identifier: " + cancerStudy + "\n");
+		String stableID = caseListMetadata.getMetaStableID();
+		stableID = stableID.replaceAll("<CANCER_STUDY>", cancerStudy);
+		writer.print("stable_id: " + stableID + "\n");
+		writer.print("case_list_name: " + caseListMetadata.getMetaCaseListName() + "\n");
+		String caseListDescription = caseListMetadata.getMetaCaseListDescription();
+		caseListDescription = caseListDescription.replaceAll("<NUM_CASES>", Integer.toString(caseList.length));
+		writer.print("case_list_description: " + caseListDescription + "\n");
+		writer.print("case_list_category: " + caseListMetadata.getMetaCaseListCategory() + "\n");
+		writer.print("case_list_ids: ");
+		for (String caseID : caseList) {
+			writer.print(caseID + Converter.CASE_DELIMITER);
+		}
+		writer.println();
+		writer.flush();
+		writer.close();
+	}
+
+	/**
 	 * Helper method which writes a metadata file for the
 	 * given DatatypeMetadata.  ImportDataMatrix may be null.
 	 *
@@ -451,7 +531,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																	cancerStudy,
 																	datatypeMetadata.getMetaFilename());
 			if (LOG.isInfoEnabled()) {
-				LOG.info("writingMetadataFlie(), meta file: " + metaFile);
+				LOG.info("writeMetadataFile(), meta file: " + metaFile);
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
@@ -549,12 +629,12 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             while (it.hasNext()) {
                 // first row is our column heading, create column vector
                 if (++count == 0) {
-                    columnNames = new Vector(Arrays.asList(it.nextLine().split("\t", -1)));
+                    columnNames = new Vector(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1)));
                 }
                 // all other rows are rows in the table
                 else {
                     rowData = (rowData == null) ? new Vector<Vector<String>>() : rowData;
-                    rowData.add(new Vector(Arrays.asList(it.nextLine().split("\t", -1))));
+                    rowData.add(new Vector(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1))));
                 }
             }
         }

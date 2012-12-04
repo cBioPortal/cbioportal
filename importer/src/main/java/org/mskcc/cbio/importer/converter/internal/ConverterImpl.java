@@ -41,6 +41,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
@@ -49,6 +50,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Vector;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * Class which implements the Converter interface.
@@ -188,6 +190,95 @@ final class ConverterImpl implements Converter {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("generateCaseLists()");
+		}
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
+
+        // get portal metadata
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("convertData(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+
+		// get CaseListMetadata
+		Collection<CaseListMetadata> caseListMetadatas = config.getCaseListMetadata();
+
+		// iterate over all cancer studies
+		for (String cancerStudy : portalMetadata.getCancerStudies()) {
+			// iterate over case lists
+			for (CaseListMetadata caseListMetadata : caseListMetadatas) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), processing cancer study: " + cancerStudy + ", case list: " + caseListMetadata.getCaseListFilename());
+				}
+				// how many staging files are we working with?
+				String[] stagingFilenames = null;
+				// union (all cases)
+				if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER)) {
+					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+				}
+				// intersection (like all complete or all cna & seq)
+				else if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
+					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
+				}
+				// just a single staging file
+				else {
+					stagingFilenames = new String[] { caseListMetadata.getStagingFilenames() };
+				}
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), stagingFilenames: " + java.util.Arrays.toString(stagingFilenames));
+				}
+				// this is the set we will pass to writeCaseListFile
+				LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
+				for (String stagingFilename : stagingFilenames) {
+					// compute the case set
+					LinkedHashSet<String> thisSet = new LinkedHashSet<String>();
+					String[] stagingFileHeader = fileUtils.getStagingFileHeader(portalMetadata, cancerStudy, stagingFilename).split(CASE_DELIMITER);
+					// we may not have this datatype in study
+					if (stagingFileHeader.length == 0) {
+						if (LOG.isInfoEnabled()) {
+							LOG.info("generateCaseLists(), stagingFileHeader is empty: " + stagingFilename + ", skipping...");
+						}
+						continue;
+					}
+					// filter out column headings that are not case ids (like gene symbol or gene id)
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), filtering case ids...");
+					}
+					for (String caseID : stagingFileHeader) {
+						if (caseIDs.isTumorCaseID(caseID)) {
+							thisSet.add(caseID);
+						}
+					}
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), filtering case ids complete, " + thisSet.size() + " remaining case ids...");
+					}
+					// if intersection 
+					if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
+						caseSet.retainAll(thisSet);
+					}
+					// otherwise union
+					else {
+						caseSet.addAll(thisSet);
+					}
+				}
+				// write the case list file (don't make empty case lists)
+				if (caseSet.size() > 0) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), calling writeCaseListFile()...");
+					}
+					fileUtils.writeCaseListFile(portalMetadata, cancerStudy, caseListMetadata, caseSet.toArray(new String[0]));
+
+				}
+				else if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
+				}
+			}
 		}
     }
 

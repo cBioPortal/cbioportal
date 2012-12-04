@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 
 import java.util.Collection;
 
@@ -63,6 +64,13 @@ public interface Config {
 	 * @return Collection<CaseIDFilterMetadata>
 	 */
 	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
+
+	/**
+	 * Gets a collection of CaseListMetadata.
+	 *
+	 * @return Collection<CaseListMetadata>
+	 */
+	Collection<CaseListMetadata> getCaseListMetadata();
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

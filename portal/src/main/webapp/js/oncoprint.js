@@ -9,28 +9,42 @@ var Oncoprint = function(wrapper, params) {
 
     var query = QueryGeneData(params.data);
     var samples_list = query.getSampleList();
+    var sorted_samples;
     var genes_list = query.getGeneList();
 
     var no_samples = samples_list.length,
         gene_data = params.data.gene_data,
         no_genes = gene_data.length;
 
-    var rectWidth = 5.5;
     var rectHeight = 23;
-    var rectPadding = 3;
     var littleRectHeight = rectHeight / 3;
-    var getLaneWidth = function(padding) {
-        // padding : boolean
 
-        var _rectPadding = padding ? rectPadding : 0;
-        return (rectWidth + _rectPadding) * no_samples;
+    // global state variables
+    var padding = true;
+    var width_scalar = 1;
+
+    var getRectWidth = function() {
+        var unscaled = 5.5;
+
+        return width_scalar * unscaled;
+    };
+
+    var getRectPadding = function() {
+        var unscaled = 3;
+
+        return padding ? (width_scalar * unscaled) : 0;
+    };
+
+    var getWidth = function() {
+
+        return (getRectWidth() + getRectPadding()) * no_samples;
     };
 
     var getHeight = function() {
         return (rectHeight + 10) * no_genes;
     };
 
-    var x = d3.scale.ordinal().rangeBands([0, getLaneWidth(true)], 0);
+    var x = d3.scale.ordinal().rangeBands([0, getWidth()], 0);
 
     var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
@@ -47,7 +61,7 @@ var Oncoprint = function(wrapper, params) {
     that.draw = function() {
 
         var svg = d3.select(wrapper).append('svg')
-            .attr('width', getLaneWidth() + (2 * (rectWidth + rectPadding)))
+            .attr('width', getWidth() + (2 * (getRectWidth() + getRectPadding())))
             .attr('height', getHeight());
         that.svg = svg;
 
@@ -73,7 +87,7 @@ var Oncoprint = function(wrapper, params) {
                     var cna = query.data(d, gene_obj.hugo, 'cna');
                     return 'cna ' + (cna === null ? 'none' : cna);
                 })
-                .attr('width', rectWidth)
+                .attr('width', getRectWidth())
                 .attr('height', rectHeight);
 
             var mut = sample.append('rect')
@@ -81,7 +95,7 @@ var Oncoprint = function(wrapper, params) {
                     var mutation = query.data(d, gene_obj.hugo, 'mutation');
                     return 'mutation ' + (mutation === null ? 'none' : 'mut');
                 })
-                .attr('width', rectWidth)
+                .attr('width', getRectWidth())
                 .attr('height', littleRectHeight);
 
 //        // ... mrna, rppa
@@ -90,11 +104,10 @@ var Oncoprint = function(wrapper, params) {
         return samples_list;
     };
 
-    that.memoSort = function() {
-        var memoSort = MemoSort(params.data, genes_list);
-        samples_list = memoSort.sort();
+    var transition = function() {
+        // helper function
 
-        x.domain(samples_list);
+        var rect_width = getRectWidth();
 
         gene_data.forEach(function(gene_obj) {
             that.svg.selectAll('.sample.' + cleanHugo(gene_obj.hugo))
@@ -103,9 +116,41 @@ var Oncoprint = function(wrapper, params) {
                 .attr('transform', function(d) {
                     return translate(x(d), y(gene_obj.hugo));
                 });
-        });
 
-        return samples_list;
+            that.svg.selectAll('rect')
+                .transition()
+                .duration(1000)
+                .attr('width', rect_width);
+        });
+    };
+
+    that.memoSort = function() {
+        var memoSort = MemoSort(params.data, genes_list);
+        sorted_samples = memoSort.sort();
+
+        x.domain(sorted_samples);       // reset global variable
+        transition();
+
+        return sorted_samples;
+    };
+
+    that.defaultSort = function() {
+        x.domain(samples_list);
+        transition();
+    };
+
+    that.toggleWhiteSpace = function() {
+        padding = !padding;
+        x.rangeBands([0, getWidth()]);
+        transition();
+    };
+
+    that.scaleWidth = function(scalar) {
+        width_scalar = scalar;
+
+        x.rangeBands([0, getWidth()]);
+
+        transition();
     };
 
     return that;

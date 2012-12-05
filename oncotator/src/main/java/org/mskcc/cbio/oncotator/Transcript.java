@@ -38,9 +38,11 @@ public class Transcript
 	private String gene;
 	private String proteinChange;
 	private String variantClassification;
-	private int exonAffected;
-	private String refseqId;
+	private Integer exonAffected;
+	private String refseqMrnaId;
+	private String refseqProtId;
 	private String uniprotName;
+	private String uniprotAccession;
 	private String codonChange;
 	private String transcriptChange;
 
@@ -74,24 +76,44 @@ public class Transcript
 		this.gene = gene;
 	}
 
-	public int getExonAffected()
+	public Integer getExonAffected()
 	{
 		return exonAffected;
 	}
 
-	public void setExonAffected(int exonAffected)
+	public void setExonAffected(Integer exonAffected)
 	{
 		this.exonAffected = exonAffected;
 	}
 
-	public String getRefseqId()
+	public String getRefseqMrnaId()
 	{
-		return refseqId;
+		return refseqMrnaId;
 	}
 
-	public void setRefseqId(String refseqId)
+	public void setRefseqMrnaId(String refseqMrnaId)
 	{
-		this.refseqId = refseqId;
+		this.refseqMrnaId = refseqMrnaId;
+	}
+
+	public String getRefseqProtId()
+	{
+		return refseqProtId;
+	}
+
+	public void setRefseqProtId(String refseqProtId)
+	{
+		this.refseqProtId = refseqProtId;
+	}
+
+	public String getUniprotAccession()
+	{
+		return uniprotAccession;
+	}
+
+	public void setUniprotAccession(String uniprotAccession)
+	{
+		this.uniprotAccession = uniprotAccession;
 	}
 
 	public String getUniprotName()

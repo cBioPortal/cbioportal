@@ -203,8 +203,12 @@ sub load_cancer_data{
 
 	  # import hg19 seg file
 	  my $fullCanonicalSegDataFile = File::Spec->catfile( @pathToDataFile, $cancerDataDir . '_scna_minus_germline_cnv_hg19.seg' );
+	  unless ($fileUtil->existent($fullCanonicalSegDataFile)) {
+		# attemp hg 18
+		$fullCanonicalSegDataFile = File::Spec->catfile( @pathToDataFile, $cancerDataDir . '_scna_hg18.seg' );
+	  }
 	  if ( $fileUtil->existent($fullCanonicalSegDataFile) ) {
-		print "importingCopyNumberSegentData(hg19): $fullCanonicalSegDataFile\n";
+		print "ImportCopyNumberSegmentData(): $fullCanonicalSegDataFile\n";
 		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportCopyNumberSegmentData " . $fullCanonicalSegDataFile . ' ' . $cancerDataDir );
 	  }
 

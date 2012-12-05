@@ -37,35 +37,43 @@ public final class ReferenceMetadata {
 
 	// bean properties
 	private String referenceType;
+	private Boolean importIntoPortal;
+	private String referenceFileSource;
 	private String referenceFile;
-	private String referenceFileDestination;
 	private String importerClassName;
 
     /**
      * Create a ReferenceMetadata instance with specified properties.
      *
 	 * @param referenceType String
+	 * @param importIntoPortal Boolean
+	 * @param referenceFileSource String
 	 * @param referenceFile String
-	 * @param referenceFileDestination String
 	 * @param importerClassname String
      */
-    public ReferenceMetadata(final String referenceType, final String referenceFile,
-							 final String referenceFileDestination, final String importerClassName) {
+    public ReferenceMetadata(final String referenceType, final Boolean importIntoPortal,
+							 final String referenceFileSource, final String referenceFile,
+							 final String importerClassName) {
 
 		if (referenceType == null) {
             throw new IllegalArgumentException("referenceType must not be null");
 		}
 		this.referenceType = referenceType.trim();
 
+		if (importIntoPortal == null) {
+            throw new IllegalArgumentException("importIntoPortal must not be null");
+		}
+		this.importIntoPortal = importIntoPortal;
+
+		if (referenceFileSource == null) {
+            throw new IllegalArgumentException("referenceFileSource must not be null");
+		}
+		this.referenceFileSource = referenceFileSource.trim();
+
 		if (referenceFile == null) {
             throw new IllegalArgumentException("referenceFile must not be null");
 		}
 		this.referenceFile = referenceFile.trim();
-
-		if (referenceFileDestination == null) {
-            throw new IllegalArgumentException("referenceFileDestination must not be null");
-		}
-		this.referenceFileDestination = referenceFileDestination.trim();
 
 		if (importerClassName == null) {
             throw new IllegalArgumentException("importerClassName must not be null");
@@ -74,7 +82,8 @@ public final class ReferenceMetadata {
 	}
 
 	public String getReferenceType() { return referenceType; }
+	public Boolean importIntoPortal() { return importIntoPortal; }
+	public String getReferenceFileSource() { return referenceFileSource; }
 	public String getReferenceFile() { return referenceFile; }
-	public String getReferenceFileDestination() { return referenceFileDestination; }
 	public String getImporterClassName() { return importerClassName; }
 }

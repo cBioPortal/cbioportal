@@ -105,7 +105,7 @@ public final class HumanGeneImporterImpl implements Importer {
 		// first create (and clobber an existing) db
 		databaseUtils.createDatabase(databaseUtils.getGeneInformationDatabaseName(), false);
 
-		String referenceFile = referenceMetadata.getReferenceFileDestination();
+		String referenceFile = referenceMetadata.getReferenceFile();
 		if (GzipUtils.isCompressedFilename(referenceFile)) {
 			referenceFile = GzipUtils.getUncompressedFilename(referenceFile);
 		}

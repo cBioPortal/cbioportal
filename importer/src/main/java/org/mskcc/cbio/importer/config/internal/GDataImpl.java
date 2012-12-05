@@ -442,9 +442,10 @@ final class GDataImpl implements Config {
 					for (ListEntry entry : feed.getEntries()) {
                         if (entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
                                 toReturn = new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
-																 entry.getCustomElements().getValue(properties[2]),
+																 new Boolean(entry.getCustomElements().getValue(properties[2])),
 																 entry.getCustomElements().getValue(properties[3]),
-																 entry.getCustomElements().getValue(properties[4]));
+																 entry.getCustomElements().getValue(properties[4]),
+																 entry.getCustomElements().getValue(properties[5]));
                                 break;
                         }
                     }

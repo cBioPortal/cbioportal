@@ -139,10 +139,6 @@ var Oncoprint = function(wrapper, params) {
     var transition = function() {
         // helper function
 
-        that.svg.transition().duration(1000).attr('width', getWidth());
-
-        console.log(that.svg.attr('width'));
-
         that.svg.selectAll('.track')[0].forEach(function(val, i) {
             d3.select(val).selectAll('.sample')
                 .transition()
@@ -157,6 +153,8 @@ var Oncoprint = function(wrapper, params) {
                 .duration(1000)
                 .attr('width', rect_width);
         });
+
+        that.svg.transition().duration(1000).style('width', getWidth());
     };
 
     that.memoSort = function() {

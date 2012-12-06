@@ -90,12 +90,18 @@ var Oncoprint = function(wrapper, params) {
                 .attr('transform', translate(LABEL_PADDING, 0))
                 .attr('class', 'track');
 
-            track.append('text')
+            var label = track.append('text')
                 .attr('x', -LABEL_PADDING)
-                .attr('y', y(hugo) + .5 * RECT_HEIGHT)
-//                .attr('dy', '.32em')
+                .attr('y', y(hugo) + .5 * RECT_HEIGHT);
+
+            label.append('tspan')
                 .attr('text-anchor', 'start')
                 .text(gene_obj.hugo);
+
+            label.append('tspan')
+                .attr('text-anchor', 'end')
+                .attr('x', 0 - 5)
+                .text(gene_obj.percent_altered);
 
             var sample = track.selectAll('.sample')
                 .data(samples_list, function(d) { return d;});

@@ -34,7 +34,7 @@
 
             oncoprint = Oncoprint($('#oncoprint')[0], oncoPrintParams);
 
-            oncoprint.draw();
+            oncoprint.redraw();
 
             var geneDataManager = DataManagerFactory.getGeneDataManager();
             geneDataManager.fire(data);

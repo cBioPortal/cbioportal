@@ -82,8 +82,12 @@ describe("QueryGeneData", function() {
         expect(query.isSampleAltered("CASE3")).toBe(false);
     });
 
-    it('should return a list of altered samples (.getUnalteredSamples)', function() {
+    it('should return a list of unaltered samples (.getUnalteredSamples)', function() {
         expect(query.getUnalteredSamples()).toEqual(["CASE3"]);
+    });
+
+    it('also should return a list of altered samples (.getUnalteredSamples)', function() {
+        expect(query.getAlteredSamples()).toEqual(["CASE1", "CASE2"]);
     });
 
 });

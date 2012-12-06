@@ -71,75 +71,103 @@
     <button type='button' onclick='oncoprint.scaleWidth(.5)'>scale width .5</button>
     </h2>
 <div id='oncoprint'>
-    </div>
-  <script type="text/javascript">
+<script type="text/javascript">
 // {{{ test data
 
-    var AMPLIFIED = "AMPLIFIED",
-        DELETED = "HOMODELETED";
+var AMPLIFIED = "AMPLIFIED",
+DELETED = "HOMODELETED";
 
-    var UPREGULATED = "UPREGULATED",
-        DOWNREGULATED = "DOWNREGULATED";
+var UPREGULATED = "UPREGULATED",
+DOWNREGULATED = "DOWNREGULATED";
 
-        var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
-        var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
+var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
+var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
 
-    var GENE1 = { hugo: "GENE1",
-        cna: cna1,
-        mutations: mutations1,
-        mrna: [null, null, null, null, null, null],
-        rppa: [null, null, null, null, null, null],
-        percent_altered: "10%"
-    };
+var GENE1 = { hugo: "GENE1",
+    cna: cna1,
+    mutations: mutations1,
+    mrna: [null, null, null, null, null, null],
+    rppa: [null, null, null, null, null, null],
+    percent_altered: "10%"
+};
 
-    var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
-    var mutations2  = [null, null, null, null, null, null];
+var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
+var mutations2  = [null, null, null, null, null, null];
 
-    var GENE2 = { hugo: "MARCH8",
-        cna: cna2,
-        mutations: mutations2,
-        mrna: [null, null, null, null, null, null],
-        rppa: [null, null, null, null, null, null],
-        percent_altered: "10%"
-    };
+var GENE2 = { hugo: "MARCH8",
+    cna: cna2,
+    mutations: mutations2,
+    mrna: [null, null, null, null, null, null],
+    rppa: [null, null, null, null, null, null],
+    percent_altered: "10%"
+};
 
 
-    var hugo_to_gene_index = {
-        "GENE1": 0,
-        "MARCH8": 1
-    };
+var hugo_to_gene_index = {
+    "GENE1": 0,
+    "MARCH8": 1
+};
 
-    var samples = { "CASE1": 0,
-        "CASE2": 1,
-        "CASE3": 2,
-        "CASE4": 3,
-        "CASE5": 4,
-        "CASE6": 5
-    };
+var samples = { "CASE1": 0,
+    "CASE2": 1,
+    "CASE3": 2,
+    "CASE4": 3,
+    "CASE5": 4,
+    "CASE6": 5
+};
 
-    var data = {
-        gene_data: [GENE1, GENE2],
-        hugo_to_gene_index: hugo_to_gene_index,
-        samples: samples
-    };
+var data = {
+    gene_data: [GENE1, GENE2],
+    hugo_to_gene_index: hugo_to_gene_index,
+    samples: samples
+};
 
-    var params = {
-        data: data,
-        cancer_study_id: "tcga-test",
-        case_set_str: "case set description",
-        num_cases_affected: "-1",
-        percent_cases_affected: "-1%"
-    };
+var params = {
+    data: data,
+    cancer_study_id: "tcga-test",
+    case_set_str: "case set description",
+    num_cases_affected: "-1",
+    percent_cases_affected: "-1%"
+};
 // }}}
-    var oncoprint = Oncoprint($('#oncoprint')[0], params);
-    oncoprint.draw();
-  </script>
+var oncoprint = Oncoprint($('#oncoprint')[0], params);
+oncoprint.redraw();
+</script>
+</div>
 
-  <div style='width: 100px; overflow-x:auto; overflow-y:hidden;'>
-  <svg width=1050 height=100>
-      <text x=10 y=52 position='static' left=0> hello world </text>
-      <rect x=0 y=50 fill='purple' width=1000 height=10></rect>
-  </svg>
-  </div>
+<div style='width: 100px; overflow-x:auto; overflow-y:hidden;'>
+    <svg width=1050 height=100>
+        <text x=10 y=52 position='static' left=0> hello world </text>
+        <rect x=0 y=50 fill='purple' width=1000 height=10></rect>
+    </svg>
+</div>
+
+<div id='play'>
+    <script type='text/javascript'>
+        var data = d3.range(10);
+
+        var wrapper = d3.select('#play');
+
+        var svg = wrapper.append('svg')
+        .attr('width', 200)
+        .attr('height', 200);
+
+        var circles = svg.selectAll('circle')
+        .data(data);
+
+        var circles_enter = circles.enter()
+        .append('circle')
+        .attr('fill', 'orange')
+        .attr('r', function(d) { return d; })
+        .attr('cx', function(d, i) { return i * 20; })
+        .attr('cy', 50);
+
+        var circles_exit = circles.exit()
+        .remove('circle');
+
+
+    </script>
+</div>
+
 </body>
 </html>

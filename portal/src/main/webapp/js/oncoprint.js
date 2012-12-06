@@ -47,12 +47,16 @@ var Oncoprint = function(wrapper, params) {
 
     // useful variables
     var query = QueryGeneData(params.data);
-    var samples_list = query.getSampleList();
-    var sorted_samples;
-    var no_samples = samples_list.length;
     var genes_list = query.getGeneList();
     var gene_data = params.data.gene_data;
     var no_genes = gene_data.length;
+    var samples = {
+        all: query.getSampleList(),
+        altered: query.getAlteredSamples(),
+        sorted: MemoSort(params.data, genes_list).sort()
+    };
+    samples.visualized = samples.all;
+    var no_samples = samples.all.length;
 
     var x = d3.scale.ordinal().rangeBands([0, getXScale()], 0);
 
@@ -68,7 +72,7 @@ var Oncoprint = function(wrapper, params) {
         return hugo.replace("/", "_");
     };
 
-    that.draw = function() {
+    that.redraw = function() {
 
         var svg = d3.select(wrapper).append('svg')
             .attr('width', getWidth())
@@ -77,7 +81,7 @@ var Oncoprint = function(wrapper, params) {
 
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
-        x.domain(samples_list);
+        x.domain(samples.visualized);
 
         gene_data.forEach(function(gene_obj) {
 
@@ -106,8 +110,9 @@ var Oncoprint = function(wrapper, params) {
                 .text(gene_obj.percent_altered);
 
             var sample = track.selectAll('.sample')
-                .data(samples_list, function(d) { return d;});
+                .data(samples.visualized, function(d) { return d;});
 
+            // enter
             var sample_enter = sample.enter().append('g')
                 .attr('class', 'sample')
                 .attr('transform', function(d) {
@@ -122,7 +127,7 @@ var Oncoprint = function(wrapper, params) {
                 .attr('width', getRectWidth())
                 .attr('height', RECT_HEIGHT);
 
-            var mut = sample.append('rect')
+            var mut = sample_enter.append('rect')
                 .attr('class', function(d) {
                     var mutation = query.data(d, hugo, 'mutation');
                     return 'mutation ' + (mutation === null ? 'none' : 'mut');
@@ -130,10 +135,13 @@ var Oncoprint = function(wrapper, params) {
                 .attr('width', getRectWidth())
                 .attr('height', LITTLE_RECT_HEIGHT);
 
+            // exit
+            var sample_exit = sample.exit().remove();
+
 //        // ... mrna, rppa
         });
 
-        return samples_list;
+        return samples.visualized;
     };
 
     var transition = function() {
@@ -158,18 +166,15 @@ var Oncoprint = function(wrapper, params) {
     };
 
     that.memoSort = function() {
-        // todo: precompute this
-        var memoSort = MemoSort(params.data, genes_list);
-        sorted_samples = memoSort.sort();
 
-        x.domain(sorted_samples);
+        x.domain(samples.sorted);
         transition();
 
-        return sorted_samples;
+        return samples.sorted;
     };
 
     that.defaultSort = function() {
-        x.domain(samples_list);
+        x.domain(samples.visualized);
         transition();
     };
 
@@ -185,6 +190,11 @@ var Oncoprint = function(wrapper, params) {
         x.rangeBands([0, getXScale()]);
 
         transition();
+    };
+
+    that.hideUnaltered = function() {
+        samples.visualized = samples.altered;
+        that.redraw();
     };
 
     return that;

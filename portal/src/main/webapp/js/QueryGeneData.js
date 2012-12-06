@@ -89,5 +89,9 @@ QueryGeneData = function(data) {
         return sample_list.filter(function(sample) {return !that.isSampleAltered(sample); });
     };
 
+    that.getAlteredSamples = function() {
+        return sample_list.filter(function(sample) {return that.isSampleAltered(sample); });
+    };
+
     return that;
 };

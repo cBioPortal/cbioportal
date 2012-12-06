@@ -7,16 +7,25 @@ describe("QueryGeneData", function() {
 
     var GENE1 = { hugo: "GENE1",
         hugo: "GENE1",
-        cna: [AMPLIFIED, DELETED],
-        mutations: [null, ["a"]],
-        mrna: [UPREGULATED, DOWNREGULATED],
-        rppa: [DOWNREGULATED, null],
+        cna: [AMPLIFIED, DELETED, null],
+        mutations: [null, ["a"], null],
+        mrna: [UPREGULATED, DOWNREGULATED, null],
+        rppa: [DOWNREGULATED, null, null],
         percent_altered: "10%"
     };
 
-    var genes = [GENE1],
-        hugo_to_gene_index = {"GENE1": 0},
-        samples = {"CASE1": 0, "CASE2": 1};
+    var GENE2 = { hugo: "GENE2",
+        hugo: "GENE2",
+        cna: [AMPLIFIED, DELETED, null],
+        mutations: [null, ["a"], null],
+        mrna: [UPREGULATED, DOWNREGULATED, null],
+        rppa: [DOWNREGULATED, null, null],
+        percent_altered: "10%"
+    };
+
+    var genes = [GENE1, GENE2],
+        hugo_to_gene_index = {"GENE1": 0, "GENE2": 1},
+        samples = {"CASE1": 0, "CASE2": 1, "CASE3":2};
 
     var gene_data =  { gene_data: genes,
         hugo_to_gene_index: hugo_to_gene_index,
@@ -39,6 +48,12 @@ describe("QueryGeneData", function() {
                 cna: AMPLIFIED,
                 mrna: UPREGULATED,
                 rppa: DOWNREGULATED
+            },
+            "GENE2": {
+                mutation: null,
+                cna: AMPLIFIED,
+                mrna: UPREGULATED,
+                rppa: DOWNREGULATED
             }
         };
         expect(query.bySampleId("CASE1")).toEqual(CASE1);
@@ -56,10 +71,19 @@ describe("QueryGeneData", function() {
         expect(query.data("CASE2", "GENE1", "rppa")).toBe(rppa_case2);
     });
 
-    it("Also, should be able to return a list of samples (.getSampleList)", function() {
+    it("and, should be able to return a list of samples (.getSampleList).", function() {
 
-        var sample_list = ["CASE1", "CASE2"];
+        var sample_list = ["CASE1", "CASE2", "CASE3"];
         expect(query.getSampleList()).toEqual(sample_list);
+    });
+
+    it('should return whether or not a sample is altered (.isSampleAltered)', function() {
+        expect(query.isSampleAltered("CASE1")).toBe(true);
+        expect(query.isSampleAltered("CASE3")).toBe(false);
+    });
+
+    it('should return a list of altered samples (.getUnalteredSamples)', function() {
+        expect(query.getUnalteredSamples()).toEqual(["CASE3"]);
     });
 
 });

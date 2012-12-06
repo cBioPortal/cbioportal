@@ -61,9 +61,33 @@ QueryGeneData = function(data) {
         return list;
     };
 
-    that.getSampleList = function() { return getMapAsList(data.samples); };
+    var sample_list = getMapAsList(data.samples);
+
+    that.getSampleList = function() { return sample_list};
 
     that.getGeneList = function() { return getMapAsList(data.hugo_to_gene_index); };
+
+    that.isSampleAltered = function(sample) {
+        // returns boolean
+
+        var data = that.bySampleId(sample);
+        var genes = that.getGeneList(),
+            length = genes.length;
+
+        for (var gene_i = 0; gene_i < length ; gene_i += 1) {
+            var g = data[genes[gene_i]];
+//            console.log(g);
+
+            if ((g.mutation || g.cna || g.mrna || g.rppa) !== null) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    that.getUnalteredSamples = function() {
+        return sample_list.filter(function(sample) {return !that.isSampleAltered(sample); });
+    };
 
     return that;
 };

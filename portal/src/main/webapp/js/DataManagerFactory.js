@@ -29,14 +29,12 @@ var DataManagerFactory = (function() {
         that.subscribe = function(fun) {
             // fun takes data as a parameter
 
-            listeners.push(fun);
+            return listeners.push(fun);
             // todo: does fire order matter?
 
             if (FIRED) {
                 fun(data);
             }
-
-            return true;
         };
 
         return that;

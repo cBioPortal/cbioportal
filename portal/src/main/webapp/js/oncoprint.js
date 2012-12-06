@@ -22,7 +22,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var getXScale = function() {
-        return (getRectWidth() + getRectPadding()) * no_samples;
+        return (getRectWidth() + getRectPadding()) * samples_visualized.length;
     };
 
     var getWidth = function() {
@@ -46,17 +46,14 @@ var Oncoprint = function(wrapper, params) {
     };
 
     // useful variables
-    var query = QueryGeneData(params.data);
+    var data = params.data;
+    var query = QueryGeneData(data);
     var genes_list = query.getGeneList();
-    var gene_data = params.data.gene_data;
+    var gene_data = data.gene_data;
     var no_genes = gene_data.length;
-    var samples = {
-        all: query.getSampleList(),
-        altered: query.getAlteredSamples(),
-        sorted: MemoSort(params.data, genes_list).sort()
-    };
-    samples.visualized = samples.all;
-    var no_samples = samples.all.length;
+
+    var samples_all = query.getSampleList();
+    var samples_visualized = samples_all;
 
     var x = d3.scale.ordinal().rangeBands([0, getXScale()], 0);
 
@@ -72,6 +69,39 @@ var Oncoprint = function(wrapper, params) {
         return hugo.replace("/", "_");
     };
 
+    var draw = function(track, hugo) {
+        var sample = track.selectAll('.sample')
+            .data(samples_visualized, function(d) { return d;});
+
+        // enter
+        var sample_enter = sample.enter().append('g')
+            .attr('class', 'sample')
+            .attr('transform', function(d) {
+                return translate(x(d), y(hugo));
+            });
+
+        var cna = sample_enter.append('rect')
+            .attr('class', function(d) {
+                var cna = query.data(d, hugo, 'cna');
+                return 'cna ' + (cna === null ? 'none' : cna);
+            })
+            .attr('width', getRectWidth())
+            .attr('height', RECT_HEIGHT);
+
+        var mut = sample_enter.append('rect')
+            .attr('class', function(d) {
+                var mutation = query.data(d, hugo, 'mutation');
+                return 'mutation ' + (mutation === null ? 'none' : 'mut');
+            })
+            .attr('width', getRectWidth())
+            .attr('height', LITTLE_RECT_HEIGHT);
+
+//        // ... mrna, rppa
+
+        // exit
+        var sample_exit = sample.exit().remove();
+    };
+
     that.redraw = function() {
 
         var svg = d3.select(wrapper).append('svg')
@@ -81,7 +111,7 @@ var Oncoprint = function(wrapper, params) {
 
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
-        x.domain(samples.visualized);
+        x.domain(samples_visualized);
 
         gene_data.forEach(function(gene_obj) {
 
@@ -109,43 +139,17 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', 0 - 5)
                 .text(gene_obj.percent_altered);
 
-            var sample = track.selectAll('.sample')
-                .data(samples.visualized, function(d) { return d;});
-
-            // enter
-            var sample_enter = sample.enter().append('g')
-                .attr('class', 'sample')
-                .attr('transform', function(d) {
-                    return translate(x(d), y(hugo));
-                });
-
-            var cna = sample_enter.append('rect')
-                .attr('class', function(d) {
-                    var cna = query.data(d, hugo, 'cna');
-                    return 'cna ' + (cna === null ? 'none' : cna);
-                })
-                .attr('width', getRectWidth())
-                .attr('height', RECT_HEIGHT);
-
-            var mut = sample_enter.append('rect')
-                .attr('class', function(d) {
-                    var mutation = query.data(d, hugo, 'mutation');
-                    return 'mutation ' + (mutation === null ? 'none' : 'mut');
-                })
-                .attr('width', getRectWidth())
-                .attr('height', LITTLE_RECT_HEIGHT);
-
-            // exit
-            var sample_exit = sample.exit().remove();
-
-//        // ... mrna, rppa
+            draw(track, hugo);
         });
 
-        return samples.visualized;
+        return samples_visualized;
     };
 
     var transition = function() {
         // helper function
+
+        x.domain(samples_visualized);
+        x.rangeBands([0, getXScale()]);
 
         that.svg.selectAll('.track')[0].forEach(function(val, i) {
             d3.select(val).selectAll('.sample')
@@ -166,35 +170,55 @@ var Oncoprint = function(wrapper, params) {
     };
 
     that.memoSort = function() {
+        var samples = {};
+        var data = params.data;
 
-        x.domain(samples.sorted);
+        samples_visualized.forEach(function(val, i) {
+            samples[val] = i;
+        });
+
+        data[samples] = samples;
+        var memoSort = MemoSort(data, genes_list);
+        samples_visualized = memoSort.sort();
+
         transition();
 
-        return samples.sorted;
+        return samples_visualized;
     };
 
     that.defaultSort = function() {
-        x.domain(samples.visualized);
+        samples_visualized.sort(function(x,y) {
+            return params.data.samples[x] - params.data.samples[y];
+        });
         transition();
+
+        return samples_visualized;
     };
 
     that.toggleWhiteSpace = function() {
         PADDING = !PADDING;
-        x.rangeBands([0, getXScale()]);
         transition();
     };
 
     that.scaleWidth = function(scalar) {
         WIDTH_SCALAR = scalar;
-
-        x.rangeBands([0, getXScale()]);
-
         transition();
     };
 
-    that.hideUnaltered = function() {
-        samples.visualized = samples.altered;
-        that.redraw();
+    var ALTERED_ONLY = false;
+    that.toggleUnaltered = function() {
+
+        if (ALTERED_ONLY = !ALTERED_ONLY) {
+            samples_visualized = samples_all.filter(query.isSampleAltered);
+        } else {
+            samples_visualized = samples_all;
+        }
+
+        gene_data.forEach(function(gene, i) {
+            var track = d3.select(d3.select(wrapper).selectAll('.track')[0][i]);
+            draw(track, gene.hugo);
+            transition();
+        });
     };
 
     return that;

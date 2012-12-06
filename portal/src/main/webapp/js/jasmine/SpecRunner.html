@@ -60,7 +60,6 @@
 </head>
 
 <body>
-<div id='oncoprint'>
     <h2>
         oncoprint
     <button type='button' onclick='oncoprint.defaultSort()'>default sort</button>
@@ -71,6 +70,7 @@
     <button type='button' onclick='oncoprint.scaleWidth(1)'>scale width 1</button>
     <button type='button' onclick='oncoprint.scaleWidth(.5)'>scale width .5</button>
     </h2>
+<div id='oncoprint'>
     </div>
   <script type="text/javascript">
 // {{{ test data
@@ -135,11 +135,15 @@
     oncoprint.draw();
   </script>
 
-  <svg width=1000 height=100>
-      <text x="10" y="15">
-          <tspan text-anchor='start'>MARCH8</tspan>
-          <tspan dx='100' text-anchor='end'>10%</tspan>
-      </text>
+  <svg width=1050 height=100 position='fixed' left=0>
+      <text x=10 y=12> hello world</text>
   </svg>
+
+  <div style='width: 100px; overflow-x:auto; overflow-y:hidden;'>
+  <svg width=1050 height=100>
+      <text x=10 y=12 position='static' left=0> hello world </text>
+      <rect x=0 y=10 fill='purple' width=1000 height=10></rect>
+  </svg>
+  </div>
 </body>
 </html>

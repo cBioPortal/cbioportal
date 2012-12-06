@@ -35,9 +35,9 @@ var Oncoprint = function(wrapper, params) {
 
     // functions that echo
     d3.select(wrapper)
-        .attr('width', 600)
-        .attr('overflow-x', 'auto')
-        .attr('overflow-y', 'hidden');
+        .style('width', '1300px')
+        .style('overflow-x', 'auto')
+        .style('overflow-y', 'hidden');
 
     that.wrapper = wrapper;
 
@@ -91,6 +91,8 @@ var Oncoprint = function(wrapper, params) {
                 .attr('class', 'track');
 
             var label = track.append('text')
+                .attr('position', 'static')
+                .attr('left', 0)
                 .attr('x', -LABEL_PADDING)
                 .attr('y', y(hugo) + .5 * RECT_HEIGHT);
 
@@ -138,6 +140,8 @@ var Oncoprint = function(wrapper, params) {
         // helper function
 
         that.svg.transition().duration(1000).attr('width', getWidth());
+
+        console.log(that.svg.attr('width'));
 
         that.svg.selectAll('.track')[0].forEach(function(val, i) {
             d3.select(val).selectAll('.sample')

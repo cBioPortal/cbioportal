@@ -1,6 +1,18 @@
-var MemoSort = function(geneAlterations, gene_list) {
+var MemoSort = function(geneAlterations, samples_list, gene_list) {
 
-    var query = QueryGeneData(geneAlterations);
+    // filter the samples map
+    var _geneAlterations = jQuery.extend(true, {}, geneAlterations);        // deep copy
+    var samples_unfiltered = _geneAlterations.samples;
+    var samples_filtered = {};
+
+    samples_list.forEach(function(sample) {
+        samples_filtered[sample] = samples_unfiltered[sample];
+        // samples_list should always be contained in the samples map of geneAlterations
+    });
+
+    _geneAlterations['samples'] = samples_filtered;
+
+    var query = QueryGeneData(_geneAlterations);
 
     var comparator_helper = function(s1, s2, gene_list) {
 
@@ -89,8 +101,6 @@ var MemoSort = function(geneAlterations, gene_list) {
         // mutation > 0
         // amp > del > 0
         //
-
-        var samples = geneAlterations.samples;
 
         // get the array of samples in the defined order
         var sorted_samples_l = query.getSampleList();

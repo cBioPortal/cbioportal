@@ -6,32 +6,80 @@ var Oncoprint = function(wrapper, params) {
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
     var LABEL_PADDING = 130;
 
-    // global state variables
-    var PADDING = true;
-    var WIDTH_SCALAR = 1;
+    // useful variables
+    var data = params.data;
+    var query = QueryGeneData(data);
+    var genes_list = query.getGeneList();
+    var gene_data = data.gene_data;
+    var no_genes = gene_data.length;
+    var samples_all = query.getSampleList();
+
+    // useful functions
+    var translate = function(x,y) {
+        return "translate(" + x + "," + y + ")";
+    };
+
+    var cleanHugo = function(hugo) {
+        // can't have '/' in DOM id
+        return hugo.replace("/", "_");
+    };
+
+    // global state of the oncoprint
+    var state = {
+        padding: true,
+        width_scalar: 1,
+        show_unaltered: true,
+        memo_sort: false
+    };
 
     // functions that get state
+
+    var getVisualizedSamples = function() {
+        // get state of samples
+        var samples_copy = samples_all.map(function(i) { return i;});
+
+        // todo: note that you must sort first!
+        // MemoSort behaves differently when it has different lists, that is,
+        // it does not deterministically deal with samples that are equal
+        if (state.memo_sort) {
+            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+        }
+
+        if (!state.show_unaltered) {
+            samples_copy = samples_copy.filter(query.isSampleAltered);
+        }
+
+        return samples_copy;
+    };
+
     var getRectWidth = function() {
         var unscaled = 5.5;
-        return WIDTH_SCALAR * unscaled;
+        return state.width_scalar * unscaled;
     };
 
     var getRectPadding = function() {
         var unscaled = 3;
-        return PADDING ? (WIDTH_SCALAR * unscaled) : 0;
+        return state.padding ? (state.width_scalar * unscaled) : 0;
     };
 
-    var getXScale = function() {
-        return (getRectWidth() + getRectPadding()) * samples_visualized.length;
+    var getXScale = function(no_samples) {
+        return (getRectWidth() + getRectPadding()) * no_samples;
     };
 
-    var getWidth = function() {
-        return getXScale() + LABEL_PADDING + (2 * (getRectWidth() + getRectPadding()));
+    var getWidth = function(no_samples) {
+        return getXScale(no_samples) + LABEL_PADDING + (2 * (getRectWidth() + getRectPadding()));
     };
 
     var getHeight = function() {
         return (RECT_HEIGHT + 10) * no_genes;
     };
+
+    // scales
+    var x = d3.scale.ordinal().rangeBands([0, getXScale(samples_all.length)], 0);
+
+    var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
+        .domain(genes_list);
+
 
     // functions that echo
     d3.select(wrapper)
@@ -45,31 +93,7 @@ var Oncoprint = function(wrapper, params) {
         return params.data;
     };
 
-    // useful variables
-    var data = params.data;
-    var query = QueryGeneData(data);
-    var genes_list = query.getGeneList();
-    var gene_data = data.gene_data;
-    var no_genes = gene_data.length;
-
-    var samples_all = query.getSampleList();
-    var samples_visualized = samples_all;
-
-    var x = d3.scale.ordinal().rangeBands([0, getXScale()], 0);
-
-    var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
-        .domain(genes_list);
-
-    var translate = function(x,y) {
-        return "translate(" + x + "," + y + ")";
-    };
-
-    var cleanHugo = function(hugo) {
-        // can't have '/' in DOM id
-        return hugo.replace("/", "_");
-    };
-
-    var draw = function(track, hugo) {
+    var draw = function(samples_visualized, track, hugo) {
         var sample = track.selectAll('.sample')
             .data(samples_visualized, function(d) { return d;});
 
@@ -99,19 +123,24 @@ var Oncoprint = function(wrapper, params) {
 //        // ... mrna, rppa
 
         // exit
-        var sample_exit = sample.exit().remove();
+        var sample_exit = sample.exit()
+//            .transition()
+//            .attr('transform', function(d) {
+//                return translate(x(d), -500);
+//            })
+            .remove();
     };
 
     that.redraw = function() {
 
         var svg = d3.select(wrapper).append('svg')
-            .attr('width', getWidth())
+            .attr('width', getWidth(samples_all.length))
             .attr('height', getHeight());
         that.svg = svg;
 
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
-        x.domain(samples_visualized);
+        x.domain(samples_all);
 
         gene_data.forEach(function(gene_obj) {
 
@@ -139,17 +168,18 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', 0 - 5)
                 .text(gene_obj.percent_altered);
 
-            draw(track, hugo);
+            draw(samples_all, track, hugo);
         });
-
-        return samples_visualized;
     };
 
     var transition = function() {
         // helper function
 
+        var samples_visualized = getVisualizedSamples();
+        var no_samples = samples_visualized.length;
+
         x.domain(samples_visualized);
-        x.rangeBands([0, getXScale()]);
+        x.rangeBands([0, getXScale(no_samples)]);
 
         that.svg.selectAll('.track')[0].forEach(function(val, i) {
             d3.select(val).selectAll('.sample')
@@ -166,57 +196,50 @@ var Oncoprint = function(wrapper, params) {
                 .attr('width', rect_width);
         });
 
-        that.svg.transition().duration(1000).style('width', getWidth());
+        that.svg.transition().duration(1000).style('width', getWidth(no_samples));
     };
 
     that.memoSort = function() {
-        var samples = {};
-        var data = params.data;
 
-        samples_visualized.forEach(function(val, i) {
-            samples[val] = i;
-        });
+        if (state.memo_sort) {
+            return;
+        }
 
-        data[samples] = samples;
-        var memoSort = MemoSort(data, genes_list);
-        samples_visualized = memoSort.sort();
+        state.memo_sort = true;
 
         transition();
-
-        return samples_visualized;
     };
 
     that.defaultSort = function() {
-        samples_visualized.sort(function(x,y) {
-            return params.data.samples[x] - params.data.samples[y];
-        });
-        transition();
 
-        return samples_visualized;
+        if (!state.memo_sort) {
+            return;
+        }
+
+        state.memo_sort = false;
+
+        transition();
     };
 
     that.toggleWhiteSpace = function() {
-        PADDING = !PADDING;
+        state.padding = !state.padding;
+
         transition();
     };
 
     that.scaleWidth = function(scalar) {
-        WIDTH_SCALAR = scalar;
+        state.width_scalar = scalar;
         transition();
     };
 
-    var ALTERED_ONLY = false;
     that.toggleUnaltered = function() {
+        state.show_unaltered = !state.show_unaltered;
 
-        if (ALTERED_ONLY = !ALTERED_ONLY) {
-            samples_visualized = samples_all.filter(query.isSampleAltered);
-        } else {
-            samples_visualized = samples_all;
-        }
+        var samples_visualized = getVisualizedSamples();
 
         gene_data.forEach(function(gene, i) {
             var track = d3.select(d3.select(wrapper).selectAll('.track')[0][i]);
-            draw(track, gene.hugo);
+            draw(samples_visualized, track, gene.hugo);
             transition();
         });
     };

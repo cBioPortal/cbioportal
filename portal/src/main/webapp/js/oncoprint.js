@@ -112,6 +112,20 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', getRectWidth())
             .attr('height', RECT_HEIGHT);
 
+        var mrna = sample_enter.append('rect')
+            .attr('class', function(d) {
+                var mrna = query.data(d, hugo, 'mrna');
+                return 'mrna ' + (mrna === null ? 'none' : mrna);
+            })
+            .attr('width', getRectWidth())
+            .attr('height', RECT_HEIGHT);
+
+        // remove all the null mrna squares
+        mrna.filter(function(d) {
+            var mrna = query.data(d, hugo, 'mrna');
+            return mrna === null;
+        }).remove();
+
         var mut = sample_enter.append('rect')
             .attr('class', function(d) {
                 var mutation = query.data(d, hugo, 'mutation');
@@ -120,7 +134,7 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', getRectWidth())
             .attr('height', LITTLE_RECT_HEIGHT);
 
-        // remove all the null squares
+        // remove all the null mutation squares
         mut.filter(function(d) {
             var mutation = query.data(d, hugo, 'mutation');
             return mutation === null;

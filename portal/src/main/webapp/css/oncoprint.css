@@ -31,3 +31,18 @@ rect.mutation.none {
 rect.mutation.mut {
     fill: #008000;
 }
+
+rect.mrna.UPREGULATED {
+    fill: none;
+    stroke: red;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+}
+
+rect.mrna.DOWNREGULATED {
+    fill: none;
+    stroke: blue;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+}
+

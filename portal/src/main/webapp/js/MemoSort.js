@@ -62,18 +62,18 @@ var MemoSort = function(geneAlterations, samples_list, gene_list) {
         }
 
         // do some logic
-        // cna > mutation > mrna > rppa
+        // cna > mrna > mutation > rppa
 
         if (cna !== 0) {
             return cna;
         }
 
-        if (mutation !== 0) {
-            return mutation;
-        }
-
         if (mrna !== 0) {
             return mrna;
+        }
+
+        if (mutation !== 0) {
+            return mutation;
         }
 
         if (rppa !== 0) {

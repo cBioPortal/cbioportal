@@ -375,11 +375,8 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         
-        String _setOfCaseIds;
-        _setOfCaseIds = StringUtils.join(setOfCaseIds.toArray(), " ");
+        request.setAttribute(SET_OF_CASE_IDS, caseIds);
 
-        request.setAttribute(SET_OF_CASE_IDS, _setOfCaseIds);
-        
         if (caseIdsKey == null)
         {
         	caseIdsKey = CaseSetUtil.shortenCaseIds(caseIds);

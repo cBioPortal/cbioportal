@@ -46,3 +46,6 @@ rect.mrna.DOWNREGULATED {
     stroke-opacity: 0.5;
 }
 
+rect.rppa {
+    fill:black;
+}

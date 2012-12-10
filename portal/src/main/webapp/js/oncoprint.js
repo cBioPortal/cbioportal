@@ -140,7 +140,27 @@ var Oncoprint = function(wrapper, params) {
             return mutation === null;
         }).remove();
 
-//        // ... mrna, rppa
+        var rppa = sample_enter.append('path')
+            .attr('d', function(d) {
+                var rppa = query.data(d, hugo, 'rppa');
+
+                if (rppa === "UPREGULATED") {
+                    return "M 0 7 l 2.75 -7 l 2.75 7 l 0 0";
+                }
+                else if (rppa === "DOWNREGULATED") {
+                    return "M 0 16 l 2.75 7 l 2.75 -7 l 0 0";
+                }
+                else {
+                    return '';
+                }
+            });
+
+        rppa.filter(function(d) {
+            var rppa = query.data(d, hugo, 'rppa');
+
+            return rppa === null;
+        }).remove();
+
 
         // exit
         var sample_exit = sample.exit()

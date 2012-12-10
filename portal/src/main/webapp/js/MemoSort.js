@@ -72,12 +72,12 @@ var MemoSort = function(geneAlterations, samples_list, gene_list) {
             return mrna;
         }
 
-        if (mutation !== 0) {
-            return mutation;
-        }
-
         if (rppa !== 0) {
             return rppa;
+        }
+
+        if (mutation !== 0) {
+            return mutation;
         }
 
         return comparator_helper(s1, s2, gene_list);

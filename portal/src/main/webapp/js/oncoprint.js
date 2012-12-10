@@ -93,7 +93,7 @@ var Oncoprint = function(wrapper, params) {
         return params.data;
     };
 
-    var draw = function(samples_visualized, track, hugo) {
+    var redraw = function(samples_visualized, track, hugo) {
         var sample = track.selectAll('.sample')
             .data(samples_visualized, function(d) { return d;});
 
@@ -120,6 +120,12 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', getRectWidth())
             .attr('height', LITTLE_RECT_HEIGHT);
 
+        // remove all the null squares
+        mut.filter(function(d) {
+            var mutation = query.data(d, hugo, 'mutation');
+            return mutation === null;
+        }).remove();
+
 //        // ... mrna, rppa
 
         // exit
@@ -132,7 +138,7 @@ var Oncoprint = function(wrapper, params) {
             .remove();
     };
 
-    that.redraw = function() {
+    that.draw = function() {
 
         var svg = d3.select(wrapper).append('svg')
             .attr('width', getWidth(samples_all.length))
@@ -169,7 +175,7 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', 0 - 5)
                 .text(gene_obj.percent_altered);
 
-            draw(samples_all, track, hugo);
+            redraw(samples_all, track, hugo);
         });
     };
 
@@ -240,7 +246,7 @@ var Oncoprint = function(wrapper, params) {
 
         gene_data.forEach(function(gene, i) {
             var track = d3.select(d3.select(wrapper).selectAll('.track')[0][i]);
-            draw(samples_visualized, track, gene.hugo);
+            redraw(samples_visualized, track, gene.hugo);
             transition();
         });
     };

@@ -22,9 +22,11 @@ rect.cna.HOMODELETED {
     fill: #0000FF;
 }
 
+/*
 rect.mutation.none {
     fill: transparent;
 }
+*/
 
 rect.mutation.mut {
     fill: #008000;

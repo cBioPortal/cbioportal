@@ -134,7 +134,7 @@ var params = {
 };
 // }}}
 var oncoprint = Oncoprint($('#oncoprint')[0], params);
-oncoprint.redraw();
+oncoprint.draw();
 </script>
 </div>
 
@@ -143,6 +143,8 @@ oncoprint.redraw();
         <text x=10 y=52 position='static' left=0> hello world </text>
         <rect title='i am purple' id='purple' x=0 y=50 fill='purple' width=1000 height=10>
         </rect>
+
+        <rect class="cna none" width="5.5" height="23"></rect>
     </svg>
 </div>
 

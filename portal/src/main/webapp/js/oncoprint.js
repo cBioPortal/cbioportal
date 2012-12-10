@@ -125,8 +125,9 @@ var Oncoprint = function(wrapper, params) {
         // exit
         var sample_exit = sample.exit()
 //            .transition()
+//            .duration(750)
 //            .attr('transform', function(d) {
-//                return translate(x(d), -500);
+//                return translate(3000, y(hugo));
 //            })
             .remove();
     };

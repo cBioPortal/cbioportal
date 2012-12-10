@@ -4,6 +4,7 @@
 <head>
     <style>
         @import url(css/oncoprint.css);
+        @import url(css/jquery.qtip.min.css);
     </style>
 
   <title>Jasmine Spec Runner</title>
@@ -14,6 +15,7 @@
   <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
   <script type="text/javascript" src="src/jquery.min.js"></script>
   <script type="text/javascript" src="src/d3.v2.min.js"></script>
+  <script type="text/javascript" src="src/jquery.qtip.min.js"></script>
 
   <!-- include source files here... -->
   <!-- <script type="text/javascript" src="spec/SpecHelper.js"></script>
@@ -139,7 +141,9 @@ oncoprint.redraw();
 <div style='width: 100px; overflow-x:auto; overflow-y:hidden;'>
     <svg width=1050 height=100>
         <text x=10 y=52 position='static' left=0> hello world </text>
-        <rect x=0 y=50 fill='purple' width=1000 height=10></rect>
+        <rect id='purple' x=0 y=50 fill='purple' width=1000 height=10>
+            <title>"I am purple"</title>
+        </rect>
     </svg>
 </div>
 
@@ -165,8 +169,6 @@ oncoprint.redraw();
 
         var circles_exit = circles.exit()
         .remove('circle');
-
-
     </script>
 </div>
 

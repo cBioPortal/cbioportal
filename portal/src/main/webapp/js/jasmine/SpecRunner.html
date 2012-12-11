@@ -95,7 +95,7 @@ var GENE1 = { hugo: "GENE1",
 };
 
 var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
-var mutations2  = [null, null, null, null, null, null];
+var mutations2  = [null, null, null, ['a'], null, null];
 
 var GENE2 = { hugo: "MARCH8",
     cna: cna2,
@@ -140,26 +140,30 @@ oncoprint.draw();
 
 <div style='width: 200px; overflow-x:auto; overflow-y:hidden;'>
     <svg width=1050 height=100>
-        <text x=10 y=52 position='static' left=0> hello world </text>
-        <rect title='i am purple' id='purple' x=0 y=50 fill='purple' width=1000 height=10>
-        </rect>
-
         <g transform="translate(100, 20)">
             <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
+            <rect y="7.66" class="mutation mut " width="5.5" height="7.66"></rect>
             <path d = "M 0 7 l 2.75 -7 l 2.75 7 l 0 0"
             fill = "black"/>
             <path d = "M 0 16 l 2.75 7 l 2.75 -7 l 0 0"
             fill = "black"/>
-
         </g>
+        <g transform="translate(100, 60)">
+            <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
+            <rect y="7.66" class="mutation mut " width="5.5" height="7.66"></rect>
+            <path d = "M 0 7 l 2.75 -7 l 2.75 7 l 0 0"
+            fill = "black"/>
+            <path d = "M 0 16 l 2.75 7 l 2.75 -7 l 0 0"
+            fill = "black"/>
+        </g>
+    </svg>
 
-          <rect x="50" y="20" width="5.5" height="23" style="fill:none; stroke:red;stroke-width:3;stroke-opacity:0.5" />
+          <!--<rect x="50" y="20" width="5.5" height="23" style="fill:none; stroke:red;stroke-width:3;stroke-opacity:0.5" />
 
           <rect x="50" y="20" class="cna AMPLIFIED" width="5.5" height="23"></rect>
 
           <rect x="60" y="20" class="mrna AMPLIFIED" width="5.5" height="23"></rect>
-          <rect x="70" y="20" class="mrna DELETED" width="5.5" height="23"></rect>
-    </svg>
+          <rect x="70" y="20" class="mrna DELETED" width="5.5" height="23"></rect>-->
 </div>
 
 <div id='play'>

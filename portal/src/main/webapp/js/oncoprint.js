@@ -61,10 +61,13 @@ var Oncoprint = function(wrapper, params) {
         var base = getRectWidth() / 2;
 
         if (up) {
-            return "M 0 7 l " + base + " -7 l " + base + " 7 l 0 0";
+            return "M 0 " + LITTLE_RECT_HEIGHT + " l "  + base + " -" + LITTLE_RECT_HEIGHT
+                + " l " + base + " " + LITTLE_RECT_HEIGHT + " l 0 0";
 //                return "M 0 7 l 2.75 -7 l 2.75 7 l 0 0";
         }
-        return "M 0 16 l " + base + " 7 l " + base + " -7 l 0 0";
+//        return "M 0 16 l " + base + " 7 l " + base + " -7 l 0 0";
+        return "M 0 15 l " + base + " " + LITTLE_RECT_HEIGHT + " l "
+            + base + " -" + LITTLE_RECT_HEIGHT + " l 0 0";
 //            return "M 0 16 l 2.75 7 l 2.75 -7 l 0 0";
     };
 
@@ -142,6 +145,7 @@ var Oncoprint = function(wrapper, params) {
                 var mutation = query.data(d, hugo, 'mutation');
                 return 'mutation ' + (mutation === null ? 'none' : 'mut');
             })
+            .attr('y', LITTLE_RECT_HEIGHT)
             .attr('width', getRectWidth())
             .attr('height', LITTLE_RECT_HEIGHT);
 

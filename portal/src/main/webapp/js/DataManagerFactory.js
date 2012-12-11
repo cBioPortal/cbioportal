@@ -15,13 +15,13 @@ var DataManagerFactory = (function() {
         that.fire = function(d) {
             // kaboom!
 
+            FIRED = true;
+
             data = d;
 
             for (var fun = listeners.pop(); fun !== undefined; fun = listeners.pop()) {
                 fun(d);
             }
-
-            FIRED = true;
 
             return listeners;
         };
@@ -29,12 +29,14 @@ var DataManagerFactory = (function() {
         that.subscribe = function(fun) {
             // fun takes data as a parameter
 
-            return listeners.push(fun);
+            var queue_pos = listeners.push(fun);
             // todo: does fire order matter?
 
             if (FIRED) {
                 fun(data);
             }
+
+            return queue_pos;
         };
 
         return that;

@@ -85,13 +85,15 @@ QueryGeneData = function(data) {
         return false;
     };
 
-    that.getUnalteredSamples = function() {
+    that.unaltered_samples = (function() {
         return sample_list.filter(function(sample) {return !that.isSampleAltered(sample); });
-    };
+    })();
 
-    that.getAlteredSamples = function() {
+    that.altered_samples = (function() {
         return sample_list.filter(function(sample) {return that.isSampleAltered(sample); });
-    };
+    })();
+
+    that.percent_altered = that.altered_samples.length / sample_list.length;
 
     return that;
 };

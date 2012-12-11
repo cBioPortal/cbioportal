@@ -118,12 +118,14 @@ var Oncoprint = function(wrapper, params) {
                 return translate(x(d), y(hugo));
             });
 
+        var width = getRectWidth();
+
         var cna = sample_enter.append('rect')
             .attr('class', function(d) {
                 var cna = query.data(d, hugo, 'cna');
                 return 'cna ' + (cna === null ? 'none' : cna);
             })
-            .attr('width', getRectWidth())
+            .attr('width', width)
             .attr('height', RECT_HEIGHT);
 
         var mrna = sample_enter.append('rect')
@@ -131,7 +133,7 @@ var Oncoprint = function(wrapper, params) {
                 var mrna = query.data(d, hugo, 'mrna');
                 return 'mrna ' + (mrna === null ? 'none' : mrna);
             })
-            .attr('width', getRectWidth())
+            .attr('width', width)
             .attr('height', RECT_HEIGHT);
 
         // remove all the null mrna squares
@@ -140,13 +142,16 @@ var Oncoprint = function(wrapper, params) {
             return mrna === null;
         }).remove();
 
+//        var mutation_width = width + 2;
         var mut = sample_enter.append('rect')
             .attr('class', function(d) {
                 var mutation = query.data(d, hugo, 'mutation');
                 return 'mutation ' + (mutation === null ? 'none' : 'mut');
             })
+//            .attr('x', -1)
             .attr('y', LITTLE_RECT_HEIGHT)
-            .attr('width', getRectWidth())
+            .attr('width', width)
+//            .attr('width', mutation_width)
             .attr('height', LITTLE_RECT_HEIGHT);
 
         // remove all the null mutation squares
@@ -155,15 +160,18 @@ var Oncoprint = function(wrapper, params) {
             return mutation === null;
         }).remove();
 
+        var up_triangle = getTrianglePath(true);
+        var down_triangle = getTrianglePath(false);
+
         var rppa = sample_enter.append('path')
             .attr('d', function(d) {
                 var rppa = query.data(d, hugo, 'rppa');
 
                 if (rppa === "UPREGULATED") {
-                    return getTrianglePath(true);
+                    return up_triangle;
                 }
                 else if (rppa === "DOWNREGULATED") {
-                    return getTrianglePath(false);
+                    return down_triangle;
                 }
                 else if (rppa === null) {
                     return 'M 0 0';
@@ -196,6 +204,10 @@ var Oncoprint = function(wrapper, params) {
 
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
+        $(wrapper).prepend('<div>Case Set: ' + params.case_set_str + '</div>');
+        $(wrapper).prepend('<div>Altered in ' + query.altered_samples.length
+            + ' (' + d3.format("%")(query.percent_altered) + ') of cases</div>');
+
         x.domain(samples_all);
 
         gene_data.forEach(function(gene_obj) {
@@ -213,7 +225,7 @@ var Oncoprint = function(wrapper, params) {
                 .attr('position', 'static')
                 .attr('left', 0)
                 .attr('x', -LABEL_PADDING)
-                .attr('y', y(hugo) + .5 * RECT_HEIGHT);
+                .attr('y', y(hugo) + .75 * RECT_HEIGHT);
 
             label.append('tspan')
                 .attr('text-anchor', 'start')

@@ -261,6 +261,9 @@ var Oncoprint = function(wrapper, params) {
                     else if (rppa === "DOWNREGULATED") {
                         return getTrianglePath(false);
                     }
+                    else if (rppa === null) {
+                        return 'M 0 0';
+                    }
                 })
         });
 

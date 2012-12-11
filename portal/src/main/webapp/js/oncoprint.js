@@ -6,6 +6,9 @@ var Oncoprint = function(wrapper, params) {
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
     var LABEL_PADDING = 130;
 
+    var UPREGULATED = "UPREGULATED";
+    var DOWNREGULATED = "DOWNREGULATED";
+
     // useful variables
     var data = params.data;
     var query = QueryGeneData(data);
@@ -57,8 +60,12 @@ var Oncoprint = function(wrapper, params) {
         return state.width_scalar * unscaled;
     };
 
+    var getTriangleBase = function() {
+        return getRectWidth() / 2;
+    };
+
     var getTrianglePath = function(up) {
-        var base = getRectWidth() / 2;
+        var base = getTriangleBase();
 
         if (up) {
             return "M 0 " + LITTLE_RECT_HEIGHT + " l "  + base + " -" + LITTLE_RECT_HEIGHT
@@ -164,16 +171,17 @@ var Oncoprint = function(wrapper, params) {
         var down_triangle = getTrianglePath(false);
 
         var rppa = sample_enter.append('path')
+            .attr('class', 'rppa')
             .attr('d', function(d) {
                 var rppa = query.data(d, hugo, 'rppa');
 
-                if (rppa === "UPREGULATED") {
+                if (rppa === UPREGULATED) {
                     return up_triangle;
                 }
-                else if (rppa === "DOWNREGULATED") {
+                if (rppa === DOWNREGULATED) {
                     return down_triangle;
                 }
-                else if (rppa === null) {
+                if (rppa === null) {
                     return 'M 0 0';
                 }
             });
@@ -183,7 +191,6 @@ var Oncoprint = function(wrapper, params) {
 
             return rppa === null;
         }).remove();
-
 
         // exit
         var sample_exit = sample.exit()
@@ -251,36 +258,38 @@ var Oncoprint = function(wrapper, params) {
 
         that.svg.selectAll('.track')[0].forEach(function(val, i) {
 
-            var gene = genes_list[i];
+            var hugo = genes_list[i];
 
-            d3.select(val).selectAll('.sample')
+            var transition = d3.select(val).transition();
+
+            transition.selectAll('.sample')
                 .transition()
                 .duration(1000)
                 .attr('transform', function(d) {
-                    return translate(x(d), y(gene));
+                    return translate(x(d), y(hugo));
                 });
 
             var rect_width = getRectWidth();
-            that.svg.selectAll('rect')
+            transition.selectAll('rect')
                 .transition()
                 .duration(1000)
                 .attr('width', rect_width);
 
-            that.svg.selectAll('path')
+            var up_triangle = getTrianglePath(true);
+            var down_triangle = getTrianglePath(false);
+            transition.selectAll('.rppa')
                 .transition()
                 .duration(1000)
                 .attr('d', function(d) {
-                    var rppa = query.data(d, gene, 'rppa');
-                    if (rppa === "UPREGULATED") {
-                        return getTrianglePath(true);
+                    var rppa = query.data(d, hugo, 'rppa');
+
+                    if (rppa === UPREGULATED) {
+                        return up_triangle;
                     }
-                    else if (rppa === "DOWNREGULATED") {
-                        return getTrianglePath(false);
+                    if (rppa === DOWNREGULATED) {
+                        return down_triangle;
                     }
-                    else if (rppa === null) {
-                        return 'M 0 0';
-                    }
-                })
+                });
         });
 
         that.svg.transition().duration(1000).style('width', getWidth(no_samples));

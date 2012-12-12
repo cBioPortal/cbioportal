@@ -172,20 +172,16 @@ public class GeneDataJSON extends HttpServlet {
         // e.g. gbm_mutations, gbm_cna_consensus
 
         HashSet<String> geneticProfileIdSet = new HashSet<String>(Arrays.asList(_geneticProfileIds.split(" ")));
-        
+
         // map geneticProfileIds -> geneticProfiles
         Iterator<String> gpSetIterator =  geneticProfileIdSet.iterator();
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
         while (gpSetIterator.hasNext()) {
             String gp_str = gpSetIterator.next();
-            try {
-                GeneticProfile gp = daoGeneticProfile.getGeneticProfileByStableId(gp_str);
-                profileList.add(gp);
-                // pointer to gp is local, but gets added to profileList which is outside
-            } catch (DaoException e) {
-                throw new ServletException(e);
-            }
+
+            GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(gp_str);
+            profileList.add(gp);
+            // pointer to gp is local, but gets added to profileList which is outside
         }
 
         // todo: how should this *not* be hard coded?
@@ -248,8 +244,8 @@ public class GeneDataJSON extends HttpServlet {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         GeneticEvent geneticEvents[][] = ConvertProfileDataToGeneticEvents.convert
-			(dataSummary, listOfGeneNames,
-			 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
+                (dataSummary, listOfGeneNames,
+                        theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold);
 
         // out.write the matrix
 

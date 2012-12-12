@@ -22,6 +22,7 @@ var Oncoprint = function(wrapper, params) {
         return "translate(" + x + "," + y + ")";
     };
 
+    // todo: am i using this?  what happens when you submit MIR_##/##?
     var cleanHugo = function(hugo) {
         // can't have '/' in DOM id
         return hugo.replace("/", "_");
@@ -92,7 +93,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var getHeight = function() {
-        return (RECT_HEIGHT + 10) * no_genes;
+        return (RECT_HEIGHT + 7) * no_genes;
     };
 
     // scales
@@ -100,7 +101,6 @@ var Oncoprint = function(wrapper, params) {
 
     var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
-
 
     d3.select(wrapper)
         .style('width', '1300px')
@@ -211,9 +211,20 @@ var Oncoprint = function(wrapper, params) {
 
         // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
 
-        $(wrapper).prepend('<div>Case Set: ' + params.case_set_str + '</div>');
-        $(wrapper).prepend('<div>Altered in ' + query.altered_samples.length
-            + ' (' + d3.format("%")(query.percent_altered) + ') of cases</div>');
+        $(wrapper).prepend('<div><h4>OncoPrint</h4></br>'
+            + "<h4 onclick='$(\"#oncoprint_controls\").toggle();'>customize oncoprint</h4>"
+            + '<div id="oncoprint_controls" style="display:show;">'
+            + "<button type='button' onclick='oncoprint.defaultSort()'>default sort</button>"
+            +    "<button type='button' onclick='oncoprint.memoSort()'>memo sort</button>"
+            +    "<button type='button' onclick='oncoprint.toggleWhiteSpace()'>toggle white space</button>"
+            +    "<button type='button' onclick='oncoprint.scaleWidth(3)'>scale width 3</button>"
+            +    "<button type='button' onclick='oncoprint.scaleWidth(1.5)'>scale width 1.5</button>"
+            +    "<button type='button' onclick='oncoprint.scaleWidth(1)'>scale width 1</button>"
+            +    "<button type='button' onclick='oncoprint.scaleWidth(.5)'>scale width .5</button>"
+            + '</div>'
+            + '<p>Case Set: ' + params.case_set_str + '</p></div>'
+            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered)
+                + ') of cases</p></div>');
 
         x.domain(samples_all);
 

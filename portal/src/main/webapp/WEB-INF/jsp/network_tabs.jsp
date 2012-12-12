@@ -1,8 +1,17 @@
+<%
+Boolean includeHelpTab = (Boolean)request.getAttribute("include_network_help_tab");
+if (includeHelpTab==null) {
+    includeHelpTab = Boolean.TRUE;
+}
+%>
+
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
         <li><a href="#genes_tab"><span>Genes & Drugs</span></a></li>
         <li><a href="#relations_tab"><span>Interactions</span></a></li>
+        <%if(includeHelpTab){%>
         <li><a href="#help_tab"><span>Help</span></a></li>
+        <%}%>
     </ul>
     <div id="genes_tab">
 	    <div class="header">
@@ -10,7 +19,8 @@
 	      <div class="combo">
 			<select id="drop_down_select">
 			  <option value="HIDE_DRUGS">Hide Drugs</option>
-			  <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
+              <option value="SHOW_CANCER"> Show Cancer Drugs</option>
+              <option value="SHOW_FDA"> Show FDA Approved Drugs</option>
 			  <option value="SHOW_ALL">Show All Drugs</option>
 			</select>
 		  </div>
@@ -170,9 +180,11 @@
         	</table>
 		</div>
     </div>
+    <%if(includeHelpTab){%>
     <div id="help_tab">
         <jsp:include page="network_help.jsp"></jsp:include>
     </div>
+    <%}%>
 </div>
 
 <div id="node_inspector" class="hidden-network-ui" title="Node Inspector">

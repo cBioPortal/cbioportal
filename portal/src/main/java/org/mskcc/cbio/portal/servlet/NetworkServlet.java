@@ -115,7 +115,7 @@ public class NetworkServlet extends HttpServlet {
 
             //  Get User Defined Gene List
             String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
-            Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split(" ")));
+            Set<String> queryGenes = new HashSet<String>(Arrays.asList(geneListStr.toUpperCase().split("[, ]+")));
             int nMiRNA = filterNodes(queryGenes);
             if (nMiRNA>0) {
                 messages.append("MicroRNAs were excluded from the network query. ");
@@ -124,6 +124,14 @@ public class NetworkServlet extends HttpServlet {
             //String geneticProfileIdSetStr = xssUtil.getCleanInput (req, QueryBuilder.GENETIC_PROFILE_IDS);
 
             String netSrc = req.getParameter("netsrc");
+            String strNetSize = req.getParameter("netsize");
+            NetworkIO.NetworkSize netSize;
+            try {
+                netSize = NetworkIO.NetworkSize.valueOf(strNetSize.toUpperCase());
+            } catch(Exception e) {
+                netSize = NetworkIO.NetworkSize.LARGE;
+            }
+            
             String dsSrc = req.getParameter("source");
             List<String> dataSources = dsSrc == null ? null :
                     Arrays.asList(dsSrc.split("[, ]+"));
@@ -137,30 +145,7 @@ public class NetworkServlet extends HttpServlet {
                             +"\" target=\"_blank\">cPath2 URL</a>");
                 }
             } else {
-                network = NetworkIO.readNetworkFromCGDS(queryGenes, dataSources, true);
-            }
-            
-            int nBefore = network.countNodes();
-            int querySize = queryGenes.size();
-            
-            String netSize = req.getParameter("netsize");
-            boolean topologyPruned = pruneNetwork(network,netSize);
-            
-            int nAfter = network.countNodes();
-            if (nBefore!=nAfter) {
-                messages.append("The network below contains ");
-                messages.append(nAfter);
-                messages.append(" nodes, including your ");
-                messages.append(querySize);
-                messages.append(" query gene");
-                if (querySize>1) {
-                    messages.append("s");
-                }
-                messages.append(" and ");
-                messages.append(nAfter-querySize);
-                messages.append(" (out of ");
-                messages.append(nBefore-querySize);
-                messages.append(") neighbor genes that interact with at least two query genes.\n");
+                network = NetworkIO.readNetworkFromCGDS(queryGenes, netSize, dataSources, true);
             }
             
             xdebug.stopTimer();
@@ -230,7 +215,9 @@ public class NetworkServlet extends HttpServlet {
                 }
                 
                 String nLinker = req.getParameter("linkers");
-                if (!topologyPruned && nLinker!=null && nLinker.matches("[0-9]+")) {
+                if (nLinker!=null && nLinker.matches("[0-9]+")) {
+                    int nBefore = network.countNodes();
+                    int querySize = queryGenes.size();
                     String strDiffusion = req.getParameter("diffusion");
                     double diffusion;
                     try {
@@ -241,7 +228,7 @@ public class NetworkServlet extends HttpServlet {
                     
                     xdebug.startTimer();
                     pruneNetworkByAlteration(network, diffusion, Integer.parseInt(nLinker), querySize);
-                    nAfter = network.countNodes();
+                    int nAfter = network.countNodes();
                     if (nBefore!=nAfter) {
                         messages.append("The network below contains ");
                         messages.append(nAfter);
@@ -374,26 +361,6 @@ public class NetworkServlet extends HttpServlet {
         }
         
         return n;
-    }
-    
-    private boolean pruneNetwork(Network network, String netSize) {
-        if ("small".equals(netSize)) {
-            NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                public boolean select(Node node) {
-                    return !isInQuery(node) || !node.getType().equals(NodeType.DRUG);
-                }
-            });
-            return true;
-        } else if ("medium".equals(netSize)) {
-            NetworkUtils.pruneNetwork(network, new NetworkUtils.NodeSelector() {
-                public boolean select(Node node) {
-                    String inMedium = (String)node.getAttribute("IN_MEDIUM");
-                    return inMedium==null || !inMedium.equals("true") || !node.getType().equals(NodeType.DRUG);
-                }
-            });
-            return true;
-        }
-        return false;
     }
     
     /**

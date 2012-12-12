@@ -141,8 +141,8 @@ public class TestImportExtendedMutationData extends TestCase {
 		//assertEquals("Missense_Mutation", mutationList.get(1).getOncotatorVariantClassification());
 		//assertEquals("p.R131H", mutationList.get(4).getOncotatorProteinChange());
 		assertEquals("rs76360727;rs33980232", mutationList.get(9).getOncotatorDbSnpRs());
-		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
-		             mutationList.get(15).getOncotatorCosmicOverlapping());
+//		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
+//		             mutationList.get(15).getOncotatorCosmicOverlapping());
 	}
 
     private void validateMutationAminoAcid (int geneticProfileId, String caseId, long entrezGeneId,

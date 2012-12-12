@@ -36,12 +36,18 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
  */
 public interface Fetcher {
 
+	// latest run indicator
+	public static final String LATEST_RUN_INDICATOR = "latest";
+
 	/**
-	 * Fetchers genomic data from an external datasource.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param dataSource String
+	 * @param desiredRunDate String
 	 * @throws Exception
 	 */
-	void fetch() throws Exception;
+	void fetch(final String dataSource, final String desiredRunDate) throws Exception;
 
 	/**
 	 * Fetchers reference data from an external datasource.

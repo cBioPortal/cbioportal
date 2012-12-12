@@ -9,7 +9,7 @@
 		<td valign="middle" width="50%">
 			<span id="header_site_name">
 				<center>
-				<%= SkinUtil.getTitle() %>
+                                    <%=SkinUtil.getTitle()%>
 				</center>
 			</span>
 		</td>

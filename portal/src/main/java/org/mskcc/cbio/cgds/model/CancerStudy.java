@@ -34,6 +34,8 @@ import org.mskcc.cbio.cgds.util.EqualsUtil;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
 import java.util.ArrayList;
+import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
+import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -52,6 +54,9 @@ public class CancerStudy {
     private String cancerStudyIdentifier;
     private String typeOfCancerId;  // required
     private boolean publicStudy;  // if true, a public study, otherwise private
+    private String pmid;
+    private String citation;
+    
 
     /**
      * Constructor.
@@ -160,6 +165,22 @@ public class CancerStudy {
         this.description = description;
     }
 
+    public String getPmid() {
+        return pmid;
+    }
+
+    public void setPmid(String pmid) {
+        this.pmid = pmid;
+    }
+
+    public String getCitation() {
+        return citation;
+    }
+
+    public void setCitation(String citation) {
+        this.citation = citation;
+    }
+
     /**
      * Gets the genetic profiles.
      * @return genetic profiles
@@ -175,18 +196,73 @@ public class CancerStudy {
         but could result in performance issues if the portal ever gets heavy load traffic.
      */
     /**
+     * Get mutation profile if any; otherwise, return null.
+     *
+     * @return mutation profile if there is mutation data; otherwise, null.
+     * @param geneticProfiles genetic profiles to search mutations on
+     */
+    public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
+            String caseId) throws DaoException {
+        for(GeneticProfile geneticProfile: geneticProfiles) {
+            if(geneticProfile.getGeneticAlterationType()
+                    .equals(GeneticAlterationType.MUTATION_EXTENDED)
+                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+                return geneticProfile;
+            }
+        }
+
+        return null;
+    }
+    
+    public GeneticProfile getMutationProfile(String caseId) throws DaoException {
+        return getMutationProfile(getGeneticProfiles(),caseId);
+    }
+    
+    public GeneticProfile getMutationProfile() throws DaoException {
+        return getMutationProfile(null);
+    }
+    
+    /**
      * Checks if there is any mutation data associated with this cancer study.
      *
      * @return true if there is mutation data
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) {
-        for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
-                return true;
+    public boolean hasMutationData(ArrayList<GeneticProfile> geneticProfiles) throws DaoException {
+        return null != getMutationProfile(geneticProfiles,null);
+    }
+    
+    /**
+     * Get copy number alteration profile if any; otherwise, return null.
+     *
+     * @return cn profile if there is mutation data; otherwise, null. If 
+     *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
+     * @param geneticProfiles genetic profiles to search mutations on
+     */
+    public GeneticProfile getCopyNumberAlterationProfile(boolean showInAnalysisOnly)
+            throws DaoException {
+        return getCopyNumberAlterationProfile(null,showInAnalysisOnly);
+    }
+    
+    /**
+     * Get copy number alteration profile if any; otherwise, return null.
+     *
+     * @return cn profile if there is mutation data; otherwise, null. If 
+     *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
+     * @param geneticProfiles genetic profiles to search mutations on
+     */
+    public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
+            throws DaoException {
+        for(GeneticProfile geneticProfile: getGeneticProfiles()) {
+            if(geneticProfile.getGeneticAlterationType()
+                    .equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)
+                    && (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab())
+                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+                return geneticProfile;
+            }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -200,6 +276,15 @@ public class CancerStudy {
      */
     public boolean hasMutationData() throws DaoException {
         return hasMutationData(getGeneticProfiles());
+    }
+    
+    /**
+     * 
+     * @return true if copy number segment data exist for this study; false, otherwise.
+     * @throws DaoException 
+     */
+    public boolean hasCnaSegmentData() throws DaoException {
+        return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
     }
 
     /**

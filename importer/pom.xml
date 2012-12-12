@@ -16,14 +16,6 @@
   <!-- repositories -->
   <repositories>
 	<repository>
-	  <id>biopax.releases</id>
-	  <name>BioPAX Repository at Sourceforge</name>
-	  <url>http://biopax.sourceforge.net/m2repo/releases/</url>
-	  <snapshots>
-		<enabled>false</enabled>
-	  </snapshots>
-	</repository>
-	<repository>
 	  <id>gdata-maven-github</id>
 	  <name>Google Gdata Maven Repository</name>
 	  <url>https://raw.github.com/eburtsev/gdata-maven/master/</url>
@@ -36,6 +28,38 @@
 	<hibernate.version>3.6.9.Final</hibernate.version>
 	<slf4j.version>1.5.8</slf4j.version>
   </properties>
+
+  <!-- profiles -->
+  <profiles>
+	<!-- foundation -->
+	<profile>
+	  <id>foundation</id>
+	  <build>
+        <plugins>
+		  <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>jaxws-maven-plugin</artifactId>
+			<version>1.10</version>
+			<executions>
+			  <execution>
+				<goals>
+				  <goal>wsimport</goal>
+				</goals>
+				<configuration>
+				  <wsdlUrls>
+					<wsdlUrl>http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
+				  </wsdlUrls>
+				  <packageName>org.foundation</packageName>
+				  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
+				  <staleFile>${project.build.directory}/generated-sources</staleFile>
+				</configuration>
+			  </execution>
+			</executions>
+		  </plugin>
+        </plugins>
+      </build>
+	</profile>
+  </profiles>
 
   <dependencies>
 
@@ -92,6 +116,11 @@
 	  <artifactId>org.bridgedb.bio</artifactId>
 	  <version>1.1.0</version>
 	</dependency>
+	<dependency>
+	  <groupId>org.bridgedb</groupId>
+	  <artifactId>org.bridgedb.rdb</artifactId>
+	  <version>1.1.0</version>
+	</dependency>
 
 	<!-- google -->
 	<dependency>
@@ -119,6 +148,13 @@
 	  <version>1.2.16</version>
 	</dependency>
 
+	<!-- mutation assessor tool -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>mutation-assessor</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
+
 	<!-- mysql -->
 	<dependency>
 	  <groupId>mysql</groupId>
@@ -126,6 +162,13 @@
 	  <version>5.1.10</version>
 	  <scope>runtime</scope>
 	</dependency>
+
+	<!-- oncotator -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>oncotator</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
 
 	<!-- spring -->
 	<dependency>
@@ -181,6 +224,13 @@
 	  <version>${slf4j.version}</version>
 	</dependency>
 
+	<!-- for foundation -->
+	<dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -223,6 +273,7 @@
 		  </execution>
 		</executions>
 	  </plugin>
+
 	</plugins>
 
 	<!-- properties file used for filter - use build.properties -->

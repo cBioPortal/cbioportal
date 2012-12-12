@@ -60,8 +60,7 @@ public class ExportProfileData {
         }
         String stableGeneticProfileId = args[0];
         System.out.println("Using genetic profile ID:  " + stableGeneticProfileId);
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
-        GeneticProfile geneticProfile = daoGeneticProfile.getGeneticProfileByStableId(stableGeneticProfileId);
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(stableGeneticProfileId);
         if (geneticProfile == null) {
             System.out.println("Genetic Profile not recognized:  " + stableGeneticProfileId);
             System.exit(1);

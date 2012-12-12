@@ -25,35 +25,39 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.dao;
+// package
+package org.mskcc.cbio.importer.model;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
-import java.util.ArrayList;
+// imports
 
 /**
- * JUnit test for DaoCase class
+ * Class which contains caseID filter metadata.
  */
-public class TestDaoCase extends TestCase {
+public final class CaseIDFilterMetadata {
 
-    public void testDaoCase() throws DaoException {
-        ResetDatabase.resetDatabase();
-        DaoCase daoCase = new DaoCase();
+	// bean properties
+	private String filterName;
+	private String regex;
 
-        int num = daoCase.addCase("TCGA-12345", 1);
-        assertEquals(1, num);
-        boolean exists = daoCase.caseExistsInGeneticProfile("TCGA-12345", 1);
-        assertTrue(exists);
+    /**
+     * Create a CaseIDFilterMetadata instance with specified properties.
+     *
+	 * @param filterName String
+	 * @param regex String
+     */
+    public CaseIDFilterMetadata(final String filterName, final String regex) {
 
-        assertEquals(1, daoCase.getProfileIdForCase( "TCGA-12345" ));
-        
-        num = daoCase.addCase("TCGA-123456", 1);
-        assertEquals(1, num);
-        ArrayList<String> caseIds = daoCase.getAllCaseIdsInProfile(1);
-        assertEquals(2, caseIds.size());
-        daoCase.deleteAllRecords();
-    }
+		if (filterName == null) {
+            throw new IllegalArgumentException("filterName must not be null");
+		}
+		this.filterName = filterName.trim();
+
+		if (regex == null) {
+            throw new IllegalArgumentException("regex must not be null");
+		}
+		this.regex = regex.trim();
+	}
+
+	public String getFilterName() { return filterName; }
+	public String getRegex() { return regex; }
 }

@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.servlet.QueryBuilder;
+
 /**
  * Utility Class Containing Skin Configuration Options.
  *
@@ -37,6 +39,8 @@ public class SkinUtil {
     public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";
+    public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    
     private static final String PROPERTY_SKIN_EMAIL_CONTACT = "skin.email_contact";
     private static final String PROPERTY_SKIN_SHOW_NEWS_TAB = "skin.show_news_tab";
     private static final String PROPERTY_SKIN_SHOW_DATA_TAB = "skin.show_data_tab";
@@ -142,6 +146,25 @@ public class SkinUtil {
         Config config = Config.getInstance();
         return Boolean.parseBoolean(config.getProperty("include_networks"));
     }
+    
+    /**
+     * Determines whether to show placeholders in patient view
+     * @return true or false
+     */
+    public static boolean showPlaceholderInPatientView() {
+        Config config = Config.getInstance();
+        return Boolean.parseBoolean(config.getProperty("patient_view_placeholder"));
+    }
+    
+    public static double[] getPatientViewGenomicOverviewCnaCutoff() {
+        Config config = Config.getInstance();
+        String cutoff = config.getProperty("patient_view_genomic_overview_cna_cutoff");
+        if (cutoff==null) {
+            return DEFAULT_TUMORMAP_CNA_CUTOFF;
+        }
+        String[] strs = cutoff.split(",");
+        return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
+    }
 
     /**
      * Determines whether we should show the news tab.
@@ -219,5 +242,30 @@ public class SkinUtil {
     public static String getDataSetsFooter() {
         Config config = Config.getInstance();
         return config.getProperty("skin.data_sets_footer");
+    }
+    
+    public static String getLinkToPatientView(String caseId, String cancerStudyId) {
+        return "tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+                + "=" + caseId + "&" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId;
+    }
+    
+    public static String getLinkToCancerStudyView(String cancerStudyId) {
+        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+                + "=" + cancerStudyId;
+    }
+    
+    public static String getTumorTissueImageUrl(String studyId) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tumor_image.url");
+        return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
+    }
+    
+    public static String getTCGAPathReportUrl(String typeOfCancer) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tcga_path_report.url");
+        if (url==null) {
+            return null;
+        }
+        return url.replace("{cancer.type}", typeOfCancer);
     }
 }

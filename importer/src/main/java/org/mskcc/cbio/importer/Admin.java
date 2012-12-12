@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.cli.Option;
@@ -52,6 +53,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -61,7 +63,7 @@ import java.util.Properties;
 public class Admin implements Runnable {
 
 	// our context file
-	private static final String contextFile = "classpath:applicationContext-importer.xml";
+	public static final String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(Admin.class);
@@ -82,35 +84,34 @@ public class Admin implements Runnable {
 		
 		// create each option
 		Option help = new Option("help", "print this message");
-		Option fetch = new Option("firehose_fetch", "fetch firehose data");
 
-        Option fetchReferenceData = (OptionBuilder.withArgName("reference-data")
+        Option clobberImportDatabase = new Option("clobber_import_database", "clobber the import database");
+
+        Option fetchData = (OptionBuilder.withArgName("datasource:run_date")
+							.hasArgs(2)
+							.withValueSeparator(':')
+							.withDescription("fetch data from the given datasource and the given run date (mm/dd/yyyy) " + 
+											 "or use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run.")
+							.create("fetch_data"));
+
+        Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")
 									  .hasArg()
-									  .withDescription("fetchs reference data")
+									  .withDescription("fetch reference data")
 									  .create("fetch_reference_data"));
-
-        Option createTables = (OptionBuilder.withArgName("database")
-                               .hasArg()
-                               .withDescription("create db tables to store data")
-                               .create("create_tables"));
 
         Option convertData = (OptionBuilder.withArgName("portal")
                               .hasArg()
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
 
-        Option importReferenceData = (OptionBuilder.withArgName("database:reference_type")
-									  .hasArgs(2)
-									  .withValueSeparator(':')
-									  .withDescription("import given reference data into the given db")
+        Option importReferenceData = (OptionBuilder.withArgName("reference_type")
+									  .hasArg()
+									  .withDescription("import given reference data")
 									  .create("import_reference_data"));
 
-        Option importData = (OptionBuilder.withArgName("database:portal")
-                             .hasArgs(2)
-                             .withValueSeparator(':')
-                             .withDescription("import data into the given db" +
-                                              "for use with the given portal" +
-                                              " (if the database is blank, a name will be generated)")
+        Option importData = (OptionBuilder.withArgName("portal")
+                             .hasArg()
+                             .withDescription("import data for use in the given portal")
                              .create("import_data"));
 
 		// create an options instance
@@ -118,9 +119,9 @@ public class Admin implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
-		toReturn.addOption(fetch);
+		toReturn.addOption(clobberImportDatabase);
+		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
-		toReturn.addOption(createTables);
 		toReturn.addOption(convertData);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
@@ -165,17 +166,18 @@ public class Admin implements Runnable {
 			if (commandLine.hasOption("help")) {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
+			// clobber import database
+			else if (commandLine.hasOption("clobber_import_database")) {
+				clobberImportDatabase();
+			}
 			// fetch
-			else if (commandLine.hasOption("firehose_fetch")) {
-				fetchFirehoseData();
+			else if (commandLine.hasOption("fetch_data")) {
+                String[] values = commandLine.getOptionValues("fetch_data");
+				fetchData(values[0], values[1]);
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
 				fetchReferenceData(commandLine.getOptionValue("fetch_reference_data"));
-			}
-			// create tables
-			else if (commandLine.hasOption("create_tables")) {
-				createTables(commandLine.getOptionValue("create_tables"));
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
@@ -183,13 +185,11 @@ public class Admin implements Runnable {
 			}
 			// import reference data
 			else if (commandLine.hasOption("import_reference_data")) {
-                String[] values = commandLine.getOptionValues("import_reference_data");
-				importReferenceData(values[0], values[1]);
+				importReferenceData(commandLine.getOptionValue("import_reference_data"));
 			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
-                String[] values = commandLine.getOptionValues("import_data");
-				importData(values[0], values[1]);
+				importData(commandLine.getOptionValue("import_data"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -202,20 +202,48 @@ public class Admin implements Runnable {
 	}
 
 	/**
-	 * Helper function to get firehose data.
+	 * Helper function to clobber import database.
 	 *
 	 * @throws Exception
 	 */
-	private void fetchFirehoseData() throws Exception {
+	private void clobberImportDatabase() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchFirehoseData()");
+			LOG.info("clobberImportDatabase()");
+		}
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
+		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+	}
+
+	/**
+	 * Helper function to get data.
+	 *
+	 * @param dataSource String
+	 * @param runDate String
+	 * @throws Exception
+	 */
+	private void fetchData(final String dataSource, final String runDate) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Fetcher fetcher = (Fetcher)context.getBean("firehoseFetcher");
-		fetcher.fetch();
+		Config config = (Config)context.getBean("config");
+		DataSourceMetadata dataSourceMetadata = null;
+		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
+		if (!dataSources.isEmpty()) {
+			dataSourceMetadata = dataSources.iterator().next();
+		}
+		// sanity check
+		if (dataSourceMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		}
+		Fetcher fetcher = (Fetcher)context.getBean(dataSourceMetadata.getFetcherBeanID());
+		fetcher.fetch(dataSource, runDate);
 	}
 
 	/**
@@ -241,26 +269,9 @@ public class Admin implements Runnable {
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
+				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
-	}
-
-	/**
-	 * Helper function to create database tables.
-     *
-     * @param database String
-	 */
-	private void createTables(final String database) {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createTables(), database: " + database);
-		}
-
-		// create an instance of DatabaseUtils
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
-		databaseUtils.createDatabase(database, true);
 	}
 
 	/**
@@ -285,15 +296,13 @@ public class Admin implements Runnable {
 	/**
 	 * Helper function to import reference data.
      *
-     * @param database String
      * @param referenceType String
 	 *
 	 * @throws Exception
 	 */
-	private void importReferenceData(final String database, final String referenceType) throws Exception {
+	private void importReferenceData(final String referenceType) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("importReferenceData(), database: " + database);
 			LOG.info("importReferenceData(), referenceType: " + referenceType);
 		}
 
@@ -303,7 +312,7 @@ public class Admin implements Runnable {
 		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
 		if (referenceMetadata != null) {
 			Importer importer = (Importer)context.getBean("importer");
-			importer.importReferenceData(database, referenceMetadata);
+			importer.importReferenceData(referenceMetadata);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -315,22 +324,20 @@ public class Admin implements Runnable {
 	/**
 	 * Helper function to import data.
      *
-     * @param database String
      * @param portal String
 	 *
 	 * @throws Exception
 	 */
-	private void importData(final String database, final String portal) throws Exception {
+	private void importData(final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), database: " + database);
 			LOG.info("importData(), portal: " + portal);
 		}
 
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Importer importer = (Importer)context.getBean("importer");
-		importer.importData(portal, database);
+		importer.importData(portal);
 	}
 
 	/**

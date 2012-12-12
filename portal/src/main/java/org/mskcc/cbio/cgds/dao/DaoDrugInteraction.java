@@ -27,22 +27,27 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.cgds.model.DrugInteraction;
 
 public class DaoDrugInteraction {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoDrugInteraction daoDrugInteraction;
     private static final String NA = "NA";
+
+    private static final Log log = LogFactory.getLog(DaoDrugInteraction.class);
 
     private DaoDrugInteraction() {
     }
@@ -114,6 +119,10 @@ public class DaoDrugInteraction {
         }
     }
 
+    public ArrayList<DrugInteraction> getInteractions(long entrezGeneId) throws DaoException {
+        return getInteractions(Collections.singleton(entrezGeneId));
+    }
+
     public ArrayList<DrugInteraction> getInteractions(CanonicalGene gene) throws DaoException {
         return getInteractions(Collections.singleton(gene));
     }
@@ -151,6 +160,60 @@ public class DaoDrugInteraction {
             }
 
             return interactionList;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public Map<Long, List<String>> getDrugs(Set<Long> entrezGeneIds, boolean fdaOnly, boolean cancerSpecific) throws DaoException {
+        if (entrezGeneIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            
+            String sql;
+            if (fdaOnly || cancerSpecific) {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction, drug"
+                    + " WHERE TARGET IN (" + StringUtils.join(entrezGeneIds, ",") + ")"
+                    + " AND drug_interaction.DRUG=drug.DRUG_ID";
+                if (fdaOnly) {
+                    sql += " AND DRUG_APPROVED=1";
+                }
+                 
+                if (cancerSpecific) {
+                    sql += " AND DRUG_CANCERDRUG=1";
+                }
+            } else {
+                sql = "SELECT DRUG,TARGET FROM drug_interaction"
+                    + " WHERE TARGET IN (" 
+                    + StringUtils.join(entrezGeneIds, ",") + ")";
+            }
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            Map<Long, List<String>> map = new HashMap<Long, List<String>>();
+            while (rs.next()) {
+                long entrez = rs.getLong("TARGET");
+                List<String> drugs = map.get(entrez);
+                if (drugs==null) {
+                    drugs = new ArrayList<String>();
+                    map.put(entrez, drugs);
+                }
+                
+                drugs.add(rs.getString("DRUG"));
+            }
+
+            return map;
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -238,7 +301,6 @@ public class DaoDrugInteraction {
      * Gets the Number of Interaction Records in the Database.
      *
      * @return number of gene records.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
      */
     public int getCount() throws DaoException {
         Connection con = null;
@@ -284,5 +346,71 @@ public class DaoDrugInteraction {
             return -1;
         }
     }
+    
+    // Temporary way of handling cases such as akt inhibitor for pten loss
+    private static final String DRUG_TARGET_FILE = "/drug_target_annotation.txt";
+    private static  Map<Long,Map<String,Set<Long>>> drugTargetAnnotation = null; // map <entrez of gene of event, map <event, target genes> >
+    
+    private static synchronized Map<Long,Map<String,Set<Long>>> getDrugTargetAnnotation() {
+        if (drugTargetAnnotation==null) {
+            drugTargetAnnotation = new HashMap<Long,Map<String,Set<Long>>>();
+            try {
+                DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(DaoDrugInteraction.class.getResourceAsStream(DRUG_TARGET_FILE)));
+                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    if (line.startsWith("#")) {
+                        continue;
+                    }
 
+                    String[] parts = line.split("\t");
+                    String[] genesOfEvents = parts[0].split(",");
+                    String[] events = parts[1].split(",");
+                    String[] targetGenes = parts[2].split(",");
+                    Set<Long> targetEntrez = new HashSet<Long>(targetGenes.length);
+                    for (String target : targetGenes) {
+                        CanonicalGene gene = daoGeneOptimized.getGene(target);
+                        if(gene == null)
+                            log.warn("Could not find gene: " + target);
+                        else
+                            targetEntrez.add(gene.getEntrezGeneId());
+                    }
+
+                    for (String gene : genesOfEvents) {
+                        long entrez = daoGeneOptimized.getGene(gene).getEntrezGeneId();
+                        Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(entrez);
+                        if (mapEventTargets==null) {
+                            mapEventTargets = new HashMap<String,Set<Long>>();
+                            drugTargetAnnotation.put(entrez, mapEventTargets);
+                        }
+
+                        for (String event : events) {
+                            mapEventTargets.put(event, targetEntrez);
+                        }
+                    }
+                }
+                in.close();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return drugTargetAnnotation;
+    }
+    
+    public Set<Long> getMoreTargets(long geneOfEvent, String event) {
+        Map<String,Set<Long>> mapEventTargets = getDrugTargetAnnotation().get(geneOfEvent);
+        if (mapEventTargets==null) {
+            return Collections.emptySet();
+        }
+        
+        Set<Long> set = mapEventTargets.get(event);
+        if (set==null) {
+            return Collections.emptySet();
+        }
+        
+        return set;
+    }
+    // end of Temporary way of handling cases such as akt inhibitor for pten loss
+    
 }

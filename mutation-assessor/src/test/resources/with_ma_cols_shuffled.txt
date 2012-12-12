@@ -1,0 +1,5 @@
+MA:link.PDB	Chromosome	MA:no.such.header	Reference_Allele	MA:link.MSA	Variant_Classification	Tumor_Seq_Allele2	NCBI_Build	Tumor_Seq_Allele1	MA:link.var	MA:protein.change	Start_position	MA:FImpact	End_position	Custom
+Unknown	11	NA	T	Unknown	Missense_Mutation	C	37	T	Unknown	Unknown	56258437	Unknown	56258437	custom_data
+Unknown	3	NA	C	Unknown	Nonsense_Mutation	T	37	C	Unknown	Unknown	41266137	Unknown	41266137	custom_data
+Unknown	10	NA	C	Unknown	Nonsense_Mutation	T	37	C	Unknown	Unknown	100015355	Unknown	100015355	custom_data
+Unknown	1	NA	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	Unknown	In_Frame_Del	-	37	GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC	Unknown	Unknown	3411011	Unknown	3411043	custom_data

@@ -351,6 +351,83 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
      </servlet-mapping>   
      
+     <!-- tumor map -->
+    <servlet>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.TumorMapServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <url-pattern>/index.tumormap</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <url-pattern>/tumormap.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>patient_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/tumormap.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>MutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>MutationsJSON</servlet-name>
+        <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CnaJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CnaJSON</servlet-name>
+        <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SimilarPatientsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <url-pattern>/similar_patients.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>cancer_study_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>cancer_study_view</servlet-name>
+        <url-pattern>/study.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DrugsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DrugsJSON</servlet-name>
+        <url-pattern>/drugs.json</url-pattern>
+    </servlet-mapping>
+    <!-- end tumor map -->
+     
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>

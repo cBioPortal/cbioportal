@@ -29,14 +29,17 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 /**
  * Interface used to convert portal data.
  */
 public interface Converter {
+
+	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
+	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
 
 	/**
 	 * Converts data for the given portal.
@@ -55,13 +58,14 @@ public interface Converter {
 	void generateCaseLists(final String portal) throws Exception;
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-						   final ImportDataMatrix importDataMatrix) throws Exception;
+	void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+						   final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception;
 }

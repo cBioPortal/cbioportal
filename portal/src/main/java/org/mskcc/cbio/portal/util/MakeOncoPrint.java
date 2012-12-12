@@ -226,6 +226,8 @@ public class MakeOncoPrint {
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/jquery.qtip.min.js\"></script>\n");
+                out.append("<link href=\"css/jquery.qtip.min.css\" rel=\"stylesheet\"/>\n");
 		if (forSummaryTab) {
 			out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
 			out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
@@ -271,7 +273,7 @@ public class MakeOncoPrint {
 
 		// on document ready, draw oncoprint header, oncoprint, oncoprint legend - comes after raphaeljs divs
 		out.append("<script type=\"text/javascript\">\n");
-		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
+		out.append(writeOncoPrintDocumentReadyJavascript(cancerTypeID, oncoprintSection, oncoprintReferenceVarName,
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
@@ -511,7 +513,7 @@ public class MakeOncoPrint {
 	 *
 	 * @return String
 	 */
-	static String writeOncoPrintDocumentReadyJavascript(String oncoprintSectionVarName,
+	static String writeOncoPrintDocumentReadyJavascript(String cancerTypeID, String oncoprintSectionVarName,
 														String oncoprintReferenceVarName,
 														String headerElement,
 														String bodyElement,
@@ -542,9 +544,6 @@ public class MakeOncoPrint {
 			builder.append("\t\t$('#accordion .head').click(function() {\n");
 			builder.append("\t\t\t$(this).next().toggle();\n");
 			builder.append("\t\t\tjQuery(\".ui-icon\", this).toggle();\n");
-			builder.append("\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
-			builder.append("\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\treturn false;\n");
 			builder.append("\t\t}).next().hide();\n");
 		}
@@ -563,8 +562,7 @@ public class MakeOncoPrint {
 			// draw oncoprint
 			builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
-						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'), " +
-						   forSummaryTab + ");\n");
+						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'),'"+cancerTypeID+"');\n");
 
 			// draw legend
 			builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
@@ -574,27 +572,19 @@ public class MakeOncoPrint {
 			// handle tooltip drawing when page is first loaded
 			builder.append("\t\tvar currentLocation = window.location.pathname;\n");
 			builder.append("\t\tif (currentLocation.indexOf(\"index.do\") != -1 || currentLocation.indexOf(\"link.do\") != -1) { \n");
-			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t}\n");
 			// handle tooltip drawing when other tabs are clicked
 			builder.append("\t\t$(\"a\").click(function(event) {\n");
 			builder.append("\t\t\t\tvar tab = $(this).attr(\"href\");\n");
 			builder.append("\t\t\tif (tab == \"#summary\") {\n");
-			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t}\n");
 			builder.append("\t\t\t// we only clear if one of the inner index.do tabs are clicked\n"); 
 			builder.append("\t\t\t// otherwise we get a noticable tooltip clear before the page is reloaded\n");
 			builder.append("\t\t\telse if (tab.indexOf(\".jsp\") == -1) {\n");
-			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
 			builder.append("\t\t\t}\n");
 			builder.append("\t\t});\n");
 			// handle tooltip drawing when browser is resized
 			builder.append("\t\t$(window).resize(function() {\n");
-			builder.append("\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
-			builder.append("\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t});\n");
 			// oncoprint accordion title & compress checkbox tool-tip
 			builder.append("$(\".oncoprint_customize_help\").tipTip({maxWidth: \"150px\", defaultPosition: \"right\", delay:\"100\", edgeOffset: 5});\n");
@@ -617,15 +607,9 @@ public class MakeOncoPrint {
 			builder.append("\t\t\t\tvar $spinner = $('#" + oncoprintCustomizeIndicatorName + "');\n");
 			builder.append("\t\t\t\t$spinner.text(\"" + SCALING_ONCOPRINT_INDICATOR  + "\");\n");
 			builder.append("\t\t\t\tScalarIndicator($spinner, true);\n");
-			builder.append("\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
-			builder.append("\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t\tsetTimeout(function() {\n");
 			builder.append("\t\t\t\t\tSetScaleFactor(" + oncoprintReferenceVarName + ", value);\n");
 			builder.append("\t\t\t\t\tScalarIndicator($spinner, false);\n");
-			builder.append("\t\t\t\t\tClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + ");\n");
-			builder.append("\t\t\t\t\tDrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-						   ", document.getElementById(\"" + oncoprintSectionVarName + "\"));\n");
 			builder.append("\t\t\t\t}, 100);\n");
 			builder.append("\t\t\t\treturn false;\n");
 			builder.append("\t\t\t}\n");
@@ -715,7 +699,7 @@ public class MakeOncoPrint {
 		builder.append("<table>\n");
 		builder.append("<tr>\n");
 		// show altered checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id= \"showAlteredColumns\" name=\"showAlteredColumns\" value=\"false\" " +
 					   "onClick=\"ShowAlteredSamples(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
@@ -724,9 +708,6 @@ public class MakeOncoPrint {
 					   "var timerDelay = 0;" +
 					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
 					   "ScalarIndicator($spinner, true); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintHeader(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
@@ -734,16 +715,13 @@ public class MakeOncoPrint {
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} else { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} " +
 					   "ScalarIndicator($spinner, false); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "return true;\">\n");
 		// show altered checkbox label
@@ -752,7 +730,7 @@ public class MakeOncoPrint {
 		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// sort/unsort altered checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id=\"" + oncoprintUnsortSamplesCheckboxName + "\" name=\"" + oncoprintUnsortSamplesCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"" +
 					   "var $spinner = $('#" + oncoprintFormControlsIndicatorName + "'); " + 
@@ -760,30 +738,21 @@ public class MakeOncoPrint {
 					   "var sortText = '" + SORT_SAMPLES_INDICATOR + "'; " +
 					   "var timerDelay = 0;" +
 					   "ScalarIndicator($spinner, true); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "if (this.checked) { " +
 					   "$spinner.text(unsortText); timerDelay = 100; " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "$spinner.text(sortText); timerDelay = 100;" +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab + "); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} " +
 					   "return true;\">\n");
@@ -802,7 +771,7 @@ public class MakeOncoPrint {
 		// spacer
 		builder.append("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>\n");
 		// remove padding checkbox
-		builder.append("<td>\n");
+		builder.append("<td style=\"white-space: nowrap\">\n");
 		builder.append("<input type=\"checkbox\" id=\"" + oncoprintRemovePaddingCheckboxName + "\" name=\"" + oncoprintRemovePaddingCheckboxName + "\" value=\"false\" " +
 					   "onClick=\"RemoveGenomicAlterationPadding(" + oncoprintReferenceVarName + ", this.checked); " +
 					   "var $spinner = $('#" + oncoprintCustomizeIndicatorName + "'); " + 
@@ -811,28 +780,19 @@ public class MakeOncoPrint {
 					   "var timerDelay = 0;" +
 					   "if (this.checked) { $spinner.text(removeText); timerDelay = 1500; } else { $spinner.text(addText); timerDelay = 100; } " +
 					   "ScalarIndicator($spinner, true); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'), " + forSummaryTab  + "); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
-					   "ClearOncoPrintTooltipRegion(" + oncoprintReferenceVarName + "); " +
-					   "DrawOncoPrintTooltipRegion(" + oncoprintReferenceVarName +
-					   ", document.getElementById('" + oncoprintSectionVarName + "')); " +
 					   "}, timerDelay); " +
 					   "}" +
 					   "return true;\">\n");

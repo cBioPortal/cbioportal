@@ -71,6 +71,34 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Override
     public String getDatabasePassword() { return this.databasePassword; }
 
+	// db connection
+	private String databaseConnectionString;
+	@Value("${database_connection_string}")
+	public void setDatabaseConnectionString(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	@Override
+    public String getDatabaseConnectionString() { return this.databaseConnectionString; }
+
+	// importer database name
+	private String importerDatabaseName;
+	@Value("${importer_database_name}")
+	public void setImporterDatabaseName(final String importerDatabaseName) { this.importerDatabaseName = importerDatabaseName; }
+	@Override
+    public String getImporterDatabaseName() { return this.importerDatabaseName; }
+
+	// gene information database name
+	private String geneInformationDatabaseName;
+	@Value("${gene_information_database_name}")
+	public void setGeneInformationDatabaseName(final String geneInformationDatabaseName) { this.geneInformationDatabaseName = geneInformationDatabaseName; }
+	@Override
+    public String getGeneInformationDatabaseName() { return this.geneInformationDatabaseName; }
+
+	// portal database name
+	private String portalDatabaseName;
+	@Value("${portal_database_name}")
+	public void setPortalDatabaseName(final String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
+	@Override
+    public String getPortalDatabaseName() { return this.portalDatabaseName; }
+
     /**
 	 * Creates a database and optional schema.
 	 * 

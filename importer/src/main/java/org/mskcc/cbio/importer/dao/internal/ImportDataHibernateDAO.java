@@ -70,18 +70,20 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 	 *
 	 * @param importData ImportData
 	 */
+	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
 	public void importData(final ImportData importData) {
 
 		Session session = getSession();
 
 		// check for existing object
-		ImportData existing = getImportDataByTumorAndDatatype(importData.getTumorType(), importData.getDatatype());
+		ImportData existing = getImportDataByTumorAndDatatypeAndDataFilename(importData.getTumorType(), importData.getDatatype(), importData.getDataFilename());
 		if (existing != null) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
 						 " and datatype: " + importData.getDatatype() + " already exists, manually merging.");
 			}
+			existing.setDataSource(importData.getDataSource());
 			existing.setTumorType(importData.getTumorType());
 			existing.setDatatype(importData.getDatatype());
 			existing.setRunDate(importData.getRunDate());
@@ -109,6 +111,7 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 	 *
 	 * @return Collection<ImportData>
      */
+	@Override
     @Transactional(propagation=Propagation.REQUIRED)
     public Collection<ImportData> getImportData() {
 
@@ -125,13 +128,71 @@ class ImportDataHibernateDAO implements ImportDataDAO {
 	 * @param dataType String
 	 * @return ImportData
      */
+	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public ImportData getImportDataByTumorAndDatatype(final String tumorType, final String datatype) {
+    public Collection<ImportData> getImportDataByTumorAndDatatype(final String tumorType, final String datatype) {
 
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatype");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
-		return (ImportData)query.uniqueResult();
+		List<ImportData> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
     }
+
+    /**
+     * Functon to retrieve ImportData via tumor type, data type, and data source.
+	 *
+	 * @param tumorType String
+	 * @param dataType String
+	 * @param dataSource String
+	 * @return Collection<ImportData>
+     */
+	@Override
+    @Transactional(propagation=Propagation.REQUIRED)
+    public Collection<ImportData> getImportDataByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource) {
+
+		Session session = getSession();
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataSource");
+		query.setParameter("tumortype", tumorType);
+		query.setParameter("datatype", datatype);
+		query.setParameter("datasource", dataSource);
+		List<ImportData> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
+	}
+
+    /**
+     * Functon to retrieve ImportData via tumor type and data type and data filename
+	 *
+	 * @param tumorType String
+	 * @param dataType String
+	 * @param dataFilename String
+	 * @return ImportData
+     */
+	@Override
+    @Transactional(propagation=Propagation.REQUIRED)
+    public ImportData getImportDataByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename) {
+
+		Session session = getSession();
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataFilename");
+		query.setParameter("tumortype", tumorType);
+		query.setParameter("datatype", datatype);
+		query.setParameter("datafilename", dataFilename);
+        return (ImportData)query.uniqueResult();
+    }
+
+	/**
+	 * Function to delete records with the given dataSource
+	 *
+	 * @param dataSource String
+	 */
+	@Override
+    @Transactional(propagation=Propagation.REQUIRED)
+	public void deleteByDataSource(final String dataSource) {
+
+		Session session = getSession();
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.deleteByDataSource");
+		query.setParameter("datasource", dataSource);
+        query.executeUpdate();
+	}
 }

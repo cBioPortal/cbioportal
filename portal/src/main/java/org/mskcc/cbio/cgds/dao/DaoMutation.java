@@ -131,8 +131,7 @@ public class DaoMutation {
 						Integer.toString(mutation.getNormalAltCount()),
 						Integer.toString(mutation.getNormalRefCount()),
 						mutation.getOncotatorDbSnpRs(),
-						mutation.getOncotatorCosmicOverlapping()
-				                              );
+						DaoMutationEvent.filterCosmic(mutation));
 
 				// return 1 because normal insert will return 1 if no error occurs
 				return 1;
@@ -198,7 +197,7 @@ public class DaoMutation {
 				pstmt.setInt(40, mutation.getNormalAltCount());
 				pstmt.setInt(41, mutation.getNormalRefCount());
 				pstmt.setString(42, mutation.getOncotatorDbSnpRs());
-				pstmt.setString(43, mutation.getOncotatorCosmicOverlapping());
+				pstmt.setString(43, DaoMutationEvent.filterCosmic(mutation));
 
 				return pstmt.executeUpdate();
 			}
@@ -309,6 +308,105 @@ public class DaoMutation {
 		}
 		return geneSet;
 	}
+        
+        public ArrayList<ExtendedMutation> getMutations (long entrezGeneId) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            try {
+                con = JdbcUtil.getDbConnection();
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mutation WHERE" +
+                                " ENTREZ_GENE_ID = ?");
+                pstmt.setLong(1, entrezGeneId);
+                rs = pstmt.executeQuery();
+                while  (rs.next()) {
+                    ExtendedMutation mutation = extractMutation(rs);
+                    mutationList.add(mutation);
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(con, pstmt, rs);
+            }
+            return mutationList;
+        }
+
+        public ArrayList<ExtendedMutation> getMutations (long entrezGeneId, String aminoAcidChange) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            try {
+                con = JdbcUtil.getDbConnection();
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mutation WHERE" +
+                                " ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
+                pstmt.setLong(1, entrezGeneId);
+                pstmt.setString(2, aminoAcidChange);
+                rs = pstmt.executeQuery();
+                while  (rs.next()) {
+                    ExtendedMutation mutation = extractMutation(rs);
+                    mutationList.add(mutation);
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(con, pstmt, rs);
+            }
+            return mutationList;
+        }
+	
+        public ArrayList<ExtendedMutation> getMutations (int geneticProfileId, String CaseId) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            try {
+                con = JdbcUtil.getDbConnection();
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mutation WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ?");
+                pstmt.setInt(1, geneticProfileId);
+                pstmt.setString(2, CaseId);
+                rs = pstmt.executeQuery();
+                while  (rs.next()) {
+                    ExtendedMutation mutation = extractMutation(rs);
+                    mutationList.add(mutation);
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(con, pstmt, rs);
+            }
+            return mutationList;
+        }
+
+        public ArrayList<ExtendedMutation> getSimilarMutations (long entrezGeneId, String aminoAcidChange, String excludeCaseId) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            try {
+                con = JdbcUtil.getDbConnection();
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mutation WHERE" +
+                                " ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
+                pstmt.setLong(1, entrezGeneId);
+                pstmt.setString(2, aminoAcidChange);
+                pstmt.setString(3, excludeCaseId);
+                rs = pstmt.executeQuery();
+                while  (rs.next()) {
+                    ExtendedMutation mutation = extractMutation(rs);
+                    mutationList.add(mutation);
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(con, pstmt, rs);
+            }
+            return mutationList;
+        }
 
 	public ArrayList<ExtendedMutation> getMutations (int geneticProfileId,
 			long entrezGeneId) throws DaoException {

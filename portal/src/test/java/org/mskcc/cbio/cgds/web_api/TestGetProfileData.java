@@ -49,7 +49,6 @@ public class TestGetProfileData extends TestCase {
     public void testGetProfileData() throws DaoException, IOException {
         ResetDatabase.resetDatabase();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         daoGene.addGene(new CanonicalGene(207, "AKT1"));
         daoGene.addGene(new CanonicalGene(208, "AKT2"));
         daoGene.addGene(new CanonicalGene(10000, "AKT3"));
@@ -78,7 +77,7 @@ public class TestGetProfileData extends TestCase {
         geneticProfile.setCancerStudyId(1);
         geneticProfile.setStableId("gbm_rae");
         geneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        daoGeneticProfile.addGeneticProfile(geneticProfile);
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
 
         ArrayList <String> geneticProfileIdList = new ArrayList<String>();
         geneticProfileIdList.add("gbm_rae");

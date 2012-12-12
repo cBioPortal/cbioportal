@@ -52,8 +52,9 @@ public class OncotatorParser
         ObjectMapper m = new ObjectMapper();
         JsonNode rootNode = m.readValue(json, JsonNode.class);
         
-        OncotatorRecord oncotator = new OncotatorRecord(key);
-        
+        OncotatorRecord oncoRecord = new OncotatorRecord(key);
+        oncoRecord.setRawJson(json);
+
         // check if JSON has an ERROR
         
         JsonNode errorNode = rootNode.path("ERROR");
@@ -67,36 +68,90 @@ public class OncotatorParser
         
         JsonNode genomeChange = rootNode.path("genome_change");
         if (!genomeChange.isMissingNode()) {
-            oncotator.setGenomeChange(genomeChange.getTextValue());
+            oncoRecord.setGenomeChange(genomeChange.getTextValue());
         }
 
         JsonNode cosmic = rootNode.path("Cosmic_overlapping_mutations");
         if (!cosmic.isMissingNode()) {
-            oncotator.setCosmicOverlappingMutations(cosmic.getTextValue());
+            oncoRecord.setCosmicOverlappingMutations(cosmic.getTextValue());
         }
 
         JsonNode dbSnpRs = rootNode.path("dbSNP_RS");
         if (!dbSnpRs.isMissingNode()) {
-            oncotator.setDbSnpRs(dbSnpRs.getTextValue());
+            oncoRecord.setDbSnpRs(dbSnpRs.getTextValue());
         }
 
-        JsonNode bestTranscriptIndexNode = rootNode.path("best_canonical_transcript");
+	    JsonNode dbSnpValStatus = rootNode.path("dbSNP_Val_Status");
+	    if (!dbSnpValStatus.isMissingNode()) {
+		    oncoRecord.setDbSnpValStatus(dbSnpValStatus.getTextValue());
+	    }
 
-        if (!bestTranscriptIndexNode.isMissingNode()) {
-            int transcriptIndex = bestTranscriptIndexNode.getIntValue();
-            JsonNode transcriptsNode = rootNode.path("transcripts");
-            JsonNode bestTranscriptNode = transcriptsNode.get(transcriptIndex);
+        JsonNode bestCanonicalTranscriptIdxNode = rootNode.path("best_canonical_transcript");
+	    JsonNode bestEffectTranscriptIdxNode = rootNode.path("best_effect_transcript");
+	    JsonNode transcriptsNode = rootNode.path("transcripts");
+	    int transcriptIndex;
 
-            String variantClassification = bestTranscriptNode.path("variant_classification").getTextValue();
-            String proteinChange = bestTranscriptNode.path("protein_change").getTextValue();
-            String geneSymbol = bestTranscriptNode.path("gene").getTextValue();
-            int exonAffected = bestTranscriptNode.path("exon_affected").getIntValue();
-            oncotator.setVariantClassification(variantClassification);
-            oncotator.setProteinChange(proteinChange);
-            oncotator.setGene(geneSymbol);
-            oncotator.setExonAffected(exonAffected);
+        if (!bestCanonicalTranscriptIdxNode.isMissingNode())
+        {
+            transcriptIndex = bestCanonicalTranscriptIdxNode.getIntValue();
+	        oncoRecord.setBestCanonicalTranscript(parseTranscriptNode(
+			        transcriptsNode, transcriptIndex));
         }
 
-        return oncotator;
+	    if (!bestEffectTranscriptIdxNode.isMissingNode())
+	    {
+		    transcriptIndex = bestEffectTranscriptIdxNode.getIntValue();
+		    oncoRecord.setBestEffectTranscript(parseTranscriptNode(
+				    transcriptsNode, transcriptIndex));
+	    }
+
+        return oncoRecord;
     }
+
+	/**
+	 * Parses a transcript node at the specified index within the given
+	 * transcripts node.
+	 *
+	 * @param transcriptsNode   node containing all transcripts
+	 * @param transcriptIndex   specific index for a single transcript
+	 * @return                  Transcript instance containing parsed info
+	 */
+	public static Transcript parseTranscriptNode(JsonNode transcriptsNode,
+			int transcriptIndex)
+	{
+		// get the transcript node for the specified index
+		JsonNode transcriptNode = transcriptsNode.get(transcriptIndex);
+
+		// parse nodes for the transcript
+		JsonNode variantClassification = transcriptNode.path("variant_classification");
+		JsonNode proteinChange = transcriptNode.path("protein_change");
+		JsonNode geneSymbol = transcriptNode.path("gene");
+		JsonNode exonAffected = transcriptNode.path("exon_affected");
+
+		// construct a transcript instance for the parsed nodes
+
+		Transcript transcript = new Transcript();
+
+		if (!variantClassification.isMissingNode())
+		{
+			transcript.setVariantClassification(variantClassification.getTextValue());
+		}
+
+		if (!proteinChange.isMissingNode())
+		{
+			transcript.setProteinChange(proteinChange.getTextValue());
+		}
+
+		if (!geneSymbol.isMissingNode())
+		{
+			transcript.setGene(geneSymbol.getTextValue());
+		}
+
+		if (!exonAffected.isMissingNode())
+		{
+			transcript.setExonAffected(exonAffected.getIntValue());
+		}
+
+		return transcript;
+	}
 }

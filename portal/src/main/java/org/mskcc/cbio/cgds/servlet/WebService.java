@@ -35,35 +35,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.regex.Pattern;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoCase;
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.DatabaseProperties;
-import org.mskcc.cbio.cgds.web_api.GetCaseLists;
-import org.mskcc.cbio.cgds.web_api.GetTypesOfCancer;
-import org.mskcc.cbio.cgds.web_api.GetClinicalData;
-import org.mskcc.cbio.cgds.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.cgds.web_api.GetMutationData;
-import org.mskcc.cbio.cgds.web_api.GetMutationFrequencies;
-import org.mskcc.cbio.cgds.web_api.GetNetwork;
-import org.mskcc.cbio.cgds.web_api.GetMutSig;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.GetProteinArrayData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
-import org.mskcc.cbio.cgds.web_api.WebApiUtil;
 import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.cgds.web_api.*;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**
@@ -506,12 +489,7 @@ public class WebService extends HttpServlet {
      * messages are written out to catalina.out.
      */
     private void verifyDbConnection() {
-        //System.out.println("Verifying Database Connection...");
-        try {
-            //System.out.println("Attempting to retrieve Cancer Types...");
-            DaoCancerStudy.getAllCancerStudies();
-            //System.out.println("Database Connection -->  [OK]");
-        } catch (DaoException e) {
+        if (DaoCancerStudy.getCount()==0) {
             System.err.println("****  Fatal Error in CGDS.  Could not connect to "
                     + "database");
         }
@@ -569,8 +547,7 @@ public class WebService extends HttpServlet {
                     return null;
                 }
 
-                DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
-                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
                 if (aGeneticProfile != null &&
                         DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
@@ -608,20 +585,18 @@ public class WebService extends HttpServlet {
         }
         
         if (caseList != null) {
-            DaoCase aDaoCase = new DaoCase();
             for (String aCase : caseList.split("[\\s,]+")) {
                 aCase = aCase.trim();
                 if (aCase.length() == 0) {
                     continue;
                 }
 
-                int profileId = aDaoCase.getProfileIdForCase(aCase);
-                if (DaoCase.NO_SUCH_PROFILE_ID == profileId) {
+                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
+                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
                     return null;
                 }
 
-                DaoGeneticProfile aDaoGeneticProfile = new DaoGeneticProfile();
-                GeneticProfile aGeneticProfile = aDaoGeneticProfile.getGeneticProfileById(profileId);
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
                 if (aGeneticProfile == null) {
                     return null;
                 }

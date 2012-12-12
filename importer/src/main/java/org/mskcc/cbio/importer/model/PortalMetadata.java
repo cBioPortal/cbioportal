@@ -40,12 +40,14 @@ public final class PortalMetadata {
 
     // some statics
     private static final String DATATYPES_DELIMITER = ":";
+    private static final String DATA_SOURCES_DELIMITER = ":";
     private static final String CANCER_STUDIES_DELIMITER = ":";
 
 	// bean properties
     private String name;
     private Collection<String> cancerStudies;
     private Collection<String> datatypes;
+    private Collection<String> dataSources;
     private String stagingDirectory;
     private String convertOverrideDirectory;
     private String importOverrideDirectory;
@@ -56,19 +58,20 @@ public final class PortalMetadata {
      * @param name String
      * @param cancerStudies String
      * @param datatypes String
+     * @param dataSources String
      * @param stagingDirectory String
 	 * @param convertOverrideDirectory String
 	 * @param importOverrideDirectory String
      */
     public PortalMetadata(final String name, final String cancerStudies,
-                          final String datatypes, final String stagingDirectory,
+                          final String datatypes, final String dataSources, final String stagingDirectory,
                           final String convertOverrideDirectory, final String importOverrideDirectory) {
 
         // name
 		if (name == null) {
             throw new IllegalArgumentException("name must not be null");
 		}
-        this.name = name;
+        this.name = name.trim();
 
         // cancer studies
 		if (cancerStudies == null || cancerStudies.length() == 0) {
@@ -94,23 +97,36 @@ public final class PortalMetadata {
             this.datatypes.add(datatypes);
         }
 
+        // dataSources
+		if (dataSources == null || dataSources.length() == 0) {
+            throw new IllegalArgumentException("dataSources must not be null or empty");
+		}
+        else if (dataSources.contains(DATA_SOURCES_DELIMITER)) {
+            this.dataSources = Arrays.asList(dataSources.split(DATA_SOURCES_DELIMITER));
+        }
+        else {
+            this.dataSources = new ArrayList<String>();
+            this.dataSources.add(dataSources);
+        }
+
         // staging directory
 		if (stagingDirectory == null) {
             throw new IllegalArgumentException("stagingDirectory must not be null");
 		}
-		this.stagingDirectory = stagingDirectory;
+		this.stagingDirectory = stagingDirectory.trim();
 
         // convertOverride directory
-		this.convertOverrideDirectory = (convertOverrideDirectory == null) ? "" : convertOverrideDirectory;
+		this.convertOverrideDirectory = (convertOverrideDirectory == null) ? "" : convertOverrideDirectory.trim();
 
         // importOverride directory
-		this.importOverrideDirectory = (importOverrideDirectory == null) ? "" : importOverrideDirectory;
+		this.importOverrideDirectory = (importOverrideDirectory == null) ? "" : importOverrideDirectory.trim();
 
 	}
 
 	public String getName() { return name; }
 	public Collection<String> getCancerStudies() { return cancerStudies; }
 	public Collection<String> getDatatypes() { return datatypes; }
+	public Collection<String> getDataSources() { return dataSources; }
 	public String getStagingDirectory() { return stagingDirectory; }
 	public String getConvertOverrideDirectory() { return convertOverrideDirectory; }
 	public String getImportOverrideDirectory() { return importOverrideDirectory; }

@@ -217,6 +217,26 @@ public class DaoInteraction {
             JdbcUtil.closeConnection(con);
         }
     }
+    
+    /**
+     * Gets all Interactions involving the Specified Genes.
+     * @param entrezGeneIds Entrez Gene IDs.
+     * @return ArrayList of Interaction Objects.
+     * @throws DaoException Database Error.
+     */
+    public ArrayList<Interaction> getInteractionsAmongSeeds (Collection<Long> entrezGeneIds,
+            Collection<String> dataSources)
+        throws DaoException {
+        Connection con = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            return getInteractions(entrezGeneIds, true, false, dataSources, con); 
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeConnection(con);
+        }
+    }
 
     /**
      * Gets all Interactions involving the Specified Genes.

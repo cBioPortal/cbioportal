@@ -58,7 +58,7 @@ public class JdbcUtil {
         }
         
         Connection con = ds.getConnection();
-        
+        //System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive());
         return con;
     }
 
@@ -98,6 +98,7 @@ public class JdbcUtil {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
+                //System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive());
             }
         } catch (SQLException e) {
             e.printStackTrace();

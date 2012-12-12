@@ -59,8 +59,6 @@ final class ImporterImpl implements Importer {
 	/**
 	 * Constructor.
      *
-     * Takes a Config, FileUtils, & DatabaseUtils reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
@@ -74,14 +72,13 @@ final class ImporterImpl implements Importer {
 	}
 
 	/**
-	 * Imports data into the given database for use in the given portal.
+	 * Imports data for use in the given portal.
 	 *
-	 * @param database String
      * @param portal String
 	 * @throws Exception
 	 */
     @Override
-	public void importData(final String database, final String portal) throws Exception {
+	public void importData(final String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData()");
@@ -94,18 +91,17 @@ final class ImporterImpl implements Importer {
 	}
 
 	/**
-	 * Imports the given reference data into the given database.
+	 * Imports the given reference data.
 	 *
-	 * @param database String
-     * @param referenceMetadata String
+     * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
 	@Override
-	public void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception {
+	public void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
 		// get converter and create staging file
 		Object[] args = { config, fileUtils, databaseUtils };
 		Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
-		importer.importReferenceData(database, referenceMetadata);
+		importer.importReferenceData(referenceMetadata);
 	}
 }

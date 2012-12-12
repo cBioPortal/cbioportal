@@ -40,9 +40,9 @@ public class TestDaoGeneticProfile extends TestCase {
 
     public void testDaoGeneticProfile() throws DaoException {
        
-       DaoGeneticProfile daoGeneticProfile = createSmallDbms();
+       createSmallDbms();
 
-       ArrayList<GeneticProfile> list = daoGeneticProfile.getAllGeneticProfiles(1);
+       ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(1);
         assertEquals(2, list.size());
         GeneticProfile geneticProfile = list.get(0);
 
@@ -59,22 +59,22 @@ public class TestDaoGeneticProfile extends TestCase {
                 geneticProfile.getGeneticAlterationType());
         assertEquals(true, geneticProfile.showProfileInAnalysisTab());
 
-        geneticProfile = daoGeneticProfile.getGeneticProfileByStableId("gbm_gistic");
+        geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("gbm_gistic");
         assertEquals(1, geneticProfile.getCancerStudyId());
         assertEquals("Gistic CNA Results", geneticProfile.getProfileName());
         assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
 
-        geneticProfile = daoGeneticProfile.getGeneticProfileById(2);
+        geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
         assertEquals(1, geneticProfile.getCancerStudyId());
         assertEquals("Gistic CNA Results", geneticProfile.getProfileName());
         assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
         
-        assertEquals(2, daoGeneticProfile.getCount() );
-        daoGeneticProfile.deleteGeneticProfile(geneticProfile);
-        assertEquals(1, daoGeneticProfile.getCount() );
-        list = daoGeneticProfile.getAllGeneticProfiles(1);
+        assertEquals(2, DaoGeneticProfile.getCount() );
+        DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+        assertEquals(1, DaoGeneticProfile.getCount() );
+        list = DaoGeneticProfile.getAllGeneticProfiles(1);
         assertEquals(1, list.size());
         geneticProfile = list.get(0);
         assertEquals(1, geneticProfile.getCancerStudyId());
@@ -83,9 +83,9 @@ public class TestDaoGeneticProfile extends TestCase {
                 geneticProfile.getGeneticAlterationType());
         assertEquals ("Blah, Blah, Blah.", geneticProfile.getProfileDescription());
 
-        assertTrue ( daoGeneticProfile.updateNameAndDescription
+        assertTrue ( DaoGeneticProfile.updateNameAndDescription
                 (geneticProfile.getGeneticProfileId(), "Updated Name", "Updated Description") );
-        list = daoGeneticProfile.getAllGeneticProfiles(1);
+        list = DaoGeneticProfile.getAllGeneticProfiles(1);
         assertEquals(1, list.size());
         geneticProfile = list.get(0);
         assertEquals(1, geneticProfile.getCancerStudyId());
@@ -93,13 +93,12 @@ public class TestDaoGeneticProfile extends TestCase {
         assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
         assertEquals ("Updated Description", geneticProfile.getProfileDescription());
-        daoGeneticProfile.deleteAllRecords();
-        assertEquals(0, daoGeneticProfile.getCount() );
+        DaoGeneticProfile.deleteAllRecords();
+        assertEquals(0, DaoGeneticProfile.getCount() );
     }
     
-    public static DaoGeneticProfile createSmallDbms() throws DaoException{
+    public static void createSmallDbms() throws DaoException{
        ResetDatabase.resetDatabase();
-       DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
 
        GeneticProfile profile1 = new GeneticProfile();
        profile1.setCancerStudyId(1);
@@ -108,7 +107,7 @@ public class TestDaoGeneticProfile extends TestCase {
        profile1.setProfileName("Barry CNA Results");
        profile1.setProfileDescription("Blah, Blah, Blah.");
        profile1.setShowProfileInAnalysisTab(true);
-       daoGeneticProfile.addGeneticProfile(profile1);
+       DaoGeneticProfile.addGeneticProfile(profile1);
 
        GeneticProfile profile2 = new GeneticProfile();
        profile2.setCancerStudyId(1);
@@ -116,9 +115,7 @@ public class TestDaoGeneticProfile extends TestCase {
        profile2.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
        profile2.setProfileName("Gistic CNA Results");
        profile2.setShowProfileInAnalysisTab(true);
-       daoGeneticProfile.addGeneticProfile(profile2);
-       
-       return daoGeneticProfile;
+       DaoGeneticProfile.addGeneticProfile(profile2);
        
     }
 }

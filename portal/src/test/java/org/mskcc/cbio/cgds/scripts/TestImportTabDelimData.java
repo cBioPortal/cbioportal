@@ -97,10 +97,9 @@ public class TestImportTabDelimData extends TestCase {
         cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007", 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        DaoCase daoCase = new DaoCase();
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-02-0001", 1));
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-06-0241", 1));
-        ArrayList caseIds = daoCase.getAllCaseIdsInProfile(1);
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001", 1));
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241", 1));
+        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
         assertEquals(94, caseIds.size());
     }
 
@@ -156,10 +155,9 @@ public class TestImportTabDelimData extends TestCase {
         cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007", 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        DaoCase daoCase = new DaoCase();
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-02-0001", 1));
-        assertTrue(daoCase.caseExistsInGeneticProfile("TCGA-06-0241", 1));
-        ArrayList caseIds = daoCase.getAllCaseIdsInProfile(1);
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001", 1));
+        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241", 1));
+        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
         assertEquals(94, caseIds.size());
     }
 
@@ -190,7 +188,6 @@ public class TestImportTabDelimData extends TestCase {
         daoGene.addGene(new CanonicalGene(11099, "G"));
         daoGene.addGene(new CanonicalGene(675, "6352"));
 
-        DaoGeneticProfile daoGeneticProfile = new DaoGeneticProfile();
         GeneticProfile geneticProfile = new GeneticProfile();
 
         geneticProfile.setCancerStudyId(1);
@@ -198,7 +195,7 @@ public class TestImportTabDelimData extends TestCase {
         geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
-        daoGeneticProfile.addGeneticProfile(geneticProfile);
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);

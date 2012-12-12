@@ -30,22 +30,32 @@ package org.mskcc.cbio.importer.converter.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
+import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ImportDataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
  */
 public final class CNAConverterImpl implements Converter {
 
+	private static final String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
+	private static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
+
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -53,20 +63,28 @@ public final class CNAConverterImpl implements Converter {
 	// ref to file utils
 	private FileUtils fileUtils;
 
+	// ref to caseids
+	private CaseIDs caseIDs;
+
+	// ref to IDMapper
+	private IDMapper idMapper;
+
 	/**
 	 * Constructor.
      *
-     * Takes a Config reference.
-	 * Takes a FileUtils reference.
-     *
      * @param config Config
 	 * @param fileUtils FileUtils
+	 * @param caseIDs CaseIDs;
+	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(final Config config, final FileUtils fileUtils) {
+	public CNAConverterImpl(final Config config, final FileUtils fileUtils,
+							final CaseIDs caseIDs, final IDMapper idMapper) {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
+		this.caseIDs = caseIDs;
+		this.idMapper = idMapper;
 	}
 
 	/**
@@ -92,22 +110,65 @@ public final class CNAConverterImpl implements Converter {
     }
 
 	/**
-	 * Creates a staging file from the given data matrix.
+	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param cancerStudy String
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param importDataMatrices ImportDataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final ImportData importData,
-								  final ImportDataMatrix importDataMatrix) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+
+		// sanity check
+		if (importDataMatrices.length != 1) {
+			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		}
+		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+
+		// perform gene mapping, remove records as needed
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
+		}
+		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
+									 GENE_ID_COLUMN_HEADER_NAME, GENE_SYMBOL_COLUMN_HEADER_NAME);
+
+		// rename columns
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), renaming columns");
+		}
+		importDataMatrix.renameColumn(GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		importDataMatrix.renameColumn(GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
+
+		// convert case ids
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), filtering & converting case ids");
+		}
+		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME }; // drop Cytoband
+		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
+
+		// ensure the first two columns are symbol, id respectively
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), sorting column headers");
+		}
+		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
+		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
+		importDataMatrix.setColumnOrder(columnHeaders);
+
+		// we need to write out the file
+		if (LOG.isInfoEnabled()) {
+			LOG.info("createStagingFile(), writing staging file.");
+		}
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile()");
+			LOG.info("createStagingFile(), complete.");
 		}
-
-		// 
-		
 	}
 }

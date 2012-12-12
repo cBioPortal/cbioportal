@@ -28,49 +28,44 @@
 package org.mskcc.cbio.oncotator;
 
 /**
- * Encapsulate a Single Record from Oncotator.
+ * Encapsulates a single record from the Oncotator service.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class OncotatorRecord {
-    private String key;
-    private String gene;
-    private String genomeChange;
-    private String proteinChange;
-    private String variantClassification;
-    private int exonAffected;
-    private String cosmicOverlappingMutations;
-    private String dbSnpRs;
+public class OncotatorRecord
+{
+	private String key;
+	private String rawJson;
+	private String genomeChange;
+	private String dbSnpRs;
+	private String dbSnpValStatus;
+	private String cosmicOverlappingMutations;
 
-    public OncotatorRecord (String key) {
+	private Transcript bestCanonicalTranscript;
+	private Transcript bestEffectTranscript;
+
+    public OncotatorRecord(String key)
+    {
         this.key = key;
+	    this.bestCanonicalTranscript = new Transcript();
+	    this.bestEffectTranscript = new Transcript();
     }
+
+	// Getters and Setters
 
     public String getKey() {
         return key;
     }
 
-    public String getProteinChange() {
-        return proteinChange;
-    }
+	public String getRawJson()
+	{
+		return rawJson;
+	}
 
-    public void setProteinChange(String proteinChange) {
-        this.proteinChange = proteinChange;
-    }
-
-    public String getVariantClassification() {
-        return variantClassification;
-    }
-
-    public void setVariantClassification(String variantClassification) {
-        this.variantClassification = variantClassification;
-    }
-
-    public String getGene() {
-        return gene;
-    }
-
-    public void setGene(String gene) {
-        this.gene = gene;
-    }
+	public void setRawJson(String rawJson)
+	{
+		this.rawJson = rawJson;
+	}
 
     public String getGenomeChange() {
         return genomeChange;
@@ -78,14 +73,6 @@ public class OncotatorRecord {
 
     public void setGenomeChange(String genomeChange) {
         this.genomeChange = genomeChange;
-    }
-
-    public int getExonAffected() {
-        return exonAffected;
-    }
-
-    public void setExonAffected(int exonAffected) {
-        this.exonAffected = exonAffected;
     }
 
     public String getCosmicOverlappingMutations() {
@@ -103,4 +90,34 @@ public class OncotatorRecord {
     public void setDbSnpRs(String dbSnpRs) {
         this.dbSnpRs = dbSnpRs;
     }
+
+	public String getDbSnpValStatus()
+	{
+		return dbSnpValStatus;
+	}
+
+	public void setDbSnpValStatus(String dbSnpValStatus)
+	{
+		this.dbSnpValStatus = dbSnpValStatus;
+	}
+
+	public Transcript getBestCanonicalTranscript()
+	{
+		return bestCanonicalTranscript;
+	}
+
+	public void setBestCanonicalTranscript(Transcript bestCanonicalTranscript)
+	{
+		this.bestCanonicalTranscript = bestCanonicalTranscript;
+	}
+
+	public Transcript getBestEffectTranscript()
+	{
+		return bestEffectTranscript;
+	}
+
+	public void setBestEffectTranscript(Transcript bestEffectTranscript)
+	{
+		this.bestEffectTranscript = bestEffectTranscript;
+	}
 }

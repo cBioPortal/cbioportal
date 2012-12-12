@@ -34,7 +34,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.Drug;
 
 /**
@@ -77,9 +78,12 @@ public class DaoDrug {
                         drug.getSynonyms(),
                         drug.getDescription(),
                         drug.getExternalReference(),
+                        drug.getATCCode(),
                         drug.isApprovedFDA() ? "1" : "0",
-                        drug.getATCCode()
-                );
+                        drug.isCancerDrug() ? "1" : "0",
+                        drug.isNutraceuitical() ? "1" : "0",
+                        drug.getNumberOfClinicalTrials().toString()
+                        );
                 return 1;
             } else {
                 Drug existingDrug = getDrug(drug.getId());
@@ -89,8 +93,9 @@ public class DaoDrug {
                             "INSERT INTO drug "
                                     + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
                                         + "`DRUG_SYNONYMS`, `DRUG_DESCRIPTION`, `DRUG_XREF`, "
-                                        + "`DRUG_APPROVED`, `DRUG_ATC_CODE`) "
-                                    + "VALUES (?,?,?,?,?,?,?,?)"
+                                        + "`DRUG_ATC_CODE`, `DRUG_APPROVED`, `DRUG_CANCERDRUG`, "
+                                        + "`DRUG_NUTRACEUTICAL`, `DRUG_NUMOFTRIALS`) "
+                                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
                             );
                     pstmt.setString(1, drug.getId());
                     pstmt.setString(2, drug.getResource());
@@ -98,8 +103,12 @@ public class DaoDrug {
                     pstmt.setString(4, drug.getSynonyms());
                     pstmt.setString(5, drug.getDescription());
                     pstmt.setString(6, drug.getExternalReference());
-                    pstmt.setInt(7, drug.isApprovedFDA() ? 1 : 0);
-                    pstmt.setString(8, drug.getATCCode());
+                    pstmt.setString(7, drug.getATCCode());
+                    pstmt.setInt(8, drug.isApprovedFDA() ? 1 : 0);
+                    pstmt.setInt(9, drug.isCancerDrug() ? 1 : 0);
+                    pstmt.setInt(10, drug.isNutraceuitical() ? 1 : 0);
+                    pstmt.setInt(11, drug.getNumberOfClinicalTrials());
+
                     return pstmt.executeUpdate();
                 } else {
                     return 0;
@@ -123,19 +132,32 @@ public class DaoDrug {
             pstmt.setString(1, drugID);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                Drug drug = new Drug();
-                drug.setId(drugID);
-                drug.setResource(rs.getString("DRUG_RESOURCE"));
-                drug.setName(rs.getString("DRUG_NAME"));
-                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
-                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
-                drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
-                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
-                return drug;
+                return extractDrug(rs);
             } else {
                 return null;
             }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    public ArrayList<Drug> getDrugs(Collection<String> drugIds) throws DaoException {
+        ArrayList<Drug> drugList = new ArrayList<Drug>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM drug WHERE DRUG_ID in ('"
+                    + StringUtils.join(drugIds, "','")+"')");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                drugList.add(extractDrug(rs));
+            }
+            return drugList;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -155,16 +177,7 @@ public class DaoDrug {
                     ("SELECT * FROM drug");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Drug drug = new Drug();
-                drug.setId(rs.getString("DRUG_ID"));
-                drug.setResource(rs.getString("DRUG_RESOURCE"));
-                drug.setName(rs.getString("DRUG_NAME"));
-                drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
-                drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
-                drug.setExternalReference(rs.getString("DRUG_XREF"));
-                drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
-                drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
-                drugList.add(drug);
+                drugList.add(extractDrug(rs));
             }
             return drugList;
         } catch (SQLException e) {
@@ -172,6 +185,22 @@ public class DaoDrug {
         } finally {
             JdbcUtil.closeAll(con, pstmt, rs);
         }
+    }
+    
+    private Drug extractDrug(ResultSet rs) throws SQLException {
+        Drug drug = new Drug();
+        drug.setId(rs.getString("DRUG_ID"));
+        drug.setResource(rs.getString("DRUG_RESOURCE"));
+        drug.setName(rs.getString("DRUG_NAME"));
+        drug.setSynonyms(rs.getString("DRUG_SYNONYMS"));
+        drug.setDescription(rs.getString("DRUG_DESCRIPTION"));
+        drug.setExternalReference(rs.getString("DRUG_XREF"));
+        drug.setATCCode(rs.getString("DRUG_ATC_CODE"));
+        drug.setApprovedFDA(rs.getInt("DRUG_APPROVED") == 1);
+        drug.setCancerDrug(rs.getInt("DRUG_CANCERDRUG") == 1);
+        drug.setNutraceuitical(rs.getInt("DRUG_NUTRACEUTICAL") == 1);
+        drug.setNumberOfClinicalTrials(rs.getInt("DRUG_NUMOFTRIALS"));
+        return drug;
     }
 
     public int getCount() throws DaoException {

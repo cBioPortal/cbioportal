@@ -79,34 +79,31 @@ public final class HumanGeneImporterImpl implements Importer {
 	}
 
 	/**
-	 * Imports data into the given database for use in the given portal.
+	 * Imports data for use in the given portal.
 	 *
-	 * @param database String
      * @param portal String
 	 * @throws Exception
 	 */
     @Override
-	public void importData(final String database, final String portal) throws Exception {
+	public void importData(final String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
 	/**
-	 * Imports the given reference data into the given database.
+	 * Imports the given reference data.
 	 *
-	 * @param database String
      * @param referenceMetadata String
 	 * @throws Exception
 	 */
 	@Override
-	public void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception {
+	public void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("importReferenceData(), database: " + database);
 			LOG.info("importReferenceData(), referenceMetadata: " + referenceMetadata.getReferenceType());
 		}
 
 		// first create (and clobber an existing) db
-		databaseUtils.createDatabase(database, false);
+		databaseUtils.createDatabase(databaseUtils.getGeneInformationDatabaseName(), false);
 
 		String referenceFile = referenceMetadata.getReferenceFileDestination();
 		if (GzipUtils.isCompressedFilename(referenceFile)) {
@@ -117,7 +114,7 @@ public final class HumanGeneImporterImpl implements Importer {
 		String[] command = new String[] {"mysql",
 										 "--user=" + databaseUtils.getDatabaseUser(),
 										 "--password=" + databaseUtils.getDatabasePassword(),
-										 database,
+										 databaseUtils.getGeneInformationDatabaseName(),
 										 "-e",
 										 "source " + referenceFile};
 		if (LOG.isInfoEnabled()) {

@@ -61,12 +61,15 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Fetchers data from the Broad.
+	 * Fetchers genomic data from an external datasource and
+	 * places in database for processing.
 	 *
+	 * @param dataSource String
+	 * @param desiredRunDate String
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch() throws Exception {
+	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

@@ -37,20 +37,18 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 public interface Importer {
 
 	/**
-	 * Imports data into the given database for use in the given portal.
+	 * Imports data for use in the given portal.
 	 *
-	 * @param database String
      * @param portal String
 	 * @throws Exception
 	 */
-	void importData(final String database, final String portal) throws Exception;
+	void importData(final String portal) throws Exception;
 
 	/**
-	 * Imports the given reference data into the given database.
+	 * Imports the given reference data.
 	 *
-	 * @param database String
      * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
-	void importReferenceData(final String database, final ReferenceMetadata referenceMetadata) throws Exception;
+	void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception;
 }

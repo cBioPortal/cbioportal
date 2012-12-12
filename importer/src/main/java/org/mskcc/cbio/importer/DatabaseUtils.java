@@ -50,6 +50,34 @@ public interface DatabaseUtils {
 	 */
     public String getDatabasePassword();
 
+	/**
+	 * Returns the database connection string.
+	 *
+	 * @return String
+	 */
+    public String getDatabaseConnectionString();
+
+	/**
+	 * Returns the importer database name.
+	 *
+	 * @return String
+	 */
+    public String getImporterDatabaseName();
+
+	/**
+	 * Returns the gene information database name.
+	 *
+	 * @return String
+	 */
+    public String getGeneInformationDatabaseName();
+
+	/**
+	 * Returns the portal database name.
+	 *
+	 * @return String
+	 */
+    public String getPortalDatabaseName();
+
     /**
 	 * Creates a database and optional schema.
 	 * 

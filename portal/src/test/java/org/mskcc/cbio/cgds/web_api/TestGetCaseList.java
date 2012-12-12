@@ -60,7 +60,7 @@ public class TestGetCaseList extends TestCase {
       File file = new File("target/test-classes/case_list_test.txt");
 
       ImportCaseList.importCaseList(file, pMonitor);
-      String[] caseList = GetCaseLists.getCaseLists("GBM").split("\n");
+      String[] caseList = GetCaseLists.getCaseLists("gbm").split("\n");
       assertTrue(caseList[1]
                .startsWith("gbm_91\tGBM 91\tGBM 91 Case List Description\t1\tTCGA-02-0001 TCGA-02-0003 TCGA-02-0006"));
    }

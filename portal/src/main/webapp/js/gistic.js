@@ -29,6 +29,14 @@ var Gistic = function(gistics) {
     };
 
     var drawGenes = function(genes, enteredGenes, search) {
+        // - genes :            the set of genes to deal with
+        // - enteredGenes :     the genes to make bold
+        // - search :           the filter string, maybe someday we'll want to incorporate
+        //                      this
+        //
+        // draws the cells in the gene column with all of their special UI
+        // features and CSS bindings
+        // also makes the appropriate genes bold
 
         search = search || '';
 
@@ -89,21 +97,9 @@ var Gistic = function(gistics) {
             return true;
         }
 
-        data = dt.fnGetData(),          // gistic objects
+        data = Gistic.dt.fnGetData(),                   // gistic objects
             no_data = data.length,
-            nodes = dt.fnGetNodes();    // DOM elementsk
-
-        //for (var i = 0; i < no_data; i += 1) {
-        //    var node = data[i];
-        //    var all_genes = node.sangerGenes.concat(node.nonSangerGenes);
-
-        //    var enteredGenes = GeneSet($('#gene_list').val()).getAllGenes();
-        //    var drawn = drawGenes(all_genes, enteredGenes, search);
-
-        //    dt.fnUpdate(
-
-        //    //dt.fnUpdate(drawn, i, 4, false);
-        //}
+            nodes = Gistic.dt.fnGetNodes();             // DOM elementsk
 
         search = new RegExp('^' + search, 'i');
 
@@ -120,8 +116,6 @@ var Gistic = function(gistics) {
     });
 
     var self = {
-        getDt: function() {return dt;},
-
         drawTable : function(table_el, enteredGenes, options) {
             // draws a DataTable in the specific DOM element, table_el
             // with the specified DataTable options
@@ -135,9 +129,7 @@ var Gistic = function(gistics) {
                     "bSearchable": false,
                     "aTargets": [0],
                     "mDataProp": function(source, type, val) {
-                        if (type === 'set') {
-                            source.ampdel = val;
-                        } else if (type === 'display') {
+                        if (type === 'display') {
                             if (source.ampdel) {     // true means amplified
                                 // mark amps/dels as reds and blues
                                 return "<div class=\"gistic_amp\"></div>";
@@ -151,10 +143,7 @@ var Gistic = function(gistics) {
 
             {"sTitle": "Chr", "aTargets":[1], "bSearchable": false,
                 "mDataProp": function(source, type, val) {
-
-                    if (type === 'set') {
-                        source.chromosome = val;
-                    } else if (type === 'display') {
+                    if (type === 'display') {
                         return source.chromosome;
                     }
                     return source.chromosome;
@@ -164,9 +153,7 @@ var Gistic = function(gistics) {
             {"sTitle": "Cytoband", "aTargets":[2], "sType": "cytoband", "bSearchable": false,
                 "mDataProp": function(source, type, val) {
                     var cyto = source.cytoband;
-                    if (type === 'set') {
-                        source.cytoband = val;
-                    } else if (type === 'display') {
+                    if (type === 'display') {
                         return cyto;
                     }
                     else if (type === 'sort') {
@@ -217,13 +204,7 @@ var Gistic = function(gistics) {
                 "aTargets":[5],
                 "mDataProp": function(source, type, val) {
 
-                    // round Q-Values so that decimals that are not rounded by
-                    // toPrecision by default (more than 7 digits after the
-                    // decimal point) are rounded here
-                    var rounded = source.qval.toPrecision(2);
-                    0.000001 <= rounded && rounded < 0.001 ?
-                        rounded = parseFloat(rounded).toExponential() :
-                        rounded = rounded;
+                    var rounded = cbio.util.toPrecision(source.qval, 2, 0.1);
 
                     if (type === 'display') {
                         return rounded;
@@ -241,19 +222,9 @@ var Gistic = function(gistics) {
                 var search = $('#gistic_table_filter input').val();
 
                 var dt = $('#gistic_table').dataTable();
-
-
-                console.log(search, dt.fnGetNodes());
             };
 
             Gistic.dt = table_el.dataTable(options);
-
-            // everytime you draw
-            // update the selected_genes
-            Gistic.selected_genes = $.map($('.gistic_selected_gene'),
-                function(val, i) {
-                return $(val).html();
-            });
 
             // center cols
             $('.gistic_center_col').css('text-align', 'center');
@@ -261,12 +232,13 @@ var Gistic = function(gistics) {
             // right cols
             $('.gistic_right_col').css('text-align', 'right');
 
-            // todo: maybe we'll want this someday
+            // {{{todo: maybe we'll want this someday
             // bind double clicking
             //Gistic.dt.fnGetNodes().forEach(function(i) {
             //    $(i).find('.gistic_gene_cell').
             //        select(Gistic.UI.select_all_genes);
             //});
+            //}}}
 
             // put in the help box
             $('#gistic_table_filter').parent().
@@ -287,7 +259,7 @@ var Gistic = function(gistics) {
 
 Gistic.UI = ( function() {
     // dump of all sorts of UI functions
-    // the closure is to keep the private GISTIC variable
+    // the closure is to keep the GISTIC variable private
 
     var GISTIC = {};
 
@@ -312,32 +284,44 @@ Gistic.UI = ( function() {
             var current_selection = $('#select_cancer_type').val();
 
             // if Gistic has never been run then Gistic.last_selection =
-            // undefined, otherwise, check to prevent multiple AJAXs of the
+            // undefined, otherwise, check to prevent multiple AJAXs for the
             // same cancer study
             if (Gistic.last_selection !== current_selection) {
 
                 // save this for later comparision
                 Gistic.last_selection = current_selection;
 
+                // hide the table while new data loads
+                $('#gistic_table_wrapper').hide();
+                $('#gistic_dialog_footer').hide();
+
                 $.ajax({
                     url: 'Gistic.json',
                     data: {'selected_cancer_type': current_selection},
                     dataType: 'json',
                     success: function(data) {
-                        $('#gistic_loading').hide();
-
                         GISTIC = Gistic(data);
 
                         GISTIC.drawTable(Gistic.table_el, genes, options);
+
+                        // table is ready to be shown!
+                        $('#gistic_loading').hide();
+                        $('#gistic_table_wrapper').show();
+                        $('#gistic_dialog_footer').show();
                     }
                 });
             } else {
                 $('#gistic_loading').hide();
+                // want to redraw everytime you open in order to make the genes
+                // bold 
                 GISTIC.drawTable(Gistic.table_el, genes, options);
             }
 
-            // redraw table
-            //Gistic.dt.fnDraw();
+            // update the selected_genes everytime you open the dialog
+            Gistic.selected_genes = $.map($('.gistic_selected_gene'),
+                function(val, i) {
+                return $(val).html();
+            });
         },
 
         expandGisticGenes : function(el) {
@@ -362,6 +346,8 @@ Gistic.UI = ( function() {
         },
 
         updateGenes: function() {
+            // updates the genes in the Gene Set textarea
+            //
             var geneSet = GeneSet(Gistic.gene_list_el.val());
 
             var currently_selected = $.map($('.gistic_selected_gene'),
@@ -389,9 +375,8 @@ Gistic.UI = ( function() {
             // push to gene set
             Gistic.gene_list_el.val(out);
         },
-
+        // {{{ todo: maybe we'll want this someday
         select_all_genes: function(el) {
-            // todo: maybe we'll want this someday
             var max = 50;       // max no of genes users are allowed to select
             var selection = $(this).find('.gistic_gene');
 
@@ -409,5 +394,6 @@ Gistic.UI = ( function() {
             }
             selection.toggleClass('gistic_selected_gene');
         }
+        // }}}
     };
 })();

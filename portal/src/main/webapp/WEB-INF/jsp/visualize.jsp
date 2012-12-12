@@ -51,11 +51,10 @@
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
     boolean showIGVtab = false;
-    DaoGeneticProfile dgp = new DaoGeneticProfile();
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
 	for (int lc = 0; lc < cnaTypes.length; lc++) {
 		String cnaProfileID = cancerTypeId + cnaTypes[lc];
-		if (dgp.getGeneticProfileByStableId(cnaProfileID) != null){
+		if (DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileID) != null){
 			showIGVtab = true;
 			break;
 	    }
@@ -88,11 +87,8 @@
     String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
-    String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
-    boolean computeLogOddsRatio = false;
-    if (computeLogOddsRatioStr != null) {
-        computeLogOddsRatio = true;
-    }
+    
+    boolean computeLogOddsRatio = true;
 
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);

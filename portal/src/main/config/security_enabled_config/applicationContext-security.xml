@@ -77,7 +77,14 @@
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
 	  <intercept-url pattern="/Gistic.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/Oncoprint.json*" access="isAuthenticated()"/>
-
+      <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
+      <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">

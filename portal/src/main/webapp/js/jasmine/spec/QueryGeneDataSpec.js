@@ -10,7 +10,7 @@ describe("QueryGeneData", function() {
         cna: [AMPLIFIED, DELETED, null],
         mutations: [null, ["a"], null],
         mrna: [UPREGULATED, DOWNREGULATED, null],
-        rppa: [DOWNREGULATED, null, null],
+        rppa: [null, null, null],
         percent_altered: "10%"
     };
 
@@ -19,7 +19,7 @@ describe("QueryGeneData", function() {
         cna: [AMPLIFIED, DELETED, null],
         mutations: [null, ["a"], null],
         mrna: [UPREGULATED, DOWNREGULATED, null],
-        rppa: [DOWNREGULATED, null, null],
+        rppa: [null, null, null],
         percent_altered: "10%"
     };
 
@@ -47,13 +47,13 @@ describe("QueryGeneData", function() {
                 mutation: null,
                 cna: AMPLIFIED,
                 mrna: UPREGULATED,
-                rppa: DOWNREGULATED
+                rppa: null
             },
             "GENE2": {
                 mutation: null,
                 cna: AMPLIFIED,
                 mrna: UPREGULATED,
-                rppa: DOWNREGULATED
+                rppa: null
             }
         };
         expect(query.bySampleId("CASE1")).toEqual(CASE1);
@@ -90,4 +90,7 @@ describe("QueryGeneData", function() {
         expect(query.altered_samples).toEqual(["CASE1", "CASE2"]);
     });
 
+    it('get non null data types', function() {
+        expect(query.data_types).toEqual(["cna", "mutation", "mrna"]);
+    })
 });

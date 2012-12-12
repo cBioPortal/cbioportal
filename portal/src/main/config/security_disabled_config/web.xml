@@ -210,11 +210,6 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.GisticJSON</servlet-class>
     </servlet>
 
-    <servlet>
-        <servlet-name>GeneAlterationsJSON</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
-    </servlet>
-
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -343,11 +338,6 @@
     <servlet-mapping>
         <servlet-name>GisticJSON</servlet-name>
         <url-pattern>/Gistic.json</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>GeneAlterationsJSON</servlet-name>
-        <url-pattern>/GeneAlterations.json</url-pattern>
     </servlet-mapping>
     
      <!-- tumor map -->

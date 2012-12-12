@@ -11,12 +11,14 @@ QueryGeneData = function(data) {
 
     var that = {};
 
+    var gene_data = data.gene_data;
+
     that.byHugo = function(hugo) {
         // returns all the data associated with a particular gene
         // (a row in the oncoprint matrix)
         var index = data.hugo_to_gene_index[hugo];
 
-        return data.gene_data[index];
+        return gene_data[index];
     };
 
     that.bySampleId = function(sample_id) {
@@ -26,7 +28,7 @@ QueryGeneData = function(data) {
 
         var toReturn = {};
 
-        data.gene_data.forEach(function(gene) {
+        gene_data.forEach(function(gene) {
             toReturn[gene.hugo] = {
                 mutation: gene.mutations[index],
                 cna: gene.cna[index],
@@ -94,6 +96,63 @@ QueryGeneData = function(data) {
     })();
 
     that.percent_altered = that.altered_samples.length / sample_list.length;
+
+    that.data_types = (function() {
+        // returns all the datatypes that are represented in the data set
+        // that is, all the ones that have non null values
+
+        var flatten = function(prev, curr) {
+            return prev.concat(curr);
+        };
+
+        var notNull = function(list) {
+            var len = list.length;
+
+            var i;
+            for (i = 0; i < len; i += 1) {
+                if (list[i] !== null) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        var cna = gene_data.map(function(i) {
+            return i.cna;
+        }).reduce(flatten);
+
+        var mutation = gene_data.map(function(i) {
+            return i.mutations;
+        }).reduce(flatten);
+
+        var mrna = gene_data.map(function(i) {
+            return i.mrna;
+        }).reduce(flatten);
+
+        var rppa = gene_data.map(function(i) {
+            return i.rppa;
+        }).reduce(flatten);
+
+        var to_return = [];
+
+        if (notNull(cna)) {
+            to_return.push("cna");
+        }
+
+        if (notNull(mutation)) {
+            to_return.push("mutation");
+        }
+
+        if (notNull(mrna)) {
+            to_return.push("mrna");
+        }
+
+        if (notNull(rppa)) {
+            to_return.push("rppa");
+        }
+
+        return to_return;
+    })();
 
     return that;
 };

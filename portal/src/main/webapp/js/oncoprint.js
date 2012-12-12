@@ -202,17 +202,44 @@ var Oncoprint = function(wrapper, params) {
             .remove();
     };
 
+    /*
+     * For the given oncoprint reference, returns the SVG Dom as string
+     * for the body canvas.
+     *
+     * oncoprint - opaque reference to oncoprint system
+     *
+     */
+//    var svg;
+//    function GetOncoPrintBodyXML(svg) {
+//
+//        // outta here
+//        return (new XMLSerializer()).serializeToString(svg);
+//    }
+//
+//    var doXml = function() {
+//        console.log(this);
+////        this.elements['xml'].value=GetOncoPrintBodyXML(svg);
+//        return true;
+//    };
+
     that.draw = function() {
 
-        var svg = d3.select(wrapper).append('svg')
+        svg = d3.select(wrapper).append('svg')
             .attr('width', getWidth(samples_all.length))
             .attr('height', getHeight());
-        that.svg = svg;
+        that.getSvg = function() { return svg; };
 
-        // name : name of track, e.g. hugo gene symbol (PTEN), or clinical data type, etc
+//        var svg_ify = $('<form>', {
+//            action: "oncoprint_converter.svg",
+//            enctype: "multipart/form-data",
+//            method: "POST",
+//            onsubmit: doXml,
+//            target: "blank"
+//        }).append("<span>Get OncoPrint</span><input type=\"submit\" value=\"SVG\"/>");
+//        $(wrapper).append(svg_ify);
 
         $(wrapper).prepend('<div><h4>OncoPrint</h4></br>'
-            + "<h4 onclick='$(\"#oncoprint_controls\").toggle();'>customize oncoprint</h4>"
+            + "<h4 onclick='$(\"#oncoprint_controls\").toggle();'>customize</h4>"
             + '<div id="oncoprint_controls" style="display:show;">'
             + "<button type='button' onclick='oncoprint.defaultSort()'>default sort</button>"
             +    "<button type='button' onclick='oncoprint.memoSort()'>memo sort</button>"
@@ -267,7 +294,7 @@ var Oncoprint = function(wrapper, params) {
         x.domain(samples_visualized);
         x.rangeBands([0, getXScale(no_samples)]);
 
-        that.svg.selectAll('.track')[0].forEach(function(val, i) {
+        svg.selectAll('.track')[0].forEach(function(val, i) {
 
             var hugo = genes_list[i];
 
@@ -303,7 +330,7 @@ var Oncoprint = function(wrapper, params) {
                 });
         });
 
-        that.svg.transition().duration(1000).style('width', getWidth(no_samples));
+        svg.transition().duration(1000).style('width', getWidth(no_samples));
     };
 
     that.memoSort = function() {
@@ -349,6 +376,20 @@ var Oncoprint = function(wrapper, params) {
             redraw(samples_visualized, track, gene.hugo);
             transition();
         });
+    };
+
+    that.toggleKey = function(svg) {
+
+        var data_types = query.data_types;
+
+        data_types.forEach(function(i) {
+            if (i === 'cna') {
+                d3.select(div).append('rect')
+                    .attr('class', 'cna AMPLIFIED')
+                    .attr('height', RECT_HEIGHT)
+                    .attr('width', 5.5);
+            }
+        })
     };
 
     return that;

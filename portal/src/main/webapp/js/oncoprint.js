@@ -30,7 +30,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var LABEL_PADDING = (function() {
-        var avg_char_width = 13;
+        var avg_char_width = 23;
 
         var list_char_no = genes_list.map(function(i) {
             return i.split("").length;
@@ -251,20 +251,10 @@ var Oncoprint = function(wrapper, params) {
 //        }).append("<span>Get OncoPrint</span><input type=\"submit\" value=\"SVG\"/>");
 //        $(wrapper).append(svg_ify);
 
-        $(wrapper).prepend('<div><h4>OncoPrint</h4></br>'
-            + "<h4 onclick='$(\"#oncoprint_controls\").toggle();'>customize</h4>"
-            + '<div id="oncoprint_controls" style="display:show;">'
-            + "<button type='button' onclick='oncoprint.defaultSort()'>default sort</button>"
-            +    "<button type='button' onclick='oncoprint.memoSort()'>memo sort</button>"
-            +    "<button type='button' onclick='oncoprint.toggleWhiteSpace()'>toggle white space</button>"
-            +    "<button type='button' onclick='oncoprint.scaleWidth(3)'>scale width 3</button>"
-            +    "<button type='button' onclick='oncoprint.scaleWidth(1.5)'>scale width 1.5</button>"
-            +    "<button type='button' onclick='oncoprint.scaleWidth(1)'>scale width 1</button>"
-            +    "<button type='button' onclick='oncoprint.scaleWidth(.5)'>scale width .5</button>"
-            + '</div>'
-            + '<p>Case Set: ' + params.case_set_str + '</p></div>'
-            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered)
-                + ') of cases</p></div>');
+        $("#oncoprint_header").append(
+            '<p>Case Set: ' + params.case_set_str + '</p></div>'
+            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
+                + ' of cases</p></div>');
 
         x.domain(samples_all);
 

@@ -30,13 +30,13 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var LABEL_PADDING = (function() {
-        var avg_char_width = 23;
+        var avg_char_width = 5;
 
         var list_char_no = genes_list.map(function(i) {
             return i.split("").length;
         });
 
-        return d3.max(list_char_no) * avg_char_width;
+        return 100 + d3.max(list_char_no) * avg_char_width;
     })();
 
     // global state of the oncoprint

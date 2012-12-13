@@ -134,7 +134,7 @@ var Oncoprint = function(wrapper, params) {
         });
 
         var sample = track.selectAll('.sample')
-            .data(join_with_hugo, function(d) { return d;});
+            .data(join_with_hugo, function(d) { return d.sample;});
 
         // enter
         var sample_enter = sample.enter().append('g')
@@ -435,6 +435,19 @@ var Oncoprint = function(wrapper, params) {
             transition();
         });
     };
+
+
+    // controls
+
+//    var only_show_altered = $('<button>',
+//        {
+//            text: "Only Show Altered",
+//            onclick: oncoprint.toggleUnaltered()
+//        });
+//
+//    $('#oncoprint_controls').append(only_show_altered)
+
+
 
     return that;
 };

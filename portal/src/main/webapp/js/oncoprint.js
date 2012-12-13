@@ -225,8 +225,10 @@ var Oncoprint = function(wrapper, params) {
     that.draw = function() {
 
         svg = d3.select(wrapper).append('svg')
+//        svg = d3.select(wrapper).insert('svg', ":first-child")
             .attr('width', getWidth(samples_all.length))
             .attr('height', getHeight());
+
         that.getSvg = function() { return svg; };
 
 //        var svg_ify = $('<form>', {
@@ -281,9 +283,27 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', 0 - 5)
                 .text(gene_obj.percent_altered);
 
+
+            toggleKey();
+
             redraw(samples_all, track, hugo);
+
+
         });
     };
+
+    var toggleKey = function() {
+        var data_types = query.data_types;
+
+        $('#oncoprint_key').children().each(function(i, el) {
+            if(data_types.indexOf($(el).attr('id')) === -1) {
+                $(el).hide();
+            } else {
+                $(el).show();
+            }
+        });
+    };
+
 
     var transition = function() {
         // helper function
@@ -376,20 +396,6 @@ var Oncoprint = function(wrapper, params) {
             redraw(samples_visualized, track, gene.hugo);
             transition();
         });
-    };
-
-    that.toggleKey = function(svg) {
-
-        var data_types = query.data_types;
-
-        data_types.forEach(function(i) {
-            if (i === 'cna') {
-                d3.select(div).append('rect')
-                    .attr('class', 'cna AMPLIFIED')
-                    .attr('height', RECT_HEIGHT)
-                    .attr('width', 5.5);
-            }
-        })
     };
 
     return that;

@@ -51,7 +51,7 @@ var DataManagerFactory = (function() {
         return GENE_DATA_MANAGER;
     };
 
-    that.getGeneDataJsonUrl = function() { return 'GeneAlterations.json'; };     // json url
+    that.getGeneDataJsonUrl = function() { return 'GeneData.json'; };     // json url
 
     that.getNewDataManager = function() { return getNewDataManager(); };
 

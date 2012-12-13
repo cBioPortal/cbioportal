@@ -2,16 +2,18 @@
 <div id="oncoprint_header">
     <h4>OncoPrint</h4>
 
-    <h4 onclick='$("#oncoprint_controls").toggle();'>customize</h4>
-    <div id="oncoprint_controls" style="display:show;">
-        <button type='button' onclick='oncoprint.defaultSort()'>default sort</button>
-        <button type='button' onclick='oncoprint.memoSort()'>memo sort</button>
-        <button type='button' onclick='oncoprint.toggleWhiteSpace()'>toggle white space</button>
-        <button type='button' onclick='oncoprint.scaleWidth(3)'>scale width 3</button>
-        <button type='button' onclick='oncoprint.scaleWidth(1.5)'>scale width 1.5</button>
-        <button type='button' onclick='oncoprint.scaleWidth(1)'>scale width 1</button>
-        <button type='button' onclick='oncoprint.scaleWidth(.5)'>scale width .5</button>
-    </div>
+    <h4 style="padding-top:15px;" onclick='$("#oncoprint_controls").toggle();'>Customize</h4>
+    <table id='oncoprint_controls' style="padding-left:70px;">
+        <tr>
+            <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</td>
+            <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Unsort Cases</td>
+        </tr>
+
+        <tr>
+            <td><span>Adjust Width</span><div id="width_scroller"></div></td>
+            <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+        </tr>
+    </table>
 </div>
 <div id="oncoprint">
     <link rel="stylesheet" type="text/css" href="css/oncoprint.css">

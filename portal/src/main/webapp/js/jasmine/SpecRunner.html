@@ -16,6 +16,7 @@
   <script type="text/javascript" src="src/jquery.min.js"></script>
   <script type="text/javascript" src="src/d3.v2.min.js"></script>
   <script type="text/javascript" src="src/jquery.qtip.min.js"></script>
+  <script type="text/javascript" src="src/jquery-ui-1.8.14.custom.min.js"></script>
 
   <!-- include source files here... -->
   <!-- <script type="text/javascript" src="spec/SpecHelper.js"></script>
@@ -58,144 +59,97 @@
 
     })();
   </script>
-
 </head>
 
 <body>
+<table id='oncoprint_controls'>
+    <tr>
+        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</input></td>
+        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}';>Unsort Cases</input></td>
+    </tr>
 
-<div id='oncoprint_controls'>
-    <button onclick='oncoprint.toggleUnaltered();'>
-        Only Show Altered
-    </button>
+    <tr>
+        <td><div id="width_scroller">Width</div></td>
+        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</input></td>
+    </tr>
+</table>
+
+<div>
+    <svg width=100 height=100>
+            <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
+    </svg>
+    <span style="overflow-x:hidden; width:100px;">
+    <svg style="width:200px; height:100px">
+            <rect class="cna AMPLIFIED" width="400" height="23"></rect>
+    </svg>
+    </span>
 </div>
 
 <div id='oncoprint'>
-<script type="text/javascript">
+</div>
+  <script type="text/javascript">
 // {{{ test data
 
-var AMPLIFIED = "AMPLIFIED",
-DELETED = "HOMODELETED";
+  var AMPLIFIED = "AMPLIFIED",
+  DELETED = "HOMODELETED";
 
-var UPREGULATED = "UPREGULATED",
-DOWNREGULATED = "DOWNREGULATED";
+  var UPREGULATED = "UPREGULATED",
+  DOWNREGULATED = "DOWNREGULATED";
 
-var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
-var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
+  var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
+  var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
 
-var GENE1 = { hugo: "GENE1",
-    cna: cna1,
-    mutations: mutations1,
-    mrna: [null, null, null, null, null, null],
-    rppa: [UPREGULATED, null, DOWNREGULATED, null, null, null],
-    percent_altered: "10%"
-};
+  var GENE1 = { hugo: "GENE1",
+      cna: cna1,
+      mutations: mutations1,
+      mrna: [null, null, null, null, null, null],
+      rppa: [UPREGULATED, null, DOWNREGULATED, null, null, null],
+      percent_altered: "10%"
+  };
 
-var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
-var mutations2  = [null, null, null, ['a'], null, null];
+  var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
+  var mutations2  = [null, null, null, ['a'], null, null];
 
-var GENE2 = { hugo: "MARCH8",
-    cna: cna2,
-    mutations: mutations2,
-    mrna: [UPREGULATED, null, DOWNREGULATED, null, null, null],
-    rppa: [null, DOWNREGULATED, null, UPREGULATED, null, null],
-    percent_altered: "10%"
-};
-
-
-var hugo_to_gene_index = {
-    "GENE1": 0,
-    "MARCH8": 1
-};
-
-var samples = { "CASE1": 0,
-    "CASE2": 1,
-    "CASE3": 2,
-    "CASE4": 3,
-    "CASE5": 4,
-    "CASE6": 5
-};
-
-var data = {
-    gene_data: [GENE1, GENE2],
-    hugo_to_gene_index: hugo_to_gene_index,
-    samples: samples
-};
-
-var params = {
-    data: data,
-    cancer_study_id: "tcga-test",
-    case_set_str: "case set description",
-    num_cases_affected: "-1",
-    percent_cases_affected: "-1%"
-};
-// }}}
-var oncoprint = Oncoprint($('#oncoprint')[0], params);
-oncoprint.draw();
-</script>
-</div>
-
-<div style='width: 200px; overflow-x:auto; overflow-y:hidden;'>
-    <svg width=1050 height=100>
-        <g transform="translate(100, 20)">
-            <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
-            <rect y="7.66" class="mutation mut " width="5.5" height="7.66"></rect>
-            <path d = "M 0 7 l 2.75 -7 l 2.75 7 l 0 0"
-            fill = "black"/>
-            <path d = "M 0 16 l 2.75 7 l 2.75 -7 l 0 0"
-            fill = "black"/>
-        </g>
-        <g transform="translate(100, 60)">
-            <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
-            <rect y="7.66" class="mutation mut " width="5.5" height="7.66"></rect>
-            <path d = "M 0 7 l 2.75 -7 l 2.75 7 l 0 0"
-            fill = "black"/>
-            <path d = "M 0 16 l 2.75 7 l 2.75 -7 l 0 0"
-            fill = "black"/>
-        </g>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna AMPLIFIED" width="5.5" height="23"></rect>
-        <text x=10 y=17>Amplification</text>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna HOMODELETED" width="5.5" height="23"></rect>
-        <text x=10 y=17>Homozygous deletion</text>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna none" width="5.5" height="23"></rect><rect class="mrna UPREGULATED" width="5.5" height="23"></rect>
-        <text x=10 y=17>MRNA Upregulated</text>
-    </svg>
-
-    <svg width=200 height=25 id="oncoprint_key">
-        <rect class="cna none" width="5.5" height="23"></rect><rect class="mrna DOWNREGULATED" width="5.5" height="23"></rect>
-        <text x=10 y=17>MRNA Downregulated</text>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna none" width="5.5" height="23"></rect><path class="rppa" d="M 0 7.666666666666667 l 2.75 -7.666666666666667 l 2.75 7.666666666666667 l 0 0"></path>
-        <text x=10 y=17>RPPA Upregulated</text>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna none" width="5.5" height="23"></rect><path class="rppa" d="M 0 15 l 2.75 7.666666666666667 l 2.75 -7.666666666666667 l 0 0"></path>
-        <text x=10 y=17>RPPA Upregulated</text>
-    </svg>
-
-    <svg width=150 height=25 id="oncoprint_key">
-        <rect class="cna none" width="5.5" height="23"></rect><rect class="mutation mut" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
-        <text x=10 y=17>Mutation</text>
-    </svg>
+  var GENE2 = { hugo: "MARCH8",
+      cna: cna2,
+      mutations: mutations2,
+      mrna: [UPREGULATED, null, DOWNREGULATED, null, null, null],
+      rppa: [null, DOWNREGULATED, null, UPREGULATED, null, null],
+      percent_altered: "10%"
+  };
 
 
-          <!--<rect x="50" y="20" width="5.5" height="23" style="fill:none; stroke:red;stroke-width:3;stroke-opacity:0.5" />
+  var hugo_to_gene_index = {
+      "GENE1": 0,
+      "MARCH8": 1
+  };
 
-          <rect x="50" y="20" class="cna AMPLIFIED" width="5.5" height="23"></rect>
+  var samples = { "CASE1": 0,
+      "CASE2": 1,
+      "CASE3": 2,
+      "CASE4": 3,
+      "CASE5": 4,
+      "CASE6": 5
+  };
 
-          <rect x="60" y="20" class="mrna AMPLIFIED" width="5.5" height="23"></rect>
-          <rect x="70" y="20" class="mrna DELETED" width="5.5" height="23"></rect>-->
+  var data = {
+      gene_data: [GENE1, GENE2],
+      hugo_to_gene_index: hugo_to_gene_index,
+      samples: samples
+  };
+
+  var params = {
+      data: data,
+      cancer_study_id: "tcga-test",
+      case_set_str: "case set description",
+      num_cases_affected: "-1",
+      percent_cases_affected: "-1%"
+  };
+  // }}}
+  var oncoprint = Oncoprint($('#oncoprint')[0], params);
+  oncoprint.draw();
+  </script>
+
 </div>
 
 <div id='play'>

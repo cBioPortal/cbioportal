@@ -6,7 +6,6 @@ var Oncoprint = function(wrapper, params) {
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
 //    var LABEL_PADDING = 130;
 
-
     var UPREGULATED = "UPREGULATED";
     var DOWNREGULATED = "DOWNREGULATED";
 
@@ -100,7 +99,8 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var getWidth = function(no_samples) {
-        return getXScale(no_samples) + LABEL_PADDING + (2 * (getRectWidth() + getRectPadding()));
+//        return getXScale(no_samples) + LABEL_PADDING + (2 * (getRectWidth() + getRectPadding()));
+        return getXScale(no_samples) + (2 * (getRectWidth() + getRectPadding()));
     };
 
     var getHeight = function() {
@@ -112,11 +112,6 @@ var Oncoprint = function(wrapper, params) {
 
     var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
-
-    d3.select(wrapper)
-        .style('width', '1300px')
-        .style('overflow-x', 'auto')
-        .style('overflow-y', 'hidden');
 
     // functions that echo
     that.wrapper = wrapper;
@@ -220,43 +215,21 @@ var Oncoprint = function(wrapper, params) {
             .remove();
     };
 
-    /*
-     * For the given oncoprint reference, returns the SVG Dom as string
-     * for the body canvas.
-     *
-     * oncoprint - opaque reference to oncoprint system
-     *
-     */
-//    var svg;
-//    function GetOncoPrintBodyXML(svg) {
-//
-//        // outta here
-//        return (new XMLSerializer()).serializeToString(svg);
-//    }
-//
-//    var doXml = function() {
-//        console.log(this);
-////        this.elements['xml'].value=GetOncoPrintBodyXML(svg);
-//        return true;
-//    };
+    var onco_print_wrap = d3.select(wrapper).append('div')
+        .style('width', (1200 - LABEL_PADDING - 10) + 'px')
+        .style('display', 'inline-block')
+        .style('overflow-x', 'auto')
+        .style('overflow-y', 'hidden');
+
+    var svg = onco_print_wrap.append('svg')
+        .attr('width', getWidth(samples_all.length))
+        .attr('height', getHeight());
+//        svg = d3.select(wrapper).insert('svg', ":first-child")
+
 
     that.draw = function() {
 
-        svg = d3.select(wrapper).append('svg')
-//        svg = d3.select(wrapper).insert('svg', ":first-child")
-            .attr('width', getWidth(samples_all.length))
-            .attr('height', getHeight());
-
         that.getSvg = function() { return svg; };
-
-//        var svg_ify = $('<form>', {
-//            action: "oncoprint_converter.svg",
-//            enctype: "multipart/form-data",
-//            method: "POST",
-//            onsubmit: doXml,
-//            target: "blank"
-//        }).append("<span>Get OncoPrint</span><input type=\"submit\" value=\"SVG\"/>");
-//        $(wrapper).append(svg_ify);
 
         $("#oncoprint_header").append(
             '<p>Case Set: ' + params.case_set_str + '</p></div>'
@@ -264,6 +237,10 @@ var Oncoprint = function(wrapper, params) {
                 + ' of cases</p></div>');
 
         x.domain(samples_all);
+
+        var label_svg = d3.select(wrapper).insert('svg', ':first-child')
+            .attr('width', LABEL_PADDING + 10)
+            .attr('height', getHeight());
 
         gene_data.forEach(function(gene_obj) {
 
@@ -273,13 +250,14 @@ var Oncoprint = function(wrapper, params) {
             // N.B. there is no data bound to g,
             // is this bad form?
             var track = svg.append('g')
-                .attr('transform', translate(LABEL_PADDING, 0))
+//                .attr('transform', translate(LABEL_PADDING, 0))
                 .attr('class', 'track');
 
-            var label = track.append('text')
+            var label = label_svg.append('text')
                 .attr('position', 'static')
                 .attr('left', 0)
-                .attr('x', -LABEL_PADDING)
+//                .attr('x', -LABEL_PADDING)
+                .attr('x', 0)
                 .attr('y', y(hugo) + .75 * RECT_HEIGHT);
 
             label.append('tspan')
@@ -288,12 +266,16 @@ var Oncoprint = function(wrapper, params) {
 
             label.append('tspan')
                 .attr('text-anchor', 'end')
-                .attr('x', 0 - 5)
+                .attr('x', LABEL_PADDING)
                 .text(gene_obj.percent_altered);
 
             toggleKey();
 
-            redraw(samples_all, track, hugo);
+            //todo: why doesn't this work?
+            var samples_copy = samples_all.map(function(i) { return i;});
+            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+
+            redraw(samples_copy, track, hugo);
         });
 
         // begin qtip
@@ -326,6 +308,21 @@ var Oncoprint = function(wrapper, params) {
             });
         });
         // end qtip
+
+        // begin width scroller
+        $('<div>', { id: "width_slider", width: "100", display:"inline"})
+            .slider({
+                text: "Adjust Width",
+                min: .1,
+                max: 1,
+                step: .01,
+                value: 1,
+                change: function(event, ui) {
+//                    console.log(ui.value);
+                    oncoprint.scaleWidth(ui.value);
+                }
+            }).appendTo($('#oncoprint_controls #width_scroller'));
+        // end width scroller
     };
 
     var toggleKey = function() {

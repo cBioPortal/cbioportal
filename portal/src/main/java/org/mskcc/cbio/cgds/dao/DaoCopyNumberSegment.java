@@ -155,7 +155,7 @@ public final class DaoCopyNumberSegment {
      * @return true if segment data exist for the cancer study
      * @throws DaoException 
      */
-    public static boolean segmentDataExist(int cancerStudyId) throws DaoException {
+    public static boolean segmentDataExistForCancerStudy(int cancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -165,6 +165,36 @@ public final class DaoCopyNumberSegment {
             sql = "SELECT  1"
                 + " FROM `copy_number_seg`"
                 + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
+                + " LIMIT 1";
+            
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    /**
+     * 
+     * @param cancerStudyId
+     * @param caseId
+     * @return true if segment data exist for the case
+     * @throws DaoException 
+     */
+    public static boolean segmentDataExistForCase(int cancerStudyId, String caseId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sql = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            sql = "SELECT  1"
+                + " FROM `copy_number_seg`"
+                + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
+                + " AND `CASE_ID`='"+caseId+"'"
                 + " LIMIT 1";
             
             pstmt = con.prepareStatement(sql);

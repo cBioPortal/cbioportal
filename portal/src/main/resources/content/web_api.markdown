@@ -166,7 +166,7 @@ Retrieves genomic profile data for one or more genes.
 You can either:
 
 * [Specify multiple genes and a single genetic profile ID.](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=BRCA1+BRCA2+TP53)
-* [Specify a single gene and multiple genetic profile IDs.](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_cna_consensus,gbm_tcga_cna_rae&gene_list=EGFR)
+* [Specify a single gene and multiple genetic profile IDs.](webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_log2CNA,gbm_tcga_gistic&gene_list=EGFR)
 
 #### Response Format 1
 
@@ -288,7 +288,6 @@ Retrieves protein and/or phosphoprotein levels measured by reverse-phase protein
 ### Query Format
 * **cmd**=getProteinArrayData (required)
 * **case_set_id**= [case set ID] (required)
-* **protein_array_id**= [one or more protein array IDs]. Multiple protein array IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +
 * **array_info**= [1 or 0]. If 1, antibody information will also be exported. 
 
 #### Response Format 1
@@ -311,7 +310,6 @@ If the parameter of array_info is 1, you will receive a tab-delimited matrix wit
 ### Example
 
 * [Get All RPPA Data in TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA)
-* [Get RPPA data in TCGA Colorectal Cases for Specific Antibodies.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&protein_array_id=GBL9017366+GBL9017365)
 * [Get All RPPA Data with antibody information in TCGA Colorectal Cases.](webservice.do?cmd=getProteinArrayData&case_set_id=coadread_tcga_RPPA&array_info=1)
 
 # Linking to Us

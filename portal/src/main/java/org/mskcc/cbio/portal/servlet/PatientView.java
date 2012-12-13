@@ -5,9 +5,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,6 +42,7 @@ public class PatientView extends HttpServlet {
     public static final String OTHER_STUDIES_WITH_SAME_PATIENT_ID = "other_studies_with_same_patient_id";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
+    public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
@@ -49,6 +53,7 @@ public class PatientView extends HttpServlet {
     public static final String PATIENT_STATUS = "patient_status";
     public static final String CLINICAL_DATA = "clinical_data";
     public static final String TISSUE_IMAGES = "tissue_images";
+    public static final String PATH_REPORT_URL = "path_report_url";
     private ServletXssUtil servletXssUtil;
     
     private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
@@ -116,6 +121,8 @@ public class PatientView extends HttpServlet {
         String caseId = (String) request.getAttribute(PATIENT_ID);
         String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
         
+        request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE); // by default; in case return false;
+        
         Case _case = null;
         CancerStudy cancerStudy = null;
         if (cancerStudyId==null) {
@@ -134,9 +141,10 @@ public class PatientView extends HttpServlet {
                     for (int i=1; i<nCases; i++) {
                         CancerStudy otherStudy = DaoCancerStudy.getCancerStudyByInternalId(cases.get(i)
                                 .getCancerStudyId());
-                        sb.append(" ").append(SkinUtil.getLinkToPatientView(caseId, otherStudy.getCancerStudyStableId())).append(",");
+                        sb.append(" <a href='").append(SkinUtil.getLinkToPatientView(caseId, otherStudy.getCancerStudyStableId()))
+                                .append("'>").append(otherStudy.getName()).append("</a>,");
                     }
-                    sb.deleteCharAt(sb.charAt(sb.length()-1));
+                    sb.deleteCharAt(sb.length()-1);
                     request.setAttribute(OTHER_STUDIES_WITH_SAME_PATIENT_ID, sb.toString());
                 }
             }
@@ -165,6 +173,9 @@ public class PatientView extends HttpServlet {
         
         request.setAttribute(PATIENT_CASE_OBJ, _case);
         request.setAttribute(CANCER_STUDY, cancerStudy);
+        
+        request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
+                .segmentDataExistForCase(cancerStudy.getInternalId(), caseId));
         return true;
     }
     
@@ -261,7 +272,7 @@ public class PatientView extends HttpServlet {
         
         String stage = guessClinicalData(clinicalFreeForms, 
                 new String[]{"tumor_stage","2009stagegroup","TUMORSTAGE"});
-        if (stage!=null) {
+        if (stage!=null && !stage.equalsIgnoreCase("unknown")) {
             diseaseInfo.append(", ").append(stage); 
         }
         
@@ -338,6 +349,15 @@ public class PatientView extends HttpServlet {
         List<String> tisImages = getTissueImages(cancerStudy.getCancerStudyStableId(), patient);
         if (tisImages!=null) {
             request.setAttribute(TISSUE_IMAGES, tisImages);
+        }
+        
+        // path report
+        String typeOfCancer = cancerStudy.getTypeOfCancerId();
+        if (cancerStudy.getCancerStudyStableId().contains(typeOfCancer+"_tcga")) {
+            String pathReport = getTCGAPathReport(typeOfCancer, patient);
+            if (pathReport!=null) {
+                request.setAttribute(PATH_REPORT_URL, pathReport);
+            }
         }
     }
     
@@ -457,6 +477,81 @@ public class PatientView extends HttpServlet {
         }
         
         return map.get(caseId);
+    }
+    
+    // Map<TypeOfCancer, Map<CaseId, List<ImageName>>>
+    private static Map<String,Map<String,String>> pathologyReports
+            = new HashMap<String,Map<String,String>>();
+    static final Pattern tcgaPathReportDirLinePattern = Pattern.compile("<a href=[^>]+>([^/]+/)</a>");
+    static final Pattern tcgaPathReportPdfLinePattern = Pattern.compile("<a href=[^>]+>([^/]+\\.pdf)</a>");
+    static final Pattern tcgaPathReportPattern = Pattern.compile("^(TCGA-..-....).+");
+    private synchronized String getTCGAPathReport(String typeOfCancer, String caseId) {
+        Map<String,String> map = pathologyReports.get(typeOfCancer);
+        if (map==null) {
+            map = new HashMap<String,String>();
+            pathologyReports.put(typeOfCancer, map);
+            
+            String pathReportUrl = SkinUtil.getTCGAPathReportUrl(typeOfCancer);
+            if (pathReportUrl!=null) {
+                List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
+                for (String dir : pathReportDirs) {
+                    String url = pathReportUrl+dir;
+                    List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
+                    for (String report : pathReports) {
+                        Matcher m = tcgaPathReportPattern.matcher(report);
+                        if (m.find()) {
+                            if (m.groupCount()>0) {
+                                String exist = map.put(m.group(1), url+report);
+                                if (exist!=null) {
+                                    String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
+                                            + exist + "\n\t" + url+report;
+                                    System.err.println(url);
+                                    logger.error(msg);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        
+        return map.get(caseId);
+    }
+    
+    private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
+        MultiThreadedHttpConnectionManager connectionManager =
+                ConnectionManager.getConnectionManager();
+        HttpClient client = new HttpClient(connectionManager);
+        GetMethod method = new GetMethod(reportsUrl);
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode == HttpStatus.SC_OK) {
+                BufferedReader bufReader = new BufferedReader(
+                        new InputStreamReader(method.getResponseBodyAsStream()));
+                List<String> dirs = new ArrayList<String>();
+                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
+                    Matcher m = p.matcher(line);
+                    if (m.find()) {
+                        if (m.groupCount()>0) {
+                            dirs.add(m.group(1));
+                        }
+                    }
+                }
+                return dirs;
+            } else {
+                //  Otherwise, throw HTTP Exception Object
+                logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                        + " Base URL:  " + reportsUrl);
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        } finally {
+            //  Must release connection back to Apache Commons Connection Pool
+            method.releaseConnection();
+        }
+        
+        return Collections.emptyList();
     }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

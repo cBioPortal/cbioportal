@@ -226,6 +226,8 @@ public class MakeOncoPrint {
 		// include some javascript libs
 		out.append("<script type=\"text/javascript\" src=\"js/raphael/raphael.js\"></script>\n");
 		out.append("<script type=\"text/javascript\" src=\"js/raphaeljs-oncoprint.js\"></script>\n");
+		out.append("<script type=\"text/javascript\" src=\"js/jquery.qtip.min.js\"></script>\n");
+                out.append("<link href=\"css/jquery.qtip.min.css\" rel=\"stylesheet\"/>\n");
 		if (forSummaryTab) {
 			out.append("<link href=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dijit/themes/soria/soria.css\" rel=\"stylesheet\"/>\n");
 			out.append("<script src=\"http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js\" data-dojo-config=\"parseOnLoad: true\"></script>\n");
@@ -235,8 +237,6 @@ public class MakeOncoPrint {
 		}
 
 		out.append("<script type=\"text/javascript\">\n");
-                out.append("\tvar tumormapUrl='"+SkinUtil.getTumorMapUrl()+"';\n");
-                out.append("\tvar cancerStudyId='"+cancerTypeID+"';\n");
 		// output oncoprint variables
 		out.append(writeOncoPrintHeaderVariables(sortedMatrix, dataSummary, caseSets, caseSetId, headerVariablesVarName));
 		// output longest label variable
@@ -273,7 +273,7 @@ public class MakeOncoPrint {
 
 		// on document ready, draw oncoprint header, oncoprint, oncoprint legend - comes after raphaeljs divs
 		out.append("<script type=\"text/javascript\">\n");
-		out.append(writeOncoPrintDocumentReadyJavascript(oncoprintSection, oncoprintReferenceVarName,
+		out.append(writeOncoPrintDocumentReadyJavascript(cancerTypeID, oncoprintSection, oncoprintReferenceVarName,
 														 oncoprintHeaderDivName, oncoprintBodyDivName, oncoprintLegendDivName,
 														 longestLabelVarName, headerVariablesVarName,
 														 sortedGeneticAlterationsVarName, geneticAlterationsLegendVarName,
@@ -513,7 +513,7 @@ public class MakeOncoPrint {
 	 *
 	 * @return String
 	 */
-	static String writeOncoPrintDocumentReadyJavascript(String oncoprintSectionVarName,
+	static String writeOncoPrintDocumentReadyJavascript(String cancerTypeID, String oncoprintSectionVarName,
 														String oncoprintReferenceVarName,
 														String headerElement,
 														String bodyElement,
@@ -562,7 +562,7 @@ public class MakeOncoPrint {
 			// draw oncoprint
 			builder.append("\t\tDrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 						   longestLabelVarName + ".get('" + longestLabelVarName + "'), " + 
-						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'));\n");
+						   geneticAlterationsVarName  + ".get('" + geneticAlterationsVarName + "'),'"+cancerTypeID+"');\n");
 
 			// draw legend
 			builder.append("\t\tDrawOncoPrintLegend(" + oncoprintReferenceVarName + ", " +
@@ -715,11 +715,11 @@ public class MakeOncoPrint {
 					   "if (document.getElementById('" + oncoprintUnsortSamplesCheckboxName + "').checked) { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} else { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "} " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
@@ -743,7 +743,7 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} else { " +
@@ -751,7 +751,7 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} " +
@@ -784,14 +784,14 @@ public class MakeOncoPrint {
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "')); " +
+					   unsortedGeneticAlterationsVarName  + ".get('" + unsortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "} else { " +
 					   "setTimeout(function() { " +
 					   "DrawOncoPrintBody(" + oncoprintReferenceVarName + ", " +
 					   longestLabelVarName + ".get('" + longestLabelVarName + "'), " +
-					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "')); " +
+					   sortedGeneticAlterationsVarName  + ".get('" + sortedGeneticAlterationsVarName + "'),'"+cancerTypeID+"'); " +
 					   "ScalarIndicator($spinner, false); " +
 					   "}, timerDelay); " +
 					   "}" +

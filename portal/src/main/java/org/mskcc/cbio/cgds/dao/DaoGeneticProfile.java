@@ -222,7 +222,7 @@ public final class DaoGeneticProfile {
     public static ArrayList<GeneticProfile> getAllGeneticProfiles(int cancerStudyId) {
         List<GeneticProfile> list = byStudy.get(cancerStudyId);
         if (list==null) {
-            Collections.emptyList();
+            return new ArrayList<GeneticProfile>();
         }
         
         // TODO: refactor the code to use List

@@ -32,16 +32,24 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <script type="text/javascript">
-// redirect to tumormap landing page
-if (document.referrer.indexOf('tumormap')==-1
-    &&window.location.pathname.toLowerCase().indexOf('tumormap')>=0) {
-    window.location.replace("index.tumormap");
-}
     
 $(document).ready(function(){
     $('#td-content').width("70%");
+    if ($.browser.msie) {
+        var version = $.browser.version;
+        version = /^([0-9]+)/.exec(version);
+        if (version && version.length && parseInt(version[0])<=8) {
+            $('#ie8-warning').show();
+        }
+    }
 });
 </script>
+
+<p id="ie8-warning" style="background-color:red;display:none;">
+    <img src="images/warning.gif"/>
+    You are using an old version of Internet Explorer. For better performance, we recommend
+    using <b>Google Chrome, Firefox, Safari, or Internet Explorer V9 or above to visit this web site.</b>.
+</p>
 
     <table cellspacing="2px">
         <tr>

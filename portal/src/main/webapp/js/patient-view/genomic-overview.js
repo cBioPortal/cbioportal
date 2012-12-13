@@ -212,7 +212,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
     
     var label = genomeMeasured==0 ? 'N/A' : (100*genomeAltered/genomeMeasured).toFixed(1)+'%';
     var tip = genomeMeasured==0 ? 'Copy number segment data not available' : 
-                ("Percentage of copy-number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions.");
+                ("Percentage of copy number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions.");
     
     var t = p.text(config.xRightText(),yRow+config.rowHeight/2,label).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);

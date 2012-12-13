@@ -27,65 +27,31 @@
 
 package org.mskcc.cbio.oncotator;
 
-import org.mskcc.cbio.dbcache.DatabaseUtil;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
- * DAO for oncotator json cache.
+ * Basic Oncotator Service implementaion with no cache or database.
  *
  * @author Selcuk Onur Sumer
  */
-public class DaoJsonCache implements OncotatorCacheService
+public class BasicOncotatorService extends OncotatorService
 {
-	public int put(OncotatorRecord record) throws SQLException
+	/**
+	 * Retrieves the data from the Oncotator service for the given query key.
+	 *
+	 * @param key   key for the service query
+	 * @return      oncotator record containing the query result
+	 */
+	public OncotatorRecord getOncotatorRecord(String key) throws Exception
 	{
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		// get record directly from the oncotator web service
+		OncotatorRecord record = this.getRecordFromService(key);
 
-		try {
-			con = DatabaseUtil.getDbConnection();
-			pstmt = con.prepareStatement
-					("INSERT INTO onco_json_cache (`CACHE_KEY`, `RAW_JSON`)" +
-					 " VALUES (?,?)");
-			pstmt.setString(1, record.getKey());
-			pstmt.setString(2, record.getRawJson());
-			int rows = pstmt.executeUpdate();
-			return rows;
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.closeAll(con, pstmt, rs);
+		// if record is null, then there is an error with JSON parsing
+		if (record == null)
+		{
+			record = new OncotatorRecord(key);
+			this.errorCount++;
 		}
-	}
 
-
-	public OncotatorRecord get(String key) throws SQLException
-	{
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try {
-			con = DatabaseUtil.getDbConnection();
-			pstmt = con.prepareStatement
-					("SELECT * FROM onco_json_cache WHERE CACHE_KEY = ?");
-			pstmt.setString(1, key);
-			rs = pstmt.executeQuery();
-			if (rs.next()) {
-				OncotatorRecord record = new OncotatorRecord(rs.getString("CACHE_KEY"));
-				record.setRawJson(rs.getString("RAW_JSON"));
-				return record;
-			} else {
-				return null;
-			}
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.closeAll(con, pstmt, rs);
-		}
+		return record;
 	}
 }

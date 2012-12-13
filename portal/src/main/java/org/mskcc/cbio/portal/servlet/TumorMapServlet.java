@@ -81,7 +81,7 @@ public class TumorMapServlet extends HttpServlet {
     
     private void processRequestDefault(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute(QueryBuilder.HTML_TITLE, SkinUtil.getTumorMapTitle());
+        request.setAttribute(QueryBuilder.HTML_TITLE, SkinUtil.getTitle());
         
         RequestDispatcher dispatcher =
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/tumormap.jsp");

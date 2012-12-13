@@ -97,6 +97,16 @@ public interface FileUtils {
 	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
 
 	/**
+	 * Creates (or overwrites) the given file with the given contents.
+	 *
+	 * @param directory String
+	 * @param filename String
+	 * @param fileContent String
+	 * @return File
+	 */
+	File createFileWithContents(final String directory, final String filename, final String fileContent) throws Exception;
+
+	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
 	 * @param urlString String

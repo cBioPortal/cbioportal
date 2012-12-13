@@ -36,7 +36,6 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
  */
 public class SkinUtil {
     public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
-    public static final String DEFAULT_TUMORMAP_TITLE = "cBio Tumor Map";
     public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";
@@ -65,20 +64,6 @@ public class SkinUtil {
         String skinTitle = config.getProperty("skin.title");
         if (skinTitle == null) {
             return DEFAULT_TITLE;
-        } else {
-            return skinTitle;
-        }
-    }
-    
-    /**
-     * Gets the TumorMap Site Title.
-     * @return site title.
-     */
-    public static String getTumorMapTitle() {
-        Config config = Config.getInstance();
-        String skinTitle = config.getProperty("skin.tumormap_title");
-        if (skinTitle == null) {
-            return DEFAULT_TUMORMAP_TITLE;
         } else {
             return skinTitle;
         }
@@ -259,25 +244,13 @@ public class SkinUtil {
         return config.getProperty("skin.data_sets_footer");
     }
     
-    public static String getCbioPortalUrl() {
-        Config config = Config.getInstance();
-        String url = config.getProperty("cbioportal.url");
-        return url==null?"":url;
-    }
-    
-    public static String getTumorMapUrl() {
-        Config config = Config.getInstance();
-        String url = config.getProperty("tumormap.url");
-        return url==null?"":url;
-    }
-    
     public static String getLinkToPatientView(String caseId, String cancerStudyId) {
-        return getTumorMapUrl()+"tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+        return "tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
                 + "=" + caseId + "&" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId;
     }
     
     public static String getLinkToCancerStudyView(String cancerStudyId) {
-        return getTumorMapUrl()+"study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
+        return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
                 + "=" + cancerStudyId;
     }
     
@@ -285,5 +258,14 @@ public class SkinUtil {
         Config config = Config.getInstance();
         String url = config.getProperty("tumor_image.url");
         return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
+    }
+    
+    public static String getTCGAPathReportUrl(String typeOfCancer) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("tcga_path_report.url");
+        if (url==null) {
+            return null;
+        }
+        return url.replace("{cancer.type}", typeOfCancer);
     }
 }

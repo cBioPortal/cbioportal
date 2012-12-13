@@ -10,6 +10,7 @@
 <%@ page import="org.json.simple.JSONValue" %>
 
 <%
+request.setAttribute("tumormap", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -200,8 +201,8 @@ function getRefererCaseId() {
     return match ? match[1] : null;
 }
 
-function formatPatientLink(caseId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do?case_id='+caseId+'">'+caseId+'&cancer_study_id='+cancerStudyId+'</a>'
+function formatPatientLink(caseId,cancerStudyId) {
+    return caseId==null?"":'<a title="Go to patient-centric view" href="tumormap.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
 }
 
 </script>

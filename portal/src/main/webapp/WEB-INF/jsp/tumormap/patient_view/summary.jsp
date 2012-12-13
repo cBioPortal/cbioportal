@@ -45,11 +45,16 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <script type="text/javascript">
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
+        if (<%=noData%>) {
+            $('div#summary').html("No mutation or copy number profile data is available for this tumor.");
+            return;
+        }
+        
         $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
-        if (!genomicEventObs.hasMut||!genomicEventObs.hasCna) $('#mut-cna-scatter').hide();
+        if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
         if (showGenomicOverview) initGenomicsOverview();
-        if (genomicEventObs.hasMut&&genomicEventObs.hasCna) {
+        if (genomicEventObs.hasMut&&genomicEventObs.hasSeg) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
@@ -58,17 +63,17 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasCna?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasCna?150:50));
+        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         if (genomicEventObs.hasMut) {
             genomicEventObs.subscribeMut(function(){
-                plotMuts(paper,config,chmInfo,genomicEventObs.hasCna?1:0,genomicEventObs.mutations);
+                plotMuts(paper,config,chmInfo,genomicEventObs.hasSeg?1:0,genomicEventObs.mutations);
             });
         }
         
-        if (genomicEventObs.hasCna) {
+        if (genomicEventObs.hasSeg) {
             plotCopyNumberOverview(paper,config,chmInfo,genomicEventObs.hasMut);
         }
     }
@@ -120,7 +125,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
                 scatterPlotMutVsCna(dt,false,vLog,scatterPlotDiv,caseIdDiv);
 
-                $('#mut-cna-config').show();
+                $('.mut-cna-config').show();
 
                 $(".mut-cna-axis-log").change(function() {
                     var hLog = $('#mut-cna-haxis-log').is(":checked");
@@ -149,13 +154,15 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
-        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,dt,caseId,2,1,null,hLog,vLog);
+        var emId = {};
+        emId[caseId] = true;
+        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,cancerStudyId,dt,emId,2,1,null,hLog,vLog);
         google.visualization.events.addListener(scatter, 'select', function(e){
             var s = scatter.getSelection();
             if (s.length>1) return;
             if (caseIdDiv) {
                 var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
-                $('#case-id-div').html(formatPatientLink(caseId));
+                $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
             }
         });
     }
@@ -177,7 +184,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
 <div id="mut_cna_scatter_dialog" title="Mutation VS Copy Number Alteration" style="display:none; width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
     <%@ include file="../cancer_study_view/mut_cna_scatter_plot.jsp" %>
-    <p id='mut_cna_more_plot_msg'><sup>*</sup>One dot in this plot represents a case/patient in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
+    <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>
 <%}%>
 

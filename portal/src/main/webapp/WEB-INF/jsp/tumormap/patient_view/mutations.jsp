@@ -29,7 +29,7 @@
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI GenBank</a>";
+                                    +entrez+"\">NCBI Gene</a>";
                                 var sanger = mutations.getValue(source[0], 'sanger');
                                 if (sanger) {
                                     tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
@@ -56,8 +56,8 @@
                                     aa = aa.substring(2);
                                 var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
-                                    ret += "&nbsp;<span style='background-color:red;' class='"
-                                            +table_id+"-tip' alt='Germline mutation'>G</span>"
+                                    ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
+                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>"
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], 'aa');
@@ -199,6 +199,7 @@
                     },
                     {// cosmic
                         "aTargets": [ mutTableIndices["cosmic"] ],
+                        "sClass": "right-align-td",
                         "asSorting": ["desc", "asc"],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -217,9 +218,8 @@
                                 var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
                                     +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
-                                var width = Math.ceil(10*Math.min(4,Math.log(n)*Math.LOG10E));
-                                return  "<div class='mutation_percent_div "+table_id
-                                                +"-cosmic-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
+                                return  "<span class='"+table_id
+                                                +"-cosmic-tip' alt='"+tip+"'>"+n+"</span>";
                             } else if (type==='sort') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
                                 var n = 0;
@@ -419,17 +419,33 @@
                 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pil>>', 25, "No mutation events of interest");
-                $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;' title='Show more mutations of this patient'>Show all "
-                    +genomicEventObs.mutations.getNumEvents(false)+" mutations</a>");
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest");
+                var numFiltered = genomicEventObs.mutations.getNumEvents(true);
+                var numAll = genomicEventObs.mutations.getNumEvents(false);
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                      title='Show more mutations of this patient'>Show all "
+                        +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
                 $('.mutation-summary-table-name').html(
-                    "Mutations of interest <img class='mutations_help' src='images/help.png' \n\
-                        title='This table contains genes that are either \n\
-                        annotated cancer genes\n\
-                        or recurrently mutated (MutSig Q < 0.05; if MutSig results are not available,\n\
-                        mutated in > 5% of samples in the study) \n\
-                        or with > 5 COSMIC overlapping mutations.'/>");
+                    "Mutations of interest"
+                     +(numAll==0?"":(" ("
+                        +numFiltered
+                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                         title='Show more mutations of this patient'>"
+                        +numAll
+                        +"</a>)"))
+                     +" <img id='mutations-summary-help' src='images/help.png' \n\
+                        title='This table contains somatic mutations in genes that are \n\
+                        <ul><li>either annotated cancer genes</li>\n\
+                        <li>or recurrently mutated, namely\n\
+                            <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
+                            <li>otherwise, mutated in > 5% of samples in the study</li></ul> </li>\n\
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                $('#mutations-summary-help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    position: { my:'top center',at:'bottom center' }
+                });
                 $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
@@ -442,10 +458,6 @@
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
-
-                // help
-                $('.mutations_help').tipTip();
-                
             }
             ,"json"
         );

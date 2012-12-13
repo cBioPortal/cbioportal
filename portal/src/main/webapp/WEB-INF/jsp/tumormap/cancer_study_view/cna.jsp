@@ -96,7 +96,7 @@
                                    if (type==='display') {
                                         var linkedGenes = [];
                                         for (var i=0; i<genes.length; i++) {
-                                            linkedGenes.push('<a href="<%=SkinUtil.getCbioPortalUrl()%>index.do?Action=Submit&genetic_profile_ids='
+                                            linkedGenes.push('<a href="index.do?Action=Submit&genetic_profile_ids='
                                                 +mutationProfileId+'&case_set_id='+cancerStudyId+'_all&cancer_study_id='+cancerStudyId
                                                 +'&gene_list='+genes[i]+'&tab_index=tab_visualize&#mutation_details">'+genes[i]+'</a>');
                                         }

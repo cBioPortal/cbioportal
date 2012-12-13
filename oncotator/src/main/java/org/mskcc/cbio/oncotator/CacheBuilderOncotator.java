@@ -32,26 +32,27 @@ import java.io.File;
 import java.io.FileReader;
 
 /**
- * Oncotate Tool altered to build JSON cache for existing oncotator key values.
+ * Oncotator altered to build JSON cache for existing oncotator key values.
+ *
+ * @author Selcuk Onur Sumer
  */
-public class CacheBuilderOncoTool extends Oncotator
+public class CacheBuilderOncotator extends Oncotator
 {
 	/**
 	 * Default constructor with the default oncotator service.
 	 */
-	public CacheBuilderOncoTool()
+	public CacheBuilderOncotator()
 	{
 		super();
 		OncotatorCacheService cacheService = new DaoJsonCache();
-		this.oncotatorService = new OncotatorService(cacheService);
+
+		// use a cached oncotator service with a custom cache service.
+		this.oncotatorService = new CachedOncotatorService(cacheService);
 	}
 
 	protected int oncotateMaf(File inputMafFile,
 			File outputMafFile) throws Exception
 	{
-		// always use cache, this is a cache builder.
-		this.oncotatorService.setUseCache(true);
-
 		FileReader reader = new FileReader(inputMafFile);
 		BufferedReader bufReader = new BufferedReader(reader);
 

@@ -4,7 +4,8 @@ var Oncoprint = function(wrapper, params) {
     // constants
     var RECT_HEIGHT = 23;
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
-    var LABEL_PADDING = 130;
+//    var LABEL_PADDING = 130;
+
 
     var UPREGULATED = "UPREGULATED";
     var DOWNREGULATED = "DOWNREGULATED";
@@ -15,7 +16,7 @@ var Oncoprint = function(wrapper, params) {
     var genes_list = query.getGeneList();
     var gene_data = data.gene_data;
     var no_genes = gene_data.length;
-    var samples_all = query.getSampleList();
+    var samples_all = query.getSampleList()
 
     // useful functions
     var translate = function(x,y) {
@@ -27,6 +28,16 @@ var Oncoprint = function(wrapper, params) {
         // can't have '/' in DOM id
         return hugo.replace("/", "_");
     };
+
+    var LABEL_PADDING = (function() {
+        var avg_char_width = 13;
+
+        var list_char_no = genes_list.map(function(i) {
+            return i.split("").length;
+        });
+
+        return d3.max(list_char_no) * avg_char_width;
+    })();
 
     // global state of the oncoprint
     var state = {
@@ -283,17 +294,18 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', 0 - 5)
                 .text(gene_obj.percent_altered);
 
-
             toggleKey();
 
             redraw(samples_all, track, hugo);
-
 
         });
     };
 
     var toggleKey = function() {
+        // show/hide the keys for the relevant data types
         var data_types = query.data_types;
+
+        d3.select('#oncoprint_key').style('padding-left', LABEL_PADDING + "px");
 
         $('#oncoprint_key').children().each(function(i, el) {
             if(data_types.indexOf($(el).attr('id')) === -1) {
@@ -303,7 +315,6 @@ var Oncoprint = function(wrapper, params) {
             }
         });
     };
-
 
     var transition = function() {
         // helper function

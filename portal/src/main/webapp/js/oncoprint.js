@@ -126,21 +126,28 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var redraw = function(samples_visualized, track, hugo) {
+        var join_with_hugo = samples_visualized.map(function(i) {
+            return {
+                sample: i,
+                hugo: hugo
+            };
+        });
+
         var sample = track.selectAll('.sample')
-            .data(samples_visualized, function(d) { return d;});
+            .data(join_with_hugo, function(d) { return d;});
 
         // enter
         var sample_enter = sample.enter().append('g')
             .attr('class', 'sample')
             .attr('transform', function(d) {
-                return translate(x(d), y(hugo));
+                return translate(x(d.sample), y(hugo));
             });
 
         var width = getRectWidth();
 
         var cna = sample_enter.append('rect')
             .attr('class', function(d) {
-                var cna = query.data(d, hugo, 'cna');
+                var cna = query.data(d.sample, hugo, 'cna');
                 return 'cna ' + (cna === null ? 'none' : cna);
             })
             .attr('width', width)
@@ -148,7 +155,7 @@ var Oncoprint = function(wrapper, params) {
 
         var mrna = sample_enter.append('rect')
             .attr('class', function(d) {
-                var mrna = query.data(d, hugo, 'mrna');
+                var mrna = query.data(d.sample, hugo, 'mrna');
                 return 'mrna ' + (mrna === null ? 'none' : mrna);
             })
             .attr('width', width)
@@ -156,14 +163,14 @@ var Oncoprint = function(wrapper, params) {
 
         // remove all the null mrna squares
         mrna.filter(function(d) {
-            var mrna = query.data(d, hugo, 'mrna');
+            var mrna = query.data(d.sample, hugo, 'mrna');
             return mrna === null;
         }).remove();
 
 //        var mutation_width = width + 2;
         var mut = sample_enter.append('rect')
             .attr('class', function(d) {
-                var mutation = query.data(d, hugo, 'mutation');
+                var mutation = query.data(d.sample, hugo, 'mutation');
                 return 'mutation ' + (mutation === null ? 'none' : 'mut');
             })
 //            .attr('x', -1)
@@ -174,7 +181,7 @@ var Oncoprint = function(wrapper, params) {
 
         // remove all the null mutation squares
         mut.filter(function(d) {
-            var mutation = query.data(d, hugo, 'mutation');
+            var mutation = query.data(d.sample, hugo, 'mutation');
             return mutation === null;
         }).remove();
 
@@ -184,7 +191,7 @@ var Oncoprint = function(wrapper, params) {
         var rppa = sample_enter.append('path')
             .attr('class', 'rppa')
             .attr('d', function(d) {
-                var rppa = query.data(d, hugo, 'rppa');
+                var rppa = query.data(d.sample, hugo, 'rppa');
 
                 if (rppa === UPREGULATED) {
                     return up_triangle;
@@ -198,7 +205,7 @@ var Oncoprint = function(wrapper, params) {
             });
 
         rppa.filter(function(d) {
-            var rppa = query.data(d, hugo, 'rppa');
+            var rppa = query.data(d.sample, hugo, 'rppa');
 
             return rppa === null;
         }).remove();
@@ -287,8 +294,38 @@ var Oncoprint = function(wrapper, params) {
             toggleKey();
 
             redraw(samples_all, track, hugo);
-
         });
+
+        // begin qtip
+        var formatMutation = function(sample, hugo) {
+            var mutation = query.data(sample, hugo, 'mutation');
+
+            if (mutation !== null) {
+                return "Mutation: <b>" + mutation + "</b><br/>";
+            }
+            return "";
+        };
+
+        var patientViewUrl = function(sample_id) {
+            var href = "http://localhost:8080/public-portal/tumormap.do?case_id=" + sample_id
+                + "&cancer_study_id=" + params.cancer_study_id;
+
+            return "<a href='" + href + "'>" + sample_id + "</a>";
+        };
+
+        d3.selectAll('.sample').each(function(d, i) {
+            $(this).qtip({
+                content: {text: '<font size="2">'
+                    + formatMutation(d.sample, d.hugo)
+                    + patientViewUrl(d.sample)
+                    + '</font>'},
+
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                position: {my:'top center',at:'bottom center'}
+            });
+        });
+        // end qtip
     };
 
     var toggleKey = function() {
@@ -325,7 +362,7 @@ var Oncoprint = function(wrapper, params) {
                 .transition()
                 .duration(1000)
                 .attr('transform', function(d) {
-                    return translate(x(d), y(hugo));
+                    return translate(x(d.sample), y(hugo));
                 });
 
             var rect_width = getRectWidth();
@@ -340,7 +377,7 @@ var Oncoprint = function(wrapper, params) {
                 .transition()
                 .duration(1000)
                 .attr('d', function(d) {
-                    var rppa = query.data(d, hugo, 'rppa');
+                    var rppa = query.data(d.sample, hugo, 'rppa');
 
                     if (rppa === UPREGULATED) {
                         return up_triangle;

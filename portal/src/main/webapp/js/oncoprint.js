@@ -98,11 +98,6 @@ var Oncoprint = function(wrapper, params) {
         return (getRectWidth() + getRectPadding()) * no_samples;
     };
 
-    var getWidth = function(no_samples) {
-//        return getXScale(no_samples) + LABEL_PADDING + (2 * (getRectWidth() + getRectPadding()));
-        return getXScale(no_samples) + (2 * (getRectWidth() + getRectPadding()));
-    };
-
     var getHeight = function() {
         return (RECT_HEIGHT + 7) * no_genes;
     };
@@ -222,10 +217,8 @@ var Oncoprint = function(wrapper, params) {
         .style('overflow-y', 'hidden');
 
     var svg = onco_print_wrap.append('svg')
-        .attr('width', getWidth(samples_all.length))
+        .attr('width', getXScale(samples_all.length))
         .attr('height', getHeight());
-//        svg = d3.select(wrapper).insert('svg', ":first-child")
-
 
     that.draw = function() {
 
@@ -385,7 +378,7 @@ var Oncoprint = function(wrapper, params) {
                 });
         });
 
-        svg.transition().duration(1000).style('width', getWidth(no_samples));
+        svg.transition().duration(1000).style('width', getXScale(no_samples));
     };
 
     that.memoSort = function() {
@@ -432,19 +425,5 @@ var Oncoprint = function(wrapper, params) {
             transition();
         });
     };
-
-
-    // controls
-
-//    var only_show_altered = $('<button>',
-//        {
-//            text: "Only Show Altered",
-//            onclick: oncoprint.toggleUnaltered()
-//        });
-//
-//    $('#oncoprint_controls').append(only_show_altered)
-
-
-
     return that;
 };

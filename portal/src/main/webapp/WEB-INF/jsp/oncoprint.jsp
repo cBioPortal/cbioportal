@@ -2,7 +2,10 @@
 <div id="oncoprint_header">
     <h4>OncoPrint</h4>
 
-    <h4 style="padding-top:15px;" onclick='$("#oncoprint_controls").toggle();'>Customize</h4>
+    <h4 style="padding-top:15px;" onclick='$("#oncoprint_controls").toggle();'>
+        <span class="ui-icon ui-icon-triangle-1-e" style="float:left;" onclick='$("#oncoprint_conrols .ui-icon-triangle-1-e").toggle();$("#oncoprint_conrols .ui-icon-triangle-1-s").toggle();'>
+        <span class="ui-icon ui-icon-triangle-1-s" style="float:left;display:none;" onclick='$("#oncoprint_conrols .ui-icon-triangle-1-e").toggle();$("#oncoprint_conrols .ui-icon-triangle-1-s").toggle();'></span>
+        </span>Customize</h4>
     <table id='oncoprint_controls' style="padding-left:70px;">
         <tr>
             <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</td>

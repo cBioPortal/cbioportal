@@ -64,11 +64,12 @@ var Oncoprint = function(wrapper, params) {
         return state.width_scalar * unscaled;
     };
 
-    var getTriangleBase = function() {
-        return getRectWidth() / 2;
-    };
-
     var getTrianglePath = function(up) {
+
+        var getTriangleBase = function() {
+            return getRectWidth() / 2;
+        };
+
         var base = getTriangleBase();
 
         if (up) {
@@ -168,7 +169,12 @@ var Oncoprint = function(wrapper, params) {
         var down_triangle = getTrianglePath(false);
 
         var rppa = sample_enter.append('path')
-            .attr('class', 'rppa')
+            .attr('class', function(d) {
+                if (query.data(d.sample, hugo, 'cna') === null) {
+                    return 'rppa-dark';
+                }
+                return 'rppa-light';
+            })
             .attr('d', function(d) {
                 var rppa = query.data(d.sample, hugo, 'rppa');
 

@@ -10,7 +10,7 @@
         </tr>
 
         <tr>
-            <td><span>Adjust Width</span><div id="width_scroller"></div></td>
+            <td style="padding-right: 15px;"><span>Adjust Width</span><div id="width_scroller" style="display: inline-table;"></div></td>
             <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
         </tr>
     </table>

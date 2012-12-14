@@ -15,7 +15,7 @@ var Oncoprint = function(wrapper, params) {
     var genes_list = query.getGeneList();
     var gene_data = data.gene_data;
     var no_genes = gene_data.length;
-    var samples_all = query.getSampleList()
+    var samples_all = query.getSampleList();
 
     // useful functions
     var translate = function(x,y) {
@@ -29,7 +29,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var LABEL_PADDING = (function() {
-        var avg_char_width = 5;
+        var avg_char_width = 2;
 
         var list_char_no = genes_list.map(function(i) {
             return i.split("").length;
@@ -211,7 +211,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var onco_print_wrap = d3.select(wrapper).append('div')
-        .style('width', (1200 - LABEL_PADDING - 10) + 'px')
+        .style('width', (1200 - LABEL_PADDING) + 'px')
         .style('display', 'inline-block')
         .style('overflow-x', 'auto')
         .style('overflow-y', 'hidden');
@@ -232,7 +232,7 @@ var Oncoprint = function(wrapper, params) {
         x.domain(samples_all);
 
         var label_svg = d3.select(wrapper).insert('svg', ':first-child')
-            .attr('width', LABEL_PADDING + 10)
+            .attr('width', LABEL_PADDING)
             .attr('height', getHeight());
 
         gene_data.forEach(function(gene_obj) {
@@ -262,7 +262,19 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', LABEL_PADDING)
                 .text(gene_obj.percent_altered);
 
-            toggleKey();
+            // show/hide the keys for the relevant data types
+            var data_types = query.data_types;
+
+            d3.select('#oncoprint_key').style('padding-left', (LABEL_PADDING + getRectWidth()) + "px");
+
+            $('#oncoprint_key').children().each(function(i, el) {
+                if(data_types.indexOf($(el).attr('id')) === -1) {
+                    $(el).hide();
+                } else {
+                    $(el).show();
+                }
+            });
+            // end
 
             //todo: why doesn't this work?
             var samples_copy = samples_all.map(function(i) { return i;});
@@ -303,9 +315,9 @@ var Oncoprint = function(wrapper, params) {
         // end qtip
 
         // begin width scroller
-        $('<div>', { id: "width_slider", width: "100", display:"inline"})
+        $('<div>', { id: "width_slider", width: "100"})
             .slider({
-                text: "Adjust Width",
+                text: "Adjust Width ",
                 min: .1,
                 max: 1,
                 step: .01,
@@ -319,18 +331,6 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var toggleKey = function() {
-        // show/hide the keys for the relevant data types
-        var data_types = query.data_types;
-
-        d3.select('#oncoprint_key').style('padding-left', LABEL_PADDING + "px");
-
-        $('#oncoprint_key').children().each(function(i, el) {
-            if(data_types.indexOf($(el).attr('id')) === -1) {
-                $(el).hide();
-            } else {
-                $(el).show();
-            }
-        });
     };
 
     var transition = function() {

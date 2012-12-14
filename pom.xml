@@ -139,11 +139,41 @@
 	  <scope>runtime</scope>
 	</dependency>
 
-	<!-- spring 3 -->
+	<!-- spring -->
 	<dependency>
 	  <groupId>org.springframework</groupId>
 	  <artifactId>spring-core</artifactId>
 	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-expression</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-beans</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-aop</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-context</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-tx</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-orm</artifactId>		
+	  <version>${spring.version}</version>		
 	</dependency>
 	<dependency>
 	  <groupId>org.springframework</groupId>

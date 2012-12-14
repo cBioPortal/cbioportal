@@ -1,15 +1,11 @@
 var Oncoprint = function(wrapper, params) {
     var that = {};
 
-    // constants
     var RECT_HEIGHT = 23;
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
-//    var LABEL_PADDING = 130;
-
     var UPREGULATED = "UPREGULATED";
     var DOWNREGULATED = "DOWNREGULATED";
 
-    // useful variables
     var data = params.data;
     var query = QueryGeneData(data);
     var genes_list = query.getGeneList();
@@ -17,7 +13,6 @@ var Oncoprint = function(wrapper, params) {
     var no_genes = gene_data.length;
     var samples_all = query.getSampleList();
 
-    // useful functions
     var translate = function(x,y) {
         return "translate(" + x + "," + y + ")";
     };
@@ -28,7 +23,7 @@ var Oncoprint = function(wrapper, params) {
         return hugo.replace("/", "_");
     };
 
-    var LABEL_PADDING = (function() {
+    var label_width = (function() {
         var avg_char_width = 2;
 
         var list_char_no = genes_list.map(function(i) {
@@ -45,8 +40,6 @@ var Oncoprint = function(wrapper, params) {
         show_unaltered: true,
         memo_sort: false
     };
-
-    // functions that get state
 
     var getVisualizedSamples = function() {
         // get state of samples
@@ -108,9 +101,6 @@ var Oncoprint = function(wrapper, params) {
     var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
 
-    // functions that echo
-    that.wrapper = wrapper;
-
     that.getData = function() {
         return params.data;
     };
@@ -157,7 +147,6 @@ var Oncoprint = function(wrapper, params) {
             return mrna === null;
         }).remove();
 
-//        var mutation_width = width + 2;
         var mut = sample_enter.append('rect')
             .attr('class', function(d) {
                 var mutation = query.data(d.sample, hugo, 'mutation');
@@ -210,81 +199,28 @@ var Oncoprint = function(wrapper, params) {
             .remove();
     };
 
-    var onco_print_wrap = d3.select(wrapper).append('div')
-        .style('width', (1200 - LABEL_PADDING) + 'px')
-        .style('display', 'inline-block')
-        .style('overflow-x', 'auto')
-        .style('overflow-y', 'hidden');
+    var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
 
-    var svg = onco_print_wrap.append('svg')
-        .attr('width', getXScale(samples_all.length))
-        .attr('height', getHeight());
+    var svg;        // global scope
 
-    that.draw = function() {
+    var visKeySetup = function() {
+        // hide/show keys for relevant data types
+        var data_types = query.data_types;
 
-        that.getSvg = function() { return svg; };
+        d3.select('#oncoprint_key').style('padding-left', (label_width + getRectWidth()) + "px");
 
-        $("#oncoprint_header").append(
-            '<p>Case Set: ' + params.case_set_str + '</p></div>'
-            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
-                + ' of cases</p></div>');
-
-        x.domain(samples_all);
-
-        var label_svg = d3.select(wrapper).insert('svg', ':first-child')
-            .attr('width', LABEL_PADDING)
-            .attr('height', getHeight());
-
-        gene_data.forEach(function(gene_obj) {
-
-            var hugo = gene_obj.hugo;
-            var cleaned_hugo = cleanHugo(hugo);
-
-            // N.B. there is no data bound to g,
-            // is this bad form?
-            var track = svg.append('g')
-//                .attr('transform', translate(LABEL_PADDING, 0))
-                .attr('class', 'track');
-
-            var label = label_svg.append('text')
-                .attr('position', 'static')
-                .attr('left', 0)
-//                .attr('x', -LABEL_PADDING)
-                .attr('x', 0)
-                .attr('y', y(hugo) + .75 * RECT_HEIGHT);
-
-            label.append('tspan')
-                .attr('text-anchor', 'start')
-                .text(gene_obj.hugo);
-
-            label.append('tspan')
-                .attr('text-anchor', 'end')
-                .attr('x', LABEL_PADDING)
-                .text(gene_obj.percent_altered);
-
-            // show/hide the keys for the relevant data types
-            var data_types = query.data_types;
-
-            d3.select('#oncoprint_key').style('padding-left', (LABEL_PADDING + getRectWidth()) + "px");
-
-            $('#oncoprint_key').children().each(function(i, el) {
-                if(data_types.indexOf($(el).attr('id')) === -1) {
-                    $(el).hide();
-                } else {
-                    $(el).show();
-                }
-            });
-            // end
-
-            //todo: why doesn't this work?
-            var samples_copy = samples_all.map(function(i) { return i;});
-            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
-
-            redraw(samples_copy, track, hugo);
+        $('#oncoprint_key').children().each(function(i, el) {
+            if(data_types.indexOf($(el).attr('id')) === -1) {
+                $(el).hide();
+            } else {
+                $(el).show();
+            }
         });
+    };
 
-        // begin qtip
+    var makeQtip = function() {
         var formatMutation = function(sample, hugo) {
+            // helper function
             var mutation = query.data(sample, hugo, 'mutation');
 
             if (mutation !== null) {
@@ -294,12 +230,14 @@ var Oncoprint = function(wrapper, params) {
         };
 
         var patientViewUrl = function(sample_id) {
+            // helper function
             var href = "http://localhost:8080/public-portal/tumormap.do?case_id=" + sample_id
                 + "&cancer_study_id=" + params.cancer_study_id;
 
             return "<a href='" + href + "'>" + sample_id + "</a>";
         };
 
+        // make qtip
         d3.selectAll('.sample').each(function(d, i) {
             $(this).qtip({
                 content: {text: '<font size="2">'
@@ -312,9 +250,9 @@ var Oncoprint = function(wrapper, params) {
                 position: {my:'top center',at:'bottom center'}
             });
         });
-        // end qtip
+    };
 
-        // begin width scroller
+    var widthScrollerSetup = function() {
         $('<div>', { id: "width_slider", width: "100"})
             .slider({
                 text: "Adjust Width ",
@@ -327,10 +265,68 @@ var Oncoprint = function(wrapper, params) {
                     oncoprint.scaleWidth(ui.value);
                 }
             }).appendTo($('#oncoprint_controls #width_scroller'));
-        // end width scroller
     };
 
-    var toggleKey = function() {
+    that.draw = function() {
+
+        that.getSvg = function() { return svg; };
+
+        $("#oncoprint_header").append(
+            '<p>Case Set: ' + params.case_set_str + '</p></div>'
+            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
+                + ' of cases</p></div>');
+
+        x.domain(samples_all);
+
+        var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
+            .attr('id', "oncoprint_label")
+            .attr('width', label_width)
+            .attr('height', getHeight());
+
+        var body_wrap = table_wrap.append('td').append('div')
+            .style('width', (1200 - label_width) + 'px')
+            .style('display', 'inline-block')
+            .style('overflow-x', 'auto')
+            .style('overflow-y', 'hidden');
+
+        svg = body_wrap.append('svg')
+            .attr('width', getXScale(samples_all.length))
+            .attr('height', getHeight());
+
+        gene_data.forEach(function(gene_obj) {
+
+            var hugo = gene_obj.hugo;
+            var cleaned_hugo = cleanHugo(hugo);
+
+            var track = svg.append('g')
+                .attr('class', 'track');
+
+            var label = label_svg.append('text')
+                .attr('position', 'static')
+                .attr('left', 0)
+                .attr('x', 0)
+                .attr('y', y(hugo) + .75 * RECT_HEIGHT);
+
+            label.append('tspan')
+                .attr('text-anchor', 'start')
+                .text(gene_obj.hugo);
+
+            label.append('tspan')
+                .attr('text-anchor', 'end')
+                .attr('x', label_width)
+                .text(gene_obj.percent_altered);
+
+            visKeySetup();
+
+            //todo: why doesn't this work?
+            var samples_copy = samples_all.map(function(i) { return i;});
+            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+
+            redraw(samples_copy, track, hugo);
+        });
+
+        makeQtip();
+        widthScrollerSetup();
     };
 
     var transition = function() {

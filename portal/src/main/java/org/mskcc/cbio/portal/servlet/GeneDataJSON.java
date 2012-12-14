@@ -184,9 +184,8 @@ public class GeneDataJSON extends HttpServlet {
             // pointer to gp is local, but gets added to profileList which is outside
         }
 
-        // todo: how should this *not* be hard coded?
-        double zScoreThreshold = ZScoreUtil.Z_SCORE_THRESHOLD_DEFAULT;
-        double rppaScoreThreshold = ZScoreUtil.RPPA_SCORE_THRESHOLD_DEFAULT;
+        double zScoreThreshold = Double.valueOf(request.getParameter("z_score_threshold"));
+        double rppaScoreThreshold = Double.valueOf(request.getParameter("rppa_score_threshold"));
 
         // ... do a bunch of work to get the matrix, basically copying out of QueryBuilder ...
         // todo: this is code duplication!

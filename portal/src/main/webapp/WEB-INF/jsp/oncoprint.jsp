@@ -32,7 +32,9 @@
         var geneDataQuery = {
             genes: genes,
             samples: samples,
-            geneticProfileIds: geneticProfiles
+            geneticProfileIds: geneticProfiles,
+            z_score_threshold: <%=zScoreThreshold%>,
+            rppa_score_threshold: <%=rppaScoreThreshold%>
         };
 
         var oncoprint;      // global

@@ -12,197 +12,7 @@
   <name>cBio Cancer Genomics Portal</name>
   <url>http://maven.apache.org</url>
 
-  <!-- profiles -->
-  <profiles>
-	<profile>
-	  <id>gdac</id>
-	  <properties>
-		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
-		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
-		<final-war-name>gdac-portal</final-war-name>
-	  </properties>
-	</profile>
-	<profile>
-	  <id>su2c</id>
-	  <properties>
-		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
-		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
-		<final-war-name>su2c-portal</final-war-name>
-	  </properties>
-	</profile>
-	<profile>
-	  <id>public</id>
-	  <properties>
-		<web-xml-file>src/main/config/security_disabled_config/web.xml</web-xml-file>
-		<application-context-security-xml-dir>src/main/config/security_disabled_config</application-context-security-xml-dir>
-		<final-war-name>public-portal</final-war-name>
-	  </properties>
-	</profile>
-	<profile>
-	  <id>patient-view</id>
-	  <properties>
-		<web-xml-file>src/main/config/security_enabled_config/web.xml</web-xml-file>
-		<application-context-security-xml-dir>src/main/config/security_enabled_config</application-context-security-xml-dir>
-		<final-war-name>patient-view-portal</final-war-name>
-	  </properties>
-	</profile>
-  </profiles>
-
-  <!-- properties -->
-  <properties>
-	<spring.version>3.0.6.RELEASE</spring.version>
-	<spring.security.version>3.1.0.RELEASE</spring.security.version>
-  </properties>
-
-  <!-- dependencies -->
   <dependencies>
-
-	<!-- antisamy -->
-	<dependency>
-	  <groupId>org.owasp</groupId>
-	  <artifactId>antisamy</artifactId>
-	  <version>1.4</version>
-	</dependency>
-
-	<!-- antlr -->
-	<dependency>
-	  <groupId>org.antlr</groupId>
-	  <artifactId>antlr-runtime</artifactId>
-	  <version>3.2</version>
-	</dependency>
-
-	<!-- apache commons -->
-	<dependency>
-	  <groupId>commons-collections</groupId>
-	  <artifactId>commons-collections</artifactId>
-	  <version>3.2.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>com.kenai.nbpwr</groupId>
-	  <artifactId>org-apache-commons-dbcp</artifactId>
-	  <version>1.2.2-201002241055</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.geronimo.bundles</groupId>
-	  <artifactId>commons-discovery</artifactId>
-	  <version>0.4_1</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>commons-fileupload</groupId>
-	  <artifactId>commons-fileupload</artifactId>
-	  <version>1.2.2</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.axis</groupId>
-	  <artifactId>axis</artifactId>
-	  <version>1.4</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.axis</groupId>
-	  <artifactId>axis-jaxrpc</artifactId>
-	  <version>1.4</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.directory.studio</groupId>
-	  <artifactId>org.apache.commons.io</artifactId>
-	  <version>2.1</version>
-	  <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	  <groupId>commons-httpclient</groupId>
-	  <artifactId>commons-httpclient</artifactId>
-	  <version>3.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.httpcomponents</groupId>
-	  <artifactId>httpcore</artifactId>
-	  <version>4.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>commons-lang</groupId>
-	  <artifactId>commons-lang</artifactId>
-	  <version>2.4</version>
-	</dependency>
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.commons</groupId>
-	  <artifactId>commons-math</artifactId>
-	  <version>2.2</version>
-	</dependency>
-
-	<!-- easy cache -->
-	<dependency>
-	  <groupId>net.sf.ehcache</groupId>
-	  <artifactId>ehcache-core</artifactId>
-	  <version>2.3.0</version>
-	</dependency>
-	
-	<!-- guava -->
-	<dependency>
-	  <groupId>com.google.guava</groupId>
-	  <artifactId>guava</artifactId>
-	  <version>10.0.1</version>
-	</dependency>
-
-	<!-- jackson -->
-	<dependency>
-	  <groupId>org.codehaus.jackson</groupId>
-	  <artifactId>jackson-core-asl</artifactId>
-	  <version>1.9.3</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.codehaus.jackson</groupId>
-	  <artifactId>jackson-mapper-asl</artifactId>
-	  <version>1.9.3</version>
-	</dependency>
-
-	<!-- javax servlet -->
-	<dependency>
-	  <groupId>javax.servlet</groupId>
-	  <artifactId>servlet-api</artifactId>
-	  <version>2.3</version>
-	  <scope>compile</scope>
-	</dependency>
-
-	<!-- jopt -->
-	<dependency>
-	  <groupId>net.sf.jopt-simple</groupId>
-	  <artifactId>jopt-simple</artifactId>
-	  <version>3.0-rc2</version>
-	</dependency>
-
-	<!-- json simple  -->
-	<dependency>
-	  <groupId>com.googlecode.json-simple</groupId>
-	  <artifactId>json-simple</artifactId>
-	  <version>1.1</version>
-	</dependency>
-
-	<!-- jung -->
-	<dependency>
-	  <groupId>net.sf.jung</groupId>
-	  <artifactId>jung-api</artifactId>
-	  <version>2.0.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>net.sf.jung</groupId>
-	  <artifactId>jung-graph-impl</artifactId>
-	  <version>2.0.1</version>
-	</dependency>
-
-	<!-- junit -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-    </dependency>
 
 	<!-- jstl -->
 	<dependency>
@@ -212,111 +22,22 @@
 	  <scope>runtime</scope>
 	</dependency>
 
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
-
-	<!-- mysql -->
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <version>5.1.21</version>
-	  <scope>runtime</scope>
-	</dependency>
-
-	<!-- opencsv -->
-	<dependency>
-	  <groupId>net.sf.opencsv</groupId>
-	  <artifactId>opencsv</artifactId>
-	  <version>2.3</version>
-	</dependency>
-
-	<!-- rserve -->
-	<dependency>
-	  <groupId>org.nuiton.thirdparty</groupId>
-	  <artifactId>REngine</artifactId>
-	  <version>0.6-1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.nuiton.thirdparty</groupId>
-	  <artifactId>Rserve</artifactId>
-	  <version>0.6-1</version>
-	</dependency>
-
-	<!-- slf4j -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-jdk14</artifactId>
-	  <version>1.6.6</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-api</artifactId>
-	  <version>1.6.6</version>
-	</dependency>
-
-	<!-- spring 3 -->
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-core</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-jdbc</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-
-	<!-- spring security -->
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-acl</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-config</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-core</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-openid</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-taglibs</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.security</groupId>
-	  <artifactId>spring-security-web</artifactId>
-	  <version>${spring.security.version}</version>
-	</dependency>
-
 	<!-- core portal module -->
 	<dependency>
-          <groupId>org.mskcc.cbio</groupId>
+	  <groupId>org.mskcc.cbio</groupId>
 	  <artifactId>core</artifactId>
 	  <version>${project.version}</version>
+	  <scope>runtime</scope>
 	</dependency>
         
-        <!-- 3rd party jars -->
-        <!--the following jars should be installed first: 
+	<!-- 3rd party jars -->
+	<!--the following jars should be installed first: 
         http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html-->
-        <!--dependency>
-          <download jar from http://loci.wisc.edu/software/bio-formats-->
-          <!--groupId>loci</groupId>
-	  <artifactId>bio-formats</artifactId>
-	  <version>4.5</version>
+	<!--dependency>
+		<download jar from http://loci.wisc.edu/software/bio-formats-->
+	<!--groupId>loci</groupId>
+		<artifactId>bio-formats</artifactId>
+		<version>4.5</version>
         </dependency-->
 
   </dependencies>
@@ -338,55 +59,6 @@
 		  <source>1.6</source>
 		  <target>1.6</target>
 		</configuration>
-	  </plugin>
-
-	  <!-- surefire (test) config -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-surefire-plugin</artifactId>
-		<version>2.12</version>
-		<configuration>
-		  <forkMode>always</forkMode>
-		  <filtering>true</filtering>
-		  <testFailureIgnore>false</testFailureIgnore>
-		  <systemProperties>
-			<property>
-			  <name>log4j.configuration</name>
-			  <value>file:${PORTAL_HOME}/portal/src/main/resources/log4j.properties</value>
-			</property>
-		  </systemProperties>
-		</configuration>
-	  </plugin>
-
-	  <!-- sql plugin - for tests -->
-      <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>sql-maven-plugin</artifactId>
-		<version>1.5</version>
-		<dependencies>
-		  <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.0.3</version>
-		  </dependency>
-		</dependencies>
-		<executions>
-		  <execution>
-            <phase>test-compile</phase>
-            <goals>
-			  <goal>execute</goal>
-            </goals>
-            <configuration>
-			  <!-- username & password gets put in .m2/settings.xml -->
-			  <settingsKey>settingsKey</settingsKey>
-			  <driver>com.mysql.jdbc.Driver</driver>
-			  <url>jdbc:mysql://localhost:3306/cgds_test</url>
-			  <srcFiles>
-				<srcFile>src/main/resources/db/cgds.sql</srcFile>
-			  </srcFiles>
-            </configuration>
-		  </execution>
-		</executions>
 	  </plugin>
 
 	  <!-- war plugin config -->
@@ -425,23 +97,14 @@
 
 	</plugins>
 
-	<!-- properties file used for filter - use build.properties -->
-	<filters>
-	  <filter>src/main/resources/build.properties</filter>
-	</filters>
-
 	<!-- prevent some resources from getting into war -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
 		<filtering>true</filtering>
 		<excludes>
-		  <exclude>build.properties.*</exclude>
-		  <exclude>log4j.properties.*</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
-		  <exclude>db/**</exclude>
-		  <exclude>sample_data/**</exclude>
 		  <exclude>tutorials/**</exclude>
 		</excludes>
 	  </resource>
@@ -449,14 +112,4 @@
 
   </build>
 
-<!--
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jdepend-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
--->
 </project>

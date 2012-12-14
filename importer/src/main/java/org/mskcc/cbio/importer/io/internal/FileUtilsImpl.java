@@ -259,6 +259,19 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
+	 * Creates a temporary file with the given contents.
+	 *
+	 * @param filename String
+	 * @param fileContent String
+	 * @return File
+	 */
+	@Override
+	public File createTmpFileWithContents(final String filename, final String fileContent) throws Exception {
+
+		return createFileWithContents(org.apache.commons.io.FileUtils.getTempDirectoryPath(), filename, fileContent);
+	}
+
+	/**
 	 * Creates (or overwrites) the given file with the given contents.
 	 *
 	 * @param directory String

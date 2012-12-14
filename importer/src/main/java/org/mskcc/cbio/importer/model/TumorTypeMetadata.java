@@ -35,7 +35,9 @@ package org.mskcc.cbio.importer.model;
  */
 public final class TumorTypeMetadata {
 
-	public static final String TUMOR_TYPE_REGEX = "<CANCER>";
+	public static final String TUMOR_TYPE_DELIMITER = " : "; // delimiter between id & description
+	public static final String TUMOR_TYPE_REGEX = "<CANCER>"; // regex used in tumor type description
+	public static final String TUMOR_TYPE_REFERENCE_FILE_NAME = "cancers.txt"; // name of reference file created to import into portal
 
 	// bean properties
 	private String tumorTypeID;

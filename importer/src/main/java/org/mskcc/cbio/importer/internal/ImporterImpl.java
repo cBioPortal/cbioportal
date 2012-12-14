@@ -34,10 +34,16 @@ import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.util.ClassLoader;
+import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+
+import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
 
 /**
  * Class which implements the Importer interface.
@@ -88,6 +94,28 @@ final class ImporterImpl implements Importer {
         if (portal == null) {
             throw new IllegalArgumentException("portal must not be null");
 		}
+
+        // get portal metadata
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("importData(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+
+		// clobber db
+		databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), true);
+
+		// import reference data
+		importAllReferenceData();
+
+		// load staging files
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
 	}
 
 	/**
@@ -103,5 +131,32 @@ final class ImporterImpl implements Importer {
 		Object[] args = { config, fileUtils, databaseUtils };
 		Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
 		importer.importReferenceData(referenceMetadata);
+	}
+
+	/**
+	 * Helper function to import all reference data.
+	 */
+	private void importAllReferenceData() throws Exception {
+
+		// tumor types
+		StringBuilder cancerFileContents = new StringBuilder();
+		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata()) {
+			cancerFileContents.append(tumorType.getTumorTypeID());
+			cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_DELIMITER);
+			cancerFileContents.append(tumorType.getTumorTypeDescription());
+			cancerFileContents.append("\n");
+		}
+		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_REFERENCE_FILE_NAME,
+															  cancerFileContents.toString());
+		String[] importCancerTypesArgs = { cancerFile.getCanonicalPath() };
+		ImportTypesOfCancers.main(importCancerTypesArgs);
+		cancerFile.delete();
+		
+		// iterate over all other reference data types
+		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL_METADATA)) {
+			if (referenceData.importIntoPortal()) {
+				importReferenceData(referenceData);
+			}
+		}
 	}
 }

@@ -272,10 +272,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (referenceMetadata != null) {
+		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (!referenceMetadata.isEmpty()) {
 			Fetcher fetcher = (Fetcher)context.getBean("referenceDataFetcher");
-			fetcher.fetchReferenceData(referenceMetadata);
+			fetcher.fetchReferenceData(referenceMetadata.iterator().next());
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -338,10 +338,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (referenceMetadata != null) {
+		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (!referenceMetadata.isEmpty()) {
 			Importer importer = (Importer)context.getBean("importer");
-			importer.importReferenceData(referenceMetadata);
+			importer.importReferenceData(referenceMetadata.iterator().next());
 		}
 		else {
 			if (LOG.isInfoEnabled()) {

@@ -413,12 +413,12 @@ final class GDataImpl implements Config {
 	 * Gets ReferenceMetadata for the given referenceType.
 	 *
 	 * @param referenceType String
-	 * @return ReferenceMetadata
+	 * @return Collection<ReferenceMetadata>
 	 */
     @Override
-	public ReferenceMetadata getReferenceMetadata(String referenceType) {
+	public Collection<ReferenceMetadata> getReferenceMetadata(String referenceType) {
 
-		ReferenceMetadata toReturn = null;
+		Collection<ReferenceMetadata> toReturn = new ArrayList<ReferenceMetadata>();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getReferenceMetadata()");
@@ -440,13 +440,13 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-                        if (entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
-                                toReturn = new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
-																 new Boolean(entry.getCustomElements().getValue(properties[2])),
-																 entry.getCustomElements().getValue(properties[3]),
-																 entry.getCustomElements().getValue(properties[4]),
-																 entry.getCustomElements().getValue(properties[5]));
-                                break;
+                        if (referenceType.equals(Config.ALL_METADATA) || entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
+							toReturn.add(new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
+															   new Boolean(entry.getCustomElements().getValue(properties[2])),
+															   entry.getCustomElements().getValue(properties[3]),
+															   entry.getCustomElements().getValue(properties[4]),
+															   entry.getCustomElements().getValue(properties[5])));
+							if (!referenceType.equals(Config.ALL_METADATA)) break;
                         }
                     }
 				}
@@ -461,8 +461,8 @@ final class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 
-		if (toReturn == null && LOG.isInfoEnabled()) {
-			LOG.info("getReferenceMetadata(), toReturn is null.");
+		if (toReturn.isEmpty() && LOG.isInfoEnabled()) {
+			LOG.info("getReferenceMetadata(), toReturn size is 0.");
 		}
 
         // outta here
@@ -500,12 +500,12 @@ final class GDataImpl implements Config {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
 					for (ListEntry entry : feed.getEntries()) {
-                        if (dataSource.equals("all") || entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
+                        if (dataSource.equals(Config.ALL_METADATA) || entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
 							toReturn.add(new DataSourceMetadata(entry.getCustomElements().getValue(properties[1]),
 																entry.getCustomElements().getValue(properties[2]),
 																entry.getCustomElements().getValue(properties[3]),
 																entry.getCustomElements().getValue(properties[4])));
-							if (!dataSource.equals("all")) break;
+							if (!dataSource.equals(Config.ALL_METADATA)) break;
                         }
                     }
 				}
@@ -520,8 +520,8 @@ final class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 
-		if (toReturn == null && LOG.isInfoEnabled()) {
-			LOG.info("getDataSourceMetadata(), toReturn is null.");
+		if (toReturn.isEmpty() && LOG.isInfoEnabled()) {
+			LOG.info("getDataSourceMetadata(), toReturn size is 0.");
 		}
 
         // outta here

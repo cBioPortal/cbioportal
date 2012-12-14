@@ -108,6 +108,15 @@ public interface FileUtils {
 	String getStagingFileHeader(final PortalMetadata portalMetadata, final String cancerStudy, final String stagingFile) throws Exception;
 
 	/**
+	 * Creates a temporary file with the given contents.
+	 *
+	 * @param filename String
+	 * @param fileContent String
+	 * @return File
+	 */
+	File createTmpFileWithContents(final String filename, final String fileContent) throws Exception;
+
+	/**
 	 * Creates (or overwrites) the given file with the given contents.
 	 *
 	 * @param directory String

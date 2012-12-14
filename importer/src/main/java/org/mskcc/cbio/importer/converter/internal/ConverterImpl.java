@@ -101,7 +101,7 @@ final class ConverterImpl implements Converter {
 		this.importDataDAO = importDataDAO;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
-        this.dataSources = config.getDataSourceMetadata("all");
+        this.dataSources = config.getDataSourceMetadata(Config.ALL_METADATA);
 
 		// sanity check
 		if (this.dataSources == null) {

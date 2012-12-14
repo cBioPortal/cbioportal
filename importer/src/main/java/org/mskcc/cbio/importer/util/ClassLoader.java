@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 
 /**
@@ -41,6 +42,39 @@ public final class ClassLoader {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
+
+	/**
+	 * Method to return the given class main method (if it exists), null otherwise.
+	 *
+	 * @param className String
+	 * @return Method
+	 */
+	public static Method getMainMethod(final String className) {
+
+		// sanity check
+		if (className == null || className.length() == 0) {
+			throw new IllegalArgumentException("className must not be null");
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getMainMethod(), className: " + className);
+		}
+		
+		Method toReturn = null;
+		try {
+			Class<?> clazz = Class.forName(className);
+			toReturn= clazz.getMethod("main", String[].class);
+		}
+		catch (Exception e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Cannot find class or main method in class.");
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+	
 
 	/**
 	 * Creates a new instance of given class with given arguments.

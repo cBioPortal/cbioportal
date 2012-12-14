@@ -47,10 +47,10 @@ import java.util.Arrays;
 /**
  * Class which implements the Importer interface, specifically for importing human gene info from BridgeDB.
  */
-public final class BridgeDBHumanGeneImporterImpl implements Importer {
+public final class BridgeDBImporterImpl implements Importer {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(BridgeDBHumanGeneImporterImpl.class);
+	private static final Log LOG = LogFactory.getLog(BridgeDBImporterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -70,7 +70,7 @@ public final class BridgeDBHumanGeneImporterImpl implements Importer {
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
 	 */
-	public BridgeDBHumanGeneImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
+	public BridgeDBImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
 
 		// set members
 		this.config = config;

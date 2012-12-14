@@ -187,8 +187,11 @@
 			  </artifactSet>
 			  <transformers>
 				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-				  <mainClass>org.mskcc.cbio.liftover.Hg18ToHg19</mainClass>
+				  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
 				</transformer>
+				<transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+				  <resource>log4j.properties</resource>
+                </transformer>
 			  </transformers>
 			</configuration>
 		  </execution>
@@ -197,7 +200,7 @@
 
 	</plugins>
 
-	<!-- properties file used for filter - use build.properties -->
+	<!-- properties file used for filter - use portal.properties -->
 	<filters>
 	  <filter>${PORTAL_HOME}/portal.properties</filter>
 	</filters>
@@ -208,7 +211,7 @@
 		<directory>src/main/resources</directory>
 		<filtering>true</filtering>
 		<excludes>
-		  <exclude>portal.properties*</exclude>
+		  <exclude>portal.properties.EXAMPLE</exclude>
 		</excludes>
 	  </resource>
 	</resources>

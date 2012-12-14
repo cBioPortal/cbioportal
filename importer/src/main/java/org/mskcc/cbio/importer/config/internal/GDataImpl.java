@@ -426,7 +426,7 @@ final class GDataImpl implements Config {
 
 		// parse the property argument
 		String[] properties = referenceMetadataProperty.split(":");
-		if (properties.length != 5) {
+		if (properties.length != 6) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Invalid property passed to getReferenceMetadata: " + referenceMetadataProperty);
 			}

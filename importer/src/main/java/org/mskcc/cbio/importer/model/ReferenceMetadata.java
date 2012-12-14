@@ -35,6 +35,8 @@ package org.mskcc.cbio.importer.model;
  */
 public final class ReferenceMetadata {
 
+	public static final String REFERENCE_FILE_DELIMITER = ":";
+
 	// bean properties
 	private String referenceType;
 	private Boolean importIntoPortal;
@@ -65,10 +67,8 @@ public final class ReferenceMetadata {
 		}
 		this.importIntoPortal = importIntoPortal;
 
-		if (referenceFileSource == null) {
-            throw new IllegalArgumentException("referenceFileSource must not be null");
-		}
-		this.referenceFileSource = referenceFileSource.trim();
+		// reference file source can be null
+		this.referenceFileSource = (referenceFileSource == null) ? "" : referenceFileSource.trim();
 
 		if (referenceFile == null) {
             throw new IllegalArgumentException("referenceFile must not be null");

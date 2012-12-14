@@ -37,6 +37,7 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.util.Shell;
 
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 
@@ -44,6 +45,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * Class which implements the Importer interface.
@@ -105,16 +108,41 @@ final class ImporterImpl implements Importer {
         }
 
 		// clobber db
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), clobbering existing database...");
+		}
 		databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), true);
 
+		// use mysql to create new schema
+		String[] command = new String[] {"mysql",
+										 "--user=" + databaseUtils.getDatabaseUser(),
+										 "--password=" + databaseUtils.getDatabasePassword(),
+										 databaseUtils.getPortalDatabaseName(),
+										 "-e",
+										 "source " + databaseUtils.getDatabaseSchemaCanonicalPath()};
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+		}
+		if (Shell.exec(Arrays.asList(command), ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("create schema is complete.");
+			}
+		}
+
 		// import reference data
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), importing reference data...");
+		}
 		importAllReferenceData();
 
 		// load staging files
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), loading staging files...");
+		}
+		loadStagingFiles();
 
-        // check args
-        if (portal == null) {
-            throw new IllegalArgumentException("portal must not be null");
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), complete!, exiting...");
 		}
 	}
 
@@ -127,10 +155,21 @@ final class ImporterImpl implements Importer {
 	@Override
 	public void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
-		// get converter and create staging file
-		Object[] args = { config, fileUtils, databaseUtils };
-		Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
-		importer.importReferenceData(referenceMetadata);
+		// we are either going to use a cgds package importer which has a main method
+		// or one of our own classes which implements the Importer interface.
+		// Check for a main method, if found, use it, otherwise assume we have a class
+		// that implements the Importer interface.
+
+		Method mainMethod = ClassLoader.getMainMethod(referenceMetadata.getImporterClassName());
+		if (mainMethod != null) {
+			String [] args = referenceMetadata.getReferenceFile().split(ReferenceMetadata.REFERENCE_FILE_DELIMITER);
+			mainMethod.invoke(null, (Object)args);
+		}
+		else {
+			Object[] args = { config, fileUtils, databaseUtils };
+			Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
+			importer.importReferenceData(referenceMetadata);
+		}
 	}
 
 	/**
@@ -158,5 +197,11 @@ final class ImporterImpl implements Importer {
 				importReferenceData(referenceData);
 			}
 		}
+	}
+
+	/**
+	 * Helper function to import all staging data.
+	 */
+	private void loadStagingFiles() throws Exception {
 	}
 }

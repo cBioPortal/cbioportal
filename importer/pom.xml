@@ -9,9 +9,9 @@
 
   <!-- module metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>portal-importer-admin</artifactId>
-  <name>Portal Importer Admin</name>
-  <description>Admin Module for Portal Importer</description>
+  <artifactId>portal-importer</artifactId>
+  <name>Portal Importer</name>
+  <description>Importer Module for Portal</description>
 
   <!-- repositories -->
   <repositories>
@@ -84,13 +84,6 @@
       <version>1.4.1</version>
     </dependency>
 
-    <!-- apache commons logging -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
-            
     <!-- apache commons io -->
     <dependency>
       <groupId>org.apache.directory.studio</groupId>
@@ -141,26 +134,11 @@
 	  <version>${hibernate.version}</version>
 	</dependency>
 
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
-
 	<!-- mutation assessor tool -->
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>
 	  <artifactId>mutation-assessor</artifactId>
 	  <version>${project.version}</version>
-	</dependency>
-
-	<!-- mysql -->
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <version>5.1.16</version>
-	  <scope>runtime</scope>
 	</dependency>
 
 	<!-- oncotator -->

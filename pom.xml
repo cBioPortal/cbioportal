@@ -69,10 +69,18 @@
 	<module>mutation-assessor</module>
 	<module>cbioportal-client</module>
 	<module>mondrian-cy3-app</module>
+	<module>portal-importer</module>
   </modules>
 
   <!-- dependencies -->
   <dependencies>
+
+    <!-- apache commons logging -->
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>apache-log4j-extras</artifactId>
+	  <version>1.1</version>
+	</dependency>
 
 	<!-- junit -->
     <dependency>
@@ -80,6 +88,21 @@
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
     </dependency>
+
+	<!-- log4j -->
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>log4j</artifactId>
+	  <version>1.2.16</version>
+	</dependency>
+
+	<!-- mysql -->
+	<dependency>
+	  <groupId>mysql</groupId>
+	  <artifactId>mysql-connector-java</artifactId>
+	  <version>5.1.16</version>
+	  <scope>runtime</scope>
+	</dependency>
 
 	<!-- slf4j -->
 	<dependency>

@@ -88,11 +88,6 @@
 	  <version>2.4</version>
 	</dependency>
 	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
-	<dependency>
 	  <groupId>org.apache.commons</groupId>
 	  <artifactId>commons-math</artifactId>
 	  <version>2.2</version>
@@ -156,21 +151,6 @@
 	  <groupId>net.sf.jung</groupId>
 	  <artifactId>jung-graph-impl</artifactId>
 	  <version>2.0.1</version>
-	</dependency>
-
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
-
-	<!-- mysql -->
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <version>5.1.21</version>
-	  <scope>runtime</scope>
 	</dependency>
 
 	<!-- opencsv -->

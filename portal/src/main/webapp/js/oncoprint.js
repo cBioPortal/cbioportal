@@ -38,7 +38,7 @@ var Oncoprint = function(wrapper, params) {
         padding: true,
         width_scalar: 1,
         show_unaltered: true,
-        memo_sort: false
+        memo_sort: true
     };
 
     var getVisualizedSamples = function() {
@@ -282,7 +282,9 @@ var Oncoprint = function(wrapper, params) {
             + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
                 + ' of cases</p></div>');
 
-        x.domain(samples_all);
+        var visualized_samples = getVisualizedSamples();
+
+        x.domain(visualized_samples);
 
         var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
             .attr('id', "oncoprint_label")
@@ -325,10 +327,11 @@ var Oncoprint = function(wrapper, params) {
             visKeySetup();
 
             //todo: why doesn't this work?
-            var samples_copy = samples_all.map(function(i) { return i;});
-            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+//            var samples_copy = samples_all.map(function(i) { return i;});
+//            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+//            redraw(samples_copy, track, hugo);
 
-            redraw(samples_copy, track, hugo);
+            redraw(visualized_samples, track, hugo);
         });
 
         makeQtip();

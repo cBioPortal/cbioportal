@@ -396,12 +396,9 @@ public class Admin implements Runnable {
 		}
 
 		// configure logging
-		String home = System.getenv("PORTAL_HOME");
-		if (home == null) {
-			System.err.println("Please set PORTAL_HOME environment variable " +
-							   " (point to a directory where portal.properties exists).");
-		}
-		PropertyConfigurator.configure(home + File.separator + "log4j.properties");
+		Properties props = new Properties();
+		props.load(Admin.class.getResourceAsStream("/log4j.properties"));
+		PropertyConfigurator.configure(props);
 
 		// process
 		Admin admin = new Admin();

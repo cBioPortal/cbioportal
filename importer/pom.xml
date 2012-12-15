@@ -22,11 +22,6 @@
 	</repository>
   </repositories>
 
-  <!-- properties -->
-  <properties>
-
-  </properties>
-
   <!-- profiles -->
   <profiles>
 	<!-- foundation -->
@@ -88,6 +83,13 @@
       <artifactId>commons-compress</artifactId>
       <version>1.4.1</version>
     </dependency>
+
+    <!-- apache commons logging -->
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>apache-log4j-extras</artifactId>
+	  <version>1.1</version>
+	</dependency>
             
     <!-- apache commons io -->
     <dependency>
@@ -113,6 +115,13 @@
 	  <version>1.1.0</version>
 	</dependency>
 
+	<!-- for foundation -->
+	<dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+
 	<!-- google -->
 	<dependency>
 	  <groupId>com.google.collections</groupId>
@@ -125,11 +134,33 @@
 	  <version>1.46.0</version>
 	</dependency>
 
+	<!-- hibernate -->
+	<dependency>
+	  <groupId>org.hibernate</groupId>
+	  <artifactId>hibernate-entitymanager</artifactId>
+	  <version>${hibernate.version}</version>
+	</dependency>
+
+	<!-- log4j -->
+	<dependency>
+	  <groupId>log4j</groupId>
+	  <artifactId>log4j</artifactId>
+	  <version>1.2.16</version>
+	</dependency>
+
 	<!-- mutation assessor tool -->
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>
 	  <artifactId>mutation-assessor</artifactId>
 	  <version>${project.version}</version>
+	</dependency>
+
+	<!-- mysql -->
+	<dependency>
+	  <groupId>mysql</groupId>
+	  <artifactId>mysql-connector-java</artifactId>
+	  <version>5.1.16</version>
+	  <scope>runtime</scope>
 	</dependency>
 
 	<!-- oncotator -->
@@ -138,13 +169,6 @@
 	  <artifactId>oncotator</artifactId>
 	  <version>${project.version}</version>
 	</dependency>	
-
-	<!-- for foundation -->
-	<dependency>
-      <groupId>com.sun.xml.ws</groupId>
-      <artifactId>jaxws-rt</artifactId>
-      <version>2.2.6</version>
-    </dependency>
 
   </dependencies>
 
@@ -189,30 +213,56 @@
 				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 				  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
 				</transformer>
-				<transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-				  <resource>log4j.properties</resource>
-                </transformer>
 			  </transformers>
 			</configuration>
 		  </execution>
 		</executions>
 	  </plugin>
 
+	  <!-- this plugin lets us grab shared resources from our parent -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-resources-plugin</artifactId>
+		<executions>
+		  <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+			  <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+			  <resources>
+				<resource>
+				  <directory>${project.parent.basedir}/src/main/resources</directory>
+				  <includes>
+					<include>**/*.properties</include>
+				  </includes>
+				  <excludes>
+					<exclude>**/build.properties.*</exclude>
+					<exclude>**/log4j.properties.*</exclude>
+					<exclude>**/*.EXAMPLE</exclude>
+				  </excludes>
+				</resource>
+			  </resources>
+            </configuration>
+		  </execution>
+		</executions>
+	  </plugin>
+
 	</plugins>
 
-	<!-- properties file used for filter - use portal.properties -->
+	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into package -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
+		<!-- we want to filter application context files with values from portal.properties -->
 		<filtering>true</filtering>
-		<excludes>
-		  <exclude>portal.properties.EXAMPLE</exclude>
-		</excludes>
 	  </resource>
 	</resources>
 

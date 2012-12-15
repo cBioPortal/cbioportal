@@ -50,10 +50,10 @@
 
   <!-- properties -->
   <properties>
+	<slf4j.version>1.6.6</slf4j.version>
 	<spring.version>3.0.6.RELEASE</spring.version>
 	<spring.security.version>3.1.0.RELEASE</spring.security.version>
 	<hibernate.version>3.6.9.Final</hibernate.version>
-	<slf4j.version>1.5.8</slf4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -74,27 +74,6 @@
   <!-- dependencies -->
   <dependencies>
 
-	<!-- apache commons -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
-
-	<!-- easy cache -->
-	<dependency>
-	  <groupId>net.sf.ehcache</groupId>
-	  <artifactId>ehcache-core</artifactId>
-	  <version>2.3.0</version>
-	</dependency>
-
-	<!-- hibernate -->
-	<dependency>
-	  <groupId>org.hibernate</groupId>
-	  <artifactId>hibernate-entitymanager</artifactId>
-	  <version>${hibernate.version}</version>
-	</dependency>
-
 	<!-- junit -->
     <dependency>
       <groupId>junit</groupId>
@@ -102,24 +81,7 @@
       <version>4.8.2</version>
     </dependency>
 
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
-
 	<!-- slf4j -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-jdk14</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-api</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
 	<dependency>
 	  <groupId>org.slf4j</groupId>
 	  <artifactId>slf4j-log4j12</artifactId>
@@ -127,16 +89,8 @@
 	</dependency>
 	<dependency>
 	  <groupId>org.slf4j</groupId>
-	  <artifactId>jcl-over-slf4j</artifactId>
+	  <artifactId>slf4j-api</artifactId>
 	  <version>${slf4j.version}</version>
-	</dependency>
-
-	<!-- mysql -->
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <version>5.1.21</version>
-	  <scope>runtime</scope>
 	</dependency>
 
 	<!-- spring -->
@@ -212,8 +166,18 @@
 	  <artifactId>spring-security-web</artifactId>
 	  <version>${spring.security.version}</version>
 	</dependency>
-
   </dependencies>
+
+  <build>
+	<!-- this plugin will allow us to share resources with children -->
+	<plugins>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-resources-plugin</artifactId>
+		<version>2.6</version>
+	  </plugin>
+	</plugins>
+  </build>
 
   <reporting>
 	<plugins>
@@ -234,14 +198,5 @@
 	  </plugin>
 	</plugins>
   </reporting>
-  
-  <build>
-	
-	<!-- properties file used for filter - use build.properties -->
-	<filters>
-	  <filter>${PORTAL_HOME}/core/src/main/resources/build.properties</filter>
-	</filters>
-
-  </build>
 
 </project>

@@ -69,7 +69,6 @@
 	<module>mutation-assessor</module>
 	<module>cbioportal-client</module>
 	<module>mondrian-cy3-app</module>
-	<module>portal-importer</module>
   </modules>
 
   <!-- dependencies -->

@@ -49,7 +49,7 @@ public class ImportMutSigData {
     // command line utility
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <MetaProperties.txt>");
+            System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <cancer-study-identifier>");
             System.exit(1);
         }
 
@@ -57,16 +57,12 @@ public class ImportMutSigData {
         pMonitor.setConsoleMode(false);
 
         File mutSigFile = new File(args[0]);
-        File propertiesFile = new File(args[1]);
-
         System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
-        System.out.println("Properties: " + propertiesFile.getAbsolutePath());
-
         int numLines = FileUtil.getNumLines(mutSigFile);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
 
-        int internalId = MutSigReader.getInternalId(propertiesFile);
+        int internalId = MutSigReader.getInternalId(args[1]);
         MutSigReader.loadMutSig(internalId, mutSigFile, pMonitor);
 
         ConsoleUtil.showWarnings(pMonitor);

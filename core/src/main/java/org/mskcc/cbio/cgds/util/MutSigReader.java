@@ -78,6 +78,18 @@ public class MutSigReader {
             throw new IllegalArgumentException("cancer_study_identifier is not specified.");
         }
 
+		return getInternalId(cancerStudyIdentifier);
+    }
+
+    /**
+     * Gets internal cancer study id by stable id.
+     * @param cancerStudy String
+     * @return int
+     * @throws IOException
+     * @throws DaoException
+     */
+    public static int getInternalId(final String cancerStudyIdentifier) throws IOException, DaoException
+    {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
 
         if (cancerStudy == null) {
@@ -86,7 +98,7 @@ public class MutSigReader {
         }
 
         return cancerStudy.getInternalId();
-    }
+	}
 
     /**
      * Adds MutSigs to CDGS database.

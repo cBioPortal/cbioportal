@@ -1,5 +1,4 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-<div id="oncoprint_header">
     <h4>OncoPrint</h4>
 
     <h4 style="padding-top:15px;" onclick='$("#oncoprint_controls").toggle();'>
@@ -17,7 +16,6 @@
             <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
         </tr>
     </table>
-</div>
 <div id="oncoprint">
     <link rel="stylesheet" type="text/css" href="css/oncoprint.css">
     <script type="text/javascript" src="js/oncoprint.js"></script>

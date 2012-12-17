@@ -207,9 +207,8 @@ var Oncoprint = function(wrapper, params) {
         var sample_exit = sample.exit().remove();
     };
 
-    var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
-
     var svg;        // global scope
+    that.getSvg = function() { return svg; };
 
     var visKeySetup = function() {
         // hide/show keys for relevant data types
@@ -277,16 +276,20 @@ var Oncoprint = function(wrapper, params) {
 
     that.draw = function() {
 
-        that.getSvg = function() { return svg; };
+        var $header = $('<div>', {id:'oncoprint_header'});
+        $(wrapper).append($header);
 
-        $("#oncoprint_header").append(
+        $header.append(
             '<p>Case Set: ' + params.case_set_str + '</p></div>'
-            + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
+                + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
                 + ' of cases</p></div>');
 
         var visualized_samples = getVisualizedSamples();
 
         x.domain(visualized_samples);
+
+//        var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
+        var table_wrap = d3.select(wrapper).append('table').append('tr');
 
         var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
             .attr('id', "oncoprint_label")

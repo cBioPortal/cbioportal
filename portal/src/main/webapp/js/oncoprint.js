@@ -17,7 +17,6 @@ var Oncoprint = function(wrapper, params) {
         return "translate(" + x + "," + y + ")";
     };
 
-    // todo: am i using this?  what happens when you submit MIR_##/##?
     var cleanHugo = function(hugo) {
         // can't have '/' in DOM id
         return hugo.replace("/", "_");
@@ -210,6 +209,7 @@ var Oncoprint = function(wrapper, params) {
     var svg;        // global scope
     that.getSvg = function() { return svg; };
 
+    // ** icing on the cake functions **
     var visKeySetup = function() {
         // hide/show keys for relevant data types
         var data_types = query.data_types;
@@ -329,13 +329,18 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', label_width)
                 .text(gene_obj.percent_altered);
 
-            visKeySetup();
+            if (params.vis_key) {       // toggle the key to the visualization
+                visKeySetup();
+            }
 
             redraw(visualized_samples, track, hugo);
         });
 
         makeQtip();
-        widthScrollerSetup();
+
+        if (params.customize) {         // toggle the setup of the customization controls
+            widthScrollerSetup();
+        }
     };
 
     var transition = function() {

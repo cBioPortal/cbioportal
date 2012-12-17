@@ -27,7 +27,9 @@
             cancer_study_id: "<%=cancerTypeId%>",
             case_set_str: "<%=StringEscapeUtils.escapeHtml(MakeOncoPrint.getCaseSetDescriptionREFACTOR(caseSetId, caseSets))%>",
             num_cases_affected: "<%=dataSummary.getNumCasesAffected()%>",
-            percent_cases_affected: "<%=MakeOncoPrint.alterationValueToString(dataSummary.getPercentCasesAffected())%>"
+            percent_cases_affected: "<%=MakeOncoPrint.alterationValueToString(dataSummary.getPercentCasesAffected())%>",
+            vis_key: true,
+            customize: true
         };
 
         var geneDataQuery = {

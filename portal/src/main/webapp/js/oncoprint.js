@@ -5,6 +5,19 @@ var Oncoprint = function(wrapper, params) {
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
     var UPREGULATED = "UPREGULATED";
     var DOWNREGULATED = "DOWNREGULATED";
+    var MRNA_UP_COLOR = "#FF9999";
+    var MRNA_DOWN_COLOR = "#6699CC";
+    var MUT_COLOR = "#008000";
+    var RPPA_LIGHT = "#D3D3D3";
+    var RPPA_DARK = "#000000";
+    var cna_fills = {
+        none: '#D3D3D3',
+        AMPLIFIED: '#FF0000',
+        GAINED: '#FFB6C1',
+        DIPLOID: '#D3D3D3',
+        HEMIZYGOUSLYDELETED: '#8FD8D8',
+        HOMODELETED: '#0000FF'
+    };
 
     var data = params.data;
     var query = QueryGeneData(data);
@@ -134,20 +147,28 @@ var Oncoprint = function(wrapper, params) {
         var rect_width = getRectWidth();
 
         var cna = sample_enter.append('rect')
-            .attr('class', function(d) {
+            .attr('class', 'cna')
+            .attr('fill', function(d) {
                 var cna = query.data(d.sample, hugo, 'cna');
-                return 'cna ' + (cna === null ? 'none' : cna);
+                cna = cna === null ? 'none' : cna;
+                return cna_fills[cna];
             })
             .attr('width', rect_width)
             .attr('height', RECT_HEIGHT);
 
         var mrna = sample_enter.append('rect')
-            .attr('class', function(d) {
-                var mrna = query.data(d.sample, hugo, 'mrna');
-                return 'mrna ' + (mrna === null ? 'none' : mrna);
-            })
+            .attr('class', 'mrna')
+            .attr('fill', 'none')
+            .attr('stroke-width', 1)
+            .attr('stroke-opacity', 0.5)
             .attr('width', rect_width)
-            .attr('height', RECT_HEIGHT);
+            .attr('height', RECT_HEIGHT)
+            .attr('stroke', function(d) {
+                var mrna = query.data(d.sample, hugo, 'mrna');
+                if (mrna === UPREGULATED) {
+                    return MRNA_UP_COLOR;
+                } return MRNA_DOWN_COLOR;
+            });
 
         // remove all the null mrna squares
         mrna.filter(function(d) {
@@ -156,11 +177,8 @@ var Oncoprint = function(wrapper, params) {
         }).remove();
 
         var mut = sample_enter.append('rect')
-            .attr('class', function(d) {
-                var mutation = query.data(d.sample, hugo, 'mutation');
-                return 'mutation ' + (mutation === null ? 'none' : 'mut');
-            })
-//            .attr('x', -1)
+            .attr('class', 'mut')
+            .attr('fill', MUT_COLOR)
             .attr('y', LITTLE_RECT_HEIGHT)
             .attr('width', rect_width)
 //            .attr('width', mutation_width)
@@ -176,11 +194,12 @@ var Oncoprint = function(wrapper, params) {
         var down_triangle = getTrianglePath(rect_width, false);
 
         var rppa = sample_enter.append('path')
-            .attr('class', function(d) {
+            .attr('class', 'rppa')
+            .attr('fill', function(d) {
                 if (query.data(d.sample, hugo, 'cna') === null) {
-                    return 'rppa dark';
+                    return RPPA_DARK;
                 }
-                return 'rppa light';
+                return RPPA_LIGHT;
             })
             .attr('d', function(d) {
                 var rppa = query.data(d.sample, hugo, 'rppa');

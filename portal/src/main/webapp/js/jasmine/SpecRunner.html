@@ -62,15 +62,22 @@
 </head>
 
 <body>
-<table id='oncoprint_controls'>
+
+<h4>OncoPrint</h4>
+
+<p onclick='$("#oncoprint_controls").toggle();'>
+<span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+<span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Customize</b>
+<p/>
+<table id='oncoprint_controls' style="padding-left:13px; padding-top:5px;">
     <tr>
-        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</input></td>
-        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}';>Unsort Cases</input></td>
+        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</td>
+        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Unsort Cases</td>
     </tr>
 
     <tr>
-        <td><div id="width_scroller">Width</div></td>
-        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</input></td>
+        <td style="padding-right: 15px;"><span>Adjust Width</span><div id="width_scroller" style="display: inline-table;"></div></td>
+        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
     </tr>
 </table>
 
@@ -132,7 +139,9 @@
       cancer_study_id: "tcga-test",
       case_set_str: "case set description",
       num_cases_affected: "-1",
-      percent_cases_affected: "-1%"
+      percent_cases_affected: "-1%",
+      vis_key: true,
+      customize: true
   };
   // }}}
   var oncoprint = Oncoprint($('#oncoprint')[0], params);

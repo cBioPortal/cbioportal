@@ -1,11 +1,16 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-    <h4>OncoPrint</h4>
+<h4>OncoPrint
+    <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
+</h4>
 
-    <h4 style="padding-top:15px;" onclick='$("#oncoprint_controls").toggle();'>
-        <span class="ui-icon ui-icon-triangle-1-e" style="float:left;" onclick='$("#oncoprint_conrols .ui-icon-triangle-1-e").toggle();$("#oncoprint_conrols .ui-icon-triangle-1-s").toggle();'>
-        <span class="ui-icon ui-icon-triangle-1-s" style="float:left;display:none;" onclick='$("#oncoprint_conrols .ui-icon-triangle-1-e").toggle();$("#oncoprint_conrols .ui-icon-triangle-1-s").toggle();'></span>
-        </span>Customize</h4>
-    <table id='oncoprint_controls' style="padding-left:13px; padding-top:5px;">
+<div id="oncoprint_controls">
+    <p onclick="$('#oncoprint_controls table').toggle();
+    $('#oncoprint_controls .query-toggle').toggle();" style="margin-bottom: 0px;">
+        <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+        <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
+        <b style="color:#2153AA;">Customize</b>
+    </p>
+    <table style="padding-left:13px; padding-top:5px; display:none;">
         <tr>
             <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</td>
             <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Unsort Cases</td>
@@ -16,6 +21,7 @@
             <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
         </tr>
     </table>
+</div>
 <div id="oncoprint">
     <link rel="stylesheet" type="text/css" href="css/oncoprint.css">
     <script type="text/javascript" src="js/oncoprint.js"></script>

@@ -3,6 +3,14 @@
     <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
 </h4>
 
+<form id="oncoprintForm" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST"
+      onsubmit="this.elements['xml'].value=Oncoprint.getOncoPrintBodyXML($('#oncoprint svg')[1]); return true;" target="_blank">
+    <input type="hidden" name="xml">
+    <input type="hidden" name="longest_label_length">
+    <input type="hidden" name="format" value="svg">
+    <p>Get OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
+</form>
+
 <div id="oncoprint_controls">
     <p onclick="$('#oncoprint_controls table').toggle();
     $('#oncoprint_controls .query-toggle').toggle();" style="margin-bottom: 0px;">

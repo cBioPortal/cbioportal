@@ -437,3 +437,16 @@ var Oncoprint = function(wrapper, params) {
     };
     return that;
 };
+
+/*
+ * For the given oncoprint reference, returns the SVG Dom as string
+ * for the body canvas.
+ *
+ * oncoprint - opaque reference to oncoprint system
+ *
+ */
+Oncoprint.getOncoPrintBodyXML = function(svg_el) {
+    // outta here
+//    return (new XMLSerializer()).serializeToString(oncoprint.body_canvas.canvas);
+    return (new XMLSerializer()).serializeToString(svg_el);
+};

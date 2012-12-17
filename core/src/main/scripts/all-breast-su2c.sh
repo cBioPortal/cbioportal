@@ -5,7 +5,7 @@
 ./importCaseList.pl $GDAC_CGDS_STAGING_HOME/brca_tcga/case_lists
 
 # Imports Clinical Data
-./importClinicalData.pl brca_tcga $GDAC_CGDS_STAGING_HOME/brca_tcga/brca_tcga_clinical.txt
+./importClinicalData.pl $GDAC_CGDS_STAGING_HOME/brca_tcga/brca_tcga_clinical.txt brca_tcga
 
 # Imports Mutation Data
 ./importProfileData.pl --data $GDAC_CGDS_STAGING_HOME/brca_tcga/data_mutations_extended.txt --meta $GDAC_CGDS_STAGING_HOME/brca_tcga/meta_mutations_extended.txt --dbmsAction clobber

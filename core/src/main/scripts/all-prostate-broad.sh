@@ -5,7 +5,7 @@
 ./importCaseList.pl $CGDS_DATA_HOME/private-override/prad_broad/case_lists
 
 # Imports Clinical Data
-./importClinicalData.pl prad_broad $CGDS_DATA_HOME/private-override/prad_broad/prad_broad_clinical.txt
+./importClinicalData.pl $CGDS_DATA_HOME/private-override/prad_broad/prad_broad_clinical.txt prad_broad
 
 # Imports Mutation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/private-override/prad_broad/data_mutations_extended.txt --meta $CGDS_DATA_HOME/private-override/prad_broad/meta_mutations_extended.txt --dbmsAction clobber

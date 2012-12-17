@@ -251,16 +251,16 @@ public class ImportClinicalData {
         
         // check args
         if (args.length < 2) {
-            System.out.println("command line usage:  importClinicalData.pl <cancer_study_id> <data_file.txt>");
+            System.out.println("command line usage:  importClinicalData.pl <data_file.txt> <cancer_study_id>");
             System.exit(1);
         }
 
         try {
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[0]);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
             if (cancerStudy == null) {
-                System.err.println("Unknown cancer study:  " + args[0]);
+                System.err.println("Unknown cancer study:  " + args[1]);
             } else {
-                File dataFile = new File(args[1]);
+                File dataFile = new File(args[0]);
 
                 System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
                 int numLines = FileUtil.getNumLines(dataFile);

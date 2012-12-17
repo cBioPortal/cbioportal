@@ -11,7 +11,7 @@
 ./importCaseList.pl $CGDS_DATA_HOME/public-override/ov_tcga_pub/case_lists
 
 # Imports Clinical Data
-./importClinicalData.pl $CGDS_DATA_HOME/public-override/ov_tcga_pub/ov_tcga_clinical.txt
+./importClinicalData.pl $CGDS_DATA_HOME/public-override/ov_tcga_pub/ov_tcga_clinical.txt ov_tcga_pub
 
 # Imports Mutation Data
 ./importProfileData.pl --data $CGDS_DATA_HOME/public-override/ov_tcga_pub/data_mutations_extended.txt --meta $CGDS_DATA_HOME/public-override/ov_tcga_pub/meta_mutations_extended.txt --dbmsAction clobber

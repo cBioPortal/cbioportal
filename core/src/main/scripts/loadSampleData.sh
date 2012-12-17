@@ -25,7 +25,7 @@ TEST_DATA=$PORTAL_HOME/portal/src/test/resources
 
 # Load Cases and Clinical Data
 ./importCaseList.pl $SAMPLE_DATA/gbm/case_lists
-./importClinicalData.pl $SAMPLE_DATA/gbm/GBM_clinical_portal_20110210.txt
+./importClinicalData.pl $SAMPLE_DATA/gbm/GBM_clinical_portal_20110210.txt gbm
 
 # Load Mutation Data
 ./importProfileData.pl --data $SAMPLE_DATA/gbm/data_mutations_MAF.txt --meta $SAMPLE_DATA/gbm/meta_mutations_MAF.txt --dbmsAction clobber 

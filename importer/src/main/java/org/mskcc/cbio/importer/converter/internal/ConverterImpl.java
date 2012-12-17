@@ -38,7 +38,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
@@ -162,7 +162,7 @@ final class ConverterImpl implements Converter {
 				}
 
 				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
+				DataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
 				if (importDataMatrices == null || importDataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), error getting importDataMatrices, skipping.");
@@ -289,12 +289,12 @@ final class ConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param importDataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -314,20 +314,20 @@ final class ConverterImpl implements Converter {
 	}
 
 	/**
-	 * Helper function to get ImportDataMatrix[] array.
+	 * Helper function to get DataMatrix[] array.
 	 *  - may return null.
 	 *
 	 * @param portalMetadata PortalMetadata
 	 * @param tumorType String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @return ImportDataMatrix[]
+	 * @return DataMatrix[]
 	 * @throws Exception
 	 */
-	private ImportDataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
+	private DataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
 													 final DatatypeMetadata datatypeMetadata) throws Exception {
 
 		// this is what we are returing
-		Vector<ImportDataMatrix> toReturn = new Vector<ImportDataMatrix>();
+		Vector<DataMatrix> toReturn = new Vector<DataMatrix>();
 
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
@@ -353,6 +353,6 @@ final class ConverterImpl implements Converter {
 		}
 
 		// outta here
-		return toReturn.toArray(new ImportDataMatrix[0]);
+		return toReturn.toArray(new DataMatrix[0]);
 	}
 }

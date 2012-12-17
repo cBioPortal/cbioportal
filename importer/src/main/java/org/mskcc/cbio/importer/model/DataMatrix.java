@@ -53,10 +53,10 @@ import java.io.OutputStream;
  * read, write, and manipulation of tabular data.
  * The given matrix must be square.
  */
-public final class ImportDataMatrix {
+public final class DataMatrix {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ImportDataMatrix.class);
+	private static final Log LOG = LogFactory.getLog(DataMatrix.class);
 
 	// inner class which encapsulates a column header w/its column data
 	private class ColumnHeader {
@@ -90,7 +90,7 @@ public final class ImportDataMatrix {
 	 * @param rowData Vector
 	 * @param columnNames Vector
 	 */
-	public ImportDataMatrix(final Vector<Vector<String>> rowData, final Vector<String> columnNames) {
+	public DataMatrix(final Vector<Vector<String>> rowData, final Vector<String> columnNames) {
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
@@ -452,66 +452,66 @@ public final class ImportDataMatrix {
 		rowData.add(new Vector<String>(rowThree));
 
 		// create matrix and dump
-		ImportDataMatrix importDataMatrix = new ImportDataMatrix(rowData, columnNames);
-		importDataMatrix.write(System.out);
+		DataMatrix dataMatrix = new DataMatrix(rowData, columnNames);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// add a column and dump
-		importDataMatrix.addColumn("H4", new Vector<String>());
-		importDataMatrix.write(System.out);
+		dataMatrix.addColumn("H4", new Vector<String>());
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// remove a column and dump
-		importDataMatrix.ignoreColumn("H1", true);
-		importDataMatrix.write(System.out);
+		dataMatrix.ignoreColumn("H1", true);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// reorder the columns and dump
 		java.util.List newColumnOrder = java.util.Arrays.asList("H3", "H2", "H4");
-		importDataMatrix.setColumnOrder(new Vector<String>(newColumnOrder));
-		importDataMatrix.write(System.out);
+		dataMatrix.setColumnOrder(new Vector<String>(newColumnOrder));
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// reorder again and dump
 		java.util.List anotherNewColumnOrder = java.util.Arrays.asList("H4", "H3", "H2");
-		importDataMatrix.setColumnOrder(new Vector<String>(anotherNewColumnOrder));
-		importDataMatrix.write(System.out);
+		dataMatrix.setColumnOrder(new Vector<String>(anotherNewColumnOrder));
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// remove a column and dump
-		importDataMatrix.ignoreColumn("H4", true);
-		importDataMatrix.write(System.out);
+		dataMatrix.ignoreColumn("H4", true);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// reorder a last time
 		java.util.List lastNewColumnOrder = java.util.Arrays.asList("H2", "H3");
-		importDataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
-		importDataMatrix.write(System.out);
+		dataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// change some values in a column
-		Vector<String> columnValues = importDataMatrix.getColumnData("H2").get(0);
+		Vector<String> columnValues = dataMatrix.getColumnData("H2").get(0);
 		for (int lc = 0; lc < columnValues.size(); lc++) {
 			if (columnValues.elementAt(lc).equals("2")) {
 				columnValues.setElementAt("2.7", lc);
 			}
 		}
 
-		importDataMatrix.write(System.out);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// ignore a few rows
-		importDataMatrix.ignoreRow(0, true);
-		importDataMatrix.ignoreRow(2, true);
-		importDataMatrix.write(System.out);
+		dataMatrix.ignoreRow(0, true);
+		dataMatrix.ignoreRow(2, true);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
@@ -532,15 +532,15 @@ public final class ImportDataMatrix {
 		rowData.add(new Vector<String>(rowThree));
 
 		// create matrix and dump
-		importDataMatrix = new ImportDataMatrix(rowData, columnNames);
-		importDataMatrix.write(System.out);
+		dataMatrix = new DataMatrix(rowData, columnNames);
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// filter and convert, then dump
 		String[] columnsToIgnore = { "Gene Symbol", "Locus ID" };
-		importDataMatrix.convertCaseIDs(java.util.Arrays.asList(columnsToIgnore));
-		importDataMatrix.write(System.out);
+		dataMatrix.convertCaseIDs(java.util.Arrays.asList(columnsToIgnore));
+		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 	}

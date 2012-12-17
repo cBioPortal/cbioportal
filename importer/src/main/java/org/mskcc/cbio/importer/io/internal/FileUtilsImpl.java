@@ -33,7 +33,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.model.ImportData;
 import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
@@ -178,16 +178,16 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	/**
 	 * Returns the contents of the datafile as specified by ImportData
-     * in an ImportDataMatrix.  PortalMetadata is used to help determine if an "override"
+     * in an DataMatrix.  PortalMetadata is used to help determine if an "override"
      * file exists.  May return null if there is a problem reading the file.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param importData ImportData
-	 * @return ImportDataMatrix
+	 * @return DataMatrix
 	 * @throws Exception
 	 */
     @Override
-	public ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+	public DataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getFileContents(): " + importData);
@@ -215,7 +215,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // outta here
-        return getImportDataMatrix(fileContents);
+        return getDataMatrix(fileContents);
     }
 
 	/**
@@ -329,17 +329,17 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
-	 * Creates a staging file with contents from the given ImportDataMatrix.
+	 * Creates a staging file with contents from the given DataMatrix.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
 	@Override
 	public void writeStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								 final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
+								 final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
@@ -353,7 +353,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 																   
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile, false);
-		importDataMatrix.write(out);
+		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
 
 		// meta file
@@ -361,29 +361,29 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writingStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
-			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
 		}
 	}
 
 	/**
-	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
+	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
 	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
 	public void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-										 final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
+										 final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
 
 		// we only have data matrix at this point, we need to create a temp with its contents
 		File oncotatorInputFile =
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 													"oncotatorInputFile");
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
-		importDataMatrix.write(out);
+		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 
@@ -420,7 +420,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writingMutationStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
-			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+			writeMetadataFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
 		}
 	}
 
@@ -528,17 +528,17 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	/**
 	 * Helper method which writes a metadata file for the
-	 * given DatatypeMetadata.  ImportDataMatrix may be null.
+	 * given DatatypeMetadata.  DataMatrix may be null.
 	 *
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 *
 	 */
 	private void writeMetadataFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								   final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception {
+								   final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	cancerStudy,
@@ -554,9 +554,9 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("stable_id: " + stableID + "\n");
 			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
-			if (importDataMatrix != null) {
-				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(importDataMatrix.getGeneIDs().size()));
-				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(importDataMatrix.getCaseIDs().size()));
+			if (dataMatrix != null) {
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(dataMatrix.getCaseIDs().size()));
 			}
 			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudy.split("_")[0]);
 			writer.print("profile_description: " + profileDescription + "\n");
@@ -626,12 +626,12 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
     /**
-     * Helper function to create ImportDataMatrix.
+     * Helper function to create DataMatrix.
      *
      * @param data byte[]
-     * @return ImportDataMatrix
+     * @return DataMatrix
      */
-    private ImportDataMatrix getImportDataMatrix(final byte[] data) throws Exception {
+    private DataMatrix getDataMatrix(final byte[] data) throws Exception {
 
         // iterate over all lines in byte[]
         Vector<String> columnNames = null;
@@ -658,18 +658,18 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         // problem reading from data?
         if (columnNames == null && rowData == null) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getImportDataMatrix(), problem creating ImportDataMatrix from file");
+                LOG.info("getDataMatrix(), problem creating DataMatrix from file");
             }
             return null;
         }
 
-        // made it here, we can create ImportDataMatrix
+        // made it here, we can create DataMatrix
         if (LOG.isInfoEnabled()) {
-            LOG.info("creating new ImportDataMatrix(), from file data");
+            LOG.info("creating new DataMatrix(), from file data");
         }
 
         // outta here
-        return new ImportDataMatrix(rowData, columnNames);
+        return new DataMatrix(rowData, columnNames);
     }
 
     /**

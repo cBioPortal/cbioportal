@@ -31,7 +31,7 @@ package org.mskcc.cbio.importer.caseids.internal;
 // imports
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 
 import org.apache.commons.logging.Log;
@@ -114,15 +114,15 @@ public final class CaseIDsImpl implements CaseIDs {
 	/**
 	 * Computes the number of case ids within the give import data matrix.
 	 *
-     * @param importDataMatrix ImportDataMatrix
+     * @param dataMatrix DataMatrix
 	 * @return int
 	 */
 	@Override
-	public int getCaseCount(final ImportDataMatrix importDataMatrix) {
+	public int getCaseCount(final DataMatrix dataMatrix) {
 
 		int toReturn = 0;
 
-		Collection<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		Collection<String> columnHeaders = dataMatrix.getColumnHeaders();
 		for (String columnHeader : columnHeaders) {
 			if (isTumorCaseID(columnHeader)) {
 				++toReturn;

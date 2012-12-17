@@ -38,7 +38,7 @@ import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,57 +115,57 @@ public final class CNAConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param importDataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
 
 		// sanity check
 		if (importDataMatrices.length != 1) {
 			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+		DataMatrix dataMatrix = importDataMatrices[0];
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
-		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
+		MapperUtil.mapGeneSymbolToID(dataMatrix, idMapper,
 									 GENE_ID_COLUMN_HEADER_NAME, GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// rename columns
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), renaming columns");
 		}
-		importDataMatrix.renameColumn(GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		importDataMatrix.renameColumn(GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrix.renameColumn(GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		dataMatrix.renameColumn(GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
 		// convert case ids
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
 		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME }; // drop Cytoband
-		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
+		dataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
 		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
 		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
-		importDataMatrix.setColumnOrder(columnHeaders);
+		dataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

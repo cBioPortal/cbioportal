@@ -37,7 +37,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,31 +109,31 @@ public final class MutationConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param importDataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
 
 		// sanity check
 		if (importDataMatrices.length != 1) {
 			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
-		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		DataMatrix dataMatrix = importDataMatrices[0];
+		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
 		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
-			fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+			fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
 			}
-			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
 		}
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

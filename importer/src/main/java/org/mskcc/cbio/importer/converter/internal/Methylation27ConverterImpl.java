@@ -37,7 +37,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -123,12 +123,12 @@ public final class Methylation27ConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param importDataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
 
 		// sanity check
 		if (importDataMatrices.length != 2) {
@@ -137,28 +137,28 @@ public final class Methylation27ConverterImpl implements Converter {
 
 		// determine which matrix is methylation data
 		// and which matrix is the correlation data
-		ImportDataMatrix importDataMatrixMethylationData = null;
-		ImportDataMatrix importDataMatrixCorrelationData = null;
+		DataMatrix dataMatrixMethylationData = null;
+		DataMatrix dataMatrixCorrelationData = null;
 		if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME) &&
 			importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME)) {
-			importDataMatrixCorrelationData = importDataMatrices[0];
-			importDataMatrixMethylationData = importDataMatrices[1];
+			dataMatrixCorrelationData = importDataMatrices[0];
+			dataMatrixMethylationData = importDataMatrices[1];
 		}
 		else if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME) &&
 				 importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME)) {
-			importDataMatrixMethylationData = importDataMatrices[0];
-			importDataMatrixCorrelationData = importDataMatrices[1];
+			dataMatrixMethylationData = importDataMatrices[0];
+			dataMatrixCorrelationData = importDataMatrices[1];
 		}
 		else {
 			throw new IllegalArgumentException("Cannot determine correlation & methylation data matrices, aborting...");
 		}
 
-		// get probe with lowest Spearman correlation for each gene in importDataMatrixCorrelationData
-		// (this works whether or not importDataMatrixCorrelationData is sorted by correlation value)
+		// get probe with lowest Spearman correlation for each gene in dataMatrixCorrelationData
+		// (this works whether or not dataMatrixCorrelationData is sorted by correlation value)
 		HashMap<String,String[]> lowestCorrelationMap = new HashMap<String,String[]>();
-		Vector<String> genes = importDataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).get(0);
-		Vector<String> methProbes = importDataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0);
-		Vector<String> corrSpearman = importDataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).get(0);
+		Vector<String> genes = dataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).get(0);
+		Vector<String> methProbes = dataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0);
+		Vector<String> corrSpearman = dataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).get(0);
 		// sanity check
 		if (genes.size() != methProbes.size() && methProbes.size() != corrSpearman.size()) {
 			throw new IllegalArgumentException("Genes, probs, and corrSpearman vectors are different sizes, aborting...");
@@ -199,7 +199,7 @@ public final class Methylation27ConverterImpl implements Converter {
 		// for each case.
 		// so, count the # of columns in methylation__humanmethylation27 and delete all columns but
 		// 1, 2, 6, 10, ...,
-		Vector<String> columnHeaders = importDataMatrixMethylationData.getColumnHeaders();
+		Vector<String> columnHeaders = dataMatrixMethylationData.getColumnHeaders();
 		if ((columnHeaders.size()-1) % 4 != 0) {
 			throw new IllegalArgumentException(cancerStudy + ": methylation__humanmethylation27 does not have 4 columns per case, aborting...");
 		}
@@ -207,7 +207,7 @@ public final class Methylation27ConverterImpl implements Converter {
 		for (int lc = 1; lc < columnHeaders.size(); lc++) {
 			String columnHeader = columnHeaders.get(lc);
 			if (columnHeader.equals(previousHeader)) {
-				importDataMatrixMethylationData.ignoreColumn(lc, true);
+				dataMatrixMethylationData.ignoreColumn(lc, true);
 			}
 			else {
 				previousHeader = columnHeader;
@@ -216,12 +216,12 @@ public final class Methylation27ConverterImpl implements Converter {
 
 		// remove 2nd row (row data starts at 0 index, ignoring column headings)
 		// of data (containing "Composite Element REF Beta_Value...";
-		importDataMatrixMethylationData.ignoreRow(0, true);
+		dataMatrixMethylationData.ignoreRow(0, true);
 
 		// select rows in with lowest correlated probes
 		// if probe has the gene lowest correlation file (i.e., is in the $probes array ) then select its methylation row
 		Vector<String> hugoSymbols = new Vector<String>();
-		Vector<String> hybridizationRefs = importDataMatrixMethylationData.getColumnData(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
+		Vector<String> hybridizationRefs = dataMatrixMethylationData.getColumnData(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
 		for (int lc = 0; lc < hybridizationRefs.size(); lc++) {
 			if (probeToGene.containsKey(hybridizationRefs.get(lc))) {
 				// add gene to Hugo_Symbol at row lc
@@ -230,20 +230,20 @@ public final class Methylation27ConverterImpl implements Converter {
 			else {
 				// ignore probe/row
 				hugoSymbols.add("NA");
-				importDataMatrixCorrelationData.ignoreRow(lc, true);
+				dataMatrixCorrelationData.ignoreRow(lc, true);
 			}
 		}
 
 		// add gene & entrez gene id columns
-		importDataMatrixMethylationData.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, hugoSymbols);
-		importDataMatrixMethylationData.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
-		importDataMatrixMethylationData.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrixMethylationData.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, hugoSymbols);
+		dataMatrixMethylationData.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
+		dataMatrixMethylationData.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
-		MapperUtil.mapGeneSymbolToID(importDataMatrixMethylationData, idMapper,
+		MapperUtil.mapGeneSymbolToID(dataMatrixMethylationData, idMapper,
 									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// convert case ids
@@ -251,28 +251,28 @@ public final class Methylation27ConverterImpl implements Converter {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
 		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME }; // drop Hybridization REF
-		importDataMatrixMethylationData.convertCaseIDs(Arrays.asList(columnsToIgnore));
+		dataMatrixMethylationData.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		columnHeaders = importDataMatrixMethylationData.getColumnHeaders();
+		columnHeaders = dataMatrixMethylationData.getColumnHeaders();
 		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
 		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
-		importDataMatrixMethylationData.setColumnOrder(columnHeaders);
+		dataMatrixMethylationData.setColumnOrder(columnHeaders);
 		
 		if (LOG.isInfoEnabled()) {
-			//importDataMatrixMethylationData.setGeneIDColumnHeading();
+			//dataMatrixMethylationData.setGeneIDColumnHeading();
 			//LOG.info("createStagingFile(), of ", genes.size(), " with measured methylation, only ", lowestCorrelation.size(), " have correlations.\n";);
 		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrixMethylationData);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrixMethylationData);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

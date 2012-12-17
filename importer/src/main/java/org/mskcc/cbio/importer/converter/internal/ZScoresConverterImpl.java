@@ -35,7 +35,7 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
@@ -114,12 +114,12 @@ public final class ZScoresConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices DataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// this code assumes dependencies have already been created
 		String[] dependencies = datatypeMetadata.getDependencies();

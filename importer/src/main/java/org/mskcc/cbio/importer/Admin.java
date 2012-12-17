@@ -85,7 +85,7 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "print this message");
 
-        Option clobberImportDatabase = new Option("clobber_import_database", "clobber the import database");
+        Option clobberImportDataRecordbase = new Option("clobber_import_database", "clobber the import database");
 
         Option fetchData = (OptionBuilder.withArgName("datasource:run_date")
 							.hasArgs(2)
@@ -124,7 +124,7 @@ public class Admin implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
-		toReturn.addOption(clobberImportDatabase);
+		toReturn.addOption(clobberImportDataRecordbase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
@@ -174,7 +174,7 @@ public class Admin implements Runnable {
 			}
 			// clobber import database
 			else if (commandLine.hasOption("clobber_import_database")) {
-				clobberImportDatabase();
+				clobberImportDataRecordbase();
 			}
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
@@ -216,10 +216,10 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void clobberImportDatabase() throws Exception {
+	private void clobberImportDataRecordbase() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("clobberImportDatabase()");
+			LOG.info("clobberImportDataRecordbase()");
 		}
 
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);

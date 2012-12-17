@@ -44,21 +44,21 @@ import org.hibernate.annotations.NaturalId;
  * like a gzipped tar downloaded from the broad firehose.
  */
 @Entity
-@Table(name="importdata")
+@Table(name="importdatarecord")
 @NamedQueries({
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataAll",
-                            query="from ImportData as importdata order by tumortype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatype",
-							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype order by tumortype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataSource",
-							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype and datasource = :datasource order by tumortype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataFilename",
-							query="from ImportData as importdata where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordAll",
+                            query="from ImportDataRecord as importdatarecord order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatype",
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataSource",
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datasource = :datasource order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename",
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.deleteByDataSource",
-                            query="delete from ImportData where dataSource = :datasource")
+                            query="delete from ImportDataRecord where dataSource = :datasource")
 
 })
-public final class ImportData {
+public final class ImportDataRecord {
 
 	// bean properties
 	@Id
@@ -87,10 +87,10 @@ public final class ImportData {
 	/**
 	 * Default Constructor.
 	 */
-	public ImportData() {}
+	public ImportDataRecord() {}
 
     /**
-     * Create a ImportData instance with specified properties.
+     * Create a ImportDataRecord instance with specified properties.
      *
 	 * @param dataSource String
 	 * @param tumorType String
@@ -101,7 +101,7 @@ public final class ImportData {
      * @param dataFilename String
      * @param overrideFilename
      */
-    public ImportData(final String dataSource, final String tumorType, final String datatype,
+    public ImportDataRecord(final String dataSource, final String tumorType, final String datatype,
 					  final String runDate, final String canonicalPath, final String digest,
                       final String dataFilename, final String overrideFilename) {
         

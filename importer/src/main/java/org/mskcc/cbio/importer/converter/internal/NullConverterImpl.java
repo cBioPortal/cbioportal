@@ -109,10 +109,10 @@ public final class NullConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices DataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {}
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {}
 }

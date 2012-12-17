@@ -125,31 +125,31 @@ public final class GisticGenesConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices DataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 2) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 2, aborting...");
+		if (dataMatrices.length != 2) {
+			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
 		}
 
 		// figure out which matrix is *_genes.conf_99.txt
 		// and which matrix is table_*.conf_90.txt
 		DataMatrix dataMatrixGenesConf = null;
 		DataMatrix dataMatrixTableConf = null;
-		if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
-			importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
-			dataMatrixGenesConf = importDataMatrices[0];
-			dataMatrixTableConf = importDataMatrices[1];
+		if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
+			dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
+			dataMatrixGenesConf = dataMatrices[0];
+			dataMatrixTableConf = dataMatrices[1];
 		}
-		else if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
-				 importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
-			dataMatrixTableConf = importDataMatrices[0];
-			dataMatrixGenesConf = importDataMatrices[1];
+		else if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
+				 dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
+			dataMatrixTableConf = dataMatrices[0];
+			dataMatrixGenesConf = dataMatrices[1];
 		}
 		else {
 			throw new IllegalArgumentException("Cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");

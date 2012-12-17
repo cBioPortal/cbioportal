@@ -31,7 +31,7 @@ package org.mskcc.cbio.importer.io.internal;
 // imports
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
@@ -177,24 +177,24 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
-	 * Returns the contents of the datafile as specified by ImportData
+	 * Returns the contents of the datafile as specified by ImportDataRecord
      * in an DataMatrix.  PortalMetadata is used to help determine if an "override"
      * file exists.  May return null if there is a problem reading the file.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param importDataRecord ImportDataRecord
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
     @Override
-	public DataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+	public DataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportDataRecord importDataRecord) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getFileContents(): " + importData);
+			LOG.info("getFileContents(): " + importDataRecord);
 		}
 
         // determine path to file (does override file exist?)
-        String fileCanonicalPath = getCanonicalPath(portalMetadata, importData);
+        String fileCanonicalPath = getCanonicalPath(portalMetadata, importDataRecord);
 
         // get filedata inputstream
         byte[] fileContents;
@@ -204,7 +204,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             if (LOG.isInfoEnabled()) {
                 LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
             }
-            fileContents = readContent(importData,
+            fileContents = readContent(importDataRecord,
                                        org.apache.commons.io.FileUtils.openInputStream(new File(fileCanonicalPath)));
         }
         else {
@@ -569,11 +569,11 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * Given a zip stream, unzips it and gets contents of desired data file.
      * This routine will attempt to close the given input stream.
      *
-     * @param importData ImportData
+     * @param importDataRecord ImportDataRecord
      * @param is InputStream
      * @return byte[]
      */
-    private byte[] readContent(final ImportData importData, final InputStream is) throws Exception {
+    private byte[] readContent(final ImportDataRecord importDataRecord, final InputStream is) throws Exception {
 
         byte[] toReturn = null;
         TarArchiveInputStream tis = null;
@@ -582,12 +582,12 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         try {
             // decompress .gz file
             if (LOG.isInfoEnabled()) {
-                LOG.info("readContent(), decompressing: " + importData.getCanonicalPathToData());
+                LOG.info("readContent(), decompressing: " + importDataRecord.getCanonicalPathToData());
             }
 
             InputStream unzippedContent = IOUtils.toBufferedInputStream((InputStream)gzis);
             // if tarball, untar
-            if (importData.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
+            if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("readContent(), gzip file is a tarball, untarring");
                 }
@@ -595,13 +595,13 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 TarArchiveEntry entry = null;
                 while ((entry = tis.getNextTarEntry()) != null) {
                     String entryName = entry.getName();
-                    String dataFile = importData.getDataFilename();
+                    String dataFile = importDataRecord.getDataFilename();
                     if (dataFile.contains(TumorTypeMetadata.TUMOR_TYPE_REGEX)) {
-                        dataFile = dataFile.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX, importData.getTumorType().toUpperCase());
+                        dataFile = dataFile.replaceAll(TumorTypeMetadata.TUMOR_TYPE_REGEX, importDataRecord.getTumorType().toUpperCase());
                     }
                     if (entryName.contains(dataFile)) {
                         if (LOG.isInfoEnabled()) {
-                            LOG.info("Processing tar-archive: " + importData.getDataFilename());
+                            LOG.info("Processing tar-archive: " + importDataRecord.getDataFilename());
                         }
                         toReturn = IOUtils.toByteArray(tis, entry.getSize());
                         break;
@@ -679,14 +679,14 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * are cancer study names, like brca_tcga.
      *
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param importDataRecord ImportDataRecord
      * @return String
      */
-    private String getCanonicalPath(final PortalMetadata portalMetadata, final ImportData importData) throws Exception {
+    private String getCanonicalPath(final PortalMetadata portalMetadata, final ImportDataRecord importDataRecord) throws Exception {
 
-        // by default return importData's canonical path
-        String toReturn = importData.getCanonicalPathToData();
-		String overrideFilename = importData.getOverrideFilename();
+        // by default return importDataRecord's canonical path
+        String toReturn = importDataRecord.getCanonicalPathToData();
+		String overrideFilename = importDataRecord.getOverrideFilename();
 
 		// no need to continue if we don't have an override filename
 		if (overrideFilename == null || overrideFilename.length() == 0) {
@@ -695,7 +695,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         // we have to contruct the path to the override file
         String potentialOverrideCancerStudyDir = null;
-        String tumorType = importData.getTumorType().toLowerCase();
+        String tumorType = importDataRecord.getTumorType().toLowerCase();
         // look for a cancer study that matches the tumor type
         for (String cancerStudy : portalMetadata.getCancerStudies()) {
             if (cancerStudy.toLowerCase().contains(tumorType)) {

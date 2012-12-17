@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
@@ -91,11 +91,11 @@ public interface FileUtils {
 	 * Returns the given file contents in an DataMatrix.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
+	 * @param importDataRecord ImportDataRecord
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
+	DataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportDataRecord importDataRecord) throws Exception;
 
 	/**
 	 * Get staging file header.

@@ -33,10 +33,10 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 
 import org.foundation.*;
 
@@ -61,7 +61,7 @@ final class FoundationFetcherImpl implements Fetcher {
 	// foundation data file extension
 	private static final String FOUNDATION_FILE_EXTENSION = ".xml";
 
-	// not all fields in ImportData will be used
+	// not all fields in ImportDataRecord will be used
 	private static final String UNUSED_IMPORT_DATA_FIELD = "NA";
 
 	// regex used when getting a case list from the broad
@@ -75,7 +75,7 @@ final class FoundationFetcherImpl implements Fetcher {
 	private FileUtils fileUtils;
 
 	// ref to import data
-	private ImportDataDAO importDataDAO;
+	private ImportDataRecordDAO importDataRecordDAO;
 
 	// ref to database utils
 	private DatabaseUtils databaseUtils;
@@ -89,16 +89,16 @@ final class FoundationFetcherImpl implements Fetcher {
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
-	 * @param importDataDAO ImportDataDAO;
+	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
 	public FoundationFetcherImpl(final Config config, final FileUtils fileUtils,
-								 final DatabaseUtils databaseUtils, final ImportDataDAO importDataDAO) {
+								 final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
-		this.importDataDAO = importDataDAO;
+		this.importDataRecordDAO = importDataRecordDAO;
 	}
 
 	/**
@@ -150,11 +150,11 @@ final class FoundationFetcherImpl implements Fetcher {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");
 					}
-					ImportData importData = new ImportData(dataSource, UNUSED_IMPORT_DATA_FIELD,
-														   UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
-														   caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
-														   caseID + FOUNDATION_FILE_EXTENSION, UNUSED_IMPORT_DATA_FIELD);
-					importDataDAO.importData(importData);
+					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, UNUSED_IMPORT_DATA_FIELD,
+                                                                             UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
+                                                                             caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
+                                                                             caseID + FOUNDATION_FILE_EXTENSION, UNUSED_IMPORT_DATA_FIELD);
+					importDataRecordDAO.importDataRecord(importDataRecord);
 				}
 				catch (ServerSOAPFaultException e) {
 					// we get here if record does not exist on server side (yet)

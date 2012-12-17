@@ -29,8 +29,8 @@
 package org.mskcc.cbio.importer.dao.internal;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
-import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
+import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,13 +49,13 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Hibernate implementation of ImportDataDAO.
+ * Hibernate implementation of ImportDataRecordDAO.
  */
 @Repository
-class ImportDataHibernateDAO implements ImportDataDAO {
+class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ImportDataHibernateDAO.class);
+	private static final Log LOG = LogFactory.getLog(ImportDataRecordHibernateDAO.class);
 
     // session factory prop/methods used by spring
     private SessionFactory sessionFactory;
@@ -66,119 +66,119 @@ class ImportDataHibernateDAO implements ImportDataDAO {
     private Session getSession() { return getSessionFactory().getCurrentSession(); }
 
 	/**
-	 * Persists the given ImportData object.
+	 * Persists the given ImportDataRecord object.
 	 *
-	 * @param importData ImportData
+	 * @param importDataRecord ImportDataRecord
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public void importData(final ImportData importData) {
+	public void importDataRecord(final ImportDataRecord importDataRecord) {
 
 		Session session = getSession();
 
 		// check for existing object
-		ImportData existing = getImportDataByTumorAndDatatypeAndDataFilename(importData.getTumorType(), importData.getDatatype(), importData.getDataFilename());
+		ImportDataRecord existing = getImportDataRecordByTumorAndDatatypeAndDataFilename(importDataRecord.getTumorType(), importDataRecord.getDatatype(), importDataRecord.getDataFilename());
 		if (existing != null) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
-						 " and datatype: " + importData.getDatatype() + " already exists, manually merging.");
+				LOG.info("importDataRecord(), ImportDataRecord object for tumor type: " + importDataRecord.getTumorType() +
+						 " and datatype: " + importDataRecord.getDatatype() + " already exists, manually merging.");
 			}
-			existing.setDataSource(importData.getDataSource());
-			existing.setTumorType(importData.getTumorType());
-			existing.setDatatype(importData.getDatatype());
-			existing.setRunDate(importData.getRunDate());
-			existing.setCanonicalPathToData(importData.getCanonicalPathToData());
-			existing.setDigest(importData.getDigest());
+			existing.setDataSource(importDataRecord.getDataSource());
+			existing.setTumorType(importDataRecord.getTumorType());
+			existing.setDatatype(importDataRecord.getDatatype());
+			existing.setRunDate(importDataRecord.getRunDate());
+			existing.setCanonicalPathToData(importDataRecord.getCanonicalPathToData());
+			existing.setDigest(importDataRecord.getDigest());
 			session.update(existing);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importData(), ImportData object for tumor type: " + importData.getTumorType() +
-						 " and datatype: " + importData.getDatatype() + " does not exist, saving.");
-				session.save(importData);
+				LOG.info("importDataRecord(), ImportDataRecord object for tumor type: " + importDataRecord.getTumorType() +
+						 " and datatype: " + importDataRecord.getDatatype() + " does not exist, saving.");
+				session.save(importDataRecord);
 			}
 		}
 
 		session.flush();
 		session.clear();
 		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), importData object has been successfully saved or merged.");
+			LOG.info("importDataRecord(), importDataRecord object has been successfully saved or merged.");
 		}
 	}
 
     /**
-     * Functon to retrieve all ImportData.
+     * Functon to retrieve all ImportDataRecord.
 	 *
-	 * @return Collection<ImportData>
+	 * @return Collection<ImportDataRecord>
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportData> getImportData() {
+    public Collection<ImportDataRecord> getImportDataRecords() {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataAll");
-        List<ImportData> toReturn = query.list();
-        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordAll");
+        List<ImportDataRecord> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
     }
 
     /**
-     * Functon to retrieve ImportData via tumor type and data type.
+     * Functon to retrieve ImportDataRecord via tumor type and data type.
 	 *
 	 * @param tumorType String
 	 * @param dataType String
-	 * @return ImportData
+	 * @return ImportDataRecord
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportData> getImportDataByTumorAndDatatype(final String tumorType, final String datatype) {
+    public Collection<ImportDataRecord> getImportDataRecordByTumorAndDatatype(final String tumorType, final String datatype) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatype");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatype");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
-		List<ImportData> toReturn = query.list();
-        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
+		List<ImportDataRecord> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
     }
 
     /**
-     * Functon to retrieve ImportData via tumor type, data type, and data source.
+     * Functon to retrieve ImportDataRecord via tumor type, data type, and data source.
 	 *
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param dataSource String
-	 * @return Collection<ImportData>
+	 * @return Collection<ImportDataRecord>
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportData> getImportDataByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource) {
+    public Collection<ImportDataRecord> getImportDataRecordByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataSource");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataSource");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("datasource", dataSource);
-		List<ImportData> toReturn = query.list();
-        return (toReturn.size() > 0) ? new ArrayList<ImportData>(toReturn) : Collections.EMPTY_SET;
+		List<ImportDataRecord> toReturn = query.list();
+        return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
 	}
 
     /**
-     * Functon to retrieve ImportData via tumor type and data type and data filename
+     * Functon to retrieve ImportDataRecord via tumor type and data type and data filename
 	 *
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param dataFilename String
-	 * @return ImportData
+	 * @return ImportDataRecord
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public ImportData getImportDataByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename) {
+    public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataByTumorAndDatatypeAndDataFilename");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("datafilename", dataFilename);
-        return (ImportData)query.uniqueResult();
+        return (ImportDataRecord)query.uniqueResult();
     }
 
 	/**

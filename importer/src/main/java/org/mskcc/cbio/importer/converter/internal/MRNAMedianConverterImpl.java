@@ -112,18 +112,18 @@ public final class MRNAMedianConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices DataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 1) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		if (dataMatrices.length != 1) {
+			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
-		DataMatrix dataMatrix = importDataMatrices[0];
+		DataMatrix dataMatrix = dataMatrices[0];
 
 		// add gene id column, rename gene symbol col
 		if (LOG.isInfoEnabled()) {

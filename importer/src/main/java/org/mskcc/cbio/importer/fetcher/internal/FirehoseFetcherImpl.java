@@ -33,12 +33,12 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
@@ -94,7 +94,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private FileUtils fileUtils;
 
 	// ref to import data
-	private ImportDataDAO importDataDAO;
+	private ImportDataRecordDAO importDataRecordDAO;
 
 	// ref to database utils
 	private DatabaseUtils databaseUtils;
@@ -113,16 +113,16 @@ final class FirehoseFetcherImpl implements Fetcher {
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
-	 * @param importDataDAO ImportDataDAO;
+	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
 	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils,
-							   final DatabaseUtils databaseUtils, final ImportDataDAO importDataDAO) {
+							   final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
-		this.importDataDAO = importDataDAO;
+		this.importDataRecordDAO = importDataRecordDAO;
 	}
 
 	/**
@@ -393,7 +393,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// first delete records in db with givin dataSource
 		// we do this in the event that the desired datatypes to download have changed
-		importDataDAO.deleteByDataSource(dataSource);
+		importDataRecordDAO.deleteByDataSource(dataSource);
 
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
@@ -432,17 +432,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 			}
             // url
             String canonicalPath = dataFile.getCanonicalPath();
-            // create an store a new ImportData object
+            // create an store a new ImportDataRecord object
             for (DatatypeMetadata datatype : datatypes) {
 				Set<String> archivedFiles = datatype.getArchivedFiles(dataFile.getName());
 				if (archivedFiles.size() == 0 && LOG.isInfoEnabled()) {
 					LOG.info("storeData(), cannot find any archivedFiles for archive: " + dataFile.getName());
 				}
 				for (String downloadFile : archivedFiles) {
-					ImportData importData = new ImportData(dataSource, tumorType.toLowerCase(), datatype.getDatatype(),
-														   PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
-														   downloadFile, DatatypeMetadataUtils.getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));
-					importDataDAO.importData(importData);
+					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, tumorType.toLowerCase(), datatype.getDatatype(),
+                                                                             PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
+                                                                             downloadFile, DatatypeMetadataUtils.getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));
+					importDataRecordDAO.importDataRecord(importDataRecord);
 				}
             }
 		}

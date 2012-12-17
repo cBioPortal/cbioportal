@@ -123,31 +123,31 @@ public final class Methylation27ConverterImpl implements Converter {
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudy String
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices DataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
 	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] importDataMatrices) throws Exception {
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 2) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 2, aborting...");
+		if (dataMatrices.length != 2) {
+			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
 		}
 
 		// determine which matrix is methylation data
 		// and which matrix is the correlation data
 		DataMatrix dataMatrixMethylationData = null;
 		DataMatrix dataMatrixCorrelationData = null;
-		if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME) &&
-			importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME)) {
-			dataMatrixCorrelationData = importDataMatrices[0];
-			dataMatrixMethylationData = importDataMatrices[1];
+		if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME) &&
+			dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME)) {
+			dataMatrixCorrelationData = dataMatrices[0];
+			dataMatrixMethylationData = dataMatrices[1];
 		}
-		else if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME) &&
-				 importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME)) {
-			dataMatrixMethylationData = importDataMatrices[0];
-			dataMatrixCorrelationData = importDataMatrices[1];
+		else if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME) &&
+				 dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME)) {
+			dataMatrixMethylationData = dataMatrices[0];
+			dataMatrixCorrelationData = dataMatrices[1];
 		}
 		else {
 			throw new IllegalArgumentException("Cannot determine correlation & methylation data matrices, aborting...");

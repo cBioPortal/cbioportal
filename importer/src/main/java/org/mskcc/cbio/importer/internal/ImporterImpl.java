@@ -35,18 +35,23 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.util.ClassLoader;
 import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
+import org.mskcc.cbio.cgds.scripts.ImportCaseList;
+import org.mskcc.cbio.cgds.scripts.ImportCancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
+import java.lang.reflect.Method;
 
 /**
  * Class which implements the Importer interface.
@@ -133,13 +138,15 @@ final class ImporterImpl implements Importer {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), importing reference data...");
 		}
-		importAllReferenceData();
+		//importAllReferenceData();
+
+		// move import overrides?
 
 		// load staging files
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), loading staging files...");
 		}
-		loadStagingFiles();
+		loadStagingFiles(portalMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete!, exiting...");
@@ -201,7 +208,53 @@ final class ImporterImpl implements Importer {
 
 	/**
 	 * Helper function to import all staging data.
+	 *
+	 * @param portalMetadata PortalMetadata
 	 */
-	private void loadStagingFiles() throws Exception {
+	private void loadStagingFiles(final PortalMetadata portalMetadata) throws Exception {
+
+		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
+
+		// iterate over all cancer studies
+		for (String cancerStudy : portalMetadata.getCancerStudies()) {
+
+			// import cancer name / metadata
+			String[] args = { cancerStudy,
+							  (portalMetadata.getStagingDirectory() +
+							   File.separator + cancerStudy + ".txt") };
+			ImportCancerStudy.main(args);
+
+			// iterate over all datatypes
+			for (String datatype : portalMetadata.getDatatypes()) {
+
+				// get the DatatypeMetadata object
+				DatatypeMetadata datatypeMetadata = DatatypeMetadataUtils.getDatatypeMetadata(datatype, datatypeMetadatas);
+				if (datatypeMetadata == null) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("loadStagingFiles(), unrecognized datatype: " + datatype + ", skipping");
+					}
+					continue;
+				}
+				// get the metafile/staging file for this cancer_study / datatype
+				String stagingFilename =  (portalMetadata.getStagingDirectory() +
+										   File.separator + datatypeMetadata.getStagingFilename());
+				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
+				if (datatypeMetadata.requiresMetafile()) {
+					String metaFilename = (portalMetadata.getStagingDirectory() +
+										   File.separator + datatypeMetadata.getMetaFilename());
+					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
+				}
+				else {
+					args = new String[] { stagingFilename, cancerStudy };
+				}
+				Method mainMethod = ClassLoader.getMainMethod(datatypeMetadata.getImporterClassName());
+				mainMethod.invoke(null, (Object)args);
+			}
+
+			// process case lists
+			args = new String[] { (portalMetadata.getStagingDirectory() + File.separator +
+								   cancerStudy + File.separator + "case_lists") };
+			ImportCaseList.main(args);
+		}
 	}
 }

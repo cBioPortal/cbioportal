@@ -44,6 +44,7 @@ import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 import org.mskcc.cbio.importer.util.ClassLoader;
+import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -152,7 +153,7 @@ final class ConverterImpl implements Converter {
 			for (String datatype : portalMetadata.getDatatypes()) {
 
 				// get the DatatypeMetadata object
-				DatatypeMetadata datatypeMetadata = getDatatypeMetadata(datatype, datatypeMetadatas);
+				DatatypeMetadata datatypeMetadata = DatatypeMetadataUtils.getDatatypeMetadata(datatype, datatypeMetadatas);
 				if (datatypeMetadata == null) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), unrecognized datatype: " + datatype + ", skipping");
@@ -310,26 +311,6 @@ final class ConverterImpl implements Converter {
 								   "?user=" + databaseUtils.getDatabaseUser() +
 								   "&password=" + databaseUtils.getDatabasePassword());
 		idMapper.initMapper(connectionString);
-	}
-
-	/**
-	 * Helper function to get datatype metadata object for given datatype.
-	 *
-	 * @param datatype String
-	 * @param datatypeMetadata Collection<datatypeMetadata>
-	 * @return DatatypeMetadata
-	 */
-	private DatatypeMetadata getDatatypeMetadata(final String datatype,
-												 final Collection<DatatypeMetadata> datatypeMetadata) {
-		
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-            if (dtMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
-				return dtMetadata;
-            }
-		}
-
-		// outta here
-		return null;
 	}
 
 	/**

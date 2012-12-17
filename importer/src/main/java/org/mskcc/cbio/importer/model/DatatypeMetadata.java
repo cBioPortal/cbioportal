@@ -39,6 +39,11 @@ import java.util.LinkedHashSet;
  */
 public final class DatatypeMetadata {
 
+	public static final String NUM_CASES_TAG = "<NUM_CASES>";
+	public static final String NUM_GENES_TAG = "<NUM_GENES>";
+	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
+	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:
@@ -117,12 +122,9 @@ public final class DatatypeMetadata {
 		this.dependencies = (dependencies != null) ?
 			this.dependencies = dependencies.split(DEPENDENCIES_DELIMITER) : new String[0];
 
-		if (downloadArchive == null) {
-            throw new IllegalArgumentException("downloadArchive must not be null");
-		}
-		else {
-			archives = new LinkedHashSet<String>();
-			archivedFiles = new HashMap<String, String>();
+		archives = new LinkedHashSet<String>();
+		archivedFiles = new HashMap<String, String>();
+		if (downloadArchive != null) {
 			for (String archivePair : downloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
 				String archive = parts[0].trim();
@@ -162,7 +164,7 @@ public final class DatatypeMetadata {
 		this.importerClassName = importerClassName.trim();
 
 		if (requiresMetafile == null) {
-			throw new IllegalArgumentException("requires metaFilen must not be null");
+			throw new IllegalArgumentException("requires metaFilename must not be null");
 		}
 		this.requiresMetafile = requiresMetafile;
 

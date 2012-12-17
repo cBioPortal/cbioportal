@@ -40,6 +40,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataDAO;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +57,6 @@ import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -423,7 +423,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), getting datatypes for dataFile: " + dataFile.getName());
 			}
-            Collection<DatatypeMetadata> datatypes = getFileDatatype(dataFile.getName(), datatypeMetadata);
+            Collection<DatatypeMetadata> datatypes = DatatypeMetadataUtils.getFileDatatype(dataFile.getName(), datatypeMetadata);
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), found " + datatypes.size() + " datatypes found for dataFile: " + dataFile.getName());
 				if (datatypes.size() > 0) {
@@ -441,54 +441,10 @@ final class FirehoseFetcherImpl implements Fetcher {
 				for (String downloadFile : archivedFiles) {
 					ImportData importData = new ImportData(dataSource, tumorType.toLowerCase(), datatype.getDatatype(),
 														   PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
-														   downloadFile, getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));
+														   downloadFile, DatatypeMetadataUtils.getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));
 					importDataDAO.importData(importData);
 				}
             }
 		}
-	}
-
-	/**
-	 * Helper function to determine the datatype of the firehose file.
-	 *
-	 * @param filename String
-	 * @param datatypeMetadata Collection<datatypeMetadata>
-	 * @return Collection<DatatypeMetadata>
-	 */
-	private Collection<DatatypeMetadata> getFileDatatype(final String filename, final Collection<DatatypeMetadata> datatypeMetadata) {
-
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			for (String archive : dtMetadata.getDownloadArchives()) {
-				if (filename.contains(archive)) {
-					toReturn.add(dtMetadata);
-				}
-			}
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
-	 * Helper function to get datatype override file.
-	 *
-	 * @param datatype String
-	 * @param datatypeMetadata Collection<DatatypeMetadata>
-	 * @return String
-	 */
-	private String getDatatypeOverrideFilename(final String datatype, final Collection<DatatypeMetadata> datatypeMetadata) {
-
-        String toReturn = "";
-
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-            if (dtMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
-                toReturn = dtMetadata.getOverrideFilename();
-                break;
-            }
-		}
-
-		// outta here
-		return toReturn;
 	}
 }

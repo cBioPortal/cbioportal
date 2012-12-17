@@ -171,7 +171,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @return Collection<File>
      */
     @Override
-    public Collection<File> listFiles(final File directory, String[] extensions, boolean recursive) throws Exception {
+    public Collection<File> listFiles(final File directory, final String[] extensions, final boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
     }
@@ -343,7 +343,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
@@ -400,7 +400,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we already have input (oncotatorOutputFile)
 		// output should be the path/name of staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replaceAll("<CANCER_STUDY>", cancerStudy);
+		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudy,
 																   stagingFilename);
@@ -510,11 +510,11 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(caseListFile, false));
 		writer.print("cancer_study_identifier: " + cancerStudy + "\n");
 		String stableID = caseListMetadata.getMetaStableID();
-		stableID = stableID.replaceAll("<CANCER_STUDY>", cancerStudy);
+		stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
 		writer.print("stable_id: " + stableID + "\n");
 		writer.print("case_list_name: " + caseListMetadata.getMetaCaseListName() + "\n");
 		String caseListDescription = caseListMetadata.getMetaCaseListDescription();
-		caseListDescription = caseListDescription.replaceAll("<NUM_CASES>", Integer.toString(caseList.length));
+		caseListDescription = caseListDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(caseList.length));
 		writer.print("case_list_description: " + caseListDescription + "\n");
 		writer.print("case_list_category: " + caseListMetadata.getMetaCaseListCategory() + "\n");
 		writer.print("case_list_ids: ");
@@ -550,15 +550,15 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("cancer_study_identifier: " + cancerStudy + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
-			stableID = stableID.replaceAll("<CANCER_STUDY>", cancerStudy);
+			stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
 			writer.print("stable_id: " + stableID + "\n");
 			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
 			if (importDataMatrix != null) {
-				profileDescription = profileDescription.replaceAll("<NUM_GENES>", Integer.toString(importDataMatrix.getGeneIDs().size()));
-				profileDescription = profileDescription.replaceAll("<NUM_CASES>", Integer.toString(importDataMatrix.getCaseIDs().size()));
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(importDataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(importDataMatrix.getCaseIDs().size()));
 			}
-			profileDescription = profileDescription.replaceAll("<TUMOR_TYPE>", cancerStudy.split("_")[0]);
+			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudy.split("_")[0]);
 			writer.print("profile_description: " + profileDescription + "\n");
 			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();

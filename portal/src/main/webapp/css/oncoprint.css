@@ -22,12 +22,6 @@ rect.cna.HOMODELETED {
     fill: #0000FF;
 }
 
-/*
-rect.mutation.none {
-    fill: transparent;
-}
-*/
-
 rect.mutation.mut {
     fill: #008000;
 }
@@ -46,10 +40,12 @@ rect.mrna.DOWNREGULATED {
     stroke-opacity: 0.5;
 }
 
-path.rppa-light {
-    fill: "lightGrey";
+path.rppa.light {
+    fill: #D3D3D3;
+    stroke: "#000000"
 }
 
-path.rppa-dark {
-    fill: "black";
+path.rppa.dark {
+    fill: "#000000";
+    stroke: "none"
 }

@@ -64,10 +64,10 @@ var Oncoprint = function(wrapper, params) {
         return state.width_scalar * unscaled;
     };
 
-    var getTrianglePath = function(up) {
+    var getTrianglePath = function(rect_width, up) {
 
         var getTriangleBase = function() {
-            return getRectWidth() / 2;
+            return rect_width / 2;
         };
 
         var base = getTriangleBase();
@@ -117,21 +117,29 @@ var Oncoprint = function(wrapper, params) {
         var sample = track.selectAll('.sample')
             .data(join_with_hugo, function(d) { return d.sample;});
 
-        // enter
-        var sample_enter = sample.enter().append('g')
-            .attr('class', 'sample')
+        // update
+        sample.transition()
+            .duration(500)
             .attr('transform', function(d) {
                 return translate(x(d.sample), y(hugo));
             });
 
-        var width = getRectWidth();
+        // enter
+        var sample_enter = sample.enter()
+            .append('g')
+                .attr('class', 'sample')
+                .attr('transform', function(d) {
+                    return translate(x(d.sample), y(hugo));
+                });
+
+        var rect_width = getRectWidth();
 
         var cna = sample_enter.append('rect')
             .attr('class', function(d) {
                 var cna = query.data(d.sample, hugo, 'cna');
                 return 'cna ' + (cna === null ? 'none' : cna);
             })
-            .attr('width', width)
+            .attr('width', rect_width)
             .attr('height', RECT_HEIGHT);
 
         var mrna = sample_enter.append('rect')
@@ -139,7 +147,7 @@ var Oncoprint = function(wrapper, params) {
                 var mrna = query.data(d.sample, hugo, 'mrna');
                 return 'mrna ' + (mrna === null ? 'none' : mrna);
             })
-            .attr('width', width)
+            .attr('width', rect_width)
             .attr('height', RECT_HEIGHT);
 
         // remove all the null mrna squares
@@ -155,7 +163,7 @@ var Oncoprint = function(wrapper, params) {
             })
 //            .attr('x', -1)
             .attr('y', LITTLE_RECT_HEIGHT)
-            .attr('width', width)
+            .attr('width', rect_width)
 //            .attr('width', mutation_width)
             .attr('height', LITTLE_RECT_HEIGHT);
 
@@ -165,15 +173,15 @@ var Oncoprint = function(wrapper, params) {
             return mutation === null;
         }).remove();
 
-        var up_triangle = getTrianglePath(true);
-        var down_triangle = getTrianglePath(false);
+        var up_triangle = getTrianglePath(rect_width, true);
+        var down_triangle = getTrianglePath(rect_width, false);
 
         var rppa = sample_enter.append('path')
             .attr('class', function(d) {
                 if (query.data(d.sample, hugo, 'cna') === null) {
-                    return 'rppa-dark';
+                    return 'rppa dark';
                 }
-                return 'rppa-light';
+                return 'rppa light';
             })
             .attr('d', function(d) {
                 var rppa = query.data(d.sample, hugo, 'rppa');
@@ -200,7 +208,7 @@ var Oncoprint = function(wrapper, params) {
 //            .transition()
 //            .duration(750)
 //            .attr('transform', function(d) {
-//                return translate(3000, y(hugo));
+//                return translate(10000000, y(hugo));
 //            })
             .remove();
     };
@@ -366,8 +374,8 @@ var Oncoprint = function(wrapper, params) {
                 .duration(1000)
                 .attr('width', rect_width);
 
-            var up_triangle = getTrianglePath(true);
-            var down_triangle = getTrianglePath(false);
+            var up_triangle = getTrianglePath(rect_width, true);
+            var down_triangle = getTrianglePath(rect_width, false);
             transition.selectAll('.rppa')
                 .transition()
                 .duration(1000)

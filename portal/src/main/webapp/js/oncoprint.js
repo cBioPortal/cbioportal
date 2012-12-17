@@ -204,13 +204,7 @@ var Oncoprint = function(wrapper, params) {
         }).remove();
 
         // exit
-        var sample_exit = sample.exit()
-//            .transition()
-//            .duration(750)
-//            .attr('transform', function(d) {
-//                return translate(10000000, y(hugo));
-//            })
-            .remove();
+        var sample_exit = sample.exit().remove();
     };
 
     var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
@@ -333,11 +327,6 @@ var Oncoprint = function(wrapper, params) {
                 .text(gene_obj.percent_altered);
 
             visKeySetup();
-
-            //todo: why doesn't this work?
-//            var samples_copy = samples_all.map(function(i) { return i;});
-//            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
-//            redraw(samples_copy, track, hugo);
 
             redraw(visualized_samples, track, hugo);
         });

@@ -3,6 +3,7 @@ var Oncoprint = function(wrapper, params) {
 
     var RECT_HEIGHT = 23;
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
+    var MRNA_STROKE_WIDTH = 1;
     var UPREGULATED = "UPREGULATED";
     var DOWNREGULATED = "DOWNREGULATED";
     var MRNA_UP_COLOR = "#FF9999";
@@ -109,9 +110,9 @@ var Oncoprint = function(wrapper, params) {
     };
 
     // scales
-    var x = d3.scale.ordinal().rangeBands([0, getXScale(samples_all.length)], 0);
+    var x = d3.scale.ordinal().rangeBands([MRNA_STROKE_WIDTH, getXScale(samples_all.length)], 0);
 
-    var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
+    var y = d3.scale.ordinal().rangeBands([MRNA_STROKE_WIDTH, getHeight()], 0)
         .domain(genes_list);
 
     that.getData = function() {
@@ -159,8 +160,8 @@ var Oncoprint = function(wrapper, params) {
         var mrna = sample_enter.append('rect')
             .attr('class', 'mrna')
             .attr('fill', 'none')
-            .attr('stroke-width', 1)
-            .attr('stroke-opacity', 0.5)
+            .attr('stroke-width', MRNA_STROKE_WIDTH)
+            .attr('stroke-opacity', 1)
             .attr('width', rect_width)
             .attr('height', RECT_HEIGHT)
             .attr('stroke', function(d) {
@@ -369,7 +370,7 @@ var Oncoprint = function(wrapper, params) {
         var no_samples = samples_visualized.length;
 
         x.domain(samples_visualized);
-        x.rangeBands([0, getXScale(no_samples)]);
+        x.rangeBands([MRNA_STROKE_WIDTH, getXScale(no_samples)]);
 
         svg.selectAll('.track')[0].forEach(function(val, i) {
 

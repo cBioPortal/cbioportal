@@ -129,12 +129,12 @@ var Oncoprint = function(wrapper, params) {
         var sample = track.selectAll('.sample')
             .data(join_with_hugo, function(d) { return d.sample;});
 
-        // update
-        sample.transition()
-            .duration(500)
-            .attr('transform', function(d) {
-                return translate(x(d.sample), y(hugo));
-            });
+//        // update
+//        sample.transition()
+//            .duration(500)
+//            .attr('transform', function(d) {
+//                return translate(x(d.sample), y(hugo));
+//            });
 
         // enter
         var sample_enter = sample.enter()
@@ -375,26 +375,27 @@ var Oncoprint = function(wrapper, params) {
 
             var hugo = genes_list[i];
 
-            var transition = d3.select(val).transition();
+//            var transition = d3.select(val).transition();
+            var transition = d3.select(val);
 
             transition.selectAll('.sample')
-                .transition()
-                .duration(1000)
+//                .transition()
+//                .duration(1000)
                 .attr('transform', function(d) {
                     return translate(x(d.sample), y(hugo));
                 });
 
             var rect_width = getRectWidth();
             transition.selectAll('rect')
-                .transition()
-                .duration(1000)
+//                .transition()
+//                .duration(1000)
                 .attr('width', rect_width);
 
             var up_triangle = getTrianglePath(rect_width, true);
             var down_triangle = getTrianglePath(rect_width, false);
             transition.selectAll('.rppa')
-                .transition()
-                .duration(1000)
+//                .transition()
+//                .duration(1000)
                 .attr('d', function(d) {
                     var rppa = query.data(d.sample, hugo, 'rppa');
 

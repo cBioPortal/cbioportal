@@ -78,6 +78,13 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Override
     public String getDatabaseConnectionString() { return this.databaseConnectionString; }
 
+	// db schema
+	private String databaseSchemaCanonicalPath;
+	@Value("${database_schema_canonical_path}")
+	public void setDatabaseSchemaCanonicalPath(final String databaseSchemaCanonicalPath) { this.databaseSchemaCanonicalPath = databaseSchemaCanonicalPath; }
+	@Override
+    public String getDatabaseSchemaCanonicalPath() { return this.databaseSchemaCanonicalPath; }
+
 	// importer database name
 	private String importerDatabaseName;
 	@Value("${importer_database_name}")

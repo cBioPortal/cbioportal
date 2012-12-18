@@ -31,6 +31,7 @@ package org.mskcc.cbio.importer.model;
 // imports
 import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.Converter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -405,7 +406,7 @@ public final class ImportDataMatrix {
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.ignoreColumn) continue;
 			writer.print(columnHeader.label);
-			writer.print("\t");
+			writer.print(Converter.CASE_DELIMITER);
 		}
 		writer.println();
 
@@ -418,7 +419,7 @@ public final class ImportDataMatrix {
 				if (columnHeader.ignoreColumn) continue;
 				writer.print(columnHeader.columnData.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
-					writer.print("\t");
+					writer.print(Converter.CASE_DELIMITER);
 				}
 			}
 			writer.println();

@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourceMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 
 import java.util.Collection;
 
@@ -42,6 +43,8 @@ import java.util.Collection;
  * Interface used to get/set configuration properties.
  */
 public interface Config {
+
+	public static final String ALL_METADATA = "all"; // const used when requesting all of a metadata type
 
 	/**
 	 * Gets a collection of TumorTypeMetadata.
@@ -65,6 +68,13 @@ public interface Config {
 	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
 
 	/**
+	 * Gets a collection of CaseListMetadata.
+	 *
+	 * @return Collection<CaseListMetadata>
+	 */
+	Collection<CaseListMetadata> getCaseListMetadata();
+
+	/**
 	 * Gets a PortalMetadata object given a portal name.
 	 *
      * @param portal String
@@ -74,14 +84,15 @@ public interface Config {
 
 	/**
 	 * Gets ReferenceMetadata for the given referenceType.
+	 * If referenceType == Config.ALL_METADATA, all are returned.
 	 *
 	 * @param referenceType String
-	 * @return ReferenceMetadata
+	 * @return Collection<ReferenceMetadata>
 	 */
-	ReferenceMetadata getReferenceMetadata(String referenceType);
+	Collection<ReferenceMetadata> getReferenceMetadata(String referenceType);
 
 	/**
-	 * Gets DataSourceMetadata for the given dataSource.  If dataSource == "all",
+	 * Gets DataSourceMetadata for the given dataSource.  If dataSource == Config.ALL_METADATA,
 	 * all are returned.
 	 *
 	 * @param dataSource String

@@ -40,6 +40,7 @@ public interface Converter {
 
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
+	public static final String CASE_DELIMITER = "\t";
 
 	/**
 	 * Converts data for the given portal.

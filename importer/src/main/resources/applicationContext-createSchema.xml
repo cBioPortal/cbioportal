@@ -10,7 +10,7 @@
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
  
   <context:annotation-config />
-  <context:property-placeholder location="file:${PORTAL_HOME}/portal.properties"/>
+  <context:property-placeholder location="classpath:/portal.properties"/>
 
   <!-- hibernate session factory -->
   <b:bean id="importerSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">

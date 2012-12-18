@@ -9,9 +9,9 @@
 
   <!-- module metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>portal-importer-admin</artifactId>
-  <name>Portal Importer Admin</name>
-  <description>Admin Module for Portal Importer</description>
+  <artifactId>portal-importer</artifactId>
+  <name>Portal Importer</name>
+  <description>Importer Module for Portal</description>
 
   <!-- repositories -->
   <repositories>
@@ -21,13 +21,6 @@
 	  <url>https://raw.github.com/eburtsev/gdata-maven/master/</url>
 	</repository>
   </repositories>
-
-  <!-- properties -->
-  <properties>
-	<spring.version>3.0.5.RELEASE</spring.version>
-	<hibernate.version>3.6.9.Final</hibernate.version>
-	<slf4j.version>1.5.8</slf4j.version>
-  </properties>
 
   <!-- profiles -->
   <profiles>
@@ -90,13 +83,6 @@
       <artifactId>commons-compress</artifactId>
       <version>1.4.1</version>
     </dependency>
-            
-	<!-- apache commons logging -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
 
     <!-- apache commons io -->
     <dependency>
@@ -122,6 +108,13 @@
 	  <version>1.1.0</version>
 	</dependency>
 
+	<!-- for foundation -->
+	<dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>2.2.6</version>
+    </dependency>
+
 	<!-- google -->
 	<dependency>
 	  <groupId>com.google.collections</groupId>
@@ -141,26 +134,11 @@
 	  <version>${hibernate.version}</version>
 	</dependency>
 
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
-
 	<!-- mutation assessor tool -->
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>
 	  <artifactId>mutation-assessor</artifactId>
 	  <version>${project.version}</version>
-	</dependency>
-
-	<!-- mysql -->
-	<dependency>
-	  <groupId>mysql</groupId>
-	  <artifactId>mysql-connector-java</artifactId>
-	  <version>5.1.10</version>
-	  <scope>runtime</scope>
 	</dependency>
 
 	<!-- oncotator -->
@@ -169,67 +147,6 @@
 	  <artifactId>oncotator</artifactId>
 	  <version>${project.version}</version>
 	</dependency>	
-
-	<!-- spring -->
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-core</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-expression</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-beans</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-aop</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-context</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-tx</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-orm</artifactId>
-	  <version>${spring.version}</version>
-	</dependency>
-
-	<!-- slf4j -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-log4j12</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-api</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>jcl-over-slf4j</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
-
-	<!-- for foundation -->
-	<dependency>
-      <groupId>com.sun.xml.ws</groupId>
-      <artifactId>jaxws-rt</artifactId>
-      <version>2.2.6</version>
-    </dependency>
 
   </dependencies>
 
@@ -249,46 +166,81 @@
 		</configuration>
 	  </plugin>
 
-	  <!-- assembly -->
+	  <!-- use this instead of maven-assembly-plugin -->
+	  <!-- to prevent inclusion of org-apache-commons-dbcp -->
+	  <!-- which now lives in core and causes jar creation -->
+	  <!-- issues when using maven-assembly-plugin -->
 	  <plugin>
-		<artifactId>maven-assembly-plugin</artifactId>
-		<version>2.2-beta-5</version>
-		<configuration>
-		  <descriptorRefs>
-			<descriptorRef>jar-with-dependencies</descriptorRef>
-		  </descriptorRefs>
-		  <archive>
-			<manifest>
-			  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
-			</manifest>
-		  </archive>
-		</configuration>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-shade-plugin</artifactId>
+		<version>2.0</version>
 		<executions>
 		  <execution>
-			<id>make-assembly</id>
 			<phase>package</phase>
 			<goals>
-			  <goal>single</goal>
+			  <goal>shade</goal>
 			</goals>
+			<configuration>
+			  <createDependencyReducedPom>false</createDependencyReducedPom>
+			  <artifactSet>
+				<excludes>
+				  <exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+				</excludes>
+			  </artifactSet>
+			  <transformers>
+				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+				  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
+				</transformer>
+			  </transformers>
+			</configuration>
+		  </execution>
+		</executions>
+	  </plugin>
+
+	  <!-- this plugin lets us grab shared resources from our parent -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-resources-plugin</artifactId>
+		<executions>
+		  <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+			  <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+			  <resources>
+				<resource>
+				  <directory>${project.parent.basedir}/src/main/resources</directory>
+				  <includes>
+					<include>**/*.properties</include>
+				  </includes>
+				  <excludes>
+					<exclude>**/build.properties.*</exclude>
+					<exclude>**/log4j.properties.*</exclude>
+					<exclude>**/*.EXAMPLE</exclude>
+				  </excludes>
+				</resource>
+			  </resources>
+            </configuration>
 		  </execution>
 		</executions>
 	  </plugin>
 
 	</plugins>
 
-	<!-- properties file used for filter - use build.properties -->
+	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into package -->
 	<resources>
 	  <resource>
 		<directory>src/main/resources</directory>
+		<!-- we want to filter application context files with values from portal.properties -->
 		<filtering>true</filtering>
-		<excludes>
-		  <exclude>portal.properties*</exclude>
-		</excludes>
 	  </resource>
 	</resources>
 

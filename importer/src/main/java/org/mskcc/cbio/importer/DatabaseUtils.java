@@ -58,6 +58,13 @@ public interface DatabaseUtils {
     public String getDatabaseConnectionString();
 
 	/**
+	 * Returns the database schema filename.
+	 *
+	 * @return String
+	 */
+    public String getDatabaseSchemaCanonicalPath();
+
+	/**
 	 * Returns the importer database name.
 	 *
 	 * @return String

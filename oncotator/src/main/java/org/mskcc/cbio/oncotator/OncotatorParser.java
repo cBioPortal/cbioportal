@@ -42,17 +42,25 @@ public class OncotatorParser
 	 * Parses the JSON returned by the oncotator web service, and returns
 	 * the information as a new OncotateRecord instance.
 	 * 
-	 * @param key			chr#_start_end_allele1_allele2
-	 * @param json			JSON object returned by the web service
-	 * @return				new OncotatorRecord, or null if JSON has an error
-	 * @throws java.io.IOException
+	 * @param key   chr#_start_end_allele1_allele2
+	 * @param json  JSON object returned by the web service
+	 * @return      new OncotatorRecord, or null if JSON has an error
 	 */
-    public static OncotatorRecord parseJSON (String key, String json) throws IOException
+    public static OncotatorRecord parseJSON(String key, String json)
     {
         ObjectMapper m = new ObjectMapper();
-        JsonNode rootNode = m.readValue(json, JsonNode.class);
-        
-        OncotatorRecord oncoRecord = new OncotatorRecord(key);
+	    JsonNode rootNode = null;
+
+	    // return null if cannot read root node
+	    try {
+		    rootNode = m.readValue(json, JsonNode.class);
+	    }
+	    catch (IOException e) {
+		    e.printStackTrace();
+		    return null;
+	    }
+
+	    OncotatorRecord oncoRecord = new OncotatorRecord(key);
         oncoRecord.setRawJson(json);
 
         // check if JSON has an ERROR
@@ -127,6 +135,12 @@ public class OncotatorParser
 		JsonNode proteinChange = transcriptNode.path("protein_change");
 		JsonNode geneSymbol = transcriptNode.path("gene");
 		JsonNode exonAffected = transcriptNode.path("exon_affected");
+		JsonNode refseqMrnaId = transcriptNode.path("refseq_mRNA_id");
+		JsonNode refseqProtId = transcriptNode.path("refseq_prot_id");
+		JsonNode uniprotName = transcriptNode.path("uniprot_entry_name");
+		JsonNode uniprotAccession = transcriptNode.path("uniprot_accession");
+		JsonNode codonChange = transcriptNode.path("codon_change");
+		JsonNode transcriptChange = transcriptNode.path("transcript_change");
 
 		// construct a transcript instance for the parsed nodes
 
@@ -150,6 +164,36 @@ public class OncotatorParser
 		if (!exonAffected.isMissingNode())
 		{
 			transcript.setExonAffected(exonAffected.getIntValue());
+		}
+
+		if (!refseqMrnaId.isMissingNode())
+		{
+			transcript.setRefseqMrnaId(refseqMrnaId.getTextValue());
+		}
+
+		if (!refseqProtId.isMissingNode())
+		{
+			transcript.setRefseqProtId(refseqProtId.getTextValue());
+		}
+
+		if (!uniprotName.isMissingNode())
+		{
+			transcript.setUniprotName(uniprotName.getTextValue());
+		}
+
+		if (!uniprotAccession.isMissingNode())
+		{
+			transcript.setUniprotAccession(uniprotAccession.getTextValue());
+		}
+
+		if (!codonChange.isMissingNode())
+		{
+			transcript.setCodonChange(codonChange.getTextValue());
+		}
+
+		if (!transcriptChange.isMissingNode())
+		{
+			transcript.setTranscriptChange(transcriptChange.getTextValue());
 		}
 
 		return transcript;

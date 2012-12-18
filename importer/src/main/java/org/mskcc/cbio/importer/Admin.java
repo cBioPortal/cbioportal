@@ -104,6 +104,11 @@ public class Admin implements Runnable {
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
 
+        Option generateCaseLists = (OptionBuilder.withArgName("portal")
+									.hasArg()
+									.withDescription("generate case lists for the given portal")
+									.create("generate_case_lists"));
+
         Option importReferenceData = (OptionBuilder.withArgName("reference_type")
 									  .hasArg()
 									  .withDescription("import given reference data")
@@ -123,6 +128,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
+		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
 
@@ -182,6 +188,10 @@ public class Admin implements Runnable {
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
 				convertData(commandLine.getOptionValue("convert_data"));
+			}
+			// convert data
+			else if (commandLine.hasOption("generate_case_lists")) {
+				generateCaseLists(commandLine.getOptionValue("generate_case_lists"));
 			}
 			// import reference data
 			else if (commandLine.hasOption("import_reference_data")) {
@@ -262,10 +272,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (referenceMetadata != null) {
+		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (!referenceMetadata.isEmpty()) {
 			Fetcher fetcher = (Fetcher)context.getBean("referenceDataFetcher");
-			fetcher.fetchReferenceData(referenceMetadata);
+			fetcher.fetchReferenceData(referenceMetadata.iterator().next());
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -294,6 +304,25 @@ public class Admin implements Runnable {
 	}
 
 	/**
+	 * Helper function to generate case lists.
+     *
+     * @param portal String
+     *
+	 * @throws Exception
+	 */
+	private void generateCaseLists(final String portal) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("generateCaseLists(), portal: " + portal);
+		}
+
+		// create an instance of Converter
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Converter converter = (Converter)context.getBean("converter");
+		converter.generateCaseLists(portal);
+	}
+
+	/**
 	 * Helper function to import reference data.
      *
      * @param referenceType String
@@ -309,10 +338,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		ReferenceMetadata referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (referenceMetadata != null) {
+		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
+		if (!referenceMetadata.isEmpty()) {
 			Importer importer = (Importer)context.getBean("importer");
-			importer.importReferenceData(referenceMetadata);
+			importer.importReferenceData(referenceMetadata.iterator().next());
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -367,12 +396,9 @@ public class Admin implements Runnable {
 		}
 
 		// configure logging
-		String home = System.getenv("PORTAL_HOME");
-		if (home == null) {
-			System.err.println("Please set PORTAL_HOME environment variable " +
-							   " (point to a directory where portal.properties exists).");
-		}
-		PropertyConfigurator.configure(home + File.separator + "log4j.properties");
+		Properties props = new Properties();
+		props.load(Admin.class.getResourceAsStream("/log4j.properties"));
+		PropertyConfigurator.configure(props);
 
 		// process
 		Admin admin = new Admin();

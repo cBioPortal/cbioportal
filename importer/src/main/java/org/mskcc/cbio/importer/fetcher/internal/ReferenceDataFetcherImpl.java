@@ -82,12 +82,18 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	@Override
 	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFile());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFileDestination());
+		// sanity check
+		if (referenceMetadata.getReferenceFileSource() == null ||
+			referenceMetadata.getReferenceFileSource().length() == 0) {
+			throw new IllegalArgumentException("referenceMetadata.getReferenceFileSource() must not be null, aborting");
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFile(),
-							   referenceMetadata.getReferenceFileDestination());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource());
+			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile());
+		}
+
+		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource(),
+							   referenceMetadata.getReferenceFile());
 	}
 }

@@ -377,11 +377,12 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, `CANCER_STUDY_ID`, me1.`MUTATION_EVENT_ID`"
-                    + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
+            String sql = "SELECT `CASE_ID`, gp.`CANCER_STUDY_ID`, me1.`MUTATION_EVENT_ID`"
+                    + " FROM case_mutation_event cme, genetic_profile gp, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
                     + " AND me1.`KEYWORD`=me2.`KEYWORD`"
-                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
+                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`"
+                    + " AND cme.`GENETIC_PROFILE_ID`=gp.`GENETIC_PROFILE_ID`";
             pstmt = con.prepareStatement(sql);
             
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();

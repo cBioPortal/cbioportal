@@ -220,5 +220,18 @@
 	  </plugin>
 	</plugins>
   </reporting>
+  
+        <distributionManagement>
+                <snapshotRepository>
+                        <id>portal.snapshots</id>
+                        <name>cBio Portal Snapshots Repository</name>
+                        <url>${portal.snapshot.url}</url>
+                </snapshotRepository>
+                <repository>
+                        <id>portal.releases</id>
+                        <name>cBio Portal Releases Repository</name>
+                        <url>${portal.release.url}</url>
+                </repository>
+        </distributionManagement>
 
 </project>

@@ -38,8 +38,8 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.util.Shell;
-import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
 import org.mskcc.cbio.cgds.scripts.ImportCaseList;
 import org.mskcc.cbio.cgds.scripts.ImportCancerStudy;
@@ -167,7 +167,7 @@ final class ImporterImpl implements Importer {
 		// Check for a main method, if found, use it, otherwise assume we have a class
 		// that implements the Importer interface.
 
-		Method mainMethod = ClassLoader.getMainMethod(referenceMetadata.getImporterClassName());
+		Method mainMethod = ClassLoader.getMethod(referenceMetadata.getImporterClassName(), "main");
 		if (mainMethod != null) {
 			String [] args = referenceMetadata.getReferenceFile().split(ReferenceMetadata.REFERENCE_FILE_DELIMITER);
 			mainMethod.invoke(null, (Object)args);
@@ -187,19 +187,19 @@ final class ImporterImpl implements Importer {
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
 		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata()) {
-			cancerFileContents.append(tumorType.getTumorTypeID());
-			cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_DELIMITER);
-			cancerFileContents.append(tumorType.getTumorTypeDescription());
+			cancerFileContents.append(tumorType.getType());
+			cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
+			cancerFileContents.append(tumorType.getName());
 			cancerFileContents.append("\n");
 		}
-		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_REFERENCE_FILE_NAME,
+		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_META_FILE_NAME,
 															  cancerFileContents.toString());
 		String[] importCancerTypesArgs = { cancerFile.getCanonicalPath() };
 		ImportTypesOfCancers.main(importCancerTypesArgs);
 		cancerFile.delete();
 		
 		// iterate over all other reference data types
-		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL_METADATA)) {
+		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL)) {
 			if (referenceData.importIntoPortal()) {
 				importReferenceData(referenceData);
 			}
@@ -216,44 +216,40 @@ final class ImporterImpl implements Importer {
 		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
 
 		// iterate over all cancer studies
-		for (String cancerStudy : portalMetadata.getCancerStudies()) {
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
 			// import cancer name / metadata
-			String[] args = { cancerStudy,
+			String[] args = { cancerStudyMetadata.toString(),
 							  (portalMetadata.getStagingDirectory() +
-							   File.separator + cancerStudy + ".txt") };
+							   cancerStudyMetadata.getStudyPath() +
+							   File.separator + cancerStudyMetadata.toString() +
+							   CancerStudyMetadata.CANCER_STUDY_METADATA_FILE_EXT) };
 			ImportCancerStudy.main(args);
 
 			// iterate over all datatypes
-			for (String datatype : portalMetadata.getDatatypes()) {
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
-				// get the DatatypeMetadata object
-				DatatypeMetadata datatypeMetadata = DatatypeMetadataUtils.getDatatypeMetadata(datatype, datatypeMetadatas);
-				if (datatypeMetadata == null) {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("loadStagingFiles(), unrecognized datatype: " + datatype + ", skipping");
-					}
-					continue;
-				}
 				// get the metafile/staging file for this cancer_study / datatype
 				String stagingFilename =  (portalMetadata.getStagingDirectory() +
+										   cancerStudyMetadata.getStudyPath() +
 										   File.separator + datatypeMetadata.getStagingFilename());
-				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudy);
+				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 				if (datatypeMetadata.requiresMetafile()) {
 					String metaFilename = (portalMetadata.getStagingDirectory() +
+										   cancerStudyMetadata.getStudyPath() +
 										   File.separator + datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
 				else {
-					args = new String[] { stagingFilename, cancerStudy };
+					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
 				}
-				Method mainMethod = ClassLoader.getMainMethod(datatypeMetadata.getImporterClassName());
+				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
 				mainMethod.invoke(null, (Object)args);
 			}
 
 			// process case lists
 			args = new String[] { (portalMetadata.getStagingDirectory() + File.separator +
-								   cancerStudy + File.separator + "case_lists") };
+								   cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
 			ImportCaseList.main(args);
 		}
 	}

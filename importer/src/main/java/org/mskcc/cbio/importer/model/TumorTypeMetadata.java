@@ -31,38 +31,40 @@ package org.mskcc.cbio.importer.model;
 // imports
 
 /**
- * Class which contains cancer study metadata.
+ * Class which contains tumor type  metadata.
  */
 public final class TumorTypeMetadata {
 
-	public static final String TUMOR_TYPE_DELIMITER = " : "; // delimiter between id & description
-	public static final String TUMOR_TYPE_REGEX = "<CANCER>"; // regex used in tumor type description
-	public static final String TUMOR_TYPE_REFERENCE_FILE_NAME = "cancers.txt"; // name of reference file created to import into portal
+    // delimiter between tumor type & name within the reference file
+	public static final String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
+
+    // name of reference file created to import into portal
+	public static final String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
 
 	// bean properties
-	private String tumorTypeID;
-	private String tumorTypeDescription;
+	private String tumorType;
+	private String tumorTypeName;
 	private Boolean download; // download?
 
     /**
      * Create a TumorTypeMetadata instance with specified properties.
      *
-	 * @param tumorTypeID String
-	 * @param tumorTypeDescription String
+	 * @param tumorType String
+	 * @param tumorTypeName String
 	 * @param download Boolean
      */
-    public TumorTypeMetadata(final String tumorTypeID,
-							 final String tumorTypeDescription, final Boolean download) {
+    public TumorTypeMetadata(final String tumorType,
+							 final String tumorTypeName, final Boolean download) {
 
-		if (tumorTypeID == null) {
-            throw new IllegalArgumentException("tumorTypeID must not be null");
+		if (tumorType == null) {
+            throw new IllegalArgumentException("tumorType must not be null");
 		}
-		this.tumorTypeID = tumorTypeID.trim();
+		this.tumorType = tumorType.trim();
 
-		if (tumorTypeDescription == null) {
-            throw new IllegalArgumentException("tumorTypeDescription must not be null");
+		if (tumorTypeName == null) {
+            throw new IllegalArgumentException("tumorTypeName must not be null");
 		}
-		this.tumorTypeDescription = tumorTypeDescription.trim();
+		this.tumorTypeName = tumorTypeName.trim();
 
 		if (download == null) {
             throw new IllegalArgumentException("download must not be null");
@@ -70,7 +72,7 @@ public final class TumorTypeMetadata {
 		this.download = download;
 	}
 
-	public String getTumorTypeID() { return tumorTypeID; }
-	public String getTumorTypeDescription() { return tumorTypeDescription; }
+	public String getType() { return tumorType; }
+	public String getName() { return tumorTypeName; }
 	public Boolean getDownload() { return download; }
 }

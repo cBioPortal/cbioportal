@@ -63,7 +63,7 @@
   <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
   </b:bean>
-  <b:bean id="firehoseFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
+  <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>

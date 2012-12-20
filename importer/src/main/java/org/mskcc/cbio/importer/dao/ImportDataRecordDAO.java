@@ -52,26 +52,17 @@ public interface ImportDataRecordDAO {
     Collection<ImportDataRecord> getImportDataRecords();
 
     /**
-     * Functon to retrieve ImportDataRecord via tumor type and data type.
+     * Functon to retrieve ImportDataRecord via tumor type, data type, and center.
 	 *
 	 * @param tumorType String
 	 * @param dataType String
+	 * @param center String
 	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecordByTumorAndDatatype(final String tumorType, final String datatype);
+    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(final String tumorType, final String datatype, final String center);
 
     /**
-     * Functon to retrieve ImportDataRecord via tumor type, data type, and data source.
-	 *
-	 * @param tumorType String
-	 * @param dataType String
-	 * @param dataSource String
-	 * @return Collection<ImportDataRecord>
-     */
-    Collection<ImportDataRecord> getImportDataRecordByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource);
-
-    /**
-     * Functon to retrieve ImportDataRecord via tumor type and data type and data filename
+     * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename
 	 *
 	 * @param tumorType String
 	 * @param dataType String

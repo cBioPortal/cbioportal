@@ -32,7 +32,7 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.cli.Option;
@@ -243,16 +243,16 @@ public class Admin implements Runnable {
 		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		DataSourceMetadata dataSourceMetadata = null;
-		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
+		DataSourcesMetadata dataSourcesMetadata = null;
+		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
 		if (!dataSources.isEmpty()) {
-			dataSourceMetadata = dataSources.iterator().next();
+			dataSourcesMetadata = dataSources.iterator().next();
 		}
 		// sanity check
-		if (dataSourceMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		if (dataSourcesMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
 		}
-		Fetcher fetcher = (Fetcher)context.getBean(dataSourceMetadata.getFetcherBeanID());
+		Fetcher fetcher = (Fetcher)context.getBean(dataSourcesMetadata.getFetcherBeanID());
 		fetcher.fetch(dataSource, runDate);
 	}
 

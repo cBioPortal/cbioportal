@@ -35,7 +35,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 
 import org.foundation.*;
@@ -81,7 +81,7 @@ final class FoundationFetcherImpl implements Fetcher {
 	private DatabaseUtils databaseUtils;
 
 	// download directories
-	private DataSourceMetadata dataSourceMetadata;
+	private DataSourcesMetadata dataSourcesMetadata;
 
 	/**
 	 * Constructor.
@@ -116,14 +116,14 @@ final class FoundationFetcherImpl implements Fetcher {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 		}
 
-		// get our DataSourceMetadata object
-		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
+		// get our DataSourcesMetadata object
+		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
 		if (!dataSources.isEmpty()) {
-			this.dataSourceMetadata = dataSources.iterator().next();
+			this.dataSourcesMetadata = dataSources.iterator().next();
 		}
 		// sanity check
-		if (this.dataSourceMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		if (this.dataSourcesMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -145,15 +145,15 @@ final class FoundationFetcherImpl implements Fetcher {
 				}
 				try {
 					String caseRecord = foundationService.getCase(caseID);
-					File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory(),
+					File caseFile = fileUtils.createFileWithContents(dataSourcesMetadata.getDownloadDirectory(),
 																	 caseID + FOUNDATION_FILE_EXTENSION, caseRecord);
 					if (LOG.isInfoEnabled()) {
 						LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");
 					}
-					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, UNUSED_IMPORT_DATA_FIELD,
+					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, dataSource, UNUSED_IMPORT_DATA_FIELD,
                                                                              UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
                                                                              caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
-                                                                             caseID + FOUNDATION_FILE_EXTENSION, UNUSED_IMPORT_DATA_FIELD);
+                                                                             caseID + FOUNDATION_FILE_EXTENSION);
 					importDataRecordDAO.importDataRecord(importDataRecord);
 				}
 				catch (ServerSOAPFaultException e) {

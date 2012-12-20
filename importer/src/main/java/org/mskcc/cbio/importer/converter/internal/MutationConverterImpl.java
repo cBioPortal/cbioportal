@@ -38,6 +38,7 @@ import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,19 +102,32 @@ public final class MutationConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(final String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Applies overrides to the given portal.
+	 *
+     * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(final String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
 								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
@@ -127,13 +141,13 @@ public final class MutationConverterImpl implements Converter {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
 		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
-			fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
+			fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
 			}
-			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dataMatrix);
+			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

@@ -48,10 +48,8 @@ import org.hibernate.annotations.NaturalId;
 @NamedQueries({
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordAll",
                             query="from ImportDataRecord as importdatarecord order by tumortype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatype",
-							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype order by tumortype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataSource",
-							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datasource = :datasource order by tumortype"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenter",
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = ~datatype and center = :center order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename",
 							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.deleteByDataSource",
@@ -66,6 +64,8 @@ public final class ImportDataRecord {
 	private long id;
 	@Column(nullable=false)
 	private String dataSource;
+	@Column(nullable=false)
+	private String center;
 	@NaturalId
 	@Column(nullable=false)
 	private String tumorType;
@@ -81,8 +81,6 @@ public final class ImportDataRecord {
 	@NaturalId
     @Column(nullable=false)
     private String dataFilename;
-    @Column(nullable=true)
-    private String overrideFilename;
 
 	/**
 	 * Default Constructor.
@@ -93,26 +91,27 @@ public final class ImportDataRecord {
      * Create a ImportDataRecord instance with specified properties.
      *
 	 * @param dataSource String
+	 * @param center String
 	 * @param tumorType String
 	 * @param datatype String
 	 * @param runDate String
 	 * @param canonicalPath String
 	 * @param digest String
      * @param dataFilename String
-     * @param overrideFilename
      */
-    public ImportDataRecord(final String dataSource, final String tumorType, final String datatype,
-					  final String runDate, final String canonicalPath, final String digest,
-                      final String dataFilename, final String overrideFilename) {
+    public ImportDataRecord(final String dataSource, final String center,
+							final String tumorType, final String datatype,
+							final String runDate, final String canonicalPath,
+							final String digest, final String dataFilename) {
         
 		setDataSource(dataSource);
+		setCenter(center);
 		setTumorType(tumorType);
 		setDatatype(datatype);
 		setRunDate(runDate);
 		setCanonicalPathToData(canonicalPath);
 		setDigest(digest);
         setDataFilename(dataFilename);
-        setOverrideFilename(overrideFilename);
 	}
 
 	/**
@@ -134,6 +133,26 @@ public final class ImportDataRecord {
 	 * @return String
 	 */
 	public String getDataSource() { return dataSource; }
+
+	/**
+	 * Sets the center.
+	 *
+	 * @param center String
+	 */
+	public void setCenter(final String center) {
+
+		if (center == null) {
+            throw new IllegalArgumentException("center must not be null");
+		}
+		this.center = center;
+	}
+
+	/**
+	 * Gets the center.
+	 *
+	 * @return String
+	 */
+	public String getCenter() { return center; }
 
 	/**
 	 * Sets the tumor type.
@@ -254,21 +273,4 @@ public final class ImportDataRecord {
 	 * @return String
 	 */
 	public String getDataFilename() { return dataFilename; }
-
-	/**
-	 * Sets the override filename.
-	 *
-	 * @param overrideFilename String
-	 */
-	public void setOverrideFilename(final String overrideFilename) {
-
-		this.overrideFilename = (overrideFilename == null) ? "" : overrideFilename;
-	}
-
-	/**
-	 * Gets the override filename.
-	 *
-	 * @return String
-	 */
-	public String getOverrideFilename() { return overrideFilename; }
 }

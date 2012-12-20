@@ -7,7 +7,7 @@
         </h4>
 
         <form id="oncoprintForm" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST"
-              onsubmit="this.elements['xml'].value=Oncoprint.getOncoPrintBodyXML($('#oncoprint_body svg')[1]); return true;" target="_blank">
+              onsubmit="this.elements['xml'].value=oncoprint.getOncoPrintBodyXML(); return true;" target="_blank">
             <input type="hidden" name="xml">
             <input type="hidden" name="longest_label_length">
             <input type="hidden" name="format" value="svg">

@@ -112,7 +112,7 @@ var Oncoprint = function(wrapper, params) {
     // scales
     var x = d3.scale.ordinal().rangeBands([MRNA_STROKE_WIDTH, getXScale(samples_all.length)], 0);
 
-    var y = d3.scale.ordinal().rangeBands([MRNA_STROKE_WIDTH, getHeight()], 0)
+    var y = d3.scale.ordinal().rangeBands([0, getHeight()], 0)
         .domain(genes_list);
 
     that.getData = function() {
@@ -230,19 +230,23 @@ var Oncoprint = function(wrapper, params) {
     that.getSvg = function() { return svg; };
 
     // ** icing on the cake functions **
+
+    var visualizedKeys = function(data_types) {
+        // helper function
+        return $('#oncoprint_key').children().filter(function(i, el) {
+            return data_types.indexOf($(el).attr('id')) !== -1;
+        });
+    };
+
     var visKeySetup = function() {
         // hide/show keys for relevant data types
         var data_types = query.data_types;
 
         d3.select('#oncoprint_key').style('padding-left', (label_width + getRectWidth()) + "px");
 
-        $('#oncoprint_key').children().each(function(i, el) {
-            if(data_types.indexOf($(el).attr('id')) === -1) {
-                $(el).hide();
-            } else {
-                $(el).show();
-            }
-        });
+        // NB. not hiding keys that don't have data,
+        // relying on the page to refresh for that
+        visualizedKeys(data_types).show();
     };
 
     var makeQtip = function() {
@@ -312,7 +316,7 @@ var Oncoprint = function(wrapper, params) {
         var table_wrap = d3.select(wrapper).append('table').append('tr');
 
         var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
-            .attr('id', "oncoprint_label")
+            .attr('id', "label")
             .attr('width', label_width)
             .attr('height', getHeight());
 
@@ -323,6 +327,7 @@ var Oncoprint = function(wrapper, params) {
             .style('overflow-y', 'hidden');
 
         svg = body_wrap.append('svg')
+            .attr('id', 'body')
             .attr('width', getXScale(samples_all.length))
             .attr('height', getHeight());
 
@@ -456,18 +461,35 @@ var Oncoprint = function(wrapper, params) {
             transition();
         });
     };
+
+//  For the given oncoprint reference, returns the SVG Dom as string
+//  for the body canvas.
+    that.getOncoPrintBodyXML = function() {
+        // hard coding this for now
+
+        var labels = $('#oncoprint svg#label').children().clone();
+        var tracks = $('#oncoprint svg#body').children().clone();
+
+        tracks.each(function(track_i, track) {
+            // for each track loop over the samples
+            $(track).children().each(function(sample_i, sample) {
+                $(sample).attr('transform', translate(x(sample_i) + label_width, y(track_i)));
+            });
+        });
+
+        var export_svg = $('<svg>')
+            .attr('width', getXScale(samples_all.length))
+            .attr('height', getHeight());
+
+
+        export_svg
+            .append(labels)
+            .append(tracks);
+//            .append(visualizedKeys(query.data_types));
+
+        return (new XMLSerializer()).serializeToString(export_svg[0]);
+    };
+
     return that;
 };
 
-/*
- * For the given oncoprint reference, returns the SVG Dom as string
- * for the body canvas.
- *
- * oncoprint - opaque reference to oncoprint system
- *
- */
-Oncoprint.getOncoPrintBodyXML = function(svg_el) {
-    // outta here
-//    return (new XMLSerializer()).serializeToString(oncoprint.body_canvas.canvas);
-    return (new XMLSerializer()).serializeToString(svg_el);
-};
